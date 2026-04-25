@@ -45,6 +45,7 @@
     $balanceDue = floatval($finance['balance_due'] ?? max(0, $totalAmount - $paidSoFar));
     $showSettlementSummary = $isInvoice || $isExpense;
     $showFinanceForms = has_permission('finance', 'edit') && ($isInvoice || $isExpense);
+    $showProviderPayoutForms = has_permission('finance', 'edit') && !empty($provider_payouts);
     $settlementCardTitle = $isExpense ? lang('Finance.expenseSettlementOverview') : lang('Finance.invoiceSettlementOverview');
     $recordPaymentTitle = $isExpense ? lang('Finance.recordExpensePayment') : lang('Finance.recordInvoicePayment');
     $markFullyPaidLabel = $isExpense ? lang('Finance.markExpenseAsFullyPaid') : lang('Finance.markInvoiceAsFullyPaid');
@@ -131,6 +132,21 @@
             'methodRequired' => 'Payment Method *',
             'optionalNote' => 'Optional note...',
             'refundNote' => 'Refund Note',
+        ];
+    $providerPayoutUi = $isRtl
+        ? [
+            'action' => 'إضافة دفعة مقدم الخدمة',
+            'kicker' => 'دفعة مقدم الخدمة',
+            'notice' => 'أدخل بيانات دفعة مقدم الخدمة. يتم تحديث رصيد المستحق بعد الحفظ.',
+            'save' => 'حفظ الدفعة',
+            'balanceReady' => 'رصيد مستحق جاهز للدفع',
+        ]
+        : [
+            'action' => 'Add Provider Payment',
+            'kicker' => 'Provider Payment',
+            'notice' => 'Enter the provider payment details. The provider balance updates after saving.',
+            'save' => 'Save Payment',
+            'balanceReady' => 'Provider balance ready to settle',
         ];
 ?>
 <style>
@@ -1252,37 +1268,20 @@
                                     </div>
 
                                     <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
-                                        <form class="provider-payout-payment-form grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
-                                              data-url="<?= esc(base_url('finance/payouts/' . (int) $providerPayout['id'] . '/payments')) ?>">
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.amount') ?></label>
-                                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayout['provider_balance_due'] ?? 0) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                                        <?php $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id']; ?>
+                                        <div class="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                            <div class="<?= $isRtl ? 'text-right' : 'text-left' ?>">
+                                                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($providerPayoutUi['balanceReady']) ?></p>
+                                                <p class="mt-1 text-sm font-bold text-slate-900"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
                                             </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.method') ?></label>
-                                                <select name="payment_method" class="provider-payout-method-input w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                                    <option value="cash"><?= lang('Finance.cash') ?></option>
-                                                    <option value="card"><?= lang('Finance.card') ?></option>
-                                                    <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
-                                                    <option value="check"><?= lang('Finance.check') ?></option>
-                                                    <option value="other"><?= lang('Finance.other') ?></option>
-                                                </select>
-                                            </div>
-                                            <div class="provider-payout-liquidity-account-field hidden">
-                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.paidFromAccount') ?></label>
-                                                <select name="liquidity_account" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                                    <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
-                                                    <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.date') ?></label>
-                                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                            </div>
-                                                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
-                                                <i class="fas fa-plus"></i><?= lang('Finance.recordProviderPayout') ?>
+                                            <button type="button" onclick="openFinanceModal('<?= esc($providerPayoutModalId) ?>', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
+                                                <?php if ($isRtl): ?>
+                                                    <span><?= esc($providerPayoutUi['action']) ?></span><i class="fas fa-plus-circle"></i>
+                                                <?php else: ?>
+                                                    <i class="fas fa-plus-circle"></i><span><?= esc($providerPayoutUi['action']) ?></span>
+                                                <?php endif; ?>
                                             </button>
-                                        </form>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -1858,6 +1857,99 @@
     <?php endif; ?>
 <?php endif; ?>
 
+<?php if ($showProviderPayoutForms): ?>
+    <?php foreach ($provider_payouts as $providerPayout): ?>
+        <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) <= 0): ?>
+            <?php continue; ?>
+        <?php endif; ?>
+        <?php $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id']; ?>
+        <div id="<?= esc($providerPayoutModalId) ?>" class="fixed inset-0 z-50 hidden overflow-y-auto" data-finance-modal-root="<?= esc($providerPayoutModalId) ?>" role="dialog" aria-modal="true" aria-labelledby="<?= esc($providerPayoutModalId) ?>Title">
+            <div class="finance-inline-modal-backdrop fixed inset-0" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')"></div>
+            <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="if (event.target === this) closeFinanceModal('<?= esc($providerPayoutModalId) ?>')">
+                <div class="finance-inline-modal-panel max-w-3xl" onclick="event.stopPropagation()">
+                    <div class="finance-inline-modal-header">
+                        <div>
+                            <span class="finance-inline-modal-kicker">
+                                <i class="fas fa-user-md text-[11px]"></i>
+                                <span><?= esc($providerPayoutUi['kicker']) ?></span>
+                            </span>
+                            <h4 id="<?= esc($providerPayoutModalId) ?>Title" class="text-base font-semibold text-slate-900"><?= esc($providerPayoutUi['action']) ?></h4>
+                            <p class="mt-1 text-sm text-slate-500"><?= esc($providerPayoutUi['notice']) ?></p>
+                        </div>
+                        <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                    <form class="finance-inline-modal-form provider-payout-payment-form" data-url="<?= esc(base_url('finance/payouts/' . (int) $providerPayout['id'] . '/payments')) ?>" data-finance-modal-close="<?= esc($providerPayoutModalId) ?>">
+                        <?= csrf_field() ?>
+                        <div class="finance-inline-modal-grid finance-inline-modal-grid-3">
+                            <div class="group/field relative">
+                                <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
+                                    <i class="fas fa-dollar-sign text-emerald-600"></i>
+                                    <span><?= esc($ui['amountRequired']) ?></span>
+                                </label>
+                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayout['provider_balance_due'] ?? 0) ?>" class="finance-show-input" placeholder="0.00" required>
+                            </div>
+                            <div class="group/field relative">
+                                <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
+                                    <i class="fas fa-credit-card text-blue-600"></i>
+                                    <span><?= esc($ui['methodRequired']) ?></span>
+                                </label>
+                                <div class="relative">
+                                    <select name="payment_method" class="provider-payout-method-input finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
+                                        <option value="cash"><?= lang('Finance.cash') ?></option>
+                                        <option value="card"><?= lang('Finance.card') ?></option>
+                                        <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
+                                        <option value="check"><?= lang('Finance.check') ?></option>
+                                        <option value="other"><?= lang('Finance.other') ?></option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group/field relative">
+                                <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
+                                    <i class="fas fa-calendar-alt text-rose-600"></i>
+                                    <span><?= lang('Finance.dateRequired') ?></span>
+                                </label>
+                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="finance-show-input">
+                            </div>
+                        </div>
+                        <div class="finance-inline-modal-grid">
+                            <div class="provider-payout-liquidity-account-field group/field relative hidden">
+                                <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
+                                    <i class="fas fa-vault text-indigo-600"></i>
+                                    <span><?= lang('Finance.paidFromAccount') ?></span>
+                                </label>
+                                <div class="relative">
+                                    <select name="liquidity_account" class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
+                                        <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
+                                        <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                            </div>
+                        </div>
+                        <div class="finance-inline-modal-actions">
+                            <button type="button" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                <i class="fas fa-times text-xs"></i>
+                                <span><?= esc(lang('Finance.cancel')) ?></span>
+                            </button>
+                            <button type="submit" class="finance-show-btn finance-show-btn-success px-6 py-3 text-sm">
+                                <i class="fas fa-check-double"></i><?= esc($providerPayoutUi['save']) ?>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 <script>
 const financeBaseCurrency = '<?= esc($baseCurrency) ?>';
 let financeModalLastTrigger = null;
@@ -1904,7 +1996,7 @@ function closeFinanceModal(id) {
         return;
     }
     modal.classList.add('hidden');
-    if (!document.querySelector('#paymentModal:not(.hidden), #refundModal:not(.hidden)')) {
+    if (!document.querySelector('[data-finance-modal-root]:not(.hidden)')) {
         document.body.classList.remove('overflow-hidden');
     }
     if (financeModalLastTrigger && typeof financeModalLastTrigger.focus === 'function') {
@@ -1913,10 +2005,9 @@ function closeFinanceModal(id) {
 }
 
 function closeOpenFinanceModals() {
-    ['paymentModal', 'refundModal'].forEach((id) => {
-        const modal = document.getElementById(id);
-        if (modal && !modal.classList.contains('hidden')) {
-            closeFinanceModal(id);
+    document.querySelectorAll('[data-finance-modal-root]').forEach((modal) => {
+        if (!modal.classList.contains('hidden')) {
+            closeFinanceModal(modal.id);
         }
     });
 }
@@ -2247,6 +2338,7 @@ syncExpenseSettlementLiquidityField();
 document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
     const methodInput = form.querySelector('.provider-payout-method-input');
     const liquidityField = form.querySelector('.provider-payout-liquidity-account-field');
+    const modalToClose = form.dataset.financeModalClose;
 
     const syncProviderPayoutLiquidityField = () => {
         if (!methodInput || !liquidityField) {
@@ -2279,6 +2371,9 @@ document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
                 window.refreshCsrfToken(data.csrf_token);
             }
             if (data.success) {
+                if (modalToClose) {
+                    closeFinanceModal(modalToClose);
+                }
                 location.reload();
             } else {
                 alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
