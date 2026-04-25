@@ -182,22 +182,64 @@
     }
 
     .finance-show-page-header-top {
-        display: flex;
-        flex-direction: column;
+        display: grid;
         gap: 18px;
+        border: 1px solid #dbe7f5;
+        border-radius: 20px;
+        padding: 24px 28px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(244, 249, 255, 0.98) 100%);
+        box-shadow: 0 18px 32px -26px rgba(15, 23, 42, 0.28);
     }
 
     .finance-show-page-heading {
         display: flex;
         flex-direction: column;
+        gap: 14px;
+    }
+
+    .finance-show-page-title-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .finance-show-page-id {
+        font-size: 2.15rem;
+        line-height: 1.1;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .finance-show-page-submeta {
+        display: flex;
+        flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .finance-show-page-meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        border: 1px solid #d9e5f2;
+        background: rgba(255, 255, 255, 0.88);
+        padding: 8px 12px;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .finance-show-page-meta-chip strong {
+        color: #0f172a;
+        font-weight: 700;
     }
 
     .finance-show-page-meta {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         color: #64748b;
         font-size: 14px;
         font-weight: 500;
@@ -206,29 +248,65 @@
     .finance-show-page-actions {
         display: flex;
         flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 18px;
+        border-top: 1px solid #e4edf7;
+    }
+
+    .finance-show-page-action-cluster {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
         gap: 12px;
     }
 
-    [dir="rtl"] .finance-show-page-heading {
-        text-align: right;
+    .finance-show-page-header-top-rtl {
+        display: flex;
+        flex-direction: column;
         align-items: flex-end;
     }
 
-    [dir="rtl"] .finance-show-page-meta,
+    .finance-show-page-header-top-rtl .finance-show-page-heading {
+        text-align: right;
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .finance-show-page-header-top-rtl .finance-show-page-meta,
+    .finance-show-page-header-top-rtl .finance-show-page-submeta,
     [dir="rtl"] .finance-show-section-title {
         flex-direction: row-reverse;
     }
 
-    [dir="rtl"] .finance-show-page-header-top {
-        align-items: flex-end;
-    }
-
-    [dir="rtl"] .finance-show-page-actions {
-        direction: rtl;
+    .finance-show-page-header-top-rtl .finance-show-page-title-row,
+    .finance-show-page-header-top-rtl .finance-show-page-submeta {
+        width: 100%;
         justify-content: flex-end;
-        align-self: stretch;
     }
 
+    .finance-show-page-header-top-rtl .finance-show-page-id {
+        width: 100%;
+        text-align: right;
+    }
+
+    .finance-show-page-header-top-rtl .finance-show-page-actions {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .finance-show-page-header-top-rtl .finance-show-page-title-row,
+    .finance-show-page-header-top-rtl .finance-show-page-action-cluster {
+        flex-direction: row-reverse;
+    }
+
+    .finance-show-page-header-top-rtl .finance-show-page-submeta {
+        justify-content: flex-end;
+    }
+
+    .finance-show-page-header-top-rtl .finance-show-page-actions .finance-show-btn,
     [dir="rtl"] .finance-show-page-actions .finance-show-btn {
         flex-direction: row-reverse;
     }
@@ -769,12 +847,6 @@
             align-items: start;
         }
 
-        .finance-show-page-header-top {
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
         .finance-show-summary-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 32px;
@@ -822,14 +894,18 @@
             direction: ltr;
         }
 
-        [dir="rtl"] .finance-show-page-header-top {
-            flex-direction: column;
-            align-items: flex-end;
+        .finance-show-page-header-top {
+            padding: 28px 32px;
         }
 
-        [dir="rtl"] .finance-show-page-actions {
-            max-width: 100%;
+        .finance-show-page-actions {
+            flex-wrap: nowrap;
         }
+
+        .finance-show-page-action-cluster {
+            flex-wrap: nowrap;
+        }
+
     }
 
     @media (max-width: 767.98px) {
@@ -849,6 +925,18 @@
 
         .finance-show-summary-card {
             padding: 20px;
+        }
+
+        .finance-show-page-header-top {
+            padding: 20px;
+        }
+
+        .finance-show-page-actions {
+            padding-top: 16px;
+        }
+
+        .finance-show-page-id {
+            font-size: 1.85rem;
         }
 
         .finance-show-context-head {
@@ -877,49 +965,75 @@
         }
     }
 </style>
-<div class="finance-show-shell">
-    <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+<div class="finance-show-shell px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
         <section class="finance-show-page-header">
-            <div class="finance-show-page-header-top">
+            <div class="finance-show-page-header-top <?= $isRtl ? 'finance-show-page-header-top-rtl' : 'finance-show-page-header-top-ltr' ?>">
                 <div class="finance-show-page-heading">
-                    <div class="flex flex-wrap items-center gap-3">
+                    <div class="finance-show-page-title-row">
                         <h1 class="text-3xl font-bold text-slate-800"><?= esc($ui['pageTitle']) ?></h1>
                         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold <?= esc($statusTone['pill']) ?>">
                             <span class="h-2 w-2 rounded-full <?= esc($statusTone['dot']) ?>"></span>
                             <?= esc($paymentStatusLabel) ?>
                         </span>
                     </div>
-                    <p class="text-2xl font-bold text-slate-800"><?= esc('#' . $finance['transaction_id']) ?></p>
-                    <div class="finance-show-page-meta">
-                        <span><?= esc($ui['type']) ?>: <strong class="font-semibold text-slate-800"><?= esc($transactionTypeLabel) ?></strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span><?= esc($ui['date']) ?>: <strong class="font-semibold text-slate-800"><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span><?= esc($ui['method']) ?>: <strong class="font-semibold text-slate-800"><?= lang('Finance.' . $finance['payment_method']) ?></strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span><?= lang('Finance.currency') ?>: <strong class="font-semibold text-slate-800"><?= esc($baseCurrency) ?></strong></span>
+                    <p class="finance-show-page-id"><?= esc('#' . $finance['transaction_id']) ?></p>
+                    <div class="finance-show-page-submeta">
+                        <span class="finance-show-page-meta-chip"><?= esc($ui['type']) ?> <strong><?= esc($transactionTypeLabel) ?></strong></span>
+                        <span class="finance-show-page-meta-chip"><?= esc($ui['date']) ?> <strong><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></strong></span>
+                        <span class="finance-show-page-meta-chip"><?= esc($ui['method']) ?> <strong><?= lang('Finance.' . $finance['payment_method']) ?></strong></span>
+                        <span class="finance-show-page-meta-chip"><?= lang('Finance.currency') ?> <strong><?= esc($baseCurrency) ?></strong></span>
                     </div>
                 </div>
                 <div class="finance-show-page-actions">
-                    <?php if ($showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
-                    <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
-                        <i class="fas fa-plus-circle"></i><?= esc($ui['recordPayment']) ?>
-                    </button>
+                    <?php if ($isRtl): ?>
+                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--primary">
+                        <?php if ($showFinanceForms && $isInvoice): ?>
+                        <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-show-btn finance-show-btn-soft finance-show-btn-modal">
+                            <span><?= esc($ui['recordRefund']) ?></span><i class="fas fa-rotate-left text-rose-500"></i>
+                        </button>
+                        <?php endif; ?>
+                        <?php if ($showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                        <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
+                            <span><?= esc($ui['recordPayment']) ?></span><i class="fas fa-plus-circle"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--secondary">
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-show-btn finance-show-btn-soft">
+                            <span><?= esc($ui['back']) ?></span><i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-show-btn finance-show-btn-primary">
+                            <span><?= esc($ui['edit']) ?></span><i class="fas fa-pen"></i>
+                        </a>
+                        <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-show-btn finance-show-btn-soft">
+                            <span><?= esc($ui['exportPdf']) ?></span><i class="fas fa-file-pdf text-slate-500"></i>
+                        </a>
+                    </div>
+                    <?php else: ?>
+                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--primary">
+                        <?php if ($showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                        <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
+                            <i class="fas fa-plus-circle"></i><span><?= esc($ui['recordPayment']) ?></span>
+                        </button>
+                        <?php endif; ?>
+                        <?php if ($showFinanceForms && $isInvoice): ?>
+                        <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-show-btn finance-show-btn-soft finance-show-btn-modal">
+                            <i class="fas fa-rotate-left text-rose-500"></i><span><?= esc($ui['recordRefund']) ?></span>
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--secondary">
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-show-btn finance-show-btn-soft">
+                            <i class="fas fa-arrow-left"></i><span><?= esc($ui['back']) ?></span>
+                        </a>
+                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-show-btn finance-show-btn-primary">
+                            <i class="fas fa-pen"></i><span><?= esc($ui['edit']) ?></span>
+                        </a>
+                        <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-show-btn finance-show-btn-soft">
+                            <i class="fas fa-file-pdf text-slate-500"></i><span><?= esc($ui['exportPdf']) ?></span>
+                        </a>
+                    </div>
                     <?php endif; ?>
-                    <?php if ($showFinanceForms && $isInvoice): ?>
-                    <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-show-btn finance-show-btn-soft finance-show-btn-modal">
-                        <i class="fas fa-rotate-left text-rose-500"></i><?= esc($ui['recordRefund']) ?>
-                    </button>
-                    <?php endif; ?>
-                    <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-show-btn finance-show-btn-soft">
-                        <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><?= esc($ui['back']) ?>
-                    </a>
-                    <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-show-btn finance-show-btn-primary">
-                        <i class="fas fa-pen"></i><?= esc($ui['edit']) ?>
-                    </a>
-                    <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-show-btn finance-show-btn-soft">
-                        <i class="fas fa-file-pdf text-slate-500"></i><?= esc($ui['exportPdf']) ?>
-                    </a>
                 </div>
             </div>
         </section>
@@ -1468,7 +1582,6 @@
         </div>
 
         <?php endif; ?>
-    </div>
 </div>
 
 <?php if ($showFinanceForms): ?>
