@@ -135,19 +135,52 @@
         ];
     $providerPayoutUi = $isRtl
         ? [
-            'action' => 'إضافة دفعة مقدم الخدمة',
-            'kicker' => 'دفعة مقدم الخدمة',
-            'notice' => 'أدخل بيانات دفعة مقدم الخدمة. يتم تحديث رصيد المستحق بعد الحفظ.',
+            'sectionTitle' => 'دفعات الطبيب',
+            'sectionStatusOpen' => 'يوجد مبلغ متبق',
+            'sectionStatusClear' => 'مكتمل',
+            'collected' => 'المبلغ المحصل',
+            'doctorShare' => 'حصة الطبيب',
+            'paid' => 'تم دفعه',
+            'left' => 'المتبقي',
+            'clinicKeeps' => 'يبقى للعيادة',
+            'rule' => 'طريقة الحساب',
+            'history' => 'سجل الدفعات',
+            'historyHelp' => 'آخر الدفعات المسجلة لهذا الطبيب',
+            'historyEmpty' => 'لا توجد دفعات مسجلة بعد.',
+            'historyDate' => 'التاريخ',
+            'historyMethod' => 'الطريقة',
+            'historyAmount' => 'المبلغ',
+            'historyNotes' => 'ملاحظة',
+            'action' => 'دفع للطبيب',
+            'kicker' => 'دفعة طبيب',
+            'notice' => 'أدخل بيانات دفعة الطبيب. يتم تحديث الرصيد بعد الحفظ.',
             'save' => 'حفظ الدفعة',
-            'balanceReady' => 'رصيد مستحق جاهز للدفع',
+            'balanceReady' => 'مبلغ جاهز للدفع',
         ]
         : [
-            'action' => 'Add Provider Payment',
-            'kicker' => 'Provider Payment',
-            'notice' => 'Enter the provider payment details. The provider balance updates after saving.',
+            'sectionTitle' => 'Doctor Pay',
+            'sectionStatusOpen' => 'Amount left',
+            'sectionStatusClear' => 'Done',
+            'collected' => 'Collected',
+            'doctorShare' => 'Doctor Share',
+            'paid' => 'Paid',
+            'left' => 'Left to Pay',
+            'clinicKeeps' => 'Clinic Keeps',
+            'rule' => 'Rule',
+            'history' => 'Payment History',
+            'historyHelp' => 'Recent payments recorded for this doctor',
+            'historyEmpty' => 'No doctor payments recorded yet.',
+            'historyDate' => 'Date',
+            'historyMethod' => 'Method',
+            'historyAmount' => 'Amount',
+            'historyNotes' => 'Note',
+            'action' => 'Pay Doctor',
+            'kicker' => 'Doctor Payment',
+            'notice' => 'Enter the doctor payment details. The balance updates after saving.',
             'save' => 'Save Payment',
-            'balanceReady' => 'Provider balance ready to settle',
+            'balanceReady' => 'Amount ready to pay',
         ];
+    $providerPayoutPaymentHistory = $provider_payout_payment_history ?? [];
 ?>
 <style>
     .finance-show-shell {
@@ -1186,29 +1219,29 @@
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
                                 <i class="fas fa-hand-holding-dollar"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.providerSplit') ?></h2>
+                            <h2 class="text-xl font-bold text-gray-800"><?= esc($providerPayoutUi['sectionTitle']) ?></h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                             <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
-                            <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? esc(lang('Finance.partial')) : esc(lang('Finance.paid')) ?>
+                            <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? esc($providerPayoutUi['sectionStatusOpen']) : esc($providerPayoutUi['sectionStatusClear']) ?>
                         </span>
                     </div>
                     <div class="finance-show-card-body space-y-5">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.grossCollected') ?></p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['collected']) ?></p>
                                 <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout_summary['gross_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.totalProviderCompensation') ?></p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                 <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout_summary['provider_share_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.paidToProvider') ?></p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['paid']) ?></p>
                                 <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout_summary['provider_paid_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.balanceDue') ?></p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['left']) ?></p>
                                 <p class="mt-1 font-bold text-rose-700"><?= formatCurrency($provider_payout_summary['provider_balance_due'] ?? 0) ?></p>
                             </div>
                         </div>
@@ -1220,6 +1253,7 @@
                                     if ($providerDisplayName === '') {
                                         $providerDisplayName = $providerPayout['provider_name_snapshot'] ?? lang('Finance.guestProvider');
                                     }
+                                    $providerPayoutPayments = $providerPayoutPaymentHistory[(int) ($providerPayout['id'] ?? 0)] ?? [];
                                     $providerStatusKey = $providerPayout['status'] ?? 'unpaid';
                                     $providerStatusLabel = lang('Finance.' . $providerStatusKey);
                                     if ($providerStatusLabel === 'Finance.' . $providerStatusKey) {
@@ -1239,7 +1273,7 @@
                                                 </span>
                                             </div>
                                             <p class="mt-1 text-xs text-slate-500">
-                                                <?= lang('Finance.splitRule') ?>:
+                                                <?= esc($providerPayoutUi['rule']) ?>:
                                                 <?= esc(lang('Finance.' . ($providerPayout['split_mode'] ?? 'percentage'))) ?>
                                                 <?= esc($providerPayout['split_value'] ?? 0) ?><?= ($providerPayout['split_mode'] ?? '') === 'percent' ? '%' : '' ?>
                                             </p>
@@ -1249,22 +1283,60 @@
                                         </div>
                                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[34rem]">
                                             <div class="rounded-xl border border-slate-200 bg-white p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.providerShare') ?></p>
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-indigo-700"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
                                             </div>
                                             <div class="rounded-xl border border-slate-200 bg-white p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.paidToProvider') ?></p>
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['paid']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-emerald-700"><?= formatCurrency($providerPayout['provider_paid_amount'] ?? 0) ?></p>
                                             </div>
                                             <div class="rounded-xl border border-slate-200 bg-white p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.balanceDue') ?></p>
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
                                             </div>
                                             <div class="rounded-xl border border-slate-200 bg-white p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.clinicNet') ?></p>
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['clinicKeeps']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-sky-700"><?= formatCurrency($providerPayout['clinic_share_amount'] ?? 0) ?></p>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                                        <div class="flex items-center justify-between gap-3 px-4 py-3 bg-slate-50">
+                                            <div>
+                                                <h4 class="text-sm font-semibold text-slate-900"><?= esc($providerPayoutUi['history']) ?></h4>
+                                                <p class="mt-1 text-xs text-slate-500"><?= esc($providerPayoutUi['historyHelp']) ?></p>
+                                            </div>
+                                            <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                                <?= count($providerPayoutPayments) ?>
+                                            </span>
+                                        </div>
+                                        <?php if (!empty($providerPayoutPayments)): ?>
+                                            <div class="overflow-x-auto">
+                                                <table class="min-w-full text-sm">
+                                                    <thead class="bg-white">
+                                                        <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc($providerPayoutUi['historyDate']) ?></th>
+                                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc($providerPayoutUi['historyMethod']) ?></th>
+                                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc($providerPayoutUi['historyAmount']) ?></th>
+                                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc($providerPayoutUi['historyNotes']) ?></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-slate-100">
+                                                        <?php foreach ($providerPayoutPayments as $paymentRow): ?>
+                                                            <tr class="bg-white">
+                                                                <td class="px-4 py-3 text-slate-700"><?= !empty($paymentRow['paid_date']) ? esc(formatDate($paymentRow['paid_date'])) : '-' ?></td>
+                                                                <td class="px-4 py-3 text-slate-700"><?= esc(lang('Finance.' . ($paymentRow['payment_method'] ?? 'cash'))) ?></td>
+                                                                <td class="px-4 py-3 font-semibold text-slate-900"><?= formatCurrency($paymentRow['amount'] ?? 0) ?></td>
+                                                                <td class="px-4 py-3 text-slate-600"><?= !empty($paymentRow['notes']) ? esc($paymentRow['notes']) : '-' ?></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="px-4 py-4 text-sm text-slate-500"><?= esc($providerPayoutUi['historyEmpty']) ?></div>
+                                        <?php endif; ?>
                                     </div>
 
                                     <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
@@ -2338,13 +2410,21 @@ syncExpenseSettlementLiquidityField();
 document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
     const methodInput = form.querySelector('.provider-payout-method-input');
     const liquidityField = form.querySelector('.provider-payout-liquidity-account-field');
+    const liquidityInput = form.querySelector('select[name="liquidity_account"]');
     const modalToClose = form.dataset.financeModalClose;
 
     const syncProviderPayoutLiquidityField = () => {
         if (!methodInput || !liquidityField) {
             return;
         }
-        liquidityField.classList.toggle('hidden', methodInput.value !== 'check');
+        const isCheck = methodInput.value === 'check';
+        liquidityField.classList.toggle('hidden', !isCheck);
+        if (liquidityInput) {
+            liquidityInput.disabled = !isCheck;
+            if (!isCheck) {
+                liquidityInput.value = 'bank';
+            }
+        }
     };
 
     methodInput?.addEventListener('change', syncProviderPayoutLiquidityField);
@@ -2353,6 +2433,9 @@ document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = new FormData(form);
+        if (methodInput?.value !== 'check') {
+            formData.delete('liquidity_account');
+        }
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         const url = form.dataset.url;

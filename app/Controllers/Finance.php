@@ -1174,6 +1174,7 @@ class Finance extends BaseController
             'paid_total' => $paidTotal,
             'provider_payouts' => $providerPayouts,
             'provider_payout_summary' => $providerPayoutSummary,
+            'provider_payout_payment_history' => $this->getProviderPayoutPaymentHistoryByFinanceId((int) $clinicId, (int) $finance['id']),
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => $this->getFinanceCurrencyOptions(),
             'liquidity_account_options' => $this->getLiquidityAccountOptions(),
@@ -1195,6 +1196,41 @@ class Finance extends BaseController
         ];
 
         return $this->view('finance/show', $data);
+    }
+
+    private function getProviderPayoutPaymentHistoryByFinanceId(int $clinicId, int $financeId): array
+    {
+        $rows = $this->db->table('provider_payout_payments ppp')
+            ->select("
+                ppp.id,
+                ppp.provider_payout_id,
+                ppp.amount,
+                ppp.payment_method,
+                ppp.liquidity_account,
+                ppp.paid_date,
+                ppp.notes,
+                ppp.created_at,
+                ppp.created_by,
+                u.first_name AS creator_first_name,
+                u.last_name AS creator_last_name
+            ")
+            ->join('provider_payouts pp', 'pp.id = ppp.provider_payout_id AND pp.clinic_id = ppp.clinic_id', 'inner')
+            ->join('users u', 'u.id = ppp.created_by', 'left')
+            ->where('ppp.clinic_id', $clinicId)
+            ->where('pp.finance_id', $financeId)
+            ->orderBy('ppp.paid_date', 'DESC')
+            ->orderBy('ppp.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $history = [];
+        foreach ($rows as $row) {
+            $creatorName = trim((string) (($row['creator_first_name'] ?? '') . ' ' . ($row['creator_last_name'] ?? '')));
+            $row['created_by_label'] = $creatorName !== '' ? $creatorName : null;
+            $history[(int) ($row['provider_payout_id'] ?? 0)][] = $row;
+        }
+
+        return $history;
     }
 
     public function edit($id)

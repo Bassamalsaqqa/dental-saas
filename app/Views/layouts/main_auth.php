@@ -1445,7 +1445,10 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
 
-                return response.json();
+                return response.text().then((text) => {
+                    const normalized = text.replace(/^\uFEFF/, '').trim();
+                    return normalized ? JSON.parse(normalized) : {};
+                });
             })
             .then((data) => {
                 if (data.csrf_token && window.refreshCsrfToken) {
