@@ -1281,7 +1281,7 @@
                                                 <p class="mt-2 text-sm text-slate-600"><?= esc($providerPayout['notes']) ?></p>
                                             <?php endif; ?>
                                         </div>
-                                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[34rem]">
+                                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
                                             <div class="rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-indigo-700"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
@@ -1293,10 +1293,6 @@
                                             <div class="rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
-                                            </div>
-                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['clinicKeeps']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-sky-700"><?= formatCurrency($providerPayout['clinic_share_amount'] ?? 0) ?></p>
                                             </div>
                                         </div>
                                     </div>
