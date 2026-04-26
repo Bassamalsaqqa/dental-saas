@@ -686,6 +686,28 @@ class Inventory extends BaseController
         $openPayables = 0.0;
         $transactionCount = count($expenses);
         $lastPaymentDate = null;
+        $paymentRows = $this->db->table('finance_payments fp')
+            ->select("
+                fp.id,
+                fp.finance_id,
+                fp.amount,
+                fp.payment_method,
+                fp.liquidity_account,
+                fp.payment_date,
+                fp.notes,
+                f.transaction_id,
+                f.transaction_date,
+                f.expense_category
+            ")
+            ->join('finances f', 'f.id = fp.finance_id AND f.clinic_id = fp.clinic_id', 'inner')
+            ->where('fp.clinic_id', $clinicId)
+            ->where('f.transaction_type', 'expense')
+            ->where('f.supplier_id', (int) $id)
+            ->where('fp.type', 'payment')
+            ->orderBy('fp.payment_date', 'DESC')
+            ->orderBy('fp.id', 'DESC')
+            ->get()
+            ->getResultArray();
 
         foreach ($expenses as &$expense) {
             $settled = $paymentModel->getNetSettledAmount($clinicId, (int) $expense['id']);
@@ -719,7 +741,9 @@ class Inventory extends BaseController
                 'open_payables' => round($openPayables, 2),
                 'transaction_count' => $transactionCount,
                 'last_payment_date' => $lastPaymentDate,
+                'payment_count' => count($paymentRows),
             ],
+            'payment_rows' => $paymentRows,
             'currency_symbol' => settings()->getCurrencySymbol(),
             'currency_position' => settings()->get('currency_position', 'before'),
         ]);

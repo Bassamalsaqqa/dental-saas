@@ -641,6 +641,27 @@ class Finance extends BaseController
                     throw new \RuntimeException('Provider share cannot be lower than payout already recorded.');
                 }
 
+                $additionalPaymentAmount = round((float) ($payload['provider_paid_amount'] ?? 0), 2);
+                $remainingBeforeInlinePayment = round(max(0, $payload['provider_share_amount'] - $paidTotal), 2);
+                if ($additionalPaymentAmount > $remainingBeforeInlinePayment) {
+                    throw new \RuntimeException('Provider payment cannot exceed the remaining provider balance.');
+                }
+
+                if ($additionalPaymentAmount > 0) {
+                    $inlineMethod = $payload['provider_payment_method'] ?? 'cash';
+                    $this->providerPayoutPaymentModel->insert([
+                        'provider_payout_id' => $payoutId,
+                        'amount' => $additionalPaymentAmount,
+                        'payment_method' => $inlineMethod,
+                        'liquidity_account' => $this->normalizeLiquidityAccountInput($inlineMethod, 'out', 'provider_payout'),
+                        'paid_date' => $payload['provider_paid_date'] ?? date('Y-m-d'),
+                        'notes' => 'Paid while updating transaction',
+                        'created_by' => $this->resolveActorUserId(),
+                    ]);
+
+                    $paidTotal += $additionalPaymentAmount;
+                }
+
                 $payoutData['provider_paid_amount'] = round($paidTotal, 2);
                 $payoutData['provider_balance_due'] = round(max(0, $payload['provider_share_amount'] - $paidTotal), 2);
                 $payoutData['status'] = $payoutData['provider_balance_due'] <= 0 ? 'paid' : ($paidTotal > 0 ? 'partial' : 'unpaid');
@@ -649,10 +670,12 @@ class Finance extends BaseController
                 $this->providerPayoutModel->insert($payoutData);
                 $payoutId = (int) $this->providerPayoutModel->getInsertID();
                 if ($payload['provider_paid_amount'] > 0) {
+                    $inlineMethod = $payload['provider_payment_method'] ?? 'cash';
                     $this->providerPayoutPaymentModel->insert([
                         'provider_payout_id' => $payoutId,
                         'amount' => $payload['provider_paid_amount'],
-                        'payment_method' => $payload['provider_payment_method'] ?? 'cash',
+                        'payment_method' => $inlineMethod,
+                        'liquidity_account' => $this->normalizeLiquidityAccountInput($inlineMethod, 'out', 'provider_payout'),
                         'paid_date' => $payload['provider_paid_date'] ?? date('Y-m-d'),
                         'notes' => 'Paid at transaction creation',
                         'created_by' => $this->resolveActorUserId(),

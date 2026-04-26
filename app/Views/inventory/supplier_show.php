@@ -11,6 +11,8 @@ $formatMoney = static function (float $amount) use ($currencySymbol, $currencyPo
     return $currencyPosition === 'after' ? $formatted . ' ' . $currencySymbol : $currencySymbol . $formatted;
 };
 $summary = $summary ?? [];
+$paymentRows = $payment_rows ?? [];
+$recentPaymentRows = array_slice($paymentRows, 0, 5);
 ?>
 
 <div class="min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
@@ -80,6 +82,72 @@ $summary = $summary ?? [];
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('linkedExpenses')) ?></p>
                     <p class="mt-3 text-3xl font-bold text-slate-900"><?= esc((string) ($summary['transaction_count'] ?? 0)) ?></p>
                     <p class="mt-2 text-xs text-slate-500"><?= esc($tr('lastPaymentDate')) ?>: <?= esc(!empty($summary['last_payment_date']) ? $summary['last_payment_date'] : lang('Finance.notAvailable')) ?></p>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)]">
+                <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-200 px-6 py-5">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('Finance.paymentHistory')) ?></h2>
+                                <p class="mt-1 text-sm text-slate-500"><?= esc(lang('Finance.recordExpensePayment')) ?></p>
+                            </div>
+                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                <i class="fas fa-wallet <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc((string) ($summary['payment_count'] ?? 0)) ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($recentPaymentRows)): ?>
+                        <div class="space-y-3 px-6 py-5">
+                            <?php foreach ($recentPaymentRows as $row): ?>
+                                <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0) . '?return_to=' . urlencode('inventory/suppliers/' . (int) ($supplier['id'] ?? 0))) ?>" class="flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-slate-50 via-emerald-50/60 to-white px-4 py-4 transition hover:from-slate-100 hover:via-emerald-50 hover:to-white">
+                                    <div class="min-w-0 flex items-center gap-3">
+                                        <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <p class="truncate text-sm font-bold text-slate-900"><?= esc((string) ($row['transaction_id'] ?? '-')) ?></p>
+                                            <p class="mt-1 text-xs text-slate-500">
+                                                <?= esc(lang('Finance.' . ((string) ($row['payment_method'] ?? 'cash')))) ?>
+                                                <span class="text-slate-300"><?= esc('•') ?></span>
+                                                <?= esc(!empty($row['payment_date']) ? (string) $row['payment_date'] : lang('Finance.notAvailable')) ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0 text-end">
+                                        <p class="text-sm font-bold text-emerald-700"><?= esc($formatMoney((float) ($row['amount'] ?? 0))) ?></p>
+                                        <p class="mt-1 max-w-[16rem] truncate text-xs text-slate-500"><?= esc((string) (($row['notes'] ?? '') !== '' ? $row['notes'] : lang('Finance.optional'))) ?></p>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="px-6 py-12 text-center text-slate-500"><?= esc(lang('Finance.noPaymentsYet')) ?></div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-200 px-6 py-5">
+                        <h2 class="text-lg font-bold text-slate-900"><?= esc($tr('supplierPayablesSubtitle')) ?></h2>
+                        <p class="mt-1 text-sm text-slate-500"><?= esc($tr('linkedFinanceRecordsHelp')) ?></p>
+                    </div>
+                    <div class="space-y-3 px-6 py-5">
+                        <div class="rounded-2xl bg-gradient-to-r from-slate-50 to-white px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('totalPaid')) ?></p>
+                            <p class="mt-2 text-xl font-bold text-emerald-700"><?= esc($formatMoney((float) ($summary['total_paid'] ?? 0))) ?></p>
+                        </div>
+                        <div class="rounded-2xl bg-gradient-to-r from-rose-50 to-white px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('payableBalance')) ?></p>
+                            <p class="mt-2 text-xl font-bold text-rose-700"><?= esc($formatMoney((float) ($summary['open_payables'] ?? 0))) ?></p>
+                        </div>
+                        <div class="rounded-2xl bg-gradient-to-r from-indigo-50 to-white px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc(lang('Finance.paymentHistory')) ?></p>
+                            <p class="mt-2 text-xl font-bold text-slate-900"><?= esc((string) ($summary['payment_count'] ?? 0)) ?></p>
+                            <p class="mt-1 text-xs text-slate-500"><?= esc($tr('lastPaymentDate')) ?>: <?= esc(!empty($summary['last_payment_date']) ? $summary['last_payment_date'] : lang('Finance.notAvailable')) ?></p>
+                        </div>
+                    </div>
                 </div>
             </section>
 

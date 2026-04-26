@@ -181,6 +181,7 @@ return [
     'paymentDate' => 'تاريخ الدفعة',
     'paymentFailed' => 'فشل الدفع',
     'paymentHistory' => 'سجل الدفعات',
+    'noPaymentsYet' => 'لا توجد دفعات مسجلة حتى الآن.',
     'paymentInstructions' => 'تعليمات الدفع',
     'paymentMethod' => 'طريقة الدفع',
     'paymentMethodLabel' => 'طريقة الدفع',

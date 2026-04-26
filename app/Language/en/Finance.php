@@ -181,6 +181,7 @@ return [
     'paymentDate' => 'Payment Date',
     'paymentFailed' => 'Payment Failed',
     'paymentHistory' => 'Payment History',
+    'noPaymentsYet' => 'No payments recorded yet.',
     'paymentInstructions' => 'Payment Instructions',
     'paymentMethod' => 'Payment Method',
     'paymentMethodLabel' => 'Payment Method',

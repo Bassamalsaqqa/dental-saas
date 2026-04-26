@@ -218,6 +218,7 @@ class ProviderPayoutModel extends TenantAwareModel
 
         $builder = $this->db->table('provider_payouts pp')
             ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
             ->where('pp.clinic_id', $clinicId);
 
         if (!empty($startDate)) {
@@ -228,7 +229,18 @@ class ProviderPayoutModel extends TenantAwareModel
         }
 
         return $builder
-            ->select('COALESCE(NULLIF(pp.provider_name_snapshot, \'\'), CONCAT(\'User #\', COALESCE(pp.provider_user_id, 0))) AS provider_label, COUNT(*) AS payout_count, SUM(pp.gross_amount) AS gross_amount_total, SUM(pp.provider_share_amount) AS provider_share_total, SUM(pp.provider_paid_amount) AS provider_paid_total, SUM(pp.provider_balance_due) AS provider_balance_total', false)
+            ->select("
+                COALESCE(
+                    NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), ''),
+                    NULLIF(pp.provider_name_snapshot, ''),
+                    CONCAT('User #', COALESCE(pp.provider_user_id, 0))
+                ) AS provider_label,
+                COUNT(*) AS payout_count,
+                SUM(pp.gross_amount) AS gross_amount_total,
+                SUM(pp.provider_share_amount) AS provider_share_total,
+                SUM(pp.provider_paid_amount) AS provider_paid_total,
+                SUM(pp.provider_balance_due) AS provider_balance_total
+            ", false)
             ->groupBy('pp.provider_name_snapshot, pp.provider_user_id')
             ->orderBy('provider_share_total', 'DESC')
             ->limit($limit)
@@ -241,9 +253,10 @@ class ProviderPayoutModel extends TenantAwareModel
         $limit = max(1, min($limit, 1000));
 
         $builder = $this->db->table('provider_payouts pp')
-            ->select('pp.id, pp.status, pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot, pp.gross_amount, pp.provider_share_amount, pp.provider_paid_amount, pp.provider_balance_due, pp.created_at, f.transaction_id, p.patient_id AS patient_number, p.first_name AS patient_first_name, p.last_name AS patient_last_name')
+            ->select('pp.id, pp.status, pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot, pp.gross_amount, pp.provider_share_amount, pp.provider_paid_amount, pp.provider_balance_due, pp.created_at, f.transaction_id, p.patient_id AS patient_number, p.first_name AS patient_first_name, p.last_name AS patient_last_name, u.first_name AS provider_first_name, u.last_name AS provider_last_name')
             ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
             ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
             ->where('pp.clinic_id', $clinicId);
 
         if (!empty($startDate)) {
@@ -260,9 +273,12 @@ class ProviderPayoutModel extends TenantAwareModel
             ->getResultArray();
 
         foreach ($rows as &$row) {
-            $row['provider_label'] = !empty($row['provider_name_snapshot'])
-                ? (string) $row['provider_name_snapshot']
-                : ('User #' . (string) ($row['provider_user_id'] ?? '0'));
+            $providerName = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
+            $row['provider_label'] = $providerName !== ''
+                ? $providerName
+                : (!empty($row['provider_name_snapshot'])
+                    ? (string) $row['provider_name_snapshot']
+                    : ('User #' . (string) ($row['provider_user_id'] ?? '0')));
             $row['patient_name'] = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
         }
         unset($row);
