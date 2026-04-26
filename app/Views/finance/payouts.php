@@ -103,8 +103,8 @@
                         <i class="fas fa-circle-info text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-amber-900"><?= lang('Finance.providerSplit') ?></p>
-                        <p class="text-sm text-amber-800"><?= lang('Finance.supplierPayablesGuidance') ?></p>
+                        <p class="text-sm font-semibold text-amber-900"><?= lang('Finance.providerPayouts') ?></p>
+                        <p class="text-sm text-amber-800"><?= lang('Finance.providerPayoutsGuidance') ?></p>
                     </div>
                 </div>
             </div>
