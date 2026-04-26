@@ -34,6 +34,8 @@
         'provider_balance_total' => 0,
     ];
     $providerRows = $provider_payout_rows ?? [];
+    $providerPaymentRows = $provider_payment_rows ?? [];
+    $recentProviderPaymentRows = array_slice($providerPaymentRows, 0, 4);
     $assignableRoles = $assignable_roles ?? [];
     $departments = $departments ?? [];
     $currentRoleId = (int) ($current_role_id ?? 0);
@@ -638,6 +640,150 @@
         transform: translateY(-1px);
     }
 
+    .user-finance-tile {
+        border: none;
+        background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.98));
+        box-shadow: 0 16px 30px -28px rgba(37, 99, 235, 0.32);
+    }
+
+    .user-finance-tile:hover {
+        border: none;
+        box-shadow: 0 20px 34px -28px rgba(37, 99, 235, 0.36);
+    }
+
+    .user-payment-summary-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .user-payment-summary-card {
+        border-radius: 1rem;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+        padding: 1rem 1.1rem;
+        box-shadow: 0 20px 38px -34px rgba(15, 23, 42, 0.35);
+    }
+
+    .user-payment-summary-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+    }
+
+    [dir="rtl"] .user-payment-summary-head,
+    [dir="rtl"] .user-payment-summary-title,
+    [dir="rtl"] .user-payment-summary-item,
+    [dir="rtl"] .user-payment-summary-main {
+        flex-direction: row-reverse;
+    }
+
+    .user-payment-summary-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .user-payment-summary-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .user-payment-summary-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        border-radius: 0.9rem;
+        border: none;
+        background: linear-gradient(180deg, rgba(239, 246, 255, 0.92), rgba(255, 255, 255, 0.98));
+        padding: 0.8rem 0.9rem;
+        transition: box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
+    }
+
+    .user-payment-summary-item:hover {
+        box-shadow: 0 16px 30px -28px rgba(79, 70, 229, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .user-payment-summary-main {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    .user-payment-summary-copy {
+        min-width: 0;
+    }
+
+    .user-payment-summary-copy strong,
+    .user-payment-summary-copy span {
+        display: block;
+    }
+
+    .user-payment-summary-copy strong {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .user-payment-summary-copy span {
+        margin-top: 0.18rem;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .user-payment-summary-meta {
+        flex-shrink: 0;
+        text-align: end;
+    }
+
+    [dir="rtl"] .user-payment-summary-meta {
+        text-align: start;
+    }
+
+    .user-payment-summary-amount {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #166534;
+    }
+
+    .user-payment-summary-date {
+        display: block;
+        margin-top: 0.18rem;
+        font-size: 0.74rem;
+        color: #64748b;
+    }
+
+    .user-payment-summary-empty {
+        display: flex;
+        min-height: 100%;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.9rem;
+        border: 1px dashed rgba(203, 213, 225, 0.95);
+        background: rgba(248, 250, 252, 0.92);
+        padding: 1.35rem 1rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    @media (max-width: 1023px) {
+        .user-payment-summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .user-info-label {
         display: flex;
         align-items: center;
@@ -1140,21 +1286,81 @@
                     </div>
                     <div class="user-section-body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                            <div class="user-info-tile">
+                            <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-percent text-indigo-500"></i><?= esc(lang('Finance.providerShareTotal')) ?></p>
                                 <p class="user-info-value"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
                             </div>
-                            <div class="user-info-tile">
+                            <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
                                 <p class="user-info-value"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
                             </div>
-                            <div class="user-info-tile">
+                            <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
                                 <p class="user-info-value"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
                             </div>
-                            <div class="user-info-tile">
+                            <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-receipt text-slate-500"></i><?= esc(lang('Finance.providerPayoutCount')) ?></p>
                                 <p class="user-info-value"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
+                            </div>
+                        </div>
+                        <div class="user-payment-summary-grid">
+                            <div class="user-payment-summary-card">
+                                <div class="user-payment-summary-head">
+                                    <span class="user-payment-summary-title">
+                                        <i class="fas fa-money-bill-wave text-emerald-500 text-xs"></i>
+                                        <span><?= esc(lang('Finance.paymentHistory')) ?></span>
+                                    </span>
+                                    <span class="user-summary-badge">
+                                        <i class="fas fa-list-check text-[11px]"></i>
+                                        <span><?= esc((string) count($providerPaymentRows)) ?> <?= esc(lang('Finance.paymentsCount')) ?></span>
+                                    </span>
+                                </div>
+                                <?php if (!empty($recentProviderPaymentRows)): ?>
+                                    <div class="user-payment-summary-list">
+                                        <?php foreach ($recentProviderPaymentRows as $row): ?>
+                                            <?php $patientAvatar = $patientAvatarFor($row['patient_gender'] ?? null); ?>
+                                            <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="user-payment-summary-item">
+                                                <span class="user-payment-summary-main">
+                                                    <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-50">
+                                                        <i class="<?= esc($patientAvatar['icon']) ?> <?= esc($patientAvatar['color']) ?> text-base"></i>
+                                                    </span>
+                                                    <span class="user-payment-summary-copy">
+                                                        <strong><?= esc((string) (((string) ($row['patient_name'] ?? '')) !== '' ? $row['patient_name'] : lang('Finance.notAvailable'))) ?></strong>
+                                                        <span>
+                                                            <?= esc((string) ($row['transaction_id'] ?? '-')) ?>
+                                                            <span class="text-slate-300"><?= esc('•') ?></span>
+                                                            <?= esc(lang('Finance.' . ((string) ($row['payment_method'] ?? 'cash')))) ?>
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                                <span class="user-payment-summary-meta">
+                                                    <span class="user-payment-summary-amount"><?= formatCurrency($row['amount'] ?? 0) ?></span>
+                                                    <span class="user-payment-summary-date"><?= !empty($row['paid_date']) ? esc(formatDate((string) $row['paid_date'])) : esc(lang('Finance.notAvailable')) ?></span>
+                                                </span>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="user-payment-summary-empty"><?= esc(lang('Finance.noPayoutsAvailable')) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="user-payment-summary-card">
+                                <div class="user-payment-summary-head">
+                                    <span class="user-payment-summary-title">
+                                        <i class="fas fa-chart-line text-indigo-500 text-xs"></i>
+                                        <span><?= esc(lang('Finance.clinicalProviderCompensation')) ?></span>
+                                    </span>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="user-info-tile user-finance-tile">
+                                        <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
+                                        <p class="user-info-value"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="user-info-tile user-finance-tile">
+                                        <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
+                                        <p class="user-info-value"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

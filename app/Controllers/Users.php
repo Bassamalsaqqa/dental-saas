@@ -8,6 +8,7 @@ use App\Models\UserModel;
 use App\Models\UserRoleModel;
 use App\Models\PermissionModel;
 use App\Models\ProviderPayoutModel;
+use App\Models\ProviderPayoutPaymentModel;
 use App\Models\ClinicUserModel;
 use App\Services\PermissionService;
 use App\Libraries\IonAuth;
@@ -22,6 +23,7 @@ class Users extends BaseController
     protected $permissionService;
     protected $clinicUserModel;
     protected $providerPayoutModel;
+    protected $providerPayoutPaymentModel;
 
     public function __construct()
     {
@@ -33,6 +35,7 @@ class Users extends BaseController
         $this->permissionService = new PermissionService();
         $this->clinicUserModel = new ClinicUserModel();
         $this->providerPayoutModel = new ProviderPayoutModel();
+        $this->providerPayoutPaymentModel = new ProviderPayoutPaymentModel();
     }
 
     /**
@@ -374,6 +377,7 @@ class Users extends BaseController
             'current_role_id' => $currentRoleId,
             'provider_finance_summary' => $this->providerPayoutModel->getSummaryByProviderUserId((int) $clinicId, (int) $id),
             'provider_payout_rows' => $this->providerPayoutModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
+            'provider_payment_rows' => $this->providerPayoutPaymentModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
             'loadSelect2' => true,
         ];
         
