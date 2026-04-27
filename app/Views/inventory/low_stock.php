@@ -237,7 +237,7 @@
                     <div class="flex items-center space-x-3">
                         <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center px-4 py-2 bg-emerald-50 text-emerald-800 text-sm font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-all duration-200">
                             <i class="fas fa-arrows-rotate mr-2"></i>
-                            Movements
+                            <?= lang('Inventory.movements') ?>
                         </a>
                         <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200">
                             <i class="fas fa-cart-shopping mr-2"></i>
@@ -411,23 +411,64 @@
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <a href="<?= base_url('inventory/create') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-plus mr-2"></i>Add New Item
+                <i class="fas fa-plus mr-2"></i><?= lang('Inventory.addNewItem') ?>
             </a>
             
             <a href="<?= base_url('inventory') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-list mr-2"></i>View All Items
+                <i class="fas fa-list mr-2"></i><?= lang('Inventory.inventoryItems') ?>
             </a>
         </div>
     </div>
 </div>
 
+<div id="reorderQtyModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40" onclick="closeReorderQtyModal()"></div>
+    <div class="relative flex min-h-full items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl">
+            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+                <h4 class="text-base font-semibold text-gray-900"><?= esc(lang('Inventory.reorderQtyPromptTitle')) ?></h4>
+                <button type="button" class="text-gray-500 hover:text-gray-700" onclick="closeReorderQtyModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="reorderQtyForm" class="space-y-4 p-5">
+                <input type="hidden" id="reorderInventoryId">
+                <div>
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Inventory.reorderQtyLabel')) ?></label>
+                    <input type="number" min="1" step="1" id="reorderQtyInput" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" required>
+                    <p class="mt-1 text-xs text-gray-500"><?= esc(lang('Inventory.reorderQtyHelp')) ?></p>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeReorderQtyModal()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"><?= esc(lang('Inventory.cancel')) ?></button>
+                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"><?= esc(lang('Inventory.saveToReorderList')) ?></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-function addToReorderList(id) {
-    const qtyValue = prompt('Requested reorder quantity:', '1');
-    if (qtyValue === null) return;
-    const qty = parseInt(qtyValue, 10);
+let reorderQtyTargetId = null;
+
+function openReorderQtyModal(id) {
+    reorderQtyTargetId = id;
+    document.getElementById('reorderInventoryId').value = String(id);
+    document.getElementById('reorderQtyInput').value = '1';
+    document.getElementById('reorderQtyModal').classList.remove('hidden');
+    document.getElementById('reorderQtyInput').focus();
+}
+
+function closeReorderQtyModal() {
+    document.getElementById('reorderQtyModal').classList.add('hidden');
+    document.getElementById('reorderQtyForm').reset();
+    reorderQtyTargetId = null;
+}
+
+function addToReorderList(id, qty) {
+    if (typeof qty === 'undefined') {
+        openReorderQtyModal(id);
+        return;
+    }
     if (!Number.isFinite(qty) || qty <= 0) {
-        showToast('error', 'Error!', 'Please enter a valid quantity.');
+        showToast('error', 'Error!', '<?= esc(lang('Inventory.enterValidQuantity'), 'js') ?>');
         return;
     }
 
@@ -444,13 +485,27 @@ function addToReorderList(id) {
     .then(r => r.json())
     .then(data => {
         if (data && data.success) {
-            showToast('success', 'Reorder List', data.message || 'Added to reorder list.');
+            closeReorderQtyModal();
+            showToast('success', '<?= esc(lang('Inventory.reorderList'), 'js') ?>', data.message || '<?= esc(lang('Inventory.addedToReorderList'), 'js') ?>');
         } else {
-            showToast('error', 'Error!', (data && data.message) ? data.message : 'Failed to add to reorder list.');
+            showToast('error', 'Error!', (data && data.message) ? data.message : '<?= esc(lang('Inventory.failedToAddToReorderList'), 'js') ?>');
         }
     })
-    .catch(() => showToast('error', 'Error!', 'Failed to add to reorder list.'));
+    .catch(() => showToast('error', 'Error!', '<?= esc(lang('Inventory.failedToAddToReorderList'), 'js') ?>'));
 }
+
+document.getElementById('reorderQtyForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const qty = parseInt(document.getElementById('reorderQtyInput').value, 10);
+    const id = reorderQtyTargetId || parseInt(document.getElementById('reorderInventoryId').value, 10);
+    addToReorderList(id, qty);
+});
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        closeReorderQtyModal();
+    }
+});
 
 function adjustStock(id) {
     const adjustment = prompt('Enter adjustment amount (positive to add, negative to subtract):');
@@ -789,7 +844,9 @@ $(document).ready(function() {
         drawCallback: function(settings) {
             console.log('Low Stock DataTable draw callback triggered');
             // Re-initialize any interactive elements after table redraw
-            $('[data-toggle="tooltip"]').tooltip();
+            if (typeof $.fn.tooltip === 'function') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
             
             // Ensure loading indicator is hidden after each draw
             hideLoadingIndicators();

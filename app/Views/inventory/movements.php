@@ -66,28 +66,35 @@
             </form>
         </div>
 
-        <div class="rounded-2xl bg-white/80 border border-white/30 shadow-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-slate-900"><?= esc($tr('movements')) ?></h3>
+        <div class="mb-8">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('movements')) ?></h3>
+                    </div>
                 <span class="text-sm text-slate-600"><?= esc($tr('rowsCount', ['count' => count($movements ?? [])])) ?></span>
+                </div>
             </div>
             <?php if (!empty($movements)): ?>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <div class="dataTables-wrapper">
+                    <table class="w-full min-w-full">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3"><?= esc($tr('date')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('item')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('status')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('change')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('beforeAfter')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('batch')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('cost')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('reference')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('actor')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('date')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('item')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('status')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('change')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('beforeAfter')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('batch')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('cost')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('reference')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('actor')) ?></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="bg-white divide-y divide-gray-200">
                             <?php foreach (($movements ?? []) as $m): ?>
                                 <?php
                                     $qtyChange = (int) ($m['quantity_change'] ?? 0);
@@ -99,22 +106,22 @@
                                         : '-';
                                 ?>
                                 <tr class="hover:bg-slate-50/70">
-                                    <td class="px-4 py-3 text-sm text-slate-700">
+                                    <td class="px-6 py-3 text-sm text-slate-700">
                                         <div class="font-medium"><?= !empty($m['created_at']) ? esc(formatDateTime($m['created_at'])) : '-' ?></div>
                                         <?php if (!empty($m['notes'])): ?><div class="text-xs text-slate-500"><?= esc((string) $m['notes']) ?></div><?php endif; ?>
                                     </td>
-                                    <td class="px-4 py-3 text-sm">
+                                    <td class="px-6 py-3 text-sm">
                                         <div class="font-semibold text-slate-900"><?= esc((string) ($m['item_name'] ?? $tr('unknown'))) ?></div>
                                         <div class="text-xs text-slate-500"><?= esc((string) ($m['category'] ?? '')) ?></div>
                                     </td>
-                                    <td class="px-4 py-3"><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"><?= esc($typeLabel) ?></span></td>
-                                    <td class="px-4 py-3">
+                                    <td class="px-6 py-3"><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"><?= esc($typeLabel) ?></span></td>
+                                    <td class="px-6 py-3">
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold <?= $changeClass ?>">
                                             <i class="fas <?= $qtyChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' ?> mr-1"></i><?= $qtyChange >= 0 ? '+' : '' ?><?= $qtyChange ?>
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-slate-700"><?= (int) ($m['quantity_before'] ?? 0) ?> -> <span class="font-semibold text-slate-900"><?= (int) ($m['quantity_after'] ?? 0) ?></span></td>
-                                    <td class="px-4 py-3 text-xs text-slate-600">
+                                    <td class="px-6 py-3 text-sm text-slate-700"><?= (int) ($m['quantity_before'] ?? 0) ?> -> <span class="font-semibold text-slate-900"><?= (int) ($m['quantity_after'] ?? 0) ?></span></td>
+                                    <td class="px-6 py-3 text-xs text-slate-600">
                                         <?php if (!empty($m['batch_lot_number']) || !empty($m['batch_expiry_date'])): ?>
                                             <div><?= !empty($m['batch_lot_number']) ? (esc($tr('lot')) . ': ' . esc((string) $m['batch_lot_number'])) : esc($tr('batch')) ?></div>
                                             <?php if (!empty($m['batch_expiry_date'])): ?><div><?= esc($tr('expiry')) ?>: <?= esc(formatDate((string) $m['batch_expiry_date'])) ?></div><?php endif; ?>
@@ -122,7 +129,7 @@
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-4 py-3 text-xs text-slate-700">
+                                    <td class="px-6 py-3 text-xs text-slate-700">
                                         <?php if ($m['unit_cost'] !== null): ?>
                                             <div><?= esc(formatCurrency((float) $m['unit_cost'])) ?>/unit</div>
                                             <?php if ($m['total_cost'] !== null): ?><div class="text-slate-500"><?= esc($tr('totalCost')) ?>: <?= esc(formatCurrency((float) $m['total_cost'])) ?></div><?php endif; ?>
@@ -130,18 +137,20 @@
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-4 py-3 text-xs text-slate-700"><?= esc($refText) ?></td>
-                                    <td class="px-4 py-3 text-xs text-slate-700"><?= esc($actorName !== '' ? $actorName : '-') ?></td>
+                                    <td class="px-6 py-3 text-xs text-slate-700"><?= esc($refText) ?></td>
+                                    <td class="px-6 py-3 text-xs text-slate-700"><?= esc($actorName !== '' ? $actorName : '-') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             <?php else: ?>
                 <div class="px-6 py-10 text-center text-slate-600">
                     <?= esc($tr('movementsEmpty')) ?>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

@@ -73,27 +73,34 @@
             </div>
         </div>
 
-        <div class="rounded-2xl bg-white/80 border border-white/30 shadow-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-slate-900"><?= esc($tr('reorderLines')) ?></h3>
-                <span class="text-sm text-slate-600"><?= esc($tr('rowsCount', ['count' => count($reorder_items ?? [])])) ?></span>
+        <div class="mb-8">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('reorderLines')) ?></h3>
+                    </div>
+                    <span class="text-sm text-slate-600"><?= esc($tr('rowsCount', ['count' => count($reorder_items ?? [])])) ?></span>
+                </div>
             </div>
 
             <?php if (!empty($reorder_items)): ?>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <div class="dataTables-wrapper">
+                    <table class="w-full min-w-full">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3"><?= esc($tr('item')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('stockDetails')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('supplier')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('requested')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('status')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('notes')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('actions')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('item')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('stockDetails')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('supplier')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('requested')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('status')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('notes')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('actions')) ?></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="bg-white divide-y divide-gray-200">
                             <?php foreach (($reorder_items ?? []) as $row): ?>
                                 <?php
                                     $status = (string) ($row['status'] ?? 'draft');
@@ -105,15 +112,15 @@
                                     ];
                                 ?>
                                 <tr class="hover:bg-slate-50/70">
-                                    <td class="px-4 py-3">
+                                    <td class="px-6 py-3">
                                         <div class="font-semibold text-slate-900"><?= esc($row['item_name'] ?? ('Item #' . (int) $row['inventory_id'])) ?></div>
                                         <div class="text-xs text-slate-500"><?= esc(ucfirst((string) ($row['category'] ?? ''))) ?> • <a class="text-blue-600 hover:text-blue-800" href="<?= base_url('inventory/' . (int) $row['inventory_id']) ?>"><?= esc($tr('viewItem')) ?></a></div>
                                     </td>
-                                    <td class="px-4 py-3 text-sm">
+                                    <td class="px-6 py-3 text-sm">
                                         <div><span class="font-semibold text-slate-900"><?= (int) ($row['current_qty'] ?? 0) ?></span> <?= esc((string) ($row['unit'] ?? 'units')) ?></div>
                                         <div class="text-xs text-slate-500"><?= esc($tr('minimum')) ?> <?= (int) ($row['min_quantity'] ?? 0) ?></div>
                                     </td>
-                                    <td class="px-4 py-3 text-sm">
+                                    <td class="px-6 py-3 text-sm">
                                         <div class="font-medium text-slate-900"><?= esc((string) ($row['supplier_name'] ?? 'Unassigned')) ?></div>
                                         <div class="text-xs text-slate-500 mt-0.5">
                                             <?php if (!empty($row['preferred_supplier_sku'])): ?>SKU: <?= esc((string) $row['preferred_supplier_sku']) ?><?php endif; ?>
@@ -132,14 +139,14 @@
                                             <?php endif; ?>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3 text-sm font-semibold text-slate-900"><?= (int) ($row['requested_qty'] ?? 0) ?></td>
-                                    <td class="px-4 py-3">
+                                    <td class="px-6 py-3 text-sm font-semibold text-slate-900"><?= (int) ($row['requested_qty'] ?? 0) ?></td>
+                                    <td class="px-6 py-3">
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= $statusClasses[$status] ?? 'bg-slate-100 text-slate-700' ?>">
                                             <?= esc(ucfirst($status)) ?>
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-slate-600"><?= esc((string) ($row['notes'] ?? '')) ?></td>
-                                    <td class="px-4 py-3">
+                                    <td class="px-6 py-3 text-sm text-slate-600"><?= esc((string) ($row['notes'] ?? '')) ?></td>
+                                    <td class="px-6 py-3">
                                         <div class="flex flex-col gap-2 min-w-[180px]">
                                             <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/status') ?>" class="flex gap-2">
                                                 <?= csrf_field() ?>
@@ -183,6 +190,7 @@
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             <?php else: ?>
                 <div class="px-6 py-10 text-center">
@@ -201,6 +209,7 @@
                     </div>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

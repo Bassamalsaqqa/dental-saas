@@ -222,6 +222,7 @@ class Inventory extends BaseController
             'suppliers' => $this->getSuppliers(),
             'supplier_directory' => $clinicId ? $this->supplierModel->getActiveOptionsByClinic($clinicId) : [],
             'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
+            'loadSelect2' => true,
         ];
 
         return $this->view('inventory/create', $data);
