@@ -26,6 +26,7 @@
       const tax = taxable * (taxPercent / 100);
       const total = converted - discount + tax;
       totalOutput.value = total.toFixed(2);
+      form.dispatchEvent(new CustomEvent('finance:totalsUpdated'));
     };
 
     const updateConverted = () => {
