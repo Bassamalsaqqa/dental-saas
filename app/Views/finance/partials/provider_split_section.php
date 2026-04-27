@@ -60,6 +60,46 @@ foreach (($clinic_providers ?? []) as $provider) {
     ];
 }
 ?>
+<style>
+.provider-pay-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    background: rgba(79, 70, 229, 0.08);
+    padding: 0.8rem 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.provider-pay-toggle.is-active {
+    background: rgba(16, 185, 129, 0.12);
+}
+
+[dir="rtl"] .provider-pay-toggle {
+    flex-direction: row-reverse;
+}
+
+.provider-pay-toggle-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+[dir="rtl"] .provider-pay-toggle-copy {
+    text-align: right;
+}
+
+.provider-pay-toggle-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.provider-pay-toggle-hint {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+</style>
 <div class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 space-y-5">
     <div class="flex items-center justify-between">
         <div>
@@ -128,6 +168,51 @@ document.addEventListener('DOMContentLoaded', function () {
         return Number.isFinite(n) ? n : 0;
     };
 
+    const initSelect2 = (select) => {
+        if (!select || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+            return;
+        }
+        const $select = window.jQuery(select);
+        if ($select.data('select2')) {
+            return;
+        }
+        const optionCount = select.options ? select.options.length : 0;
+        const pageIsRtl = document.documentElement.getAttribute('dir') === 'rtl';
+        $select.select2({
+            placeholder: select.dataset.placeholder || (pageIsRtl ? 'اختر خياراً...' : 'Select an option...'),
+            dir: pageIsRtl ? 'rtl' : 'ltr',
+            allowClear: false,
+            width: '100%',
+            theme: 'default',
+            minimumResultsForSearch: optionCount > 5 ? 0 : Infinity,
+            language: {
+                noResults: function () {
+                    return pageIsRtl ? 'لا توجد نتائج' : 'No results found';
+                }
+            }
+        });
+    };
+
+    const initRowSelects = (row) => {
+        row.querySelectorAll('select[data-force-select2]').forEach(initSelect2);
+    };
+
+    const syncToggleVisual = (row) => {
+        const toggle = row.querySelector('.provider-paid-toggle');
+        const chip = row.querySelector('.provider-pay-toggle');
+        const track = row.querySelector('.provider-pay-toggle .toggle-track');
+        const dot = row.querySelector('.provider-pay-toggle .toggle-dot');
+        const active = !!toggle?.checked && !!splitToggle?.checked;
+
+        chip?.classList.toggle('is-active', active);
+        track?.classList.toggle('bg-blue-500', active);
+        track?.classList.toggle('bg-gray-200', !active);
+
+        if (dot) {
+            window.applyToggleDotState?.(dot, active);
+        }
+    };
+
     const buildProviderOptions = (selected) => {
         const selectedValue = String(selected || '');
         let html = `<option value=""><?= esc(lang('Finance.selectUser')) ?></option>`;
@@ -171,14 +256,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
-                        <select name="provider_type[]" class="provider-type-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <select name="provider_type[]" data-force-select2 data-allow-clear="false" class="provider-type-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             <option value="user" ${providerType === 'user' ? 'selected' : ''}><?= lang('Finance.clinicUser') ?></option>
                             <option value="guest" ${providerType === 'guest' ? 'selected' : ''}><?= lang('Finance.guestProvider') ?></option>
                         </select>
                     </div>
                     <div class="provider-user-wrap group/field relative ${providerType === 'user' ? '' : 'hidden'}">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
-                        <select name="provider_user_id[]" class="provider-user-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <select name="provider_user_id[]" data-force-select2 data-allow-clear="false" class="provider-user-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             ${buildProviderOptions(row.provider_user_id || '')}
                         </select>
                     </div>
@@ -191,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
-                        <select name="provider_split_mode[]" class="provider-split-mode w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <select name="provider_split_mode[]" data-force-select2 data-allow-clear="false" class="provider-split-mode w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             <option value="percent" ${splitMode === 'percent' ? 'selected' : ''}><?= lang('Finance.percentage') ?></option>
                             <option value="fixed" ${splitMode === 'fixed' ? 'selected' : ''}><?= lang('Finance.fixedAmount') ?></option>
                         </select>
@@ -207,10 +292,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     <textarea name="provider_split_notes[]" rows="2" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none">${escapeHtml(row.notes || '')}</textarea>
                 </div>
 
-                <div class="rounded-xl border border-indigo-200 bg-slate-50 p-4 space-y-4">
-                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-800">
-                        <input type="checkbox" class="provider-paid-toggle h-4 w-4 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500" ${checked}>
-                        <?= lang('Finance.markProviderPaidNow') ?>
+                <div class="rounded-xl bg-slate-50 p-4 space-y-4">
+                    <label class="provider-pay-toggle ${markPaidNow === '1' ? 'is-active' : ''}">
+                        <input type="checkbox" class="provider-paid-toggle sr-only" ${checked}>
+                        <span class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative" aria-hidden="true">
+                            <span class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></span>
+                        </span>
+                        <span class="provider-pay-toggle-copy">
+                            <span class="provider-pay-toggle-title"><?= lang('Finance.markProviderPaidNow') ?></span>
+                            <span class="provider-pay-toggle-hint"><?= esc(lang('Finance.paidAmount')) ?> + <?= esc(lang('Finance.method')) ?> + <?= esc(lang('Finance.paidDate')) ?></span>
+                        </span>
                     </label>
 
                     <div class="provider-paid-fields grid grid-cols-1 md:grid-cols-3 gap-4 ${paidFieldsClass}">
@@ -223,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                         <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
-                            <select name="provider_paid_method[]" class="provider-paid-method w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                            <select name="provider_paid_method[]" data-force-select2 data-allow-clear="false" class="provider-paid-method w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
                                 <option value="cash" ${(row.provider_paid_method || 'cash') === 'cash' ? 'selected' : ''}><?= lang('Finance.cash') ?></option>
                                 <option value="card" ${(row.provider_paid_method || '') === 'card' ? 'selected' : ''}><?= lang('Finance.card') ?></option>
                                 <option value="bank_transfer" ${(row.provider_paid_method || '') === 'bank_transfer' ? 'selected' : ''}><?= lang('Finance.bankTransfer') ?></option>
@@ -254,6 +345,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const guestInput = row.querySelector('.provider-guest-input');
         if (userSelect) userSelect.required = splitToggle.checked && type === 'user';
         if (guestInput) guestInput.required = splitToggle.checked && type === 'guest';
+        if (type === 'user') {
+            initSelect2(userSelect);
+        }
 
         const markPaidToggle = row.querySelector('.provider-paid-toggle');
         const markPaidInput = row.querySelector('.provider-mark-paid-input');
@@ -263,6 +357,10 @@ document.addEventListener('DOMContentLoaded', function () {
             markPaidInput.value = active ? '1' : '0';
         }
         setVisible(paidFields, active);
+        syncToggleVisual(row);
+        if (active) {
+            initSelect2(row.querySelector('.provider-paid-method'));
+        }
 
         const paidAmountInput = row.querySelector('.provider-paid-amount');
         const share = computeRowShare(row);
@@ -312,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const bindRow = (row) => {
+        initRowSelects(row);
         row.querySelector('.provider-type-select')?.addEventListener('change', () => {
             updateRowState(row);
         });

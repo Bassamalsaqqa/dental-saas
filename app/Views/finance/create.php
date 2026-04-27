@@ -53,6 +53,7 @@
 [dir="rtl"] input[data-clinic-date="1"].finance-leading-input {
     padding-right: 3.25rem !important;
 }
+
 </style>
 <?php
     $leadingFieldPadding = 'finance-leading-input';
@@ -149,7 +150,7 @@
                                     <span><?= lang('Finance.transactionTypeRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="transaction_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="transaction_type" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value=""><?= lang('Finance.selectType') ?></option>
                                         <option value="payment" <?= (old('transaction_type') == 'payment') ? 'selected' : '' ?>><?= lang('Finance.payment') ?></option>
                                         <option value="invoice" <?= (old('transaction_type') == 'invoice') ? 'selected' : '' ?>><?= lang('Finance.invoice') ?></option>
@@ -212,7 +213,7 @@
                                     <span><?= lang('Finance.currencyRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="currency" id="currencySelect" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="currency" id="currencySelect" data-force-select2 data-allow-clear="false" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
                                         <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
                                             <option value="<?= esc($option) ?>" <?= (old('currency', $base_currency ?? 'ILS') === $option) ? 'selected' : '' ?>>
                                                 <?= esc($option) ?>
@@ -253,7 +254,7 @@
                                     <span><?= lang('Finance.paymentMethod') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="payment_method" id="paymentMethod" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="payment_method" id="paymentMethod" data-force-select2 data-allow-clear="false" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value=""><?= lang('Finance.selectMethod') ?></option>
                                         <option value="cash" <?= (old('payment_method') == 'cash') ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
                                         <option value="card" <?= (old('payment_method') == 'card') ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
@@ -328,7 +329,7 @@
                                 <span><?= lang('Finance.serviceTypeRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                             </label>
                             <div class="relative">
-                                <select name="service_type" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
+                                <select name="service_type" data-force-select2 data-allow-clear="false" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
                                     <option value=""><?= lang('Finance.selectServiceType') ?></option>
                                     <option value="consultation" <?= (old('service_type') == 'consultation') ? 'selected' : '' ?>><?= lang('Finance.consultation') ?></option>
                                     <option value="treatment" <?= (old('service_type') == 'treatment') ? 'selected' : '' ?>><?= lang('Finance.treatment') ?></option>
