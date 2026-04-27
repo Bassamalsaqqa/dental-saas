@@ -23,11 +23,11 @@
             <form method="GET" action="<?= base_url('inventory/templates') ?>" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('search')) ?></label>
-                    <input type="text" name="q" value="<?= esc((string) ($search_query ?? '')) ?>" placeholder="e.g. gloves, composite" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                    <input type="text" name="q" value="<?= esc((string) ($search_query ?? '')) ?>" placeholder="<?= esc($tr('templateSearchPlaceholder')) ?>" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('category')) ?></label>
-                    <select name="category" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                    <select name="category" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                         <option value=""><?= esc($tr('allCategories')) ?></option>
                         <?php foreach (($categories ?? []) as $key => $label): ?>
                             <option value="<?= esc($key) ?>" <?= ($selected_category ?? '') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>

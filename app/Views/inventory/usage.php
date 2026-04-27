@@ -75,7 +75,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                             <div class="flex flex-col h-full">
                                 <label for="treatment_id" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.selectTreatmentOptional') ?></label>
-                                <select name="treatment_id" id="treatment_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                <select name="treatment_id" id="treatment_id" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
                                     <option value=""><?= lang('Inventory.chooseTreatment') ?></option>
                                     <?php if (!empty($treatments)): ?>
                                         <?php foreach ($treatments as $treatment): ?>
@@ -127,7 +127,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.itemRequired') ?></label>
-                                        <select name="items[0][item_id]" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 item-select" required>
+                                        <select name="items[0][item_id]" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 item-select" required>
                                             <option value=""><?= lang('Inventory.selectItem') ?></option>
                                             <?php foreach ($inventory_items as $item): ?>
                                                 <option value="<?= $item['id'] ?>" 
@@ -154,7 +154,7 @@
                                 </div>
                                 <div class="mt-3 flex justify-end">
                                     <button type="button" class="text-red-600 hover:text-red-800 remove-item hidden">
-                                        <i class="fas fa-trash mr-1"></i>Remove
+                                        <i class="fas fa-trash mr-1"></i><?= esc($tr('removeItem')) ?>
                                     </button>
                                 </div>
                             </div>
@@ -162,7 +162,7 @@
                         
                         <div class="mt-4">
                             <button type="button" id="addItem" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-200">
-                                <i class="fas fa-plus mr-2"></i>Add Another Item
+                                <i class="fas fa-plus mr-2"></i><?= esc($tr('addAnotherItem')) ?>
                             </button>
                         </div>
                         

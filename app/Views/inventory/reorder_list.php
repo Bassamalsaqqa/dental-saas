@@ -144,14 +144,14 @@
                                             <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/status') ?>" class="flex gap-2">
                                                 <?= csrf_field() ?>
                                                 <input type="number" name="requested_qty" min="1" value="<?= (int) ($row['requested_qty'] ?? 1) ?>" class="w-20 px-2 py-1 border border-slate-300 rounded-md text-sm">
-                                                <select name="status" class="flex-1 px-2 py-1 border border-slate-300 rounded-md text-sm">
+                                                <select name="status" data-force-select2 data-allow-clear="false" class="flex-1 px-2 py-1 border border-slate-300 rounded-md text-sm">
                                                     <?php foreach (['draft', 'ordered', 'received', 'cancelled'] as $statusOption): ?>
                                                         <option value="<?= $statusOption ?>" <?= $status === $statusOption ? 'selected' : '' ?>><?= ucfirst($statusOption) ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <button type="submit" class="px-3 py-1 rounded-md bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700"><?= esc($tr('saveSupplier')) ?></button>
+                                                <button type="submit" class="px-3 py-1 rounded-md bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700"><?= esc($tr('apply')) ?></button>
                                             </form>
-                                            <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/delete') ?>" onsubmit="return confirm('Remove this reorder line?');">
+                                            <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/delete') ?>" onsubmit="return confirm('<?= esc(lang('Inventory.removeReorderLineConfirm'), 'js') ?>');">
                                                 <?= csrf_field() ?>
                                                 <button type="submit" class="w-full px-3 py-1 rounded-md bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100">
                                                     <i class="fas fa-trash mr-1"></i><?= esc($tr('removeLine')) ?>

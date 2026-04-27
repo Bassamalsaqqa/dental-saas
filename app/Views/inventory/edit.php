@@ -73,7 +73,7 @@
                         
                         <div>
                             <label for="category" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.categoryRequired') ?></label>
-                            <select id="category" name="category" data-force-select2 
+                            <select id="category" name="category" data-force-select2 data-allow-clear="false"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                     required>
                                 <option value=""><?= lang('Inventory.selectCategory') ?></option>
@@ -115,7 +115,7 @@
                         
                         <div>
                             <label for="unit" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.unit') ?></label>
-                            <select id="unit" name="unit" data-force-select2 
+                            <select id="unit" name="unit" data-force-select2 data-allow-clear="false"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="pieces" <?= old('unit', $item['unit'] ?? 'pieces') == 'pieces' ? 'selected' : '' ?>><?= lang('Inventory.unitPieces') ?></option>
                                 <option value="boxes" <?= old('unit', $item['unit'] ?? 'pieces') == 'boxes' ? 'selected' : '' ?>><?= lang('Inventory.unitBoxes') ?></option>
@@ -155,7 +155,7 @@
                                         <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"><?= lang('Inventory.quickAdd') ?></button>
                                     </div>
                                 </div>
-                                <select id="supplier_id" name="supplier_id" data-force-select2
+                                <select id="supplier_id" name="supplier_id" data-force-select2 data-allow-clear="false"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value=""><?= lang('Inventory.noLinkedSupplier') ?></option>
                                     <?php foreach (($supplier_directory ?? []) as $supplier): ?>
@@ -193,7 +193,7 @@
                                 <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty', $prefLink['preferred_order_qty'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.preferredReorderQty') ?>">
                                 <div class="grid grid-cols-3 gap-2">
                                     <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price', $prefLink['last_unit_price'] ?? '') ?>" class="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.lastSupplierPrice') ?>">
-                                    <select name="supplier_price_currency" data-force-select2 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <select name="supplier_price_currency" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
                                             <option value="<?= esc($currency) ?>" <?= (string) old('supplier_price_currency', $prefLink['currency'] ?? 'ILS') === (string) $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
                                         <?php endforeach; ?>
@@ -231,7 +231,7 @@
                         
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.statusRequired') ?></label>
-                            <select id="status" name="status" data-force-select2 
+                            <select id="status" name="status" data-force-select2 data-allow-clear="false"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                     required>
                                 <option value="active" <?= old('status', $item['status']) == 'active' ? 'selected' : '' ?>><?= lang('Inventory.statusActive') ?></option>

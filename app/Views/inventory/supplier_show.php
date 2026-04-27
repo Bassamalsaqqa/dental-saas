@@ -250,7 +250,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 </div>
                 <div>
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.paymentMethod')) ?></label>
-                    <select id="supplierPaymentMethod" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                    <select id="supplierPaymentMethod" data-force-select2 data-allow-clear="false" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                         <option value="cash"><?= esc(lang('Finance.cash')) ?></option>
                         <option value="card"><?= esc(lang('Finance.card')) ?></option>
                         <option value="bank_transfer"><?= esc(lang('Finance.bankTransfer')) ?></option>
@@ -260,7 +260,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 </div>
                 <div id="supplierLiquidityField" class="hidden">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.paidFromAccount')) ?></label>
-                    <select id="supplierLiquidityAccount" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                    <select id="supplierLiquidityAccount" data-force-select2 data-allow-clear="false" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                         <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                         <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                     </select>

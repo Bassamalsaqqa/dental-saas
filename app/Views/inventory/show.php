@@ -51,16 +51,16 @@
                                 <?php
                                 $status = 'in_stock';
                                 $statusClass = 'bg-green-100 text-green-800';
-                                $statusText = 'In Stock';
+                                $statusText = $tr('inStockStatus');
                                 
                                 if ($item['quantity'] == 0) {
                                     $status = 'out_of_stock';
                                     $statusClass = 'bg-red-100 text-red-800';
-                                    $statusText = 'Out of Stock';
+                                    $statusText = $tr('outOfStockStatus');
                                 } elseif (isset($item['min_quantity']) && $item['quantity'] <= $item['min_quantity']) {
                                     $status = 'low_stock';
                                     $statusClass = 'bg-yellow-100 text-yellow-800';
-                                    $statusText = 'Low Stock';
+                                    $statusText = $tr('lowStockStatus');
                                 }
                                 ?>
                                 <span class="px-3 py-1 text-sm font-semibold rounded-full <?= $statusClass ?>">
@@ -151,7 +151,7 @@
                         
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-medium text-gray-600"><?= esc($tr('supplier')) ?></span>
-                            <span class="text-sm text-gray-900"><?= $item['supplier'] ?: 'N/A' ?></span>
+                            <span class="text-sm text-gray-900"><?= $item['supplier'] ?: esc($tr('noSupplier')) ?></span>
                         </div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-medium text-gray-600"><?= esc($tr('storage')) ?></span>
-                            <span class="text-sm text-gray-900"><?= $item['location'] ?: 'N/A' ?></span>
+                            <span class="text-sm text-gray-900"><?= $item['location'] ?: esc($tr('notAvailable')) ?></span>
                         </div>
                         
                         <div class="flex justify-between items-center">
@@ -200,7 +200,7 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-medium text-gray-600"><?= esc($tr('createdBy')) ?></span>
-                            <span class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></span>
+                            <span class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : esc($tr('unknown')) ?></span>
                         </div>
                     </div>
                 </div>
@@ -221,13 +221,13 @@
                     <div class="text-center">
                         <div class="text-sm text-gray-600 font-medium"><?= esc($tr('created')) ?></div>
                         <div class="text-sm text-gray-900 font-semibold">
-                            <?= $item['created_at'] ? date('M j, Y', strtotime($item['created_at'])) : 'Unknown' ?>
+                            <?= $item['created_at'] ? date('M j, Y', strtotime($item['created_at'])) : esc($tr('unknown')) ?>
                         </div>
                     </div>
                     <div class="text-center">
                         <div class="text-sm text-gray-600 font-medium"><?= esc($tr('lastUpdated')) ?></div>
                         <div class="text-sm text-gray-900 font-semibold">
-                            <?= $item['updated_at'] ? date('M j, Y', strtotime($item['updated_at'])) : 'Unknown' ?>
+                            <?= $item['updated_at'] ? date('M j, Y', strtotime($item['updated_at'])) : esc($tr('unknown')) ?>
                         </div>
                     </div>
                     <div class="text-center">
@@ -268,24 +268,24 @@
                                                 <?php endif; ?>
                                             </div>
                                             <div class="mt-1 text-xs text-slate-600">
-                                                <?php if (!empty($link['supplier_sku'])): ?>SKU: <?= esc($link['supplier_sku']) ?><?php endif; ?>
-                                                <?php if (!empty($link['pack_size_label'])): ?><?= !empty($link['supplier_sku']) ? ' • ' : '' ?>Pack: <?= esc($link['pack_size_label']) ?><?php endif; ?>
-                                                <?php if (!empty($link['preferred_order_qty'])): ?> • Preferred Qty: <?= (int) $link['preferred_order_qty'] ?><?php endif; ?>
+                                                <?php if (!empty($link['supplier_sku'])): ?><?= esc($tr('supplierSku')) ?>: <?= esc($link['supplier_sku']) ?><?php endif; ?>
+                                                <?php if (!empty($link['pack_size_label'])): ?><?= !empty($link['supplier_sku']) ? ' • ' : '' ?><?= esc($tr('packSize')) ?>: <?= esc($link['pack_size_label']) ?><?php endif; ?>
+                                                <?php if (!empty($link['preferred_order_qty'])): ?> • <?= esc($tr('preferredQty')) ?>: <?= (int) $link['preferred_order_qty'] ?><?php endif; ?>
                                             </div>
                                             <div class="mt-1 text-xs text-slate-500">
-                                                <?php if (!empty($link['last_unit_price'])): ?>Last Price: <?= esc($link['currency'] ?? 'ILS') ?> <?= number_format((float) $link['last_unit_price'], 2) ?><?php endif; ?>
-                                                <?php if (!empty($link['phone'])): ?> • Phone: <?= esc($link['phone']) ?><?php endif; ?>
-                                                <?php if (!empty($link['whatsapp'])): ?> • WhatsApp: <?= esc($link['whatsapp']) ?><?php endif; ?>
+                                                <?php if (!empty($link['last_unit_price'])): ?><?= esc($tr('lastPrice')) ?>: <?= esc($link['currency'] ?? 'ILS') ?> <?= number_format((float) $link['last_unit_price'], 2) ?><?php endif; ?>
+                                                <?php if (!empty($link['phone'])): ?> • <?= esc($tr('phone')) ?>: <?= esc($link['phone']) ?><?php endif; ?>
+                                                <?php if (!empty($link['whatsapp'])): ?> • <?= esc($tr('whatsApp')) ?>: <?= esc($link['whatsapp']) ?><?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <button type="button" onclick="addItemToReorder(<?= (int) $item['id'] ?>, <?= (int) ($link['preferred_order_qty'] ?? 0) ?>)" class="inline-flex items-center px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600">
-                                                <i class="fas fa-cart-plus mr-2"></i>Add to Reorder
+                                                <i class="fas fa-cart-plus mr-2"></i><?= esc($tr('addToReorderList')) ?>
                                             </button>
-                                            <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link/' . (int) $link['id'] . '/delete') ?>" onsubmit="return confirm('Remove this supplier mapping?');">
+                                            <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link/' . (int) $link['id'] . '/delete') ?>" onsubmit="return confirm('<?= esc(lang('Inventory.removeSupplierMappingConfirm'), 'js') ?>');">
                                                 <?= csrf_field() ?>
                                                 <button type="submit" class="inline-flex items-center px-3 py-2 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100">
-                                                    <i class="fas fa-trash mr-2"></i>Remove
+                                                    <i class="fas fa-trash mr-2"></i><?= esc($tr('removeItem')) ?>
                                                 </button>
                                             </form>
                                         </div>
@@ -314,7 +314,7 @@
                         <?= csrf_field() ?>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('supplier')) ?></label>
-                            <select name="link_supplier_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
+                            <select name="link_supplier_id" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
                                 <option value=""><?= esc($tr('supplier')) ?></option>
                                 <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                                     <option value="<?= (int) $supplier['id'] ?>"><?= esc($supplier['name']) ?></option>
@@ -322,25 +322,25 @@
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" name="supplier_sku" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Supplier SKU">
-                            <input type="text" name="pack_size_label" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Pack size">
-                            <input type="number" min="1" step="1" name="preferred_order_qty" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Preferred qty">
+                            <input type="text" name="supplier_sku" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="<?= esc($tr('supplierSku')) ?>">
+                            <input type="text" name="pack_size_label" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="<?= esc($tr('packSize')) ?>">
+                            <input type="number" min="1" step="1" name="preferred_order_qty" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="<?= esc($tr('preferredQty')) ?>">
                             <div class="grid grid-cols-3 gap-2">
-                                <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Last price">
-                                <select name="link_currency" class="w-full px-2 py-2 border border-slate-300 rounded-lg bg-white text-sm">
+                                <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="<?= esc($tr('lastPrice')) ?>">
+                                <select name="link_currency" data-force-select2 data-allow-clear="false" class="w-full px-2 py-2 border border-slate-300 rounded-lg bg-white text-sm">
                                     <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
                                         <option value="<?= esc($currency) ?>"><?= esc($currency) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
-                        <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Notes (optional)"></textarea>
+                        <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
                         <label class="flex items-center gap-2 text-sm text-slate-700">
                             <input type="checkbox" name="is_preferred" value="1" checked class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                            Set as preferred supplier
+                            <?= esc($tr('setAsPreferredSupplier')) ?>
                         </label>
                         <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-semibold shadow hover:shadow-lg">
-                            <i class="fas fa-save mr-2"></i>Save Supplier Mapping
+                            <i class="fas fa-save mr-2"></i><?= esc($tr('saveSupplierMapping')) ?>
                         </button>
                     </form>
                 </div>
@@ -360,7 +360,7 @@
                             <p class="text-xs text-gray-500"><?= esc($tr('movementsSubtitle')) ?></p>
                         </div>
                     </div>
-                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700"><?= count($movements ?? []) ?> movement(s)</span>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700"><?= esc($tr('rowsCount', ['count' => count($movements ?? [])])) ?></span>
                 </div>
 
                 <?php if (!empty($movements)): ?>

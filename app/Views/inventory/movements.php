@@ -30,11 +30,11 @@
             <form method="get" action="<?= base_url('inventory/movements') ?>" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('search')) ?></label>
-                    <input type="text" name="q" value="<?= esc((string) ($filters['q'] ?? '')) ?>" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" placeholder="Item, lot, notes...">
+                    <input type="text" name="q" value="<?= esc((string) ($filters['q'] ?? '')) ?>" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" placeholder="<?= esc($tr('itemSearchPlaceholder')) ?>">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('movementType')) ?></label>
-                    <select name="movement_type" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
+                    <select name="movement_type" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
                         <?php foreach (($movement_types ?? []) as $value => $label): ?>
                             <option value="<?= esc($value) ?>" <?= (string) ($filters['movement_type'] ?? '') === (string) $value ? 'selected' : '' ?>><?= esc($label) ?></option>
                         <?php endforeach; ?>
@@ -42,7 +42,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('item')) ?></label>
-                    <select name="inventory_id" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
+                    <select name="inventory_id" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
                         <option value="0"><?= esc($tr('allItems')) ?></option>
                         <?php foreach (($inventory_options ?? []) as $inv): ?>
                             <option value="<?= (int) $inv['id'] ?>" <?= (int) ($filters['inventory_id'] ?? 0) === (int) $inv['id'] ? 'selected' : '' ?>><?= esc((string) $inv['item_name']) ?></option>
@@ -58,7 +58,7 @@
                     <input type="text" data-clinic-date="1" name="date_to" value="<?= esc((string) ($filters['date_to'] ?? '')) ?>" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="number" min="1" max="200" name="limit" value="<?= (int) ($filters['limit'] ?? 100) ?>" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" title="Max rows">
+                    <input type="number" min="1" max="200" name="limit" value="<?= (int) ($filters['limit'] ?? 100) ?>" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" title="<?= esc($tr('maxRows')) ?>">
                     <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700">
                         <i class="fas fa-filter mr-1"></i><?= esc($tr('apply')) ?>
                     </button>
