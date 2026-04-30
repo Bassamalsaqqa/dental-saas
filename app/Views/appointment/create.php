@@ -207,7 +207,7 @@
                                         <?php
                                             $defaultDuration = (int) getAppointmentDuration();
                                             $selectedDuration = (int) old('duration', $defaultDuration);
-                                            $durationOptions = [30, 45, 60, 90, 120];
+                                            $durationOptions = [30, 45, 60, 90, 120, 180];
                                             if (!in_array($selectedDuration, $durationOptions, true) && $selectedDuration > 0) {
                                                 $durationOptions[] = $selectedDuration;
                                                 sort($durationOptions, SORT_NUMERIC);

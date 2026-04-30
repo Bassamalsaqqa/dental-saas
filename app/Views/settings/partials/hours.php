@@ -10,7 +10,7 @@
                             <form action="<?= base_url('settings/updateWorkingHours') ?>" method="POST">
                                 <?= csrf_field() ?>
                                 <?php
-                                    $appointmentDurationOptions = [30, 45, 60, 90, 120];
+                                    $appointmentDurationOptions = [30, 45, 60, 90, 120, 180];
                                     $selectedAppointmentDuration = (int) old('appointment_duration', $settings['appointment_duration'] ?? 30);
                                     if (!in_array($selectedAppointmentDuration, $appointmentDurationOptions, true) && $selectedAppointmentDuration > 0) {
                                         $appointmentDurationOptions[] = $selectedAppointmentDuration;
