@@ -2,40 +2,118 @@
 
 <?= $this->section('content') ?>
 
+<?php
+$isRtl = !empty($is_rtl);
+$iconGap = $isRtl ? 'ml-2' : 'mr-2';
+$iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
+?>
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 <style>
-.dataTables_wrapper { position: relative !important; }
-.dataTables_length { display: flex !important; align-items: center !important; gap: 8px !important; }
-.dataTables_length select { padding: 8px 12px !important; background: white !important; border: 1px solid #d1d5db !important; border-radius: 8px !important; font-size: 14px !important; color: #374151 !important; outline: none !important; }
-.dataTables_length select:focus { border-color: #06b6d4 !important; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1) !important; }
-.dataTables_filter { display: flex !important; align-items: center !important; gap: 8px !important; margin-left: auto !important; }
-.dataTables_filter input { padding: 8px 12px !important; border: 1px solid #d1d5db !important; border-radius: 8px !important; font-size: 14px !important; outline: none !important; min-width: 200px; }
-.dataTables_filter input:focus { border-color: #06b6d4 !important; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1) !important; }
-#providersTable { width: 100% !important; }
-#providersTable th { background: #f9fafb !important; font-weight: 600 !important; color: #4b5563 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; padding: 16px 24px !important; border-bottom: 1px solid #e5e7eb !important; }
-#providersTable td { padding: 16px 24px !important; vertical-align: middle !important; font-size: 14px !important; color: #374151 !important; border-bottom: 1px solid #f3f4f6 !important; }
-#providersTable tbody tr:hover { background: #ecfeff !important; }
-.dataTables_paginate .paginate_button.current { background: linear-gradient(to right, #06b6d4, #0891b2) !important; border: none !important; color: #fff !important; border-radius: 6px !important; }
-.filter-btn { padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; border: 1px solid #e2e8f0; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
-.filter-btn:hover { background: #f0fdfa; border-color: #06b6d4; color: #0891b2; }
-.filter-btn.active { background: linear-gradient(to right, #06b6d4, #0891b2); color: white; border-color: transparent; }
+.providers-page .dataTables_wrapper { position: relative !important; }
+.providers-page .dataTables_length,
+.providers-page .dataTables_filter,
+.providers-page .dataTables_info,
+.providers-page .dataTables_paginate { display: flex !important; align-items: center !important; }
+.providers-page .dataTables_length label,
+.providers-page .dataTables_filter label { display: flex !important; align-items: center !important; gap: .5rem !important; margin: 0 !important; font-size: .875rem !important; font-weight: 600 !important; color: #475569 !important; }
+.providers-page .dataTables_length select,
+.providers-page .dataTables_filter input {
+    height: 2.5rem !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: .75rem !important;
+    background: #fff !important;
+    color: #334155 !important;
+    font-size: .875rem !important;
+    outline: none !important;
+}
+.providers-page .dataTables_length select { padding: .5rem .75rem !important; }
+.providers-page .dataTables_filter input { min-width: 16rem; padding: .5rem .9rem !important; }
+.providers-page .dataTables_length select:focus,
+.providers-page .dataTables_filter input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important; }
+.providers-page table.dataTable { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }
+.providers-page #providersTable thead th {
+    padding: .95rem .75rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: .72rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    text-align: start !important;
+    white-space: nowrap !important;
+}
+.providers-page #providersTable tbody td {
+    padding: .95rem .75rem !important;
+    border-bottom: 1px solid #edf2f7 !important;
+    color: #334155 !important;
+    font-size: .875rem !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+.providers-page #providersTable tbody tr:hover { background: #f0fdf4 !important; }
+.providers-page .dataTables_paginate .paginate_button {
+    margin: 0 .125rem !important;
+    padding: .45rem .7rem !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: .5rem !important;
+    background: #fff !important;
+    color: #334155 !important;
+    font-size: .875rem !important;
+    font-weight: 600 !important;
+}
+.providers-page .dataTables_paginate .paginate_button.current {
+    border-color: #10b981 !important;
+    background: #10b981 !important;
+    color: #fff !important;
+}
+.providers-page .providers-table-toolbar {
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    padding: 1rem 1.5rem;
+}
+.providers-page .providers-table-footer {
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    padding: 1rem 1.5rem;
+}
+.providers-page .provider-filter {
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    background: #fff;
+    color: #475569;
+    font-size: .8125rem;
+    font-weight: 700;
+    padding: .5rem .9rem;
+    transition: all .2s ease;
+}
+.providers-page .provider-filter:hover { border-color: #10b981; color: #047857; background: #ecfdf5; }
+.providers-page .provider-filter.active { border-color: transparent; color: #fff; background: linear-gradient(to right, #10b981, #0d9488); }
+[dir="rtl"] .providers-page .dataTables_filter { margin-right: auto !important; margin-left: 0 !important; }
+[dir="rtl"] .providers-page .dataTables_length { margin-left: auto !important; margin-right: 0 !important; }
+[dir="rtl"] .providers-page table.dataTable th,
+[dir="rtl"] .providers-page table.dataTable td { text-align: right !important; }
+@media (max-width: 640px) {
+    .providers-page .dataTables_filter input { min-width: 12rem; width: 100%; }
+    .providers-page #providersTable tbody td,
+    .providers-page #providersTable thead th { padding-left: .75rem !important; padding-right: .75rem !important; }
+}
 </style>
 
-<!-- Header Section -->
-<div class="relative mb-8 overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-teal-600/5 rounded-3xl"></div>
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-sky-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/10 to-cyan-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+<div class="providers-page min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 <?= $isRtl ? '-left-40' : '-right-40' ?> w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 <?= $isRtl ? '-right-40' : '-left-40' ?> w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    </div>
 
     <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
-        <!-- Page Header -->
         <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
-                    <div class="flex items-start sm:items-center space-x-3 sm:space-x-4">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <div class="flex items-start sm:items-center gap-3 sm:gap-4">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-handshake text-lg sm:text-xl"></i>
                         </div>
                         <div>
@@ -43,187 +121,126 @@
                             <p class="text-gray-600"><?= esc(lang('Provider.pageSubtitle')) ?></p>
                         </div>
                     </div>
-                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
-                        <?php if (has_permission('inventory', 'edit')): ?>
-                            <button type="button" id="addSupplierBtn" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-sky-600 text-white text-sm font-semibold rounded-lg hover:from-cyan-600 hover:to-sky-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus mr-2"></i>
-                                <?= esc(lang('Provider.addSupplier')) ?>
-                            </button>
-                        <?php endif; ?>
-                    </div>
+                    <?php if (has_permission('inventory', 'edit')): ?>
+                        <button type="button" id="addSupplierBtn" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <i class="fas fa-plus <?= $iconGap ?>"></i>
+                            <?= esc(lang('Provider.addSupplier')) ?>
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
-                <!-- Total Suppliers -->
+        <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
+            <?php
+            $cards = [
+                ['id' => 'totalCombined', 'label' => lang('Provider.allProviders'), 'icon' => 'fa-handshake', 'tone' => 'from-emerald-500 to-teal-600', 'soft' => 'from-emerald-100 to-teal-100', 'text' => 'text-emerald-700'],
+                ['id' => 'activeSuppliers', 'label' => lang('Provider.activeSuppliers'), 'icon' => 'fa-check-circle', 'tone' => 'from-green-500 to-emerald-600', 'soft' => 'from-green-100 to-emerald-100', 'text' => 'text-green-700'],
+                ['id' => 'totalProviders', 'label' => lang('Provider.clinicalProviders'), 'icon' => 'fa-user-doctor', 'tone' => 'from-blue-500 to-indigo-600', 'soft' => 'from-blue-100 to-indigo-100', 'text' => 'text-blue-700'],
+                ['id' => 'outstandingBalance', 'label' => lang('Provider.outstandingBalance'), 'icon' => 'fa-wallet', 'tone' => 'from-amber-500 to-orange-600', 'soft' => 'from-amber-100 to-orange-100', 'text' => 'text-amber-700'],
+            ];
+            ?>
+            <?php foreach ($cards as $card): ?>
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-sky-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-cyan-500/10 group-hover:shadow-cyan-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
+                    <div class="absolute inset-0 bg-gradient-to-br <?= esc($card['tone']) ?> opacity-0 group-hover:opacity-20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4 gap-3">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-truck text-xl"></i>
+                                <div class="absolute inset-0 bg-gradient-to-br <?= esc($card['tone']) ?> rounded-2xl blur-lg opacity-75"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br <?= esc($card['tone']) ?> text-white shadow-xl">
+                                    <i class="fas <?= esc($card['icon']) ?> text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-cyan-100 to-sky-100 px-3 py-1.5 rounded-full border border-cyan-200">
-                                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
-                                <span class="text-cyan-700 font-bold text-xs"><?= esc(lang('Provider.totalProviders')) ?></span>
+                            <div class="inline-flex items-center gap-2 bg-gradient-to-r <?= esc($card['soft']) ?> px-3 py-1.5 rounded-full border border-white/60">
+                                <span class="w-2 h-2 rounded-full bg-current <?= esc($card['text']) ?>"></span>
+                                <span class="<?= esc($card['text']) ?> font-bold text-xs"><?= esc($card['label']) ?></span>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-gray-900" id="totalSuppliers"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.totalProviders')) ?></p>
+                        <div class="mt-auto">
+                            <p class="text-3xl font-black text-gray-900" id="<?= esc($card['id']) ?>"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
+                            <p class="text-sm text-gray-500 mt-2 font-medium"><?= esc($card['label']) ?></p>
+                        </div>
                     </div>
                 </div>
+            <?php endforeach; ?>
+        </div>
 
-                <!-- Active Suppliers -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-check-circle text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                <span class="text-emerald-700 font-bold text-xs">Active</span>
-                            </div>
-                        </div>
-                        <p class="text-3xl font-bold text-gray-900" id="activeSuppliers"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.activeSuppliers')) ?></p>
+        <div class="mb-8 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                        <h2 class="text-lg font-semibold text-gray-900"><?= esc(lang('Provider.tableTitle')) ?></h2>
                     </div>
-                </div>
-
-                <!-- Clinical Providers -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-violet-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-user-md text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-violet-100 px-3 py-1.5 rounded-full border border-purple-200">
-                                <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                                <span class="text-purple-700 font-bold text-xs"><?= esc(lang('Provider.clinicalProviders')) ?></span>
-                            </div>
-                        </div>
-                        <p class="text-3xl font-bold text-gray-900" id="totalProviders"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.clinicalProviders')) ?></p>
-                    </div>
-                </div>
-
-                <!-- Outstanding Balance -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-yellow-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-coins text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-yellow-100 px-3 py-1.5 rounded-full border border-amber-200">
-                                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-                                <span class="text-amber-700 font-bold text-xs"><?= esc(lang('Provider.outstandingBalance')) ?></span>
-                            </div>
-                        </div>
-                        <p class="text-3xl font-bold text-gray-900" id="outstandingBalance"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.outstandingBalance')) ?></p>
+                    <div class="flex flex-wrap gap-2" id="typeFilters">
+                        <button type="button" class="provider-filter active" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
+                        <button type="button" class="provider-filter" data-type="supplier"><i class="fas fa-truck <?= $iconGapSmall ?>"></i><?= esc(lang('Provider.filterSuppliers')) ?></button>
+                        <button type="button" class="provider-filter" data-type="clinical_provider"><i class="fas fa-user-doctor <?= $iconGapSmall ?>"></i><?= esc(lang('Provider.filterProviders')) ?></button>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Providers Table -->
-        <div class="mb-8">
-            <div id="tableView" class="bg-white rounded-xl border border-gray-200 shadow-lg">
-                <!-- Table Header -->
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Providers Directory</h3>
-                        </div>
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                            <!-- Type Filter -->
-                            <div class="flex flex-wrap gap-2" id="typeFilters">
-                                <button class="filter-btn active" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
-                                <button class="filter-btn" data-type="supplier"><i class="fas fa-truck mr-1"></i><?= esc(lang('Provider.filterSuppliers')) ?></button>
-                                <button class="filter-btn" data-type="clinical_provider"><i class="fas fa-user-md mr-1"></i><?= esc(lang('Provider.filterProviders')) ?></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Table -->
-                <div class="overflow-x-auto">
-                    <table id="providersTable" class="w-full min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-tag text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colType')) ?></span>
-                                    </div>
-                                </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-user text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colName')) ?></span>
-                                    </div>
-                                </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-address-book text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colContact')) ?></span>
-                                    </div>
-                                </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-phone text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colPhone')) ?></span>
-                                    </div>
-                                </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-info-circle text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colStatus')) ?></span>
-                                    </div>
-                                </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-calendar text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colCreated')) ?></span>
-                                    </div>
-                                </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-cogs text-cyan-600"></i>
-                                        <span><?= esc(lang('Provider.colActions')) ?></span>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div class="overflow-x-auto">
+                <table id="providersTable" class="w-full min-w-full">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-user text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.colName')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-tag text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.colType')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-address-book text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.colContact')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-chart-simple text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.colStats')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-wallet text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.openAmount')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-circle-info text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.colStatus')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-calendar text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.lastActivity')) ?></span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-cogs text-emerald-600"></i>
+                                    <span><?= esc(lang('Provider.colActions')) ?></span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add Supplier Modal -->
-<div id="quickSupplierModal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4" role="dialog" aria-modal="true">
+<div id="quickSupplierModal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4" role="dialog" aria-modal="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" data-modal-close></div>
     <div class="relative flex min-h-full items-center justify-center">
         <div class="relative rounded-2xl bg-white shadow-2xl w-full max-w-lg" onclick="event.stopPropagation()">
@@ -239,21 +256,21 @@
             <div class="space-y-4 px-6 py-6">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierName"><?= esc(lang('Provider.supplierName')) ?> *</label>
-                    <input type="text" id="quickSupplierName" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none" placeholder="<?= esc(lang('Provider.supplierName')) ?>">
+                    <input type="text" id="quickSupplierName" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none" placeholder="<?= esc(lang('Provider.supplierName')) ?>">
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierContact"><?= esc(lang('Provider.contactPerson')) ?></label>
-                        <input type="text" id="quickSupplierContact" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+                        <input type="text" id="quickSupplierContact" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierPhone"><?= esc(lang('Provider.phone')) ?></label>
-                        <input type="text" id="quickSupplierPhone" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+                        <input type="text" id="quickSupplierPhone" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierEmail"><?= esc(lang('Provider.email')) ?></label>
-                    <input type="email" id="quickSupplierEmail" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+                    <input type="email" id="quickSupplierEmail" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
                 </div>
                 <p id="quickSupplierStatus" class="text-xs text-slate-500 hidden"></p>
             </div>
@@ -261,8 +278,8 @@
                 <button type="button" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors" data-modal-close>
                     <?= esc(lang('Provider.cancel')) ?>
                 </button>
-                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-cyan-500 to-sky-600 rounded-lg hover:from-cyan-600 hover:to-sky-700 transition-all shadow-md">
-                    <i class="fas fa-plus mr-2"></i><?= esc(lang('Provider.createSupplier')) ?>
+                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md">
+                    <i class="fas fa-plus <?= $iconGap ?>"></i><?= esc(lang('Provider.createSupplier')) ?>
                 </button>
             </div>
         </div>
@@ -274,38 +291,59 @@
 <script>
 (function() {
     let providersTable;
-    const csrfName = document.querySelector('meta[name="csrf-name"]')?.content || '<?= csrf_token() ?>';
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '<?= csrf_hash() ?>';
-    const csrfHeader = document.querySelector('meta[name="csrf-header"]')?.content || '<?= csrf_header() ?>';
     let activeTypeFilter = '';
+    const isRtl = <?= $isRtl ? 'true' : 'false' ?>;
+    const modal = $('#quickSupplierModal');
+    const nameInput = $('#quickSupplierName');
+    const statusText = $('#quickSupplierStatus');
 
     const i18n = {
-        typeSupplier: '<?= esc(lang('Provider.typeSupplier'), 'js') ?>',
-        typeClinicalProvider: '<?= esc(lang('Provider.typeClinicalProvider'), 'js') ?>',
-        statusActive: '<?= esc(lang('Provider.statusActive'), 'js') ?>',
-        statusInactive: '<?= esc(lang('Provider.statusInactive'), 'js') ?>',
+        supplier: '<?= esc(lang('Provider.typeSupplier'), 'js') ?>',
+        clinical: '<?= esc(lang('Provider.typeClinicalProvider'), 'js') ?>',
         noContact: '<?= esc(lang('Provider.noContact'), 'js') ?>',
-        noPhone: '<?= esc(lang('Provider.noPhone'), 'js') ?>',
-        noEmail: '<?= esc(lang('Provider.noEmail'), 'js') ?>',
-        guestProvider: '<?= esc(lang('Provider.guestProvider'), 'js') ?>',
-        viewSupplier: '<?= esc(lang('Provider.viewSupplier'), 'js') ?>',
-        viewProvider: '<?= esc(lang('Provider.viewProvider'), 'js') ?>',
-        typeLabel: '<?= esc(lang('Provider.colType'), 'js') ?>',
-        nameLabel: '<?= esc(lang('Provider.colName'), 'js') ?>',
-        contactLabel: '<?= esc(lang('Provider.colContact'), 'js') ?>',
-        phoneLabel: '<?= esc(lang('Provider.colPhone'), 'js') ?>',
-        statusLabel: '<?= esc(lang('Provider.colStatus'), 'js') ?>',
-        createdLabel: '<?= esc(lang('Provider.colCreated'), 'js') ?>',
         loading: '<?= esc(lang('Provider.loading'), 'js') ?>',
         noRecords: '<?= esc(lang('Provider.noRecords'), 'js') ?>',
         searchPlaceholder: '<?= esc(lang('Provider.searchPlaceholder'), 'js') ?>',
         showing: '<?= esc(lang('Provider.showing'), 'js') ?>',
         infoEmpty: '<?= esc(lang('Provider.infoEmpty'), 'js') ?>',
-        infoFiltered: '<?= esc(lang('Provider.infoFiltered'), 'js') ?>'
+        infoFiltered: '<?= esc(lang('Provider.infoFiltered'), 'js') ?>',
+        supplierNameRequired: '<?= esc(lang('Provider.supplierNameRequired'), 'js') ?>',
+        supplierExists: '<?= esc(lang('Provider.supplierExists'), 'js') ?>',
+        failedToCreate: '<?= esc(lang('Provider.failedToCreate'), 'js') ?>',
+        creatingSupplier: '<?= esc(lang('Provider.creatingSupplier'), 'js') ?>',
+        createSupplier: '<?= esc(lang('Provider.createSupplier'), 'js') ?>'
     };
 
-    function escHtml(str) {
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    function escHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, function(match) {
+            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[match];
+        });
+    }
+
+    function typeBadge(row) {
+        const supplier = row.type === 'supplier';
+        const classes = supplier ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800';
+        const icon = supplier ? 'fa-truck' : 'fa-user-doctor';
+        return '<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.type_label) + '</span>';
+    }
+
+    function statusBadge(row) {
+        let classes = 'bg-gray-100 text-gray-800';
+        let icon = 'fa-circle-info';
+        if (row.status === 'active' || row.status === 'settled') {
+            classes = 'bg-green-100 text-green-800';
+            icon = 'fa-check-circle';
+        } else if (row.status === 'inactive') {
+            icon = 'fa-times-circle';
+        } else if (row.status === 'balance_due') {
+            classes = 'bg-yellow-100 text-yellow-800';
+            icon = 'fa-clock';
+        }
+        return '<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.status_label) + '</span>';
+    }
+
+    function formatDate(value) {
+        return value ? escHtml(String(value).substring(0, 10)) : '-';
     }
 
     function initDataTable() {
@@ -314,86 +352,75 @@
             serverSide: true,
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-            order: [[1, 'asc']],
-            dom: '<"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4"<"flex items-center gap-2"l><"flex items-center"f>>rt<"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4"<"text-sm text-gray-500"i><"flex"p>>',
+            order: [[0, 'asc']],
+            dom: '<"providers-table-toolbar"<"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"lf>>rt<"providers-table-footer"<"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"ip>>',
             ajax: {
                 url: '<?= base_url('providers/data') ?>',
                 type: 'POST',
-                headers: { [csrfHeader]: csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
                 data: function(d) {
                     d.type = activeTypeFilter;
-                    d[csrfName] = csrfToken;
                 },
-                error: function() { console.error('DataTables AJAX error'); }
+                error: function() {
+                    console.error('Providers table failed to load.');
+                }
             },
             columns: [
-                {
-                    data: 'type',
-                    orderable: true,
-                    render: function(data) {
-                        if (data === 'supplier') {
-                            return '<div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200"><i class="fas fa-truck text-xs"></i> ' + i18n.typeSupplier + '</div><div class="text-xs text-gray-500">' + i18n.typeLabel + '</div></div>';
-                        }
-                        return '<div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200"><i class="fas fa-user-md text-xs"></i> ' + i18n.typeClinicalProvider + '</div><div class="text-xs text-gray-500">' + i18n.typeLabel + '</div></div>';
-                    }
-                },
-                {
-                    data: 'name',
-                    orderable: true,
-                    render: function(data, type, row) {
-                        var icon = row.type === 'supplier' ? '<i class="fas fa-truck text-cyan-700"></i>' : '<i class="fas fa-user-md text-purple-700"></i>';
-                        var guestTag = '';
-                        if (row.type === 'clinical_provider' && row.name === i18n.guestProvider) {
-                            guestTag = ' <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200">' + i18n.guestProvider + '</span>';
-                        }
-                        return '<div class="flex items-center space-x-3"><span class="inline-flex items-center justify-center w-7 h-7">' + icon + '</span><div><div class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + guestTag + '</div><div class="text-xs text-gray-500">' + i18n.nameLabel + '</div></div></div>';
-                    }
-                },
-                {
-                    data: 'contact_person',
-                    orderable: false,
-                    render: function(data) {
-                        return data ? '<div class="flex items-center space-x-2"><i class="fas fa-address-book text-cyan-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div>' : '<span class="text-gray-400">' + i18n.noContact + '</span>';
-                    }
-                },
-                {
-                    data: 'phone',
-                    orderable: false,
-                    render: function(data) {
-                        return data ? '<div class="flex items-center space-x-2"><i class="fas fa-phone text-cyan-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div>' : '<span class="text-gray-400">' + i18n.noPhone + '</span>';
-                    }
-                },
-                {
-                    data: 'status',
-                    orderable: true,
-                    render: function(data, type, row) {
-                        if (row.type === 'supplier') {
-                            var active = data === 'active';
-                            var cls = active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200';
-                            return '<div class="flex items-center space-x-2"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ' + cls + '"><i class="fas ' + (active ? 'fa-check-circle' : 'fa-times-circle') + ' text-xs mr-1"></i>' + (active ? i18n.statusActive : i18n.statusInactive) + '</span></div>';
-                        }
-                        var due = data === 'balance_due';
-                        var cls = due ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                        return '<div class="flex items-center space-x-2"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ' + cls + '">' + escHtml(row.status_label) + '</span></div>';
-                    }
-                },
-                {
-                    data: 'created_at',
-                    orderable: true,
-                    render: function(data) {
-                        if (!data) return '-';
-                        return '<div class="flex items-center space-x-2"><i class="fas fa-calendar text-cyan-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data.substring(0, 10)) + '</span></div>';
-                    }
-                },
-                {
-                    data: null,
-                    orderable: false,
-                    render: function(data, type, row) {
-                        if (!row.show_link) return '';
-                        return '<a href="' + row.link + '" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-cyan-700 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-colors"><i class="fas fa-external-link-alt mr-1.5"></i>' + row.link_label + '</a>';
-                    }
-                }
+                { data: 'name', render: function(data, type, row) {
+                    const icon = row.type === 'supplier' ? 'fa-truck text-emerald-700' : 'fa-user-doctor text-blue-700';
+                    return '<div class="flex items-center gap-3"><span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center"><i class="fas ' + icon + ' text-2xl"></i></span><div class="min-w-0"><div class="text-sm font-medium text-gray-900 truncate">' + escHtml(data || '-') + '</div><div class="text-xs text-gray-500 truncate">' + escHtml(row.type_label || '') + '</div></div></div>';
+                } },
+                { data: 'type', render: function(data, type, row) { return typeBadge(row); } },
+                { data: 'contact', orderable: false, render: function(data) {
+                    return data ? '<div class="flex items-center gap-2"><i class="fas fa-address-book text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div>' : '<span class="text-gray-400 text-sm">' + i18n.noContact + '</span>';
+                } },
+                { data: 'activity_count', render: function(data, type, row) {
+                    return '<div class="flex items-center gap-2"><i class="fas fa-chart-simple text-emerald-600 text-xs"></i><span class="text-sm font-medium text-gray-900">' + escHtml(row.activity_label || '-') + '</span></div>';
+                } },
+                { data: 'outstanding', render: function(data, type, row) {
+                    const due = Number(data) > 0;
+                    return '<div class="flex items-center gap-2"><i class="fas fa-wallet ' + (due ? 'text-amber-600' : 'text-emerald-600') + ' text-xs"></i><span class="text-sm font-medium ' + (due ? 'text-amber-700' : 'text-gray-900') + '">' + escHtml(row.outstanding_label || '0.00') + '</span></div>';
+                } },
+                { data: 'status', render: function(data, type, row) { return statusBadge(row); } },
+                { data: 'last_activity', render: function(data) {
+                    return '<div class="flex items-center gap-2"><i class="fas fa-calendar text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + formatDate(data) + '</span></div>';
+                } },
+                { data: null, orderable: false, render: function(data, type, row) {
+                    if (!row.show_link) return '';
+                    return '<a href="' + escHtml(row.link) + '" class="inline-flex items-center rounded-md p-2 text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
+                } }
             ],
+            createdRow: function(row, data) {
+                if (!data.show_link || !data.link) {
+                    return;
+                }
+
+                $(row)
+                    .addClass('cursor-pointer hover:bg-emerald-50/50 transition-colors duration-150')
+                    .attr('data-href', data.link)
+                    .attr('tabindex', '0')
+                    .attr('role', 'link')
+                    .attr('aria-label', data.name || '')
+                    .on('click', function(event) {
+                        if ($(event.target).closest('a, button').length) {
+                            return;
+                        }
+                        window.location.href = data.link;
+                    })
+                    .on('keydown', function(event) {
+                        if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                        }
+                        if ($(event.target).closest('a, button').length) {
+                            return;
+                        }
+                        event.preventDefault();
+                        window.location.href = data.link;
+                    });
+
+                $('a, button', row).on('click', function(event) {
+                    event.stopPropagation();
+                });
+            },
             language: {
                 processing: '<i class="fas fa-spinner fa-spin"></i> ' + i18n.loading,
                 zeroRecords: i18n.noRecords,
@@ -413,102 +440,93 @@
     }
 
     function loadStats() {
-        $.ajax({
-            url: '<?= base_url('providers/stats') ?>',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                $('#totalSuppliers').text(data.total_suppliers || 0);
+        $.getJSON('<?= base_url('providers/stats') ?>')
+            .done(function(data) {
+                $('#totalCombined').text(data.total_combined || 0);
                 $('#activeSuppliers').text(data.active_suppliers || 0);
                 $('#totalProviders').text(data.total_providers || 0);
-                var outstanding = parseFloat(data.outstanding_balance || 0);
-                $('#outstandingBalance').text(outstanding.toFixed(2));
-            },
-            error: function() {
-                $('#totalSuppliers, #activeSuppliers, #totalProviders, #outstandingBalance').text('0');
-            }
-        });
+                $('#outstandingBalance').text(Number(data.outstanding_balance || 0).toFixed(2));
+            })
+            .fail(function() {
+                $('#totalCombined, #activeSuppliers, #totalProviders, #outstandingBalance').text('0');
+            });
     }
 
-    // Type filter
-    $('#typeFilters').on('click', '.filter-btn', function() {
-        $('#typeFilters .filter-btn').removeClass('active');
+    function openModal() {
+        modal.removeClass('hidden');
+        setTimeout(function() { nameInput.trigger('focus'); }, 0);
+    }
+
+    function closeModal() {
+        modal.addClass('hidden');
+        $('#quickSupplierName, #quickSupplierContact, #quickSupplierPhone, #quickSupplierEmail').val('');
+        statusText.addClass('hidden').removeClass('text-red-600 text-amber-600').text('');
+    }
+
+    $('#typeFilters').on('click', '.provider-filter', function() {
+        $('#typeFilters .provider-filter').removeClass('active');
         $(this).addClass('active');
-        activeTypeFilter = $(this).data('type');
+        activeTypeFilter = $(this).data('type') || '';
         providersTable.ajax.reload();
     });
 
-    // Modal
-    var $modal = $('#quickSupplierModal');
-    var $nameInput = $('#quickSupplierName');
-    var $status = $('#quickSupplierStatus');
-
-    function openModal() { $modal.removeClass('hidden'); $nameInput.focus(); }
-    function closeModal() {
-        $modal.addClass('hidden');
-        $nameInput.val('');
-        $('#quickSupplierContact').val('');
-        $('#quickSupplierPhone').val('');
-        $('#quickSupplierEmail').val('');
-        $status.addClass('hidden').text('');
-    }
-
     $('#addSupplierBtn').on('click', openModal);
-
-    $(document).on('click', '[data-modal-close]', function(e) {
-        if (e.target === this || $(this).is('[data-modal-close]')) { closeModal(); }
-    });
-
+    $(document).on('click', '[data-modal-close]', closeModal);
     $(document).on('keydown', function(e) {
-        if (e.key === 'Escape' && !$modal.hasClass('hidden')) { closeModal(); }
+        if (e.key === 'Escape' && !modal.hasClass('hidden')) closeModal();
     });
 
     $('#createQuickSupplierBtn').on('click', function() {
-        var name = $nameInput.val().trim();
+        const name = nameInput.val().trim();
         if (!name) {
-            $status.removeClass('hidden').addClass('text-red-600').text('<?= esc(lang('Provider.supplierNameRequired'), 'js') ?>');
+            statusText.removeClass('hidden text-amber-600').addClass('text-red-600').text(i18n.supplierNameRequired);
             return;
         }
 
-        var $btn = $(this);
-        $btn.prop('disabled', true);
-        var spinner = document.createElement('i');
-        spinner.className = 'fas fa-spinner fa-spin mr-2';
-        $btn.empty().append(spinner).append(document.createTextNode('<?= esc(lang('Provider.creatingSupplier'), 'js') ?>'));
+        const btn = $(this);
+        const spinner = document.createElement('i');
+        spinner.className = 'fas fa-spinner fa-spin <?= $iconGap ?>';
+        btn.prop('disabled', true).empty().append(spinner).append(document.createTextNode(i18n.creatingSupplier));
 
-        var formData = new FormData();
+        const formData = new FormData();
         formData.append('name', name);
         formData.append('contact_person', $('#quickSupplierContact').val().trim());
         formData.append('phone', $('#quickSupplierPhone').val().trim());
         formData.append('email', $('#quickSupplierEmail').val().trim());
-        formData.append(csrfName, csrfToken);
+        if (window.csrfConfig?.name && window.getCsrfToken) {
+            formData.append(window.csrfConfig.name, window.getCsrfToken());
+        }
 
         fetch('<?= base_url('inventory/suppliers/quick-create') ?>', {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
             body: formData
         })
-        .then(function(res) { return res.json(); })
+        .then(function(response) { return response.json(); })
         .then(function(json) {
+            if (json.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(json.csrf_token);
+            }
+
             if (json.success) {
                 closeModal();
                 providersTable.ajax.reload();
                 loadStats();
-            } else if (json.duplicate) {
-                $status.removeClass('hidden text-red-600').addClass('text-amber-600').text('<?= esc(lang('Provider.supplierExists'), 'js') ?>');
-                setTimeout(function() { closeModal(); providersTable.ajax.reload(); }, 1500);
-            } else {
-                $status.removeClass('hidden').addClass('text-red-600').text(json.message || '<?= esc(lang('Provider.failedToCreate'), 'js') ?>');
+                return;
             }
+
+            statusText
+                .removeClass('hidden text-amber-600')
+                .addClass('text-red-600')
+                .text(json.message || i18n.failedToCreate);
         })
         .catch(function() {
-            $status.removeClass('hidden').addClass('text-red-600').text('<?= esc(lang('Provider.failedToCreate'), 'js') ?>');
+            statusText.removeClass('hidden text-amber-600').addClass('text-red-600').text(i18n.failedToCreate);
         })
         .finally(function() {
-            $btn.prop('disabled', false);
-            var plusIcon = document.createElement('i');
-            plusIcon.className = 'fas fa-plus mr-2';
-            $btn.empty().append(plusIcon).append(document.createTextNode('<?= esc(lang('Provider.createSupplier'), 'js') ?>'));
+            const plusIcon = document.createElement('i');
+            plusIcon.className = 'fas fa-plus <?= $iconGap ?>';
+            btn.prop('disabled', false).empty().append(plusIcon).append(document.createTextNode(i18n.createSupplier));
         });
     });
 
@@ -518,4 +536,5 @@
     });
 })();
 </script>
+
 <?= $this->endSection() ?>

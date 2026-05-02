@@ -53,19 +53,59 @@ class SupplierModel extends TenantAwareModel
 
     public function getDirectoryDataByClinic(int $clinicId, string $search = ''): array
     {
-        $builder = $this->where('clinic_id', $clinicId)
-            ->orderBy('name', 'ASC');
+        $financeSummary = $this->db->table('finances')
+            ->select('
+                supplier_id,
+                COUNT(*) AS bill_count,
+                SUM(COALESCE(amount, 0)) AS bill_total,
+                SUM(GREATEST(COALESCE(amount, 0) - COALESCE(amount_paid, 0), 0)) AS open_balance,
+                MAX(COALESCE(transaction_date, paid_date, DATE(created_at))) AS last_activity
+            ', false)
+            ->where('clinic_id', $clinicId)
+            ->where('transaction_type', 'expense')
+            ->where('supplier_id IS NOT NULL', null, false)
+            ->groupBy('supplier_id')
+            ->getCompiledSelect();
+
+        $inventorySummary = $this->db->table('inventory')
+            ->select('supplier_id, COUNT(*) AS item_count', false)
+            ->where('clinic_id', $clinicId)
+            ->where('supplier_id IS NOT NULL', null, false)
+            ->groupBy('supplier_id')
+            ->getCompiledSelect();
+
+        $linkSummary = $this->db->table('inventory_supplier_links')
+            ->select('supplier_id, COUNT(DISTINCT inventory_id) AS linked_item_count', false)
+            ->where('clinic_id', $clinicId)
+            ->groupBy('supplier_id')
+            ->getCompiledSelect();
+
+        $builder = $this->db->table('suppliers s')
+            ->select('
+                s.*,
+                COALESCE(fs.bill_count, 0) AS bill_count,
+                COALESCE(fs.bill_total, 0) AS bill_total,
+                COALESCE(fs.open_balance, 0) AS open_balance,
+                fs.last_activity,
+                COALESCE(inv.item_count, 0) + COALESCE(links.linked_item_count, 0) AS item_count
+            ', false)
+            ->join("({$financeSummary}) fs", 'fs.supplier_id = s.id', 'left', false)
+            ->join("({$inventorySummary}) inv", 'inv.supplier_id = s.id', 'left', false)
+            ->join("({$linkSummary}) links", 'links.supplier_id = s.id', 'left', false)
+            ->where('s.clinic_id', $clinicId)
+            ->orderBy('s.name', 'ASC');
 
         if ($search !== '') {
             $builder->groupStart()
-                ->like('name', $search)
-                ->orLike('contact_person', $search)
-                ->orLike('phone', $search)
-                ->orLike('email', $search)
+                ->like('s.name', $search)
+                ->orLike('s.contact_person', $search)
+                ->orLike('s.phone', $search)
+                ->orLike('s.whatsapp', $search)
+                ->orLike('s.email', $search)
                 ->groupEnd();
         }
 
-        return $builder->findAll();
+        return $builder->get()->getResultArray();
     }
 
     public function getDirectoryStatsByClinic(int $clinicId): array
@@ -76,4 +116,3 @@ class SupplierModel extends TenantAwareModel
         return ['total' => $total, 'active' => $active];
     }
 }
-

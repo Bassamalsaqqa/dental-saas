@@ -358,29 +358,40 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getDirectoryProvidersByClinic(int $clinicId, string $search = ''): array
     {
+        $providerKey = "CASE
+            WHEN pp.provider_type = 'user' AND pp.provider_user_id IS NOT NULL THEN CONCAT('user:', pp.provider_user_id)
+            ELSE CONCAT('guest:', LOWER(TRIM(COALESCE(NULLIF(pp.provider_name_snapshot, ''), 'Guest Provider'))))
+        END";
+
         $builder = $this->db->table('provider_payouts pp')
             ->select("
+                {$providerKey} AS directory_key,
                 pp.provider_type,
-                pp.provider_user_id,
-                pp.provider_name_snapshot,
+                MAX(pp.provider_user_id) AS provider_user_id,
+                MAX(pp.provider_name_snapshot) AS provider_name_snapshot,
                 COUNT(*) AS payout_count,
                 SUM(pp.gross_amount) AS gross_amount_total,
                 SUM(pp.provider_share_amount) AS provider_share_total,
                 SUM(pp.provider_paid_amount) AS provider_paid_total,
                 SUM(pp.provider_balance_due) AS provider_balance_total,
                 MAX(pp.created_at) AS latest_payout_date,
-                u.first_name,
-                u.last_name
+                MAX(u.first_name) AS first_name,
+                MAX(u.last_name) AS last_name,
+                MAX(u.phone) AS phone,
+                MAX(u.email) AS email
             ", false)
             ->join('users u', 'u.id = pp.provider_user_id', 'left')
             ->where('pp.clinic_id', $clinicId)
-            ->groupBy('pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot');
+            ->groupBy($providerKey, false)
+            ->groupBy('pp.provider_type');
 
         if ($search !== '') {
-            $builder->havingGroupStart()
+            $builder->groupStart()
                 ->like('pp.provider_name_snapshot', $search)
                 ->orLike("CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))", $search)
-                ->havingGroupEnd();
+                ->orLike('u.phone', $search)
+                ->orLike('u.email', $search)
+                ->groupEnd();
         }
 
         return $builder->orderBy('provider_share_total', 'DESC')->get()->getResultArray();
@@ -388,8 +399,13 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getDirectoryProviderCount(int $clinicId): int
     {
+        $providerKey = "CASE
+            WHEN provider_type = 'user' AND provider_user_id IS NOT NULL THEN CONCAT('user:', provider_user_id)
+            ELSE CONCAT('guest:', LOWER(TRIM(COALESCE(NULLIF(provider_name_snapshot, ''), 'Guest Provider'))))
+        END";
+
         $row = $this->db->table('provider_payouts')
-            ->select('COUNT(DISTINCT CONCAT(provider_type, "_", COALESCE(provider_user_id, 0))) AS cnt', false)
+            ->select("COUNT(DISTINCT {$providerKey}) AS cnt", false)
             ->where('clinic_id', $clinicId)
             ->get()
             ->getRowArray();
@@ -399,8 +415,13 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getDirectoryProviderStats(int $clinicId): array
     {
+        $providerKey = "CASE
+            WHEN provider_type = 'user' AND provider_user_id IS NOT NULL THEN CONCAT('user:', provider_user_id)
+            ELSE CONCAT('guest:', LOWER(TRIM(COALESCE(NULLIF(provider_name_snapshot, ''), 'Guest Provider'))))
+        END";
+
         $row = $this->db->table('provider_payouts')
-            ->select('COUNT(DISTINCT CONCAT(provider_type, "_", COALESCE(provider_user_id, 0))) AS total, SUM(provider_balance_due) AS outstanding', false)
+            ->select("COUNT(DISTINCT {$providerKey}) AS total, SUM(provider_balance_due) AS outstanding", false)
             ->where('clinic_id', $clinicId)
             ->get()
             ->getRowArray();
