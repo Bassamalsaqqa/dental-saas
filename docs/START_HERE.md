@@ -33,6 +33,17 @@ This is the active documentation surface for the project. Everything else is arc
 
 `docs/_archive/` contains historical evidence only: old audits, verification artifacts, dated plans, generated HTML, and copied code bundles. Archived docs are NOT source of truth. If you need historical context, browse the archive — but always confirm against the active docs above before making decisions.
 
-Current archive root: `docs/_archive/2026-05-02-docs-consolidation/`
+## Documentation Maintenance Rules
+
+1. **Active docs map is authoritative.** New docs must be added to the map above or they do not count as active.
+2. **Detailed verification evidence goes under `docs/_archive/`.** Do not create new `docs/verification/` or `docs/SaaS/verification/` directories.
+3. **Current implementation summaries go in `docs/CHANGELOG.md`.** Write a brief entry after each meaningful change.
+4. **Durable architectural/product decisions go in `docs/DECISIONS.md`.** Append-only; add a dated entry.
+5. **Do not create new dated root-level plan/audit files** (e.g., `docs/WHATSAPP_PLAN_V6_2026-05-15.md`) unless they are immediately archived after summarizing into the active docs.
+6. **Guardrail allowlists** (`docs/SaaS/guardrails/*`) must stay in place — the CI guardrail script hard-codes those paths.
+
+## Archive Roots
+
+Current: `docs/_archive/2026-05-02-docs-consolidation/`
 
 Legacy archive: `docs/_archive/security-hardening-preSaaS/`

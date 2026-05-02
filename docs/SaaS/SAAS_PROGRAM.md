@@ -56,7 +56,7 @@
 _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instantiate Task IDs per phase._
 - **Phase 0 — SaaS Scaffold & Guardrails**
   - DoD: CI guards defined (ban DOM sinks; ban raw tenant queries in controllers; ban group-based auth); SaaS docs imported; repo split/freeze rules documented.
-  - Verification: CI rules present; `docs/SaaS/verification/S0-*.md` per task.
+  - Verification: Verification evidence is archived under `docs/_archive/2026-05-02-docs-consolidation/`; new current summaries go in `docs/CHANGELOG.md` and decisions in `docs/DECISIONS.md`.
 - **Phase 1 — RBAC Consolidation**
   - DoD: `AdminFilter` removed; `ControlPlaneFilter` added; routes regrouped; no `in_group`/`is_admin` checks remain.
   - Verification: grep proof for removed group checks; permission denial behavior validated.
@@ -108,6 +108,9 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - Docs entrypoint: `docs/START_HERE.md`
 
 ## Append-Only Corrections & Decisions — 2026-01-16
+
+**Note:** The following section is historical. Old file paths may point to archived evidence from before the 2026-05-02 documentation consolidation. Do not treat those paths as active source-of-truth locations. See `docs/START_HERE.md` for the current active docs surface.
+
 ### Storage Path Correction (Supersedes Section 5)
 - **Authoritative storage path:** `writable/uploads/clinic_{clinic_id}/...`
 - **Note:** Section 5 wording (`writable/tenants/{clinic_uuid}`) is legacy and does not match the implemented storage service.

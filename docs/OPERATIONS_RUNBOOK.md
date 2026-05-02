@@ -81,3 +81,26 @@ Check `RewriteBase` — on Hostinger it should be `/` (not `/dental-saas/`).
 - Session cookie: `ci_session_saas`
 - Tenant login: `https://localhost/dental-saas/auth/login`
 - Control plane: `https://localhost/dental-saas/controlplane`
+
+## Docs QA
+
+```bash
+# Active docs count (expect 13)
+git ls-files docs | grep -v "^docs/_archive/" | grep -v "^docs/SaaS/guardrails/" | wc -l
+
+# Stale reference scan (expect no output)
+rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" \
+  README.md AGENTS.md gemini.md \
+  docs/START_HERE.md docs/PROJECT_STATE.md docs/OPERATIONS_RUNBOOK.md \
+  docs/CHANGELOG.md docs/DECISIONS.md docs/API_CONTRACT.md \
+  docs/FINANCE_CURRENT_STATE.md docs/WHATSAPP_CURRENT_STATE.md \
+  docs/CLINICAL_CURRENT_STATE.md \
+  docs/SaaS/TENANT_CONTEXT_CONTRACT.md \
+  docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md
+
+# DOM sink scan (expect empty)
+rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views
+
+# Guardrails
+bash scripts/ci/saas_guardrails.sh
+```
