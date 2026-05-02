@@ -34,66 +34,22 @@ I am the **Implementer**. My job is to implement only what the Planner/Reviewer 
 
 ---
 
-## C. Application Map (Source of Truth)
+## C. Application Map
 
-This is the canonical reference. Update it on every iteration so future implementers can skip past log replays and immediately understand the frontend, backend, database, connectors, guardrails, and environment.
+The codebase structure is documented in the canonical project docs. For architecture and subsystem orientation, see:
 
-### 1. Frontend & Layouts (`app/Views`)
-- **Control Plane UI:** `app/Views/control_plane/` hosts dashboards, clinics registry, plans, plan requests, invoices, activity log, operations, settings, and search views. Each extends `layouts/main_control_plane.php` (dark sidebar, glass cards, DataTables+AJAX). Use `control_plane/clinics.php` as the template for any new registry.
-- **Tenant UI:** `app/Views/dashboard`, `clinic`, `patient`, `appointment`, `finance`, `inventory`, `examination`, `treatment`, `prescription`, `reports`, etc., follow the glassmorphic stats header + DataTables pattern with action dropdowns. Shared pieces live in `app/Views/components/` (e.g., `smtp_form.php`).
-- **RBAC & Users:** Tenant user management screens under `app/Views/user_management/`. Role management (system + clinic) lives in `app/Views/roles/` using permission groupings (`Permissions::getGroupedByModule()`), action descriptions, and glassy selectors.
-- **Auth & Selection:** `layouts/main_auth.php` powers login/forgot/reset flows in `app/Views/auth/*`. Clinic selection uses `app/Views/clinic/select.php`, which respects guardrail instructions.
+- `docs/PROJECT_STATE.md` — current active phase, major modules, invariants
+- `docs/API_CONTRACT.md` — `/api/v1/*` routes, auth, error semantics
+- `docs/CLINICAL_CURRENT_STATE.md` — patient, examination, odontogram, treatment workflows
+- `docs/FINANCE_CURRENT_STATE.md` — revenue, expenses, payouts, treasury
+- `docs/WHATSAPP_CURRENT_STATE.md` — notification dispatch, webhooks, Phase 6 status
 
-### 2. Control Plane vs. Tenant Plane (Routes & Filters)
-- **Control Plane Routes:** Declared in the `controlplane` group in `app/Config/Routes.php` (protected by the `controlplane` filter). Key controllers: `ControlPlane\Entry`, `Dashboard`, `Clinics`, `Plans`, `PlanRequests`, `Invoices`, `ActivityLog`, `Operations`, `Settings`, `Search`, `Onboarding`. They require `global_mode=true` and fail closed with 404 when the session is invalid.
-- **Tenant Plane Routes:** Protected by `auth`, `tenant`, `subscription`, and `permission` filters. They require `active_clinic_id` and run without `global_mode`. Examples: `/patient`, `/appointment`, `/finance`, `/inventory`, `/reports`, `/notifications`.
-- **Session Keys:** `global_mode`, `active_clinic_id`, `is_impersonating`, and `impersonated_clinic_id` ensure airlock separation; missing values trigger the tenant-aware 404 logic.
-
-### 3. Backend Controllers & Flows
-- **Control Plane Controllers:** `app/Controllers/ControlPlane/*` handles clinics, onboarding, plans, invoices, plan requests, dashboard, activity log, operations, settings, search, and impersonation. Each enforces `global_mode`.
-- **RBAC Management:** `RoleController` orchestrates system and clinic roles, permission syncing (`PermissionSyncService`), stats (permission counts/user counts), and uses `PermissionService`'s `isSuperAdmin` and `canManageRoles`.
-- **Tenant User Flow:** `UserManagementController` uses `PlanGuard` for quotas, `ClinicUserModel` for memberships, `PermissionService` for permission grants, and remains inside the tenant plane.
-- **Auth & Clinic Selection:** `Auth.php`, `ControlPlane.php`, and `ClinicSelector.php` control logins, control-plane entry/exit, and the clinic select wall, all backed by `IonAuth`.
-- **Operation Modules:** `Patient`, `Doctor`, `Appointment`, `Examination`, `Finance`, `Inventory`, `Treatment`, `Prescription`, `Odontogram`, `Reports`, etc., all extend from base controllers and use the `permission` filter to gate access.
-- **API Controllers:** `app/Controllers/Api/*` and `app/Controllers/Api/V1/*` provide JSON endpoints protected by `apiv1` filters and permission codes (e.g., `permission:patients:view`).
-
-### 4. Models & Services
-- **Tenant Base:** `TenantAwareModel` auto-appends `clinic_id`, throws `PageNotFoundException` when context is missing, and allows controlled use of `withoutTenantScope()`.
-- **Key Models:** `ClinicModel`, `ClinicUserModel`, `UserModel`, `RoleModel`, `PermissionModel`, `UserRoleModel`, `PlanModel`, `PlanUsageModel`, `ClinicSubscriptionModel`, `FinanceModel`, `InventoryModel`, `AppointmentModel`, `PatientModel`, `ExaminationModel`, `NotificationModel`, `EmailTemplateModel`, `ControlPlaneInvoiceModel`.
-- **RBAC Services:** `PermissionService`, `PermissionSyncService`, `UserRoleModel`, `RolePermissionModel`, `PermissionModel` (with categories/actions from `\App\Config\Permissions`).
-- **Utilities & Connectors:** `IonAuth` (identity), `PlanGuard` (quota enforcement), `TenantJob`/`RunTenantJob` (tenant context), `ControlPlaneAuditService`, `StorageService`, `RetentionService`, `OnboardingService`, `NotificationLedger`, `PlanGuard`.
-
-### 5. Database Schema & Tables
-- **Identity & RBAC:** `users`, `clinic_users`, `roles`, `role_permissions`, `permissions`, `user_roles`, `permission_sync`.
-- **Control Plane Data:** `clinics`, `clinic_subscriptions`, `plans`, `plan_requests`, `plan_usage`, `control_plane_invoices`, `control_plane_invoice_payments`, `activity_log`, `control_plane_audit`, `operations`.
-- **Tenant Operations:** `patients`, `examinations`, `appointments`, `finance`, `prescriptions`, `inventory`, `odontograms`, `doctors`, `reports`, `notifications`, `email_templates`.
-- **Jobs & Audits:** `job_audit`, `notification_ledger`, `plan_audit`, `clinic_subscription_logs`.
-- **Constraints:** Tenant tables enforce `clinic_id` (composite indices). `roles` uses `(clinic_id, slug)` constraints and `clinic_users` enforces `(clinic_id, user_id)` uniqueness.
-
-### 6. Connectors, Guardrails & APIs
-- **Identity Connector:** IonAuth via `App\Libraries\IonAuth` handles registration, activation, password resets, and group fallback during RBAC setup.
-- **Permission Sync:** `PermissionSyncService` hits `/rbac/sync`, `/rbac/status`, `/rbac/init` routes (fresh from `app/Config/Routes.php`).
-- **Guardrails:** Run `scripts/ci/saas_guardrails.sh` (DOM sinks, raw tenant query detection, group-based auth checks). Note `E_ACCESSDENIED` when Bash cannot execute on Windows; document it in each verification doc so future sessions can skip reruns unless the guarded areas change.
-- **API Invariants:** `/api/*` never redirects; `/api/v1/*` uses JSON and explicit permission filters.
-- **Isolation Filters:** `TenantFilter`, `ControlPlaneFilter`, `SubscriptionFilter`, `PermissionFilter` orchestrate failsafe plane separation.
-
-### 7. Environment & Infrastructure (Local)
-- **Docker:** Container `mysql8-dental` (image `mysql:8.0`, exposed port 3307 -> 3306). Use it in verification docs with `docker exec mysql8-dental ...`.
-- **Canonical `.env` Data (do not override):**
-    * `APP_ENV=development`
-    * `APP_URL=http://localhost/dental-saas/`
-    * `database.default.hostname=127.0.0.1`
-    * `database.default.port=3307`
-    * `database.default.database=democa_dental_saas`
-    * `database.default.username=root`
-    * `database.default.password=root`
-    * `encryption.key=9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
-    * `session.cookie_name=ci_session_saas`
-
-### 8. Logging, Verification & Knowledge Flow
-- **SaaS Logs:** Historical logs are archived in `docs/_archive/`. Active decisions and changelog live in `docs/DECISIONS.md` and `docs/CHANGELOG.md` — append-only; do not edit previous entries.
-- **Verification Artifacts:** Historical verification docs are archived under `docs/_archive/`. New verification evidence should be stored under `docs/_archive/` following the archive structure.
-- **Knowledge Transfer:** This `gemini.md` is now the single source-of-truth map. Update it when you add new subsystems so future sessions can jump in quickly.
+Key structural invariants:
+- Control plane: `/controlplane/*`, requires `global_mode=true`
+- Tenant plane: all other authenticated routes, requires `active_clinic_id`
+- Tenant isolation: `TenantAwareModel` auto-scopes by `clinic_id`, fail-closed
+- API: `/api/v1/*` is bearer-token stateless, no redirects, no HTML
+- RBAC: permission-based via `PermissionService`, IonAuth for authentication only
 
 ---
 
@@ -107,25 +63,20 @@ See `docs/CHANGELOG.md` for recent implementation history. Historical SaaS trans
 
 ### Local Path: `C:\xampp\htdocs\dental-saas`
 
-### 1. Docker Container Info
-*   **Container Name:** `mysql8-dental`
-*   **Image:** `mysql:8.0`
-*   **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
-*   **Container ID:** `7eb3024aa7d5`
+### 1. Database (Normal Local Runtime)
+- **XAMPP MySQL** (canonical): `127.0.0.1:3306`, user `root`, blank password
+- **Docker** (optional, dump export only): container `mysql8-dental` on port `3307`, password `root`
+- Database: `democa_dental_saas`
+- Source of truth for active connection settings: `.env`
 
-### 2. `.env` Configuration (canonical and shared)
-*   **Environment:** `development`
-*   **Base URL:** `http://localhost/dental-saas/`
-*   **Database Host:** `127.0.0.1`
-*   **Database Port:** `3307`
-*   **Database Name:** `democa_dental_saas`
-*   **DB Credentials:** `root` / `root`
-*   **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
-*   **Session Cookie:** `ci_session_saas`
+### 2. Session
+- Cookie: `ci_session_saas`
 
 ### 3. Guardrails & Tools
-*   **Guardrail Script:** `bash scripts/ci/saas_guardrails.sh` (fails with `E_ACCESSDENIED` on Windows; note that in verification logs so future runs can skip if unchanged).
-*   **Additional Commands:** `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`; `php spark routes | findstr /I "controlplane api/v1 api/search"`.
+- `bash scripts/ci/saas_guardrails.sh`
+- `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`
+- `php spark routes | findstr /I "controlplane api/v1 api/search"`
+- `php spark migrate`
 
 ---
 
