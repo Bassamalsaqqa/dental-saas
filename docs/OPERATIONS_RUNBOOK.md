@@ -84,23 +84,74 @@ Check `RewriteBase` — on Hostinger it should be `/` (not `/dental-saas/`).
 
 ## Docs QA
 
-```bash
-# Active docs count (expect 13)
-git ls-files docs | grep -v "^docs/_archive/" | grep -v "^docs/SaaS/guardrails/" | wc -l
+### Active docs count (expect 13)
 
-# Stale reference scan (expect no output)
+Bash:
+```bash
+git ls-files docs | grep -v "^docs/_archive/" | grep -v "^docs/SaaS/guardrails/" | wc -l
+```
+
+PowerShell:
+```powershell
+$activeDocs = git ls-files docs | Where-Object { $_ -notmatch '^docs/_archive/' -and $_ -notmatch '^docs/SaaS/guardrails/' }
+$activeDocs.Count
+```
+
+### Stale reference scan (expect no output)
+
+Scans only normal active docs (excludes START_HERE.md and this file, which may mention old paths as policy examples).
+
+Bash:
+```bash
 rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" \
   README.md AGENTS.md gemini.md \
-  docs/START_HERE.md docs/PROJECT_STATE.md docs/OPERATIONS_RUNBOOK.md \
-  docs/CHANGELOG.md docs/DECISIONS.md docs/API_CONTRACT.md \
-  docs/FINANCE_CURRENT_STATE.md docs/WHATSAPP_CURRENT_STATE.md \
-  docs/CLINICAL_CURRENT_STATE.md \
+  docs/PROJECT_STATE.md docs/CHANGELOG.md docs/DECISIONS.md \
+  docs/API_CONTRACT.md docs/FINANCE_CURRENT_STATE.md \
+  docs/WHATSAPP_CURRENT_STATE.md docs/CLINICAL_CURRENT_STATE.md \
   docs/SaaS/TENANT_CONTEXT_CONTRACT.md \
   docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md
+```
 
-# DOM sink scan (expect empty)
+PowerShell:
+```powershell
+$docsToScan = @(
+  'README.md', 'AGENTS.md', 'gemini.md',
+  'docs/PROJECT_STATE.md', 'docs/CHANGELOG.md', 'docs/DECISIONS.md',
+  'docs/API_CONTRACT.md', 'docs/FINANCE_CURRENT_STATE.md',
+  'docs/WHATSAPP_CURRENT_STATE.md', 'docs/CLINICAL_CURRENT_STATE.md',
+  'docs/SaaS/TENANT_CONTEXT_CONTRACT.md',
+  'docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md'
+)
+rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" $docsToScan
+```
+
+### SAAS_PROGRAM.md historical check
+
+Matches after `## Append-Only Corrections & Decisions` are acceptable. Matches before that heading are bugs.
+
+```bash
+rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs" docs/SaaS/SAAS_PROGRAM.md
+```
+
+### DOM sink scan (expect empty)
+
+```bash
 rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views
+```
 
-# Guardrails
+### Replacement-character scan (expect no output)
+
+PowerShell:
+```powershell
+$active = git ls-files README.md AGENTS.md gemini.md docs | Where-Object { $_ -notmatch '^docs/_archive/' }
+$active | ForEach-Object {
+  $text = [System.IO.File]::ReadAllText((Resolve-Path $_), [System.Text.Encoding]::UTF8)
+  if ($text.Contains([char]0xFFFD)) { $_ }
+}
+```
+
+### Guardrails
+
+```bash
 bash scripts/ci/saas_guardrails.sh
 ```

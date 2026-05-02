@@ -41,6 +41,7 @@ This is the active documentation surface for the project. Everything else is arc
 4. **Durable architectural/product decisions go in `docs/DECISIONS.md`.** Append-only; add a dated entry.
 5. **Do not create new dated root-level plan/audit files** (e.g., `docs/WHATSAPP_PLAN_V6_2026-05-15.md`) unless they are immediately archived after summarizing into the active docs.
 6. **Guardrail allowlists** (`docs/SaaS/guardrails/*`) must stay in place — the CI guardrail script hard-codes those paths.
+7. **`docs/START_HERE.md` and `docs/OPERATIONS_RUNBOOK.md`** may mention old path patterns (`docs/SaaS/verification`, `docs/SaaS/logs`, etc.) only as policy rules, anti-pattern examples, or QA test strings. These are not stale references.
 
 ## Archive Roots
 
