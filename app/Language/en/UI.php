@@ -15,6 +15,7 @@ return [
     'menuRoleManagement' => 'Role Management',
     'menuActivityLog' => 'Activity Log',
     'menuSettings' => 'Settings',
+    'menuProviders' => 'Providers',
     'allClinics' => 'All Clinics',
     'profileSettings' => 'Profile Settings',
     'systemSettings' => 'System Settings',

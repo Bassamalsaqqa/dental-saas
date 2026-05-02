@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-05-02 — Unified Providers Directory (No New Master Table)
+
+- **Decision:** `/providers` queries `suppliers` and `provider_payouts` (GROUP BY provider) separately, merges in PHP, sorts by name, and paginates with `array_slice`. No new database tables or migrations. The supplier quick-create modal reuses the existing `inventory/suppliers/quick-create` endpoint.
+- **Rationale:** Data volumes are small enough that in-memory merge is simpler than UNION queries or a materialized directory. Supplier and provider concepts remain separate at the database level — the unified directory is a read/workspace convenience, not a new entity.
+- **Impact:** Providers controller uses OR permission logic (`inventory:view` OR `finance:view`). Sidebar uses an extended permission map format for OR conditions. No new provider master table exists yet — this can be revisited if supplier/provider workflows need deeper unification.
+
 ## 2026-05-02 — Provider Shares Stay Separate From Supplier Payables
 
 - **Decision:** Tenant finance keeps provider payouts as the lane for clinic users or outside providers who receive a share from a patient transaction. Supplier, lab, product, inventory, rent, and other vendor bills stay in expenses/payables.

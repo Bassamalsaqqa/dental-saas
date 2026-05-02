@@ -355,4 +355,59 @@ class ProviderPayoutModel extends TenantAwareModel
 
         return $rows;
     }
+
+    public function getDirectoryProvidersByClinic(int $clinicId, string $search = ''): array
+    {
+        $builder = $this->db->table('provider_payouts pp')
+            ->select("
+                pp.provider_type,
+                pp.provider_user_id,
+                pp.provider_name_snapshot,
+                COUNT(*) AS payout_count,
+                SUM(pp.gross_amount) AS gross_amount_total,
+                SUM(pp.provider_share_amount) AS provider_share_total,
+                SUM(pp.provider_paid_amount) AS provider_paid_total,
+                SUM(pp.provider_balance_due) AS provider_balance_total,
+                MAX(pp.created_at) AS latest_payout_date,
+                u.first_name,
+                u.last_name
+            ", false)
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
+            ->where('pp.clinic_id', $clinicId)
+            ->groupBy('pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot');
+
+        if ($search !== '') {
+            $builder->havingGroupStart()
+                ->like('pp.provider_name_snapshot', $search)
+                ->orLike("CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))", $search)
+                ->havingGroupEnd();
+        }
+
+        return $builder->orderBy('provider_share_total', 'DESC')->get()->getResultArray();
+    }
+
+    public function getDirectoryProviderCount(int $clinicId): int
+    {
+        $row = $this->db->table('provider_payouts')
+            ->select('COUNT(DISTINCT CONCAT(provider_type, "_", COALESCE(provider_user_id, 0))) AS cnt', false)
+            ->where('clinic_id', $clinicId)
+            ->get()
+            ->getRowArray();
+
+        return (int) ($row['cnt'] ?? 0);
+    }
+
+    public function getDirectoryProviderStats(int $clinicId): array
+    {
+        $row = $this->db->table('provider_payouts')
+            ->select('COUNT(DISTINCT CONCAT(provider_type, "_", COALESCE(provider_user_id, 0))) AS total, SUM(provider_balance_due) AS outstanding', false)
+            ->where('clinic_id', $clinicId)
+            ->get()
+            ->getRowArray();
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'outstanding_balance' => (float) ($row['outstanding'] ?? 0),
+        ];
+    }
 }

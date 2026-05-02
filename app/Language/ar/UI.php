@@ -15,6 +15,7 @@ return [
     'menuRoleManagement' => 'إدارة الأدوار',
     'menuActivityLog' => 'سجل النشاط',
     'menuSettings' => 'الإعدادات',
+    'menuProviders' => 'الموردون',
     'allClinics' => 'كل العيادات',
     'profileSettings' => 'إعدادات الملف الشخصي',
     'systemSettings' => 'إعدادات النظام',

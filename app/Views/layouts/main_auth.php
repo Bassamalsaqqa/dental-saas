@@ -47,6 +47,7 @@
             : (($segment3 === 'edit' || $segment2 === 'edit') ? lang('Treatment.edit_treatment') : lang('UI.menuTreatments')),
         'prescriptions' => lang('UI.menuPrescriptions'),
         'prescription' => lang('UI.menuPrescriptions'),
+        'providers' => lang('UI.menuProviders'),
         'finance' => lang('UI.menuFinance'),
         'reports' => lang('UI.menuReports'),
         'inventory' => lang('UI.menuInventory'),
@@ -588,6 +589,13 @@
                                 'icon' => 'fas fa-users',
                                 'color' => 'emerald',
                             ],
+                            'providers' => [
+                                'title' => lang('UI.menuProviders'),
+                                'url' => 'providers',
+                                'icon' => 'fas fa-handshake',
+                                'color' => 'cyan',
+                                'active_urls' => ['providers', 'inventory/suppliers', 'finance/payouts'],
+                            ],
                             'examinations' => [
                                 'title' => lang('UI.menuExaminations'),
                                 'url' => 'examinations',
@@ -660,6 +668,10 @@
                     $permissionMap = [
                         'dashboard' => ['module' => 'dashboard', 'action' => 'view'],
                         'patients' => ['module' => 'patients', 'action' => 'view'],
+                        'providers' => [
+                            ['module' => 'inventory', 'action' => 'view'],
+                            ['module' => 'finance', 'action' => 'view'],
+                        ],
                         'examinations' => ['module' => 'examinations', 'action' => 'view'],
                         'appointments' => ['module' => 'appointments', 'action' => 'view'],
                         'treatments' => ['module' => 'treatments', 'action' => 'view'],
@@ -674,14 +686,37 @@
                     ];
 
                     // Display menu items with permission filtering
-                    foreach ($menu as $key => $item): 
+                    foreach ($menu as $key => $item):
                         // Check permission for this menu item
                         $permission = $permissionMap[$key] ?? ['module' => $key, 'action' => 'view'];
-                        if (!has_permission($permission['module'], $permission['action'])) {
-                            continue; // Skip this menu item if user doesn't have permission
+                        if (isset($permission[0]) && is_array($permission[0])) {
+                            $hasAccess = false;
+                            foreach ($permission as $p) {
+                                if (has_permission($p['module'], $p['action'])) {
+                                    $hasAccess = true;
+                                    break;
+                                }
+                            }
+                            if (! $hasAccess) {
+                                continue;
+                            }
+                        } else {
+                            if (!has_permission($permission['module'], $permission['action'])) {
+                                continue;
+                            }
                         }
 
-                        $isActive = (strpos(uri_string(), $item['url']) === 0);
+                        if (! empty($item['active_urls'])) {
+                            $isActive = false;
+                            foreach ($item['active_urls'] as $activeUrl) {
+                                if (strpos(uri_string(), $activeUrl) === 0) {
+                                    $isActive = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            $isActive = (strpos(uri_string(), $item['url']) === 0);
+                        }
                         $colorClasses = [
                             'blue' => ['from-blue-500 to-blue-600', 'shadow-blue-500/25', 'from-blue-50 to-cyan-50', 'text-blue-800', 'shadow-blue-500/10', 'text-blue-600', 'text-blue-700'],
                             'emerald' => ['from-emerald-500 to-emerald-600', 'shadow-emerald-500/25', 'from-emerald-50 to-green-50', 'text-emerald-800', 'shadow-emerald-500/10', 'text-emerald-600', 'text-emerald-700'],
@@ -693,7 +728,8 @@
                             'amber' => ['from-amber-500 to-amber-600', 'shadow-amber-500/25', 'from-amber-50 to-yellow-50', 'text-amber-800', 'shadow-amber-500/10', 'text-amber-600', 'text-amber-700'],
                             'teal' => ['from-teal-500 to-teal-600', 'shadow-teal-500/25', 'from-teal-50 to-cyan-50', 'text-teal-800', 'shadow-teal-500/10', 'text-teal-600', 'text-teal-700'],
                             'violet' => ['from-violet-500 to-violet-600', 'shadow-violet-500/25', 'from-violet-50 to-purple-50', 'text-violet-800', 'shadow-violet-500/10', 'text-violet-600', 'text-violet-700'],
-                            'gray' => ['from-gray-500 to-gray-600', 'shadow-gray-500/25', 'from-gray-50 to-slate-50', 'text-gray-800', 'shadow-gray-500/10', 'text-gray-600', 'text-gray-700']
+                            'gray' => ['from-gray-500 to-gray-600', 'shadow-gray-500/25', 'from-gray-50 to-slate-50', 'text-gray-800', 'shadow-gray-500/10', 'text-gray-600', 'text-gray-700'],
+                        'cyan' => ['from-cyan-500 to-cyan-600', 'shadow-cyan-500/25', 'from-cyan-50 to-sky-50', 'text-cyan-800', 'shadow-cyan-500/10', 'text-cyan-600', 'text-cyan-700']
                         ];
                         $colors = $colorClasses[$item['color']];
                     ?>

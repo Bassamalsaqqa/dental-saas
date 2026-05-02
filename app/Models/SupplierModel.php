@@ -50,5 +50,30 @@ class SupplierModel extends TenantAwareModel
             ->where('name', trim($name))
             ->first();
     }
+
+    public function getDirectoryDataByClinic(int $clinicId, string $search = ''): array
+    {
+        $builder = $this->where('clinic_id', $clinicId)
+            ->orderBy('name', 'ASC');
+
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('name', $search)
+                ->orLike('contact_person', $search)
+                ->orLike('phone', $search)
+                ->orLike('email', $search)
+                ->groupEnd();
+        }
+
+        return $builder->findAll();
+    }
+
+    public function getDirectoryStatsByClinic(int $clinicId): array
+    {
+        $total = $this->where('clinic_id', $clinicId)->countAllResults();
+        $active = $this->where('clinic_id', $clinicId)->where('is_active', 1)->countAllResults();
+
+        return ['total' => $total, 'active' => $active];
+    }
 }
 

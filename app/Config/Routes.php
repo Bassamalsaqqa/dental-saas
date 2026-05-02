@@ -229,6 +229,13 @@ $routes->group('patients', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->get('get-statistics', 'Patient::getStatistics', ['filter' => 'permission:patients:view']);
 });
 
+// Providers directory (Tenant Plane)
+$routes->group('providers', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Providers::index');
+    $routes->post('data', 'Providers::getData');
+    $routes->get('stats', 'Providers::getStatistics');
+});
+
 // Treatment Contract routes (Tenant Plane)
 $routes->group('contracts', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('create/(:num)', 'TreatmentContracts::create/$1', ['filter' => 'permission:patients:edit']);

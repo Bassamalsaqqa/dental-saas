@@ -2,6 +2,16 @@
 
 Recent implementation history for work continuation. Full historical logs are archived in `docs/_archive/2026-05-02-docs-consolidation/legacy-root-logs/`.
 
+## 2026-05-02 — Unified Providers Directory
+
+- New `/providers` page combining inventory suppliers and clinical payout providers into one DataTables-backed directory
+- Stat cards: Total Suppliers, Active Suppliers, Clinical Providers, Outstanding Balance
+- Type filter: All / Suppliers / Providers
+- Add Supplier modal reuses `POST /inventory/suppliers/quick-create`
+- Sidebar "Providers" menu item (shown if `inventory:view` OR `finance:view`)
+- Routes: `GET /providers`, `POST /providers/data`, `GET /providers/stats`
+- In-memory merge of supplier and provider_payout data; no new tables or migrations
+
 ## 2026-04 — Finance: Provider Compensation & Supplier Payables
 
 - Implemented provider payouts + provider payout payments
