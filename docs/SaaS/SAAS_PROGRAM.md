@@ -89,21 +89,23 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - Lint/check: composite unique/index presence for `clinic_id` where specified.
 
 ## 10. Documentation & Verification Requirements
-- Each Task ID produces a verification doc under `docs/SaaS/verification/<TASK_ID>.md` with commands/evidence.
-- Logs are append-only in `docs/SaaS/logs/`.
-- Supporting references: `ImplementationPlan.md`, `MigrationChecklist.md`, `MULTI_TENANCY_RBAC_MIGRATION.md`, `TENANT_CONTEXT_CONTRACT.md`, `SaaS_Tenant_Isolation_Execution_Plan.md`, `ScopeOverview.md`.
+- Active decisions: `docs/DECISIONS.md` (append-only).
+- Active changelog: `docs/CHANGELOG.md`.
+- Historical verification evidence is archived under `docs/_archive/2026-05-02-docs-consolidation/`.
+- Historical logs and plans are archived in the same archive root.
+- Documentation entrypoint: `docs/START_HERE.md`.
+- Supporting active references: `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`, `docs/API_CONTRACT.md`, `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md`.
 
 ## 11. Append-Only Rules
 - No in-place edits to historical log entries; corrections are appended blocks.
 - This file is the single source of truth; changes are append-noted or amended with explicit dated sections if needed.
 
 ## 12. References
-- docs/SaaS/ImplementationPlan.md
-- docs/SaaS/MigrationChecklist.md
-- docs/SaaS/MULTI_TENANCY_RBAC_MIGRATION.md
-- docs/SaaS/TENANT_CONTEXT_CONTRACT.md
-- docs/SaaS/SaaS_Tenant_Isolation_Execution_Plan.md
-- docs/SaaS/ScopeOverview.md
+- Historical SaaS plans/checklists: archived in `docs/_archive/2026-05-02-docs-consolidation/plans/`
+- Active: `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`
+- Active: `docs/API_CONTRACT.md`
+- Active: `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md`
+- Docs entrypoint: `docs/START_HERE.md`
 
 ## Append-Only Corrections & Decisions â€” 2026-01-16
 ### Storage Path Correction (Supersedes Section 5)
@@ -259,9 +261,9 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ### P5-21e Audit Placeholder Correction (2026-01-17)
 - **Clarification:** The earlier 'Commit(s): [Pending]' placeholder is now outdated.
 - **Authoritative Commits for P5-21:**
-  - 4e34799 — P5-21 base implementation (subscription gate + quota enforcement)
-  - 6bc9272 — P5-21 docs/audit finalization
-  - f6a8ab8 — P5-21d PlanGuard log enrichment + audit clarification
+  - 4e34799 - P5-21 base implementation (subscription gate + quota enforcement)
+  - 6bc9272 - P5-21 docs/audit finalization
+  - f6a8ab8 - P5-21d PlanGuard log enrichment + audit clarification
 - **Status:** Verification remains PENDING until runtime evidence is captured.
 - **Note:** This clarification is append-only; no prior entries were modified.
 
@@ -305,3 +307,12 @@ o_valid_subscription reason for missing subscriptions.
 ### P5-21 Verification Closure (2026-01-17)
 - **Status:** PASS
 - **Summary:** All P5-21 gates now have verbatim HTTP and log evidence in docs/SaaS/verification/P5-21.md (subscription, quota, missing context).
+
+## Documentation Consolidation â€” 2026-05-02
+- **Decision:** Consolidated ~275 historical docs into `docs/_archive/2026-05-02-docs-consolidation/`. Active documentation surface reduced to 16 files.
+- **Rationale:** Old audits, verification evidence, dated plans, generated HTML, copied code bundles, and historical logs are evidence only and must not be treated as source of truth.
+- **Impact:**
+  - Sections 10 and 12 of this file updated to reference new active doc paths.
+  - Historical verification docs moved to archive; not deleted.
+  - Guardrail allowlists (`docs/SaaS/guardrails/*`) remain in place.
+  - Active docs entrypoint: `docs/START_HERE.md`.
