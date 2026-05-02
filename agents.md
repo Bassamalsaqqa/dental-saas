@@ -5,16 +5,16 @@
 - Secondary mission: leave an audit-grade trail (commands, diffs, tests) and enforce tenant isolation.
 
 ## B) Source of Truth
-1) `docs/SaaS/SAAS_PROGRAM.md` governs SaaS scope, priority, and DoD.
-2) `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` governs tenant context mechanics.
-3) `docs/API_CONTRACT.md` governs `/api/v1/*` semantics.
-4) Guardrails: `docs/SaaS/guardrails/*` + repo guardrail scripts.
-5) WhatsApp implementation package (current canonical set):
-   - `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`
-   - `docs/SaaS/whatsapp_provider_facts.md`
-   - `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`
+1) `docs/START_HERE.md` — navigation hub and archive policy
+2) `docs/SaaS/SAAS_PROGRAM.md` governs SaaS scope, priority, and DoD.
+3) `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` governs tenant context mechanics.
+4) `docs/API_CONTRACT.md` governs `/api/v1/*` semantics.
+5) Guardrails: `docs/SaaS/guardrails/*` + repo guardrail scripts.
+6) `docs/WHATSAPP_CURRENT_STATE.md` — WhatsApp current state and Phase 6 resume point.
+7) `docs/FINANCE_CURRENT_STATE.md` — finance current state.
+8) `docs/PROJECT_STATE.md` — current-state dashboard.
 
-`docs/SECURITY_HARDENING_PROGRAM.md` is historical unless explicitly reopened.
+Historical docs live in `docs/_archive/`. Archived docs are evidence, not source of truth.
 
 ## C) Non-Negotiables
 - Fail-closed doctrine always.
@@ -24,19 +24,16 @@
 - Evidence-based verification (paths, diffs, rg output, curl output when relevant).
 
 ## D) Session Start Checklist
-1) Read `docs/SaaS/SAAS_PROGRAM.md` + latest logs:
-   - `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`
-   - `docs/SaaS/logs/DECISION_LOG_SaaS.md`
-2) Read current WhatsApp package and confirm active phase:
-   - `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`
-   - `docs/SaaS/whatsapp_provider_facts.md`
-   - `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`
-   - Active phase is: **Phase 6 - Pilot rollout & operations hardening** (Phases 0-5 completed; see WhatsApp checkpoint/verification docs).
-3) Drift scans:
+1) Read active docs for context:
+   - `docs/PROJECT_STATE.md`
+   - `docs/CHANGELOG.md`
+   - `docs/DECISIONS.md`
+   - `docs/WHATSAPP_CURRENT_STATE.md`
+2) Drift scans:
    - `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`
    - `php spark routes | findstr /I "controlplane api/v1 api/search"`
    - `bash scripts/ci/saas_guardrails.sh`
-4) Confirm clean tree: `git status -sb`
+3) Confirm clean tree: `git status -sb`
 
 ## E) Environment & Infrastructure
 **Local Path:** `C:\xampp\htdocs\dental-saas`
@@ -104,11 +101,7 @@ cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --defa
 ## J) Current Improvement Phase (Authoritative)
 - Current phase: **Phase 6 - Pilot rollout & operations hardening**.
 - Phase 6 readiness monitor: `php spark whatsapp:ops-check`.
-- Execution baseline docs:
-  - `docs/SaaS/verification/WHATSAPP-CHECKPOINT-2026-02-26.md`
-  - `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`
-- Provider behavior registry: `docs/SaaS/whatsapp_provider_facts.md` (confidence-tiered, update date required).
-- Implementation architecture plan: `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`.
+- Full current state: `docs/WHATSAPP_CURRENT_STATE.md`.
 - Remaining Phase 6 work: pilot rollout execution, template-first enqueue flows, and alerting/runbook hardening.
 
 ## K) Current Finance Reporting Context

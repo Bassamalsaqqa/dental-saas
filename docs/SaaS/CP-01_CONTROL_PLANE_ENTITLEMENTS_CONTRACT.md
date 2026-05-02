@@ -5,8 +5,8 @@ Scope: Web + API v1 control-plane, subscription standing, feature entitlements, 
 Authority: This contract binds implementation. If code or other docs diverge, code/docs are wrong.
 
 Sources (evidence-backed):
-- docs/API/CONTRACT_V1.md
-- docs/API/README.md
+- docs/API_CONTRACT.md
+- docs/_archive/2026-05-02-docs-consolidation/legacy-api/README.md
 - docs/SaaS/SAAS_PROGRAM.md
 - app/Services/PlanGuard.php
 - app/Filters/ApiV1AuthFilter.php

@@ -4,6 +4,8 @@ This repository contains a multi-tenant dental clinic SaaS application with a Co
 
 The source of truth for SaaS behavior and guardrails is `docs/SaaS/SAAS_PROGRAM.md`. If this README conflicts with that document, the README is wrong.
 
+Start here: `docs/START_HERE.md` — navigation hub and archive policy.
+
 ---
 
 ## Table of Contents
@@ -278,7 +280,7 @@ php spark routes | findstr /I "controlplane api/v1 api/search"
 bash scripts/ci/saas_guardrails.sh
 ```
 
-Verification docs live in `docs/SaaS/verification/`.
+Historical verification docs are archived in `docs/_archive/`. Active contracts and runbooks are in `docs/` — see `docs/START_HERE.md`.
 
 ---
 
@@ -320,8 +322,8 @@ If `/auth/login` 404s:
 ## 22) Contributing & Workflow
 Follow instructions in `docs/SaaS/SAAS_PROGRAM.md`.
 - Always use Task IDs for scoped changes.
-- Append to `docs/SaaS/logs/*` when required.
-- Generate verification docs for each Task ID.
+- Append to `docs/CHANGELOG.md` and `docs/DECISIONS.md` when required.
+- Archive verification evidence under `docs/_archive/`.
 
 ---
 

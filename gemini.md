@@ -12,10 +12,14 @@
 I am the **Implementer**. My job is to implement only what the Planner/Reviewer (Codex) assigns, and to maintain an audit-grade trail of what changed and how it was verified.
 
 ### Current Program of Record (Single Source of Truth)
-1) **SaaS Program:** `docs/SaaS/SAAS_PROGRAM.md` (governs scope, priority, DoD for SaaS)
-2) **Tenant Context Contract:** `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`
-3) **API Contract:** `docs/API_CONTRACT.md` (authoritative behavior for `/api/v1/*` once implemented)
-4) **Guardrails:** `docs/SaaS/guardrails/*` and the repo guardrail scripts (if present)
+1) **Navigation:** `docs/START_HERE.md` (active docs map + archive policy)
+2) **SaaS Program:** `docs/SaaS/SAAS_PROGRAM.md` (governs scope, priority, DoD for SaaS)
+3) **Tenant Context Contract:** `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`
+4) **API Contract:** `docs/API_CONTRACT.md` (authoritative behavior for `/api/v1/*`)
+5) **Guardrails:** `docs/SaaS/guardrails/*` and the repo guardrail scripts
+6) **Project State:** `docs/PROJECT_STATE.md` (current-state dashboard)
+7) **WhatsApp State:** `docs/WHATSAPP_CURRENT_STATE.md`
+8) **Finance State:** `docs/FINANCE_CURRENT_STATE.md`
 
 ---
 
@@ -87,8 +91,8 @@ This is the canonical reference. Update it on every iteration so future implemen
     * `session.cookie_name=ci_session_saas`
 
 ### 8. Logging, Verification & Knowledge Flow
-- **SaaS Logs:** Append-only logs `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` and `docs/SaaS/logs/DECISION_LOG_SaaS.md` are the historical record-read the latest; do not edit previous entries.
-- **Verification Artifacts:** Each Task ID (e.g., `P5-20a`, `CP-31`) needs `docs/SaaS/verification/<TASK_ID>.md` with commands, expected outputs, guardrail evidence, and any known failures (like guardrail script `E_ACCESSDENIED`).
+- **SaaS Logs:** Historical logs are archived in `docs/_archive/`. Active decisions and changelog live in `docs/DECISIONS.md` and `docs/CHANGELOG.md` — append-only; do not edit previous entries.
+- **Verification Artifacts:** Historical verification docs are archived under `docs/_archive/`. New verification evidence should be stored under `docs/_archive/` following the archive structure.
 - **Knowledge Transfer:** This `gemini.md` is now the single source-of-truth map. Update it when you add new subsystems so future sessions can jump in quickly.
 
 ---
@@ -96,7 +100,7 @@ This is the canonical reference. Update it on every iteration so future implemen
 ## D. Recent Accomplishments (Jan 2026)
 
 ### 1. Control Plane & Airlock
-*   **P5-20a:** Split entry vs. protected control-plane routes in `app/Config/Routes.php` and restored `/controlplane` access (log: `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`, same day).
+*   **P5-20a:** Split entry vs. protected control-plane routes in `app/Config/Routes.php` and restored `/controlplane` access (historical log archived in `docs/_archive/`).
 *   **Airlock Doctrine:** `TenantFilter`/`ControlPlaneFilter` now fail closed when session context mismatches; coverage ensured by guardrail scripts.
 
 ### 2. RBAC, Roles & Users

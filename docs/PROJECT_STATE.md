@@ -1,45 +1,52 @@
-# Project State (Readiness Summary)
+# Project State
 
-Last updated: 2026-01-19
+Last updated: 2026-05-02
 
 ## Current Status
-- **Hardening Program Phase:** 1+ (Containment + Hardening completed; advanced tracks in progress)
-- **Stability:** Pre-Alpha (Do Not Deploy)
-- **Last Audit Window:** 2026-01-15 to 2026-01-19 (active hardening + evidence capture)
 
-## Data Reality Check (2026-01-16)
-- **Development DB:** 5 active clinics (used for M:N membership testing).
-- **Seeder:** `ClinicSeeder` provides 2 baseline clinics.
-- **Implication:** Verification steps must account for multiple clinics; do not assume clinic_id=1 is the only valid tenant.
+- **Current Phase:** WhatsApp Phase 6 — Pilot rollout & operations hardening (Phases 0-5 completed)
+- **Stability:** Pre-Alpha (Do Not Deploy to production)
+- **Active Tracks:** Finance treasury/custody, provider payouts, supplier payables, inventory COGS, WhatsApp workflows
 
-## Active Remediation Plan (SaaS Stabilization)
-1) **Critical Fixes:** Patch `NotificationService` crash and add missing `settings/notifications` view.
-2) **User Preferences:** Migrate `clinic_users` to add a `preferences` JSON column.
-3) **SaaS Hardening:** Implement proper SMTP form UI in `settings/channels` (no hard-coded transport).
-4) **UI Standardization:** Refactor Control Plane to use `layouts/main_control_plane` consistently.
+## Major Modules
 
-## Session Start Checklist (Required)
-1) `git branch --show-current` (expect `main`)
-2) `git status --porcelain` (expect empty)
-3) `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views` (expect empty)
-4) `rg -n "csrf|secureheaders" app/Config/Filters.php`
-5) `rg -n "group\('api'" app/Config/Routes.php`
-6) `rg -n "install|debug_env|repair_db|init_database|simple_login_test" .htaccess public/.htaccess`
-7) `git ls-files .env democa_dental.sql` (expect empty)
-8) `rg -n "DBDebug" app/Config/Database.php`
+- **Patient Management:** profiles, appointments, examinations, odontograms
+- **Clinical:** treatments, prescriptions, treatment contracts, signatures
+- **Finance:** invoices, payments, expenses, provider payouts, supplier payables, treasury custody, reports
+- **Inventory:** stock management, supplier directory, COGS auto-posting, movements ledger
+- **WhatsApp:** template-first notification dispatch, webhook ingestion, Phase 6 rollout
+- **SaaS Control Plane:** clinics, plans, plan requests, operations console, impersonation
+- **RBAC:** permission-based authorization, IonAuth authentication only, no group-based checks
+
+## Local Environment
+
+- **Path:** `C:\xampp\htdocs\dental-saas`
+- **DB:** `democa_dental_saas` on XAMPP MySQL (127.0.0.1:3306, root, no password)
+- **Docker:** `mysql8-dental` container available for dump export (port 3307)
+- **Session cookie:** `ci_session_saas`
 
 ## Invariants (Do Not Regress)
-- CSRF + secure headers remain globally enforced; any exemption must be explicit and narrowly scoped.
-- API requests fail-closed with JSON 401/403/422/429; no redirects and no HTML error pages.
-- No DOM-string rendering for dynamic content in allowlisted views (no innerHTML/outerHTML/insertAdjacentHTML/.html()).
-- No browser-accessible installers/repair/debug/test scripts.
-- No secrets or database dumps tracked in git.
 
-## Canonical References
-- Hardening program: `docs/SECURITY_HARDENING_PROGRAM.md`
-- Verification artifacts: `docs/verification/`
-- Decision log: `docs/DECISION_LOG.md`
-- Implementation log: `docs/IMPLEMENTATION_LOG.md`
+- CSRF + secure headers globally enforced
+- API requests fail-closed with JSON 401/403/422/429; no redirects or HTML errors
+- No DOM-string rendering for dynamic content (no innerHTML/outerHTML/insertAdjacentHTML/.html())
+- No browser-accessible installers/repair/debug/test scripts
+- No secrets or database dumps tracked in git
+- Tenant isolation via `clinic_id` on all tenant tables; `TenantAwareModel` fail-closed
 
-## Local-Only Notes
-- `.env` and `democa_dental.sql` may exist locally but must remain untracked.
+## Session Start Checklist
+
+1. `git status -sb` (expect clean)
+2. `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views` (expect empty)
+3. `bash scripts/ci/saas_guardrails.sh`
+4. `php spark routes | findstr /I "controlplane api/v1 api/search"`
+
+## Where to Look Next
+
+- For SaaS governance: `docs/SaaS/SAAS_PROGRAM.md`
+- For API behavior: `docs/API_CONTRACT.md`
+- For finance details: `docs/FINANCE_CURRENT_STATE.md`
+- For WhatsApp status: `docs/WHATSAPP_CURRENT_STATE.md`
+- For operations: `docs/OPERATIONS_RUNBOOK.md`
+- For decisions: `docs/DECISIONS.md`
+- For recent changes: `docs/CHANGELOG.md`
