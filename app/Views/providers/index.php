@@ -13,30 +13,24 @@
 .dataTables_filter input { padding: 8px 12px !important; border: 1px solid #d1d5db !important; border-radius: 8px !important; font-size: 14px !important; outline: none !important; min-width: 200px; }
 .dataTables_filter input:focus { border-color: #06b6d4 !important; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1) !important; }
 #providersTable { width: 100% !important; }
-#providersTable th { background: #f8fafc !important; font-weight: 600 !important; color: #334155 !important; font-size: 13px !important; padding: 12px 10px !important; border-bottom: 2px solid #e2e8f0 !important; white-space: nowrap; }
-#providersTable td { padding: 10px !important; vertical-align: middle !important; font-size: 13px !important; color: #475569 !important; border-bottom: 1px solid #f1f5f9 !important; }
+#providersTable th { background: #f9fafb !important; font-weight: 600 !important; color: #4b5563 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; padding: 16px 24px !important; border-bottom: 1px solid #e5e7eb !important; }
+#providersTable td { padding: 16px 24px !important; vertical-align: middle !important; font-size: 14px !important; color: #374151 !important; border-bottom: 1px solid #f3f4f6 !important; }
 #providersTable tbody tr:hover { background: #ecfeff !important; }
 .dataTables_paginate .paginate_button.current { background: linear-gradient(to right, #06b6d4, #0891b2) !important; border: none !important; color: #fff !important; border-radius: 6px !important; }
-.provider-type-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
-.type-supplier { background: #ecfeff; color: #0891b2; }
-.type-provider { background: #f5f3ff; color: #7c3aed; }
-.status-active { background: #ecfdf5; color: #059669; }
-.status-inactive { background: #f1f5f9; color: #64748b; }
-.status-balance { background: #fef3c7; color: #92400e; }
-.status-settled { background: #ecfdf5; color: #059669; }
 .filter-btn { padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; border: 1px solid #e2e8f0; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
 .filter-btn:hover { background: #f0fdfa; border-color: #06b6d4; color: #0891b2; }
 .filter-btn.active { background: linear-gradient(to right, #06b6d4, #0891b2); color: white; border-color: transparent; }
-[dir="rtl"] .dataTables_length { margin-right: 0 !important; margin-left: auto !important; }
-[dir="rtl"] .dataTables_filter { margin-right: auto !important; margin-left: 0 !important; }
 </style>
 
 <!-- Header Section -->
 <div class="relative mb-8 overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-teal-600/5 rounded-3xl"></div>
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-teal-600/20 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-sky-600/20 rounded-full blur-3xl"></div>
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-sky-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/10 to-cyan-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+
     <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
+        <!-- Page Header -->
         <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
@@ -61,92 +55,169 @@
             </div>
         </div>
 
-        <!-- Stat Cards -->
+        <!-- Statistics Cards -->
         <div class="mb-8">
-            <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
                 <!-- Total Suppliers -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-sky-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-5 shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-500 hover:-translate-y-1 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 text-white shadow-lg">
-                                <i class="fas fa-truck text-xl"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-sky-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-cyan-500/10 group-hover:shadow-cyan-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-truck text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-cyan-100 to-sky-100 px-3 py-1.5 rounded-full border border-cyan-200">
+                                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                                <span class="text-cyan-700 font-bold text-xs"><?= esc(lang('Provider.totalProviders')) ?></span>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-gray-900" id="totalSuppliers"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('Provider.totalProviders')) ?></p>
+                        <p class="text-3xl font-bold text-gray-900" id="totalSuppliers"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
+                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.totalProviders')) ?></p>
                     </div>
                 </div>
 
                 <!-- Active Suppliers -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-5 shadow-lg group-hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-1 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg">
-                                <i class="fas fa-check-circle text-xl"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                <span class="text-emerald-700 font-bold text-xs">Active</span>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-gray-900" id="activeSuppliers"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('Provider.activeSuppliers')) ?></p>
+                        <p class="text-3xl font-bold text-gray-900" id="activeSuppliers"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
+                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.activeSuppliers')) ?></p>
                     </div>
                 </div>
 
                 <!-- Clinical Providers -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-violet-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-5 shadow-lg group-hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-1 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-lg">
-                                <i class="fas fa-user-md text-xl"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-violet-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-user-md text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-violet-100 px-3 py-1.5 rounded-full border border-purple-200">
+                                <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                                <span class="text-purple-700 font-bold text-xs"><?= esc(lang('Provider.clinicalProviders')) ?></span>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-gray-900" id="totalProviders"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('Provider.clinicalProviders')) ?></p>
+                        <p class="text-3xl font-bold text-gray-900" id="totalProviders"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
+                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.clinicalProviders')) ?></p>
                     </div>
                 </div>
 
-                <!-- Outstanding -->
+                <!-- Outstanding Balance -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-yellow-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-5 shadow-lg group-hover:shadow-amber-500/20 transition-all duration-500 hover:-translate-y-1 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-lg">
-                                <i class="fas fa-coins text-xl"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-yellow-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-coins text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-yellow-100 px-3 py-1.5 rounded-full border border-amber-200">
+                                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                                <span class="text-amber-700 font-bold text-xs"><?= esc(lang('Provider.outstandingBalance')) ?></span>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-gray-900" id="outstandingBalance"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('Provider.outstandingBalance')) ?></p>
+                        <p class="text-3xl font-bold text-gray-900" id="outstandingBalance"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
+                        <p class="text-sm text-gray-500 mt-2"><?= esc(lang('Provider.outstandingBalance')) ?></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- DataTable Section -->
-        <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-            <!-- Type Filter -->
-            <div class="flex flex-col sm:flex-row gap-3 mb-4 items-start sm:items-center justify-between">
-                <div class="flex flex-wrap gap-2" id="typeFilters">
-                    <button class="filter-btn active" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
-                    <button class="filter-btn" data-type="supplier"><i class="fas fa-truck mr-1"></i><?= esc(lang('Provider.filterSuppliers')) ?></button>
-                    <button class="filter-btn" data-type="clinical_provider"><i class="fas fa-user-md mr-1"></i><?= esc(lang('Provider.filterProviders')) ?></button>
+        <!-- Providers Table -->
+        <div class="mb-8">
+            <div id="tableView" class="bg-white rounded-xl border border-gray-200 shadow-lg">
+                <!-- Table Header -->
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                            <h3 class="text-lg font-semibold text-gray-900">Providers Directory</h3>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                            <!-- Type Filter -->
+                            <div class="flex flex-wrap gap-2" id="typeFilters">
+                                <button class="filter-btn active" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
+                                <button class="filter-btn" data-type="supplier"><i class="fas fa-truck mr-1"></i><?= esc(lang('Provider.filterSuppliers')) ?></button>
+                                <button class="filter-btn" data-type="clinical_provider"><i class="fas fa-user-md mr-1"></i><?= esc(lang('Provider.filterProviders')) ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table id="providersTable" class="w-full min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-tag text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colType')) ?></span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-user text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colName')) ?></span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-address-book text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colContact')) ?></span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-phone text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colPhone')) ?></span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-info-circle text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colStatus')) ?></span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-calendar text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colCreated')) ?></span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-cogs text-cyan-600"></i>
+                                        <span><?= esc(lang('Provider.colActions')) ?></span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
-
-            <table id="providersTable" class="w-full">
-                <thead>
-                    <tr>
-                        <th><?= esc(lang('Provider.colType')) ?></th>
-                        <th><?= esc(lang('Provider.colName')) ?></th>
-                        <th><?= esc(lang('Provider.colContact')) ?></th>
-                        <th><?= esc(lang('Provider.colPhone')) ?></th>
-                        <th><?= esc(lang('Provider.colStatus')) ?></th>
-                        <th><?= esc(lang('Provider.colCreated')) ?></th>
-                        <th><?= esc(lang('Provider.colActions')) ?></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
         </div>
     </div>
 </div>
@@ -219,29 +290,32 @@
         guestProvider: '<?= esc(lang('Provider.guestProvider'), 'js') ?>',
         viewSupplier: '<?= esc(lang('Provider.viewSupplier'), 'js') ?>',
         viewProvider: '<?= esc(lang('Provider.viewProvider'), 'js') ?>',
+        typeLabel: '<?= esc(lang('Provider.colType'), 'js') ?>',
+        nameLabel: '<?= esc(lang('Provider.colName'), 'js') ?>',
+        contactLabel: '<?= esc(lang('Provider.colContact'), 'js') ?>',
+        phoneLabel: '<?= esc(lang('Provider.colPhone'), 'js') ?>',
+        statusLabel: '<?= esc(lang('Provider.colStatus'), 'js') ?>',
+        createdLabel: '<?= esc(lang('Provider.colCreated'), 'js') ?>',
         loading: '<?= esc(lang('Provider.loading'), 'js') ?>',
         noRecords: '<?= esc(lang('Provider.noRecords'), 'js') ?>',
-        noMatching: '<?= esc(lang('Provider.noMatching'), 'js') ?>',
         searchPlaceholder: '<?= esc(lang('Provider.searchPlaceholder'), 'js') ?>',
         showing: '<?= esc(lang('Provider.showing'), 'js') ?>',
         infoEmpty: '<?= esc(lang('Provider.infoEmpty'), 'js') ?>',
-        infoFiltered: '<?= esc(lang('Provider.infoFiltered'), 'js') ?>',
-        hasInventoryView: <?= has_permission('inventory', 'view') ? 'true' : 'false' ?>,
-        hasFinanceView: <?= has_permission('finance', 'view') ? 'true' : 'false' ?>,
-        hasInventoryEdit: <?= has_permission('inventory', 'edit') ? 'true' : 'false' ?>
+        infoFiltered: '<?= esc(lang('Provider.infoFiltered'), 'js') ?>'
     };
+
+    function escHtml(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
     function initDataTable() {
         providersTable = $('#providersTable').DataTable({
             processing: true,
             serverSide: true,
-            responsive: false,
-            pageLength: 25,
+            pageLength: 10,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             order: [[1, 'asc']],
-            ordering: true,
-            searching: true,
-            dom: '<"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4"<"flex items-center gap-2"l><"flex items-center"f>>rt<"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4"<"text-sm text-slate-500"i><"flex"p>>',
+            dom: '<"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4"<"flex items-center gap-2"l><"flex items-center"f>>rt<"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4"<"text-sm text-gray-500"i><"flex"p>>',
             ajax: {
                 url: '<?= base_url('providers/data') ?>',
                 type: 'POST',
@@ -250,73 +324,73 @@
                     d.type = activeTypeFilter;
                     d[csrfName] = csrfToken;
                 },
-                error: function() {
-                    console.error('DataTables AJAX error');
-                }
+                error: function() { console.error('DataTables AJAX error'); }
             },
             columns: [
                 {
                     data: 'type',
-                    width: '80px',
                     orderable: true,
                     render: function(data) {
                         if (data === 'supplier') {
-                            return '<span class="provider-type-badge type-supplier"><i class="fas fa-truck text-xs"></i> ' + i18n.typeSupplier + '</span>';
+                            return '<div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200"><i class="fas fa-truck text-xs"></i> ' + i18n.typeSupplier + '</div><div class="text-xs text-gray-500">' + i18n.typeLabel + '</div></div>';
                         }
-                        return '<span class="provider-type-badge type-provider"><i class="fas fa-user-md text-xs"></i> ' + i18n.typeClinicalProvider + '</span>';
+                        return '<div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200"><i class="fas fa-user-md text-xs"></i> ' + i18n.typeClinicalProvider + '</div><div class="text-xs text-gray-500">' + i18n.typeLabel + '</div></div>';
                     }
                 },
                 {
                     data: 'name',
                     orderable: true,
                     render: function(data, type, row) {
+                        var icon = row.type === 'supplier' ? '<i class="fas fa-truck text-cyan-700"></i>' : '<i class="fas fa-user-md text-purple-700"></i>';
                         var guestTag = '';
                         if (row.type === 'clinical_provider' && row.name === i18n.guestProvider) {
-                            guestTag = ' <span class="provider-type-badge type-supplier" style="font-size:10px">' + i18n.guestProvider + '</span>';
+                            guestTag = ' <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200">' + i18n.guestProvider + '</span>';
                         }
-                        var escaped = String(data).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-                        return '<span class="font-semibold text-slate-800">' + escaped + '</span>' + guestTag;
+                        return '<div class="flex items-center space-x-3"><span class="inline-flex items-center justify-center w-7 h-7">' + icon + '</span><div><div class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + guestTag + '</div><div class="text-xs text-gray-500">' + i18n.nameLabel + '</div></div></div>';
                     }
                 },
                 {
                     data: 'contact_person',
                     orderable: false,
-                    render: function(data) { return data || '<span class="text-slate-400">' + i18n.noContact + '</span>'; }
+                    render: function(data) {
+                        return data ? '<div class="flex items-center space-x-2"><i class="fas fa-address-book text-cyan-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div>' : '<span class="text-gray-400">' + i18n.noContact + '</span>';
+                    }
                 },
                 {
                     data: 'phone',
                     orderable: false,
-                    render: function(data) { return data || '<span class="text-slate-400">' + i18n.noPhone + '</span>'; }
+                    render: function(data) {
+                        return data ? '<div class="flex items-center space-x-2"><i class="fas fa-phone text-cyan-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div>' : '<span class="text-gray-400">' + i18n.noPhone + '</span>';
+                    }
                 },
                 {
                     data: 'status',
-                    width: '100px',
                     orderable: true,
                     render: function(data, type, row) {
                         if (row.type === 'supplier') {
-                            var cls = data === 'active' ? 'status-active' : 'status-inactive';
-                            return '<span class="provider-type-badge ' + cls + '">' + (data === 'active' ? i18n.statusActive : i18n.statusInactive) + '</span>';
+                            var active = data === 'active';
+                            var cls = active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200';
+                            return '<div class="flex items-center space-x-2"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ' + cls + '"><i class="fas ' + (active ? 'fa-check-circle' : 'fa-times-circle') + ' text-xs mr-1"></i>' + (active ? i18n.statusActive : i18n.statusInactive) + '</span></div>';
                         }
-                        var cls = data === 'balance_due' ? 'status-balance' : 'status-settled';
-                        return '<span class="provider-type-badge ' + cls + '">' + (data === 'balance_due' ? row.status_label : row.status_label) + '</span>';
+                        var due = data === 'balance_due';
+                        var cls = due ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                        return '<div class="flex items-center space-x-2"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ' + cls + '">' + escHtml(row.status_label) + '</span></div>';
                     }
                 },
                 {
                     data: 'created_at',
-                    width: '110px',
                     orderable: true,
                     render: function(data) {
                         if (!data) return '-';
-                        return data.substring(0, 10);
+                        return '<div class="flex items-center space-x-2"><i class="fas fa-calendar text-cyan-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data.substring(0, 10)) + '</span></div>';
                     }
                 },
                 {
                     data: null,
-                    width: '80px',
                     orderable: false,
                     render: function(data, type, row) {
                         if (!row.show_link) return '';
-                        return '<a href="' + row.link + '" class="inline-flex items-center px-2 py-1 text-xs font-semibold text-cyan-600 hover:text-cyan-800 hover:bg-cyan-50 rounded-lg transition-colors"><i class="fas fa-external-link-alt mr-1"></i>' + row.link_label + '</a>';
+                        return '<a href="' + row.link + '" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-cyan-700 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-colors"><i class="fas fa-external-link-alt mr-1.5"></i>' + row.link_label + '</a>';
                     }
                 }
             ],
@@ -356,7 +430,7 @@
         });
     }
 
-    // Type filter buttons
+    // Type filter
     $('#typeFilters').on('click', '.filter-btn', function() {
         $('#typeFilters .filter-btn').removeClass('active');
         $(this).addClass('active');
@@ -364,16 +438,12 @@
         providersTable.ajax.reload();
     });
 
-    // Modal logic
+    // Modal
     var $modal = $('#quickSupplierModal');
     var $nameInput = $('#quickSupplierName');
     var $status = $('#quickSupplierStatus');
 
-    function openModal() {
-        $modal.removeClass('hidden');
-        $nameInput.focus();
-    }
-
+    function openModal() { $modal.removeClass('hidden'); $nameInput.focus(); }
     function closeModal() {
         $modal.addClass('hidden');
         $nameInput.val('');
@@ -386,15 +456,11 @@
     $('#addSupplierBtn').on('click', openModal);
 
     $(document).on('click', '[data-modal-close]', function(e) {
-        if (e.target === this || $(this).is('[data-modal-close]')) {
-            closeModal();
-        }
+        if (e.target === this || $(this).is('[data-modal-close]')) { closeModal(); }
     });
 
     $(document).on('keydown', function(e) {
-        if (e.key === 'Escape' && !$modal.hasClass('hidden')) {
-            closeModal();
-        }
+        if (e.key === 'Escape' && !$modal.hasClass('hidden')) { closeModal(); }
     });
 
     $('#createQuickSupplierBtn').on('click', function() {
@@ -446,7 +512,6 @@
         });
     });
 
-    // Init
     $(document).ready(function() {
         initDataTable();
         loadStats();
