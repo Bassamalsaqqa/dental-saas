@@ -1353,11 +1353,6 @@ class Finance extends BaseController
         }
 
         $amountOriginal = floatval($this->request->getPost('amount_original'));
-        try {
-            [$supplierId, $counterpartyName] = $this->resolveExpenseSupplierSelection((int) $clinicId);
-        } catch (\RuntimeException $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
-        }
         $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
         $baseCurrency = settings()->get('currency', 'ILS');
         $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
@@ -1508,6 +1503,11 @@ class Finance extends BaseController
         }
 
         $amountOriginal = floatval($this->request->getPost('amount_original'));
+        try {
+            [$supplierId, $counterpartyName] = $this->resolveExpenseSupplierSelection((int) $clinicId);
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
         $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
         $baseCurrency = settings()->get('currency', 'ILS');
         $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);

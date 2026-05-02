@@ -74,3 +74,11 @@
   - Control-plane WhatsApp settings must show `Ready` vs `Needs config` per trigger.
   - Global template saves fail closed when trigger mappings are invalid.
   - Future WhatsApp rollout work resumes from template-readiness completion before moving deeper into operator/out-of-session hardening.
+
+## 2026-05-02 - Provider Shares Stay Separate From Supplier Payables
+- Decision: Tenant finance keeps provider payouts as the lane for clinic users or outside providers who receive a share from a patient transaction. Supplier, lab, product, inventory, rent, and other vendor bills stay in expenses/payables.
+- Rationale: Clinics need a simple operational model: pay providers from patient-treatment collections, and pay suppliers/vendors from bills. Mixing suppliers into provider split rows creates reporting ambiguity and possible double-counting.
+- Impact:
+  - Provider dropdowns can remain broad enough for active clinic users and guest/outside providers.
+  - Supplier directory linkage is preferred for vendor bills, with manual payee entry kept as a fallback.
+  - Finance reports continue to separate provider dues from supplier/payable balances.

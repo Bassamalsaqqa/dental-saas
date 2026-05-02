@@ -1946,3 +1946,27 @@
     3. Run a trigger-by-trigger live verification pass using the real templates.
     4. Continue Phase 6 with out-of-session/operator handling hardening after template readiness is complete.
 - **Reference Commit:** `2905eb8` (`Harden WhatsApp template readiness checks`)
+
+## [2026-05-02 18:35] - Finance Provider Share And Supplier Payable Workflow Hardening
+- **Status:** Completed
+- **Description:** Clarified the finance workflow split between provider shares from patient transactions and supplier/vendor bills handled through expenses and payables.
+- **Actions:**
+    - Fixed expense edit supplier resolution so `supplier_id` and counterparty name are resolved with the same clinic-scoped path used by expense creation.
+    - Removed supplier resolution from the normal income update path, where supplier/vendor data does not belong.
+    - Updated English and Arabic finance wording from doctor-only payout labels to broader provider-share language where the data model supports clinic users and outside providers.
+    - Updated expense create/edit wording so saved suppliers are the recommended path for labs, products, inventory, rent, and recurring vendors while manual payee entry remains available.
+    - Improved supplier selection behavior so the payee field follows a selected supplier only when it is empty or still matches the previous supplier, avoiding accidental overwrite of manual names.
+    - Updated the finance transaction provider-payment card labels on `/finance/{id}`.
+    - Added a progress section to `docs/PROVIDER_COMPENSATION_AND_SUPPLIER_PAYABLES_IMPLEMENTATION_PLAN_2026-04-19.md` documenting the current rule and completed changes.
+- **Verification:**
+    - `php -l app/Controllers/Finance.php`
+    - `php -l app/Language/en/Finance.php`
+    - `php -l app/Language/ar/Finance.php`
+    - `php -l app/Views/finance/expense_create.php`
+    - `php -l app/Views/finance/expense_edit.php`
+    - `php -l app/Views/finance/show.php`
+    - `git diff --check`
+    - Browser verification on:
+      - `/finance/income/create`
+      - `/finance/expenses/create`
+      - `/finance/62`

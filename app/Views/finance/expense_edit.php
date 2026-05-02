@@ -347,22 +347,25 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
     amountPaidInput?.addEventListener('input', syncExpenseLiquidityField);
     syncExpenseLiquidityField();
 
-    supplierSelect?.addEventListener('change', () => {
-        const selected = supplierSelect.options[supplierSelect.selectedIndex];
-        if (!selected || !counterpartyInput) {
+    let lastSupplierName = '';
+    const syncSupplierCounterparty = () => {
+        if (!supplierSelect || !counterpartyInput) {
             return;
         }
-        if (selected.value && counterpartyInput.value.trim() === '') {
-            counterpartyInput.value = selected.text.trim();
-        }
-    });
-
-    if (supplierSelect?.value && counterpartyInput && counterpartyInput.value.trim() === '') {
         const selected = supplierSelect.options[supplierSelect.selectedIndex];
-        if (selected) {
-            counterpartyInput.value = selected.text.trim();
+        if (!selected) {
+            return;
         }
-    }
+        const supplierName = selected.value ? selected.text.trim() : '';
+        const currentCounterparty = counterpartyInput.value.trim();
+        if (supplierName && (currentCounterparty === '' || currentCounterparty === lastSupplierName)) {
+            counterpartyInput.value = supplierName;
+        }
+        lastSupplierName = supplierName;
+    };
+
+    supplierSelect?.addEventListener('change', syncSupplierCounterparty);
+    syncSupplierCounterparty();
 })();
 </script>
 <?= $this->endSection() ?>

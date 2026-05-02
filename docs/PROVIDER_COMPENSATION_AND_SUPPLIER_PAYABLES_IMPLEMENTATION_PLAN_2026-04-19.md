@@ -439,7 +439,7 @@ Move forward without breaking existing clinics.
 ### Workflow 1: Doctor gets paid later
 
 1. create finance transaction
-2. enable clinical provider split
+2. enable provider share
 3. choose doctor user
 4. save unpaid
 5. doctor balance appears in:
@@ -451,7 +451,7 @@ Move forward without breaking existing clinics.
 ### Workflow 2: Visiting doctor gets paid later
 
 1. create finance transaction
-2. choose external clinical provider
+2. choose external provider
 3. save unpaid
 4. later pay from payout ledger or provider page
 
@@ -512,7 +512,7 @@ Scope:
 - make `Record Payment` obvious in payout ledger
 - add provider compensation summary and ledger to `/users/{id}`
 - make finance show page compensation card operational and prominent
-- clarify provider split helper text to say this is for clinical provider compensation only
+- clarify provider split helper text to say this is for provider shares from patient transactions only, while supplier/vendor bills stay in expenses/payables
 
 This is the highest-value next step because:
 
@@ -520,3 +520,19 @@ This is the highest-value next step because:
 - it does not require major schema upheaval
 - it makes the current system operable before expanding it
 
+## Implementation Progress - 2026-05-02
+
+### Completed in this pass
+
+- Kept provider payout rows broad enough for clinic users and guest/outside providers.
+- Kept supplier/vendor/product/lab/rent bills in the expense and payable lane.
+- Updated finance wording so provider share is clearly tied to a patient transaction, not to supplier bills.
+- Updated expense wording so supplier directory is the recommended path, with manual payee entry kept as a fallback.
+- Fixed expense edit supplier wiring so `supplier_id` and counterparty name are resolved the same way as expense create.
+- Improved supplier form behavior so changing a saved supplier updates the payee name only when it is blank or still matches the previous supplier.
+
+### Current rule
+
+- Use provider share when someone receives a share from a patient transaction.
+- Use expense/payable when the clinic owes a supplier, lab, product vendor, landlord, or other bill payee.
+- Inventory COGS remains an auto-posted clinic expense and should not create provider payouts.
