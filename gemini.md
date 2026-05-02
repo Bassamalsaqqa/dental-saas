@@ -97,23 +97,9 @@ This is the canonical reference. Update it on every iteration so future implemen
 
 ---
 
-## D. Recent Accomplishments (Jan 2026)
+## D. Recent Accomplishments
 
-### 1. Control Plane & Airlock
-*   **P5-20a:** Split entry vs. protected control-plane routes in `app/Config/Routes.php` and restored `/controlplane` access (historical log archived in `docs/_archive/`).
-*   **Airlock Doctrine:** `TenantFilter`/`ControlPlaneFilter` now fail closed when session context mismatches; coverage ensured by guardrail scripts.
-
-### 2. RBAC, Roles & Users
-*   **RoleController:** Manages system + clinic roles, permissions (sync, stats) via `PermissionService`/`RoleModel`.
-*   **UserManagementController:** Tenant user flows with `PlanGuard` quotas and `ClinicUserModel` assignments. Works entirely inside the tenant plane; a control-plane counterpart is planned.
-
-### 3. SaaS Guardrails & Docs
-*   **Guardrails Documented:** S0-series doc entries describe DOM sink removal, preference persistence, ASCII fixes, and route corrections. Guardrail script path: `scripts/ci/saas_guardrails.sh`.
-*   **Logs:** The Implementation/Decision logs embed each milestone; they are now the single catch-up source.
-
-### 4. Automation & Jobs
-*   **TenantJob & TenantAwareModel:** Strict context enforcement; jobs require `clinic_id`, otherwise they throw 404.
-*   **PlanGuard & Subscription Enforcement:** Quota checks (`users_max`) run per clinic (`SubscriptionFilter`, `PlanGuard`).
+See `docs/CHANGELOG.md` for recent implementation history. Historical SaaS transition accomplishments (Jan 2026) are archived in `docs/_archive/`.
 
 ---
 
