@@ -403,24 +403,24 @@ document.addEventListener('keydown', function(e) {
             columns: [
                 { data: 'name', responsivePriority: 1, render: function(data, type, row) {
                     const icon = row.type === 'supplier' ? 'fa-truck text-emerald-600' : 'fa-user-doctor text-blue-600';
-                    return '<div class="flex items-center space-x-3"><span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center"><i class="fas ' + icon + ' text-2xl"></i></span><div><div class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + '</div><div class="text-xs text-gray-500">' + escHtml(row.type_label || '') + '</div></div></div>';
+                    return '<div class="flex items-center gap-3"><span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center"><i class="fas ' + icon + ' text-xl"></i></span><span class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + '</span></div>';
                 } },
                 { data: 'type', responsivePriority: 3, render: function(data, type, row) { return typeBadge(row); } },
                 { data: 'contact', responsivePriority: 4, orderable: false, render: function(data) {
-                    return data ? '<div><div class="flex items-center space-x-2"><i class="fas fa-address-book text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div><div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.colContact'), 'js') ?>' + '</div></div>' : '<div class="text-sm text-gray-400">' + i18n.noContact + '</div>';
+                    return data ? escHtml(data) : '<span class="text-gray-400">' + i18n.noContact + '</span>';
                 } },
                 { data: 'activity_count', responsivePriority: 5, render: function(data, type, row) {
-                    return '<div><div class="flex items-center space-x-2"><i class="fas fa-chart-simple text-emerald-600 text-xs"></i><span class="text-sm font-medium text-gray-900">' + escHtml(row.activity_label || '-') + '</span></div><div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.colStats'), 'js') ?>' + '</div></div>';
+                    return '<span class="text-sm text-gray-900">' + escHtml(row.activity_label || '-') + '</span>';
                 } },
                 { data: 'outstanding', responsivePriority: 2, render: function(data, type, row) {
                     const due = Number(data) > 0;
-                    return '<div><div class="flex items-center space-x-2"><i class="fas fa-wallet ' + (due ? 'text-amber-600' : 'text-emerald-600') + ' text-xs"></i><span class="text-sm font-medium ' + (due ? 'text-amber-700' : 'text-gray-900') + '">' + escHtml(row.outstanding_label || '0.00') + '</span></div><div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.openAmount'), 'js') ?>' + '</div></div>';
+                    return '<span class="text-sm font-medium ' + (due ? 'text-amber-700' : 'text-gray-900') + '">' + escHtml(row.outstanding_label || '0.00') + '</span>';
                 } },
                 { data: 'status', responsivePriority: 6, render: function(data, type, row) {
-                    return '<div>' + statusBadge(row) + '<div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.colStatus'), 'js') ?>' + '</div></div>';
+                    return statusBadge(row);
                 } },
                 { data: 'last_activity', responsivePriority: 7, render: function(data) {
-                    return '<div class="flex items-center space-x-2"><i class="fas fa-calendar text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + formatDate(data) + '</span></div>';
+                    return '<span class="text-sm text-gray-900">' + formatDate(data) + '</span>';
                 } },
                 { data: null, responsivePriority: 1, orderable: false, render: function(data, type, row) {
                     if (!row.show_link) return '';
