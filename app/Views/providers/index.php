@@ -34,7 +34,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 .providers-page .dataTables_filter input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important; }
 .providers-page table.dataTable { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }
 .providers-page #providersTable thead th {
-    padding: 1rem 1.5rem !important;
+    padding: 0.625rem 1.5rem !important;
     border-bottom: 1px solid #e5e7eb !important;
     background: #f9fafb !important;
     color: #4b5563 !important;
@@ -46,10 +46,10 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     white-space: nowrap !important;
 }
 .providers-page #providersTable tbody td {
-    padding: 1rem 1.5rem !important;
+    padding: 0.5rem 1.5rem !important;
     border-bottom: 1px solid #f3f4f6 !important;
     color: #374151 !important;
-    font-size: .875rem !important;
+    font-size: .8125rem !important;
     vertical-align: middle !important;
 }
 .providers-page #providersTable tbody td:last-child {
@@ -99,6 +99,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 [dir="rtl"] .providers-page table.dataTable td { text-align: right !important; }
 @media (max-width: 640px) {
     .providers-page .dataTables_filter input { min-width: 12rem; width: 100%; }
+    .providers-page #providersTable tbody td,
     .providers-page #providersTable tbody td,
     .providers-page #providersTable thead th { padding-left: 1rem !important; padding-right: 1rem !important; }
 }
@@ -403,7 +404,7 @@ document.addEventListener('keydown', function(e) {
             columns: [
                 { data: 'name', responsivePriority: 1, render: function(data, type, row) {
                     const icon = row.type === 'supplier' ? 'fa-truck text-emerald-600' : 'fa-user-doctor text-blue-600';
-                    return '<div class="flex items-center gap-3"><span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center"><i class="fas ' + icon + ' text-xl"></i></span><span class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + '</span></div>';
+                    return '<div class="flex items-center gap-2"><span class="inline-flex flex-shrink-0 items-center justify-center"><i class="fas ' + icon + '"></i></span><span class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + '</span></div>';
                 } },
                 { data: 'type', responsivePriority: 3, render: function(data, type, row) { return typeBadge(row); } },
                 { data: 'contact', responsivePriority: 4, orderable: false, render: function(data) {
