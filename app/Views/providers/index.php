@@ -242,46 +242,48 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     </div>
 </div>
 
-<div id="quickSupplierModal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4" role="dialog" aria-modal="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" data-modal-close></div>
-    <div class="relative flex min-h-full items-center justify-center">
-        <div class="relative rounded-2xl bg-white shadow-2xl w-full max-w-lg" onclick="event.stopPropagation()">
-            <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+<div id="quickSupplierModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="fixed inset-0 bg-slate-950/45"></div>
+    <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeSupplierModal()">
+        <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('Provider.quickAddSupplierTitle')) ?></h3>
+                    <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('Provider.quickAddSupplierTitle')) ?></h4>
                     <p class="mt-1 text-sm text-slate-500"><?= esc(lang('Provider.quickAddSupplierHelp')) ?></p>
                 </div>
-                <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" data-modal-close>
-                    <i class="fas fa-times"></i>
+                <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeSupplierModal()">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
-            <div class="space-y-4 px-6 py-6">
+            <div class="space-y-4 p-5">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierName"><?= esc(lang('Provider.supplierName')) ?> *</label>
-                    <input type="text" id="quickSupplierName" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none" placeholder="<?= esc(lang('Provider.supplierName')) ?>">
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierName"><?= esc(lang('Provider.supplierName')) ?> *</label>
+                    <input type="text" id="quickSupplierName" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" placeholder="<?= esc(lang('Provider.supplierName')) ?>" required>
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierContact"><?= esc(lang('Provider.contactPerson')) ?></label>
-                        <input type="text" id="quickSupplierContact" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierContact"><?= esc(lang('Provider.contactPerson')) ?></label>
+                        <input type="text" id="quickSupplierContact" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierPhone"><?= esc(lang('Provider.phone')) ?></label>
-                        <input type="text" id="quickSupplierPhone" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierPhone"><?= esc(lang('Provider.phone')) ?></label>
+                        <input type="text" id="quickSupplierPhone" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1" for="quickSupplierEmail"><?= esc(lang('Provider.email')) ?></label>
-                    <input type="email" id="quickSupplierEmail" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierEmail"><?= esc(lang('Provider.email')) ?></label>
+                    <input type="email" id="quickSupplierEmail" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
                 </div>
                 <p id="quickSupplierStatus" class="text-xs text-slate-500 hidden"></p>
             </div>
-            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-end">
-                <button type="button" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors" data-modal-close>
-                    <?= esc(lang('Provider.cancel')) ?>
+            <div class="flex flex-wrap justify-end gap-2 border-t border-slate-200 px-5 py-4">
+                <button type="button" onclick="closeSupplierModal()" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    <i class="fas fa-times text-xs"></i>
+                    <span><?= esc(lang('Provider.cancel')) ?></span>
                 </button>
-                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md">
-                    <i class="fas fa-plus <?= $iconGap ?>"></i><?= esc(lang('Provider.createSupplier')) ?>
+                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                    <i class="fas fa-plus text-xs"></i>
+                    <span><?= esc(lang('Provider.createSupplier')) ?></span>
                 </button>
             </div>
         </div>
@@ -295,9 +297,6 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     let providersTable;
     let activeTypeFilter = '';
     const isRtl = <?= $isRtl ? 'true' : 'false' ?>;
-    const modal = $('#quickSupplierModal');
-    const nameInput = $('#quickSupplierName');
-    const statusText = $('#quickSupplierStatus');
 
     const i18n = {
         supplier: '<?= esc(lang('Provider.typeSupplier'), 'js') ?>',
@@ -436,16 +435,38 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
             });
     }
 
-    function openModal() {
-        modal.removeClass('hidden');
-        setTimeout(function() { nameInput.trigger('focus'); }, 0);
+    function mountSupplierModal() {
+        const modal = document.getElementById('quickSupplierModal');
+        if (modal && modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+        return modal;
     }
 
-    function closeModal() {
-        modal.addClass('hidden');
-        $('#quickSupplierName, #quickSupplierContact, #quickSupplierPhone, #quickSupplierEmail').val('');
-        statusText.addClass('hidden').removeClass('text-red-600 text-amber-600').text('');
+    function openSupplierModal() {
+        mountSupplierModal()?.classList.remove('hidden');
+        setTimeout(function() {
+            const input = document.getElementById('quickSupplierName');
+            if (input) { input.focus(); }
+        }, 50);
     }
+
+    function closeSupplierModal() {
+        const modal = document.getElementById('quickSupplierModal');
+        if (modal) { modal.classList.add('hidden'); }
+        ['quickSupplierName', 'quickSupplierContact', 'quickSupplierPhone', 'quickSupplierEmail'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) { el.value = ''; }
+        });
+        const status = document.getElementById('quickSupplierStatus');
+        if (status) { status.classList.add('hidden'); status.textContent = ''; }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') { return; }
+        const modal = document.getElementById('quickSupplierModal');
+        if (modal && !modal.classList.contains('hidden')) { closeSupplierModal(); }
+    });
 
     $('#typeFilters').on('click', '.provider-filter', function() {
         $('#typeFilters .provider-filter').removeClass('active');
@@ -454,29 +475,29 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
         providersTable.ajax.reload();
     });
 
-    $('#addSupplierBtn').on('click', openModal);
-    $(document).on('click', '[data-modal-close]', closeModal);
-    $(document).on('keydown', function(e) {
-        if (e.key === 'Escape' && !modal.hasClass('hidden')) closeModal();
-    });
+    document.getElementById('addSupplierBtn').addEventListener('click', openSupplierModal);
 
-    $('#createQuickSupplierBtn').on('click', function() {
-        const name = nameInput.val().trim();
+    document.getElementById('createQuickSupplierBtn').addEventListener('click', function() {
+        const nameInput = document.getElementById('quickSupplierName');
+        const name = nameInput.value.trim();
+        const statusEl = document.getElementById('quickSupplierStatus');
+
         if (!name) {
-            statusText.removeClass('hidden text-amber-600').addClass('text-red-600').text(i18n.supplierNameRequired);
+            statusEl.classList.remove('hidden');
+            statusEl.classList.add('text-red-600');
+            statusEl.textContent = i18n.supplierNameRequired;
             return;
         }
 
-        const btn = $(this);
-        const spinner = document.createElement('i');
-        spinner.className = 'fas fa-spinner fa-spin <?= $iconGap ?>';
-        btn.prop('disabled', true).empty().append(spinner).append(document.createTextNode(i18n.creatingSupplier));
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="<?= $iconGap ?>"></span>' + i18n.creatingSupplier;
 
         const formData = new FormData();
         formData.append('name', name);
-        formData.append('contact_person', $('#quickSupplierContact').val().trim());
-        formData.append('phone', $('#quickSupplierPhone').val().trim());
-        formData.append('email', $('#quickSupplierEmail').val().trim());
+        formData.append('contact_person', document.getElementById('quickSupplierContact').value.trim());
+        formData.append('phone', document.getElementById('quickSupplierPhone').value.trim());
+        formData.append('email', document.getElementById('quickSupplierEmail').value.trim());
         if (window.csrfConfig?.name && window.getCsrfToken) {
             formData.append(window.csrfConfig.name, window.getCsrfToken());
         }
@@ -486,31 +507,29 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
             headers: {'X-Requested-With': 'XMLHttpRequest'},
             body: formData
         })
-        .then(function(response) { return response.json(); })
+        .then(function(r) { return r.json(); })
         .then(function(json) {
             if (json.csrf_token && window.refreshCsrfToken) {
                 window.refreshCsrfToken(json.csrf_token);
             }
-
             if (json.success) {
-                closeModal();
+                closeSupplierModal();
                 providersTable.ajax.reload();
                 loadStats();
                 return;
             }
-
-            statusText
-                .removeClass('hidden text-amber-600')
-                .addClass('text-red-600')
-                .text(json.message || i18n.failedToCreate);
+            statusEl.classList.remove('hidden');
+            statusEl.classList.add('text-red-600');
+            statusEl.textContent = json.message || i18n.failedToCreate;
         })
         .catch(function() {
-            statusText.removeClass('hidden text-amber-600').addClass('text-red-600').text(i18n.failedToCreate);
+            statusEl.classList.remove('hidden');
+            statusEl.classList.add('text-red-600');
+            statusEl.textContent = i18n.failedToCreate;
         })
         .finally(function() {
-            const plusIcon = document.createElement('i');
-            plusIcon.className = 'fas fa-plus <?= $iconGap ?>';
-            btn.prop('disabled', false).empty().append(plusIcon).append(document.createTextNode(i18n.createSupplier));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plus text-xs"></i><span class="<?= $iconGap ?>"></span>' + i18n.createSupplier;
         });
     });
 
