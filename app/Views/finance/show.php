@@ -230,33 +230,6 @@
         margin-bottom: 24px;
     }
 
-    .finance-hero-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        min-height: 2.65rem;
-        padding: 0.5rem 1rem;
-        border-radius: 0.95rem;
-        font-size: 0.76rem;
-        font-weight: 700;
-        transition: all 0.2s;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        width: 100%;
-        line-height: 1.3;
-    }
-    .finance-hero-btn:hover { transform: translateY(-1px); }
-    .finance-hero-btn-soft { background: rgba(255,255,255,0.12); color: #eff6ff; }
-    .finance-hero-btn-soft:hover { background: rgba(255,255,255,0.22); }
-    .finance-hero-btn-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
-    .finance-hero-btn-emerald:hover { background: linear-gradient(135deg, #34d399, #10b981); }
-    .finance-hero-btn-rose { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; }
-    .finance-hero-btn-rose:hover { background: linear-gradient(135deg, #fb7185, #f43f5e); }
-    .finance-hero-btn-ghost { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px dashed rgba(255,255,255,0.2); }
-    .finance-hero-btn-ghost:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.35); }
-
     .finance-show-page-header-top {
         display: grid;
         gap: 18px;
@@ -1052,38 +1025,74 @@
     }
 </style>
 <div class="finance-show-shell px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
-        <!-- Hero Header -->
-        <section class="relative overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-slate-800 via-blue-950 to-slate-900 text-white mb-8">
-            <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl"></div>
-                <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl"></div>
-            </div>
+        <!-- Hero Header (clone of /patient/149 pattern) -->
+        <section class="patient-hero-card patient-hero-card-neutral overflow-hidden rounded-[28px] border border-slate-200 mb-8">
+            <div class="patient-hero-overlay"></div>
             <div class="relative z-10 p-6 sm:p-8">
                 <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/80">
+                    <div class="flex flex-col gap-5">
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
                             <span><?= $isRtl ? 'المالية' : 'Finance' ?></span>
-                            <span class="h-1 w-1 rounded-full bg-blue-300"></span>
+                            <span class="h-1 w-1 rounded-full bg-blue-200"></span>
                             <span><?= esc($transactionTypeLabel) ?></span>
                         </div>
-                        <div class="mt-4 flex flex-wrap items-center gap-3">
-                            <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc('#' . $finance['transaction_id']) ?></h1>
-                            <span class="inline-flex items-center rounded-full border border-white/20 px-3 py-1 text-xs font-semibold bg-white/10 backdrop-blur-sm"><?= esc($paymentStatusLabel) ?></span>
-                        </div>
-                        <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/80"><span class="text-white/50"><?= esc($ui['type']) ?></span> <?= esc($transactionTypeLabel) ?></span>
-                            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/80"><span class="text-white/50"><?= esc($ui['date']) ?></span> <?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></span>
-                            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/80"><span class="text-white/50"><?= esc($ui['method']) ?></span> <?= esc(lang('Finance.' . $finance['payment_method'])) ?></span>
-                            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/80"><span class="text-white/50"><?= lang('Finance.currency') ?></span> <?= esc($baseCurrency) ?></span>
+                        <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
+                            <div class="patient-avatar-badge patient-avatar-badge-neutral">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc('#' . $finance['transaction_id']) ?></h1>
+                                        <span class="patient-hero-status inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold <?= esc($statusTone['pill']) ?>">
+                                            <?= esc($paymentStatusLabel) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="patient-hero-chip-grid">
+                                    <div class="patient-hero-chip">
+                                        <span class="patient-hero-chip-icon"><i class="fas fa-tag"></i></span>
+                                        <span class="patient-hero-chip-text">
+                                            <span class="patient-hero-chip-label"><?= esc($ui['type']) ?></span>
+                                            <span class="patient-hero-chip-value"><?= esc($transactionTypeLabel) ?></span>
+                                        </span>
+                                    </div>
+                                    <div class="patient-hero-chip">
+                                        <span class="patient-hero-chip-icon"><i class="fas fa-calendar"></i></span>
+                                        <span class="patient-hero-chip-text">
+                                            <span class="patient-hero-chip-label"><?= esc($ui['date']) ?></span>
+                                            <span class="patient-hero-chip-value"><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></span>
+                                        </span>
+                                    </div>
+                                    <div class="patient-hero-chip">
+                                        <span class="patient-hero-chip-icon"><i class="fas fa-credit-card"></i></span>
+                                        <span class="patient-hero-chip-text">
+                                            <span class="patient-hero-chip-label"><?= esc($ui['method']) ?></span>
+                                            <span class="patient-hero-chip-value"><?= esc(lang('Finance.' . $finance['payment_method'])) ?></span>
+                                        </span>
+                                    </div>
+                                    <div class="patient-hero-chip">
+                                        <span class="patient-hero-chip-icon"><i class="fas fa-coins"></i></span>
+                                        <span class="patient-hero-chip-text">
+                                            <span class="patient-hero-chip-label"><?= lang('Finance.currency') ?></span>
+                                            <span class="patient-hero-chip-value"><?= esc($baseCurrency) ?></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="w-full space-y-2 xl:w-[21rem]">
-                        <!-- Row 1: Navigation -->
                         <div class="grid gap-2 sm:grid-cols-2">
-                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-hero-btn finance-hero-btn-soft"><i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($ui['back']) ?></span></a>
-                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-hero-btn finance-hero-btn-soft"><i class="fas fa-pen"></i><span><?= esc($ui['edit']) ?></span></a>
+                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="patient-header-action patient-header-action-soft">
+                                <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
+                                <span><?= esc($ui['back']) ?></span>
+                            </a>
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="patient-header-action patient-header-action-soft">
+                                <i class="fas fa-pen"></i>
+                                <span><?= esc($ui['edit']) ?></span>
+                            </a>
                         </div>
-                        <!-- Row 2: Financial actions (paired) -->
                         <?php
                         $showPayment = $showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0;
                         $showRefund = $showFinanceForms && $isInvoice;
@@ -1092,90 +1101,26 @@
                         ?>
                         <div class="grid gap-2 <?= $finCols ?>">
                             <?php if ($showPayment): ?>
-                            <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-hero-btn finance-hero-btn-emerald"><i class="fas fa-plus-circle"></i><span><?= esc($ui['recordPayment']) ?></span></button>
+                            <button type="button" onclick="openFinanceModal('paymentModal', this)" class="patient-header-action patient-header-action-emerald">
+                                <i class="fas fa-plus-circle"></i>
+                                <span><?= esc($ui['recordPayment']) ?></span>
+                            </button>
                             <?php endif; ?>
                             <?php if ($showRefund): ?>
-                            <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-hero-btn finance-hero-btn-rose"><i class="fas fa-rotate-left"></i><span><?= esc($ui['recordRefund']) ?></span></button>
+                            <button type="button" onclick="openFinanceModal('refundModal', this)" class="patient-header-action patient-header-action-danger">
+                                <i class="fas fa-rotate-left"></i>
+                                <span><?= esc($ui['recordRefund']) ?></span>
+                            </button>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
-                        <!-- Row 3: Utility -->
                         <div class="grid gap-2 sm:grid-cols-1">
-                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-hero-btn finance-hero-btn-ghost"><i class="fas fa-file-pdf"></i><span><?= esc($ui['exportPdf']) ?></span></a>
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="patient-hero-tool-button">
+                                <i class="fas fa-file-pdf"></i>
+                                <span><?= esc($ui['exportPdf']) ?></span>
+                            </a>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="finance-show-page-header" style="display:none">
-            <div class="finance-show-page-header-top <?= $isRtl ? 'finance-show-page-header-top-rtl' : 'finance-show-page-header-top-ltr' ?>">
-                <div class="finance-show-page-heading">
-                    <div class="finance-show-page-title-row">
-                        <h1 class="text-3xl font-bold text-slate-800"><?= esc($ui['pageTitle']) ?></h1>
-                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold <?= esc($statusTone['pill']) ?>">
-                            <span class="h-2 w-2 rounded-full <?= esc($statusTone['dot']) ?>"></span>
-                            <?= esc($paymentStatusLabel) ?>
-                        </span>
-                    </div>
-                    <p class="finance-show-page-id"><?= esc('#' . $finance['transaction_id']) ?></p>
-                    <div class="finance-show-page-submeta">
-                        <span class="finance-show-page-meta-chip"><?= esc($ui['type']) ?> <strong><?= esc($transactionTypeLabel) ?></strong></span>
-                        <span class="finance-show-page-meta-chip"><?= esc($ui['date']) ?> <strong><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></strong></span>
-                        <span class="finance-show-page-meta-chip"><?= esc($ui['method']) ?> <strong><?= lang('Finance.' . $finance['payment_method']) ?></strong></span>
-                        <span class="finance-show-page-meta-chip"><?= lang('Finance.currency') ?> <strong><?= esc($baseCurrency) ?></strong></span>
-                    </div>
-                </div>
-                <div class="finance-show-page-actions">
-                    <?php if ($isRtl): ?>
-                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--primary">
-                        <?php if ($showFinanceForms && $isInvoice): ?>
-                        <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-show-btn finance-show-btn-soft finance-show-btn-modal">
-                            <span><?= esc($ui['recordRefund']) ?></span><i class="fas fa-rotate-left text-rose-500"></i>
-                        </button>
-                        <?php endif; ?>
-                        <?php if ($showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
-                        <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
-                            <span><?= esc($ui['recordPayment']) ?></span><i class="fas fa-plus-circle"></i>
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--secondary">
-                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-show-btn finance-show-btn-soft">
-                            <span><?= esc($ui['back']) ?></span><i class="fas fa-arrow-right"></i>
-                        </a>
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-show-btn finance-show-btn-primary">
-                            <span><?= esc($ui['edit']) ?></span><i class="fas fa-pen"></i>
-                        </a>
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-show-btn finance-show-btn-soft">
-                            <span><?= esc($ui['exportPdf']) ?></span><i class="fas fa-file-pdf text-slate-500"></i>
-                        </a>
-                    </div>
-                    <?php else: ?>
-                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--primary">
-                        <?php if ($showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
-                        <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
-                            <i class="fas fa-plus-circle"></i><span><?= esc($ui['recordPayment']) ?></span>
-                        </button>
-                        <?php endif; ?>
-                        <?php if ($showFinanceForms && $isInvoice): ?>
-                        <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-show-btn finance-show-btn-soft finance-show-btn-modal">
-                            <i class="fas fa-rotate-left text-rose-500"></i><span><?= esc($ui['recordRefund']) ?></span>
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                    <div class="finance-show-page-action-cluster finance-show-page-action-cluster--secondary">
-                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-show-btn finance-show-btn-soft">
-                            <i class="fas fa-arrow-left"></i><span><?= esc($ui['back']) ?></span>
-                        </a>
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-show-btn finance-show-btn-primary">
-                            <i class="fas fa-pen"></i><span><?= esc($ui['edit']) ?></span>
-                        </a>
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-show-btn finance-show-btn-soft">
-                            <i class="fas fa-file-pdf text-slate-500"></i><span><?= esc($ui['exportPdf']) ?></span>
-                        </a>
-                    </div>
-                    <?php endif; ?>
                 </div>
             </div>
         </section>
