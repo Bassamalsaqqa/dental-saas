@@ -17,13 +17,9 @@
         $welcomeHeading = strtr(lang('Auth.login_welcome'), ['{clinic}' => $clinicName]);
         $returnTo = current_url() . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
         $activeLocale = strtolower((string) ($locale ?? service('request')->getLocale() ?? 'en'));
-        $flexDir = $isRtl ? 'md:flex-row-reverse' : 'md:flex-row';
-        $dividerBorder = $isRtl ? 'border-l' : 'border-r';
         $textAlign = $isRtl ? 'text-right' : 'text-left';
-        $labelMargin = $isRtl ? 'mr-2' : 'ml-2';
-        $rememberGap = $isRtl ? 'mr-3' : 'ml-3';
-        $arrowClass = $isRtl ? 'fa-chevron-left group-hover/btn:-translate-x-1' : 'fa-chevron-right group-hover/btn:translate-x-1';
-        $switcherJustify = 'justify-end';
+        $arrowIcon = $isRtl ? 'fa-chevron-left' : 'fa-chevron-right';
+        $arrowHover = $isRtl ? 'group-hover/btn:-translate-x-1' : 'group-hover/btn:translate-x-1';
     ?>
 
     <!-- Background -->
@@ -38,12 +34,12 @@
     <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-6 md:py-8">
         <div class="w-full max-w-4xl animate-card-entry">
             <div class="group relative">
-                <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col <?= $flexDir ?> min-h-[460px]">
+                <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[460px]">
 
-                    <!-- Brand Panel -->
-                    <div class="relative z-10 hidden md:flex md:w-5/12 bg-white/5 <?= $dividerBorder ?> border-white/10 p-10 flex-col justify-between overflow-hidden">
-                        <div class="absolute -top-24 <?= $isRtl ? '-right-24' : '-left-24' ?> w-48 h-48 bg-blue-500/20 blur-[80px]"></div>
-                        <div class="absolute -bottom-24 <?= $isRtl ? '-left-24' : '-right-24' ?> w-48 h-48 bg-indigo-500/20 blur-[80px]"></div>
+                    <!-- Brand Panel (left side, both languages) -->
+                    <div class="relative z-10 hidden md:flex md:w-5/12 bg-white/5 border-r border-white/10 p-10 flex-col justify-between overflow-hidden">
+                        <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 blur-[80px]"></div>
+                        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/20 blur-[80px]"></div>
 
                         <div class="relative z-10">
                             <div class="w-16 h-16 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-8">
@@ -72,11 +68,11 @@
                         </div>
                     </div>
 
-                    <!-- Right Panel -->
+                    <!-- Form Panel (right side, both languages) -->
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
 
                         <!-- Language Switcher -->
-                        <div class="mb-6 flex <?= $switcherJustify ?> relative z-20">
+                        <div class="mb-6 flex justify-end relative z-20">
                             <div class="inline-flex items-center rounded-2xl border border-white/15 bg-black/20 p-1 backdrop-blur-md shadow-lg">
                                 <a href="<?= base_url('auth/language/en?return_to=' . urlencode($returnTo)) ?>"
                                    lang="en" hreflang="en"
@@ -107,8 +103,8 @@
 
                         <!-- Flash Messages -->
                         <?php if (session()->getFlashdata('success') || session()->getFlashdata('message')): ?>
-                            <div class="mb-6 p-4 <?= session()->getFlashdata('success') ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-rose-500/20 border-rose-500/30' ?> backdrop-blur-md border rounded-2xl flex items-center animate-fadeIn relative z-20 shadow-lg">
-                                <i class="fas <?= session()->getFlashdata('success') ? 'fa-check-circle text-emerald-400' : 'fa-exclamation-circle text-rose-400' ?> <?= $isRtl ? 'ml-3' : 'mr-3' ?> text-lg"></i>
+                            <div class="mb-6 p-4 <?= session()->getFlashdata('success') ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-rose-500/20 border-rose-500/30' ?> backdrop-blur-md border rounded-2xl flex items-center gap-3 animate-fadeIn relative z-20 shadow-lg">
+                                <i class="fas <?= session()->getFlashdata('success') ? 'fa-check-circle text-emerald-400' : 'fa-exclamation-circle text-rose-400' ?> flex-shrink-0 text-lg"></i>
                                 <p class="text-xs font-bold text-white"><?= session()->getFlashdata('success') ?: session()->getFlashdata('message') ?></p>
                             </div>
                         <?php endif; ?>
@@ -119,24 +115,28 @@
 
                                 <!-- Identity Field -->
                                 <div class="space-y-2">
-                                    <label for="identity" class="text-[10px] font-black text-white/60 uppercase tracking-widest <?= $labelMargin ?> <?= $textAlign ?> block"><?= esc(lang('Auth.login_identity_label')) ?></label>
+                                    <label for="identity" class="block text-[10px] font-black text-white/60 uppercase tracking-widest <?= $isRtl ? 'mr-2 text-right' : 'ml-2 text-left' ?>">
+                                        <?= esc(lang('Auth.login_identity_label')) ?>
+                                    </label>
                                     <div class="relative group/input">
-                                        <div class="absolute inset-y-0 <?= $isRtl ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                        <div class="field-icon absolute inset-y-0 flex items-center pointer-events-none">
                                             <i class="fas fa-user text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($identity + ['class' => 'w-full py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium ' . $textAlign . ($isRtl ? ' pr-11 pl-4' : ' pl-11 pr-4'), 'placeholder' => '', 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false', 'dir' => 'ltr', 'inputmode' => 'email']) ?>
+                                        <?= form_input($identity + ['class' => 'w-full py-4 field-input bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium ' . $textAlign, 'placeholder' => '', 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false', 'dir' => 'ltr', 'inputmode' => 'email']) ?>
                                     </div>
                                 </div>
 
                                 <!-- Password Field -->
                                 <div class="space-y-2">
-                                    <label for="password" class="text-[10px] font-black text-white/60 uppercase tracking-widest <?= $labelMargin ?> <?= $textAlign ?> block"><?= esc(lang('Auth.login_password_label')) ?></label>
+                                    <label for="password" class="block text-[10px] font-black text-white/60 uppercase tracking-widest <?= $isRtl ? 'mr-2 text-right' : 'ml-2 text-left' ?>">
+                                        <?= esc(lang('Auth.login_password_label')) ?>
+                                    </label>
                                     <div class="relative group/input">
-                                        <div class="absolute inset-y-0 <?= $isRtl ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                        <div class="field-icon absolute inset-y-0 flex items-center pointer-events-none">
                                             <i class="fas fa-lock text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($password + ['class' => 'w-full py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium ' . $textAlign . ($isRtl ? ' pr-11 pl-12' : ' pl-11 pr-12'), 'placeholder' => '', 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'dir' => 'ltr']) ?>
-                                        <button type="button" id="togglePassword" class="absolute inset-y-0 <?= $isRtl ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center text-white/50 hover:text-white/80 transition-colors" tabindex="-1" aria-label="<?= esc(lang('Auth.login_show_password')) ?>">
+                                        <?= form_input($password + ['class' => 'w-full py-4 field-input field-input-pw bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium ' . $textAlign, 'placeholder' => '', 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'dir' => 'ltr']) ?>
+                                        <button type="button" id="togglePassword" class="field-toggle absolute inset-y-0 flex items-center text-white/50 hover:text-white/80 transition-colors" tabindex="-1" aria-label="<?= esc(lang('Auth.login_show_password')) ?>">
                                             <i class="fas fa-eye text-sm"></i>
                                         </button>
                                     </div>
@@ -148,9 +148,11 @@
                                 <label class="flex items-center cursor-pointer group">
                                     <span class="relative flex items-center justify-center">
                                         <input type="checkbox" id="remember" name="remember" value="1" class="appearance-none w-5 h-5 bg-white/10 border-2 border-white/30 rounded-md checked:bg-blue-500 checked:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transition-all duration-200 cursor-pointer">
-                                        <i class="fas fa-check absolute text-white text-[10px] font-black opacity-0 scale-0 transition-all duration-200 pointer-events-none peer-checked:opacity-100"></i>
+                                        <i class="fas fa-check check-icon absolute text-white text-[10px] font-black opacity-0 scale-0 transition-all duration-200 pointer-events-none"></i>
                                     </span>
-                                    <span class="<?= $rememberGap ?> text-[11px] font-bold text-white/70 group-hover:text-white transition-colors select-none"><?= esc(lang('Auth.login_remember_label')) ?></span>
+                                    <span class="select-none text-[11px] font-bold text-white/70 group-hover:text-white transition-colors <?= $isRtl ? 'mr-3' : 'ml-3' ?>">
+                                        <?= esc(lang('Auth.login_remember_label')) ?>
+                                    </span>
                                 </label>
                                 <a href="<?= base_url('auth/forgot-password') ?>" class="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest">
                                     <?= esc(lang('Auth.login_forgot_short')) ?>
@@ -160,7 +162,7 @@
                             <!-- Submit Button -->
                             <button type="submit" class="w-full py-4 backdrop-blur-md bg-blue-500/30 border border-blue-400/30 text-white font-black rounded-2xl shadow-xl hover:bg-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-3 group/btn">
                                 <span class="text-sm uppercase tracking-widest drop-shadow-sm"><?= esc(lang('Auth.login_submit_cta')) ?></span>
-                                <i class="fas <?= $arrowClass ?> text-[10px] transform transition-transform"></i>
+                                <i class="fas <?= $arrowIcon ?> text-[10px] transform <?= $arrowHover ?> transition-transform"></i>
                             </button>
                         <?= form_close() ?>
                     </div>
@@ -183,8 +185,8 @@
                             <span class="text-[10px] font-bold text-white/40 uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
                         </div>
                     </div>
-                    <div class="flex items-center bg-black/20 rounded-2xl p-1.5 px-3 border border-white/10">
-                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest <?= $isRtl ? 'ml-4 mr-1' : 'mr-4 ml-1' ?>"><?= esc(lang('Auth.login_live_concierge')) ?></span>
+                    <div class="flex items-center bg-black/20 rounded-2xl p-1.5 px-3 border border-white/10 gap-3">
+                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest"><?= esc(lang('Auth.login_live_concierge')) ?></span>
                         <div class="flex items-center gap-2">
                             <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
                             <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
@@ -228,28 +230,34 @@
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Checkbox checked state via JS */
-        #remember:checked ~ i { opacity: 1 !important; transform: scale(1) !important; }
-        #remember:checked { background-color: #3b82f6; border-color: #3b82f6; }
+        /* Field icon: left in LTR, right in RTL */
+        .field-icon { left: 0; padding-left: 1rem; }
+        [dir="rtl"] .field-icon { left: auto; right: 0; padding-left: 0; padding-right: 1rem; }
 
-        /* RTL: reverse margin and padding overrides */
-        [dir="rtl"] .mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-        [dir="rtl"] .mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-        [dir="rtl"] .mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
-        [dir="rtl"] .mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
-        [dir="rtl"] .ml-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
-        [dir="rtl"] .ml-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
-        [dir="rtl"] .ml-3 { margin-left: 0 !important; margin-right: 0.75rem !important; }
-        [dir="rtl"] .ml-4 { margin-left: 0 !important; margin-right: 1rem !important; }
+        /* Field input: left padding for icon */
+        .field-input { padding-left: 2.75rem; padding-right: 1rem; }
+        [dir="rtl"] .field-input { padding-left: 1rem; padding-right: 2.75rem; }
+
+        /* Password input: extra space for toggle */
+        .field-input-pw { padding-right: 3rem; }
+        [dir="rtl"] .field-input-pw { padding-right: 2.75rem; padding-left: 3rem; }
+
+        /* Toggle button: right in LTR, left in RTL */
+        .field-toggle { right: 0; padding-right: 0.75rem; }
+        [dir="rtl"] .field-toggle { right: auto; left: 0; padding-right: 0; padding-left: 0.75rem; }
+
+        /* Checkbox check icon */
+        #remember:checked ~ .check-icon { opacity: 1 !important; transform: scale(1) !important; }
+        #remember:checked { background-color: #3b82f6; border-color: #3b82f6; }
     </style>
 
-    <!-- Checkbox JS polyfill & Password toggle -->
+    <!-- Checkbox JS + Password toggle -->
     <script>
     (function() {
         var cb = document.getElementById('remember');
         if (cb) {
             cb.addEventListener('change', function() {
-                var icon = this.parentElement.querySelector('i.fa-check');
+                var icon = this.parentElement.querySelector('.check-icon');
                 if (icon) {
                     icon.style.opacity = this.checked ? '1' : '0';
                     icon.style.transform = this.checked ? 'scale(1)' : 'scale(0)';
