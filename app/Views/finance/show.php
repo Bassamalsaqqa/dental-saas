@@ -248,14 +248,12 @@
         line-height: 1.3;
     }
     .finance-hero-btn:hover { transform: translateY(-1px); }
-    .finance-hero-btn-primary { background: rgba(255,255,255,0.18); color: #fff; }
-    .finance-hero-btn-primary:hover { background: rgba(255,255,255,0.28); }
-    .finance-hero-btn-soft { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); }
-    .finance-hero-btn-soft:hover { background: rgba(255,255,255,0.2); color: #fff; }
-    .finance-hero-btn-emerald { background: rgba(16,185,129,0.35); color: #fff; }
-    .finance-hero-btn-emerald:hover { background: rgba(16,185,129,0.5); }
-    .finance-hero-btn-ghost { background: transparent; color: rgba(255,255,255,0.7); border: 1px dashed rgba(255,255,255,0.25); }
-    .finance-hero-btn-ghost:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.4); }
+    .finance-hero-btn-soft { background: rgba(255,255,255,0.12); color: #eff6ff; }
+    .finance-hero-btn-soft:hover { background: rgba(255,255,255,0.22); }
+    .finance-hero-btn-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .finance-hero-btn-emerald:hover { background: linear-gradient(135deg, #34d399, #10b981); }
+    .finance-hero-btn-ghost { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px dashed rgba(255,255,255,0.2); }
+    .finance-hero-btn-ghost:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.35); }
 
     .finance-show-page-header-top {
         display: grid;
@@ -1077,22 +1075,32 @@
                             <span class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/80"><span class="text-white/50"><?= lang('Finance.currency') ?></span> <?= esc($baseCurrency) ?></span>
                         </div>
                     </div>
-                    <div class="w-full space-y-2 xl:w-[20rem]">
+                    <div class="w-full space-y-2 xl:w-[21rem]">
+                        <!-- Row 1: Navigation -->
                         <div class="grid gap-2 sm:grid-cols-2">
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-hero-btn finance-hero-btn-soft"><i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($ui['back']) ?></span></a>
-                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-hero-btn finance-hero-btn-primary"><i class="fas fa-pen"></i><span><?= esc($ui['edit']) ?></span></a>
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-hero-btn finance-hero-btn-soft"><i class="fas fa-pen"></i><span><?= esc($ui['edit']) ?></span></a>
                         </div>
-                        <div class="grid gap-2 sm:grid-cols-2">
-                            <?php if ($showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                        <!-- Row 2: Financial actions (paired) -->
+                        <?php
+                        $showPayment = $showFinanceForms && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0;
+                        $showRefund = $showFinanceForms && $isInvoice;
+                        if ($showPayment || $showRefund):
+                            $finCols = ($showPayment && $showRefund) ? 'sm:grid-cols-2' : 'sm:grid-cols-1';
+                        ?>
+                        <div class="grid gap-2 <?= $finCols ?>">
+                            <?php if ($showPayment): ?>
                             <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-hero-btn finance-hero-btn-emerald"><i class="fas fa-plus-circle"></i><span><?= esc($ui['recordPayment']) ?></span></button>
                             <?php endif; ?>
-                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-hero-btn finance-hero-btn-soft"><i class="fas fa-file-pdf"></i><span><?= esc($ui['exportPdf']) ?></span></a>
-                        </div>
-                        <?php if ($showFinanceForms && $isInvoice): ?>
-                        <div class="grid gap-2 sm:grid-cols-1">
+                            <?php if ($showRefund): ?>
                             <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-hero-btn finance-hero-btn-ghost"><i class="fas fa-rotate-left"></i><span><?= esc($ui['recordRefund']) ?></span></button>
+                            <?php endif; ?>
                         </div>
                         <?php endif; ?>
+                        <!-- Row 3: Utility -->
+                        <div class="grid gap-2 sm:grid-cols-1">
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-hero-btn finance-hero-btn-ghost"><i class="fas fa-file-pdf"></i><span><?= esc($ui['exportPdf']) ?></span></a>
+                        </div>
                     </div>
                 </div>
             </div>
