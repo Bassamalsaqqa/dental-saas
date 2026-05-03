@@ -5,41 +5,50 @@
 
 <style>
 .inventory-create-form-section {
-    border-radius: 1rem;
+    border-radius: 1.25rem;
     border: 1px solid #e2e8f0;
-    background: #fff;
-    padding: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    padding: 1.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02);
+    transition: box-shadow 0.2s;
+}
+.inventory-create-form-section:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
 }
 .inventory-create-section-title {
     display: flex;
     align-items: center;
     gap: 0.625rem;
     margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
     color: #0f172a;
     font-weight: 800;
     font-size: 0.9375rem;
 }
 .inventory-create-section-title i {
     display: inline-flex;
-    height: 2rem;
-    width: 2rem;
+    height: 2.25rem;
+    width: 2.25rem;
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .inventory-create-form-field {
     width: 100%;
     height: 3rem;
     padding: 0 1rem;
     background: #fff;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     font-size: 0.875rem;
     color: #1e293b;
 }
+.inventory-create-form-field:hover { border-color: #cbd5e1; }
 .inventory-create-form-field:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
 .inventory-create-form-field::placeholder { color: #94a3b8; }
 [dir="rtl"] .inventory-create-form-field { text-align: right; }
@@ -48,15 +57,16 @@
     width: 100%;
     padding: 0.75rem 1rem;
     background: #fff;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     font-size: 0.875rem;
     color: #1e293b;
     resize: vertical;
 }
+.inventory-create-textarea:hover { border-color: #cbd5e1; }
 .inventory-create-textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
 .inventory-create-textarea::placeholder { color: #94a3b8; }
 [dir="rtl"] .inventory-create-textarea { text-align: right; }
@@ -66,15 +76,16 @@
     height: 3rem;
     padding: 0 1rem;
     background: #fff;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     outline: none;
     font-size: 0.875rem;
     color: #1e293b;
     appearance: none;
     cursor: pointer;
 }
+.inventory-create-select:hover { border-color: #cbd5e1; }
 .inventory-create-select:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
 
 .inventory-create-quick-link {
@@ -115,8 +126,7 @@
 </style>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-    <div class="container mx-auto px-4 py-6">
-        <div class="max-w-4xl mx-auto">
+    <div class="container mx-auto px-4 sm:px-6 py-6">
 
             <!-- Page Header -->
             <div class="mb-8">
@@ -343,7 +353,6 @@
                     </button>
                 </div>
             </form>
-        </div>
     </div>
 </div>
 
