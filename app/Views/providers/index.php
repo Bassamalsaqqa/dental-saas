@@ -34,7 +34,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 .providers-page .dataTables_filter input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important; }
 .providers-page table.dataTable { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }
 .providers-page #providersTable thead th {
-    padding: 0.625rem 1.5rem !important;
+    padding: 0.625rem 1rem !important;
     border-bottom: 1px solid #e5e7eb !important;
     background: #f9fafb !important;
     color: #4b5563 !important;
@@ -42,11 +42,16 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     font-weight: 600 !important;
     letter-spacing: .05em !important;
     text-transform: uppercase !important;
-    text-align: start !important;
     white-space: nowrap !important;
 }
+.providers-page #providersTable thead th:first-child,
+.providers-page #providersTable tbody td:first-child { text-align: start !important; }
+.providers-page #providersTable thead th:not(:first-child):not(:last-child),
+.providers-page #providersTable tbody td:not(:first-child):not(:last-child) { text-align: center !important; }
+.providers-page #providersTable thead th:last-child,
+.providers-page #providersTable tbody td:last-child { text-align: center !important; }
 .providers-page #providersTable tbody td {
-    padding: 0.5rem 1.5rem !important;
+    padding: 0.5rem 1rem !important;
     border-bottom: 1px solid #f3f4f6 !important;
     color: #374151 !important;
     font-size: .8125rem !important;
@@ -357,24 +362,24 @@ document.addEventListener('keydown', function(e) {
 
     function typeBadge(row) {
         const supplier = row.type === 'supplier';
-        const classes = supplier ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800';
+        const classes = supplier ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700';
         const icon = supplier ? 'fa-truck' : 'fa-user-doctor';
-        return '<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.type_label) + '</span>';
+        return '<span class="inline-flex items-center rounded-full px-2 py-px text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.type_label) + '</span>';
     }
 
     function statusBadge(row) {
-        let classes = 'bg-gray-100 text-gray-800';
+        let classes = 'bg-gray-100 text-gray-700';
         let icon = 'fa-circle-info';
         if (row.status === 'active' || row.status === 'settled') {
-            classes = 'bg-green-100 text-green-800';
+            classes = 'bg-green-100 text-green-700';
             icon = 'fa-check-circle';
         } else if (row.status === 'inactive') {
             icon = 'fa-times-circle';
         } else if (row.status === 'balance_due') {
-            classes = 'bg-yellow-100 text-yellow-800';
+            classes = 'bg-yellow-100 text-yellow-700';
             icon = 'fa-clock';
         }
-        return '<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.status_label) + '</span>';
+        return '<span class="inline-flex items-center rounded-full px-2 py-px text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.status_label) + '</span>';
     }
 
     function formatDate(value) {
@@ -390,6 +395,11 @@ document.addEventListener('keydown', function(e) {
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             order: [[0, 'asc']],
             autoWidth: false,
+            columnDefs: [
+                { targets: 1, width: '12%' },  /* Type */
+                { targets: 6, width: '10%' },  /* Last Activity */
+                { targets: 7, width: '3rem' }, /* Actions */
+            ],
             dom: '<"providers-table-toolbar"<"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"lf>>rt<"providers-table-footer"<"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"ip>>',
             ajax: {
                 url: '<?= base_url('providers/data') ?>',
