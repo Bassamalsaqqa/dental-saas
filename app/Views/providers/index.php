@@ -293,6 +293,39 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
 <script>
+function mountSupplierModal() {
+    const modal = document.getElementById('quickSupplierModal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+    return modal;
+}
+
+function openSupplierModal() {
+    mountSupplierModal()?.classList.remove('hidden');
+    setTimeout(function() {
+        var input = document.getElementById('quickSupplierName');
+        if (input) { input.focus(); }
+    }, 50);
+}
+
+function closeSupplierModal() {
+    var modal = document.getElementById('quickSupplierModal');
+    if (modal) { modal.classList.add('hidden'); }
+    ['quickSupplierName', 'quickSupplierContact', 'quickSupplierPhone', 'quickSupplierEmail'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.value = ''; }
+    });
+    var status = document.getElementById('quickSupplierStatus');
+    if (status) { status.classList.add('hidden'); status.textContent = ''; }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') { return; }
+    var modal = document.getElementById('quickSupplierModal');
+    if (modal && !modal.classList.contains('hidden')) { closeSupplierModal(); }
+});
+
 (function() {
     let providersTable;
     let activeTypeFilter = '';
@@ -434,39 +467,6 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                 $('#totalCombined, #activeSuppliers, #totalProviders, #outstandingBalance').text('0');
             });
     }
-
-    function mountSupplierModal() {
-        const modal = document.getElementById('quickSupplierModal');
-        if (modal && modal.parentElement !== document.body) {
-            document.body.appendChild(modal);
-        }
-        return modal;
-    }
-
-    function openSupplierModal() {
-        mountSupplierModal()?.classList.remove('hidden');
-        setTimeout(function() {
-            const input = document.getElementById('quickSupplierName');
-            if (input) { input.focus(); }
-        }, 50);
-    }
-
-    function closeSupplierModal() {
-        const modal = document.getElementById('quickSupplierModal');
-        if (modal) { modal.classList.add('hidden'); }
-        ['quickSupplierName', 'quickSupplierContact', 'quickSupplierPhone', 'quickSupplierEmail'].forEach(function(id) {
-            const el = document.getElementById(id);
-            if (el) { el.value = ''; }
-        });
-        const status = document.getElementById('quickSupplierStatus');
-        if (status) { status.classList.add('hidden'); status.textContent = ''; }
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key !== 'Escape') { return; }
-        const modal = document.getElementById('quickSupplierModal');
-        if (modal && !modal.classList.contains('hidden')) { closeSupplierModal(); }
-    });
 
     $('#typeFilters').on('click', '.provider-filter', function() {
         $('#typeFilters .provider-filter').removeClass('active');
