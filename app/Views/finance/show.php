@@ -188,6 +188,66 @@
         background: #f8fafc;
     }
 
+    /* === Patient hero card pattern (shared from users/show.php) === */
+    .patient-hero-card {
+        position: relative;
+        --hero-angle: 135deg;
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+        --hero-orb-primary: rgba(255,255,255,0.18);
+        --hero-orb-secondary: rgba(125,211,252,0.2);
+        background: linear-gradient(var(--hero-angle), var(--hero-start) 0%, var(--hero-mid) 58%, var(--hero-end) 100%);
+        box-shadow: 0 28px 70px -44px rgba(15,23,42,0.75);
+    }
+    .patient-hero-card-neutral { --hero-start: #334155; --hero-mid: #2563eb; --hero-end: #0f766e; --hero-orb-primary: rgba(255,255,255,0.16); --hero-orb-secondary: rgba(153,246,228,0.2); }
+    [dir="rtl"] .patient-hero-card { --hero-angle: 225deg; }
+    .patient-hero-overlay {
+        position: absolute; inset: 0;
+        background: radial-gradient(circle at 12% 18%, var(--hero-orb-primary), transparent 30%), radial-gradient(circle at 88% 20%, var(--hero-orb-secondary), transparent 26%), linear-gradient(120deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+    }
+    [dir="rtl"] .patient-hero-overlay {
+        background: radial-gradient(circle at 88% 18%, var(--hero-orb-primary), transparent 30%), radial-gradient(circle at 12% 20%, var(--hero-orb-secondary), transparent 26%), linear-gradient(240deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+    }
+    .patient-avatar-badge {
+        display: inline-flex; width: 5.5rem; height: 5.5rem; align-items: center; justify-content: center;
+        border-radius: 1.75rem; background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(191,219,254,0.18));
+        border: 1px solid rgba(255,255,255,0.22); color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 22px 40px -24px rgba(15,23,42,0.72);
+    }
+    .patient-avatar-badge i { font-size: 2.55rem; line-height: 1; display: inline-block; }
+    .patient-avatar-badge-neutral { background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(94,234,212,0.16)); }
+    .patient-hero-chip-grid { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 0.85rem; }
+    @media (min-width: 640px) { .patient-hero-chip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1100px) { .patient-hero-chip-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .patient-hero-chip {
+        display: inline-flex; align-items: center; gap: 0.55rem; min-height: 2.65rem; width: 100%;
+        border-radius: 9999px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.12);
+        padding: 0.52rem 0.82rem; color: #eff6ff; backdrop-filter: blur(12px); text-align: start; overflow: hidden;
+    }
+    [dir="rtl"] .patient-hero-chip { flex-direction: row-reverse; }
+    .patient-hero-chip-icon { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; border-radius: 9999px; background: rgba(255,255,255,0.12); flex-shrink: 0; font-size: 0.78rem; }
+    .patient-hero-chip-text { display: flex; align-items: baseline; gap: 0.35rem; min-width: 0; }
+    .patient-hero-chip-label { display: inline; flex-shrink: 0; font-size: 0.68rem; font-weight: 600; line-height: 1.2; color: rgba(219,234,254,0.84); }
+    .patient-hero-chip-value { display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.76rem; font-weight: 500; line-height: 1.25; color: #fff; }
+    .patient-hero-status { color: #eff6ff; backdrop-filter: blur(12px); }
+    .patient-header-action {
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.58rem; min-height: 2.65rem;
+        border-radius: 0.95rem; padding: 0.58rem 0.78rem; font-size: 0.76rem; font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; text-align: center;
+    }
+    [dir="rtl"] .patient-header-action, [dir="rtl"] .patient-hero-tool-button { flex-direction: row-reverse; }
+    .patient-header-action:hover, .patient-hero-tool-button:hover { transform: translateY(-1px); }
+    .patient-header-action-soft { border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.12); color: #eff6ff; }
+    .patient-header-action-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 12px 22px -20px rgba(5,150,105,0.85); }
+    .patient-header-action-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; box-shadow: 0 12px 22px -20px rgba(225,29,72,0.88); }
+    .patient-hero-tool-button {
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.65rem; min-height: 2.4rem;
+        border-radius: 1rem; padding: 0.48rem 0.72rem; font-size: 0.72rem; font-weight: 700; color: rgba(239,246,255,0.92);
+        backdrop-filter: blur(12px); border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.09);
+        transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease; text-align: center;
+    }
+
     .finance-show-card {
         background: #fff;
         border: 1px solid #e2e8f0;
