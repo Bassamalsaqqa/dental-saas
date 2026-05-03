@@ -252,6 +252,8 @@
     .finance-hero-btn-soft:hover { background: rgba(255,255,255,0.22); }
     .finance-hero-btn-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
     .finance-hero-btn-emerald:hover { background: linear-gradient(135deg, #34d399, #10b981); }
+    .finance-hero-btn-rose { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; }
+    .finance-hero-btn-rose:hover { background: linear-gradient(135deg, #fb7185, #f43f5e); }
     .finance-hero-btn-ghost { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px dashed rgba(255,255,255,0.2); }
     .finance-hero-btn-ghost:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.35); }
 
@@ -1093,7 +1095,7 @@
                             <button type="button" onclick="openFinanceModal('paymentModal', this)" class="finance-hero-btn finance-hero-btn-emerald"><i class="fas fa-plus-circle"></i><span><?= esc($ui['recordPayment']) ?></span></button>
                             <?php endif; ?>
                             <?php if ($showRefund): ?>
-                            <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-hero-btn finance-hero-btn-ghost"><i class="fas fa-rotate-left"></i><span><?= esc($ui['recordRefund']) ?></span></button>
+                            <button type="button" onclick="openFinanceModal('refundModal', this)" class="finance-hero-btn finance-hero-btn-rose"><i class="fas fa-rotate-left"></i><span><?= esc($ui['recordRefund']) ?></span></button>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
