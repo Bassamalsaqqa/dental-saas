@@ -1,6 +1,41 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+
+<style>
+.show-card {
+    background: #fff;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s;
+}
+.show-card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05); }
+.show-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: #1e293b;
+}
+.show-card-header i {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.625rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.show-metric-value { font-size: 1.75rem; font-weight: 900; color: #0f172a; line-height: 1.2; }
+.show-metric-label { font-size: 0.6875rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+.show-metric-sub { font-size: 0.6875rem; color: #94a3b8; }
+</style>
+
 <?php
 $isRtl = !empty($is_rtl);
 $tr = static fn(string $key, array $params = []) => lang('Inventory.' . $key, $params);
@@ -58,7 +93,7 @@ if ($item['quantity'] == 0) {
         <!-- Overview + Key Metrics (2-col layout) -->
         <div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
             <!-- Left: Item identity & description -->
-            <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+            <div class="lg:col-span-2 show-card p-5">
                 <?php if (!empty($item['description'])): ?>
                     <p class="text-sm text-gray-600 leading-relaxed mb-4"><?= esc($item['description']) ?></p>
                 <?php else: ?>
@@ -79,25 +114,25 @@ if ($item['quantity'] == 0) {
             </div>
 
             <!-- Right: Key metrics -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+            <div class="show-card p-5">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1"><?= esc($tr('current')) ?></p>
-                        <p class="text-2xl font-black text-gray-900"><?= $item['quantity'] ?></p>
-                        <p class="text-xs text-gray-400"><?= esc($tr('unitInStock')) ?></p>
+                        <p class="show-metric-label"><?= esc($tr('current')) ?></p>
+                        <p class="show-metric-value"><?= $item['quantity'] ?></p>
+                        <p class="show-metric-sub"><?= esc($tr('unitInStock')) ?></p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1"><?= esc($tr('minimum')) ?></p>
-                        <p class="text-2xl font-black text-gray-900"><?= $item['min_quantity'] ?></p>
-                        <p class="text-xs text-gray-400"><?= esc($tr('minQtyShort')) ?></p>
+                        <p class="show-metric-label"><?= esc($tr('minimum')) ?></p>
+                        <p class="show-metric-value"><?= $item['min_quantity'] ?></p>
+                        <p class="show-metric-sub"><?= esc($tr('minQtyShort')) ?></p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1"><?= esc($tr('unitPrice')) ?></p>
-                        <p class="text-xl font-bold text-gray-900"><?= formatCurrency($item['unit_price']) ?></p>
+                        <p class="show-metric-label"><?= esc($tr('unitPrice')) ?></p>
+                        <p class="text-lg font-bold text-gray-900"><?= formatCurrency($item['unit_price']) ?></p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1"><?= esc($tr('totalValue')) ?></p>
-                        <p class="text-xl font-bold text-gray-900"><?= formatCurrency($item['quantity'] * $item['unit_price']) ?></p>
+                        <p class="show-metric-label"><?= esc($tr('totalValue')) ?></p>
+                        <p class="text-lg font-bold text-gray-900"><?= formatCurrency($item['quantity'] * $item['unit_price']) ?></p>
                     </div>
                 </div>
                 <div class="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm">
@@ -115,11 +150,11 @@ if ($item['quantity'] == 0) {
 
         <!-- Supplier Procurement Mapping -->
         <div class="mb-6 grid grid-cols-1 gap-4 xl:grid-cols-5">
-            <div class="xl:col-span-3 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+            <div class="xl:col-span-3 show-card p-5">
                 <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="text-base font-bold text-gray-900"><?= esc($tr('supplierMappings')) ?></h3>
-                        <p class="text-xs text-gray-500"><?= esc($tr('supplierMappingsHelp')) ?></p>
+                    <div class="show-card-header mb-0 pb-0 border-b-0">
+                        <i class="fas fa-truck-ramp-box text-sm" style="background:#fef3c7;color:#d97706;"></i>
+                        <span><?= esc($tr('supplierMappings')) ?></span>
                     </div>
                     <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700"><?= count($supplier_links ?? []) ?> <?= esc($tr('supplier')) ?></span>
                 </div>
@@ -156,8 +191,11 @@ if ($item['quantity'] == 0) {
                 <?php endif; ?>
             </div>
 
-            <div class="xl:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <h3 class="text-base font-bold text-gray-900 mb-3"><?= esc($tr('addUpdateMapping')) ?></h3>
+            <div class="xl:col-span-2 show-card p-5">
+                <div class="show-card-header mb-3 pb-0 border-b-0">
+                    <i class="fas fa-link text-sm" style="background:#fef3c7;color:#d97706;"></i>
+                    <span><?= esc($tr('addUpdateMapping')) ?></span>
+                </div>
                 <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link') ?>" class="space-y-3">
                     <?= csrf_field() ?>
                     <select name="link_supplier_id" data-force-select2 data-allow-clear="false" class="w-full h-10 px-3 border border-gray-300 rounded-lg bg-white text-sm">
@@ -192,11 +230,11 @@ if ($item['quantity'] == 0) {
         </div>
 
         <!-- Stock Movements -->
-        <div class="mb-6 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <div class="mb-6 show-card p-5">
             <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h3 class="text-base font-bold text-gray-900"><?= esc($tr('movementsTitle')) ?></h3>
-                    <p class="text-xs text-gray-500"><?= esc($tr('movementsSubtitle')) ?></p>
+                <div class="show-card-header mb-0 pb-0 border-b-0">
+                    <i class="fas fa-arrows-rotate text-sm" style="background:#d1fae5;color:#059669;"></i>
+                    <span><?= esc($tr('movementsTitle')) ?></span>
                 </div>
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600"><?= esc($tr('rowsCount', ['count' => count($movements ?? [])])) ?></span>
             </div>
@@ -246,11 +284,11 @@ if ($item['quantity'] == 0) {
 
         <!-- Batches -->
         <?php if (!empty($batches)): ?>
-        <div class="mb-6 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <div class="mb-6 show-card p-5">
             <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h3 class="text-base font-bold text-gray-900"><?= esc($tr('batchesLotsFoundation')) ?></h3>
-                    <p class="text-xs text-gray-500"><?= esc($tr('batchesLotsFoundationHelp')) ?></p>
+                <div class="show-card-header mb-0 pb-0 border-b-0">
+                    <i class="fas fa-tags text-sm" style="background:#e0f2fe;color:#0284c7;"></i>
+                    <span><?= esc($tr('batchesLotsFoundation')) ?></span>
                 </div>
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-700"><?= count($batches) ?> batches</span>
             </div>
