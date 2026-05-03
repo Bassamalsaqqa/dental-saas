@@ -34,7 +34,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 .providers-page .dataTables_filter input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important; }
 .providers-page table.dataTable { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }
 .providers-page #providersTable thead th {
-    padding: 0.625rem 1rem !important;
+    padding: 8px 10px !important;
     border-bottom: 1px solid #e5e7eb !important;
     background: #f9fafb !important;
     color: #4b5563 !important;
@@ -51,10 +51,9 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 .providers-page #providersTable thead th:last-child,
 .providers-page #providersTable tbody td:last-child { text-align: center !important; }
 .providers-page #providersTable tbody td {
-    padding: 0.5rem 1rem !important;
+    padding: 8px 10px !important;
     border-bottom: 1px solid #f3f4f6 !important;
     color: #374151 !important;
-    font-size: .8125rem !important;
     vertical-align: middle !important;
 }
 .providers-page #providersTable tbody td:last-child {
@@ -106,7 +105,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     .providers-page .dataTables_filter input { min-width: 12rem; width: 100%; }
     .providers-page #providersTable tbody td,
     .providers-page #providersTable tbody td,
-    .providers-page #providersTable thead th { padding-left: 1rem !important; padding-right: 1rem !important; }
+    .providers-page #providersTable thead th { padding-left: 8px !important; padding-right: 8px !important; }
 }
 </style>
 
