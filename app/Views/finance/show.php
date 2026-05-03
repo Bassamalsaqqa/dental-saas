@@ -225,9 +225,6 @@
         border-radius: 9999px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.12);
         padding: 0.52rem 0.82rem; color: #eff6ff; backdrop-filter: blur(12px); text-align: start; overflow: hidden;
     }
-    [dir="rtl"] .patient-hero-chip { flex-direction: row-reverse; text-align: right; }
-    .patient-hero-chip[dir="rtl"] { flex-direction: row-reverse; text-align: right; }
-    .patient-hero-chip[dir="rtl"] .patient-hero-chip-text { flex-direction: row-reverse; }
     .patient-hero-chip-icon { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; border-radius: 9999px; background: rgba(255,255,255,0.12); flex-shrink: 0; font-size: 0.78rem; }
     .patient-hero-chip-text { display: flex; align-items: baseline; gap: 0.35rem; min-width: 0; }
     .patient-hero-chip-label { display: inline; flex-shrink: 0; font-size: 0.68rem; font-weight: 600; line-height: 1.2; color: rgba(219,234,254,0.84); }
@@ -239,7 +236,6 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; text-align: center;
     }
     [dir="rtl"] .patient-header-action, [dir="rtl"] .patient-hero-tool-button { flex-direction: row-reverse; }
-    [dir="rtl"] .patient-hero-chip i.fas { margin-right: 0; margin-left: 0; }
     .patient-header-action:hover, .patient-hero-tool-button:hover { transform: translateY(-1px); }
     .patient-header-action-soft { border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.12); color: #eff6ff; }
     .patient-header-action-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 12px 22px -20px rgba(5,150,105,0.85); }
@@ -1113,28 +1109,28 @@
                                     </div>
                                 </div>
                                 <div class="patient-hero-chip-grid">
-                                    <div class="patient-hero-chip" title="<?= esc($ui['type'] . ': ' . $transactionTypeLabel) ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                    <div class="patient-hero-chip" title="<?= esc($ui['type'] . ': ' . $transactionTypeLabel) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-tag"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= esc($ui['type']) ?></span>
                                             <span class="patient-hero-chip-value"><?= esc($transactionTypeLabel) ?></span>
                                         </span>
                                     </div>
-                                    <div class="patient-hero-chip" title="<?= esc($ui['date'] . ': ' . (!empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown'))) ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                    <div class="patient-hero-chip" title="<?= esc($ui['date'] . ': ' . (!empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown'))) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-calendar"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= esc($ui['date']) ?></span>
                                             <span class="patient-hero-chip-value"><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></span>
                                         </span>
                                     </div>
-                                    <div class="patient-hero-chip" title="<?= esc($ui['method'] . ': ' . lang('Finance.' . $finance['payment_method'])) ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                    <div class="patient-hero-chip" title="<?= esc($ui['method'] . ': ' . lang('Finance.' . $finance['payment_method'])) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-credit-card"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= esc($ui['method']) ?></span>
                                             <span class="patient-hero-chip-value"><?= esc(lang('Finance.' . $finance['payment_method'])) ?></span>
                                         </span>
                                     </div>
-                                    <div class="patient-hero-chip" title="<?= esc(lang('Finance.currency') . ': ' . $baseCurrency) ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                    <div class="patient-hero-chip" title="<?= esc(lang('Finance.currency') . ': ' . $baseCurrency) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-coins"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= lang('Finance.currency') ?></span>
