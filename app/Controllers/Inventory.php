@@ -642,21 +642,7 @@ class Inventory extends BaseController
 
     public function suppliers()
     {
-        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        if (!$clinicId) {
-            return redirect()->to('/clinic/select');
-        }
-
-        $suppliers = $this->supplierModel
-            ->where('clinic_id', $clinicId)
-            ->orderBy('is_active', 'DESC')
-            ->orderBy('name', 'ASC')
-            ->findAll();
-
-        return $this->view('inventory/suppliers', [
-            'title' => 'Suppliers',
-            'suppliers_list' => $suppliers,
-        ]);
+        return redirect()->to('/providers');
     }
 
     public function showSupplier($id)
