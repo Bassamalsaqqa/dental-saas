@@ -56,11 +56,11 @@
     $isRtl = in_array(service('request')->getLocale(), ['ar', 'he', 'fa', 'ur'], true);
     $settlementProgress = $totalAmount > 0 ? max(0, min(100, round(($paidSoFar / $totalAmount) * 100))) : 0;
     $statusTone = match ($paymentStatusKey) {
-        'paid' => ['pill' => 'bg-emerald-100 text-emerald-700', 'dot' => 'bg-emerald-500', 'text' => 'text-emerald-700'],
-        'partial' => ['pill' => 'bg-blue-100 text-blue-700', 'dot' => 'bg-blue-500', 'text' => 'text-blue-700'],
-        'pending' => ['pill' => 'bg-amber-100 text-amber-700', 'dot' => 'bg-amber-500', 'text' => 'text-amber-700'],
-        'overdue' => ['pill' => 'bg-rose-100 text-rose-700', 'dot' => 'bg-rose-500', 'text' => 'text-rose-700'],
-        default => ['pill' => 'bg-gray-100 text-gray-700', 'dot' => 'bg-gray-400', 'text' => 'text-gray-700'],
+        'paid' => ['pill' => 'bg-emerald-100 text-emerald-700', 'dot' => 'bg-emerald-500', 'text' => 'text-emerald-700', 'hero_bg' => 'rgba(16,185,129,0.22)', 'hero_border' => 'rgba(167,243,208,0.4)'],
+        'partial' => ['pill' => 'bg-blue-100 text-blue-700', 'dot' => 'bg-blue-500', 'text' => 'text-blue-700', 'hero_bg' => 'rgba(96,165,250,0.22)', 'hero_border' => 'rgba(191,219,254,0.4)'],
+        'pending' => ['pill' => 'bg-amber-100 text-amber-700', 'dot' => 'bg-amber-500', 'text' => 'text-amber-700', 'hero_bg' => 'rgba(251,191,36,0.22)', 'hero_border' => 'rgba(253,230,138,0.4)'],
+        'overdue' => ['pill' => 'bg-rose-100 text-rose-700', 'dot' => 'bg-rose-500', 'text' => 'text-rose-700', 'hero_bg' => 'rgba(244,63,94,0.22)', 'hero_border' => 'rgba(254,205,211,0.4)'],
+        default => ['pill' => 'bg-gray-100 text-gray-700', 'dot' => 'bg-gray-400', 'text' => 'text-gray-700', 'hero_bg' => 'rgba(255,255,255,0.12)', 'hero_border' => 'rgba(255,255,255,0.2)'],
     };
     $typeTone = $isExpense
         ? ['icon' => 'fa-receipt', 'bg' => 'bg-amber-600', 'soft' => 'bg-amber-100 text-amber-800']
@@ -1104,34 +1104,34 @@
                                 <div class="space-y-2">
                                     <div class="flex flex-wrap items-center gap-3">
                                         <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc('#' . $finance['transaction_id']) ?></h1>
-                                        <span class="patient-hero-status inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold <?= esc($statusTone['pill']) ?>">
+                                        <span class="patient-hero-status inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold" style="background:<?= esc($statusTone['hero_bg'] ?? 'rgba(255,255,255,0.12)') ?>;border-color:<?= esc($statusTone['hero_border'] ?? 'rgba(255,255,255,0.2)') ?>;color:#eff6ff;">
                                             <?= esc($paymentStatusLabel) ?>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="patient-hero-chip-grid">
-                                    <div class="patient-hero-chip">
+                                    <div class="patient-hero-chip" title="<?= esc($ui['type'] . ': ' . $transactionTypeLabel) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-tag"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= esc($ui['type']) ?></span>
                                             <span class="patient-hero-chip-value"><?= esc($transactionTypeLabel) ?></span>
                                         </span>
                                     </div>
-                                    <div class="patient-hero-chip">
+                                    <div class="patient-hero-chip" title="<?= esc($ui['date'] . ': ' . (!empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown'))) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-calendar"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= esc($ui['date']) ?></span>
                                             <span class="patient-hero-chip-value"><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></span>
                                         </span>
                                     </div>
-                                    <div class="patient-hero-chip">
+                                    <div class="patient-hero-chip" title="<?= esc($ui['method'] . ': ' . lang('Finance.' . $finance['payment_method'])) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-credit-card"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= esc($ui['method']) ?></span>
                                             <span class="patient-hero-chip-value"><?= esc(lang('Finance.' . $finance['payment_method'])) ?></span>
                                         </span>
                                     </div>
-                                    <div class="patient-hero-chip">
+                                    <div class="patient-hero-chip" title="<?= esc(lang('Finance.currency') . ': ' . $baseCurrency) ?>">
                                         <span class="patient-hero-chip-icon"><i class="fas fa-coins"></i></span>
                                         <span class="patient-hero-chip-text">
                                             <span class="patient-hero-chip-label"><?= lang('Finance.currency') ?></span>
