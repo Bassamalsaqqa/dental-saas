@@ -58,7 +58,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                         <a href="<?= base_url('finance/expenses/create?supplier_id=' . (int) ($supplier['id'] ?? 0) . '&return_to=' . urlencode('inventory/suppliers/' . (int) ($supplier['id'] ?? 0))) ?>" class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
                             <i class="fas fa-plus-circle <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.newExpense')) ?>
                         </a>
-                        <a href="<?= base_url('inventory/suppliers') ?>" class="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
+                        <a href="<?= base_url('providers') ?>" class="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
                             <i class="fas <?= $isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?>"></i><?= esc($tr('goToSupplierDirectory')) ?>
                         </a>
                     </div>

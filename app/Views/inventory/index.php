@@ -248,8 +248,8 @@
                                 <?= esc($tr('starterTemplates')) ?>
                             </a>
                     <?php endif; ?>
-                        <a href="<?= base_url('inventory/suppliers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-sm">
-                            <i class="fas fa-truck mr-2 text-indigo-600"></i>
+                        <a href="<?= base_url('providers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-handshake mr-2 text-indigo-600"></i>
                             <?= esc($tr('suppliers')) ?>
                         </a>
                         <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200 shadow-sm">

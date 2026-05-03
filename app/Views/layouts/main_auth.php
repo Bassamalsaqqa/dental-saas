@@ -594,7 +594,7 @@
                                 'url' => 'providers',
                                 'icon' => 'fas fa-handshake',
                                 'color' => 'cyan',
-                                'active_urls' => ['providers'],
+                                'active_urls' => ['providers', 'inventory/suppliers'],
                             ],
                             'examinations' => [
                                 'title' => lang('UI.menuExaminations'),

@@ -10,6 +10,9 @@
                 <p class="text-gray-600"><?= esc($tr('suppliersSubtitle')) ?></p>
             </div>
             <div class="flex items-center gap-3">
+                <a href="<?= base_url('providers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-200 font-semibold hover:bg-slate-50 shadow-sm">
+                    <i class="fas fa-handshake mr-2 text-indigo-600"></i><?= lang('UI.menuProviders') ?>
+                </a>
                 <a href="<?= base_url('inventory/create') ?>" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700">
                     <i class="fas fa-plus mr-2"></i><?= esc($tr('addNewInventoryItem')) ?>
                 </a>

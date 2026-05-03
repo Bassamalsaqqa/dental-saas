@@ -151,7 +151,7 @@
                                 <div class="flex items-center justify-between gap-2">
                                     <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><?= lang('Inventory.supplierDirectory') ?></span>
                                     <div class="flex items-center gap-2">
-                                        <a href="<?= base_url('inventory/suppliers') ?>" target="_blank" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><?= lang('Inventory.manageSuppliers') ?></a>
+                                        <a href="<?= base_url('providers') ?>" target="_blank" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><?= lang('Inventory.manageSuppliers') ?></a>
                                         <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"><?= lang('Inventory.quickAdd') ?></button>
                                     </div>
                                 </div>

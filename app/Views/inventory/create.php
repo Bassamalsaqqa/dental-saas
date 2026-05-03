@@ -305,7 +305,7 @@
                                     <div class="flex items-center justify-between gap-3 text-xs font-semibold">
                                         <span class="text-gray-500"><?= lang('Inventory.supplier') ?></span>
                                         <div class="flex items-center gap-3">
-                                            <a href="<?= base_url('inventory/suppliers') ?>" target="_blank" class="inventory-create-quick-link"><?= lang('Inventory.manageSuppliers') ?></a>
+                                            <a href="<?= base_url('providers') ?>" target="_blank" class="inventory-create-quick-link"><?= lang('Inventory.manageSuppliers') ?></a>
                                             <button type="button" id="openQuickSupplierModal" class="inventory-create-quick-link"><?= lang('Inventory.quickAdd') ?></button>
                                         </div>
                                     </div>

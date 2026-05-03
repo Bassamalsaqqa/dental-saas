@@ -10,8 +10,8 @@
                 <p class="text-gray-600"><?= esc($tr('starterTemplatesSubtitle')) ?></p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="<?= base_url('inventory/suppliers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50">
-                    <i class="fas fa-truck mr-2 text-indigo-600"></i><?= esc($tr('suppliers')) ?>
+                <a href="<?= base_url('providers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50">
+                    <i class="fas fa-handshake mr-2 text-indigo-600"></i><?= esc($tr('suppliers')) ?>
                 </a>
                 <a href="<?= base_url('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold">
                     <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('backToInventory')) ?>
