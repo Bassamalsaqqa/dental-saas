@@ -34,26 +34,28 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 .providers-page .dataTables_filter input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important; }
 .providers-page table.dataTable { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }
 .providers-page #providersTable thead th {
-    padding: .95rem .75rem !important;
+    padding: 1rem 1.5rem !important;
     border-bottom: 1px solid #e5e7eb !important;
-    background: #f8fafc !important;
-    color: #475569 !important;
-    font-size: .72rem !important;
-    font-weight: 800 !important;
-    letter-spacing: .04em !important;
+    background: #f9fafb !important;
+    color: #4b5563 !important;
+    font-size: .75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: .05em !important;
     text-transform: uppercase !important;
     text-align: start !important;
     white-space: nowrap !important;
 }
 .providers-page #providersTable tbody td {
-    padding: .95rem .75rem !important;
-    border-bottom: 1px solid #edf2f7 !important;
-    color: #334155 !important;
+    padding: 1rem 1.5rem !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    color: #374151 !important;
     font-size: .875rem !important;
     vertical-align: middle !important;
+}
+.providers-page #providersTable tbody td:last-child {
     white-space: nowrap !important;
 }
-.providers-page #providersTable tbody tr:hover { background: #f0fdf4 !important; }
+.providers-page #providersTable tbody tr:hover { background: #ecfeff !important; }
 .providers-page .dataTables_paginate .paginate_button {
     margin: 0 .125rem !important;
     padding: .45rem .7rem !important;
@@ -98,7 +100,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 @media (max-width: 640px) {
     .providers-page .dataTables_filter input { min-width: 12rem; width: 100%; }
     .providers-page #providersTable tbody td,
-    .providers-page #providersTable thead th { padding-left: .75rem !important; padding-right: .75rem !important; }
+    .providers-page #providersTable thead th { padding-left: 1rem !important; padding-right: 1rem !important; }
 }
 </style>
 
@@ -350,9 +352,11 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
         providersTable = $('#providersTable').DataTable({
             processing: true,
             serverSide: true,
+            responsive: true,
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             order: [[0, 'asc']],
+            autoWidth: false,
             dom: '<"providers-table-toolbar"<"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"lf>>rt<"providers-table-footer"<"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"ip>>',
             ajax: {
                 url: '<?= base_url('providers/data') ?>',
@@ -365,61 +369,41 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                 }
             },
             columns: [
-                { data: 'name', render: function(data, type, row) {
-                    const icon = row.type === 'supplier' ? 'fa-truck text-emerald-700' : 'fa-user-doctor text-blue-700';
-                    return '<div class="flex items-center gap-3"><span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center"><i class="fas ' + icon + ' text-2xl"></i></span><div class="min-w-0"><div class="text-sm font-medium text-gray-900 truncate">' + escHtml(data || '-') + '</div><div class="text-xs text-gray-500 truncate">' + escHtml(row.type_label || '') + '</div></div></div>';
+                { data: 'name', responsivePriority: 1, render: function(data, type, row) {
+                    const icon = row.type === 'supplier' ? 'fa-truck text-emerald-600' : 'fa-user-doctor text-blue-600';
+                    return '<div class="flex items-center space-x-3"><span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center"><i class="fas ' + icon + ' text-2xl"></i></span><div><div class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + '</div><div class="text-xs text-gray-500">' + escHtml(row.type_label || '') + '</div></div></div>';
                 } },
-                { data: 'type', render: function(data, type, row) { return typeBadge(row); } },
-                { data: 'contact', orderable: false, render: function(data) {
-                    return data ? '<div class="flex items-center gap-2"><i class="fas fa-address-book text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div>' : '<span class="text-gray-400 text-sm">' + i18n.noContact + '</span>';
+                { data: 'type', responsivePriority: 3, render: function(data, type, row) { return typeBadge(row); } },
+                { data: 'contact', responsivePriority: 4, orderable: false, render: function(data) {
+                    return data ? '<div><div class="flex items-center space-x-2"><i class="fas fa-address-book text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + escHtml(data) + '</span></div><div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.colContact'), 'js') ?>' + '</div></div>' : '<div class="text-sm text-gray-400">' + i18n.noContact + '</div>';
                 } },
-                { data: 'activity_count', render: function(data, type, row) {
-                    return '<div class="flex items-center gap-2"><i class="fas fa-chart-simple text-emerald-600 text-xs"></i><span class="text-sm font-medium text-gray-900">' + escHtml(row.activity_label || '-') + '</span></div>';
+                { data: 'activity_count', responsivePriority: 5, render: function(data, type, row) {
+                    return '<div><div class="flex items-center space-x-2"><i class="fas fa-chart-simple text-emerald-600 text-xs"></i><span class="text-sm font-medium text-gray-900">' + escHtml(row.activity_label || '-') + '</span></div><div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.colStats'), 'js') ?>' + '</div></div>';
                 } },
-                { data: 'outstanding', render: function(data, type, row) {
+                { data: 'outstanding', responsivePriority: 2, render: function(data, type, row) {
                     const due = Number(data) > 0;
-                    return '<div class="flex items-center gap-2"><i class="fas fa-wallet ' + (due ? 'text-amber-600' : 'text-emerald-600') + ' text-xs"></i><span class="text-sm font-medium ' + (due ? 'text-amber-700' : 'text-gray-900') + '">' + escHtml(row.outstanding_label || '0.00') + '</span></div>';
+                    return '<div><div class="flex items-center space-x-2"><i class="fas fa-wallet ' + (due ? 'text-amber-600' : 'text-emerald-600') + ' text-xs"></i><span class="text-sm font-medium ' + (due ? 'text-amber-700' : 'text-gray-900') + '">' + escHtml(row.outstanding_label || '0.00') + '</span></div><div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.openAmount'), 'js') ?>' + '</div></div>';
                 } },
-                { data: 'status', render: function(data, type, row) { return statusBadge(row); } },
-                { data: 'last_activity', render: function(data) {
-                    return '<div class="flex items-center gap-2"><i class="fas fa-calendar text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + formatDate(data) + '</span></div>';
+                { data: 'status', responsivePriority: 6, render: function(data, type, row) {
+                    return '<div>' + statusBadge(row) + '<div class="text-xs text-gray-500">' + '<?= esc(lang('Provider.colStatus'), 'js') ?>' + '</div></div>';
                 } },
-                { data: null, orderable: false, render: function(data, type, row) {
+                { data: 'last_activity', responsivePriority: 7, render: function(data) {
+                    return '<div class="flex items-center space-x-2"><i class="fas fa-calendar text-emerald-600 text-xs"></i><span class="text-sm text-gray-900">' + formatDate(data) + '</span></div>';
+                } },
+                { data: null, responsivePriority: 1, orderable: false, render: function(data, type, row) {
                     if (!row.show_link) return '';
-                    return '<a href="' + escHtml(row.link) + '" class="inline-flex items-center rounded-md p-2 text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
+                    return '<a href="' + escHtml(row.link) + '" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
                 } }
             ],
             createdRow: function(row, data) {
-                if (!data.show_link || !data.link) {
-                    return;
-                }
-
+                if (!data.link) return;
                 $(row)
-                    .addClass('cursor-pointer hover:bg-emerald-50/50 transition-colors duration-150')
+                    .addClass('cursor-pointer')
                     .attr('data-href', data.link)
-                    .attr('tabindex', '0')
-                    .attr('role', 'link')
-                    .attr('aria-label', data.name || '')
-                    .on('click', function(event) {
-                        if ($(event.target).closest('a, button').length) {
-                            return;
-                        }
-                        window.location.href = data.link;
-                    })
-                    .on('keydown', function(event) {
-                        if (event.key !== 'Enter' && event.key !== ' ') {
-                            return;
-                        }
-                        if ($(event.target).closest('a, button').length) {
-                            return;
-                        }
-                        event.preventDefault();
+                    .on('click', function(e) {
+                        if ($(e.target).closest('a, button').length) return;
                         window.location.href = data.link;
                     });
-
-                $('a, button', row).on('click', function(event) {
-                    event.stopPropagation();
-                });
             },
             language: {
                 processing: '<i class="fas fa-spinner fa-spin"></i> ' + i18n.loading,
