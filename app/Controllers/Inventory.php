@@ -640,11 +640,6 @@ class Inventory extends BaseController
         ];
     }
 
-    public function suppliers()
-    {
-        return redirect()->to('/providers');
-    }
-
     public function showSupplier($id)
     {
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
@@ -736,51 +731,6 @@ class Inventory extends BaseController
         ]);
     }
 
-    public function storeSupplier()
-    {
-        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        if (!$clinicId) {
-            return redirect()->back()->with('error', 'Clinic context is required.');
-        }
-
-        $rules = [
-            'name' => 'required|min_length[2]|max_length[150]',
-            'contact_person' => 'permit_empty|max_length[150]',
-            'phone' => 'permit_empty|max_length[50]',
-            'email' => 'permit_empty|valid_email|max_length[150]',
-            'whatsapp' => 'permit_empty|max_length[50]',
-            'address' => 'permit_empty|max_length[255]',
-            'notes' => 'permit_empty',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $name = trim((string) $this->request->getPost('name'));
-        if ($this->supplierModel->findByClinicAndName($clinicId, $name)) {
-            return redirect()->back()->withInput()->with('error', 'A supplier with this name already exists.');
-        }
-
-        $payload = [
-            'clinic_id' => $clinicId,
-            'name' => $name,
-            'contact_person' => trim((string) $this->request->getPost('contact_person')) ?: null,
-            'phone' => trim((string) $this->request->getPost('phone')) ?: null,
-            'email' => trim((string) $this->request->getPost('email')) ?: null,
-            'whatsapp' => trim((string) $this->request->getPost('whatsapp')) ?: null,
-            'address' => trim((string) $this->request->getPost('address')) ?: null,
-            'notes' => trim((string) $this->request->getPost('notes')) ?: null,
-            'is_active' => $this->request->getPost('is_active') ? 1 : 0,
-            'created_by' => (int) (session()->get('user_id') ?? 0),
-        ];
-
-        if (!$this->supplierModel->insert($payload)) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create supplier: ' . implode(', ', $this->supplierModel->errors()));
-        }
-
-        return redirect()->back()->with('success', 'Supplier added successfully.');
-    }
 
     public function quickCreateSupplier()
     {
