@@ -2907,11 +2907,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-record-row {
-        transition: background-color 0.18s ease, transform 0.18s ease;
+        transition: background-color 0.18s ease;
     }
 
     .patient-record-row:nth-child(even) td {
-        background: #f8fafc;
+        background: rgba(248,250,252,0.6);
     }
 
     .patient-record-row[data-href] {
@@ -2924,6 +2924,46 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
     .patient-record-row[data-href]:hover .patient-record-title {
         color: #1d4ed8;
+    }
+
+    /* Gender-themed table card backgrounds */
+    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-content > .bg-white.rounded-xl {
+        background: linear-gradient(180deg, #f8faff 0%, #fff 40%) !important;
+        border-color: #bfdbfe !important;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-content thead th {
+        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+        color: #1e40af;
+        border-bottom-color: #bfdbfe;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-content thead th i {
+        color: #3b82f6;
+    }
+
+    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-content > .bg-white.rounded-xl {
+        background: linear-gradient(180deg, #fdf4f8 0%, #fff 40%) !important;
+        border-color: #fbcfe8 !important;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-content thead th {
+        background: linear-gradient(180deg, #fce7f3 0%, #fbcfe8 100%);
+        color: #9d174d;
+        border-bottom-color: #fbcfe8;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-content thead th i {
+        color: #db2777;
+    }
+
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-content > .bg-white.rounded-xl {
+        background: linear-gradient(180deg, #f0fdfa 0%, #fff 40%) !important;
+        border-color: #99f6e4 !important;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-content thead th {
+        background: linear-gradient(180deg, #ccfbf1 0%, #99f6e4 100%);
+        color: #115e59;
+        border-bottom-color: #99f6e4;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-content thead th i {
+        color: #0d9488;
     }
 
     .patient-record-table th {
