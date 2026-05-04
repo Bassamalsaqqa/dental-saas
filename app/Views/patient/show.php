@@ -691,7 +691,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             <div class="w-full">
                 <div class="patient-shell">
                     <!-- Tab Navigation -->
-                    <div class="patient-shell-nav">
+                    <div class="patient-shell-nav" data-hero-theme="<?= esc($patientHeroThemeClass) ?>">
                         <div class="flex flex-col gap-4">
                             <nav class="flex w-full gap-1.5 overflow-x-auto pb-1 justify-center" aria-label="<?= esc(lang('UI.patientProfileWorkspace')) ?>" role="tablist">
                                 <button type="button" onclick="return showTab('details', event)" 
@@ -2847,6 +2847,30 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         box-shadow: 0 1px 3px rgba(37,99,235,0.12);
     }
 
+    /* Gender-themed active tab — male (blue) */
+    [data-hero-theme="patient-hero-card-male"] .tab-button.active {
+        border-color: #1d4ed8;
+        background: #dbeafe;
+        color: #1e40af;
+        box-shadow: 0 1px 3px rgba(29,78,216,0.2);
+    }
+
+    /* Gender-themed active tab — female (rose) */
+    [data-hero-theme="patient-hero-card-female"] .tab-button.active {
+        border-color: #be185d;
+        background: #fce7f3;
+        color: #9d174d;
+        box-shadow: 0 1px 3px rgba(190,24,93,0.2);
+    }
+
+    /* Gender-themed active tab — neutral (teal) */
+    [data-hero-theme="patient-hero-card-neutral"] .tab-button.active {
+        border-color: #0d9488;
+        background: #ccfbf1;
+        color: #115e59;
+        box-shadow: 0 1px 3px rgba(13,148,136,0.2);
+    }
+
     .tab-button:hover:not(.active) {
         color: #334155;
         border-color: #cbd5e1;
@@ -2869,6 +2893,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     .tab-button.active .tab-count {
         background: rgba(37, 99, 235, 0.12);
     }
+
+    [data-hero-theme="patient-hero-card-male"] .tab-button.active .tab-count { background: rgba(29, 78, 216, 0.14); }
+    [data-hero-theme="patient-hero-card-female"] .tab-button.active .tab-count { background: rgba(190, 24, 93, 0.14); }
+    [data-hero-theme="patient-hero-card-neutral"] .tab-button.active .tab-count { background: rgba(13, 148, 136, 0.14); }
 
     .tab-content {
         display: block;
