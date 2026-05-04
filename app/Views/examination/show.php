@@ -200,7 +200,7 @@ $healthFlags = array_values(array_filter([
                 </div>
                 <div class="w-full space-y-2 xl:w-[21rem]">
                     <div class="grid gap-2 sm:grid-cols-2">
-                        <a href="<?= base_url('examination/' . $examination['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-pen"></i><span><?= esc($tr('edit_examination')) ?></span></a>
+                        <a href="<?= base_url('examination/' . $examination['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-pen"></i><span><?= esc($tr('edit_examination')) ?></span></a>
                         <?php if (!empty($examination['patient_id'])): ?>
                         <a href="<?= base_url('patient/' . $examination['patient_id']) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-user"></i><span><?= esc($tr('back_to_patient')) ?></span></a>
                         <?php endif; ?>
@@ -272,7 +272,7 @@ $healthFlags = array_values(array_filter([
                                 <p class="text-sm font-semibold text-gray-800"><?= esc($tr('dental_chart_odontogram')) ?></p>
                                 <p class="text-xs text-gray-500 mt-0.5"><?= $odontogramConditionCount > 0 ? esc($tr('odontogram_conditions_recorded', ['count' => $odontogramConditionCount])) : esc($tr('no_odontogram_data_recorded')) ?></p>
                             </div>
-                            <a href="<?= base_url('odontogram/' . $examination['patient_id'] . '?return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-sky-700 border border-gray-200 hover:bg-sky-50 hover:border-sky-200 transition-all shadow-sm">
+                            <a href="<?= base_url('odontogram/' . $examination['patient_id'] . '') ?>" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-sky-700 border border-gray-200 hover:bg-sky-50 hover:border-sky-200 transition-all shadow-sm">
                                 <i class="fas fa-tooth"></i><span><?= esc($odontogramConditionCount > 0 ? $tr('view_full_odontogram') : $tr('create_odontogram')) ?></span>
                             </a>
                         </div>
@@ -298,7 +298,7 @@ $healthFlags = array_values(array_filter([
                             <?php else: ?>
                                 <p class="text-sm text-gray-500 mt-1"><?= esc($tr('treatment_plan_hint')) ?></p>
                                 <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-cyan-700 hover:text-cyan-800 transition-colors"><i class="fas fa-plus"></i><?= esc($tr('add_treatment_plan')) ?></a>
+                                <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-cyan-700 hover:text-cyan-800 transition-colors"><i class="fas fa-plus"></i><?= esc($tr('add_treatment_plan')) ?></a>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>
@@ -310,7 +310,7 @@ $healthFlags = array_values(array_filter([
                                     <p class="text-sm text-gray-500 mt-1"><?= $treatmentCount > 0 ? esc($tr('treatments_recorded', ['count' => $treatmentCount])) : esc($tr('no_treatments_recorded')) ?></p>
                                 </div>
                                 <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
+                                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '') ?>" class="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
                                 <?php endif; ?>
                             </div>
                             <?php if (!empty($treatments)): ?>
@@ -359,11 +359,11 @@ $healthFlags = array_values(array_filter([
                     </form>
                     <?php endif; ?>
                     <?php if (has_permission('treatments', 'create')): ?>
-                    <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary mb-3"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
-                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
+                    <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary mb-3"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
+                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
                     <?php endif; ?>
                     <?php if (has_permission('appointments', 'create')): ?>
-                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary"><i class="fas fa-calendar-plus text-sm"></i><?= esc($tr('schedule_follow_up')) ?></a>
+                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary"><i class="fas fa-calendar-plus text-sm"></i><?= esc($tr('schedule_follow_up')) ?></a>
                     <?php endif; ?>
                 </div>
             </div>

@@ -53,3 +53,5 @@ public/uploads/
 gha-creds-*.json
 .claude/
 .playwright-mcp/
+notes.txt
+Whatsapp Testing Details.txt

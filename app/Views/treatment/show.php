@@ -166,7 +166,7 @@ $statusTone = match ($statusRaw) {
                         </a>
                     </div>
                     <div class="grid gap-2 sm:grid-cols-2">
-                        <a href="<?= base_url('treatment/' . $treatment['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="patient-header-action patient-header-action-soft">
+                        <a href="<?= base_url('treatment/' . $treatment['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft">
                             <i class="fas fa-pen"></i><span><?= esc($tr('edit_treatment')) ?></span>
                         </a>
                         <button type="button" onclick="printTreatment(<?= $treatment['id'] ?>)" class="patient-hero-tool-button">

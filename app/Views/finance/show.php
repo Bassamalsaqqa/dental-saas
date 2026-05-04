@@ -1148,7 +1148,7 @@
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                                 <span><?= esc($ui['back']) ?></span>
                             </a>
-                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="patient-header-action patient-header-action-soft">
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas fa-pen"></i>
                                 <span><?= esc($ui['edit']) ?></span>
                             </a>

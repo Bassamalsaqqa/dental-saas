@@ -167,7 +167,7 @@ $statusTone = match ($statusKey) {
                     </div>
                     <div class="grid gap-2 sm:grid-cols-2">
                         <?php if (has_permission('prescriptions', 'edit')): ?>
-                        <a href="<?= base_url('prescription/' . $prescription['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="patient-header-action patient-header-action-soft">
+                        <a href="<?= base_url('prescription/' . $prescription['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft">
                             <i class="fas fa-pen"></i><span><?= esc($tr('edit_prescription')) ?></span>
                         </a>
                         <?php endif; ?>

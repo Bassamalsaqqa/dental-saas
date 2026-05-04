@@ -331,7 +331,7 @@ foreach ($finances as $financeItem) {
         'method_label' => $financeMethodLabel($financeItem['payment_method'] ?? null),
         'status_label' => $financeStatusLabel($financeItem['payment_status'] ?? null),
         'status_key' => $paymentStatus !== '' ? $paymentStatus : 'recorded',
-        'action_url' => base_url('finance/' . $financeId . '?return_to=patient/' . $patient['id']),
+        'action_url' => base_url('finance/' . $financeId . ''),
     ];
 }
 
@@ -371,7 +371,7 @@ foreach (($finance_settlements ?? []) as $settlement) {
         'method_label' => $financeMethodLabel($settlement['payment_method'] ?? null),
         'status_label' => $financeTypeLabel($settlementType),
         'status_key' => 'recorded',
-        'action_url' => base_url('finance/' . $financeId . '?return_to=patient/' . $patient['id']),
+        'action_url' => base_url('finance/' . $financeId . ''),
     ];
 }
 
@@ -589,7 +589,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                     <div class="w-full space-y-2 xl:w-[21rem]">
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if (has_permission('patients', 'edit')): ?>
-                                <a href="<?= base_url('patient/' . $patient['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="patient-header-action patient-header-action-primary">
+                                <a href="<?= base_url('patient/' . $patient['id'] . '/edit') ?>" class="patient-header-action patient-header-action-primary">
                                     <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UI.patientEditPatient')) ?></span>
                                 </a>
@@ -602,13 +602,13 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if (has_permission('appointments', 'create')): ?>
-                                <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-header-action patient-header-action-emerald">
+                                <a href="<?= base_url('appointment/create?patient_id=' . $patient['id']) ?>" class="patient-header-action patient-header-action-emerald">
                                     <i class="fas fa-calendar-plus"></i>
                                     <span><?= esc(lang('UI.patientBookAppointment')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('finance', 'create')): ?>
-                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-header-action patient-header-action-gold">
+                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '') ?>" class="patient-header-action patient-header-action-gold">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                     <span><?= esc(lang('UI.patientCreateInvoice')) ?></span>
                                 </a>
@@ -616,19 +616,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <div class="grid gap-2 sm:grid-cols-3">
                             <?php if (has_permission('examinations', 'create')): ?>
-                                <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
+                                <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '') ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-stethoscope"></i>
                                     <span><?= esc(lang('UI.patientStartAssessment')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
+                                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '') ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-tooth"></i>
                                     <span><?= esc(lang('UI.patientRecordProcedure')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('prescriptions', 'create')): ?>
-                                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
+                                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '') ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-prescription-bottle-alt"></i>
                                     <span><?= esc(lang('UI.patientWritePrescription')) ?></span>
                                 </a>
@@ -1116,7 +1116,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-stethoscope',
                                             'color' => 'blue',
-                                            'url' => base_url('examination/' . $exam['id'] . '?return_to=patient/' . $patient['id']),
+                                            'url' => base_url('examination/' . $exam['id'] . ''),
                                             'meta' => $examMeta,
                                         ];
                                     }
@@ -1155,7 +1155,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-calendar',
                                             'color' => 'green',
-                                            'url' => base_url('appointment/' . $appt['id'] . '?return_to=patient/' . $patient['id']),
+                                            'url' => base_url('appointment/' . $appt['id'] . ''),
                                             'meta' => $apptMeta,
                                         ];
                                     }
@@ -1188,7 +1188,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-tooth',
                                             'color' => 'purple',
-                                            'url' => base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']),
+                                            'url' => base_url('treatment/' . $treatment['id'] . ''),
                                             'meta' => $treatmentMeta,
                                         ];
                                     }
@@ -1239,7 +1239,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'id' => $prescription['id'],
                                             'icon' => 'fas fa-prescription',
                                             'color' => 'orange',
-                                            'url' => base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']),
+                                            'url' => base_url('prescription/' . $prescription['id'] . ''),
                                             'meta' => $prescriptionMeta,
                                         ];
                                     }
@@ -1271,7 +1271,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'id' => $contract['id'],
                                             'icon' => 'fas fa-file-signature',
                                             'color' => 'amber',
-                                            'url' => base_url('contracts/' . $contract['id'] . '?return_to=patient/' . $patient['id']),
+                                            'url' => base_url('contracts/' . $contract['id'] . ''),
                                             'meta' => $contractMeta,
                                         ];
                                     }
@@ -1328,7 +1328,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'id' => $finance['id'],
                                             'icon' => 'fas fa-dollar-sign',
                                             'color' => 'green',
-                                            'url' => base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id']),
+                                            'url' => base_url('finance/' . $finance['id'] . ''),
                                             'meta' => $financeMeta,
                                         ];
                                     }
@@ -1597,7 +1597,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <div class="flex flex-col items-start gap-2 md:items-end">
                                             <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
                                             <?php if (has_permission('patients', 'edit')): ?>
-                                                <a href="<?= base_url('contracts/create/' . $patient['id'] . '?return_to=patient/' . $patient['id']) ?>"
+                                                <a href="<?= base_url('contracts/create/' . $patient['id'] . '') ?>"
                                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
                                                 </a>
@@ -1686,7 +1686,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientExaminationsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('examinations', 'create')): ?>
-                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
+                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '') ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateExamination')) ?>
                                         </a>
@@ -1707,7 +1707,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </thead>
                                         <tbody>
                                             <?php foreach ($examinations as $examination): ?>
-                                                <tr class="patient-record-row" data-href="<?= esc(base_url('examination/' . $examination['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                <tr class="patient-record-row" data-href="<?= esc(base_url('examination/' . $examination['id'] . '')) ?>">
                                                     <td class="whitespace-nowrap">
                                                         <?= formatDate($examination['examination_date']) ?>
                                                     </td>
@@ -1729,7 +1729,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     </td>
                                                     <td class="text-right">
                                                         <div class="patient-table-actions">
-                                                        <a href="<?= base_url('examination/' . $examination['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                        <a href="<?= base_url('examination/' . $examination['id'] . '') ?>" 
                                                            class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
                                                         </div>
                                                     </td>
@@ -1755,7 +1755,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('appointments', 'create')): ?>
-                                        <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
+                                        <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '') ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientScheduleAppointment')) ?>
                                         </a>
@@ -1776,7 +1776,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </thead>
                                           <tbody>
                                               <?php foreach ($appointments as $appointment): ?>
-                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('appointment/' . $appointment['id'] . '')) ?>">
                                                       <td class="whitespace-nowrap">
                                                           <?= formatDate($appointment['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($appointment['appointment_time']) ?>
                                                       </td>
@@ -1806,7 +1806,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     </td>
                                                       <td class="text-right">
                                                           <div class="patient-table-actions">
-                                                          <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                          <a href="<?= base_url('appointment/' . $appointment['id'] . '') ?>" 
                                                              class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
                                                           </div>
                                                       </td>
@@ -1832,7 +1832,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientTreatmentsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('treatments', 'create')): ?>
-                                        <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
+                                        <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '') ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientAddTreatment')) ?>
                                         </a>
@@ -1854,7 +1854,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </thead>
                                           <tbody>
                                               <?php foreach ($treatments as $treatment): ?>
-                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('treatment/' . $treatment['id'] . '')) ?>">
                                                       <td>
                                                           <div class="patient-record-main">
                                                               <div class="patient-record-title"><?= $treatment['treatment_name'] ?? lang('UI.patientNa') ?></div>
@@ -1886,7 +1886,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     </td>
                                                       <td class="text-right">
                                                           <div class="patient-table-actions">
-                                                          <a href="<?= base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                          <a href="<?= base_url('treatment/' . $treatment['id'] . '') ?>" 
                                                              class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
                                                           </div>
                                                       </td>
@@ -1912,7 +1912,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('prescriptions', 'create')): ?>
-                                        <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
+                                        <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '') ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreatePrescription')) ?>
                                         </a>
@@ -1975,7 +1975,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
                                                 }
                                                 ?>
-                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('prescription/' . $prescription['id'] . '')) ?>">
                                                       <td>
                                                           <div class="flex items-center space-x-2">
                                                               <i class="fas fa-pills text-teal-600 text-xs"></i>
@@ -2009,7 +2009,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     </td>
                                                       <td class="text-right">
                                                           <div class="patient-table-actions">
-                                                          <a href="<?= base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                          <a href="<?= base_url('prescription/' . $prescription['id'] . '') ?>" 
                                                              class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
                                                           </div>
                                                       </td>
@@ -2058,7 +2058,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <i class="fas fa-chart-line mr-2"></i><?= esc(lang('TenantMisc.openFinanceReports')) ?>
                                             </a>
                                             <?php if (has_permission('finance', 'create')): ?>
-                                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
+                                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '') ?>"
                                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                                 </a>
