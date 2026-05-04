@@ -1570,8 +1570,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 <?php endif; ?>
 
-                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                    <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+                                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                         <div>
                                             <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientContractsTitle')) ?></h3>
                                             <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsSubtitle')) ?></p>
@@ -1580,7 +1580,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
                                             <?php if (has_permission('patients', 'edit')): ?>
                                                 <a href="<?= base_url('contracts/create/' . $patient['id'] . '') ?>"
-                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
                                                 </a>
                                             <?php endif; ?>
@@ -1661,15 +1661,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
-                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+                                <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientExaminations')) ?></h3>
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientExaminationsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('examinations', 'create')): ?>
                                         <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '') ?>"
-                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateExamination')) ?>
                                         </a>
                                     <?php endif; ?>
@@ -1730,15 +1730,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Appointments Tab -->
                         <div id="appointments-content" class="tab-content hidden">
-                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+                                <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientAppointments')) ?></h3>
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('appointments', 'create')): ?>
                                         <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '') ?>"
-                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientScheduleAppointment')) ?>
                                         </a>
                                     <?php endif; ?>
@@ -1807,15 +1807,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Treatments Tab -->
                         <div id="treatments-content" class="tab-content hidden">
-                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+                                <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientTreatments')) ?></h3>
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientTreatmentsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('treatments', 'create')): ?>
                                         <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '') ?>"
-                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientAddTreatment')) ?>
                                         </a>
                                     <?php endif; ?>
@@ -1887,15 +1887,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Prescriptions Tab -->
                         <div id="prescriptions-content" class="tab-content hidden">
-                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+                                <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientPrescriptions')) ?></h3>
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('prescriptions', 'create')): ?>
                                         <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '') ?>"
-                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreatePrescription')) ?>
                                         </a>
                                     <?php endif; ?>
@@ -2030,7 +2030,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 </div>
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-                                    <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientFinancialRecords')) ?></h3>
                                         <p class="text-xs text-gray-500 mt-1"><?= esc($isRtl ? 'يعرض هذا السجل المالي الفواتير والتحصيلات والاستردادات والتسويات والرصيد الحالي للمريض في مكان واحد.' : lang('UI.patientFinancialRecordsSubtitle')) ?></p>
@@ -2041,7 +2041,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </a>
                                             <?php if (has_permission('finance', 'create')): ?>
                                                 <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '') ?>"
-                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                                 </a>
                                             <?php endif; ?>
