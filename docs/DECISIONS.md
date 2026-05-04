@@ -2,6 +2,18 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-05-04 — Session-Based Navigation Stack Replaces `return_to` Query Params
+
+- **Decision:** A `NavigationService` (session-based, 20-entry stack) auto-tracks every GET HTML page visit. A `nav_back($fallback)` helper function checks the stack first, then falls back to the provided default URL. The old `return_to` query parameter system is stripped from all view links (kept only in form hidden inputs for post-submit redirects and language switch).
+- **Rationale:** The `return_to` query parameter approach was fragile — easily lost on redirects, auth, and clinic switching. Multiple entry points to the same page meant different back behaviors. The session stack works across any navigation path without manual plumbing.
+- **Impact:** All back buttons in hero headers and page headers now use `nav_back()` or `service('navigation')->previous()`. A breadcrumb bar in the layout shows the navigation trail. New pages get smart back navigation automatically — no `return_to` query params needed in links.
+
+## 2026-05-03 — Patient Hero Card Pattern Standardized Across App
+
+- **Decision:** All detail/show pages (patient, examination, treatment, prescription, finance) share the same hero header pattern: `patient-hero-card` with CSS variable gradients, `patient-hero-overlay` orbs, `patient-avatar-badge`, `patient-hero-chip` info capsules, and `patient-header-action` buttons in a fixed-width right column.
+- **Rationale:** Consistent visual identity across the app. Users instantly recognize the page type and available actions. The CSS is shared across views (each includes the full set in a `<style>` block).
+- **Impact:** 5 show views use this pattern. The hero card CSS is ~170 lines duplicated per view (trade-off: self-contained views vs shared CSS file).
+
 ## 2026-05-02 — Unified Providers Directory (No New Master Table)
 
 - **Decision:** `/providers` queries `suppliers` and `provider_payouts` (GROUP BY provider) separately, merges in PHP, sorts by name, and paginates with `array_slice`. No new database tables or migrations. The supplier quick-create modal reuses the existing `inventory/suppliers/quick-create` endpoint.

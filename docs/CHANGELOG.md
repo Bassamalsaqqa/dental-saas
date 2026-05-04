@@ -2,6 +2,37 @@
 
 Recent implementation history for work continuation. Full historical logs are archived in `docs/_archive/2026-05-02-docs-consolidation/legacy-root-logs/`.
 
+## 2026-05-04 — Navigation Stack & Smart Back Buttons
+
+- Session-based navigation stack (`NavigationService`) auto-tracks every page visit
+- `nav_back($fallback)` helper: one-line replacement for `base_url()` in any view
+- Breadcrumb bar between header and content (visible when 2+ levels deep)
+- All hero header back buttons use stack: nav stack → return_to → default list
+- Stripped ~100 `return_to` query params from view links (forms keep hidden inputs)
+- Wired across 20+ views: users, inventory, roles, odontogram, patient, exam, treatment,
+  prescription, finance
+- Now `/providers → /users/27 → Back` correctly returns to `/providers`
+
+## 2026-05-03/04 — Full UI/UX Redesign Pass
+
+### Pages Redesigned
+- **Login page**: native checkbox, password toggle, full RTL mirroring with `[dir="rtl"]` CSS
+- **Providers page**: table density matching /patients, single-line rows, slim pills, centered cols
+- **Inventory show**: merged 4 cards into 2-col layout, actions moved to header
+- **Inventory create**: reorganized into 5 logical sections (Item → Quantity/Pricing → Supplier →
+  Dates/Location → Notes), colored card backgrounds
+- **Finance show**: hero header cloned from patient/user pattern with gradient + avatar + chips
+- **Examination show**: gender-themed hero, cleaner exam-card with layered shadows, hover lift
+- **Treatment show**: hero header matching app signature, 2-col layout
+- **Prescription show**: hero header, medication table matching /patients DataTable style
+- **Contract create**: slimmed cards, tighter tables, compact inputs, × remove buttons
+
+### Cross-Cutting Improvements
+- `/inventory/suppliers` retired, redirected to `/providers`
+- All supplier links across inventory pages wired to `/providers`
+- Login page RTL rewritten with CSS-driven `[dir="rtl"]` pattern
+- Patient hero CSS classes standardized and shared across 5+ pages
+
 ## 2026-05-02 — Unified Providers Directory
 
 - New `/providers` page combining inventory suppliers and clinical payout providers into one DataTables-backed directory
