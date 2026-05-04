@@ -3458,11 +3458,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     /* Accent backgrounds on fact cards */
-    .patient-fact-accent-blue { background: linear-gradient(180deg, #eff6ff 0%, #fff 70%); }
-    .patient-fact-accent-slate { background: linear-gradient(180deg, #f1f5f9 0%, #fff 70%); }
-    .patient-fact-accent-emerald { background: linear-gradient(180deg, #ecfdf5 0%, #fff 70%); }
-    .patient-fact-accent-violet { background: linear-gradient(180deg, #f5f3ff 0%, #fff 70%); }
-    .patient-fact-accent-amber { background: linear-gradient(180deg, #fffbeb 0%, #fff 70%); }
+    .patient-fact-accent-blue { background: #eff6ff; border-color: #bfdbfe; }
+    .patient-fact-accent-slate { background: #f1f5f9; border-color: #cbd5e1; }
+    .patient-fact-accent-emerald { background: #ecfdf5; border-color: #a7f3d0; }
+    .patient-fact-accent-violet { background: #f5f3ff; border-color: #c4b5fd; }
+    .patient-fact-accent-amber { background: #fffbeb; border-color: #fde68a; }
 
     .patient-fact-card::before {
         content: none;
