@@ -685,7 +685,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         <!-- Main Content Layout -->
         <div class="w-full">
             <?php
-            $patientTabCount = 7 + (!empty($attachments_enabled) ? 1 : 0) + (!empty($contracts_enabled) ? 1 : 0);
+            $patientTabCount = 6 + (!empty($contracts_enabled) ? 1 : 0);
             ?>
             <!-- Patient History Tabs -->
             <div class="w-full">
@@ -703,16 +703,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         class="tab-button active inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-user shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabDetails')) ?></span>
                                 </button>
-                                <button type="button" onclick="return showTab('timeline', event)" 
-                                        id="timeline-tab" 
-                                        role="tab"
-                                        aria-selected="false"
-                                        aria-controls="timeline-content"
-                                        tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                    <i class="fas fa-history shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabTimeline')) ?></span>
-                                </button>
-                                <button type="button" onclick="return showTab('examinations', event)" 
+                                <button type="button" onclick="return showTab('examinations', event)"
                                         id="examinations-tab" 
                                         role="tab"
                                         aria-selected="false"
