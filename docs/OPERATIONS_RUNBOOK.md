@@ -84,7 +84,7 @@ Check `RewriteBase` — on Hostinger it should be `/` (not `/dental-saas/`).
 
 ## Docs QA
 
-### Active docs count (expect 13)
+### Active docs count (expect 19)
 
 Bash:
 ```bash
@@ -106,7 +106,13 @@ Bash:
 rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" \
   README.md AGENTS.md gemini.md \
   docs/PROJECT_STATE.md docs/CHANGELOG.md docs/DECISIONS.md \
-  docs/API_CONTRACT.md docs/FINANCE_CURRENT_STATE.md \
+  docs/API_CONTRACT.md docs/APP_API_CONTRACT.md \
+  docs/refactor/APP_API_ROUTE_INVENTORY.md \
+  docs/refactor/LOVABLE_STRATEGY_CODEX.md \
+  docs/refactor/LOVABLE_STRATEGY_GEMINI.md \
+  docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md \
+  docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md \
+  docs/FINANCE_CURRENT_STATE.md \
   docs/WHATSAPP_CURRENT_STATE.md docs/CLINICAL_CURRENT_STATE.md \
   docs/SaaS/TENANT_CONTEXT_CONTRACT.md \
   docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md
@@ -117,7 +123,13 @@ PowerShell:
 $docsToScan = @(
   'README.md', 'AGENTS.md', 'gemini.md',
   'docs/PROJECT_STATE.md', 'docs/CHANGELOG.md', 'docs/DECISIONS.md',
-  'docs/API_CONTRACT.md', 'docs/FINANCE_CURRENT_STATE.md',
+  'docs/API_CONTRACT.md', 'docs/APP_API_CONTRACT.md',
+  'docs/refactor/APP_API_ROUTE_INVENTORY.md',
+  'docs/refactor/LOVABLE_STRATEGY_CODEX.md',
+  'docs/refactor/LOVABLE_STRATEGY_GEMINI.md',
+  'docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md',
+  'docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md',
+  'docs/FINANCE_CURRENT_STATE.md',
   'docs/WHATSAPP_CURRENT_STATE.md', 'docs/CLINICAL_CURRENT_STATE.md',
   'docs/SaaS/TENANT_CONTEXT_CONTRACT.md',
   'docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md'

@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-05-04 - React Frontend Uses First-Party Session App API
+
+- **Decision:** Future React tenant frontend will use `/app-api/v1/*` as a first-party, same-origin, session-cookie JSON API. Existing `/api/v1/*` remains public/stateless and continues to require Bearer auth plus `X-Clinic-Id`. Future React control-plane work reserves and recommends `/controlplane-app-api/v1/*` to preserve the tenant/control-plane airlock.
+- **Rationale:** The current UX/workflow issues are frontend and app-contract problems, not a reason to replace the backend immediately. `app/Config/Filters.php` excludes `api/*` from CSRF, so the first-party React API must not live under `/api/*`. `/app-api/v1/*` can use the existing CI4 session, httpOnly cookie, CSRF, server-controlled `active_clinic_id`, RBAC, plan gates, and tenant filters without weakening the public API contract.
+- **Impact:** CI4 and MySQL stay as the backend for now. Laravel migration is deferred. Lovable may generate mock React UI only; Codex must import/stitch it to backend-owned app API contracts and must not trust Lovable for auth, tenant isolation, finance calculations, provider payouts, supplier payables, inventory COGS, WhatsApp dispatch, file access, or odontogram persistence.
+
 ## 2026-05-04 — Session-Based Navigation Stack Replaces `return_to` Query Params
 
 - **Decision:** A `NavigationService` (session-based, 20-entry stack) auto-tracks every GET HTML page visit. A `nav_back($fallback)` helper function checks the stack first, then falls back to the provided default URL. The old `return_to` query parameter system is stripped from all view links (kept only in form hidden inputs for post-submit redirects and language switch).

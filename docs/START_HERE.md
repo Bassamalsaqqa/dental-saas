@@ -14,6 +14,12 @@ This is the active documentation surface for the project. Everything else is arc
 | `docs/DECISIONS.md` | Append-only architectural and business decisions |
 | `docs/CHANGELOG.md` | Recent implementation history for work continuation |
 | `docs/API_CONTRACT.md` | Canonical `/api/v1/*` contract |
+| `docs/APP_API_CONTRACT.md` | Proposed first-party `/app-api/v1/*` React app API contract |
+| `docs/refactor/APP_API_ROUTE_INVENTORY.md` | Proposed app API route inventory and migration sequencing |
+| `docs/refactor/LOVABLE_STRATEGY_CODEX.md` | Codex frontend rebuild strategy for Lovable/React |
+| `docs/refactor/LOVABLE_STRATEGY_GEMINI.md` | Gemini frontend rebuild strategy for Lovable/React |
+| `docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md` | Codex Laravel backend migration assessment |
+| `docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md` | Gemini Laravel backend migration assessment |
 | `docs/SaaS/SAAS_PROGRAM.md` | SaaS governance source of truth |
 | `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` | Tenant context mechanics |
 | `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` | Control plane entitlements contract |
