@@ -98,14 +98,15 @@ $healthFlags = array_values(array_filter([
     border-radius: 1.125rem;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.02), 0 10px 24px -16px rgba(0,0,0,0.04);
     transition: box-shadow 0.25s ease, transform 0.25s ease;
-    position: relative; overflow: hidden;
 }
-.exam-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    border-radius: 1.125rem 1.125rem 0 0;
-}
-[dir="rtl"] .exam-card::before { left: 0; right: auto; }
 .exam-card:hover { box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04), 0 16px 36px -20px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+/* Card background tints */
+.exam-card-clinical { background: linear-gradient(180deg, #f0f9ff 0%, #fff 30%); border-color: #bae6fd; }
+.exam-card-findings { background: linear-gradient(180deg, #ecfdf5 0%, #fff 30%); border-color: #a7f3d0; }
+.exam-card-careplan { background: linear-gradient(180deg, #fffbeb 0%, #fff 30%); border-color: #fde68a; }
+.exam-card-workflow { background: linear-gradient(180deg, #fffbeb 0%, #fff 30%); border-color: #fde68a; }
+.exam-card-history { background: linear-gradient(180deg, #fff1f2 0%, #fff 30%); border-color: #fecdd3; }
 
 .exam-card-header {
     display: flex; align-items: center; gap: 0.625rem;
@@ -125,13 +126,6 @@ $healthFlags = array_values(array_filter([
 }
 .exam-field-value { font-size: 0.875rem; color: #334155; line-height: 1.7; }
 .exam-field-value p { margin-bottom: 0.25rem; }
-
-/* Card top accent stripes — one per card position */
-.exam-card-clinical::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-.exam-card-findings::before { background: linear-gradient(90deg, #059669, #34d399); }
-.exam-card-careplan::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
-.exam-card-workflow::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
-.exam-card-history::before { background: linear-gradient(90deg, #e11d48, #fb7185); }
 
 /* workflow action buttons */
 .exam-action-primary {
