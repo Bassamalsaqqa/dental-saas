@@ -341,17 +341,17 @@ $healthFlags = array_values(array_filter([
                     <span class="exam-icon-circle" style="background:#fef3c7;color:#d97706;"><i class="fas fa-bolt text-sm"></i></span>
                     <span><?= esc($tr('workflow_heading')) ?></span>
                 </div>
-                <div class="exam-card-body flex flex-col gap-3.5">
+                <div class="exam-card-body">
                     <?php if ($statusKey !== 'completed'): ?>
-                    <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>">
+                    <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>" class="mb-4">
                         <?= csrf_field() ?>
                         <?php if (!empty($return_to)): ?><input type="hidden" name="return_to" value="<?= esc($return_to) ?>"><?php endif; ?>
                         <button type="submit" class="exam-action-primary" style="background:#059669;color:#fff;"><?= esc($tr('finalize_assessment')) ?></button>
                     </form>
                     <?php endif; ?>
                     <?php if (has_permission('treatments', 'create')): ?>
-                    <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
-                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
+                    <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary mb-3"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
+                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
                     <?php endif; ?>
                     <?php if (has_permission('appointments', 'create')): ?>
                     <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="exam-action-secondary"><i class="fas fa-calendar-plus text-sm"></i><?= esc($tr('schedule_follow_up')) ?></a>
