@@ -418,13 +418,9 @@ if ($patientGenderValue === 'female') {
 
 $heroInfoCapsules = [
     ['label' => lang('UI.patientPatientIdShort'), 'display_label' => '', 'value' => $patient['patient_id'], 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
-    ['label' => lang('UI.patientGender'), 'display_label' => '', 'value' => $patientAgeShort, 'icon' => 'fas fa-cake-candles', 'class' => ''],
     ['label' => lang('UI.patientPhone'), 'display_label' => '', 'value' => $patientPhoneChipValue, 'icon' => 'fas fa-phone-alt', 'class' => 'patient-hero-chip-ltr'],
-    ['label' => lang('UI.patientCity'), 'value' => $patientCityChipValue, 'icon' => 'fas fa-map-marker-alt', 'class' => ''],
-    ['label' => lang('UI.patientWhatsApp'), 'value' => $patientWhatsAppChipValue, 'icon' => 'fab fa-whatsapp', 'class' => trim('patient-hero-chip-action ' . $patientWhatsAppChipClass), 'is_button' => has_permission('patients', 'edit')],
-    ['label' => lang('UI.patientOutstandingBalanceShort'), 'value' => $outstandingBalanceChipValue, 'icon' => 'fas fa-wallet', 'class' => ''],
-    ['label' => lang('UI.patientNextAppointmentShort'), 'value' => $nextAppointmentChipValue, 'icon' => 'fas fa-calendar-check', 'class' => ''],
     ['label' => lang('UI.patientLastVisitShort'), 'value' => $lastVisitChipValue, 'icon' => 'fas fa-history', 'class' => ''],
+    ['label' => lang('UI.patientOutstandingBalanceShort'), 'value' => $outstandingBalanceChipValue, 'icon' => 'fas fa-wallet', 'class' => ''],
 ];
 
 $patientOverviewFacts = [
@@ -589,7 +585,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                     <div class="w-full space-y-2 xl:w-[21rem]">
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if (has_permission('patients', 'edit')): ?>
-                                <a href="<?= base_url('patient/' . $patient['id'] . '/edit') ?>" class="patient-header-action patient-header-action-primary">
+                                <a href="<?= base_url('patient/' . $patient['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft">
                                     <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UI.patientEditPatient')) ?></span>
                                 </a>
@@ -608,48 +604,43 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('finance', 'create')): ?>
-                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '') ?>" class="patient-header-action patient-header-action-gold">
+                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id']) ?>" class="patient-header-action patient-header-action-gold">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                     <span><?= esc(lang('UI.patientCreateInvoice')) ?></span>
                                 </a>
-                            <?php endif; ?>
-                        </div>
-                        <div class="grid gap-2 sm:grid-cols-3">
-                            <?php if (has_permission('examinations', 'create')): ?>
-                                <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '') ?>" class="patient-hero-clinical-button">
-                                    <i class="fas fa-stethoscope"></i>
-                                    <span><?= esc(lang('UI.patientStartAssessment')) ?></span>
-                                </a>
-                            <?php endif; ?>
-                            <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '') ?>" class="patient-hero-clinical-button">
-                                    <i class="fas fa-tooth"></i>
-                                    <span><?= esc(lang('UI.patientRecordProcedure')) ?></span>
-                                </a>
-                            <?php endif; ?>
-                            <?php if (has_permission('prescriptions', 'create')): ?>
-                                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '') ?>" class="patient-hero-clinical-button">
-                                    <i class="fas fa-prescription-bottle-alt"></i>
-                                    <span><?= esc(lang('UI.patientWritePrescription')) ?></span>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                        <div class="grid gap-2 sm:grid-cols-2">
-                            <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="patient-hero-tool-button">
-                                <i class="fas fa-tooth"></i>
-                                <span><?= esc(lang('UI.patientOdontogram')) ?></span>
-                            </a>
-                            <?php if (!empty($attachments_enabled)): ?>
-                                <button type="button" onclick="return showTab('attachments', event)" class="patient-hero-tool-button">
-                                    <i class="fas fa-paperclip"></i>
-                                    <span><?= esc(lang('UI.patientOpenFilesWorkspace')) ?></span>
-                                </button>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Quick Actions Strip -->
+        <div class="flex flex-wrap items-center gap-2">
+            <?php if (has_permission('examinations', 'create')): ?>
+                <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <i class="fas fa-stethoscope text-sky-600"></i><span><?= esc(lang('UI.patientStartAssessment')) ?></span>
+                </a>
+            <?php endif; ?>
+            <?php if (has_permission('treatments', 'create')): ?>
+                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <i class="fas fa-tooth text-purple-600"></i><span><?= esc(lang('UI.patientRecordProcedure')) ?></span>
+                </a>
+            <?php endif; ?>
+            <?php if (has_permission('prescriptions', 'create')): ?>
+                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <i class="fas fa-prescription-bottle-alt text-amber-600"></i><span><?= esc(lang('UI.patientWritePrescription')) ?></span>
+                </a>
+            <?php endif; ?>
+            <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
+                <i class="fas fa-tooth text-cyan-600"></i><span><?= esc(lang('UI.patientOdontogram')) ?></span>
+            </a>
+            <?php if (!empty($attachments_enabled)): ?>
+                <button type="button" onclick="return showTab('attachments', event)" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <i class="fas fa-paperclip text-gray-500"></i><span><?= esc(lang('UI.patientOpenFilesWorkspace')) ?></span>
+                </button>
+            <?php endif; ?>
+        </div>
 
         <?= view('patient/partials/whatsapp_identity', [
             'patient' => $patient,
