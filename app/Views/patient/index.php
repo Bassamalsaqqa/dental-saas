@@ -763,7 +763,7 @@ $(document).ready(function() {
             }
 
             const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-            const profileUrl = `<?= base_url('patient') ?>/${data.id}?return_to=${returnTo}`;
+            const profileUrl = `<?= base_url('patient') ?>/${data.id}`;
 
             $(row)
                 .addClass('cursor-pointer hover:bg-emerald-50/50 transition-colors duration-150')

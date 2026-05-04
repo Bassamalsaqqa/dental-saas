@@ -223,7 +223,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
                         <?php if (has_permission('prescriptions', 'create')): ?>
-                            <a href="<?= base_url('prescription/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('prescription/create) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= lang('Prescription.new_prescription') ?>
                             </a>
@@ -607,7 +607,7 @@ $(document).ready(function() {
                     `;
                     if (permissions.prescriptions.view) {
                         return `
-                            <a href="<?= base_url('prescription') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-teal-50/60 transition-colors duration-200 cursor-pointer">
+                            <a href="<?= base_url('prescription') ?>/${row.id}" class="block rounded-md hover:bg-teal-50/60 transition-colors duration-200 cursor-pointer">
                                 ${identityHtml}
                             </a>
                         `;
@@ -712,7 +712,7 @@ $(document).ready(function() {
                     // View button
                     if (permissions.prescriptions.view) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}?return_to=${returnTo}" 
+                            <a href="<?= base_url('prescription') ?>/${data}" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="${prescriptionI18n.viewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -730,7 +730,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.prescriptions.edit) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}/edit?return_to=${returnTo}" 
+                            <a href="<?= base_url('prescription') ?>/${data}/edit" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="${prescriptionI18n.editPrescription}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
@@ -826,7 +826,7 @@ $(document).ready(function() {
             }
 
             const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-            window.location.href = `<?= base_url('prescription') ?>/${rowData.id}?return_to=${returnTo}`;
+            window.location.href = `<?= base_url('prescription') ?>/${rowData.id}`;
         });
     }
 

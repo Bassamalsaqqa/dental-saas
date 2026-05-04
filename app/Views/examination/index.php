@@ -257,7 +257,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                     </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('examination/create) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= esc($tr('new_examination')) ?>
                             </a>
@@ -567,7 +567,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= esc($tr('no_examinations_found')) ?></h3>
                         <p class="text-gray-500 mb-4"><?= esc($tr('start_creating_new_examination')) ?></p>
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <a href="<?= base_url('examination/create) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                                 <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
                             </a>
                         <?php endif; ?>
@@ -869,7 +869,7 @@ $(document).ready(function() {
                     `;
                     if (permissions.examinations.view) {
                         return `
-                            <a href="<?= base_url('examination') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-orange-50/60 transition-colors duration-200 cursor-pointer">
+                            <a href="<?= base_url('examination') ?>/${row.id}" class="block rounded-md hover:bg-orange-50/60 transition-colors duration-200 cursor-pointer">
                                 ${identityHtml}
                             </a>
                         `;
@@ -969,7 +969,7 @@ $(document).ready(function() {
                     // View button
                     if (permissions.examinations.view) {
                         actions += `
-                            <a href="<?= base_url('examination') ?>/${data}?return_to=${returnTo}" 
+                            <a href="<?= base_url('examination') ?>/${data}" 
                                class="p-2 text-orange-600 hover:text-orange-700 rounded-md hover:bg-orange-50 transition-colors duration-200" title="${i18n.actionViewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -978,7 +978,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.examinations.edit) {
                         actions += `
-                            <a href="<?= base_url('examination') ?>/${data}/edit?return_to=${returnTo}" 
+                            <a href="<?= base_url('examination') ?>/${data}/edit" 
                                class="group/action relative p-2 text-blue-600 hover:text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-110" title="${i18n.actionEditExamination}">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-edit relative z-10"></i>
@@ -988,7 +988,7 @@ $(document).ready(function() {
                     // Odontogram button
                     if (permissions.examinations.view) {
                         actions += `
-                            <a href="<?= base_url('odontogram') ?>/${row.patient_id}?return_to=${returnTo}" 
+                            <a href="<?= base_url('odontogram') ?>/${row.patient_id}" 
                                class="group/action relative p-2 text-purple-600 hover:text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-300 hover:scale-110" title="${i18n.actionViewOdontogram}">
                                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-tooth relative z-10"></i>
@@ -1124,7 +1124,7 @@ $(document).ready(function() {
             }
 
             const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-            window.location.href = `<?= base_url('examination') ?>/${rowData.id}?return_to=${returnTo}`;
+            window.location.href = `<?= base_url('examination') ?>/${rowData.id}`;
         });
     }
     

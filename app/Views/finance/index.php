@@ -255,11 +255,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                     <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold leading-none rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/income/create') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold leading-none rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-circle-plus mr-2"></i>
                                 <?= esc($tr('addIncome')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold leading-none rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold leading-none rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>

@@ -54,7 +54,7 @@
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.back') ?></span>
                             </a>
-                            <a href="<?= base_url('prescription/' . $prescription['id'] . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 hover:scale-105">
+                            <a href="<?= base_url('prescription/' . $prescription['id'] . (!empty($return_to) ?  : '')) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-eye mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.view_details') ?></span>

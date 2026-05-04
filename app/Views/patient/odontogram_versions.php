@@ -74,11 +74,11 @@ $conditionLabelMap = [
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient/' . $patient['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/18">
+                    <a href="<?= nav_back('patient/' . $patient['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/18">
                         <i class="<?= esc($patientAvatarIconClass) ?>"></i>
                         <span><?= esc(lang('UI.backToPatient')) ?></span>
                     </a>
-                    <a href="<?= base_url('odontogram/' . $patient['id'] . '?return_to=patient/' . $patient['id'] . '/odontogram-versions') ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
+                    <a href="<?= base_url('odontogram/' . $patient['id'] . '') ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
                         <i class="fas fa-tooth text-cyan-700"></i>
                         <span><?= esc(lang('UI.patientOpenFullChart')) ?></span>
                     </a>

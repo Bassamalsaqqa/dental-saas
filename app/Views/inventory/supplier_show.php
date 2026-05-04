@@ -55,7 +55,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                     </div>
 
                     <div class="grid w-full gap-2 sm:grid-cols-2 xl:w-[20rem]">
-                        <a href="<?= base_url('finance/expenses/create?supplier_id=' . (int) ($supplier['id'] ?? 0) . '&return_to=' . urlencode('inventory/suppliers/' . (int) ($supplier['id'] ?? 0))) ?>" class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
+                        <a href="<?= base_url('finance/expenses/create?supplier_id=' . (int) ($supplier['id'] ?? 0)) ?>" class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
                             <i class="fas fa-plus-circle <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.newExpense')) ?>
                         </a>
                         <a href="<?= base_url('providers') ?>" class="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
@@ -102,7 +102,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                     <?php if (!empty($recentPaymentRows)): ?>
                         <div class="space-y-3 px-6 py-5">
                             <?php foreach ($recentPaymentRows as $row): ?>
-                                <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0) . '?return_to=' . urlencode('inventory/suppliers/' . (int) ($supplier['id'] ?? 0))) ?>" class="flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-slate-50 via-emerald-50/60 to-white px-4 py-4 transition hover:from-slate-100 hover:via-emerald-50 hover:to-white">
+                                <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-slate-50 via-emerald-50/60 to-white px-4 py-4 transition hover:from-slate-100 hover:via-emerald-50 hover:to-white">
                                     <div class="min-w-0 flex items-center gap-3">
                                         <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
                                             <i class="fas fa-money-bill-wave"></i>
@@ -185,7 +185,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                                     ?>
                                     <tr class="hover:bg-slate-50/80">
                                         <td class="px-6 py-4">
-                                            <a href="<?= base_url('finance/' . (int) $row['id'] . '?return_to=' . urlencode('inventory/suppliers/' . (int) ($supplier['id'] ?? 0))) ?>" class="block rounded-md p-1 -m-1 transition-colors hover:bg-indigo-50/70">
+                                            <a href="<?= base_url('finance/' . (int) $row['id']) ?>" class="block rounded-md p-1 -m-1 transition-colors hover:bg-indigo-50/70">
                                                 <div class="flex items-center gap-3">
                                                     <span class="inline-flex h-7 w-7 items-center justify-center flex-shrink-0">
                                                         <i class="fas fa-receipt text-xl text-orange-700"></i>
@@ -207,7 +207,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-1">
-                                                <a href="<?= base_url('finance/' . (int) $row['id'] . '?return_to=' . urlencode('inventory/suppliers/' . (int) ($supplier['id'] ?? 0))) ?>" class="p-2 text-blue-600 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 rounded-md" title="<?= esc(lang('Finance.viewTransaction')) ?>">
+                                                <a href="<?= base_url('finance/' . (int) $row['id']) ?>" class="p-2 text-blue-600 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 rounded-md" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <?php if (!empty($row['can_record_payment'])): ?>

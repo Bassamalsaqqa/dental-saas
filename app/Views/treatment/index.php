@@ -223,7 +223,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
                         <?php if (has_permission('treatments', 'create')): ?>
-                            <a href="<?= base_url('treatment/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('treatment/create) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= lang('Treatment.new_treatment') ?>
                             </a>
@@ -589,7 +589,7 @@ $(document).ready(function() {
                     // View button
                     if (permissions.treatments.view) {
                         actions += `
-                            <a href="<?= base_url('treatment') ?>/${data}?return_to=${returnTo}" 
+                            <a href="<?= base_url('treatment') ?>/${data}" 
                                class="p-2 text-pink-600 hover:text-pink-700 rounded-md hover:bg-pink-50 transition-colors duration-200" title="<?= esc(lang('Treatment.view_details'), 'attr') ?>">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -598,7 +598,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.treatments.edit) {
                         actions += `
-                            <a href="<?= base_url('treatment') ?>/${data}/edit?return_to=${returnTo}" 
+                            <a href="<?= base_url('treatment') ?>/${data}/edit" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= esc(lang('Treatment.edit_treatment'), 'attr') ?>">
                                 <i class="fas fa-edit"></i>
                             </a>`;
@@ -713,7 +713,7 @@ $(document).ready(function() {
                     }
 
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    window.location.href = `<?= base_url('treatment') ?>/${rowData.id}?return_to=${returnTo}`;
+                    window.location.href = `<?= base_url('treatment') ?>/${rowData.id}`;
                 })
                 .on('mouseenter', 'tr', function () {
                     $(this).addClass('cursor-pointer hover:bg-pink-50/50 transition-colors duration-150');

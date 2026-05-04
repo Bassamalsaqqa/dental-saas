@@ -126,7 +126,7 @@ $statusClass = static function (string $status): string {
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (has_permission('finance', 'create')): ?>
-                        <a href="<?= base_url('finance/expenses/create?return_to=' . $returnTo) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-amber-600 hover:to-orange-700">
+                        <a href="<?= base_url('finance/expenses/create) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-amber-600 hover:to-orange-700">
                             <i class="fas fa-plus"></i>
                             <?= esc($tr('newSupplierExpense')) ?>
                         </a>
@@ -272,7 +272,7 @@ $statusClass = static function (string $status): string {
                                 $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : (string) ($row['transaction_date'] ?? '');
                                 $age = (int) ($row['days_past_due'] ?? 0);
                                 ?>
-                                <tr data-row-url="<?= base_url('finance/' . $financeId . '?return_to=' . $returnTo) ?>">
+                                <tr data-row-url="<?= base_url('finance/' . $financeId . ') ?>">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-3">
                                             <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
@@ -285,7 +285,7 @@ $statusClass = static function (string $status): string {
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <a data-row-action href="<?= base_url('finance/' . $financeId . '?return_to=' . $returnTo) ?>" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
+                                        <a data-row-action href="<?= base_url('finance/' . $financeId . ') ?>" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
                                             <div class="flex items-center space-x-3">
                                                 <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
                                                     <i class="fas fa-receipt text-orange-700 text-xl"></i>
@@ -329,7 +329,7 @@ $statusClass = static function (string $status): string {
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-2">
-                                            <a data-row-action href="<?= base_url('finance/' . $financeId . '?return_to=' . $returnTo) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= esc($tr('viewTransaction')) ?>">
+                                            <a data-row-action href="<?= base_url('finance/' . $financeId . ') ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= esc($tr('viewTransaction')) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if (!empty($row['supplier_id'])): ?>
