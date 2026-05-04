@@ -2516,23 +2516,23 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         overflow: hidden;
     }
 
-    /* Gender-themed shell background fills */
+    /* Gender-themed shell — concentrated tints from hero */
     .patient-shell[data-hero-theme="patient-hero-card-male"] {
-        background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 40%, #f8fafc 100%);
-        border-color: #93c5fd;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(37,99,235,0.06), 0 20px 48px -24px rgba(37,99,235,0.2);
+        background: linear-gradient(180deg, #bfd5f7 0%, #dae6f9 30%, #eef3fb 100%);
+        border-color: #87abdd;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(15,63,144,0.10), 0 20px 48px -24px rgba(15,63,144,0.28);
     }
 
     .patient-shell[data-hero-theme="patient-hero-card-female"] {
-        background: linear-gradient(180deg, #fce7f3 0%, #fdf2f8 40%, #fdfafc 100%);
-        border-color: #f9a8d4;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(219,39,119,0.06), 0 20px 48px -24px rgba(219,39,119,0.2);
+        background: linear-gradient(180deg, #f0c4de 0%, #f6d8ea 30%, #fbeef5 100%);
+        border-color: #e09ec3;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(138,36,90,0.10), 0 20px 48px -24px rgba(138,36,90,0.28);
     }
 
     .patient-shell[data-hero-theme="patient-hero-card-neutral"] {
-        background: linear-gradient(180deg, #ccfbf1 0%, #f0fdfa 40%, #f8fafc 100%);
-        border-color: #5eead4;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(13,148,136,0.06), 0 20px 48px -24px rgba(13,148,136,0.2);
+        background: linear-gradient(180deg, #b8ddd6 0%, #d0eae5 30%, #eaf5f2 100%);
+        border-color: #88c9be;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(15,118,110,0.10), 0 20px 48px -24px rgba(15,118,110,0.28);
     }
 
     .patient-kpi-card {
