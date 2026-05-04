@@ -112,6 +112,65 @@ abstract class BaseController extends Controller
                 $renderer->setVar('is_super_admin', $isSuperAdmin);
                 $renderer->setVar('global_mode', session()->get('global_mode'));
             }
+
+            // Auto-track navigation breadcrumb
+            $this->trackNavigation();
+        }
+    }
+
+    private function trackNavigation(): void
+    {
+        try {
+            $nav = service('navigation');
+            if ($nav->shouldSkip()) {
+                return;
+            }
+
+            $uri = service('uri');
+            $segments = $uri->getSegments();
+            $segment1 = $segments[0] ?? '';
+            $segment2 = $segments[1] ?? '';
+            $currentUrl = current_url();
+
+            $icon = 'fa-circle';
+            $label = ucfirst($segment1);
+
+            $labelMap = [
+                'dashboard' => ['label' => lang('UI.menuDashboard'), 'icon' => 'fa-tachometer-alt'],
+                'patients' => ['label' => lang('UI.menuPatients'), 'icon' => 'fa-users'],
+                'patient' => ['label' => lang('UI.menuPatients'), 'icon' => 'fa-user'],
+                'examinations' => ['label' => lang('UI.menuExaminations'), 'icon' => 'fa-stethoscope'],
+                'examination' => ['label' => lang('UI.menuExaminations'), 'icon' => 'fa-stethoscope'],
+                'appointments' => ['label' => lang('UI.menuAppointments'), 'icon' => 'fa-calendar-alt'],
+                'appointment' => ['label' => lang('UI.menuAppointments'), 'icon' => 'fa-calendar-alt'],
+                'treatments' => ['label' => lang('UI.menuTreatments'), 'icon' => 'fa-tooth'],
+                'treatment' => ['label' => lang('UI.menuTreatments'), 'icon' => 'fa-tooth'],
+                'prescriptions' => ['label' => lang('UI.menuPrescriptions'), 'icon' => 'fa-prescription-bottle-alt'],
+                'prescription' => ['label' => lang('UI.menuPrescriptions'), 'icon' => 'fa-prescription-bottle-alt'],
+                'finance' => ['label' => lang('UI.menuFinance'), 'icon' => 'fa-dollar-sign'],
+                'reports' => ['label' => lang('UI.menuReports'), 'icon' => 'fa-chart-bar'],
+                'inventory' => ['label' => lang('UI.menuInventory'), 'icon' => 'fa-boxes'],
+                'providers' => ['label' => lang('UI.menuProviders'), 'icon' => 'fa-handshake'],
+                'users' => ['label' => lang('UI.menuUserManagement'), 'icon' => 'fa-users-cog'],
+                'roles' => ['label' => lang('UI.menuRoleManagement'), 'icon' => 'fa-user-tag'],
+                'settings' => ['label' => lang('UI.menuSettings'), 'icon' => 'fa-cog'],
+                'notifications' => ['label' => lang('UI.notifications'), 'icon' => 'fa-bell'],
+                'contracts' => ['label' => 'Contracts', 'icon' => 'fa-file-signature'],
+                'odontogram' => ['label' => 'Odontogram', 'icon' => 'fa-tooth'],
+            ];
+
+            if (isset($labelMap[$segment1])) {
+                $label = $labelMap[$segment1]['label'];
+                $icon = $labelMap[$segment1]['icon'];
+            }
+
+            if (is_numeric($segment2) && $segment2 > 0) {
+                $label = '#' . $segment2 . ' — ' . $label;
+            }
+
+            $nav->push($label, $currentUrl);
+        } catch (\Throwable $e) {
+            log_message('error', 'Navigation track error: ' . $e->getMessage());
         }
     }
 

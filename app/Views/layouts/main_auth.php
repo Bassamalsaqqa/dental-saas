@@ -1074,6 +1074,28 @@
                 </div></noscript>
             <?php endif; ?>
 
+            <!-- Breadcrumb Bar -->
+            <?php
+            try {
+                $breadcrumbTrail = service('navigation')->trail();
+            } catch (\Throwable $e) {
+                $breadcrumbTrail = [];
+            }
+            ?>
+            <?php if (count($breadcrumbTrail) > 1): ?>
+            <div class="mb-4 -mt-2">
+                <nav class="flex items-center gap-1.5 text-[11px] text-gray-400 font-medium overflow-x-auto whitespace-nowrap">
+                    <?php foreach ($breadcrumbTrail as $i => $step): ?>
+                        <?php if ($i > 0): ?><span class="text-gray-300">/</span><?php endif; ?>
+                        <a href="<?= esc($step['url']) ?>"
+                           class="hover:text-gray-700 transition-colors <?= $i === count($breadcrumbTrail) - 1 ? 'text-gray-600 font-semibold' : '' ?>">
+                            <?= esc($step['label']) ?>
+                        </a>
+                    <?php endforeach; ?>
+                </nav>
+            </div>
+            <?php endif; ?>
+
             <!-- Page Content -->
             <?= $this->renderSection('content') ?>
         </main>

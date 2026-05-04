@@ -60,4 +60,13 @@ class Services extends BaseService
         return new \App\Services\LocaleResolverService();
     }
 
+    public static function navigation($getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('navigation');
+        }
+
+        return new \App\Services\NavigationService();
+    }
+
 }
