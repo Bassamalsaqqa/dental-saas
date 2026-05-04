@@ -289,22 +289,22 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </div>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div class="overflow-x-auto">
+                        <div class="p-4">
+                            <div class="overflow-x-auto rounded-lg border border-gray-200">
                                 <table class="w-full text-sm">
-                                    <thead>
-                                        <tr class="border-b border-gray-200">
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Tooth #</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">FDI #</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Position</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Condition</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Treatment</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Tooth</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">FDI</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Position</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Condition</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Treatment</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="text-left py-2 px-3 w-16"></th>
                                         </tr>
                                     </thead>
-                                    <tbody id="teethTableBody"></tbody>
+                                    <tbody id="teethTableBody" class="divide-y divide-gray-100"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -324,33 +324,27 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </div>
                             </div>
                         </div>
-                        <div class="p-6 space-y-4 bg-white/70 contract-panel-body">
-                            <div class="grid grid-cols-2 gap-4">
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Currency</label>
-                                <?php
-                                    $baseCurrency = $base_currency ?? 'ILS';
-                                    $selectedCurrency = $contract['currency'] ?? $baseCurrency;
-                                ?>
-                                <select name="currency" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                                    <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
-                                        <option value="<?= esc($option) ?>" <?= ($selectedCurrency === $option) ? 'selected' : '' ?>>
-                                            <?= esc($option) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Total</label>
-                                <input type="number"
-                                       step="0.01"
-                                       min="0"
-                                       name="total_cost"
-                                       id="contractTotalInput"
-                                       value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
-                                       class="w-full px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display">
-                                <p class="mt-1 text-[11px] text-gray-500">Auto-calculated from items. You can override it.</p>
-                            </div>
+                        <div class="p-5 bg-white/70 contract-panel-body">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5">Currency</label>
+                                    <?php
+                                        $baseCurrency = $base_currency ?? 'ILS';
+                                        $selectedCurrency = $contract['currency'] ?? $baseCurrency;
+                                    ?>
+                                    <select name="currency" class="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                        <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
+                                            <option value="<?= esc($option) ?>" <?= ($selectedCurrency === $option) ? 'selected' : '' ?>><?= esc($option) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5">Total</label>
+                                    <input type="number" step="0.01" min="0" name="total_cost" id="contractTotalInput"
+                                           value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
+                                           class="w-full h-9 px-3 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display bg-white">
+                                    <p class="mt-1 text-[10px] text-gray-400">Auto-calculated from items. You can override.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -372,17 +366,17 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </button>
                             </div>
                         </div>
-                        <div class="p-6 bg-white/70 contract-panel-body">
-                            <div class="overflow-x-auto contract-items-shell">
-                                <table class="min-w-full text-sm contract-items-grid">
-                                    <thead class="bg-white/80">
+                        <div class="p-4 bg-white/70 contract-panel-body">
+                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Code</th>
-                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tooth</th>
-                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Description</th>
-                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Qty</th>
-                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Price</th>
-                                        <th class="px-3 py-2"></th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Code</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Tooth</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-16">Qty</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-24">Price</th>
+                                        <th class="px-3 py-2 w-16"></th>
                                     </tr>
                                     </thead>
                                     <tbody id="itemsBody" class="divide-y divide-gray-100"></tbody>
@@ -411,22 +405,22 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </button>
                             </div>
                         </div>
-                        <div id="contractTermsContent" class="p-6 space-y-4 bg-white/70 contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Terms &amp; Conditions</label>
-                                <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
+                        <div id="contractTermsContent" class="p-4 space-y-3 bg-white/70 contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Terms &amp; Conditions</label>
+                                <textarea name="terms_conditions" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
                             </div>
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Terms</label>
-                                <textarea name="payment_terms" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Payment Terms</label>
+                                <textarea name="payment_terms" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
                             </div>
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Duration Plan</label>
-                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Duration Plan</label>
+                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
                             </div>
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
-                                <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Notes</label>
+                                <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -1369,7 +1363,7 @@ function updateConditionsTable() {
         row.dataset.tooth = toothNumber;
 
         const toothCell = document.createElement('td');
-        toothCell.className = 'py-3 px-4';
+        toothCell.className = 'py-2 px-3';
         const toothUniversal = document.createElement('span');
         toothUniversal.className = 'universal-number font-semibold text-blue-600';
         toothUniversal.textContent = String(toothNumber);
@@ -1380,7 +1374,7 @@ function updateConditionsTable() {
         toothCell.appendChild(toothFdi);
 
         const fdiCell = document.createElement('td');
-        fdiCell.className = 'py-3 px-4';
+        fdiCell.className = 'py-2 px-3';
         const fdiUniversal = document.createElement('span');
         fdiUniversal.className = 'universal-number text-gray-600';
         fdiUniversal.textContent = getFdiNumber(toothNumber);
@@ -1395,7 +1389,7 @@ function updateConditionsTable() {
         positionCell.textContent = getToothPosition(toothNumber);
 
         const conditionCell = document.createElement('td');
-        conditionCell.className = 'py-3 px-4';
+        conditionCell.className = 'py-2 px-3';
         const conditionBadge = document.createElement('span');
         conditionBadge.className = `inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${conditionBadgeClasses[condition] || conditionBadgeClasses.other}`;
         conditionBadge.textContent = (conditionTypes?.[condition] || 'Healthy');
@@ -1412,17 +1406,17 @@ function updateConditionsTable() {
         treatmentCell.textContent = treatment || '-';
 
         const statusCell = document.createElement('td');
-        statusCell.className = 'py-3 px-4';
+        statusCell.className = 'py-2 px-3';
         const statusBadge = document.createElement('span');
         statusBadge.className = `inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusBadgeClasses[status] || statusBadgeClasses.completed}`;
         statusBadge.textContent = statusLabels[status] || 'Completed';
         statusCell.appendChild(statusBadge);
 
         const actionCell = document.createElement('td');
-        actionCell.className = 'py-3 px-4';
+        actionCell.className = 'py-2 px-3';
         const editButton = document.createElement('button');
         editButton.type = 'button';
-        editButton.className = 'text-blue-600 hover:text-blue-800 font-medium text-xs transition-colors duration-200';
+        editButton.className = 'text-[11px] text-blue-600 hover:text-blue-800 font-medium';
         editButton.textContent = 'Edit';
         editButton.addEventListener('click', () => openToothModal(toothNumber));
         actionCell.appendChild(editButton);
@@ -1534,11 +1528,11 @@ function renderItems() {
         row.appendChild(buildItemCell('price', item.price, index, 'number'));
 
         const actionCell = document.createElement('td');
-        actionCell.className = 'px-3 py-2 text-right';
+        actionCell.className = 'px-2 py-1.5 text-right';
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
-        removeBtn.className = 'text-xs text-rose-600 hover:text-rose-700';
-        removeBtn.textContent = 'Remove';
+        removeBtn.className = 'text-[11px] text-rose-500 hover:text-rose-700 font-medium';
+        removeBtn.textContent = '×';
         removeBtn.addEventListener('click', () => {
             items.splice(index, 1);
             renderItems();
@@ -1554,27 +1548,20 @@ function renderItems() {
 
 function buildItemCell(field, value, index, type = 'text') {
     const cell = document.createElement('td');
-    cell.className = 'px-3 py-2';
+    cell.className = 'px-2 py-1.5';
     const input = document.createElement('input');
     input.type = type;
     input.name = `items[${index}][${field}]`;
     input.value = value ?? '';
-    input.className = 'w-full px-2.5 py-1.5 border border-slate-200 rounded-md text-xs bg-white text-slate-700 focus:outline-none focus:ring-0';
+    input.className = 'w-full px-2 py-1.5 border border-gray-200 rounded text-xs bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400';
 
     if (field === 'qty' || field === 'price') {
-        input.step = '0.01';
-        input.min = '0';
+        input.step = '0.01'; input.min = '0';
     }
-
     input.addEventListener('input', () => {
-        if (field === 'qty' || field === 'price') {
-            items[index][field] = Number(input.value || 0);
-        } else {
-            items[index][field] = input.value;
-        }
+        items[index][field] = (field === 'qty' || field === 'price') ? Number(input.value || 0) : input.value;
         updateTotal();
     });
-
     cell.appendChild(input);
     return cell;
 }
@@ -1790,59 +1777,22 @@ document.addEventListener('DOMContentLoaded', () => {
     background: linear-gradient(180deg, rgba(248, 250, 252, 0.76) 0%, rgba(255, 255, 255, 0.72) 100%);
 }
 
-.contract-input-wrap {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(203, 213, 225, 0.7);
-    border-radius: 0.75rem;
-    padding: 0.7rem;
-}
-
-.contract-input-wrap label {
-    letter-spacing: 0.01em;
-    color: #475569;
-}
-
 .contract-panel input,
 .contract-panel select,
 .contract-panel textarea {
     background-color: #fff !important;
     border: 1px solid #d3dce8 !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
     color: #0f172a;
-    transition: border-color 120ms ease, box-shadow 120ms ease;
     outline: none !important;
 }
-
-.contract-panel input:hover,
-.contract-panel select:hover,
-.contract-panel textarea:hover {
-    border-color: #c4d0df !important;
-}
-
 .contract-panel input:focus,
 .contract-panel select:focus,
 .contract-panel textarea:focus {
-    outline: none !important;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
-    border-color: #9fb0c7 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
+    border-color: #93c5fd !important;
 }
-
 .contract-total-display {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(15, 23, 42, 0.05);
-}
-
-.contract-items-shell {
-    border: 1px solid #d6deea;
-    border-radius: 0.75rem;
-    background: #fff;
-}
-
-.contract-items-grid thead {
-    background: #f8fafc;
-}
-
-.contract-items-grid tbody tr:nth-child(even) {
-    background: #fcfdff;
 }
 </style>
 <?= $this->endSection() ?>
