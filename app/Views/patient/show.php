@@ -1670,71 +1670,76 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
-                                <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientExaminations')) ?></h3>
-                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientExaminationsSubtitle')) ?></p>
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+                                <div class="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                        <h3 class="text-base font-semibold text-gray-900"><?= esc(lang('UI.patientExaminations')) ?></h3>
+                                        <span class="text-xs text-gray-400"><?= count($examinations) ?> <?= esc(lang('UI.patientExams')) ?></span>
                                     </div>
                                     <?php if (has_permission('examinations', 'create')): ?>
-                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '') ?>"
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateExamination')) ?>
+                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-plus text-[10px]"></i><?= esc(lang('UI.patientCreateExamination')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
-                            </div>
-                            <?php if (!empty($examinations)): ?>
-                                <div class="overflow-x-auto">
-                                    <table class="patient-record-table" data-record-type="examinations" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                        <thead>
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientChiefComplaint')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($examinations as $examination): ?>
-                                                <tr class="patient-record-row" data-href="<?= esc(base_url('examination/' . $examination['id'] . '')) ?>">
-                                                    <td class="whitespace-nowrap">
-                                                        <?= formatDate($examination['examination_date']) ?>
-                                                    </td>
-                                                    <td>
-                                                        <div class="patient-record-main">
-                                                            <div class="patient-record-title"><?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?></div>
-                                                            <div class="patient-record-subtitle"><?= esc(lang('UI.patientExam')) ?></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="patient-record-main">
-                                                            <div class="patient-record-title"><?= $examination['chief_complaint'] ? substr($examination['chief_complaint'], 0, 50) . '...' : lang('UI.patientNoComplaint') ?></div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="whitespace-nowrap">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
-                                                            <?= ucfirst($examination['status']) ?>
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <div class="patient-table-actions">
-                                                        <a href="<?= base_url('examination/' . $examination['id'] . '') ?>" 
-                                                           class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
-                                                        </div>
-                                                    </td>
+                                <?php if (!empty($examinations)): ?>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        <div class="flex items-center gap-2"><i class="fas fa-calendar text-blue-600"></i><span><?= esc(lang('UI.patientDate')) ?></span></div>
+                                                    </th>
+                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        <div class="flex items-center gap-2"><i class="fas fa-tag text-blue-600"></i><span><?= esc(lang('UI.patientType')) ?></span></div>
+                                                    </th>
+                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        <div class="flex items-center gap-2"><i class="fas fa-align-left text-blue-600"></i><span><?= esc(lang('UI.patientChiefComplaint')) ?></span></div>
+                                                    </th>
+                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        <div class="flex items-center gap-2"><i class="fas fa-circle-info text-blue-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div>
+                                                    </th>
+                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        <div class="flex items-center gap-2"><i class="fas fa-cogs text-blue-600"></i><span><?= esc(lang('UI.patientActions')) ?></span></div>
+                                                    </th>
                                                 </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <?php else: ?>
-                                <div class="text-center py-8">
-                                    <i class="fas fa-stethoscope text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoExaminations')) ?></p>
-                                </div>
-                            <?php endif; ?>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100">
+                                                <?php foreach ($examinations as $examination): ?>
+                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(base_url('examination/' . $examination['id'])) ?>">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                            <?= formatDate($examination['examination_date']) ?>
+                                                        </td>
+                                                        <td class="px-6 py-4">
+                                                            <div class="text-sm font-medium text-gray-900"><?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?></div>
+                                                            <div class="text-xs text-gray-500"><?= esc(lang('UI.patientExam')) ?></div>
+                                                        </td>
+                                                        <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
+                                                            <?= $examination['chief_complaint'] ? esc(substr($examination['chief_complaint'], 0, 60) . (strlen($examination['chief_complaint']) > 60 ? '...' : '')) : '<span class="text-gray-400">' . esc(lang('UI.patientNoComplaint')) . '</span>' ?>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $examination['status'] == 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
+                                                                <?= ucfirst($examination['status']) ?>
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-6 py-4">
+                                                            <a href="<?= base_url('examination/' . $examination['id']) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors" title="<?= esc(lang('UI.patientView')) ?>">
+                                                                <i class="fas fa-eye text-xs"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-center py-10">
+                                        <i class="fas fa-stethoscope text-gray-300 text-4xl mb-3"></i>
+                                        <p class="text-sm text-gray-400"><?= esc(lang('UI.patientNoExaminations')) ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
                         <!-- Appointments Tab -->
