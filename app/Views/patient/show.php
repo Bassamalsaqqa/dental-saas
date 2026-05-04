@@ -3457,12 +3457,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         grid-column: 1 / -1;
     }
 
-    /* Accent left border on fact cards */
-    .patient-fact-accent-blue { border-left: 3px solid #3b82f6; background: linear-gradient(180deg, #f8faff 0%, #fff 100%); }
-    .patient-fact-accent-slate { border-left: 3px solid #64748b; background: linear-gradient(180deg, #f8fafc 0%, #fff 100%); }
-    .patient-fact-accent-emerald { border-left: 3px solid #10b981; background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%); }
-    .patient-fact-accent-violet { border-left: 3px solid #7c3aed; background: linear-gradient(180deg, #f5f3ff 0%, #fff 100%); }
-    .patient-fact-accent-amber { border-left: 3px solid #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #fff 100%); }
+    /* Accent backgrounds on fact cards */
+    .patient-fact-accent-blue { background: linear-gradient(180deg, #eff6ff 0%, #fff 70%); }
+    .patient-fact-accent-slate { background: linear-gradient(180deg, #f1f5f9 0%, #fff 70%); }
+    .patient-fact-accent-emerald { background: linear-gradient(180deg, #ecfdf5 0%, #fff 70%); }
+    .patient-fact-accent-violet { background: linear-gradient(180deg, #f5f3ff 0%, #fff 70%); }
+    .patient-fact-accent-amber { background: linear-gradient(180deg, #fffbeb 0%, #fff 70%); }
 
     .patient-fact-card::before {
         content: none;
