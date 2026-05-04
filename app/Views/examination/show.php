@@ -384,7 +384,7 @@ $healthFlags = array_values(array_filter([
                     <?php if (!empty($examination['dental_history'])): ?>
                     <div class="pt-2">
                         <p class="exam-field-label"><?= esc($tr('dental_history')) ?></p>
-                        <div class="exam-field-value text-sm"><?= nl2br(esc($examination['dental_history')) ?></div>
+                        <div class="exam-field-value text-sm"><?= nl2br(esc($examination['dental_history'])) ?></div>
                     </div>
                     <?php endif; ?>
                     <?php if (empty($healthFlags) && empty($examination['medical_history']) && empty($examination['dental_history'])): ?>
