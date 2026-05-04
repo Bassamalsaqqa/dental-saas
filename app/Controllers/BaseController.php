@@ -83,6 +83,7 @@ abstract class BaseController extends Controller
         
         // Load settings helper
         helper('settings');
+        helper('navigation');
         $this->applyRuntimeTimezone();
         $this->applyLocaleContext($request);
 
