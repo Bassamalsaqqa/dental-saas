@@ -2928,44 +2928,17 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         color: #1d4ed8;
     }
 
-    /* Gender-themed table card backgrounds */
-    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-content > .bg-white.rounded-xl {
-        background: linear-gradient(180deg, #f8faff 0%, #fff 40%) !important;
-        border-color: #bfdbfe !important;
+    /* Table card backgrounds — neutral tint on header, clean body */
+    .patient-shell .tab-content > .bg-white.rounded-xl {
+        background: linear-gradient(180deg, #fafbfc 0%, #fff 25%) !important;
     }
-    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-content thead th {
-        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
-        color: #1e40af;
-        border-bottom-color: #bfdbfe;
+    .patient-shell .tab-content thead th {
+        background: #f8f9fa;
+        color: #64748b;
+        border-bottom-color: #e2e8f0;
     }
-    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-content thead th i {
-        color: #3b82f6;
-    }
-
-    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-content > .bg-white.rounded-xl {
-        background: linear-gradient(180deg, #fdf4f8 0%, #fff 40%) !important;
-        border-color: #fbcfe8 !important;
-    }
-    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-content thead th {
-        background: linear-gradient(180deg, #fce7f3 0%, #fbcfe8 100%);
-        color: #9d174d;
-        border-bottom-color: #fbcfe8;
-    }
-    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-content thead th i {
-        color: #db2777;
-    }
-
-    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-content > .bg-white.rounded-xl {
-        background: linear-gradient(180deg, #f0fdfa 0%, #fff 40%) !important;
-        border-color: #99f6e4 !important;
-    }
-    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-content thead th {
-        background: linear-gradient(180deg, #ccfbf1 0%, #99f6e4 100%);
-        color: #115e59;
-        border-bottom-color: #99f6e4;
-    }
-    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-content thead th i {
-        color: #0d9488;
+    .patient-shell .tab-content thead th i {
+        color: #94a3b8;
     }
 
     .patient-record-table th {
