@@ -341,7 +341,7 @@ $healthFlags = array_values(array_filter([
                     <span class="exam-icon-circle" style="background:#fef3c7;color:#d97706;"><i class="fas fa-bolt text-sm"></i></span>
                     <span><?= esc($tr('workflow_heading')) ?></span>
                 </div>
-                <div class="exam-card-body space-y-2.5">
+                <div class="exam-card-body flex flex-col gap-3.5">
                     <?php if ($statusKey !== 'completed'): ?>
                     <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>">
                         <?= csrf_field() ?>
@@ -365,7 +365,7 @@ $healthFlags = array_values(array_filter([
                     <span class="exam-icon-circle" style="background:#ffe4e6;color:#e11d48;"><i class="fas fa-heart-pulse text-sm"></i></span>
                     <span><?= esc($tr('medical_dental_history')) ?></span>
                 </div>
-                <div class="exam-card-body space-y-2.5">
+                <div class="exam-card-body flex flex-col gap-3">
                     <?php if (!empty($healthFlags)): ?>
                         <?php foreach ($healthFlags as $f): ?>
                         <div class="health-flag">
