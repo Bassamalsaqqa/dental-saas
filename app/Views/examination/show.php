@@ -98,7 +98,13 @@ $healthFlags = array_values(array_filter([
     border-radius: 1.125rem;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.02), 0 10px 24px -16px rgba(0,0,0,0.04);
     transition: box-shadow 0.25s ease, transform 0.25s ease;
+    position: relative; overflow: hidden;
 }
+.exam-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 1.125rem 1.125rem 0 0;
+}
+[dir="rtl"] .exam-card::before { left: 0; right: auto; }
 .exam-card:hover { box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04), 0 16px 36px -20px rgba(0,0,0,0.08); transform: translateY(-1px); }
 
 .exam-card-header {
@@ -120,13 +126,20 @@ $healthFlags = array_values(array_filter([
 .exam-field-value { font-size: 0.875rem; color: #334155; line-height: 1.7; }
 .exam-field-value p { margin-bottom: 0.25rem; }
 
+/* Card top accent stripes — one per card position */
+.exam-card-clinical::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.exam-card-findings::before { background: linear-gradient(90deg, #059669, #34d399); }
+.exam-card-careplan::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.exam-card-workflow::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.exam-card-history::before { background: linear-gradient(90deg, #e11d48, #fb7185); }
+
 /* workflow action buttons */
 .exam-action-primary {
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     width: 100%; padding: 0.75rem 1rem; border-radius: 0.875rem;
     font-size: 0.8125rem; font-weight: 700; transition: all 0.2s ease;
 }
-.exam-action-primary:hover { transform: translateY(-1px); }
+.exam-action-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .exam-action-secondary {
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     width: 100%; padding: 0.625rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;
@@ -140,6 +153,7 @@ $healthFlags = array_values(array_filter([
     display: flex; align-items: center; gap: 0.625rem; padding: 0.625rem 0.875rem;
     border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #fff;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    border-left-width: 3px;
 }
 .health-flag:hover { border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 .health-flag-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; flex-shrink: 0; }
@@ -221,7 +235,7 @@ $healthFlags = array_values(array_filter([
         <div class="xl:col-span-8 space-y-6">
 
             <!-- Chief Complaint + HPI -->
-            <div class="exam-card">
+            <div class="exam-card exam-card-clinical">
                 <div class="exam-card-header">
                     <span class="exam-icon-circle" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-clipboard-list text-sm"></i></span>
                     <span><?= esc($tr('clinical_summary')) ?></span>
@@ -241,7 +255,7 @@ $healthFlags = array_values(array_filter([
             </div>
 
             <!-- Findings + Diagnosis -->
-            <div class="exam-card">
+            <div class="exam-card exam-card-findings">
                 <div class="exam-card-header">
                     <span class="exam-icon-circle" style="background:#d1fae5;color:#059669;"><i class="fas fa-magnifying-glass text-sm"></i></span>
                     <span><?= esc($tr('clinical_findings')) ?> &amp; <?= esc($tr('diagnosis')) ?></span>
@@ -272,7 +286,7 @@ $healthFlags = array_values(array_filter([
             </div>
 
             <!-- Care Plan -->
-            <div class="exam-card">
+            <div class="exam-card exam-card-careplan">
                 <div class="exam-card-header">
                     <span class="exam-icon-circle" style="background:#fef3c7;color:#d97706;"><i class="fas fa-clipboard-check text-sm"></i></span>
                     <span><?= esc($tr('care_plan_heading')) ?></span>
@@ -336,7 +350,7 @@ $healthFlags = array_values(array_filter([
         <!-- RIGHT COLUMN -->
         <div class="xl:col-span-4 space-y-6">
             <!-- Quick Workflow -->
-            <div class="exam-card">
+            <div class="exam-card exam-card-workflow">
                 <div class="exam-card-header">
                     <span class="exam-icon-circle" style="background:#fef3c7;color:#d97706;"><i class="fas fa-bolt text-sm"></i></span>
                     <span><?= esc($tr('workflow_heading')) ?></span>
@@ -360,7 +374,7 @@ $healthFlags = array_values(array_filter([
             </div>
 
             <!-- Health Flags -->
-            <div class="exam-card">
+            <div class="exam-card exam-card-history">
                 <div class="exam-card-header">
                     <span class="exam-icon-circle" style="background:#ffe4e6;color:#e11d48;"><i class="fas fa-heart-pulse text-sm"></i></span>
                     <span><?= esc($tr('medical_dental_history')) ?></span>
