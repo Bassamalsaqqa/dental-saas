@@ -2752,11 +2752,24 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         position: sticky;
         top: 0;
         z-index: 30;
-        border-bottom: 1px solid #e5edf6;
+        border-bottom: 1px solid #e2e8f0;
         padding: 0.625rem 1rem 0.75rem;
-        background: rgba(255,255,255,0.95);
-        backdrop-filter: blur(8px);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        background: #f1f5f9;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    /* Tab nav — themed background matching shell */
+    .patient-shell[data-hero-theme="patient-hero-card-male"] .patient-shell-nav {
+        background: #e2ecf9;
+        border-bottom-color: #c5d5ed;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-female"] .patient-shell-nav {
+        background: #f3dfeb;
+        border-bottom-color: #e6c4d6;
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .patient-shell-nav {
+        background: #d4eae5;
+        border-bottom-color: #bcd9d3;
     }
 
     .patient-filter-strip {
