@@ -14,7 +14,7 @@ $isRtl = !empty($is_rtl);
                 <p class="text-gray-600 text-lg"><?= lang('UserRole.updateRoleInformationPermissions') ?></p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <a href="<?= nav_back('roles') ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-arrow-left rtl-back-icon"></i>
                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.backToRoles') ?></span>
                 </a>
@@ -367,7 +367,7 @@ $isRtl = !empty($is_rtl);
 
         <!-- Form Actions -->
         <div class="flex flex-col justify-end gap-3 pt-6 border-t border-gray-200 sm:flex-row sm:gap-4">
-            <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
+            <a href="<?= nav_back('roles') ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
                 <?= lang('UserRole.cancel') ?>
             </a>
             <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">

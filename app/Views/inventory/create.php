@@ -129,7 +129,7 @@
                             <p class="text-sm text-gray-500"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
                         </div>
                     </div>
-                    <a href="<?= base_url('inventory') ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                    <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                         <?= lang('Inventory.backToInventory') ?>
                     </a>
@@ -321,7 +321,7 @@
 
             <!-- Form Actions -->
             <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
-                <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
                     <i class="fas fa-times text-xs"></i>
                     <?= lang('Inventory.cancel') ?>
                 </a>

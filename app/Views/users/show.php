@@ -1124,7 +1124,7 @@
                                     <span><?= esc(lang('UserRole.editUser')) ?></span>
                                 </button>
                             <?php endif; ?>
-                            <a href="<?= base_url('users') ?>" class="patient-header-action patient-header-action-soft">
+                            <a href="<?= nav_back('users') ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                                 <span><?= esc(lang('UserRole.backToUsers')) ?></span>
                             </a>

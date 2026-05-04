@@ -71,7 +71,7 @@ if ($item['quantity'] == 0) {
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="<?= base_url('inventory') ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                         <i class="fas fa-arrow-left text-xs"></i><?= esc($tr('back')) ?>
                     </a>
                     <button onclick="receiveStock(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">

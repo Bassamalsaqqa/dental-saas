@@ -244,7 +244,7 @@
                             <?= lang('Inventory.reorderList') ?>
                             <span class="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-amber-600 text-white text-xs font-bold"><?= (int) ($open_reorder_count ?? 0) ?></span>
                         </a>
-                        <a href="<?= base_url('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
+                        <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-arrow-left mr-2"></i>
                             <?= lang('Inventory.backToInventory') ?>
                         </a>
@@ -414,7 +414,7 @@
                 <i class="fas fa-plus mr-2"></i><?= lang('Inventory.addNewItem') ?>
             </a>
             
-            <a href="<?= base_url('inventory') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+            <a href="<?= nav_back('inventory') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                 <i class="fas fa-list mr-2"></i><?= lang('Inventory.inventoryItems') ?>
             </a>
         </div>
