@@ -616,7 +616,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         </section>
 
         <!-- Quick Actions Strip -->
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center justify-center gap-2">
             <?php if (has_permission('examinations', 'create')): ?>
                 <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
                     <i class="fas fa-stethoscope text-sky-600"></i><span><?= esc(lang('UI.patientStartAssessment')) ?></span>
@@ -693,7 +693,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                     <!-- Tab Navigation -->
                     <div class="patient-shell-nav">
                         <div class="flex flex-col gap-4">
-                            <nav class="grid w-full gap-2" style="grid-template-columns: repeat(<?= $patientTabCount ?>, minmax(0, 1fr));" aria-label="<?= esc(lang('UI.patientProfileWorkspace')) ?>" role="tablist">
+                            <nav class="flex w-full gap-1.5 overflow-x-auto pb-1" aria-label="<?= esc(lang('UI.patientProfileWorkspace')) ?>" role="tablist">
                                 <button type="button" onclick="return showTab('details', event)" 
                                         id="details-tab" 
                                         role="tab"
@@ -2818,7 +2818,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 0;
+        flex-shrink: 0;
         border: 1px solid #e2e8f0;
         background: #fff;
         color: #64748b;
