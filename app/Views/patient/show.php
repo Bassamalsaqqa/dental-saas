@@ -689,9 +689,9 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             ?>
             <!-- Patient History Tabs -->
             <div class="w-full">
-                <div class="patient-shell">
+                <div class="patient-shell" data-hero-theme="<?= esc($patientHeroThemeClass) ?>">
                     <!-- Tab Navigation -->
-                    <div class="patient-shell-nav" data-hero-theme="<?= esc($patientHeroThemeClass) ?>">
+                    <div class="patient-shell-nav">
                         <div class="flex flex-col gap-4">
                             <nav class="flex w-full gap-1.5 overflow-x-auto pb-1 justify-center" aria-label="<?= esc(lang('UI.patientProfileWorkspace')) ?>" role="tablist">
                                 <button type="button" onclick="return showTab('details', event)" 
@@ -2510,9 +2510,27 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     .patient-rail-card,
     .patient-summary-card,
     .patient-shell {
-        background: rgba(255, 255, 255, 0.94);
-        border: 1px solid #d8e1ee;
-        box-shadow: 0 18px 40px -30px rgba(15, 23, 42, 0.35);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 1.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 10px 30px -16px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    /* Gender-themed shell tints via hero-theme data attribute */
+    [data-hero-theme="patient-hero-card-male"] .patient-shell {
+        background: linear-gradient(180deg, #f8faff 0%, #eff6ff 30%, #fff 100%);
+        border-color: #bfdbfe;
+    }
+
+    [data-hero-theme="patient-hero-card-female"] .patient-shell {
+        background: linear-gradient(180deg, #fdf4f8 0%, #fce7f3 30%, #fff 100%);
+        border-color: #fbcfe8;
+    }
+
+    [data-hero-theme="patient-hero-card-neutral"] .patient-shell {
+        background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 30%, #fff 100%);
+        border-color: #99f6e4;
     }
 
     .patient-kpi-card {
@@ -2780,7 +2798,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     /* Gender-themed active tab — male (blue) */
-    [data-hero-theme="patient-hero-card-male"] .tab-button.active {
+    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-button.active {
         border-color: #1d4ed8;
         background: #dbeafe;
         color: #1e40af;
@@ -2788,7 +2806,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     /* Gender-themed active tab — female (rose) */
-    [data-hero-theme="patient-hero-card-female"] .tab-button.active {
+    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-button.active {
         border-color: #be185d;
         background: #fce7f3;
         color: #9d174d;
@@ -2796,7 +2814,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     /* Gender-themed active tab — neutral (teal) */
-    [data-hero-theme="patient-hero-card-neutral"] .tab-button.active {
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-button.active {
         border-color: #0d9488;
         background: #ccfbf1;
         color: #115e59;
@@ -2826,9 +2844,9 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         background: rgba(37, 99, 235, 0.12);
     }
 
-    [data-hero-theme="patient-hero-card-male"] .tab-button.active .tab-count { background: rgba(29, 78, 216, 0.14); }
-    [data-hero-theme="patient-hero-card-female"] .tab-button.active .tab-count { background: rgba(190, 24, 93, 0.14); }
-    [data-hero-theme="patient-hero-card-neutral"] .tab-button.active .tab-count { background: rgba(13, 148, 136, 0.14); }
+    .patient-shell[data-hero-theme="patient-hero-card-male"] .tab-button.active .tab-count { background: rgba(29, 78, 216, 0.14); }
+    .patient-shell[data-hero-theme="patient-hero-card-female"] .tab-button.active .tab-count { background: rgba(190, 24, 93, 0.14); }
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] .tab-button.active .tab-count { background: rgba(13, 148, 136, 0.14); }
 
     .tab-content {
         display: block;
