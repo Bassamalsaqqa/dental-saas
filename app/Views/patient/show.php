@@ -2797,9 +2797,14 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-shell-nav {
+        position: sticky;
+        top: 0;
+        z-index: 30;
         border-bottom: 1px solid #e5edf6;
-        padding: 0.875rem 1.25rem 1rem;
-        background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(241, 245, 249, 0.82));
+        padding: 0.625rem 1rem 0.75rem;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .patient-filter-strip {
@@ -2823,28 +2828,29 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         align-items: center;
         justify-content: center;
         min-width: 0;
-        border: 1px solid #dbe4f0;
-        background: linear-gradient(180deg, #ffffff, #f7fbff);
-        color: #475569;
-        border-radius: 0.95rem;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #64748b;
+        border-radius: 0.75rem;
         transition: all 0.2s ease;
         overflow: hidden;
-        min-height: 2.9rem;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        min-height: 2.4rem;
+        font-size: 0.75rem;
+        font-weight: 600;
     }
 
     .tab-button.active,
     .tab-button.active:hover {
-        border-color: #1d4ed8;
-        background: linear-gradient(135deg, #eef5ff 0%, #dbeafe 100%);
+        border-color: #2563eb;
+        background: #eff6ff;
         color: #1d4ed8;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 20px -18px rgba(29, 78, 216, 0.5);
+        box-shadow: 0 1px 3px rgba(37,99,235,0.12);
     }
 
     .tab-button:hover:not(.active) {
-        color: #0f172a;
+        color: #334155;
         border-color: #cbd5e1;
-        background: #ffffff;
+        background: #f8fafc;
     }
 
     .tab-count {
@@ -2926,16 +2932,36 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         transition: background-color 0.18s ease, transform 0.18s ease;
     }
 
+    .patient-record-row:nth-child(even) td {
+        background: #f8fafc;
+    }
+
     .patient-record-row[data-href] {
         cursor: pointer;
     }
 
     .patient-record-row[data-href]:hover td {
-        background: #f8fbff;
+        background: #eff6ff;
     }
 
     .patient-record-row[data-href]:hover .patient-record-title {
         color: #1d4ed8;
+    }
+
+    .patient-record-table th {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.625rem 0.75rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .patient-record-table td {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+        border-bottom: 1px solid #f1f5f9;
     }
 
     .patient-table-sort {
