@@ -1741,18 +1741,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Appointments Tab -->
                         <div id="appointments-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
-                                <div class="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
-                                        <h3 class="text-base font-semibold text-gray-900"><?= esc(lang('UI.patientAppointments')) ?></h3>
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-lg mb-4">
+                                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientAppointments')) ?></h3>
+                                        </div>
                                         <span class="text-xs text-gray-400"><?= count($appointments) ?> <?= esc(lang('UI.patientAppts')) ?></span>
                                     </div>
-                                    <?php if (has_permission('appointments', 'create')): ?>
-                                        <a href="<?= base_url('appointment/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-plus text-[10px]"></i><?= esc(lang('UI.patientScheduleAppointment')) ?>
-                                        </a>
-                                    <?php endif; ?>
                                 </div>
                                 <?php if (!empty($appointments)): ?>
                                     <div class="overflow-x-auto">
@@ -1787,18 +1784,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Treatments Tab -->
                         <div id="treatments-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
-                                <div class="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-2 h-2 bg-pink-500 rounded-full"></span>
-                                        <h3 class="text-base font-semibold text-gray-900"><?= esc(lang('UI.patientTreatments')) ?></h3>
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-lg mb-4">
+                                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-2 h-2 bg-pink-500 rounded-full"></div>
+                                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientTreatments')) ?></h3>
+                                        </div>
                                         <span class="text-xs text-gray-400"><?= count($treatments) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
                                     </div>
-                                    <?php if (has_permission('treatments', 'create')): ?>
-                                        <a href="<?= base_url('treatment/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-plus text-[10px]"></i><?= esc(lang('UI.patientAddTreatment')) ?>
-                                        </a>
-                                    <?php endif; ?>
+                                </div>
                                 </div>
                                 <?php if (!empty($treatments)): ?>
                                     <div class="overflow-x-auto">
