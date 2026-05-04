@@ -2510,27 +2510,44 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     .patient-rail-card,
     .patient-summary-card,
     .patient-shell {
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        background: #fff;
         border: 1px solid #e2e8f0;
         border-radius: 1.25rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 10px 30px -16px rgba(0,0,0,0.08);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03), 0 20px 48px -24px rgba(0,0,0,0.12);
         overflow: hidden;
+        position: relative;
+    }
+    .patient-shell::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        border-radius: 1.25rem 1.25rem 0 0; z-index: 2;
     }
 
     /* Gender-themed shell tints via hero-theme data attribute */
-    [data-hero-theme="patient-hero-card-male"] .patient-shell {
-        background: linear-gradient(180deg, #f8faff 0%, #eff6ff 30%, #fff 100%);
+    .patient-shell[data-hero-theme="patient-hero-card-male"] {
+        background: linear-gradient(180deg, #f8faff 0%, #eff6ff 20%, #fff 50%);
         border-color: #bfdbfe;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(37,99,235,0.04), 0 20px 48px -24px rgba(37,99,235,0.18);
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-male"]::before {
+        background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
     }
 
-    [data-hero-theme="patient-hero-card-female"] .patient-shell {
-        background: linear-gradient(180deg, #fdf4f8 0%, #fce7f3 30%, #fff 100%);
+    .patient-shell[data-hero-theme="patient-hero-card-female"] {
+        background: linear-gradient(180deg, #fdf4f8 0%, #fce7f3 20%, #fff 50%);
         border-color: #fbcfe8;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(219,39,119,0.04), 0 20px 48px -24px rgba(219,39,119,0.18);
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-female"]::before {
+        background: linear-gradient(90deg, #be185d, #db2777, #f472b6);
     }
 
-    [data-hero-theme="patient-hero-card-neutral"] .patient-shell {
-        background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 30%, #fff 100%);
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"] {
+        background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 20%, #fff 50%);
         border-color: #99f6e4;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(13,148,136,0.04), 0 20px 48px -24px rgba(13,148,136,0.18);
+    }
+    .patient-shell[data-hero-theme="patient-hero-card-neutral"]::before {
+        background: linear-gradient(90deg, #0f766e, #0d9488, #14b8a6);
     }
 
     .patient-kpi-card {
