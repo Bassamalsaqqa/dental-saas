@@ -3435,11 +3435,17 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-content: flex-start;
         min-width: 0;
         min-height: 5.85rem;
-        border: 1px solid #dfe7f1;
+        border: 1px solid #e2e8f0;
         border-radius: 0.85rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(249, 251, 255, 0.98));
+        background: #fff;
         padding: 0.8rem 0.92rem 0.84rem;
-        box-shadow: 0 10px 18px -22px rgba(15, 23, 42, 0.16);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 8px -4px rgba(0,0,0,0.06);
+        transition: box-shadow 0.2s, transform 0.2s;
+        overflow: hidden;
+    }
+    .patient-fact-card:hover {
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 16px -6px rgba(0,0,0,0.08);
+        transform: translateY(-1px);
     }
 
     .patient-facts-section-primary .patient-fact-card {
@@ -3451,22 +3457,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         grid-column: 1 / -1;
     }
 
+    /* Accent left border on fact cards */
+    .patient-fact-accent-blue { border-left: 3px solid #3b82f6; background: linear-gradient(180deg, #f8faff 0%, #fff 100%); }
+    .patient-fact-accent-slate { border-left: 3px solid #64748b; background: linear-gradient(180deg, #f8fafc 0%, #fff 100%); }
+    .patient-fact-accent-emerald { border-left: 3px solid #10b981; background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%); }
+    .patient-fact-accent-violet { border-left: 3px solid #7c3aed; background: linear-gradient(180deg, #f5f3ff 0%, #fff 100%); }
+    .patient-fact-accent-amber { border-left: 3px solid #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #fff 100%); }
+
     .patient-fact-card::before {
-        content: "";
-        position: absolute;
-        inset-inline-start: 0.8rem;
-        top: 0.64rem;
-        width: 0.42rem;
-        height: 0.42rem;
+        content: none;
+    }
         border-radius: 9999px;
         background: #cbd5e1;
     }
-
-    .patient-fact-accent-blue::before { background: #2563eb; }
-    .patient-fact-accent-emerald::before { background: #059669; }
-    .patient-fact-accent-amber::before { background: #d97706; }
-    .patient-fact-accent-violet::before { background: #7c3aed; }
-    .patient-fact-accent-slate::before { background: #475569; }
 
     .patient-fact-label {
         display: block;
