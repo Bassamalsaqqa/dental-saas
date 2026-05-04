@@ -1670,38 +1670,35 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
-                                <div class="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                        <h3 class="text-base font-semibold text-gray-900"><?= esc(lang('UI.patientExaminations')) ?></h3>
+                            <div class="bg-white rounded-xl border border-gray-200 shadow-lg mb-4">
+                                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientExaminations')) ?></h3>
+                                        </div>
                                         <span class="text-xs text-gray-400"><?= count($examinations) ?> <?= esc(lang('UI.patientExams')) ?></span>
                                     </div>
-                                    <?php if (has_permission('examinations', 'create')): ?>
-                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-plus text-[10px]"></i><?= esc(lang('UI.patientCreateExamination')) ?>
-                                        </a>
-                                    <?php endif; ?>
                                 </div>
                                 <?php if (!empty($examinations)): ?>
                                     <div class="overflow-x-auto">
-                                        <table class="min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                        <table class="w-full min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead class="bg-gray-50">
                                                 <tr>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center gap-2"><i class="fas fa-calendar text-blue-600"></i><span><?= esc(lang('UI.patientDate')) ?></span></div>
+                                                        <div class="flex items-center space-x-2"><i class="fas fa-calendar text-blue-600"></i><span><?= esc(lang('UI.patientDate')) ?></span></div>
                                                     </th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center gap-2"><i class="fas fa-tag text-blue-600"></i><span><?= esc(lang('UI.patientType')) ?></span></div>
+                                                        <div class="flex items-center space-x-2"><i class="fas fa-stethoscope text-blue-600"></i><span><?= esc(lang('UI.patientType')) ?></span></div>
                                                     </th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center gap-2"><i class="fas fa-align-left text-blue-600"></i><span><?= esc(lang('UI.patientChiefComplaint')) ?></span></div>
+                                                        <div class="flex items-center space-x-2"><i class="fas fa-align-left text-blue-600"></i><span><?= esc(lang('UI.patientChiefComplaint')) ?></span></div>
                                                     </th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center gap-2"><i class="fas fa-circle-info text-blue-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div>
+                                                        <div class="flex items-center space-x-2"><i class="fas fa-circle-info text-blue-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div>
                                                     </th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center gap-2"><i class="fas fa-cogs text-blue-600"></i><span><?= esc(lang('UI.patientActions')) ?></span></div>
+                                                        <div class="flex items-center space-x-2"><i class="fas fa-cogs text-blue-600"></i></div>
                                                     </th>
                                                 </tr>
                                             </thead>
