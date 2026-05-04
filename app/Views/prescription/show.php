@@ -194,35 +194,48 @@ $statusTone = match ($statusKey) {
         <!-- Left: Medications + Instructions -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Medication Plan -->
-            <div class="rx-card">
-                <div class="rx-card-header">
-                    <i class="fas fa-pills text-cyan-600"></i><span><?= esc($tr('medication_plan')) ?></span>
+            <div class="rx-card !p-0 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-cyan-500 rounded-full"></span>
+                        <h3 class="text-base font-bold text-gray-900"><?= esc($tr('medication_plan')) ?></h3>
+                    </div>
                 </div>
                 <?php if (!empty($medicines)): ?>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
+                    <table class="min-w-full">
                         <thead>
-                            <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
-                                <th class="px-3 py-2.5"><?= esc($tr('medicine_name')) ?></th>
-                                <th class="px-3 py-2.5"><?= esc($tr('dosage')) ?></th>
-                                <th class="px-3 py-2.5"><?= esc($tr('frequency')) ?></th>
-                                <th class="px-3 py-2.5"><?= esc($tr('duration')) ?></th>
+                            <tr class="bg-gray-50">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center gap-2"><i class="fas fa-capsules text-cyan-600"></i><span><?= esc($tr('medicine_name')) ?></span></div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center gap-2"><i class="fas fa-weight-scale text-cyan-600"></i><span><?= esc($tr('dosage')) ?></span></div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center gap-2"><i class="fas fa-clock text-cyan-600"></i><span><?= esc($tr('frequency')) ?></span></div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-range text-cyan-600"></i><span><?= esc($tr('duration')) ?></span></div>
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-gray-100">
                             <?php foreach ($medicines as $m): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-3 py-3 font-semibold text-gray-900"><?= esc($m['name'] ?? '—') ?></td>
-                                    <td class="px-3 py-3 text-gray-700"><?= esc($m['dosage'] ?? '—') ?></td>
-                                    <td class="px-3 py-3 text-gray-700"><?= esc($m['frequency'] ?? '—') ?></td>
-                                    <td class="px-3 py-3 text-gray-700"><?= esc($m['duration'] ?? '—') ?></td>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-semibold text-gray-900"><?= esc($m['name'] ?? '—') ?></div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-700"><?= esc($m['dosage'] ?? '—') ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-700"><?= esc($m['frequency'] ?? '—') ?></td>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= esc($m['duration'] ?? '—') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
                 <?php else: ?>
-                    <p class="text-sm text-gray-400 text-center py-6"><?= esc($tr('no_medication_information_available')) ?></p>
+                    <p class="text-sm text-gray-400 text-center py-10"><?= esc($tr('no_medication_information_available')) ?></p>
                 <?php endif; ?>
             </div>
 
@@ -246,40 +259,23 @@ $statusTone = match ($statusKey) {
             </div>
         </div>
 
-        <!-- Right: Patient + Metadata -->
+        <!-- Right: Metadata -->
         <div class="space-y-6">
-            <?php if (!empty($prescription['patient_id'])): ?>
-            <div class="rx-card">
-                <div class="rx-card-header">
-                    <i class="fas fa-user text-purple-600"></i><span><?= esc($tr('patient_profile')) ?></span>
-                </div>
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-cyan-50 text-xl font-bold text-cyan-700 shadow-sm flex-shrink-0">
-                        <?= esc(mb_substr($patientName ?: 'P', 0, 1)) ?>
-                    </div>
-                    <div>
-                        <p class="font-bold text-gray-900"><?= esc($patientName ?: $tr('na')) ?></p>
-                        <p class="text-xs text-gray-500">ID: <?= esc($prescription['patient_id'] ?? '—') ?></p>
-                    </div>
-                </div>
-                <div class="space-y-2 text-sm border-t border-gray-100 pt-4">
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('phone')) ?></span><span class="text-gray-900"><?= esc(trim((string)($prescription['phone']??''))?:$tr('na')) ?></span></div>
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('email')) ?></span><span class="text-gray-900 truncate max-w-[60%]"><?= esc(trim((string)($prescription['email']??''))?:$tr('na')) ?></span></div>
-                </div>
-                <a href="<?= base_url('patient/' . $prescription['patient_id']) ?>" class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-external-link-alt"></i><?= $isRtl ? 'فتح ملف المريض' : 'Open patient profile' ?>
-                </a>
-            </div>
-            <?php endif; ?>
-
             <div class="rx-card">
                 <div class="rx-card-header">
                     <i class="fas fa-clipboard-list text-indigo-600"></i><span><?= esc($tr('rx_metadata')) ?></span>
                 </div>
-                <div class="space-y-2 text-sm">
+                <div class="space-y-2.5 text-sm">
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('prescription_id')) ?></span><span class="font-mono text-gray-900"><?= esc($prescriptionReference) ?></span></div>
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('status')) ?></span><span class="text-gray-900"><?= esc($statusLabel) ?></span></div>
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('created_by')) ?></span><span class="text-gray-900"><?= esc($doctorName ?: $tr('unknown')) ?></span></div>
+                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('patient')) ?></span>
+                        <?php if (!empty($prescription['patient_id'])): ?>
+                        <a href="<?= base_url('patient/' . $prescription['patient_id']) ?>" class="text-blue-600 hover:text-blue-800 font-medium"><?= esc($patientName) ?></a>
+                        <?php else: ?>
+                        <span class="text-gray-900">—</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
