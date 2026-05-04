@@ -239,27 +239,9 @@ $statusTone = match ($statusKey) {
                 <?php endif; ?>
             </div>
 
-            <!-- Instructions -->
-            <div class="rx-card">
-                <div class="rx-card-header">
-                    <i class="fas fa-circle-info text-teal-600"></i><span><?= esc($tr('important_instructions')) ?></span>
-                </div>
-                <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                        <?= nl2br(esc($prescription['instructions'] ?? $tr('no_instructions_provided'))) ?>
-                    </div>
-                    <div class="rounded-xl border border-red-200 bg-red-50 p-5">
-                        <h3 class="flex items-center gap-2 text-sm font-bold text-red-800 mb-2">
-                            <i class="fas fa-triangle-exclamation text-red-600"></i>
-                            <span><?= esc($tr('emergency_notice')) ?></span>
-                        </h3>
-                        <p class="text-sm leading-relaxed text-red-900"><?= esc($tr('emergency_notice_body')) ?></p>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Right: Metadata -->
+        <!-- Right: Metadata + Instructions -->
         <div class="space-y-6">
             <div class="rx-card">
                 <div class="rx-card-header">
@@ -276,6 +258,15 @@ $statusTone = match ($statusKey) {
                         <span class="text-gray-900">—</span>
                         <?php endif; ?>
                     </div>
+                </div>
+            </div>
+
+            <div class="rx-card">
+                <div class="rx-card-header">
+                    <i class="fas fa-circle-info text-teal-600"></i><span><?= esc($tr('important_instructions')) ?></span>
+                </div>
+                <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                    <?= nl2br(esc($prescription['instructions'] ?? $tr('no_instructions_provided'))) ?>
                 </div>
             </div>
         </div>
