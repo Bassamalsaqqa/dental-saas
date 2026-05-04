@@ -1413,13 +1413,14 @@ function updateConditionsTable() {
         statusCell.appendChild(statusBadge);
 
         const actionCell = document.createElement('td');
-        actionCell.className = 'py-2 px-3';
-        const editButton = document.createElement('button');
-        editButton.type = 'button';
-        editButton.className = 'text-[11px] text-blue-600 hover:text-blue-800 font-medium';
-        editButton.textContent = 'Edit';
-        editButton.addEventListener('click', () => openToothModal(toothNumber));
-        actionCell.appendChild(editButton);
+        actionCell.className = 'py-2 px-3 text-center';
+        const editLink = document.createElement('a');
+        editLink.href = '#';
+        editLink.className = 'inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors';
+        editLink.title = 'Edit tooth ' + toothNumber;
+        editLink.innerHTML = '<i class="fas fa-pen text-xs"></i>';
+        editLink.addEventListener('click', (e) => { e.preventDefault(); openToothModal(toothNumber); });
+        actionCell.appendChild(editLink);
 
         row.appendChild(toothCell);
         row.appendChild(fdiCell);
