@@ -257,7 +257,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                     </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('examination/create') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= esc($tr('new_examination')) ?>
                             </a>
@@ -567,7 +567,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= esc($tr('no_examinations_found')) ?></h3>
                         <p class="text-gray-500 mb-4"><?= esc($tr('start_creating_new_examination')) ?></p>
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <a href="<?= base_url('examination/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                                 <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
                             </a>
                         <?php endif; ?>

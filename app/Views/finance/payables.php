@@ -126,7 +126,7 @@ $statusClass = static function (string $status): string {
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (has_permission('finance', 'create')): ?>
-                        <a href="<?= base_url('finance/expenses/create) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-amber-600 hover:to-orange-700">
+                        <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-amber-600 hover:to-orange-700">
                             <i class="fas fa-plus"></i>
                             <?= esc($tr('newSupplierExpense')) ?>
                         </a>
