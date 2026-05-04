@@ -101,12 +101,12 @@ $healthFlags = array_values(array_filter([
 }
 .exam-card:hover { box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04), 0 16px 36px -20px rgba(0,0,0,0.08); transform: translateY(-1px); }
 
-/* Card background tints */
-.exam-card-clinical { background: linear-gradient(180deg, #f0f9ff 0%, #fff 30%); border-color: #bae6fd; }
-.exam-card-findings { background: linear-gradient(180deg, #ecfdf5 0%, #fff 30%); border-color: #a7f3d0; }
-.exam-card-careplan { background: linear-gradient(180deg, #fffbeb 0%, #fff 30%); border-color: #fde68a; }
-.exam-card-workflow { background: linear-gradient(180deg, #fffbeb 0%, #fff 30%); border-color: #fde68a; }
-.exam-card-history { background: linear-gradient(180deg, #fff1f2 0%, #fff 30%); border-color: #fecdd3; }
+/* Card background tints — anchored to hero header blues */
+.exam-card-clinical { background: linear-gradient(180deg, #eff6ff 0%, #fff 100%); border-color: #bfdbfe; }
+.exam-card-findings { background: linear-gradient(180deg, #eef2ff 0%, #fff 100%); border-color: #c7d2fe; }
+.exam-card-careplan { background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%); border-color: #bbf7d0; }
+.exam-card-workflow { background: linear-gradient(180deg, #ecfeff 0%, #fff 100%); border-color: #a5f3fc; }
+.exam-card-history { background: linear-gradient(180deg, #fdf2f8 0%, #fff 100%); border-color: #fbcfe8; }
 
 .exam-card-header {
     display: flex; align-items: center; gap: 0.625rem;
