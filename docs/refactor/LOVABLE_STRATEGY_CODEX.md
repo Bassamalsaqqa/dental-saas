@@ -62,7 +62,137 @@ Lovable may:
 - Build RTL/LTR layouts.
 - Build frontend validation as a convenience layer, while backend remains authoritative.
 
-## 4. Current Product Context
+## 4. Separate Lovable Repo Workflow
+
+For now, Lovable works only in the separate UI/UX source repo:
+
+```text
+https://github.com/Bassamalsaqqa/dentacare-shell.git
+```
+
+The main DentaCare backend repo remains:
+
+```text
+C:\xampp\htdocs\dental-saas
+```
+
+Workflow rules:
+
+- `dentacare-shell` is the fast-moving Lovable UI/UX lab.
+- `dental-saas/frontend` is a reviewed imported snapshot, not the live Lovable repo.
+- Lovable does not edit `dental-saas` directly.
+- `frontend/.git` must not exist.
+- Do not use a git submodule or subtree unless explicitly approved.
+- Import changes manually or through a controlled sync script after review.
+- Regenerate `public/app` locally from `dental-saas/frontend`; do not accept it from Lovable as source truth.
+- `public/app` is built deployment output and is committed with the PHP app when reviewed.
+- Package changes from Lovable require explicit review.
+- Dependency upgrades require explicit approval.
+- Vite stays on `5.4.x` unless deliberately upgraded.
+- Vite `base` must stay `/app/`.
+- Vite `build.outDir` must stay `../public/app`.
+- Real App API wiring is done in `dental-saas` only after review.
+
+### Lovable Project Instructions
+
+Use this exact block in the Lovable project settings:
+
+```text
+LOVABLE PROJECT INSTRUCTIONS:
+
+This project is the UI/UX source lab for DentaCare React frontend.
+
+Work only on the React frontend.
+Do not create backend code.
+Do not create Supabase code.
+Do not create database schemas.
+Do not add auth systems.
+
+The real backend is CodeIgniter 4 + MySQL.
+The real app will eventually call /app-api/v1/*.
+Do not use /api/v1/* for the logged-in React app.
+Do not add Bearer token auth.
+Do not add X-Clinic-Id headers.
+Do not store auth in localStorage or sessionStorage.
+Do not calculate finance totals, provider payouts, inventory COGS, tenant permissions, subscription gates, or WhatsApp dispatch rules in frontend.
+Do not send WhatsApp directly from frontend.
+
+Use mock data unless explicitly asked to wire existing /app-api/v1 endpoints.
+All future real calls must go through src/api/appApiClient.ts.
+Do not use fetch directly inside components.
+Do not change Vite base from /app/.
+Do not upgrade Vite or dependencies unless explicitly requested.
+npm/package-lock is canonical.
+Do not add bun.lockb.
+```
+
+### Lovable Snapshot Import Checklist
+
+Before Lovable work:
+
+- Confirm `dentacare-shell` is clean.
+- Lovable works only in `dentacare-shell`.
+- No backend assumptions.
+- No Supabase.
+- No `localStorage` or `sessionStorage` auth.
+- No Bearer or `X-Clinic-Id` for the first-party React app.
+- No frontend finance, provider payout, inventory COGS, or WhatsApp dispatch business logic.
+
+Before importing into `dental-saas`:
+
+- `git status -sb` in `dental-saas` must be clean.
+- Inspect the Lovable repo diff.
+- Reject auth/token strategy changes unless explicitly requested.
+- Reject Supabase.
+- Reject dependency upgrades unless approved.
+- Reject Vite base changes.
+- Reject direct `fetch` in components.
+- Reject hardcoded `clinic_id` as tenant authority.
+
+Import allowed:
+
+- `frontend/src/**`
+- `frontend/public/**`
+- `frontend/components.json`
+- `frontend/index.html`
+- `frontend/tailwind.config.ts`
+
+Import with explicit review:
+
+- `frontend/package.json`
+- `frontend/package-lock.json`
+- `frontend/vite.config.ts`
+- `frontend/tsconfig*.json`
+- `frontend/eslint.config.js`
+
+Never import:
+
+- `node_modules`
+- `dist`
+- `.git`
+- `bun.lockb`
+- Supabase files
+- Generated unrelated files
+
+After importing:
+
+```powershell
+cd frontend
+npm.cmd install # only if package files changed
+npm.cmd run build
+cd ..
+rg -n "supabase|createClient\(|@supabase" frontend/src frontend/package.json
+rg -n "localStorage|sessionStorage" frontend/src
+rg -n "Bearer|X-Clinic-Id" frontend/src
+rg -n "fetch\(|axios\." frontend/src
+rg -n "clinic_id|active_clinic_id" frontend/src
+vendor\bin\phpunit --no-coverage --no-logging --do-not-cache-result tests\unit\AppApiFoundationTest.php
+vendor\bin\phpunit --no-coverage --no-logging --do-not-cache-result tests\unit\AppApiPatientsTest.php
+```
+
+Commit only the reviewed snapshot and regenerated `public/app`.
+
+## 5. Current Product Context
 
 Product: multi-tenant dental clinic SaaS.
 
@@ -108,7 +238,7 @@ Primary users:
 - Inventory/admin user
 - Platform superadmin
 
-## 5. Existing Database Context
+## 6. Existing Database Context
 
 Keep MySQL as source of truth. Key table families:
 
@@ -126,7 +256,7 @@ Keep MySQL as source of truth. Key table families:
 
 Every tenant-owned table must remain scoped by `clinic_id` through backend enforcement.
 
-## 6. Finance Rules Lovable Must Respect
+## 7. Finance Rules Lovable Must Respect
 
 Simple terms for UI:
 
@@ -161,7 +291,7 @@ Owner summary formulas:
 - We Owe Others = supplier payable balances + provider payout balances.
 - Net Position = Money In - Money Out + Customers Owe Us - We Owe Others.
 
-## 7. Workflow-First Product Model
+## 8. Workflow-First Product Model
 
 The new frontend should be organized around real clinic work, not isolated CRUD pages.
 
@@ -187,7 +317,7 @@ Important UX direction:
 - Inventory should focus on stock, usage, receiving, suppliers, reorder, and COGS impact.
 - Providers directory should unify suppliers, clinical providers, and guest providers without confusing their financial meaning.
 
-## 8. Target Navigation
+## 9. Target Navigation
 
 Tenant sidebar:
 
@@ -231,7 +361,7 @@ Control plane sidebar:
 - Settings
 - Activity Log
 
-## 9. Design System Requirements
+## 10. Design System Requirements
 
 Create reusable components before building screens:
 
@@ -273,7 +403,7 @@ Rules:
 - Cards use meaningful background density and hierarchy, not extra divider lines.
 - Forms use consistent dropdowns, date pickers, validation errors, and helper text.
 
-## 10. API Adapter Plan
+## 11. API Adapter Plan
 
 Lovable should create a frontend API abstraction, not hardcode fetch calls inside components.
 
@@ -325,7 +455,7 @@ Public API v1 remains separate:
 
 Lovable should target mock adapters shaped like `/app-api/v1/*`. It must not use `/api/v1/*` as the logged-in app API.
 
-## 11. Recommended Migration Plan
+## 12. Recommended Migration Plan
 
 ### Phase 0 - Prototype Only
 
@@ -447,7 +577,7 @@ Run old and new frontend side-by-side until stable:
 
 Switch module by module. Keep old UI available for finance/control-plane fallback until audited.
 
-## 12. Lovable Master Prompt
+## 13. Lovable Master Prompt
 
 Use this as the first prompt:
 
@@ -506,7 +636,7 @@ Deliver:
 5. First full workflow: patient profile -> examination -> treatment -> payment
 ```
 
-## 13. Lovable Design System Prompt
+## 14. Lovable Design System Prompt
 
 ```text
 Create the design system for this dental SaaS.
@@ -542,7 +672,7 @@ Rules:
 - Required fields use red asterisk, not "(required)" text.
 ```
 
-## 14. Lovable Patient Workflow Prompt
+## 15. Lovable Patient Workflow Prompt
 
 ```text
 Build the Patients module.
@@ -582,7 +712,7 @@ Actions:
 Use mock data but structure API calls through an adapter.
 ```
 
-## 15. Lovable Clinical Workflow Prompt
+## 16. Lovable Clinical Workflow Prompt
 
 ```text
 Build the clinical workflow.
@@ -607,7 +737,7 @@ UX:
 - Make treatment plan items easy to add, price, reorder, and mark status.
 ```
 
-## 16. Lovable Finance Workflow Prompt
+## 17. Lovable Finance Workflow Prompt
 
 ```text
 Build the finance module for a doctor/clinic owner, using simple language.
@@ -652,7 +782,7 @@ Transaction detail:
 - Add payment/refund/provider payment in modals
 ```
 
-## 17. Lovable Inventory And Providers Prompt
+## 18. Lovable Inventory And Providers Prompt
 
 ```text
 Build Inventory and Providers modules.
@@ -686,7 +816,7 @@ Use the same DataTable component as patients and finance.
 Quick-create supplier should be a modal.
 ```
 
-## 18. Lovable API Adapter Prompt
+## 19. Lovable API Adapter Prompt
 
 ```text
 Create a frontend API adapter layer.
@@ -723,7 +853,7 @@ Each adapter should use a central HTTP wrapper with:
 - error normalization
 ```
 
-## 19. Red Flags To Reject In Lovable Output
+## 20. Red Flags To Reject In Lovable Output
 
 Reject or correct any output that:
 
@@ -738,7 +868,7 @@ Reject or correct any output that:
 - Uses accounting-heavy terms for normal doctors.
 - Makes every workflow a separate disconnected CRUD page.
 
-## 20. Final Recommendation
+## 21. Final Recommendation
 
 Use Lovable to design and implement the new frontend experience, but keep it behind an API boundary. The backend remains the authoritative engine.
 

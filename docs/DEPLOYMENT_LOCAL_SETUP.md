@@ -52,6 +52,8 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 The Lovable React shell is separate from the legacy Tailwind/PHP asset pipeline.
 
 - Source: `frontend/`
+- Lovable source lab: `https://github.com/Bassamalsaqqa/dentacare-shell.git`
+- `frontend/` in this repo is a reviewed snapshot, not a nested Git repo or submodule
 - Vite base: `/app/`
 - Build output: `public/app/`
 
@@ -64,6 +66,7 @@ npm run build
 ```
 
 The compiled output under `public/app/` is intended to be deployed with the PHP app. Do not commit `frontend/node_modules/` or `frontend/dist/`.
+Lovable changes should be reviewed in the separate repo, imported into `frontend/`, then built locally so `public/app/` matches the reviewed snapshot.
 
 ## Apache Configuration
 

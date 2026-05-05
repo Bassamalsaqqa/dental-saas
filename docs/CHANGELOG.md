@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-05 - Separate Lovable Repo Workflow
+
+- Documented `dentacare-shell` as the separate Lovable UI/UX source lab
+- Documented `frontend/` as a reviewed snapshot inside the CI4 backend repo, not a nested Git repo, submodule, or subtree
+- Added import checklist, Lovable project instructions, dependency guardrails, and local build/deploy notes
+- Kept App API wiring, backend routes/controllers/filters/models, `/api/v1/*`, and `public/.htaccess` unchanged
+
 ## 2026-05-05 - Lovable React Shell Import Stabilization
 
 - Imported Lovable React/Vite shell under `frontend/` and kept source outside CodeIgniter `app/`, `public/`, and root `src/`

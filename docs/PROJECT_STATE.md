@@ -28,6 +28,7 @@ Last updated: 2026-05-05
 - Implemented Patients Slice 1/2 routes: list, detail, create, update.
 - Not implemented yet: patient delete, patient workspace, patient summary, timeline, attachments, finance/clinical/odontogram/WhatsApp patient sections.
 - Lovable Session 1 React shell is imported under `frontend/` and builds to `public/app/` with Vite base `/app/`.
+- Ongoing Lovable UI/UX work continues in the separate `Bassamalsaqqa/dentacare-shell` repo; `frontend/` is a reviewed snapshot only.
 - The imported shell still uses mock data; real App API wiring and Patients UI integration are later work.
 - Current next frontend track: stabilize `/app` static serving and then wire real App API calls in small module slices.
 - Lovable must not create Supabase, auth systems, backend business logic, finance calculations, tenant isolation, or production API truth.
