@@ -57,3 +57,6 @@ gha-creds-*.json
 .playwright-mcp/
 notes.txt
 Whatsapp Testing Details.txt
+
+# Frontend lives in separate Lovable repo
+frontend/
