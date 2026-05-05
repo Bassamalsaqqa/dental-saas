@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-05 - App API Patients Slice 1
+
+- Added read-only `/app-api/v1/patients` and `/app-api/v1/patients/{id}` endpoints
+- Added App API scoped tenant, permission, and subscription filters for tenant resource routes
+- Kept `/api/v1/*`, existing web patient routes, frontend assets, and patient write behavior unchanged
+
 ## 2026-05-05 - App API Foundation Hardening
 
 - Added App API scoped session-auth and HTTPS JSON filters for `/app-api/v1/*`

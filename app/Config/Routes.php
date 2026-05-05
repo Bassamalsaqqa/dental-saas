@@ -186,6 +186,11 @@ $routes->group('app-api/v1', ['filter' => 'apphttps'], function ($routes) {
     $routes->post('auth/login', 'AppApi\V1\Foundation::login', ['filter' => 'appcsrf']);
     $routes->post('auth/logout', 'AppApi\V1\Foundation::logout', ['filter' => ['appauth', 'appcsrf']]);
     $routes->post('clinic/switch', 'AppApi\V1\Foundation::switchClinic', ['filter' => ['appauth', 'appcsrf']]);
+
+    $routes->group('', ['filter' => ['appauth', 'apptenant', 'appsubscription']], function ($routes) {
+        $routes->get('patients', 'AppApi\V1\Patients::index', ['filter' => 'apppermission:patients:view']);
+        $routes->get('patients/(:num)', 'AppApi\V1\Patients::show/$1', ['filter' => 'apppermission:patients:view']);
+    });
 });
 
 // Dashboard routes
