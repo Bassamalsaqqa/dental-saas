@@ -35,6 +35,8 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class,
+        'appauth'       => \App\Filters\AppApiAuth::class,
+        'apphttps'      => \App\Filters\AppApiHttps::class,
         'appcsrf'       => \App\Filters\AppApiCsrf::class,
         'controlplane'  => \App\Filters\ControlPlaneFilter::class,
         'tenant'        => \App\Filters\TenantFilter::class,

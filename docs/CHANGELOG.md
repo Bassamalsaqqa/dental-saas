@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-05 - App API Foundation Hardening
+
+- Added App API scoped session-auth and HTTPS JSON filters for `/app-api/v1/*`
+- Removed App API-specific behavior from the shared web auth filter
+- Kept `/api/v1/*` stateless API and existing web route filters unchanged
+
 ## 2026-05-05 - App API Foundation
 
 - Added first-party `/app-api/v1/*` foundation routes for CSRF, JSON login/logout, bootstrap, and clinic switch

@@ -2,7 +2,9 @@
 
 namespace Tests\Unit;
 
+use App\Filters\AppApiHttps;
 use App\Models\IonAuthModel;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\FeatureTestTrait;
 
@@ -94,6 +96,56 @@ final class AppApiFoundationTest extends CIUnitTestCase
 
         $response->assertStatus(401);
         $this->assertSame('unauthenticated', $this->decode($response)['error']['code'] ?? null);
+        $this->assertFalse($response->isRedirect());
+    }
+
+    public function testAppApiHttpsFilterReturnsJsonWhenEnforcementApplies(): void
+    {
+        $originalHttps = $_SERVER['HTTPS'] ?? null;
+        $originalForwardedProto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        $originalFrontEndHttps = $_SERVER['HTTP_FRONT_END_HTTPS'] ?? null;
+
+        $_SERVER['HTTPS'] = 'off';
+        unset($_SERVER['HTTP_X_FORWARDED_PROTO'], $_SERVER['HTTP_FRONT_END_HTTPS']);
+
+        try {
+            $request = service('request', null, false);
+            $response = (new AppApiHttps())->before($request, ['force']);
+        } finally {
+            if ($originalHttps === null) {
+                unset($_SERVER['HTTPS']);
+            } else {
+                $_SERVER['HTTPS'] = $originalHttps;
+            }
+
+            if ($originalForwardedProto === null) {
+                unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
+            } else {
+                $_SERVER['HTTP_X_FORWARDED_PROTO'] = $originalForwardedProto;
+            }
+
+            if ($originalFrontEndHttps === null) {
+                unset($_SERVER['HTTP_FRONT_END_HTTPS']);
+            } else {
+                $_SERVER['HTTP_FRONT_END_HTTPS'] = $originalFrontEndHttps;
+            }
+        }
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertSame(426, $response->getStatusCode());
+
+        $json = json_decode((string) $response->getJSON(), true);
+        $this->assertIsArray($json);
+        $this->assertSame('https_required', $json['error']['code'] ?? null);
+        $this->assertArrayHasKey('request_id', $json['meta'] ?? []);
+    }
+
+    public function testAppApiHttpsFilterDoesNotBreakLocalTestFlow(): void
+    {
+        $response = $this->get('/app-api/v1/csrf');
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('csrf', $this->decode($response)['data'] ?? []);
     }
 
     public function testBootstrapNoClinicState(): void
@@ -226,11 +278,28 @@ final class AppApiFoundationTest extends CIUnitTestCase
         $this->assertSame('unauthenticated', $this->decode($response)['error']['code'] ?? null);
     }
 
+    public function testApiV1DoesNotUseSessionCookieAuth(): void
+    {
+        $user = $this->createUser();
+
+        $response = $this->withLoggedInSession($user)->get('/api/v1/patients');
+
+        $response->assertStatus(401);
+        $this->assertSame('unauthenticated', $this->decode($response)['error']['code'] ?? null);
+    }
+
     public function testExistingWebLoginRouteStillResponds(): void
     {
         $response = $this->get('/auth/login');
 
         $this->assertContains($response->response()->getStatusCode(), [200, 302, 307]);
+    }
+
+    public function testExistingWebUnauthenticatedTenantRouteStillRedirects(): void
+    {
+        $response = $this->get('/dashboard');
+
+        $this->assertTrue($response->isRedirect());
     }
 
     private function postWithCsrf(string $path, array $data)

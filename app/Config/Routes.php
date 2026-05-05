@@ -180,12 +180,12 @@ $routes->group('clinic', ['filter' => 'auth'], function($routes) {
 // --------------------------------------------------------------------
 // First-Party App API (React Foundation)
 // --------------------------------------------------------------------
-$routes->group('app-api/v1', function ($routes) {
+$routes->group('app-api/v1', ['filter' => 'apphttps'], function ($routes) {
     $routes->get('csrf', 'AppApi\V1\Foundation::csrf');
-    $routes->get('bootstrap', 'AppApi\V1\Foundation::bootstrap', ['filter' => 'auth']);
+    $routes->get('bootstrap', 'AppApi\V1\Foundation::bootstrap', ['filter' => 'appauth']);
     $routes->post('auth/login', 'AppApi\V1\Foundation::login', ['filter' => 'appcsrf']);
-    $routes->post('auth/logout', 'AppApi\V1\Foundation::logout', ['filter' => ['auth', 'appcsrf']]);
-    $routes->post('clinic/switch', 'AppApi\V1\Foundation::switchClinic', ['filter' => ['auth', 'appcsrf']]);
+    $routes->post('auth/logout', 'AppApi\V1\Foundation::logout', ['filter' => ['appauth', 'appcsrf']]);
+    $routes->post('clinic/switch', 'AppApi\V1\Foundation::switchClinic', ['filter' => ['appauth', 'appcsrf']]);
 });
 
 // Dashboard routes

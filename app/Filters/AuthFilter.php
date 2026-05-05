@@ -38,11 +38,9 @@ class AuthFilter implements FilterInterface
         // Check if user is logged in
         if (!$ionAuth->loggedIn()) {
             // Check if it's an API request
-            $path = trim($request->getUri()->getPath(), '/');
+            $path = $request->getUri()->getPath();
             $isApi = strpos($path, '/api/') !== false 
                 || str_starts_with($path, 'api/')
-                || str_starts_with($path, 'app-api/')
-                || str_contains($path, '/app-api/')
                 || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
 
             if ($isApi) {
@@ -51,12 +49,8 @@ class AuthFilter implements FilterInterface
                                 ->setJSON([
                                     'error' => [
                                         'code' => 'unauthenticated',
-                                        'message' => 'Authentication required.',
-                                        'details' => [],
-                                    ],
-                                    'meta' => [
-                                        'request_id' => 'req_' . bin2hex(random_bytes(8)),
-                                    ],
+                                        'message' => 'Authentication required.'
+                                    ]
                                 ]);
             }
 
@@ -69,8 +63,6 @@ class AuthFilter implements FilterInterface
 
         $path = trim($request->getUri()->getPath(), '/');
         $isApi = strpos($path, 'api/') === 0
-            || str_starts_with($path, 'app-api/')
-            || str_contains($path, '/app-api/')
             || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
 
         if (!$session->get('global_mode') && !$session->get('active_clinic_id')) {
