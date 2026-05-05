@@ -49,30 +49,51 @@ Options -Indexes
     Options +FollowSymlinks
     RewriteEngine On
 
+    # Ensure Authorization header is passed along
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
     # Skip rewriting the front controller
     RewriteRule ^index\.php$ - [L]
+
+    # ------------------------------------------------------------------
+    # React frontend - isolated under /app only
+    # ------------------------------------------------------------------
+    # Real React files must be served directly:
+    # /app/index.html
+    # /app/assets/*.js
+    # /app/assets/*.css
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^app(/.*)?$ - [L]
+
+    # React SPA fallback:
+    # /app
+    # /app/
+    # /app/patients
+    # /app/dashboard
+    RewriteRule ^app/?$ app/index.html [L]
+    RewriteRule ^app/.*$ app/index.html [L]
+
+    # ------------------------------------------------------------------
+    # Existing app behavior below this line - leave untouched
+    # ------------------------------------------------------------------
 
     # Allow direct access to PHP files in public directory
     RewriteCond %{REQUEST_FILENAME} \.php$
     RewriteRule ^(.*)$ - [L]
 
+    # CodeIgniter front controller fallback
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [L,QSA]
-
-    # Ensure Authorization header is passed along
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
 
 <IfModule !mod_rewrite.c>
-	# If we don't have mod_rewrite installed, all 404's
-	# can be sent to index.php, and everything works as normal.
-	ErrorDocument 404 index.php
+    # If we don't have mod_rewrite installed, all 404's
+    # can be sent to index.php, and everything works as normal.
+    ErrorDocument 404 index.php
 </IfModule>
 
 # Disable server signature start
 ServerSignature Off
 # Disable server signature end
-
-

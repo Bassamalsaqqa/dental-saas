@@ -8,6 +8,8 @@ environment.env
 # Dependencies
 /vendor/
 /node_modules/
+frontend/node_modules/
+frontend/dist/
 
 # CodeIgniter writable
 /writable/*

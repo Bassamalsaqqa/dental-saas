@@ -47,6 +47,24 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - Hostinger does not run the Node/Tailwind build — deploy `public/assets/css/tailwind.css` with your PHP changes
 - For Hostinger workflow: `npm run release:hostinger`
 
+### React Shell Build
+
+The Lovable React shell is separate from the legacy Tailwind/PHP asset pipeline.
+
+- Source: `frontend/`
+- Vite base: `/app/`
+- Build output: `public/app/`
+
+Build commands:
+
+```powershell
+cd frontend
+npm install
+npm run build
+```
+
+The compiled output under `public/app/` is intended to be deployed with the PHP app. Do not commit `frontend/node_modules/` or `frontend/dist/`.
+
 ## Apache Configuration
 
 DocumentRoot MUST point to `public/` directory. If serving from repo root (legacy), root `.htaccess` must block `app/`, `system/`, `scripts/`, `.env`, etc.
