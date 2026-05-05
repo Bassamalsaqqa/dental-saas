@@ -1,6 +1,6 @@
 # App API Route Inventory
 
-Status: planning inventory for future React migration
+Status: active inventory for React migration
 
 This document maps the current PHP/session route surface to the proposed
 first-party React app API. It does not authorize route/controller changes by
@@ -14,8 +14,50 @@ itself.
 - `/api/v1/*` is stateless and uses the `apiv1` filter.
 - `/api/v1/*` must remain Bearer + `X-Clinic-Id`.
 - `app/Config/Filters.php` excludes `api/*` and `api/v1/*` from CSRF.
-- First-party React API should use `/app-api/v1/*`.
+- First-party React API uses `/app-api/v1/*`.
 - Future React control-plane API should use `/controlplane-app-api/v1/*`.
+- App API foundation and Patients Slice 1/2 are implemented.
+- `/api/v1/*` remains public/stateless and is not used as the logged-in React
+  app contract.
+
+## Implemented App API Routes
+
+### Foundation
+
+| Route | Method | Status | Filters | Notes |
+| --- | --- | --- | --- | --- |
+| `/app-api/v1/csrf` | GET | Implemented | `apphttps` | Unauthenticated-safe, JSON-only, no private data. |
+| `/app-api/v1/auth/login` | POST | Implemented | `apphttps`, `appcsrf` | JSON login, no redirects/HTML. |
+| `/app-api/v1/auth/logout` | POST | Implemented | `apphttps`, `appauth`, `appcsrf` | Session logout. |
+| `/app-api/v1/bootstrap` | GET | Implemented | `apphttps`, `appauth` | Authenticated app state; does not require tenant context. |
+| `/app-api/v1/clinic/switch` | POST | Implemented | `apphttps`, `appauth`, `appcsrf` | Validates membership and regenerates session. |
+
+### Patients
+
+| Route | Method | Status | Filters | Notes |
+| --- | --- | --- | --- | --- |
+| `/app-api/v1/patients` | GET | Implemented | `apphttps`, `appauth`, `apptenant`, `appsubscription`, `apppermission:patients:view` | Tenant-scoped directory. |
+| `/app-api/v1/patients/{id}` | GET | Implemented | `apphttps`, `appauth`, `apptenant`, `appsubscription`, `apppermission:patients:view` | Cross-tenant access returns `404 not_found`. |
+| `/app-api/v1/patients` | POST | Implemented | `apphttps`, `appcsrf`, `appauth`, `apptenant`, `appsubscription`, `apppermission:patients:create` | Server forces `clinic_id`; client protected fields ignored. |
+| `/app-api/v1/patients/{id}` | PATCH | Implemented | `apphttps`, `appcsrf`, `appauth`, `apptenant`, `appsubscription`, `apppermission:patients:edit` | Scoped by patient id + active clinic; status not mutable in Slice 2. |
+
+CI route display note: `php spark routes` and `php spark filter:check` may
+display App API permission filters as `apppermission:patients,view`,
+`apppermission:patients,create`, or `apppermission:patients,edit`. That is
+CodeIgniter's filter-argument display for exact route arguments. The intended
+permission keys are `patients:view`, `patients:create`, and `patients:edit`.
+
+### Explicitly Not Implemented Yet
+
+- `DELETE /app-api/v1/patients/{id}`
+- `GET /app-api/v1/patients/{id}/summary`
+- `GET /app-api/v1/patients/{id}/workspace`
+- patient timeline endpoints
+- patient attachments/file upload/download/inline endpoints
+- patient finance summary or finance write endpoints
+- patient clinical workspace sections
+- patient odontogram workspace endpoints
+- patient WhatsApp actions
 
 ## Inspection Commands
 
@@ -36,11 +78,11 @@ rg -n "StorageService|file/download|file/inline|writable/uploads|public/uploads"
 
 | Route | Method | Purpose | Filters |
 | --- | --- | --- | --- |
-| `/app-api/v1/bootstrap` | GET | Authenticated app state, clinics, permissions, features, locale, CSRF | `auth` |
-| `/app-api/v1/csrf` | GET | Unauthenticated-safe CSRF refresh | none |
-| `/app-api/v1/auth/login` | POST | JSON login | `csrf` |
-| `/app-api/v1/auth/logout` | POST | JSON logout | `auth`, `csrf` |
-| `/app-api/v1/clinic/switch` | POST | Select/switch active tenant context | `auth`, `csrf` |
+| `/app-api/v1/bootstrap` | GET | Authenticated app state, clinics, permissions, features, locale, CSRF | `apphttps`, `appauth` |
+| `/app-api/v1/csrf` | GET | Unauthenticated-safe CSRF refresh | `apphttps` |
+| `/app-api/v1/auth/login` | POST | JSON login | `apphttps`, `appcsrf` |
+| `/app-api/v1/auth/logout` | POST | JSON logout | `apphttps`, `appauth`, `appcsrf` |
+| `/app-api/v1/clinic/switch` | POST | Select/switch active tenant context | `apphttps`, `appauth`, `appcsrf` |
 
 Bootstrap and clinic switch must not require the tenant filter. Tenant resource
 endpoints require tenant context.
@@ -51,7 +93,7 @@ endpoints require tenant context.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Bootstrap/auth/clinic | `/auth/*`, `/clinic/select`, `/clinic/switch` | `/api/session-token` | None | `/bootstrap`, `/csrf`, `/auth/login`, `/auth/logout`, `/clinic/switch` | auth-level | session/global split | High | Foundation. Bootstrap supports `no_clinic`, `clinic_required`, `tenant_ready`, `controlplane_ready`, `suspended`, `subscription_inactive`. |
 | Dashboard | `/dashboard` | `/dashboard/stats`, `/dashboard/chart-data` | None | `/dashboard/summary`, `/dashboard/charts` | `dashboard:view` | tenant | Low | Not the first serious frontend slice. Useful after patient workspace proves app shell. |
-| Patients | `/patients`, `/patient`, create/show/edit/delete | `get-data`, `get-statistics`, `{id}/data`, attachment upload/delete | `/api/v1/patients` CRUD | `/patients`, `/patients/{id}`, `/patients/{id}/summary`, `/patients/{id}/workspace`, `/patients/{id}/attachments` | `patients:*` | tenant | Medium | First serious React slice should be Patients directory + Patient profile workspace. |
+| Patients | `/patients`, `/patient`, create/show/edit/delete | `get-data`, `get-statistics`, `{id}/data`, attachment upload/delete | `/api/v1/patients` CRUD | Implemented: `/patients` GET/POST, `/patients/{id}` GET/PATCH. Not implemented: DELETE, summary, workspace, timeline, attachments, finance/clinical/odontogram/WhatsApp sections. | `patients:view`, `patients:create`, `patients:edit` implemented | tenant | Medium | First serious App API slice is now read/write basics only. Patient workspace remains future work. |
 | Appointments | `/appointments`, `/appointment`, calendar/create/show/edit/status | calendar events, time slots, status actions, AJAX delete | `/api/v1/appointments` CRUD | `/appointments`, `/appointments/calendar`, `/appointments/slots`, status endpoints | `appointments:*` | tenant | Medium | Calendar UX needs clean non-DataTables contract. |
 | Examinations | `/examinations`, `/examination`, create/show/edit/complete/print | calendar events, stats, data, tooth update | `/api/v1/examinations` CRUD | `/examinations`, `/examinations/{id}`, `/examinations/{id}/complete` | `examinations:*` | tenant | High | Clinical data and odontogram coupling. |
 | Odontogram | patient/exam/contract-related views and `Odontogram` controller | tooth-condition update, patient version endpoints | None | `/odontogram/patients/{id}`, `/odontogram/examinations/{id}`, `/odontogram/snapshots/{id}` | patients/examinations | tenant | High | Backend must define canonical state, validation, and snapshots. |
@@ -127,20 +169,33 @@ Examples found in current routes/controllers:
 These endpoints may inform implementation but should not be treated as final
 React contracts because payload shapes are inconsistent and often page-specific.
 
-## Recommended First Backend Steps
+## Recommended Next Backend Steps
 
-1. Add this contract and inventory to active docs.
-2. Implement only `/app-api/v1/bootstrap`, `/app-api/v1/csrf`,
-   `/app-api/v1/auth/login`, `/app-api/v1/auth/logout`, and
-   `/app-api/v1/clinic/switch`.
-3. Add JSON failure behavior for app API auth, CSRF, tenant, subscription, and
-   permission failures.
-4. Add foundation tests before importing Lovable output.
-5. Start the first serious React slice with Patients directory + Patient profile
-   workspace.
+Completed:
+
+1. App API foundation routes.
+2. JSON failure behavior for app API auth, CSRF, HTTPS, tenant, subscription,
+   and permission failures.
+3. Patients read slice.
+4. Patients create/update slice.
+
+Next backend work after Lovable Session 1:
+
+1. Define the patient profile workspace read model.
+2. Implement `GET /app-api/v1/patients/{id}/workspace` only after the React
+   shell proves the app state and navigation shape.
+3. Keep attachments, finance, odontogram, WhatsApp actions, and patient timeline
+   separate until each contract is reviewed.
 
 Do not start with finance reports. They require old PHP vs React parity checks
 and should be migrated later.
+
+## Current Verification Snapshot
+
+- `tests/unit/AppApiFoundationTest.php`: 19 tests, 66 assertions.
+- `tests/unit/AppApiPatientsTest.php`: 25 tests, 111 assertions.
+- SaaS guardrails could not run in the local shell because Bash/WSL is blocked:
+  `Bash/Service/CreateInstance/E_ACCESSDENIED`.
 
 ## Minimum Foundation Tests
 
@@ -161,4 +216,3 @@ and should be migrated later.
 - clinic switch regenerates session
 - validation errors use `422 validation_failed`
 - invalid credentials use `401 unauthenticated`
-

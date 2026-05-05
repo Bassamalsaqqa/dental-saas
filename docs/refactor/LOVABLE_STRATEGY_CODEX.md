@@ -1,6 +1,6 @@
 # Lovable Frontend Rebuild Strategy - Codex Study
 
-Last updated: 2026-05-04
+Last updated: 2026-05-05
 
 ## 1. Executive Summary
 
@@ -26,7 +26,7 @@ Lovable should be used for what it is good at: modern React UI, user workflows, 
 - Forms: React Hook Form + Zod-style validation
 - Backend: existing CodeIgniter 4 application
 - Database: existing MySQL database
-- Auth: start with existing session-cookie web auth or a backend-issued API/session token; do not let Lovable invent auth
+- Auth: first-party `/app-api/v1/*` session-cookie App API; do not let Lovable invent auth or store auth tokens
 - Hosting: Hostinger-compatible static frontend or Hostinger Node.js app, depending on plan
 
 ### Why React/Lovable Instead Of Laravel Frontend
@@ -42,6 +42,7 @@ Laravel remains a good future option only if the team decides to migrate the bac
 Lovable must not:
 
 - Create production Supabase/Postgres tables.
+- Add Supabase auth, custom auth, or browser-stored auth tokens.
 - Replace the MySQL schema.
 - Move finance calculations into frontend-only logic.
 - Reimplement tenant isolation rules.
@@ -49,6 +50,7 @@ Lovable must not:
 - Invent provider payout, supplier payable, treasury, or inventory COGS behavior.
 - Store sensitive tokens in unsafe long-lived browser storage unless the backend design explicitly approves it.
 - Build direct database access from the frontend.
+- Use `/api/v1/*` as the logged-in React app API.
 
 Lovable may:
 
@@ -297,23 +299,31 @@ Adapters:
 HTTP wrapper responsibilities:
 
 - Base URL configuration
-- Session or token handling
-- Clinic context handling
+- Same-origin session-cookie requests to `/app-api/v1/*`
+- In-memory CSRF handling from `/app-api/v1/csrf` or bootstrap
+- Server-controlled active clinic state from bootstrap, not client-sent tenant authority
 - Locale header
-- CSRF placeholder if using web session
-- Normalized handling for 401, 403, 422, 429, 500
+- Normalized handling for 401, 403, 404, 419, 422, 429, 500
 - Validation error mapping
 - Audit-safe request logging in development only
 
-Current API v1 contract for future stateless endpoints:
+Current first-party App API contract:
+
+- Use `/app-api/v1/*` for the logged-in React application.
+- Use CI4/IonAuth httpOnly session cookies.
+- Use CSRF for unsafe methods.
+- Treat `active_clinic_id` as server-controlled state only.
+- Use JSON response envelopes and `error.code`, not message parsing.
+- Do not store auth tokens in `localStorage` or `sessionStorage`.
+
+Public API v1 remains separate:
 
 - `Authorization: Bearer <token>`
 - `X-Clinic-Id: <clinic_id>`
 - JSON errors only
 - No redirects or HTML for `/api/v1/*`
-- Use `error.code`, not message parsing
 
-However, for fastest migration, it is acceptable to start with authenticated web-session JSON endpoints as long as tenant/RBAC enforcement remains backend-controlled.
+Lovable should target mock adapters shaped like `/app-api/v1/*`. It must not use `/api/v1/*` as the logged-in app API.
 
 ## 11. Recommended Migration Plan
 
@@ -332,6 +342,30 @@ Output:
 - Inventory/providers prototype
 
 No production database writes.
+
+### Approved Lovable Session 1 Scope
+
+Current status: Session 1 shell has been imported under `frontend/` and builds static output to `public/app/` with Vite base `/app/`. It remains mock-only; real App API wiring is not part of the import stabilization pass.
+
+Build only:
+
+- React app shell
+- Design system
+- Mock bootstrap response
+- App state walls for no clinic, clinic required, tenant ready, control-plane placeholder, suspended, and subscription inactive
+- Tenant app shell with sidebar/topbar/navigation
+- Control-plane placeholder shell only
+- Placeholder module pages
+- Mock adapters shaped like `/app-api/v1/*`
+
+Do not build yet:
+
+- Full Patients module
+- Real API wiring
+- Supabase or any new auth system
+- Browser-stored auth tokens
+- Backend business rules
+- Finance, tenant, permission, or plan-gate calculations
 
 ### Phase 1 - API Gap Analysis
 
@@ -661,9 +695,12 @@ Do not call Supabase.
 Create TypeScript interfaces and placeholder API functions for the existing PHP backend.
 
 Auth:
-- Web app may use session-cookie auth initially.
-- Future API may use Bearer token + X-Clinic-Id.
-- Every API call should handle 401, 403, 422, and validation errors.
+- The logged-in React app uses `/app-api/v1/*`.
+- Auth is CI4/IonAuth session-cookie based.
+- Unsafe requests use CSRF.
+- Do not store auth tokens in localStorage or sessionStorage.
+- `/api/v1/*` is for separate public/stateless integrations only, not the React app.
+- Every API call should handle 401, 403, 404, 419, 422, and validation errors.
 
 Create adapters:
 - patientsApi
@@ -680,8 +717,8 @@ Create adapters:
 
 Each adapter should use a central HTTP wrapper with:
 - base URL
-- CSRF support placeholder
-- clinic context
+- CSRF support from bootstrap or `/app-api/v1/csrf`
+- server-controlled clinic state from bootstrap
 - locale
 - error normalization
 ```
@@ -691,7 +728,7 @@ Each adapter should use a central HTTP wrapper with:
 Reject or correct any output that:
 
 - Creates Supabase tables as production truth.
-- Uses localStorage for highly sensitive long-lived auth tokens without backend approval.
+- Uses localStorage or sessionStorage for auth tokens.
 - Calculates provider shares only in frontend.
 - Calculates finance report totals only in frontend.
 - Omits clinic/tenant context from API design.
@@ -714,4 +751,3 @@ You may create mock data.
 You may create frontend-only state for prototypes.
 But do not change business rules, database truth, tenant isolation, finance calculations, provider payout rules, supplier payable rules, or permissions.
 ```
-

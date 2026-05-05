@@ -1,22 +1,32 @@
 # Changelog
 
+## 2026-05-05 - Lovable React Shell Import Stabilization
+
+- Imported Lovable React/Vite shell under `frontend/` and kept source outside CodeIgniter `app/`, `public/`, and root `src/`
+- Built static React output to `public/app/` with Vite base `/app/`
+- Scoped Apache SPA fallback to `/app` and `/app/*` only, with real static files served directly
+- Kept real App API wiring, Patients UI wiring, `/api/v1/*`, and existing PHP web controllers unchanged
+
 ## 2026-05-05 - App API Patients Slice 2
 
 - Added `POST /app-api/v1/patients` and `PATCH /app-api/v1/patients/{id}` for first-party patient create/update
 - Kept writes tenant-scoped, CSRF-protected, permission-gated, and serialized through explicit safe patient fields
 - Kept `/api/v1/*`, existing web patient routes, frontend assets, and delete/workspace/finance/clinical patient endpoints unchanged
+- Verified with `AppApiPatientsTest.php`: 25 tests, 111 assertions
 
 ## 2026-05-05 - App API Patients Slice 1
 
 - Added read-only `/app-api/v1/patients` and `/app-api/v1/patients/{id}` endpoints
 - Added App API scoped tenant, permission, and subscription filters for tenant resource routes
 - Kept `/api/v1/*`, existing web patient routes, frontend assets, and patient write behavior unchanged
+- Verified with `AppApiPatientsTest.php`: read/write suite currently 25 tests, 111 assertions
 
 ## 2026-05-05 - App API Foundation Hardening
 
 - Added App API scoped session-auth and HTTPS JSON filters for `/app-api/v1/*`
 - Removed App API-specific behavior from the shared web auth filter
 - Kept `/api/v1/*` stateless API and existing web route filters unchanged
+- Verified with `AppApiFoundationTest.php`: 19 tests, 66 assertions
 
 ## 2026-05-05 - App API Foundation
 
@@ -25,6 +35,7 @@
 - Added App API scoped CSRF JSON failure handling for unsafe methods
 - Bootstrap reports app state without requiring tenant context
 - Clinic switch validates membership and regenerates the session before returning React-ready state
+- Verified with `AppApiFoundationTest.php`: 19 tests, 66 assertions
 
 Recent implementation history for work continuation. Full historical logs are archived in `docs/_archive/2026-05-02-docs-consolidation/legacy-root-logs/`.
 

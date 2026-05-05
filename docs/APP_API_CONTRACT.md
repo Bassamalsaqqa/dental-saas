@@ -1,9 +1,39 @@
 # App API Contract
 
-Status: proposed foundation contract
+Status: active contract. Foundation and Patients Slice 1/2 are implemented.
 
 This document defines the first-party JSON API for the future React application.
 It does not change the existing public API contract.
+
+## Implemented Status
+
+Implemented foundation routes:
+
+- `GET /app-api/v1/csrf`
+- `POST /app-api/v1/auth/login`
+- `POST /app-api/v1/auth/logout`
+- `GET /app-api/v1/bootstrap`
+- `POST /app-api/v1/clinic/switch`
+
+Implemented Patients routes:
+
+- `GET /app-api/v1/patients`
+- `GET /app-api/v1/patients/{id}`
+- `POST /app-api/v1/patients`
+- `PATCH /app-api/v1/patients/{id}`
+
+Not implemented yet:
+
+- `DELETE /app-api/v1/patients/{id}`
+- patient summary/workspace/timeline routes
+- patient attachment/file routes
+- patient finance, clinical, odontogram, or WhatsApp action routes
+
+Current verification:
+
+- `tests/unit/AppApiFoundationTest.php`: 19 tests, 66 assertions.
+- `tests/unit/AppApiPatientsTest.php`: 25 tests, 111 assertions.
+- Local Bash/WSL guardrails could not run in the current shell environment.
 
 ## Purpose
 
@@ -152,6 +182,9 @@ HTTP 419
 
 If CI4 regenerates tokens after successful unsafe requests, mutation responses
 should include the next token in `meta.csrf`.
+
+Current implementation: successful unsafe App API foundation and patient
+mutation responses include refreshed `meta.csrf`.
 
 ## Tenant Behavior
 
@@ -818,4 +851,3 @@ React and Lovable-generated code must not assume:
 - bootstrap correctness
 - clinic switch session regeneration
 - validation error shape
-
