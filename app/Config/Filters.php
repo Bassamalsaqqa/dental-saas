@@ -35,6 +35,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class,
+        'appcsrf'       => \App\Filters\AppApiCsrf::class,
         'controlplane'  => \App\Filters\ControlPlaneFilter::class,
         'tenant'        => \App\Filters\TenantFilter::class,
         'subscription'  => \App\Filters\SubscriptionFilter::class,
@@ -79,13 +80,13 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            'csrf' => ['except' => ['api/*', 'api/v1/*', 'webhooks/*']],
-            'forcehttps' => ['except' => ['api/*', 'api/v1/*']],
+            'csrf' => ['except' => ['api/*', 'api/v1/*', 'app-api/*', 'webhooks/*']],
+            'forcehttps' => ['except' => ['api/*', 'api/v1/*', 'app-api/*']],
         ],
         'after' => [
-            'toolbar' => ['except' => ['api/v1/*']],
+            'toolbar' => ['except' => ['api/v1/*', 'app-api/*']],
             'secureheaders',
-            'csrfjson' => ['except' => ['api/v1/*', 'webhooks/*']],
+            'csrfjson' => ['except' => ['api/v1/*', 'app-api/*', 'webhooks/*']],
             // 'honeypot',
         ],
     ];

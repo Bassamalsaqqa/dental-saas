@@ -177,6 +177,17 @@ $routes->group('clinic', ['filter' => 'auth'], function($routes) {
 // Tenant Plane Routes
 // --------------------------------------------------------------------
 
+// --------------------------------------------------------------------
+// First-Party App API (React Foundation)
+// --------------------------------------------------------------------
+$routes->group('app-api/v1', function ($routes) {
+    $routes->get('csrf', 'AppApi\V1\Foundation::csrf');
+    $routes->get('bootstrap', 'AppApi\V1\Foundation::bootstrap', ['filter' => 'auth']);
+    $routes->post('auth/login', 'AppApi\V1\Foundation::login', ['filter' => 'appcsrf']);
+    $routes->post('auth/logout', 'AppApi\V1\Foundation::logout', ['filter' => ['auth', 'appcsrf']]);
+    $routes->post('clinic/switch', 'AppApi\V1\Foundation::switchClinic', ['filter' => ['auth', 'appcsrf']]);
+});
+
 // Dashboard routes
 $routes->group('dashboard', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('/', 'Dashboard::index', ['filter' => 'permission:dashboard:view']);

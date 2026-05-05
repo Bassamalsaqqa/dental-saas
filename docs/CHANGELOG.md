@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-05 - App API Foundation
+
+- Added first-party `/app-api/v1/*` foundation routes for CSRF, JSON login/logout, bootstrap, and clinic switch
+- Kept `/api/v1/*` public/stateless contract unchanged
+- Added App API scoped CSRF JSON failure handling for unsafe methods
+- Bootstrap reports app state without requiring tenant context
+- Clinic switch validates membership and regenerates the session before returning React-ready state
+
 Recent implementation history for work continuation. Full historical logs are archived in `docs/_archive/2026-05-02-docs-consolidation/legacy-root-logs/`.
 
 ## 2026-05-04 — Navigation Stack & Smart Back Buttons

@@ -15,6 +15,11 @@ class CsrfJson implements FilterInterface
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
+        $path = trim($request->getUri()->getPath(), '/');
+        if (str_starts_with($path, 'app-api/') || str_contains($path, '/app-api/')) {
+            return null;
+        }
+
         // Check if response is JSON
         if (strpos($response->getHeaderLine('Content-Type'), 'application/json') !== false) {
             $body = $response->getBody();
