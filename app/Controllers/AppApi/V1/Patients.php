@@ -3,12 +3,14 @@
 namespace App\Controllers\AppApi\V1;
 
 use App\Models\PatientModel;
+use App\Services\ActivityLogger;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Patients extends Controller
 {
     private PatientModel $patientModel;
+    private ActivityLogger $activityLogger;
 
     private array $sortMap = [
         'created_at' => 'created_at',
@@ -23,9 +25,52 @@ class Patients extends Controller
 
     private array $allowedFilters = ['status', 'gender', 'city', 'has_alerts'];
 
+    private array $writeFields = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'date_of_birth',
+        'gender',
+        'city',
+        'medical_history',
+        'allergies',
+        'alert_has_allergies',
+        'alert_allergies_details',
+        'alert_taking_medications',
+        'alert_medications_details',
+        'alert_blood_thinners',
+        'alert_blood_thinners_details',
+        'alert_diabetes',
+        'alert_diabetes_details',
+        'alert_high_blood_pressure',
+        'alert_blood_pressure_details',
+        'alert_heart_condition',
+        'alert_heart_condition_details',
+        'alert_pregnant',
+        'alert_pregnancy_details',
+        'alert_anesthesia_problem',
+        'alert_anesthesia_problem_details',
+        'insurance_provider',
+        'insurance_number',
+        'notes',
+    ];
+
+    private array $booleanFields = [
+        'alert_has_allergies',
+        'alert_taking_medications',
+        'alert_blood_thinners',
+        'alert_diabetes',
+        'alert_high_blood_pressure',
+        'alert_heart_condition',
+        'alert_pregnant',
+        'alert_anesthesia_problem',
+    ];
+
     public function __construct()
     {
         $this->patientModel = new PatientModel();
+        $this->activityLogger = new ActivityLogger();
     }
 
     public function index(): ResponseInterface
@@ -96,6 +141,105 @@ class Patients extends Controller
 
         return $this->ok([
             'patient' => $this->serializeDetail($patient),
+        ]);
+    }
+
+    public function store(): ResponseInterface
+    {
+        $clinicId = $this->activeClinicId();
+        if ($clinicId <= 0) {
+            return $this->error('tenant_context_missing', 'Select a clinic before continuing.', 422);
+        }
+
+        $input = $this->inputData();
+        $payload = $this->patientPayload($input);
+        $errors = $this->validatePatientPayload($payload, false, $clinicId);
+
+        if ($errors !== []) {
+            return $this->validationFailed($errors);
+        }
+
+        $payload['clinic_id'] = $clinicId;
+        $payload['status'] = 'active';
+
+        $userId = $this->currentUserId();
+        if ($userId > 0) {
+            $payload['created_by'] = $userId;
+        }
+
+        $model = new PatientModel();
+        $model->skipValidation(true);
+
+        $id = $model->insert($payload);
+        if (! $id) {
+            log_message('error', 'App API patient create failed: ' . json_encode($model->errors()));
+            return $this->error('server_error', 'Unable to create patient.', 500);
+        }
+
+        $patient = $this->findPatient($clinicId, (int) $id);
+        if (! $patient) {
+            return $this->error('server_error', 'Unable to load created patient.', 500);
+        }
+
+        $this->logPatientActivity('create', (int) $id, "New patient '{$payload['first_name']} {$payload['last_name']}' registered successfully");
+
+        return $this->ok([
+            'patient' => $this->serializeDetail($patient),
+        ], [
+            'message' => 'Patient created.',
+            'csrf' => $this->csrfPayload(),
+        ], 201);
+    }
+
+    public function update($id = null): ResponseInterface
+    {
+        $clinicId = $this->activeClinicId();
+        if ($clinicId <= 0) {
+            return $this->error('tenant_context_missing', 'Select a clinic before continuing.', 422);
+        }
+
+        $patientId = (int) $id;
+        if ($patientId <= 0) {
+            return $this->notFound();
+        }
+
+        $patient = $this->findPatient($clinicId, $patientId);
+        if (! $patient) {
+            return $this->notFound();
+        }
+
+        $payload = $this->patientPayload($this->inputData());
+        if ($payload === []) {
+            return $this->validationFailed([
+                'form' => ['Submit at least one editable patient field.'],
+            ]);
+        }
+
+        $errors = $this->validatePatientPayload($payload, true, $clinicId, $patientId);
+        if ($errors !== []) {
+            return $this->validationFailed($errors);
+        }
+
+        $model = new PatientModel();
+        $model->skipValidation(true);
+
+        if (! $model->withoutTenantScope()->where('clinic_id', $clinicId)->where('id', $patientId)->set($payload)->update()) {
+            log_message('error', 'App API patient update failed: ' . json_encode($model->errors()));
+            return $this->error('server_error', 'Unable to update patient.', 500);
+        }
+
+        $updated = $this->findPatient($clinicId, $patientId);
+        if (! $updated) {
+            return $this->notFound();
+        }
+
+        $this->logPatientActivity('update', $patientId, "Patient '{$updated['first_name']} {$updated['last_name']}' information updated");
+
+        return $this->ok([
+            'patient' => $this->serializeDetail($updated),
+        ], [
+            'message' => 'Patient updated.',
+            'csrf' => $this->csrfPayload(),
         ]);
     }
 
@@ -296,6 +440,10 @@ class Patients extends Controller
                 'allergies' => $patient['allergies'] ?? null,
                 'alerts' => $this->alerts($patient),
             ],
+            'insurance' => [
+                'provider' => $patient['insurance_provider'] ?? null,
+                'number' => $patient['insurance_number'] ?? null,
+            ],
             'notes' => $patient['notes'] ?? null,
             'timestamps' => [
                 'created_at' => $patient['created_at'] ?? null,
@@ -384,12 +532,226 @@ class Patients extends Controller
         return (int) (session()->get('active_clinic_id') ?? 0);
     }
 
-    private function ok(array $data, array $meta = []): ResponseInterface
+    private function inputData(): array
     {
-        return $this->response->setJSON([
-            'data' => $data,
-            'meta' => $meta + ['request_id' => $this->requestId()],
+        if (str_contains(strtolower((string) $this->request->getHeaderLine('Content-Type')), 'application/json')) {
+            try {
+                $json = $this->request->getJSON(true);
+                if (is_array($json)) {
+                    return $json;
+                }
+            } catch (\Throwable $e) {
+                // Fall back to CI's form/raw parsers below; feature tests and some clients
+                // can send non-JSON bodies while still declaring JSON accept headers.
+            }
+        }
+
+        $post = $this->request->getPost();
+        if (is_array($post) && $post !== []) {
+            return $post;
+        }
+
+        $raw = $this->request->getRawInput();
+        if (is_array($raw) && $raw !== []) {
+            return $raw;
+        }
+
+        $vars = $this->request->getVar();
+        return is_array($vars) ? $vars : [];
+    }
+
+    private function patientPayload(array $input): array
+    {
+        $payload = [];
+
+        foreach ($this->writeFields as $field) {
+            if (! array_key_exists($field, $input)) {
+                continue;
+            }
+
+            if (in_array($field, $this->booleanFields, true)) {
+                $payload[$field] = $this->boolValue($input[$field]) ? 1 : 0;
+                continue;
+            }
+
+            $value = is_string($input[$field]) ? trim($input[$field]) : $input[$field];
+            $payload[$field] = $value === '' ? null : $value;
+        }
+
+        $this->clearDisabledAlertDetails($payload);
+
+        return $payload;
+    }
+
+    private function clearDisabledAlertDetails(array &$payload): void
+    {
+        $detailsByFlag = [
+            'alert_has_allergies' => 'alert_allergies_details',
+            'alert_taking_medications' => 'alert_medications_details',
+            'alert_blood_thinners' => 'alert_blood_thinners_details',
+            'alert_diabetes' => 'alert_diabetes_details',
+            'alert_high_blood_pressure' => 'alert_blood_pressure_details',
+            'alert_heart_condition' => 'alert_heart_condition_details',
+            'alert_pregnant' => 'alert_pregnancy_details',
+            'alert_anesthesia_problem' => 'alert_anesthesia_problem_details',
+        ];
+
+        foreach ($detailsByFlag as $flag => $detailsField) {
+            if (array_key_exists($flag, $payload) && (int) $payload[$flag] !== 1) {
+                $payload[$detailsField] = null;
+            }
+        }
+    }
+
+    private function validatePatientPayload(array $payload, bool $partial, int $clinicId, ?int $patientId = null): array
+    {
+        $errors = [];
+        $required = ['first_name', 'last_name', 'phone', 'date_of_birth', 'gender'];
+
+        if (! $partial) {
+            foreach ($required as $field) {
+                if (! array_key_exists($field, $payload) || $payload[$field] === null) {
+                    $errors[$field][] = $this->fieldLabel($field) . ' is required.';
+                }
+            }
+        } else {
+            foreach ($required as $field) {
+                if (array_key_exists($field, $payload) && $payload[$field] === null) {
+                    $errors[$field][] = $this->fieldLabel($field) . ' is required.';
+                }
+            }
+        }
+
+        $this->validateName($payload, $errors, 'first_name', 'First name');
+        $this->validateName($payload, $errors, 'last_name', 'Last name');
+
+        if (array_key_exists('email', $payload) && $payload['email'] !== null) {
+            if (! filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors['email'][] = 'Please enter a valid email address.';
+            } elseif ($this->emailExistsInClinic((string) $payload['email'], $clinicId, $patientId)) {
+                $errors['email'][] = 'This email is already registered to another patient in this clinic.';
+            }
+        }
+
+        if (array_key_exists('phone', $payload) && $payload['phone'] !== null && ! preg_match('/^\d{9,15}$/', (string) $payload['phone'])) {
+            $errors['phone'][] = 'Phone number must contain 9 to 15 digits.';
+        }
+
+        if (array_key_exists('date_of_birth', $payload) && $payload['date_of_birth'] !== null && strtotime((string) $payload['date_of_birth']) === false) {
+            $errors['date_of_birth'][] = 'Enter a valid date of birth.';
+        }
+
+        if (array_key_exists('gender', $payload) && $payload['gender'] !== null && ! in_array($payload['gender'], ['male', 'female', 'other'], true)) {
+            $errors['gender'][] = 'Please select a valid gender.';
+        }
+
+        foreach (['city', 'insurance_provider', 'insurance_number'] as $field) {
+            if (array_key_exists($field, $payload) && is_string($payload[$field]) && mb_strlen($payload[$field]) > 100) {
+                $errors[$field][] = $this->fieldLabel($field) . ' cannot exceed 100 characters.';
+            }
+        }
+
+        return $errors;
+    }
+
+    private function validateName(array $payload, array &$errors, string $field, string $label): void
+    {
+        if (! array_key_exists($field, $payload) || $payload[$field] === null) {
+            return;
+        }
+
+        $length = mb_strlen((string) $payload[$field]);
+        if ($length < 2) {
+            $errors[$field][] = $label . ' must be at least 2 characters long.';
+        }
+        if ($length > 50) {
+            $errors[$field][] = $label . ' cannot exceed 50 characters.';
+        }
+    }
+
+    private function emailExistsInClinic(string $email, int $clinicId, ?int $patientId): bool
+    {
+        $builder = (new PatientModel())
+            ->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->where('email', $email);
+
+        if ($patientId !== null) {
+            $builder->where('id !=', $patientId);
+        }
+
+        return (bool) $builder->first();
+    }
+
+    private function findPatient(int $clinicId, int $patientId): ?array
+    {
+        $patient = (new PatientModel())
+            ->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->where('id', $patientId)
+            ->first();
+
+        return is_array($patient) ? $patient : null;
+    }
+
+    private function boolValue($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value === 1;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function fieldLabel(string $field): string
+    {
+        return ucfirst(str_replace('_', ' ', $field));
+    }
+
+    private function currentUserId(): int
+    {
+        return (int) (session()->get('user_id') ?? 0);
+    }
+
+    private function logPatientActivity(string $action, int $patientId, string $description): void
+    {
+        try {
+            $this->activityLogger->logPatientActivity($action, $patientId, $description);
+        } catch (\Throwable $e) {
+            log_message('error', 'App API patient activity logging failed: ' . $e->getMessage());
+        }
+    }
+
+    private function csrfPayload(): array
+    {
+        $security = config('Security');
+
+        return [
+            'header' => $security->headerName,
+            'name' => csrf_token(),
+            'hash' => csrf_hash(),
+        ];
+    }
+
+    private function validationFailed(array $fields): ResponseInterface
+    {
+        return $this->error('validation_failed', 'Please review the highlighted fields.', 422, [
+            'fields' => $fields,
         ]);
+    }
+
+    private function ok(array $data, array $meta = [], int $status = 200): ResponseInterface
+    {
+        return $this->response
+            ->setStatusCode($status)
+            ->setJSON([
+                'data' => $data,
+                'meta' => $meta + ['request_id' => $this->requestId()],
+            ]);
     }
 
     private function notFound(): ResponseInterface

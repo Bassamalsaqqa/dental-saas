@@ -31,6 +31,9 @@ final class AppApiPatientsTest extends CIUnitTestCase
     protected function tearDown(): void
     {
         if ($this->db) {
+            if ($this->createdUsers !== []) {
+                $this->db->table('activity_logs')->whereIn('user_id', $this->createdUsers)->delete();
+            }
             $this->deleteRows('patients', $this->createdPatients);
             $this->deleteRows('clinic_subscriptions', $this->createdSubscriptions);
             $this->deleteRows('clinic_users', $this->createdMemberships);
@@ -234,22 +237,251 @@ final class AppApiPatientsTest extends CIUnitTestCase
         $this->assertTrue($response->isRedirect());
     }
 
-    private function createTenantFixture(bool $withPatientsView = true, string $subscriptionStatus = 'active'): array
+    public function testPatientCreateWithoutCsrfReturns419Json(): void
+    {
+        $response = $this->post('/app-api/v1/patients', [
+            'first_name' => 'No',
+            'last_name' => 'Csrf',
+        ]);
+
+        $response->assertStatus(419);
+        $this->assertSame('csrf_failed', $this->decode($response)['error']['code'] ?? null);
+    }
+
+    public function testPatientCreateUnauthenticatedWithValidCsrfReturns401Json(): void
+    {
+        $response = $this->postWithCsrf('/app-api/v1/patients', [
+            'first_name' => 'Guest',
+            'last_name' => 'Patient',
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertSame('unauthenticated', $this->decode($response)['error']['code'] ?? null);
+    }
+
+    public function testPatientCreateWithoutActiveClinicReturns422Json(): void
+    {
+        [$user] = $this->createTenantFixture(['view', 'create']);
+
+        $response = $this
+            ->withLoggedInSession($user)
+            ->postWithCsrf('/app-api/v1/patients', $this->validPatientPayload());
+
+        $response->assertStatus(422);
+        $this->assertSame('tenant_context_missing', $this->decode($response)['error']['code'] ?? null);
+    }
+
+    public function testPatientCreateWithoutCreatePermissionReturns403Json(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view']);
+        $before = (int) $this->db->table('patients')->where('clinic_id', $clinic)->countAllResults();
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->postWithCsrf('/app-api/v1/patients', $this->validPatientPayload());
+
+        $response->assertStatus(403);
+        $this->assertSame('forbidden', $this->decode($response)['error']['code'] ?? null);
+        $after = (int) $this->db->table('patients')->where('clinic_id', $clinic)->countAllResults();
+        $this->assertSame($before, $after);
+    }
+
+    public function testPatientCreateValidationFailureReturns422WithFieldErrors(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view', 'create']);
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->postWithCsrf('/app-api/v1/patients', [
+                'first_name' => 'A',
+                'email' => 'not-an-email',
+            ]);
+
+        $response->assertStatus(422);
+        $json = $this->decode($response);
+        $this->assertSame('validation_failed', $json['error']['code'] ?? null);
+        $this->assertArrayHasKey('first_name', $json['error']['details']['fields'] ?? []);
+        $this->assertArrayHasKey('last_name', $json['error']['details']['fields'] ?? []);
+        $this->assertArrayHasKey('email', $json['error']['details']['fields'] ?? []);
+    }
+
+    public function testPatientCreateForcesActiveClinicAndIgnoresProtectedFields(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view', 'create']);
+        $otherClinic = $this->createClinic('active');
+        $payload = $this->validPatientPayload([
+            'clinic_id' => $otherClinic,
+            'patient_id' => 'CLIENT-SHOULD-NOT-WIN',
+            'created_by' => 999999,
+            'file_path' => 'writable/uploads/private.pdf',
+        ]);
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->postWithCsrf('/app-api/v1/patients', $payload);
+
+        $response->assertStatus(201);
+        $json = $this->decode($response);
+        $id = (int) ($json['data']['patient']['id'] ?? 0);
+        $this->assertGreaterThan(0, $id);
+        $this->createdPatients[] = $id;
+        $this->assertArrayHasKey('csrf', $json['meta']);
+
+        $row = $this->db->table('patients')->where('id', $id)->get()->getRowArray();
+        $this->assertSame($clinic, (int) $row['clinic_id']);
+        $this->assertNotSame('CLIENT-SHOULD-NOT-WIN', $row['patient_id']);
+        $this->assertSame((int) $user['id'], (int) $row['created_by']);
+        $this->assertSame('active', $row['status']);
+
+        $body = (string) $response->getJSON();
+        $this->assertStringNotContainsString('clinic_id', $body);
+        $this->assertStringNotContainsString('file_path', $body);
+        $this->assertStringNotContainsString('password', $body);
+        $this->assertStringNotContainsString('writable/uploads', $body);
+    }
+
+    public function testPatientPatchWithoutCsrfReturns419Json(): void
+    {
+        $response = $this->patch('/app-api/v1/patients/1', [
+            'first_name' => 'No',
+        ]);
+
+        $response->assertStatus(419);
+        $this->assertSame('csrf_failed', $this->decode($response)['error']['code'] ?? null);
+    }
+
+    public function testPatientPatchWithoutEditPermissionReturns403Json(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view']);
+        $patientId = $this->createPatient($clinic, 'Readonly', 'Patient');
+        $before = $this->db->table('patients')->where('id', $patientId)->get()->getRowArray();
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->patchWithCsrf('/app-api/v1/patients/' . $patientId, [
+                'first_name' => 'Blocked',
+            ]);
+
+        $response->assertStatus(403);
+        $this->assertSame('forbidden', $this->decode($response)['error']['code'] ?? null);
+        $after = $this->db->table('patients')->where('id', $patientId)->get()->getRowArray();
+        $this->assertSame($before['first_name'], $after['first_name']);
+    }
+
+    public function testPatientPatchUpdatesOnlyAllowlistedFields(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view', 'edit']);
+        $otherClinic = $this->createClinic('active');
+        $patientId = $this->createPatient($clinic, 'Before', 'Patient', [
+            'patient_id' => 'PATSAFE001',
+            'created_by' => 321,
+        ]);
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->patchWithCsrf('/app-api/v1/patients/' . $patientId, [
+                'first_name' => 'After',
+                'city' => 'Hebron',
+                'clinic_id' => $otherClinic,
+                'patient_id' => 'CLIENT-SHOULD-NOT-WIN',
+                'created_by' => 999999,
+                'file_path' => 'writable/uploads/private.pdf',
+            ]);
+
+        $response->assertStatus(200);
+        $json = $this->decode($response);
+        $this->assertSame('After', $json['data']['patient']['first_name'] ?? null);
+        $this->assertSame('Hebron', $json['data']['patient']['city'] ?? null);
+        $this->assertArrayHasKey('csrf', $json['meta']);
+
+        $row = $this->db->table('patients')->where('id', $patientId)->get()->getRowArray();
+        $this->assertSame($clinic, (int) $row['clinic_id']);
+        $this->assertSame('PATSAFE001', $row['patient_id']);
+        $this->assertSame(321, (int) $row['created_by']);
+        $this->assertSame('After', $row['first_name']);
+    }
+
+    public function testPatientPatchCrossTenantReturns404(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view', 'edit']);
+        $otherClinic = $this->createClinic('active');
+        $patientId = $this->createPatient($otherClinic, 'Other', 'Patient');
+        $before = $this->db->table('patients')->where('id', $patientId)->get()->getRowArray();
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->patchWithCsrf('/app-api/v1/patients/' . $patientId, [
+                'first_name' => 'Blocked',
+            ]);
+
+        $response->assertStatus(404);
+        $this->assertSame('not_found', $this->decode($response)['error']['code'] ?? null);
+        $after = $this->db->table('patients')->where('id', $patientId)->get()->getRowArray();
+        $this->assertSame($before['first_name'], $after['first_name']);
+        $this->assertSame($otherClinic, (int) $after['clinic_id']);
+    }
+
+    public function testPatientPatchValidationFailureReturns422(): void
+    {
+        [$user, $clinic] = $this->createTenantFixture(['view', 'edit']);
+        $patientId = $this->createPatient($clinic, 'Valid', 'Patient');
+
+        $response = $this
+            ->withLoggedInSession($user, ['active_clinic_id' => $clinic])
+            ->patchWithCsrf('/app-api/v1/patients/' . $patientId, [
+                'email' => 'bad-email',
+                'gender' => 'robot',
+            ]);
+
+        $response->assertStatus(422);
+        $json = $this->decode($response);
+        $this->assertSame('validation_failed', $json['error']['code'] ?? null);
+        $this->assertArrayHasKey('email', $json['error']['details']['fields'] ?? []);
+        $this->assertArrayHasKey('gender', $json['error']['details']['fields'] ?? []);
+    }
+
+    private function createTenantFixture($permissions = true, string $subscriptionStatus = 'active'): array
     {
         $user = $this->createUser();
         $clinic = $this->createClinic('active');
         $plan = $this->createPlan();
         $role = $this->createRole();
 
-        if ($withPatientsView) {
-            $permission = $this->permissionId('patients', 'view');
-            $this->assignPermission($role, $permission);
+        $actions = [];
+        if ($permissions === true) {
+            $actions = ['view'];
+        } elseif (is_array($permissions)) {
+            $actions = $permissions;
+        }
+
+        foreach ($actions as $action) {
+            $this->assignPermission($role, $this->permissionId('patients', (string) $action));
         }
 
         $this->createMembership($user['id'], $clinic, $role);
         $this->createSubscription($clinic, $plan, $subscriptionStatus);
 
         return [$user, $clinic, $role];
+    }
+
+    private function validPatientPayload(array $extra = []): array
+    {
+        $suffix = bin2hex(random_bytes(3));
+
+        return array_merge([
+            'first_name' => 'Create',
+            'last_name' => 'Patient',
+            'email' => 'create-' . $suffix . '@example.test',
+            'phone' => '059' . random_int(1000000, 9999999),
+            'date_of_birth' => '1985-05-10',
+            'gender' => 'female',
+            'city' => 'Ramallah',
+            'alert_has_allergies' => true,
+            'alert_allergies_details' => 'Penicillin',
+            'insurance_provider' => 'Clinic Plan',
+            'insurance_number' => 'INS-' . strtoupper($suffix),
+            'notes' => 'Created through App API test',
+        ], $extra);
     }
 
     private function createUser(): array
@@ -484,6 +716,42 @@ final class AppApiPatientsTest extends CIUnitTestCase
         ]);
 
         return $this->withSession([]);
+    }
+
+    private function postWithCsrf(string $path, array $data)
+    {
+        $security = service('security');
+        $securityConfig = config('Security');
+        $tokenName = (string) $securityConfig->tokenName;
+        $tokenHash = (string) $security->getHash();
+        $cookieName = (string) $securityConfig->cookieName;
+
+        return $this
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'Cookie' => $cookieName . '=' . $tokenHash,
+                'X-CSRF-TOKEN' => $tokenHash,
+            ])
+            ->post($path, array_merge($data, [$tokenName => $tokenHash]));
+    }
+
+    private function patchWithCsrf(string $path, array $data)
+    {
+        $security = service('security');
+        $securityConfig = config('Security');
+        $tokenName = (string) $securityConfig->tokenName;
+        $tokenHash = (string) $security->getHash();
+        $cookieName = (string) $securityConfig->cookieName;
+
+        return $this
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Cookie' => $cookieName . '=' . $tokenHash,
+                'X-CSRF-TOKEN' => $tokenHash,
+            ])
+            ->withBody(json_encode($data))
+            ->patch($path, [$tokenName => $tokenHash]);
     }
 
     private function decode($response): array

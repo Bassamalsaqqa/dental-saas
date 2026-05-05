@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-05 - App API Patients Slice 2
+
+- Added `POST /app-api/v1/patients` and `PATCH /app-api/v1/patients/{id}` for first-party patient create/update
+- Kept writes tenant-scoped, CSRF-protected, permission-gated, and serialized through explicit safe patient fields
+- Kept `/api/v1/*`, existing web patient routes, frontend assets, and delete/workspace/finance/clinical patient endpoints unchanged
+
 ## 2026-05-05 - App API Patients Slice 1
 
 - Added read-only `/app-api/v1/patients` and `/app-api/v1/patients/{id}` endpoints

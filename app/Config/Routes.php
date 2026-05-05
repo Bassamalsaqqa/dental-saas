@@ -187,9 +187,12 @@ $routes->group('app-api/v1', ['filter' => 'apphttps'], function ($routes) {
     $routes->post('auth/logout', 'AppApi\V1\Foundation::logout', ['filter' => ['appauth', 'appcsrf']]);
     $routes->post('clinic/switch', 'AppApi\V1\Foundation::switchClinic', ['filter' => ['appauth', 'appcsrf']]);
 
+    $routes->post('patients', 'AppApi\V1\Patients::store', ['filter' => ['appcsrf', 'appauth', 'apptenant', 'appsubscription', 'apppermission:patients,create']]);
+    $routes->patch('patients/(:num)', 'AppApi\V1\Patients::update/$1', ['filter' => ['appcsrf', 'appauth', 'apptenant', 'appsubscription', 'apppermission:patients,edit']]);
+
     $routes->group('', ['filter' => ['appauth', 'apptenant', 'appsubscription']], function ($routes) {
-        $routes->get('patients', 'AppApi\V1\Patients::index', ['filter' => 'apppermission:patients:view']);
-        $routes->get('patients/(:num)', 'AppApi\V1\Patients::show/$1', ['filter' => 'apppermission:patients:view']);
+        $routes->get('patients', 'AppApi\V1\Patients::index', ['filter' => 'apppermission:patients,view']);
+        $routes->get('patients/(:num)', 'AppApi\V1\Patients::show/$1', ['filter' => 'apppermission:patients,view']);
     });
 });
 
