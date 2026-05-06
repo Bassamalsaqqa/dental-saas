@@ -615,32 +615,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             </div>
         </section>
 
-        <!-- Quick Actions Strip -->
-        <div class="flex flex-wrap items-center justify-center gap-2">
-            <?php if (has_permission('examinations', 'create')): ?>
-                <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
-                    <i class="fas fa-stethoscope text-sky-600"></i><span><?= esc(lang('UI.patientStartAssessment')) ?></span>
-                </a>
-            <?php endif; ?>
-            <?php if (has_permission('treatments', 'create')): ?>
-                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
-                    <i class="fas fa-tooth text-purple-600"></i><span><?= esc(lang('UI.patientRecordProcedure')) ?></span>
-                </a>
-            <?php endif; ?>
-            <?php if (has_permission('prescriptions', 'create')): ?>
-                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
-                    <i class="fas fa-prescription-bottle-alt text-amber-600"></i><span><?= esc(lang('UI.patientWritePrescription')) ?></span>
-                </a>
-            <?php endif; ?>
-            <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
-                <i class="fas fa-tooth text-cyan-600"></i><span><?= esc(lang('UI.patientOdontogram')) ?></span>
-            </a>
-            <?php if (!empty($attachments_enabled)): ?>
-                <button type="button" onclick="return showTab('attachments', event)" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
-                    <i class="fas fa-paperclip text-gray-500"></i><span><?= esc(lang('UI.patientOpenFilesWorkspace')) ?></span>
-                </button>
-            <?php endif; ?>
-        </div>
+        <?= view('patient/partials/context_quick_drawers', [
+            'patient' => $patient,
+            'is_rtl' => $isRtl,
+            'attachments_enabled' => $attachments_enabled ?? false,
+            'attachment_category_options' => $attachment_category_options ?? [],
+            'patient_command_treatment_types' => $patient_command_treatment_types ?? [],
+            'patient_command_chair_options' => $patient_command_chair_options ?? [],
+            'patient_command_base_currency' => $patient_command_base_currency ?? null,
+            'patient_command_currency_options' => $patient_command_currency_options ?? [],
+        ]) ?>
 
         <?= view('patient/partials/whatsapp_identity', [
             'patient' => $patient,

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Patient Contextual Quick Actions
+
+- Added a current-PHP Patient Profile command workspace with contextual drawers for examination, appointment, treatment, patient payment, patient charge, and document upload
+- Reused existing canonical web routes/controllers for writes so CSRF, tenant checks, permissions, validation, activity logging, and redirects remain backend-owned
+- Added implementation plan at `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`
+- Kept `/app-api/v1/*`, `/api/v1/*`, React/Lovable frontend work, and module route ownership unchanged
+
 ## 2026-05-05 - Separate Lovable Repo Workflow
 
 - Documented `dentacare-shell` as the separate Lovable UI/UX source lab

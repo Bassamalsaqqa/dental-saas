@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-05-06 - Entity Workspaces Use Contextual Quick-Create Drawers
+
+- **Decision:** Major entity detail pages may become command workspaces with contextual quick-create drawers. The Patient Profile is the reference implementation. Drawers can start related work from the current entity, but canonical modules remain responsible for real workflow ownership.
+- **Rationale:** Clinic users think in entity context: "I am working on this patient/provider/appointment and need to add related work." The UI should preserve that context without duplicating full modules or scattering random popups.
+- **Impact:** For current PHP pages, drawers should submit to existing canonical web routes when possible so CSRF, tenant context, permissions, subscription gates, validation, activity logging, redirects, and backend-owned calculations remain unchanged. Future pages should follow `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` before adding entity quick actions.
+
 ## 2026-05-04 - React Frontend Uses First-Party Session App API
 
 - **Decision:** Future React tenant frontend will use `/app-api/v1/*` as a first-party, same-origin, session-cookie JSON API. Existing `/api/v1/*` remains public/stateless and continues to require Bearer auth plus `X-Clinic-Id`. Future React control-plane work reserves and recommends `/controlplane-app-api/v1/*` to preserve the tenant/control-plane airlock.

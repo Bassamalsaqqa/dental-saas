@@ -15,6 +15,7 @@ use App\Models\TreatmentModel;
 use App\Models\PrescriptionModel;
 use App\Models\FileAttachmentModel;
 use App\Models\TreatmentContractModel;
+use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\PlanGuard;
 
@@ -819,6 +820,10 @@ class Patient extends BaseController
             'attachments_storage_limit_gb' => $storageLimitGb,
             'attachments_max_file_mb' => $maxAttachmentMb,
             'attachment_category_options' => $this->getAttachmentCategoryOptions(),
+            'patient_command_treatment_types' => TreatmentCatalog::forSelection(),
+            'patient_command_chair_options' => service('settings')->getBookingChairNames(),
+            'patient_command_base_currency' => settings()->get('currency', 'ILS'),
+            'patient_command_currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
             'latest_imaging_attachment' => $latestImagingAttachment,
             'latest_imaging_preview_src' => $latestImagingPreviewSrc,
             'contracts_enabled' => $contractsEnabled,

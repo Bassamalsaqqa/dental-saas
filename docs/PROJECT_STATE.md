@@ -10,7 +10,7 @@ Last updated: 2026-05-05
 
 ## Major Modules
 
-- **Patient Management:** profiles, appointments, examinations, odontograms
+- **Patient Management:** profiles, appointments, examinations, odontograms, patient-centered command workspace quick actions
 - **Clinical:** treatments, prescriptions, treatment contracts, signatures
 - **Finance:** invoices, payments, expenses, provider payouts, supplier payables, treasury custody, reports
 - **Inventory:** stock management, supplier directory, COGS auto-posting, movements ledger
@@ -32,6 +32,13 @@ Last updated: 2026-05-05
 - The imported shell still uses mock data; real App API wiring and Patients UI integration are later work.
 - Current next frontend track: stabilize `/app` static serving and then wire real App API calls in small module slices.
 - Lovable must not create Supabase, auth systems, backend business logic, finance calculations, tenant isolation, or production API truth.
+
+## App-Wide UX Pattern
+
+- Entity-centered command workspaces are now an app feature pattern, not a one-off patient tweak.
+- The current PHP Patient Profile is the reference first slice: contextual drawers can start related work while canonical modules still own validation, writes, redirects, permissions, tenant checks, audit logging, and finance math.
+- When applying the pattern to another entity page, reuse the rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`.
+- Do not copy patient actions blindly to provider, user, supplier, finance, inventory, or appointment pages; each entity gets actions that match its domain.
 
 ## Local Environment
 

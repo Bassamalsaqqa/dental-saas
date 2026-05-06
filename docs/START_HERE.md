@@ -20,6 +20,7 @@ This is the active documentation surface for the project. Everything else is arc
 | `docs/refactor/LOVABLE_STRATEGY_GEMINI.md` | Gemini frontend rebuild strategy for Lovable/React |
 | `docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md` | Codex Laravel backend migration assessment |
 | `docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md` | Gemini Laravel backend migration assessment |
+| `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` | App-wide entity workspace + contextual quick-create drawer pattern |
 | `docs/SaaS/SAAS_PROGRAM.md` | SaaS governance source of truth |
 | `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` | Tenant context mechanics |
 | `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` | Control plane entitlements contract |
