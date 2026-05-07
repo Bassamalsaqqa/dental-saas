@@ -100,7 +100,7 @@ foreach (($clinic_providers ?? []) as $provider) {
     color: #64748b;
 }
 </style>
-<div class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 space-y-5">
+<div data-provider-split-section class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 space-y-5">
     <div class="flex items-center justify-between">
         <div>
             <h4 class="text-base font-bold text-indigo-900 flex items-center gap-2">
@@ -147,17 +147,28 @@ foreach (($clinic_providers ?? []) as $provider) {
 </div>
 
 <script>
+(function (providerSplitScript) {
 document.addEventListener('DOMContentLoaded', function () {
-    const splitToggle = document.getElementById('providerSplitEnabled');
-    const splitFields = document.getElementById('providerSplitFields');
-    const splitTrack = document.getElementById('providerSplitTrack');
-    const splitDot = document.getElementById('providerSplitDot');
-    const allocationsList = document.getElementById('providerAllocationsList');
-    const addBtn = document.getElementById('addProviderAllocationBtn');
-    const grossInput = document.getElementById('totalAmountLive');
-    const grossPreview = document.getElementById('splitGrossPreview');
-    const providerPreview = document.getElementById('splitProviderPreview');
-    const clinicPreview = document.getElementById('splitClinicPreview');
+    const script = providerSplitScript;
+    const section = script?.previousElementSibling?.matches('[data-provider-split-section]')
+        ? script.previousElementSibling
+        : script?.closest('form')?.querySelector('[data-provider-split-section]');
+    const form = section?.closest('form');
+
+    if (!section || !form) {
+        return;
+    }
+
+    const splitToggle = section.querySelector('#providerSplitEnabled');
+    const splitFields = section.querySelector('#providerSplitFields');
+    const splitTrack = section.querySelector('#providerSplitTrack');
+    const splitDot = section.querySelector('#providerSplitDot');
+    const allocationsList = section.querySelector('#providerAllocationsList');
+    const addBtn = section.querySelector('#addProviderAllocationBtn');
+    const grossInput = form.querySelector('#totalAmountLive, [name="total_amount"], [name="amount"]');
+    const grossPreview = section.querySelector('#splitGrossPreview');
+    const providerPreview = section.querySelector('#splitProviderPreview');
+    const clinicPreview = section.querySelector('#splitClinicPreview');
     const providerOptions = <?= json_encode($providerOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     const initialRows = <?= json_encode($providerRows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
@@ -178,12 +189,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const optionCount = select.options ? select.options.length : 0;
         const pageIsRtl = document.documentElement.getAttribute('dir') === 'rtl';
+        const dropdownParent = typeof window.getAppSelect2DropdownParent === 'function'
+            ? window.getAppSelect2DropdownParent(select)
+            : (select.closest('.app-drawer__panel') ? window.jQuery(select.closest('.app-drawer__panel')) : window.jQuery(document.body));
         $select.select2({
             placeholder: select.dataset.placeholder || (pageIsRtl ? 'اختر خياراً...' : 'Select an option...'),
             dir: pageIsRtl ? 'rtl' : 'ltr',
             allowClear: false,
             width: '100%',
             theme: 'default',
+            dropdownParent: dropdownParent,
             minimumResultsForSearch: optionCount > 5 ? 0 : Infinity,
             language: {
                 noResults: function () {
@@ -465,11 +480,11 @@ document.addEventListener('DOMContentLoaded', function () {
     splitToggle?.addEventListener('change', syncSplitToggleState);
     grossInput?.addEventListener('input', updateSummary);
     const recalcTriggers = [
-        document.getElementById('amountOriginal'),
-        document.getElementById('exchangeRate'),
-        document.getElementById('currencySelect'),
-        document.getElementById('discountAmount'),
-        document.getElementById('taxPercentage'),
+        form.querySelector('#amountOriginal, [name="amount_original"]'),
+        form.querySelector('#exchangeRate, [name="exchange_rate"]'),
+        form.querySelector('#currencySelect, [name="currency"]'),
+        form.querySelector('#discountAmount, [name="discount_amount"]'),
+        form.querySelector('#taxPercentage, [name="tax_percentage"]'),
         grossInput,
     ];
     recalcTriggers.forEach((el) => {
@@ -478,7 +493,8 @@ document.addEventListener('DOMContentLoaded', function () {
             el.addEventListener(evt, () => setTimeout(updateSummary, 0));
         });
     });
-    document.querySelector('form[data-finance-calc]')?.addEventListener('finance:totalsUpdated', updateSummary);
+    form.addEventListener('finance:totalsUpdated', updateSummary);
     syncSplitToggleState();
 });
+})(document.currentScript);
 </script>

@@ -1,19 +1,21 @@
 (() => {
-  const init = () => {
-    const form = document.querySelector('[data-finance-calc]');
-    if (!form) return;
+  const initForm = (target) => {
+    const form = target?.matches?.('form') ? target : target?.closest?.('form');
+    if (!form || form.dataset.financeCalcBound === '1') return;
+    form.dataset.financeCalcBound = '1';
 
-    const amountInput = document.getElementById('amountOriginal');
-    const rateInput = document.getElementById('exchangeRate');
-    const currencySelect = document.getElementById('currencySelect');
-    const convertedOutput = document.getElementById('amountConverted');
-    const discountInput = document.getElementById('discountAmount');
-    const taxInput = document.getElementById('taxPercentage');
-    const totalOutput = document.getElementById('totalAmountLive');
-    const methodSelect = document.getElementById('paymentMethod');
-    const checkField = document.getElementById('checkScanField');
-    const checkInput = document.getElementById('checkScanInput');
-    const checkName = document.getElementById('checkScanName');
+    const field = (selector) => form.querySelector(selector);
+    const amountInput = field('#amountOriginal, [name="amount_original"]');
+    const rateInput = field('#exchangeRate, [name="exchange_rate"]');
+    const currencySelect = field('#currencySelect, [name="currency"]');
+    const convertedOutput = field('#amountConverted');
+    const discountInput = field('#discountAmount, [name="discount_amount"]');
+    const taxInput = field('#taxPercentage, [name="tax_percentage"]');
+    const totalOutput = field('#totalAmountLive');
+    const methodSelect = field('#paymentMethod, [name="payment_method"]');
+    const checkField = field('#checkScanField');
+    const checkInput = field('#checkScanInput, [name="check_scan"]');
+    const checkName = field('#checkScanName');
 
     const baseCurrency = form.getAttribute('data-base-currency') || 'ILS';
 
@@ -49,7 +51,7 @@
 
     const toggleCurrencyFields = () => {
       const currency = currencySelect?.value || baseCurrency;
-      const rateField = document.getElementById('exchangeRateField');
+      const rateField = field('#exchangeRateField');
       if (rateField) {
         rateField.style.display = 'block';
       }
@@ -98,6 +100,13 @@
     recomputeAll();
     setTimeout(recomputeAll, 0);
   };
+
+  const init = (root) => {
+    const scope = root || document;
+    scope.querySelectorAll('[data-finance-calc]').forEach(initForm);
+  };
+
+  window.initFinanceCalculators = init;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

@@ -624,6 +624,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             'patient_command_chair_options' => $patient_command_chair_options ?? [],
             'patient_command_base_currency' => $patient_command_base_currency ?? null,
             'patient_command_currency_options' => $patient_command_currency_options ?? [],
+            'patient_command_inventory_items' => $patient_command_inventory_items ?? [],
+            'patient_command_clinic_providers' => $patient_command_clinic_providers ?? [],
+            'patient_command_liquidity_account_options' => $patient_command_liquidity_account_options ?? [],
+            'attachments_max_file_mb' => $attachments_max_file_mb ?? null,
         ]) ?>
 
         <?= view('patient/partials/whatsapp_identity', [

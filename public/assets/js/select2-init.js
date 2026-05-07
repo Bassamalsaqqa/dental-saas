@@ -86,6 +86,24 @@ function hideRedundantSelectChevron(select) {
         }
     });
 }
+
+function getAppSelect2DropdownParent(select) {
+    if (!select || !window.jQuery) {
+        return undefined;
+    }
+
+    const panel = select.closest('.app-drawer__panel');
+    if (!panel) {
+        return window.jQuery(document.body);
+    }
+
+    const explicitParent = select.closest('[data-select2-dropdown-parent]');
+    const host = explicitParent || select.parentElement || panel;
+    host.classList.add('app-select2-dropdown-parent');
+    return window.jQuery(host);
+}
+
+window.getAppSelect2DropdownParent = getAppSelect2DropdownParent;
 function applyV1SearchHeaders(headers) {
     const finalHeaders = headers || {};
     if (uiSearchAuth.token) {
@@ -236,7 +254,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                         return select2I18n.inputTooShort(minimumInputLength);
                     }
                 },
-                dir: isRtl ? 'rtl' : 'ltr'
+                dir: isRtl ? 'rtl' : 'ltr',
+                dropdownParent: getAppSelect2DropdownParent(select)
             };
             
             // Add AJAX configuration if search URL is provided
@@ -408,6 +427,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 allowClear: regularAllowClear,
                 width: '100%',
                 theme: 'default',
+                dropdownParent: getAppSelect2DropdownParent(select),
                 minimumResultsForSearch: optionCount > 5 ? 0 : Infinity,
                 language: {
                     noResults: function() {
@@ -652,3 +672,143 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
 
 // Inject custom CSS
 document.head.insertAdjacentHTML('beforeend', select2CustomCSS);
+
+window.initAppSelects = function initAppSelects(root) {
+    if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+        return;
+    }
+
+    const scope = root || document;
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+    const i18n = {
+        placeholder: isRtl ? 'اختر خيارًا...' : 'Select an option...',
+        noResults: isRtl ? 'لا توجد نتائج' : 'No results found',
+        searching: isRtl ? 'جارٍ البحث...' : 'Searching...',
+    };
+
+    const dropdownParentFor = (select) => getAppSelect2DropdownParent(select);
+
+    const initializeSelect = (select, searchable) => {
+        const $select = window.jQuery(select);
+        if ($select.data('select2')) {
+            return;
+        }
+
+        const dropdownParent = dropdownParentFor(select);
+        const optionCount = select.options ? select.options.length : 0;
+        const allowClear = select.dataset.allowClear
+            ? select.dataset.allowClear !== 'false'
+            : !select.required;
+
+        const options = {
+            placeholder: select.dataset.placeholder || i18n.placeholder,
+            allowClear: allowClear,
+            width: '100%',
+            theme: 'default',
+            dir: isRtl ? 'rtl' : 'ltr',
+            dropdownParent: dropdownParent,
+            minimumResultsForSearch: searchable || optionCount > 5 ? 0 : Infinity,
+            language: {
+                noResults: function () { return i18n.noResults; },
+                searching: function () { return i18n.searching; }
+            }
+        };
+
+        if (searchable && select.dataset.searchUrl) {
+            const searchUrl = select.dataset.searchUrl;
+            const limit = parseInt(select.dataset.limit || '10', 10);
+            const searchParam = select.dataset.searchParam || 'q';
+            const valueField = select.dataset.valueField || 'id';
+            const textField = select.dataset.textField || 'text';
+            const minimumInputLength = Number.isNaN(parseInt(select.dataset.minimumInputLength, 10))
+                ? 1
+                : parseInt(select.dataset.minimumInputLength, 10);
+            const dependsOnId = select.dataset.dependsOn || '';
+            const dependsParam = select.dataset.dependsParam || 'parent_id';
+            const requireDependency = select.dataset.requireDependency !== 'false';
+            const statusParam = select.dataset.status || '';
+            let extraParams = null;
+            if (select.dataset.extraParams) {
+                try {
+                    extraParams = JSON.parse(select.dataset.extraParams);
+                } catch (_error) {
+                    extraParams = null;
+                }
+            }
+
+            const getDependencyValue = () => {
+                if (!dependsOnId) return '';
+                const depEl = scope.querySelector('#' + CSS.escape(dependsOnId)) || document.getElementById(dependsOnId);
+                if (!depEl) return '';
+                const jqVal = window.jQuery(depEl).val();
+                return Array.isArray(jqVal) ? (jqVal[0] || '') : (jqVal || depEl.value || '');
+            };
+
+            options.minimumInputLength = minimumInputLength;
+            options.ajax = {
+                url: searchUrl,
+                dataType: 'json',
+                delay: parseInt(select.dataset.delay || '300', 10),
+                data: function (params) {
+                    const payload = {
+                        [searchParam]: params.term,
+                        page: params.page || 1
+                    };
+                    if (dependsOnId) {
+                        const depValue = getDependencyValue();
+                        if (depValue) {
+                            payload[dependsParam] = depValue;
+                        } else if (requireDependency) {
+                            payload.__skip = 1;
+                        }
+                    }
+                    if (statusParam) payload.status = statusParam;
+                    if (extraParams && typeof extraParams === 'object') {
+                        Object.keys(extraParams).forEach(key => {
+                            if (typeof payload[key] === 'undefined') {
+                                payload[key] = extraParams[key];
+                            }
+                        });
+                    }
+                    if (limit) payload.limit = limit;
+                    return payload;
+                },
+                transport: function (params, success, failure) {
+                    if (params && params.data && params.data.__skip) {
+                        success({ results: [], total: 0, pagination: { more: false } });
+                        return { abort: function () {} };
+                    }
+                    const request = window.jQuery.ajax(params);
+                    request.then(success).fail(failure);
+                    return request;
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    const results = data.results || (Array.isArray(data) ? data : (data.data || []));
+                    return {
+                        results: results.map(item => ({
+                            id: item[valueField],
+                            text: item[textField]
+                        })),
+                        pagination: {
+                            more: (params.page * (limit || 10)) < (data.total || results.length)
+                        }
+                    };
+                },
+                beforeSend: function (xhr) {
+                    if (isV1SearchUrl(searchUrl)) {
+                        const headers = applyV1SearchHeaders();
+                        Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]));
+                    }
+                },
+                cache: !isV1SearchUrl(searchUrl)
+            };
+        }
+
+        $select.select2(options);
+        hideRedundantSelectChevron(select);
+    };
+
+    scope.querySelectorAll('select[data-searchable-select]').forEach(select => initializeSelect(select, true));
+    scope.querySelectorAll('select[data-force-select2], .app-drawer select:not([data-no-select2])').forEach(select => initializeSelect(select, false));
+};

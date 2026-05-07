@@ -15,6 +15,8 @@ use App\Models\TreatmentModel;
 use App\Models\PrescriptionModel;
 use App\Models\FileAttachmentModel;
 use App\Models\TreatmentContractModel;
+use App\Models\InventoryModel;
+use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\PlanGuard;
@@ -118,6 +120,24 @@ class Patient extends BaseController
             'Consent or External Record' => 'CONSENT',
             'Other Dental Record' => 'DENTAL_RECORD',
         ];
+    }
+
+    private function getPatientCommandLiquidityAccountOptions(): array
+    {
+        $options = [
+            'safe_cash' => 'Safe Cash',
+            'bank' => 'Bank',
+            'undeposited_checks' => 'Checks on Hand',
+        ];
+
+        foreach ($options as $key => $fallback) {
+            $translated = lang('Finance.liquidityAccount.' . $key);
+            $options[$key] = is_string($translated) && $translated !== 'Finance.liquidityAccount.' . $key
+                ? $translated
+                : $fallback;
+        }
+
+        return $options;
     }
 
     private function getImagingCategories(): array
@@ -824,6 +844,14 @@ class Patient extends BaseController
             'patient_command_chair_options' => service('settings')->getBookingChairNames(),
             'patient_command_base_currency' => settings()->get('currency', 'ILS'),
             'patient_command_currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'patient_command_inventory_items' => (new InventoryModel())
+                ->where('status', 'active')
+                ->where('clinic_id', $clinicId)
+                ->where('quantity >', 0)
+                ->orderBy('item_name', 'ASC')
+                ->findAll(),
+            'patient_command_clinic_providers' => (new ClinicUserModel())->getActiveUserDirectoryByClinic((int) $clinicId),
+            'patient_command_liquidity_account_options' => $this->getPatientCommandLiquidityAccountOptions(),
             'latest_imaging_attachment' => $latestImagingAttachment,
             'latest_imaging_preview_src' => $latestImagingPreviewSrc,
             'contracts_enabled' => $contractsEnabled,
@@ -838,7 +866,8 @@ class Patient extends BaseController
             'return_to' => $this->sanitizeInternalReturnTo(
                 $this->request->getGet('return_to'),
                 ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations']
-            )
+            ),
+            'loadSelect2' => true,
         ];
 
         return $this->view('patient/show', $data);

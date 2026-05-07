@@ -71,6 +71,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/app-drawer.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- DataTables Buttons CSS - Only load for pages that need DataTables -->
@@ -1989,12 +1990,17 @@
         return null;
     }
 
-    function initializeClinicDateInputs() {
-        const fields = document.querySelectorAll('input[data-clinic-date="1"]');
+    function initializeClinicDateInputs(root) {
+        const scope = root || document;
+        const fields = scope.querySelectorAll('input[data-clinic-date="1"]');
         const formatHint = clinicDateFormatLabel(clinicDateFormat);
         const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
 
         fields.forEach((field) => {
+            if (field.dataset.clinicDateInputBound === '1') {
+                return;
+            }
+            field.dataset.clinicDateInputBound = '1';
             const current = field.value ? field.value.trim() : '';
             if (current && /^\d{4}-\d{2}-\d{2}$/.test(current)) {
                 field.value = formatClinicDateFromIso(current);
@@ -2080,7 +2086,11 @@
             field.addEventListener('blur', switchToDisplayMode);
         });
 
-        document.querySelectorAll('form').forEach((form) => {
+        scope.querySelectorAll('form').forEach((form) => {
+            if (form.dataset.clinicDateBound === '1') {
+                return;
+            }
+            form.dataset.clinicDateBound = '1';
             form.addEventListener('submit', function (event) {
                 const dateInputs = form.querySelectorAll('input[data-clinic-date="1"]');
                 for (const input of dateInputs) {
@@ -2105,8 +2115,9 @@
         });
     }
 
-    function initializeClinicTimeInputs() {
-        const fields = document.querySelectorAll('input[data-clinic-time="1"]');
+    function initializeClinicTimeInputs(root) {
+        const scope = root || document;
+        const fields = scope.querySelectorAll('input[data-clinic-time="1"]');
         if (!fields.length) {
             return;
         }
@@ -2114,6 +2125,10 @@
         const formatHint = clinicTimeFormat === '24' ? 'HH:MM' : 'h:mm AM/PM';
 
         fields.forEach((field) => {
+            if (field.dataset.clinicTimeInputBound === '1') {
+                return;
+            }
+            field.dataset.clinicTimeInputBound = '1';
             if (clinicTimeFormat === '24') {
                 field.type = 'time';
                 field.setAttribute('title', 'Use 24-hour format (HH:MM)');
@@ -2168,7 +2183,11 @@
             field.addEventListener('blur', switchToDisplayMode);
         });
 
-        document.querySelectorAll('form').forEach((form) => {
+        scope.querySelectorAll('form').forEach((form) => {
+            if (form.dataset.clinicTimeBound === '1') {
+                return;
+            }
+            form.dataset.clinicTimeBound = '1';
             form.addEventListener('submit', function (event) {
                 const timeInputs = form.querySelectorAll('input[data-clinic-time="1"]');
                 for (const input of timeInputs) {
@@ -2197,6 +2216,8 @@
     window.parseClinicDateToIso = parseClinicDateToIso;
     window.formatClinicTimeFrom24 = formatClinicTimeFrom24;
     window.parseClinicTimeTo24 = parseClinicTimeTo24;
+    window.initializeClinicDateInputs = initializeClinicDateInputs;
+    window.initializeClinicTimeInputs = initializeClinicTimeInputs;
 
     let isSyncingRequiredFieldMarkers = false;
 
@@ -2496,6 +2517,8 @@
 <?php if (isset($loadSelect2) && $loadSelect2): ?>
 <script src="<?= base_url('assets/js/select2-init.js') ?>?v=<?= time() ?>"></script>
 <?php endif; ?>
+<script src="<?= base_url('assets/js/app-drawer.js') ?>?v=<?= time() ?>"></script>
+<script src="<?= base_url('assets/js/contextual-workspace.js') ?>?v=<?= time() ?>"></script>
 
 </body>
 </html>
