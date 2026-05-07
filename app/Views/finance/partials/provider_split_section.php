@@ -52,6 +52,10 @@ if (empty($providerRows)) {
 }
 
 $splitEnabled = old('provider_split_enabled', !empty($provider_payouts) ? '1' : '');
+$idPrefix = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($id_prefix ?? ''));
+$fieldId = static function (string $id) use ($idPrefix): string {
+    return $idPrefix !== '' ? $idPrefix . '_' . $id : $id;
+};
 $providerOptions = [];
 foreach (($clinic_providers ?? []) as $provider) {
     $providerOptions[] = [
@@ -111,38 +115,38 @@ foreach (($clinic_providers ?? []) as $provider) {
             <p class="mt-1 text-xs text-indigo-700/80"><?= lang('Finance.providerSplitMultiHelp') ?></p>
         </div>
         <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="providerSplitEnabled" name="provider_split_enabled" value="1" class="sr-only" <?= $splitEnabled ? 'checked' : '' ?>>
-            <div id="providerSplitTrack" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
-                <div id="providerSplitDot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></div>
+            <input type="checkbox" id="<?= esc($fieldId('providerSplitEnabled')) ?>" name="provider_split_enabled" value="1" class="sr-only" <?= $splitEnabled ? 'checked' : '' ?>>
+            <div id="<?= esc($fieldId('providerSplitTrack')) ?>" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
+                <div id="<?= esc($fieldId('providerSplitDot')) ?>" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></div>
             </div>
             <span class="<?= !empty($is_rtl) ? 'mr-3' : 'ml-3' ?> text-sm font-semibold text-indigo-900"><?= lang('Finance.enable') ?></span>
         </label>
     </div>
 
-    <div id="providerSplitFields" class="<?= $splitEnabled ? 'space-y-5' : 'hidden space-y-5' ?>">
+    <div id="<?= esc($fieldId('providerSplitFields')) ?>" class="<?= $splitEnabled ? 'space-y-5' : 'hidden space-y-5' ?>">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.grossCollected') ?></p>
-                <p class="mt-1 text-lg font-bold text-emerald-700" id="splitGrossPreview">0.00</p>
+                <p class="mt-1 text-lg font-bold text-emerald-700" id="<?= esc($fieldId('splitGrossPreview')) ?>">0.00</p>
             </div>
             <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.totalProviderCompensation') ?></p>
-                <p class="mt-1 text-lg font-bold text-indigo-700" id="splitProviderPreview">0.00</p>
+                <p class="mt-1 text-lg font-bold text-indigo-700" id="<?= esc($fieldId('splitProviderPreview')) ?>">0.00</p>
             </div>
             <div class="rounded-xl border border-sky-200 bg-sky-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.clinicNet') ?></p>
-                <p class="mt-1 text-lg font-bold text-sky-700" id="splitClinicPreview">0.00</p>
+                <p class="mt-1 text-lg font-bold text-sky-700" id="<?= esc($fieldId('splitClinicPreview')) ?>">0.00</p>
             </div>
         </div>
 
         <div class="flex items-center justify-between gap-3">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-800"><?= lang('Finance.providerSplit') ?></p>
-            <button type="button" id="addProviderAllocationBtn" class="inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50">
+            <button type="button" id="<?= esc($fieldId('addProviderAllocationBtn')) ?>" class="inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50">
                 <i class="fas fa-plus <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.addProviderAllocation') ?>
             </button>
         </div>
 
-        <div id="providerAllocationsList" class="space-y-4"></div>
+        <div id="<?= esc($fieldId('providerAllocationsList')) ?>" class="space-y-4"></div>
     </div>
 </div>
 
@@ -159,16 +163,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    const splitToggle = section.querySelector('#providerSplitEnabled');
-    const splitFields = section.querySelector('#providerSplitFields');
-    const splitTrack = section.querySelector('#providerSplitTrack');
-    const splitDot = section.querySelector('#providerSplitDot');
-    const allocationsList = section.querySelector('#providerAllocationsList');
-    const addBtn = section.querySelector('#addProviderAllocationBtn');
-    const grossInput = form.querySelector('#totalAmountLive, [name="total_amount"], [name="amount"]');
-    const grossPreview = section.querySelector('#splitGrossPreview');
-    const providerPreview = section.querySelector('#splitProviderPreview');
-    const clinicPreview = section.querySelector('#splitClinicPreview');
+    const splitToggle = section.querySelector('[name="provider_split_enabled"]');
+    const splitFields = section.querySelector('[id$="providerSplitFields"]');
+    const splitTrack = section.querySelector('[id$="providerSplitTrack"]');
+    const splitDot = section.querySelector('[id$="providerSplitDot"]');
+    const allocationsList = section.querySelector('[id$="providerAllocationsList"]');
+    const addBtn = section.querySelector('[id$="addProviderAllocationBtn"]');
+    const grossInput = form.querySelector('[data-finance-total], #totalAmountLive, [name="total_amount"], [name="amount"]');
+    const grossPreview = section.querySelector('[id$="splitGrossPreview"]');
+    const providerPreview = section.querySelector('[id$="splitProviderPreview"]');
+    const clinicPreview = section.querySelector('[id$="splitClinicPreview"]');
     const providerOptions = <?= json_encode($providerOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     const initialRows = <?= json_encode($providerRows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
@@ -480,11 +484,11 @@ document.addEventListener('DOMContentLoaded', function () {
     splitToggle?.addEventListener('change', syncSplitToggleState);
     grossInput?.addEventListener('input', updateSummary);
     const recalcTriggers = [
-        form.querySelector('#amountOriginal, [name="amount_original"]'),
-        form.querySelector('#exchangeRate, [name="exchange_rate"]'),
-        form.querySelector('#currencySelect, [name="currency"]'),
-        form.querySelector('#discountAmount, [name="discount_amount"]'),
-        form.querySelector('#taxPercentage, [name="tax_percentage"]'),
+        form.querySelector('[name="amount_original"]'),
+        form.querySelector('[name="exchange_rate"]'),
+        form.querySelector('[name="currency"]'),
+        form.querySelector('[name="discount_amount"]'),
+        form.querySelector('[name="tax_percentage"]'),
         grossInput,
     ];
     recalcTriggers.forEach((el) => {

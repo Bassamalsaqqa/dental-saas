@@ -21,7 +21,7 @@ $fullUrl = static function (string $path) use ($patientId, $returnTo): string {
 };
 $buttonClass = 'patient-command-action inline-flex min-h-[2.85rem] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-sky-500/15';
 $primaryButtonClass = 'patient-command-action patient-command-action-primary inline-flex min-h-[2.85rem] items-center justify-center gap-2 rounded-xl border border-teal-700 bg-teal-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-teal-500/20';
-$footer = static function (string $drawerId, string $submitLabel, string $fullPageUrl): string {
+$footer = static function (string $drawerId, string $submitLabel, string $fullPageUrl, string $formId): string {
     ob_start();
     ?>
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -31,16 +31,16 @@ $footer = static function (string $drawerId, string $submitLabel, string $fullPa
         </a>
         <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
-            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"><?= esc($submitLabel) ?></button>
+            <button type="submit" form="<?= esc($formId) ?>" class="inline-flex items-center justify-center rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"><?= esc($submitLabel) ?></button>
         </div>
     </div>
     <?php
     return (string) ob_get_clean();
 };
-$formWrap = static function (string $action, string $body, ?string $returnTo = null, bool $multipart = false, string $attrs = ''): string {
+$formWrap = static function (string $formId, string $action, string $body, ?string $returnTo = null, bool $multipart = false, string $attrs = ''): string {
     ob_start();
     ?>
-    <form action="<?= esc($action) ?>" method="post" <?= $multipart ? 'enctype="multipart/form-data"' : '' ?> class="space-y-5" <?= $attrs ?>>
+    <form id="<?= esc($formId) ?>" action="<?= esc($action) ?>" method="post" <?= $multipart ? 'enctype="multipart/form-data"' : '' ?> class="space-y-5" <?= $attrs ?>>
         <?= csrf_field() ?>
         <?php if ($returnTo): ?><input type="hidden" name="return_to" value="<?= esc($returnTo) ?>"><?php endif; ?>
         <?= $body ?>
@@ -90,7 +90,8 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
 
 <?php if (has_permission('examinations', 'create')): ?>
     <?php
-    $body = $formWrap(base_url('examination/store'), view('examination/partials/form_fields', [
+    $examFormId = 'patientExamDrawerForm';
+    $body = $formWrap($examFormId, base_url('examination/store'), view('examination/partials/form_fields', [
         'contextual' => true,
         'selected_patient' => $patient,
         'validation' => session()->getFlashdata('validation'),
@@ -105,13 +106,14 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
         'tone' => 'bg-sky-600',
         'size' => 'form',
         'body' => $body,
-        'footer' => $footer('patientExamDrawer', lang('Examination.create_examination'), $fullUrl('examination/create')),
+        'footer' => $footer('patientExamDrawer', lang('Examination.create_examination'), $fullUrl('examination/create'), $examFormId),
     ]) ?>
 <?php endif; ?>
 
 <?php if (has_permission('appointments', 'create')): ?>
     <?php
-    $body = $formWrap(base_url('appointment/store'), view('appointment/partials/form_fields', [
+    $appointmentFormId = 'patientAppointmentDrawerForm';
+    $body = $formWrap($appointmentFormId, base_url('appointment/store'), view('appointment/partials/form_fields', [
         'contextual' => true,
         'selected_patient' => $patient,
         'chair_options' => $chairOptions,
@@ -127,13 +129,14 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
         'tone' => 'bg-emerald-600',
         'size' => 'form',
         'body' => $body,
-        'footer' => $footer('patientAppointmentDrawer', lang('UI.appointmentSchedule'), $fullUrl('appointment/create')),
+        'footer' => $footer('patientAppointmentDrawer', lang('UI.appointmentSchedule'), $fullUrl('appointment/create'), $appointmentFormId),
     ]) ?>
 <?php endif; ?>
 
 <?php if (has_permission('treatments', 'create')): ?>
     <?php
-    $body = $formWrap(base_url('treatment/store'), view('treatment/partials/form_fields', [
+    $treatmentFormId = 'patientTreatmentDrawerForm';
+    $body = $formWrap($treatmentFormId, base_url('treatment/store'), view('treatment/partials/form_fields', [
         'contextual' => true,
         'selected_patient' => $patient,
         'patients' => [$patient],
@@ -151,7 +154,7 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
         'tone' => 'bg-purple-600',
         'size' => 'form',
         'body' => $body,
-        'footer' => $footer('patientTreatmentDrawer', lang('Treatment.create_treatment'), $fullUrl('treatment/create')),
+        'footer' => $footer('patientTreatmentDrawer', lang('Treatment.create_treatment'), $fullUrl('treatment/create'), $treatmentFormId),
     ]) ?>
 <?php endif; ?>
 
@@ -162,8 +165,10 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
     ] as $drawerId => $config): ?>
         <?php
         [$type, $title] = $config;
-        $body = $formWrap(base_url('finance/store'), view('finance/partials/form_fields', [
+        $financeFormId = $drawerId . 'Form';
+        $body = $formWrap($financeFormId, base_url('finance/store'), view('finance/partials/form_fields', [
             'contextual' => true,
+            'id_prefix' => $drawerId,
             'selected_patient' => $patient,
             'patients' => [$patient],
             'transaction_type_preset' => $type,
@@ -183,7 +188,7 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
             'tone' => 'bg-amber-600',
             'size' => 'wide',
             'body' => $body,
-            'footer' => $footer($drawerId, lang('Finance.createTransaction'), $fullUrl('finance/create')),
+            'footer' => $footer($drawerId, lang('Finance.createTransaction'), $fullUrl('finance/create'), $financeFormId),
         ]) ?>
     <?php endforeach; ?>
     <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
@@ -191,7 +196,8 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
 
 <?php if ($attachmentsEnabled && has_permission('patients', 'edit')): ?>
     <?php
-    $body = $formWrap(base_url('patient/' . $patientId . '/attachments/upload'), view('patient/partials/attachment_form_fields', [
+    $documentFormId = 'patientDocumentDrawerForm';
+    $body = $formWrap($documentFormId, base_url('patient/' . $patientId . '/attachments/upload'), view('patient/partials/attachment_form_fields', [
         'patient' => $patient,
         'attachment_category_options' => $attachmentCategoryOptions,
         'max_file_mb' => $maxFileMb,
@@ -205,6 +211,6 @@ $formWrap = static function (string $action, string $body, ?string $returnTo = n
         'tone' => 'bg-cyan-600',
         'size' => 'form',
         'body' => $body,
-        'footer' => $footer('patientDocumentDrawer', lang('UI.patientUploadFiles'), base_url('patient/' . $patientId . '?tab=attachments')),
+        'footer' => $footer('patientDocumentDrawer', lang('UI.patientUploadFiles'), base_url('patient/' . $patientId . '?tab=attachments'), $documentFormId),
     ]) ?>
 <?php endif; ?>

@@ -22,11 +22,20 @@
         document.body.appendChild(drawer);
     }
 
+    function syncDrawerDirection(drawer) {
+        const direction = document.documentElement.getAttribute('dir') || document.body.getAttribute('dir') || 'ltr';
+        const normalized = direction === 'rtl' ? 'rtl' : 'ltr';
+        drawer.setAttribute('dir', normalized);
+        drawer.classList.toggle('app-drawer--rtl', normalized === 'rtl');
+        drawer.classList.toggle('app-drawer--ltr', normalized !== 'rtl');
+    }
+
     function openDrawer(id, trigger) {
         const drawer = getDrawer(id);
         if (!drawer || drawer.classList.contains('is-open')) return;
 
         ensureDrawerPortal(drawer);
+        syncDrawerDirection(drawer);
         triggerMap.set(drawer.id, trigger || document.activeElement);
         drawer.setAttribute('aria-hidden', 'false');
         drawer.classList.remove('is-settled');

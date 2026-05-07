@@ -70,6 +70,11 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
                             <input type="text" class="<?= esc($inputClass) ?> unit-cost bg-slate-100" readonly placeholder="<?= esc(lang('Treatment.unit_cost')) ?>">
                             <input type="text" class="<?= esc($inputClass) ?> total-cost bg-slate-100" readonly placeholder="<?= esc(lang('Treatment.total_cost')) ?>">
                         </div>
+                        <div class="mt-3 flex justify-end">
+                            <button type="button" data-remove-usage-item class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50">
+                                <i class="fas fa-trash me-2"></i><?= esc(lang('UI.delete')) ?>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">

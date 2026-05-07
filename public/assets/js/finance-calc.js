@@ -8,14 +8,14 @@
     const amountInput = field('#amountOriginal, [name="amount_original"]');
     const rateInput = field('#exchangeRate, [name="exchange_rate"]');
     const currencySelect = field('#currencySelect, [name="currency"]');
-    const convertedOutput = field('#amountConverted');
+    const convertedOutput = field('[data-finance-converted], #amountConverted');
     const discountInput = field('#discountAmount, [name="discount_amount"]');
     const taxInput = field('#taxPercentage, [name="tax_percentage"]');
-    const totalOutput = field('#totalAmountLive');
+    const totalOutput = field('[data-finance-total], #totalAmountLive');
     const methodSelect = field('#paymentMethod, [name="payment_method"]');
-    const checkField = field('#checkScanField');
+    const checkField = field('[data-check-scan-field], #checkScanField');
     const checkInput = field('#checkScanInput, [name="check_scan"]');
-    const checkName = field('#checkScanName');
+    const checkName = field('[data-check-scan-name], #checkScanName');
 
     const baseCurrency = form.getAttribute('data-base-currency') || 'ILS';
 
@@ -51,7 +51,7 @@
 
     const toggleCurrencyFields = () => {
       const currency = currencySelect?.value || baseCurrency;
-      const rateField = field('#exchangeRateField');
+      const rateField = field('[data-exchange-rate-field], #exchangeRateField');
       if (rateField) {
         rateField.style.display = 'block';
       }

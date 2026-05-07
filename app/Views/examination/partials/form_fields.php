@@ -65,7 +65,7 @@ $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 te
     <?php if ($validation && $validation->hasError('chief_complaint')): ?><p class="mt-2 text-sm text-red-600"><?= $validation->getError('chief_complaint') ?></p><?php endif; ?>
 </div>
 
-<details class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4" <?= $optionalEnabledByOld ? 'open' : '' ?> data-contextual-exam>
+<details class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4" <?= $optionalEnabledByOld ? 'open' : '' ?> data-contextual-exam data-patient-gender="<?= esc($selectedPatientGender) ?>">
     <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
     <div class="mt-4 space-y-5">
         <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">

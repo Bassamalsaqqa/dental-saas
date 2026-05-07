@@ -100,6 +100,7 @@ function getAppSelect2DropdownParent(select) {
     const explicitParent = select.closest('[data-select2-dropdown-parent]');
     const host = explicitParent || select.parentElement || panel;
     host.classList.add('app-select2-dropdown-parent');
+    host.setAttribute('dir', document.documentElement.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr');
     return window.jQuery(host);
 }
 
@@ -154,7 +155,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     };
     // Initialize Select2 for elements with data-searchable-select attribute
-    const searchableSelects = document.querySelectorAll('[data-searchable-select]');
+    const searchableSelects = Array.from(document.querySelectorAll('[data-searchable-select]'))
+        .filter(select => !select.closest('.app-drawer'));
     console.log('Select2: Found', searchableSelects.length, 'searchable select elements');
 
     let needsBearer = false;
@@ -390,7 +392,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     
     // Initialize Select2 for regular select elements that should be searchable
-    const regularSelects = document.querySelectorAll('select:not([data-searchable-select]):not([data-no-select2])');
+    const regularSelects = Array.from(document.querySelectorAll('select:not([data-searchable-select]):not([data-no-select2])'))
+        .filter(select => !select.closest('.app-drawer'));
     console.log('Select2: Found', regularSelects.length, 'regular select elements');
     
     regularSelects.forEach((select, index) => {
@@ -685,6 +688,12 @@ window.initAppSelects = function initAppSelects(root) {
         noResults: isRtl ? 'لا توجد نتائج' : 'No results found',
         searching: isRtl ? 'جارٍ البحث...' : 'Searching...',
     };
+
+    if (isRtl) {
+        i18n.placeholder = '\u0627\u062e\u062a\u0631 \u062e\u064a\u0627\u0631\u0627...';
+        i18n.noResults = '\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c';
+        i18n.searching = '\u062c\u0627\u0631\u064a \u0627\u0644\u0628\u062d\u062b...';
+    }
 
     const dropdownParentFor = (select) => getAppSelect2DropdownParent(select);
 

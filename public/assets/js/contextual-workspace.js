@@ -33,6 +33,14 @@
                 prerequisites: document.documentElement.dir === 'rtl' ? 'اختر الطبيب والتاريخ والمدة أولًا' : 'Select doctor, date, and duration first',
             };
 
+            if (document.documentElement.dir === 'rtl') {
+                labels.validDateFirst = '\u0623\u062f\u062e\u0644 \u062a\u0627\u0631\u064a\u062e\u0627 \u0635\u062d\u064a\u062d\u0627 \u0623\u0648\u0644\u0627';
+                labels.loading = '\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0623\u0648\u0642\u0627\u062a...';
+                labels.selectTime = '\u0627\u062e\u062a\u0631 \u0627\u0644\u0648\u0642\u062a';
+                labels.none = '\u0644\u0627 \u062a\u0648\u062c\u062f \u0623\u0648\u0642\u0627\u062a \u0645\u062a\u0627\u062d\u0629';
+                labels.prerequisites = '\u0627\u062e\u062a\u0631 \u0627\u0644\u0637\u0628\u064a\u0628 \u0648\u0627\u0644\u062a\u0627\u0631\u064a\u062e \u0648\u0627\u0644\u0645\u062f\u0629 \u0623\u0648\u0644\u0627';
+            }
+
             function normalizeDate(raw) {
                 return window.parseClinicDateToIso ? (window.parseClinicDateToIso(raw) || raw) : raw;
             }
@@ -109,6 +117,7 @@
                 const qty = row.querySelector('.quantity-input');
                 const unit = row.querySelector('.unit-cost');
                 const total = row.querySelector('.total-cost');
+                const remove = row.querySelector('[data-remove-usage-item]');
                 const update = () => {
                     const option = select?.options?.[select.selectedIndex];
                     const price = parseFloat(option?.getAttribute('data-price') || '0') || 0;
@@ -123,6 +132,18 @@
                 };
                 select?.addEventListener('change', update);
                 qty?.addEventListener('input', update);
+                remove?.addEventListener('click', () => {
+                    const rows = container?.querySelectorAll('.usage-item') || [];
+                    if (rows.length <= 1) {
+                        row.querySelectorAll('select, input').forEach((field) => {
+                            field.value = '';
+                            if (field.classList.contains('total-cost')) field.dataset.value = '0';
+                        });
+                    } else {
+                        row.remove();
+                    }
+                    calculateTotal();
+                });
             };
 
             toggle?.addEventListener('change', () => section?.classList.toggle('hidden', !toggle.checked));
@@ -132,7 +153,14 @@
                 if (!baseRow || !container) return;
                 const newRow = baseRow.cloneNode(true);
                 newRow.dataset.usageRowBound = '';
+                newRow.querySelectorAll('.select2-container').forEach((element) => element.remove());
                 newRow.querySelectorAll('select, input').forEach((field) => {
+                    if (field.matches('select')) {
+                        field.classList.remove('select2-hidden-accessible');
+                        field.removeAttribute('data-select2-id');
+                        field.removeAttribute('aria-hidden');
+                        field.removeAttribute('tabindex');
+                    }
                     if (field.name) field.name = field.name.replace(/\[\d+\]/, '[' + rowCount + ']');
                     field.value = '';
                     if (field.classList.contains('total-cost')) field.dataset.value = '0';
@@ -150,9 +178,10 @@
         scope.querySelectorAll('[data-contextual-exam]').forEach((wrap) => {
             if (wrap.dataset.examBound === '1') return;
             wrap.dataset.examBound = '1';
-            const patientSelect = scope.querySelector('#patientSelect');
+            const form = wrap.closest('form') || scope;
+            const patientSelect = form.querySelector('[name="patient_id"]');
             const syncPregnancy = () => {
-                const selectedGender = (patientSelect?.selectedOptions?.[0]?.dataset?.gender || '').toLowerCase();
+                const selectedGender = (wrap.dataset.patientGender || patientSelect?.selectedOptions?.[0]?.dataset?.gender || '').toLowerCase();
                 wrap.querySelectorAll('[data-pregnancy-only="1"]').forEach((item) => {
                     item.classList.toggle('hidden', selectedGender && selectedGender !== 'female');
                 });
