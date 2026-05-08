@@ -14,6 +14,33 @@
         }
     }
 
+    function normalizeSlotsPayload(payload) {
+        if (Array.isArray(payload)) {
+            return payload;
+        }
+
+        if (payload && Array.isArray(payload.slots)) {
+            return payload.slots;
+        }
+
+        if (payload && typeof payload === 'object') {
+            return Object.values(payload).filter((item) => {
+                if (!item || typeof item !== 'object') {
+                    return false;
+                }
+
+                const hasValue = Object.prototype.hasOwnProperty.call(item, 'value');
+                const hasDisplay = Object.prototype.hasOwnProperty.call(item, 'display');
+                const hasLabel = Object.prototype.hasOwnProperty.call(item, 'label');
+                const hasTime = Object.prototype.hasOwnProperty.call(item, 'time');
+
+                return (hasValue && (hasDisplay || hasLabel)) || (hasTime && hasDisplay);
+            });
+        }
+
+        return [];
+    }
+
     window.initContextualAppointmentForms = function initContextualAppointmentForms(root) {
         const scope = root || document;
         scope.querySelectorAll('[data-contextual-appointment-form]').forEach((wrap) => {
@@ -63,7 +90,7 @@
                 })
                     .then((response) => response.json())
                     .then((payload) => {
-                        const rawSlots = Array.isArray(payload) ? payload : (Array.isArray(payload?.slots) ? payload.slots : []);
+                        const rawSlots = normalizeSlotsPayload(payload);
                         if (!rawSlots.length) {
                             setOptions(timeSelect, [{ value: '', label: labels.none }]);
                             return;
