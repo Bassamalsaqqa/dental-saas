@@ -44,19 +44,28 @@
     };
 
     const toggleCheck = () => {
+      const isCheck = (methodSelect?.value || '').toLowerCase() === 'check';
       if (checkField) {
-        checkField.style.display = 'block';
+        checkField.style.display = isCheck ? 'block' : 'none';
+      }
+      if (!isCheck) {
+        if (checkInput) {
+          checkInput.value = '';
+        }
+        if (checkName) {
+          checkName.textContent = '';
+        }
       }
     };
 
     const toggleCurrencyFields = () => {
       const currency = currencySelect?.value || baseCurrency;
+      const requiresRate = currency !== baseCurrency;
       const rateField = field('[data-exchange-rate-field], #exchangeRateField');
       if (rateField) {
-        rateField.style.display = 'block';
+        rateField.style.display = requiresRate ? 'block' : 'none';
       }
       if (rateInput) {
-        const requiresRate = currency !== baseCurrency;
         rateInput.required = requiresRate;
         if (!requiresRate && (!rateInput.value || parseFloat(rateInput.value) <= 0)) {
           rateInput.value = '1';
@@ -85,6 +94,18 @@
 
     methodSelect?.addEventListener('change', toggleCheck);
 
+    if (window.jQuery) {
+      if (currencySelect) {
+        window.jQuery(currencySelect).on('select2:select select2:clear change', () => {
+          toggleCurrencyFields();
+          updateConverted();
+        });
+      }
+      if (methodSelect) {
+        window.jQuery(methodSelect).on('select2:select select2:clear change', toggleCheck);
+      }
+    }
+
     checkInput?.addEventListener('change', () => {
       if (checkName) {
         checkName.textContent = checkInput.files?.[0]?.name || '';
@@ -109,8 +130,8 @@
   window.initFinanceCalculators = init;
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => init(document));
   } else {
-    init();
+    init(document);
   }
 })();

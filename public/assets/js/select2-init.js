@@ -676,7 +676,7 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
 // Inject custom CSS
 document.head.insertAdjacentHTML('beforeend', select2CustomCSS);
 
-window.initAppSelects = function initAppSelects(root) {
+window.initAppSelects = async function initAppSelects(root) {
     if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
         return;
     }
@@ -693,6 +693,16 @@ window.initAppSelects = function initAppSelects(root) {
         i18n.placeholder = '\u0627\u062e\u062a\u0631 \u062e\u064a\u0627\u0631\u0627...';
         i18n.noResults = '\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c';
         i18n.searching = '\u062c\u0627\u0631\u064a \u0627\u0644\u0628\u062d\u062b...';
+    }
+
+    const drawerSearchSelects = Array.from(scope.querySelectorAll('select[data-searchable-select]'));
+    const needsBearer = drawerSearchSelects.some(select => isV1SearchUrl(select.dataset.searchUrl || ''));
+
+    if (needsBearer) {
+        const token = await fetchUiSearchToken();
+        if (!token) {
+            console.warn('Select2: UI search token unavailable before drawer select initialization; v1 search may 401.');
+        }
     }
 
     const dropdownParentFor = (select) => getAppSelect2DropdownParent(select);
@@ -818,6 +828,6 @@ window.initAppSelects = function initAppSelects(root) {
         hideRedundantSelectChevron(select);
     };
 
-    scope.querySelectorAll('select[data-searchable-select]').forEach(select => initializeSelect(select, true));
+    drawerSearchSelects.forEach(select => initializeSelect(select, true));
     scope.querySelectorAll('select[data-force-select2], .app-drawer select:not([data-no-select2])').forEach(select => initializeSelect(select, false));
 };

@@ -183,7 +183,21 @@
             const syncPregnancy = () => {
                 const selectedGender = (wrap.dataset.patientGender || patientSelect?.selectedOptions?.[0]?.dataset?.gender || '').toLowerCase();
                 wrap.querySelectorAll('[data-pregnancy-only="1"]').forEach((item) => {
-                    item.classList.toggle('hidden', selectedGender && selectedGender !== 'female');
+                    const shouldDisable = !!selectedGender && selectedGender !== 'female';
+                    item.classList.toggle('hidden', shouldDisable);
+                    item.querySelectorAll('input, select, textarea').forEach((field) => {
+                        if (typeof field.dataset.pregnancyOriginalDisabled === 'undefined') {
+                            field.dataset.pregnancyOriginalDisabled = field.disabled ? '1' : '0';
+                        }
+                        if (shouldDisable) {
+                            if (field.type === 'checkbox' || field.type === 'radio') {
+                                field.checked = false;
+                            }
+                            field.disabled = true;
+                        } else {
+                            field.disabled = field.dataset.pregnancyOriginalDisabled === '1';
+                        }
+                    });
                 });
             };
             patientSelect?.addEventListener('change', syncPregnancy);

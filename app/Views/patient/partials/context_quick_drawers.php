@@ -201,7 +201,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         'patient' => $patient,
         'attachment_category_options' => $attachmentCategoryOptions,
         'max_file_mb' => $maxFileMb,
-    ]), null, true);
+    ]), $returnTo, true);
     ?>
     <?= view('components/app_drawer', [
         'id' => 'patientDocumentDrawer',
