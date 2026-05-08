@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-05-08 - Patient Contextual Drawer Milestone
+
+- Completed the current-PHP Patient Profile contextual drawer milestone for:
+  - Add examination drawer
+  - New appointment drawer
+  - Add treatment drawer
+  - Record payment drawer
+  - Add patient charge drawer
+  - Add document drawer
+- Implementation commits:
+  - `58cdb2d0` Harden patient contextual drawers
+  - `859fdcb6` Harden contextual drawer interactions
+  - `d6c16441` Fix contextual appointment slot parsing
+- Verification summary:
+  - `node --check public/assets/js/contextual-workspace.js` passed
+  - `npm.cmd run build` passed
+  - `AppApiFoundationTest.php` passed
+  - `AppApiPatientsTest.php` passed
+  - All six drawer POST smoke tests passed on local/dev DB for patient `148` / clinic `19`
+  - Duplicate drawer ID scan passed
+  - Full create pages loaded cleanly: `/examination/create`, `/appointment/create`, `/treatment/create`, `/finance/create`
+  - All smoke test rows, attachment row, uploaded smoke file, and activity logs were cleaned up
+- Important implementation notes:
+  - Select2 drawer initialization is deferred until drawer open
+  - Drawer Select2 obtains the UI search Bearer token before `/api/v1/search/*` initialization
+  - Appointment drawer supports numeric-key slot payloads from `/appointment/available-time-slots`
+  - Pregnancy-only examination fields are hidden, unchecked, and disabled for non-female locked patients
+  - Finance drawers use prefixed IDs and scoped calculators to prevent payment/charge collisions
+  - Document drawer includes `return_to`
+- Remaining non-blocking notes:
+  - No app-wide drawer rollout is approved yet
+  - This pattern must not be copied globally without a separate scoped plan
+  - Future drawer conversions must include real POST smoke tests, not only visual checks
+
 ## 2026-05-06 - Patient Contextual Quick Actions
 
 - Added a current-PHP Patient Profile command workspace with contextual drawers for examination, appointment, treatment, patient payment, patient charge, and document upload
