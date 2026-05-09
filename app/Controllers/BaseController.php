@@ -567,6 +567,32 @@ abstract class BaseController extends Controller
         return null;
     }
 
+    protected function workflowReturnTo(array $allowedPrefixes = []): ?string
+    {
+        $allowedPrefixes = $allowedPrefixes ?: ['patient', 'patients', 'examination', 'examinations', 'appointment', 'appointments', 'treatment', 'treatments', 'prescription', 'prescriptions', 'finance'];
+
+        return $this->sanitizeInternalReturnTo(
+            (string) $this->request->getPost('return_to'),
+            $allowedPrefixes
+        );
+    }
+
+    protected function redirectAfterWorkflow(string $fallback, array $allowedPrefixes = [], ?string $returnToOverride = null, bool $readPostedReturnTo = true)
+    {
+        try {
+            service('navigation')->completeWorkflow();
+        } catch (\Throwable $e) {
+            log_message('error', 'Navigation workflow completion failed: ' . $e->getMessage());
+        }
+
+        $returnTo = $returnToOverride;
+        if ($returnTo === null && $readPostedReturnTo) {
+            $returnTo = $this->workflowReturnTo($allowedPrefixes);
+        }
+
+        return redirect()->to(base_url($returnTo ?: $fallback));
+    }
+
     /**
      * Apply timezone at runtime using clinic settings when available.
      * Falls back to app default timezone to avoid relying on server defaults.

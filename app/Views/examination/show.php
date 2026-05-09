@@ -206,8 +206,7 @@ $healthFlags = array_values(array_filter([
                         <?php endif; ?>
                     </div>
                     <div class="grid gap-2 sm:grid-cols-1">
-                        <?php $navPrev = service('navigation')->previous(); ?>
-                        <a href="<?= $navPrev ? esc($navPrev['url']) : (!empty($return_to) ? base_url($return_to) : base_url('examination')) ?>" class="patient-header-action patient-header-action-soft"><i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back_to_examinations')) ?></span></a>
+                        <a href="<?= esc(workflow_back('examination', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft"><i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back_to_examinations')) ?></span></a>
                     </div>
                     <?php if ($statusKey !== 'completed'): ?>
                     <div class="grid gap-2 sm:grid-cols-1">

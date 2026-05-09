@@ -376,13 +376,16 @@ class Treatment extends BaseController
                 $this->request->getPost('return_to')
             );
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been created successfully!');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                    ->with('success', 'Treatment has been created successfully!');
             }
 
             if ($examinationId) {
-                return redirect()->to('/examination/' . $examinationId)->with('success', 'Treatment has been created successfully!');
+                return $this->redirectAfterWorkflow('examination/' . $examinationId, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                    ->with('success', 'Treatment has been created successfully!');
             }
-            return redirect()->to('/treatment')->with('success', 'Treatment has been created successfully!');
+            return $this->redirectAfterWorkflow('treatment', ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                ->with('success', 'Treatment has been created successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create treatment. Please check your input and try again.');
         }
@@ -559,10 +562,12 @@ class Treatment extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']);
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been updated successfully!');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                    ->with('success', 'Treatment has been updated successfully!');
             }
 
-            return redirect()->to('/treatment')->with('success', 'Treatment has been updated successfully!');
+            return $this->redirectAfterWorkflow('treatment', ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                ->with('success', 'Treatment has been updated successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update treatment. Please check your input and try again.');
         }

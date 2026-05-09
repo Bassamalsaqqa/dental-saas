@@ -931,7 +931,8 @@ class Finance extends BaseController
             $this->db->transCommit();
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
-            return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $financeId))->with('success', 'Expense has been recorded successfully.');
+            return $this->redirectAfterWorkflow($returnTo ?: 'finance/' . $financeId, ['finance', 'finance/payables', 'inventory/suppliers'])
+                ->with('success', 'Expense has been recorded successfully.');
         } catch (\Throwable $e) {
             $this->db->transRollback();
             log_message('error', 'Expense create failed: ' . $e->getMessage());
@@ -1095,10 +1096,12 @@ class Finance extends BaseController
                 }
             }
             if ($returnTo !== null) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been created successfully!');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'finance'])
+                    ->with('success', 'Financial transaction has been created successfully!');
             }
 
-                return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been created successfully!');
+                return $this->redirectAfterWorkflow('finance', ['patient', 'patients', 'finance'], null, false)
+                    ->with('success', 'Financial transaction has been created successfully!');
             } else {
                 $this->db->transRollback();
                 $errors = $this->financeModel->errors();
@@ -1467,10 +1470,12 @@ class Finance extends BaseController
 
                 $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
                 if ($returnTo) {
-                    return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been updated successfully!');
+                    return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'finance'])
+                        ->with('success', 'Financial transaction has been updated successfully!');
                 }
 
-                return redirect()->to(base_url('finance/' . $id))->with('success', 'Financial transaction has been updated successfully!');
+                return $this->redirectAfterWorkflow('finance/' . $id, ['patient', 'patients', 'finance'])
+                    ->with('success', 'Financial transaction has been updated successfully!');
             }
 
             $this->db->transRollback();
@@ -1633,7 +1638,7 @@ class Finance extends BaseController
             $this->db->transCommit();
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
-            return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $id))
+            return $this->redirectAfterWorkflow($returnTo ?: 'finance/' . $id, ['finance', 'finance/payables', 'inventory/suppliers'])
                 ->with('success', 'Expense updated successfully.');
         } catch (\Throwable $e) {
             $this->db->transRollback();

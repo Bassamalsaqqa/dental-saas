@@ -659,19 +659,21 @@ class Patient extends BaseController
                 $postSubmitAction = (string) $this->request->getPost('post_submit_action');
                 if ($postSubmitAction === 'save_and_book') {
                     if ($this->hasPermission('appointments', 'create')) {
+                        service('navigation')->completeWorkflow();
                         return redirect()->to(base_url('appointment/create?patient_id=' . (int) $patientId . '&return_to=patient/' . (int) $patientId))
                             ->with('success', 'Patient has been added successfully! Continue by booking an appointment.');
                     }
 
-                    $fallbackRedirect = $returnTo ? base_url($returnTo) : '/patient';
-                    return redirect()->to($fallbackRedirect)
+                    return $this->redirectAfterWorkflow($returnTo ?: 'patient', ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations'])
                         ->with('success', 'Patient has been added successfully! Appointment booking was skipped because you do not have appointment create permission.');
                 }
 
                 if ($returnTo) {
-                    return redirect()->to(base_url($returnTo))->with('success', 'Patient has been added successfully!');
+                    return $this->redirectAfterWorkflow($returnTo, ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations'])
+                        ->with('success', 'Patient has been added successfully!');
                 }
-                return redirect()->to('/patient')->with('success', 'Patient has been added successfully!');
+                return $this->redirectAfterWorkflow('patient', ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations'])
+                    ->with('success', 'Patient has been added successfully!');
             } else {
                 $db->transRollback();
                 // Check if this is an AJAX request
@@ -1399,10 +1401,12 @@ class Patient extends BaseController
                 ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations']
             );
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Patient information has been updated successfully!');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations'])
+                    ->with('success', 'Patient information has been updated successfully!');
             }
             
-            return redirect()->to('/patient/' . $id)->with('success', 'Patient information has been updated successfully!');
+            return $this->redirectAfterWorkflow('patient/' . $id, ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations'])
+                ->with('success', 'Patient information has been updated successfully!');
         } else {
             $errors = $this->patientModel->errors();
             log_message('error', 'Patient update failed: ' . json_encode($errors));

@@ -45,6 +45,62 @@ class NavigationService
         return $trail[count($trail) - 2] ?? null;
     }
 
+    public function previousSafe(string $fallback = '/', ?string $explicitReturnTo = null, array $excludePatterns = []): string
+    {
+        $explicit = $this->normalizeInternalTarget($explicitReturnTo);
+        if ($explicit !== null && !$this->isWorkflowUrl($explicit) && !$this->matchesAny($explicit, $excludePatterns)) {
+            return base_url($explicit);
+        }
+
+        $trail = $this->trail();
+        $last = end($trail);
+        if ($last && (($last['url'] ?? '') === current_url())) {
+            // Non-workflow GET pages are tracked before rendering. Back targets come from earlier entries.
+            array_pop($trail);
+        }
+
+        for ($i = count($trail) - 1; $i >= 0; $i--) {
+            $url = (string) ($trail[$i]['url'] ?? '');
+            if ($url === '' || $this->isWorkflowUrl($url) || $this->matchesAny($url, $excludePatterns)) {
+                continue;
+            }
+
+            return $url;
+        }
+
+        return base_url($fallback);
+    }
+
+    public function completeWorkflow(): void
+    {
+        $trail = $this->trail();
+
+        while ($trail !== []) {
+            $last = end($trail);
+            $url = (string) ($last['url'] ?? '');
+            if (!$this->isWorkflowUrl($url)) {
+                break;
+            }
+
+            array_pop($trail);
+        }
+
+        session()->set(self::SESSION_KEY, $trail);
+    }
+
+    public function isWorkflowUrl(string $url): bool
+    {
+        $path = strtok($this->relativePath($url), '?') ?: '';
+        if ($path === '') {
+            return false;
+        }
+
+        return (bool) preg_match(
+            '#(^|/)(create|edit|store|update|delete|destroy)(/|$)#i',
+            $path
+        );
+    }
+
     public function trail(): array
     {
         return session()->get(self::SESSION_KEY) ?? [];
@@ -58,12 +114,63 @@ class NavigationService
         if (in_array($first, $this->skipSegments, true)) {
             return true;
         }
-        if ($uri->isAJAX()) {
+        if (service('request')->isAJAX()) {
             return true;
         }
         if (service('request')->getMethod() !== 'get') {
             return true;
         }
+        if ($this->isWorkflowUrl(current_url())) {
+            return true;
+        }
+        return false;
+    }
+
+    private function normalizeInternalTarget(?string $target): ?string
+    {
+        $target = trim((string) $target);
+        if ($target === '') {
+            return null;
+        }
+
+        if (strpos($target, '://') !== false || strpos($target, '//') === 0) {
+            return null;
+        }
+
+        $target = ltrim($target, '/');
+        if (!preg_match('#^[a-zA-Z0-9/_\\-?=&.]+$#', $target)) {
+            return null;
+        }
+
+        return $target;
+    }
+
+    private function relativePath(string $url): string
+    {
+        $path = (string) (parse_url($url, PHP_URL_PATH) ?? '');
+        $query = (string) (parse_url($url, PHP_URL_QUERY) ?? '');
+        $basePath = trim((string) (parse_url(base_url(), PHP_URL_PATH) ?? ''), '/');
+        $path = trim($path, '/');
+
+        if ($basePath !== '' && str_starts_with($path, $basePath . '/')) {
+            $path = substr($path, strlen($basePath) + 1);
+        } elseif ($basePath !== '' && $path === $basePath) {
+            $path = '';
+        }
+
+        return $query === '' ? $path : $path . '?' . $query;
+    }
+
+    private function matchesAny(string $url, array $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            if ($pattern !== '' && @preg_match($pattern, $url)) {
+                if (preg_match($pattern, $url)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

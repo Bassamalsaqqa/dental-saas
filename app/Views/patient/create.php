@@ -67,7 +67,7 @@ $alertBoolChecked = static function (string $key): bool {
                                 <p class="text-gray-600 font-medium"><?= esc(lang('UI.patientCreateSubtitle')) ?></p>
                             </div>
                         </div>
-                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                        <a href="<?= esc(workflow_back('patient')) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                             <i class="fas fa-arrow-left rtl-back-icon mr-2"></i>
                             <span><?= esc(lang('UI.patientBack')) ?></span>
                         </a>
@@ -366,7 +366,7 @@ $alertBoolChecked = static function (string $key): bool {
                         </section>
 
                         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6 border-t border-slate-200">
-                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50">
+                            <a href="<?= esc(workflow_cancel('patient', $return_to ?? null)) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50">
                                 <?= esc(lang('UI.cancel')) ?>
                             </a>
                             <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center px-6 py-3 border border-blue-200 bg-white text-blue-700 text-sm font-bold rounded-xl hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md">

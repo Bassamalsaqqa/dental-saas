@@ -26,7 +26,7 @@
                                 <i class="fas fa-plus-circle relative z-10 mr-2"></i>
                                 <span class="relative z-10"><?= lang('Finance.addIncome') ?></span>
                             </a>
-                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="group/btn relative inline-flex items-center rounded-xl border-2 border-gray-300 px-6 py-3 text-sm font-bold text-gray-700 transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50">
+                            <a href="<?= esc(workflow_back('finance', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center rounded-xl border-2 border-gray-300 px-6 py-3 text-sm font-bold text-gray-700 transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50">
                                 <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-500/10 to-slate-500/10 blur opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100"></div>
                                 <i class="fas fa-arrow-left rtl-back-icon relative z-10 mr-2"></i>
                                 <span class="relative z-10"><?= lang('Finance.back') ?></span>
@@ -284,7 +284,7 @@
                         <?php endif; ?>
 
                         <div class="flex flex-col justify-end gap-4 border-t border-white/20 pt-6 sm:flex-row">
-                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="group/btn relative inline-flex items-center justify-center rounded-xl border-2 border-gray-300 px-8 py-3 text-sm font-bold text-gray-700 transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50">
+                            <a href="<?= esc(workflow_cancel('finance', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center rounded-xl border-2 border-gray-300 px-8 py-3 text-sm font-bold text-gray-700 transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50">
                                 <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-500/10 to-slate-500/10 blur opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100"></div>
                                 <i class="fas fa-times relative z-10 mr-2"></i>
                                 <span class="relative z-10"><?= lang('Finance.cancel') ?></span>

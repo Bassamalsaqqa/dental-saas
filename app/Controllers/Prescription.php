@@ -268,10 +268,12 @@ class Prescription extends BaseController
 
             $returnTo = $this->resolveCreateReturnTo((int) $prescriptionData['patient_id'], $this->request->getPost('return_to'));
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been created successfully!');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'prescription', 'prescriptions'])
+                    ->with('success', 'Prescription has been created successfully!');
             }
             
-            return redirect()->to(base_url('prescription'))->with('success', 'Prescription has been created successfully!');
+            return $this->redirectAfterWorkflow('prescription', ['patient', 'patients', 'prescription', 'prescriptions'])
+                ->with('success', 'Prescription has been created successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create prescription. Please check your input and try again.');
         }
@@ -421,10 +423,12 @@ class Prescription extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'prescription', 'prescriptions']);
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been updated successfully!');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'prescription', 'prescriptions'])
+                    ->with('success', 'Prescription has been updated successfully!');
             }
             
-            return redirect()->to(base_url('prescription'))->with('success', 'Prescription has been updated successfully!');
+            return $this->redirectAfterWorkflow('prescription', ['patient', 'patients', 'prescription', 'prescriptions'])
+                ->with('success', 'Prescription has been updated successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update prescription. Please check your input and try again.');
         }

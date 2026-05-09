@@ -309,15 +309,18 @@ class Appointment extends BaseController
             
             $returnTo = $this->resolveCreateReturnTo((int) $appointmentData['patient_id'], $this->request->getPost('examination_id'), $this->request->getPost('return_to'));
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Appointment created successfully');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                    ->with('success', 'Appointment created successfully');
             }
 
             $examinationId = $this->request->getPost('examination_id');
             if (is_numeric($examinationId)) {
-                return redirect()->to('/examination/' . (int)$examinationId)->with('success', 'Follow-up appointment scheduled successfully');
+                return $this->redirectAfterWorkflow('examination/' . (int) $examinationId, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                    ->with('success', 'Follow-up appointment scheduled successfully');
             }
 
-            return redirect()->to('/appointment')->with('success', 'Appointment created successfully');
+            return $this->redirectAfterWorkflow('appointment', ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                ->with('success', 'Appointment created successfully');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create appointment');
         }
@@ -516,10 +519,12 @@ class Appointment extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Appointment updated successfully');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                    ->with('success', 'Appointment updated successfully');
             }
             
-            return redirect()->to('/appointment/' . $id)->with('success', 'Appointment updated successfully');
+            return $this->redirectAfterWorkflow('appointment/' . $id, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                ->with('success', 'Appointment updated successfully');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update appointment');
         }

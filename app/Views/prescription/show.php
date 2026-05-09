@@ -160,8 +160,7 @@ $statusTone = match ($statusKey) {
                             <i class="fas fa-user"></i><span><?= esc($tr('back_to_patient')) ?></span>
                         </a>
                         <?php endif; ?>
-                        <?php $navPrev = service('navigation')->previous(); ?>
-                        <a href="<?= $navPrev ? esc($navPrev['url']) : (!empty($return_to) ? base_url($return_to) : base_url('prescription')) ?>" class="patient-header-action patient-header-action-soft">
+                        <a href="<?= esc(workflow_back('prescription', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
                             <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back_to_prescriptions')) ?></span>
                         </a>
                     </div>

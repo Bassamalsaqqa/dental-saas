@@ -187,6 +187,7 @@ class Examination extends BaseController
             );
             
             if ($this->request->getPost('after_save') === 'odontogram') {
+                service('navigation')->completeWorkflow();
                 return redirect()
                     ->to(base_url('odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $examinationId))
                     ->with('success', 'Examination created successfully');
@@ -194,11 +195,13 @@ class Examination extends BaseController
 
             $returnTo = $this->resolveCreateReturnTo((int) $examinationData['patient_id'], $this->request->getPost('return_to'));
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Examination created successfully');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations'])
+                    ->with('success', 'Examination created successfully');
             }
 
             log_message('info', 'Examination created successfully with ID: ' . $examinationId);
-            return redirect()->to(base_url('examination/' . $examinationId))->with('success', 'Examination created successfully');
+            return $this->redirectAfterWorkflow('examination/' . $examinationId, ['patient', 'patients', 'examination', 'examinations'])
+                ->with('success', 'Examination created successfully');
         } else {
             // Log the error for debugging
             $errors = $this->examinationModel->errors();
@@ -413,15 +416,18 @@ class Examination extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
             if ($this->request->getPost('after_save') === 'odontogram') {
+                service('navigation')->completeWorkflow();
                 return redirect()
                     ->to(base_url('odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $id))
                     ->with('success', 'Examination updated successfully');
             }
             if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Examination updated successfully');
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations'])
+                    ->with('success', 'Examination updated successfully');
             }
             
-            return redirect()->to(base_url('examination/' . $id))->with('success', 'Examination updated successfully');
+            return $this->redirectAfterWorkflow('examination/' . $id, ['patient', 'patients', 'examination', 'examinations'])
+                ->with('success', 'Examination updated successfully');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update examination');
         }

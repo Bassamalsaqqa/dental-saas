@@ -1143,8 +1143,7 @@
                     </div>
                     <div class="w-full space-y-2 xl:w-[21rem]">
                         <div class="grid gap-2 sm:grid-cols-2">
-                            <?php $navPrev = service('navigation')->previous(); ?>
-                            <a href="<?= $navPrev ? esc($navPrev['url']) : (!empty($return_to) ? base_url($return_to) : base_url('finance')) ?>" class="patient-header-action patient-header-action-soft">
+                            <a href="<?= esc(workflow_back('finance', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                                 <span><?= esc($ui['back']) ?></span>
                             </a>

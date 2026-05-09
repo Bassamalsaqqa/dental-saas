@@ -590,8 +590,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     <span><?= esc(lang('UI.patientEditPatient')) ?></span>
                                 </a>
                             <?php endif; ?>
-                            <?php $navPrev = service('navigation')->previous(); ?>
-                            <a href="<?= $navPrev ? esc($navPrev['url']) : (!empty($return_to) ? base_url($return_to) : base_url('patients')) ?>" class="patient-header-action patient-header-action-soft">
+                            <a href="<?= esc(workflow_back('patients', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas fa-arrow-left"></i>
                                 <span><?= esc(lang('UI.patientBackToPatients')) ?></span>
                             </a>

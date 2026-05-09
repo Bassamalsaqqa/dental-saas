@@ -194,13 +194,11 @@ class TreatmentContracts extends BaseController
         );
 
         if ($returnTo) {
-            return redirect()
-                ->to(base_url($returnTo))
+            return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations', 'contracts'])
                 ->with('success', 'Treatment plan contract created successfully.');
         }
 
-        return redirect()
-            ->to(base_url('contracts/' . $contractId))
+        return $this->redirectAfterWorkflow('contracts/' . $contractId, ['patient', 'patients', 'examination', 'examinations', 'contracts'])
             ->with('contracts_flash', '1');
     }
 
@@ -397,8 +395,7 @@ class TreatmentContracts extends BaseController
             "Treatment contract #{$contractId} updated"
         );
 
-        return redirect()
-            ->to(base_url('contracts/' . $contractId))
+        return $this->redirectAfterWorkflow('contracts/' . $contractId, ['patient', 'patients', 'examination', 'examinations', 'contracts'])
             ->with('success', 'Contract updated.')
             ->with('contracts_flash', '1');
     }
