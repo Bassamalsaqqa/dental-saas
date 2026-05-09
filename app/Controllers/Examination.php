@@ -187,9 +187,12 @@ class Examination extends BaseController
             );
             
             if ($this->request->getPost('after_save') === 'odontogram') {
-                service('navigation')->completeWorkflow();
-                return redirect()
-                    ->to(base_url('odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $examinationId))
+                return $this->redirectAfterWorkflow(
+                    'odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $examinationId,
+                    ['patient', 'patients', 'examination', 'examinations'],
+                    null,
+                    false
+                )
                     ->with('success', 'Examination created successfully');
             }
 
@@ -416,9 +419,12 @@ class Examination extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
             if ($this->request->getPost('after_save') === 'odontogram') {
-                service('navigation')->completeWorkflow();
-                return redirect()
-                    ->to(base_url('odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $id))
+                return $this->redirectAfterWorkflow(
+                    'odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $id,
+                    ['patient', 'patients', 'examination', 'examinations'],
+                    null,
+                    false
+                )
                     ->with('success', 'Examination updated successfully');
             }
             if ($returnTo) {

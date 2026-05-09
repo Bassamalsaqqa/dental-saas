@@ -659,8 +659,12 @@ class Patient extends BaseController
                 $postSubmitAction = (string) $this->request->getPost('post_submit_action');
                 if ($postSubmitAction === 'save_and_book') {
                     if ($this->hasPermission('appointments', 'create')) {
-                        service('navigation')->completeWorkflow();
-                        return redirect()->to(base_url('appointment/create?patient_id=' . (int) $patientId . '&return_to=patient/' . (int) $patientId))
+                        return $this->redirectAfterWorkflow(
+                            'appointment/create?patient_id=' . (int) $patientId . '&return_to=patient/' . (int) $patientId,
+                            ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations'],
+                            null,
+                            false
+                        )
                             ->with('success', 'Patient has been added successfully! Continue by booking an appointment.');
                     }
 
