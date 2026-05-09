@@ -1,5 +1,42 @@
 # Changelog
 
+## 2026-05-09 - Unified Workflow Navigation Contract
+
+- Milestone: unified workflow navigation contract
+- Implementation commits:
+  - `65067bb` Unify workflow navigation behavior
+  - `b8f1ca5` Harden unified workflow navigation contract
+- Problem fixed:
+  - The app previously had competing navigation systems: session stack Back behavior and `return_to` post-submit redirects
+  - Completed create/edit pages could remain in `nav_trail` and become stale Back targets
+- Final contract:
+  - `NavigationService` owns visible Back behavior
+  - `return_to` remains post-submit/context redirect metadata
+  - `create`, `edit`, `store`, `update`, `delete`, and `destroy` workflow URLs are rejected as Back targets
+  - Workflow GET pages are skipped from visible nav stack tracking
+  - Successful workflow POSTs go through `BaseController::redirectAfterWorkflow()`
+  - `completeWorkflow()` is only called inside `BaseController::redirectAfterWorkflow()`
+  - Views use `workflow_back()` / `workflow_cancel()`, not `service('navigation')->previous()`
+- Verification summary:
+  - `git status` clean
+  - No direct `service('navigation')->previous()` calls
+  - `completeWorkflow()` only inside `BaseController::redirectAfterWorkflow()`
+  - Hidden `return_to` inputs preserved
+  - Known out-of-scope visible `return_to` remains only in `app/Views/odontogram/index.php`
+  - PHP syntax checks passed
+  - `php spark routes` passed
+  - `npm.cmd run build` passed with existing Browserslist warning only
+  - `AppApiFoundationTest.php` passed
+  - `AppApiPatientsTest.php` passed
+  - Authenticated local HTTPS workflow smoke passed for appointment create, examination create, treatment create, finance create, prescription create, direct appointment create, edit cancel/link targets, and document upload endpoint
+  - Created smoke rows were cleaned up with zero leftovers
+- Caveat:
+  - Playwright visual smoke could not run because the browser context closed
+  - HTTP/session/rendered-link smoke passed and directly verified the workflow contract
+  - Full visual browser smoke remains optional future QA, not a blocker for this architecture milestone
+- Follow-up:
+  - Create a separate future mini-slice for `app/Views/odontogram/index.php` workflow cleanup
+
 ## 2026-05-08 - Patient Contextual Drawer Milestone
 
 - Completed the current-PHP Patient Profile contextual drawer milestone for:
