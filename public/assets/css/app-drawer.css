@@ -213,8 +213,8 @@
 [dir="rtl"] .app-drawer .select2-selection__arrow {
     left: 8px !important;
     right: auto !important;
-    inset-inline-start: 8px !important;
-    inset-inline-end: auto !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 8px !important;
 }
 
 .app-drawer:not(:dir(rtl)) .select2-selection__rendered,
@@ -244,8 +244,8 @@
 
 .app-drawer:dir(rtl) .select2-selection__clear,
 [dir="rtl"] .app-drawer .select2-selection__clear {
-    inset-inline-start: 2rem;
-    inset-inline-end: auto;
+    inset-inline-start: auto;
+    inset-inline-end: 2rem;
 }
 
 .app-drawer:dir(rtl) .select2-container,
@@ -264,6 +264,31 @@
     padding-inline-start: 1rem !important;
     padding-inline-end: 2.75rem !important;
     text-align: right;
+}
+
+.context-patient-badge {
+    direction: inherit;
+    text-align: start;
+}
+
+[dir="rtl"] .context-patient-badge .context-patient-badge__row,
+.app-drawer:dir(rtl) .context-patient-badge .context-patient-badge__row {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .context-patient-badge .context-patient-badge__body,
+.app-drawer:dir(rtl) .context-patient-badge .context-patient-badge__body {
+    text-align: right;
+}
+
+[dir="rtl"] .context-patient-badge .context-patient-badge__identity,
+.app-drawer:dir(rtl) .context-patient-badge .context-patient-badge__identity {
+    justify-content: flex-start;
+}
+
+.context-patient-badge__number,
+.context-patient-badge__phone {
+    unicode-bidi: isolate;
 }
 
 .select2-container--open {

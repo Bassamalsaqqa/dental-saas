@@ -458,6 +458,7 @@ const select2CustomCSS = `
     border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     background-color: #ffffff;
+    position: relative;
     transition: all 0.2s ease-in-out;
 }
 
@@ -474,8 +475,14 @@ const select2CustomCSS = `
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #374151;
     line-height: 40px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     padding-left: 12px;
-    padding-right: 20px;
+    padding-right: 44px;
+    padding-inline-start: 12px;
+    padding-inline-end: 44px;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
@@ -484,18 +491,41 @@ const select2CustomCSS = `
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 40px;
+    width: 28px;
     right: 8px;
+    left: auto;
+    inset-inline-start: auto;
+    inset-inline-end: 8px;
 }
 
 html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__rendered {
-    padding-left: 20px;
+    padding-left: 44px;
     padding-right: 12px;
+    padding-inline-start: 12px;
+    padding-inline-end: 44px;
     text-align: right;
 }
 
 html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__arrow {
     left: 8px;
     right: auto;
+    inset-inline-start: auto;
+    inset-inline-end: 8px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    float: none;
+    position: absolute;
+    top: 50%;
+    right: 34px;
+    transform: translateY(-50%);
+    margin: 0;
+    line-height: 1;
+}
+
+html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__clear {
+    right: auto;
+    left: 34px;
 }
 
 html[dir="rtl"] .select2-container--default .select2-search--dropdown .select2-search__field,
@@ -625,12 +655,32 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         line-height: 38px;
         padding-left: 10px;
-        padding-right: 18px;
+        padding-right: 42px;
+        padding-inline-start: 10px;
+        padding-inline-end: 42px;
     }
     
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 38px;
+        width: 28px;
         right: 6px;
+        left: auto;
+        inset-inline-start: auto;
+        inset-inline-end: 6px;
+    }
+
+    html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 42px;
+        padding-right: 10px;
+        padding-inline-start: 10px;
+        padding-inline-end: 42px;
+    }
+
+    html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__arrow {
+        left: 6px;
+        right: auto;
+        inset-inline-start: auto;
+        inset-inline-end: 6px;
     }
 }
 

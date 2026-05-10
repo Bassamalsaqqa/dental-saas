@@ -49,6 +49,9 @@ Non-goals:
 Required checks after changes:
 
 - Patient page loads in English and Arabic.
+- Drawer context badges must be RTL-aware as a full unit: icon, title, patient name, patient number, phone, and helper copy should mirror cleanly in Arabic. Patient numbers and phone values stay `dir="ltr"` with isolated bidi handling.
+- Select2 fields must reserve enough inline space for the dropdown arrow and clear button in both LTR and RTL. Do not mix physical `left`/`right` with the wrong logical `inset-inline-*`; short values such as `ILS` and Arabic placeholders must never sit under the arrow.
+- Drawer Select2 dropdowns must be parented/stacked above the drawer body so menus never render under later helper text or fields.
 - Drawer opens by button and closes by close button, Escape, and backdrop.
 - Focus enters the drawer and returns to the trigger.
 - Examination, appointment, treatment, finance, and attachment submissions route through existing controllers.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-10 - Patient Drawer RTL and Select2 Polish
+
+- Hardened Select2 field spacing in LTR/RTL so dropdown arrows and clear controls no longer overlap values such as `ILS` or Arabic placeholders.
+- Kept drawer Select2 menus stacked above drawer content so dropdown menus do not render under later fields/helper text.
+- Refined the drawer patient context badge to mirror cleanly in Arabic while keeping patient numbers and phone values isolated as LTR data.
+- Documented the drawer RTL/Select2 rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` so future drawer work does not repeat this issue.
+
 ## 2026-05-09 - Unified Workflow Navigation Contract
 
 - Milestone: unified workflow navigation contract
