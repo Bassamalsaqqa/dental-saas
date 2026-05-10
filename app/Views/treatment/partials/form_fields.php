@@ -51,9 +51,14 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
     <details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4" <?= $usageEnabledByOld ? 'open' : '' ?>>
         <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
         <div class="mt-4 space-y-4">
-            <label class="inline-flex items-center gap-3 text-sm font-semibold text-slate-700">
-                <input type="checkbox" name="usage_enabled" value="1" data-usage-toggle <?= $usageEnabledByOld ? 'checked' : '' ?>>
-                <span><?= esc(lang('Treatment.record_inventory_usage')) ?></span>
+            <label class="app-toggle-row">
+                <span class="app-toggle-row__text"><?= esc(lang('Treatment.record_inventory_usage')) ?></span>
+                <span class="app-toggle">
+                    <input type="checkbox" name="usage_enabled" value="1" data-usage-toggle <?= $usageEnabledByOld ? 'checked' : '' ?>>
+                    <span class="app-toggle__track" aria-hidden="true">
+                        <span class="app-toggle__dot"></span>
+                    </span>
+                </span>
             </label>
             <div data-usage-section class="<?= $usageEnabledByOld ? '' : 'hidden' ?> space-y-4">
                 <input type="text" name="usage_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="<?= esc($inputClass) ?> treatment-date-input">
@@ -71,8 +76,8 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
                             <input type="text" class="<?= esc($inputClass) ?> total-cost bg-slate-100" readonly placeholder="<?= esc(lang('Treatment.total_cost')) ?>">
                         </div>
                         <div class="mt-3 flex justify-end">
-                            <button type="button" data-remove-usage-item class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50">
-                                <i class="fas fa-trash me-2"></i><?= esc(lang('UI.delete')) ?>
+                            <button type="button" data-remove-usage-item class="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-800">
+                                <i class="fas fa-trash"></i><span><?= esc(lang('Treatment.remove')) ?></span>
                             </button>
                         </div>
                     </div>

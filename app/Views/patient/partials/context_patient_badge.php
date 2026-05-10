@@ -3,9 +3,13 @@ $contextPatient = $context_patient ?? $selected_patient ?? null;
 $contextName = trim((string) (($contextPatient['first_name'] ?? '') . ' ' . ($contextPatient['last_name'] ?? '')));
 $contextNumber = (string) ($contextPatient['patient_id'] ?? ('#' . (int) ($contextPatient['id'] ?? 0)));
 $contextPhone = (string) ($contextPatient['phone'] ?? '');
+$contextGender = strtolower((string) ($contextPatient['gender'] ?? ''));
+$contextToneClass = in_array($contextGender, ['female', 'f'], true)
+    ? 'context-patient-badge--female'
+    : (in_array($contextGender, ['male', 'm'], true) ? 'context-patient-badge--male' : 'context-patient-badge--neutral');
 ?>
 <?php if (!empty($contextPatient['id'])): ?>
-    <div class="context-patient-badge mb-5 rounded-2xl border border-sky-100 bg-sky-50/80 p-4">
+    <div class="context-patient-badge <?= esc($contextToneClass) ?> mb-5 rounded-2xl border p-4">
         <div class="context-patient-badge__row flex items-start gap-3">
             <span class="context-patient-badge__icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 <i class="fas fa-user"></i>
@@ -19,7 +23,6 @@ $contextPhone = (string) ($contextPatient['phone'] ?? '');
                 <?php if ($contextPhone !== ''): ?>
                     <p class="mt-0.5 text-xs text-slate-500"><span class="context-patient-badge__phone" dir="ltr"><?= esc($contextPhone) ?></span></p>
                 <?php endif; ?>
-                <p class="mt-2 text-xs font-medium text-slate-500"><?= esc(lang('UI.actionLinkedToCurrentPatient')) ?></p>
             </div>
         </div>
     </div>
