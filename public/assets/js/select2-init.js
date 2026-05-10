@@ -92,13 +92,13 @@ function getAppSelect2DropdownParent(select) {
         return undefined;
     }
 
-    const panel = select.closest('.app-drawer__panel');
-    if (!panel) {
+    const drawer = select.closest('.app-drawer');
+    if (!drawer) {
         return window.jQuery(document.body);
     }
 
     const explicitParent = select.closest('[data-select2-dropdown-parent]');
-    const host = explicitParent || select.parentElement || panel;
+    const host = explicitParent || drawer;
     host.classList.add('app-select2-dropdown-parent');
     host.setAttribute('dir', document.documentElement.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr');
     return window.jQuery(host);

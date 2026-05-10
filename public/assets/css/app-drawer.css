@@ -146,7 +146,7 @@
 }
 
 .app-drawer .select2-container {
-    z-index: 1;
+    z-index: 3;
 }
 
 .app-select2-dropdown-parent {
@@ -154,21 +154,32 @@
     direction: inherit;
 }
 
-.app-select2-dropdown-parent .select2-dropdown {
+.app-drawer.app-select2-dropdown-parent {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483600;
+}
+
+.app-select2-dropdown-parent .select2-container--open {
+    z-index: 2147483647 !important;
+    pointer-events: auto;
+}
+
+.app-select2-dropdown-parent .select2-dropdown,
+.app-drawer .select2-dropdown {
     z-index: 2147483647;
     direction: inherit;
     text-align: start;
+    box-shadow: 0 22px 45px rgba(15, 23, 42, 0.22), 0 8px 16px rgba(15, 23, 42, 0.12);
 }
 
-.app-select2-dropdown-parent > .select2-container--open {
-    min-width: 100%;
+.app-drawer .select2-container--open {
+    z-index: 2147483647 !important;
 }
 
 .app-select2-dropdown-parent:dir(rtl) > .select2-container--open,
 .app-drawer:dir(rtl) .app-select2-dropdown-parent > .select2-container--open,
 [dir="rtl"] .app-drawer .app-select2-dropdown-parent > .select2-container--open {
-    left: auto !important;
-    right: 0 !important;
     direction: rtl;
     text-align: right;
 }
@@ -193,20 +204,65 @@
 .app-drawer:dir(rtl) .select2-selection__rendered,
 [dir="rtl"] .app-drawer .select2-selection__rendered {
     padding-inline-start: 12px !important;
-    padding-inline-end: 28px !important;
+    padding-inline-end: 42px !important;
     text-align: right;
 }
 
 .app-select2-dropdown-parent:dir(rtl) .select2-selection__arrow,
 .app-drawer:dir(rtl) .select2-selection__arrow,
 [dir="rtl"] .app-drawer .select2-selection__arrow {
+    left: 8px !important;
+    right: auto !important;
     inset-inline-start: 8px !important;
     inset-inline-end: auto !important;
+}
+
+.app-drawer:not(:dir(rtl)) .select2-selection__rendered,
+[dir="ltr"] .app-drawer .select2-selection__rendered {
+    padding-inline-start: 12px !important;
+    padding-inline-end: 42px !important;
+    text-align: left;
+}
+
+.app-drawer:not(:dir(rtl)) .select2-selection__arrow,
+[dir="ltr"] .app-drawer .select2-selection__arrow {
+    right: 8px !important;
+    left: auto !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 8px !important;
+}
+
+.app-drawer .select2-selection__clear {
+    float: none !important;
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 2rem;
+    transform: translateY(-50%);
+    margin: 0 !important;
+    line-height: 1;
+}
+
+.app-drawer:dir(rtl) .select2-selection__clear,
+[dir="rtl"] .app-drawer .select2-selection__clear {
+    inset-inline-start: 2rem;
+    inset-inline-end: auto;
 }
 
 .app-drawer:dir(rtl) .select2-container,
 [dir="rtl"] .app-drawer .select2-container {
     direction: rtl;
+    text-align: right;
+}
+
+.app-drawer .finance-leading-input {
+    padding-inline-start: 1rem !important;
+    padding-inline-end: 2.75rem !important;
+}
+
+.app-drawer:dir(rtl) .finance-leading-input,
+[dir="rtl"] .app-drawer .finance-leading-input {
+    padding-inline-start: 1rem !important;
+    padding-inline-end: 2.75rem !important;
     text-align: right;
 }
 
