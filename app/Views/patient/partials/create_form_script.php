@@ -60,13 +60,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const track = patientForm.querySelector('#' + CSS.escape(toggle.dataset.trackId || ''));
-        const dot = patientForm.querySelector('#' + CSS.escape(toggle.dataset.dotId || ''));
-        const detailWrap = patientForm.querySelector('#' + CSS.escape(toggle.dataset.detailTarget || ''));
+        var trackId = toggle.dataset.trackId;
+        var dotId = toggle.dataset.dotId;
+        var detailTarget = toggle.dataset.detailTarget;
+        if (!trackId || !dotId || !detailTarget) {
+            return;
+        }
+
+        var track = patientForm.querySelector('#' + CSS.escape(trackId));
+        var dot = patientForm.querySelector('#' + CSS.escape(dotId));
+        var detailWrap = patientForm.querySelector('#' + CSS.escape(detailTarget));
 
         if (toggle.checked) {
-            track?.classList.remove('bg-gray-200');
-            track?.classList.add('bg-blue-500');
+            if (track) {
+                track.classList.remove('bg-gray-200');
+                track.classList.add('bg-blue-500');
+            }
             if (dot) {
                 window.applyToggleDotState?.(dot, true);
             }
@@ -77,8 +86,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         } else {
-            track?.classList.remove('bg-blue-500');
-            track?.classList.add('bg-gray-200');
+            if (track) {
+                track.classList.remove('bg-blue-500');
+                track.classList.add('bg-gray-200');
+            }
             if (dot) {
                 window.applyToggleDotState?.(dot, false);
             }

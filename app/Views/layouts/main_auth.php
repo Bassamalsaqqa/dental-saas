@@ -296,6 +296,13 @@
             transform: scaleX(-1);
         }
 
+        .toggle-track {
+            transition: background-color 0.2s ease;
+        }
+        .toggle-dot {
+            transition: transform 0.2s ease;
+        }
+
         [dir="rtl"] .toggle-dot {
             left: auto !important;
             right: 0.25rem !important;
