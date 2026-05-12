@@ -216,11 +216,6 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
     opacity: 0;
     transform: scale(0.86);
     transform-origin: center center;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    height: 92vh;
-    height: 92dvh;
-    max-height: 52rem;
     transition:
         opacity 180ms ease,
         transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -232,9 +227,6 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 }
 .patient-create-modal .select2-container {
     width: 100% !important;
-}
-.patient-create-modal [data-medical-alert-item] {
-    align-self: start;
 }
 @media (prefers-reduced-motion: reduce) {
     .patient-create-modal__backdrop,
@@ -249,11 +241,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
     }
     .patient-create-modal__panel {
         width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        min-height: 100vh;
         min-height: 100dvh;
-        max-height: 100vh;
         max-height: 100dvh;
         border-radius: 0;
     }
@@ -518,10 +506,10 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 </div>
 
 <?php if (has_permission('patients', 'create')): ?>
-    <div id="newPatientModal" class="app-scale-modal patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div id="newPatientModal" class="app-scale-modal patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
         <div class="patient-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-patient-create-modal-close></div>
-        <div class="patient-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-patient-create-modal-close>
-            <form id="newPatientQuickCreateForm" action="<?= base_url('patient/store') ?>" method="POST" class="patient-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" style="display:grid;grid-template-rows:auto minmax(0,1fr) auto" data-patient-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
+        <div class="patient-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-patient-create-modal-close>
+            <form id="newPatientQuickCreateForm" action="<?= base_url('patient/store') ?>" method="POST" class="patient-create-modal__panel flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-patient-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="patients">
                 <input type="hidden" name="source_modal" value="patient_quick_create">
@@ -543,7 +531,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                     </button>
                 </div>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5" style="min-height: 0;">
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
                     <?php if (session('error') && $shouldOpenPatientCreateModal): ?>
                         <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
