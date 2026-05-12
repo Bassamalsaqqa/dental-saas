@@ -36,6 +36,18 @@ class Appointment extends BaseController
         $date = $this->request->getGet('date') ?? date('Y-m-d');
         $status = $this->request->getGet('status') ?? '';
         $search = $this->request->getGet('search') ?? '';
+        $validation = session('validation');
+        if (!$validation instanceof \CodeIgniter\Validation\Validation) {
+            $validation = \Config\Services::validation();
+        }
+
+        $quickCreatePatient = null;
+        if (old('source_modal') === 'appointment_quick_create') {
+            $oldPatientId = old('patient_id');
+            if (is_numeric($oldPatientId)) {
+                $quickCreatePatient = $this->patientModel->where('clinic_id', $clinicId)->find((int) $oldPatientId);
+            }
+        }
         
         // Get appointments with filters
         if ($view === 'all') {
@@ -97,6 +109,10 @@ class Appointment extends BaseController
             'selected_status' => $status,
             'search_term' => $search,
             'stats' => $this->appointmentModel->getAppointmentStatsByClinic($clinicId),
+            'validation' => $validation,
+            'loadSelect2' => true,
+            'quick_create_patient' => $quickCreatePatient,
+            'chair_options' => $this->getChairOptions(),
             'pagination' => [
                 'total_count' => $totalCount,
                 'has_more' => $hasMore,

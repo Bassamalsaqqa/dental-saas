@@ -9,7 +9,66 @@ if ($currentQuery !== '') {
     $returnToContext .= '?' . $currentQuery;
 }
 $returnToContextEncoded = urlencode($returnToContext);
+$validation = $validation ?? session('validation');
+if (!$validation instanceof \CodeIgniter\Validation\Validation) {
+    $validation = null;
+}
+$isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
+$shouldOpenAppointmentCreateModal = old('source_modal') === 'appointment_quick_create';
 ?>
+<style>
+.appointment-create-modal {
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 240ms;
+}
+.appointment-create-modal.is-open {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+.appointment-create-modal__backdrop {
+    opacity: 0;
+    transition: opacity 220ms ease;
+}
+.appointment-create-modal.is-open .appointment-create-modal__backdrop {
+    opacity: 1;
+}
+.appointment-create-modal__panel {
+    opacity: 0;
+    transform: scale(0.86);
+    transform-origin: center center;
+    transition:
+        opacity 180ms ease,
+        transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform, opacity;
+}
+.appointment-create-modal.is-open .appointment-create-modal__panel {
+    opacity: 1;
+    transform: scale(1);
+}
+.appointment-create-modal .select2-container {
+    width: 100% !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .appointment-create-modal__backdrop,
+    .appointment-create-modal__panel {
+        transition: none;
+    }
+}
+@media (max-width: 640px) {
+    .appointment-create-modal__shell {
+        align-items: stretch;
+        padding: 0;
+    }
+    .appointment-create-modal__panel {
+        width: 100vw;
+        min-height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
+}
+</style>
 <!-- Enhanced Appointment Management with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
@@ -43,9 +102,9 @@ $returnToContextEncoded = urlencode($returnToContext);
                     
                     <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
                         <?php if (has_permission('appointments', 'create')): ?>
-                            <a href="<?= base_url('appointment/create') ?>" class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25 sm:w-auto">
+                            <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25 sm:w-auto">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-plus mr-2 relative z-10"></i>
+                                <i class="fas fa-plus me-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UI.appointmentNew') ?></span>
                             </a>
                         <?php endif; ?>
@@ -674,7 +733,167 @@ $returnToContextEncoded = urlencode($returnToContext);
     </div>
 </div>
 
+<?php if (has_permission('appointments', 'create')): ?>
+    <div id="newAppointmentModal" class="app-scale-modal appointment-create-modal fixed inset-0 z-[2147483600] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newAppointmentModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="appointment-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-appointment-create-modal-close></div>
+        <div class="appointment-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-appointment-create-modal-close>
+            <form id="newAppointmentQuickCreateForm" action="<?= base_url('appointment/store') ?>" method="POST" class="appointment-create-modal__panel flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent onclick="event.stopPropagation()">
+                <?= csrf_field() ?>
+                <input type="hidden" name="return_to" value="<?= esc($returnToContext) ?>">
+                <input type="hidden" name="source_modal" value="appointment_quick_create">
+
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
+                            <i class="fas fa-calendar-check"></i>
+                        </span>
+                        <div>
+                            <h2 id="newAppointmentModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('UI.appointmentNew')) ?></h2>
+                            <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="mt-1 inline-flex text-xs font-semibold text-blue-700 hover:text-blue-800">
+                                <?= esc(lang('UI.openFullPage')) ?>
+                            </a>
+                        </div>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-appointment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                    <?php if (session('error') && $shouldOpenAppointmentCreateModal): ?>
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            <?= esc(session('error')) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <?= view('appointment/partials/form_fields', [
+                            'contextual' => false,
+                            'selected_patient' => $quick_create_patient ?? null,
+                            'chair_options' => $chair_options ?? [],
+                            'requested_date' => old('appointment_date', $selected_date ?? date('Y-m-d')),
+                            'appointment_type_prefill' => old('appointment_type', ''),
+                        ]) ?>
+                    </div>
+                </div>
+
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                    <button type="button" data-appointment-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <?= esc(lang('UI.cancel')) ?>
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-blue-700 hover:to-purple-700 hover:shadow-xl">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <?= esc(lang('UI.appointmentSchedule')) ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
 <script>
+let newAppointmentModalTrigger = null;
+let newAppointmentModalCloseTimer = null;
+
+function mountNewAppointmentModal() {
+    const modal = document.getElementById('newAppointmentModal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+    return modal;
+}
+
+function initializeNewAppointmentModalContent(modal) {
+    if (!modal) {
+        return;
+    }
+    if (typeof window.initAppSelects === 'function') {
+        window.initAppSelects(modal);
+    }
+    if (typeof window.initializeClinicDateInputs === 'function') {
+        window.initializeClinicDateInputs(modal);
+    }
+    if (typeof window.initContextualAppointmentForms === 'function') {
+        window.initContextualAppointmentForms(modal);
+    }
+}
+
+function openNewAppointmentModal(trigger) {
+    const modal = mountNewAppointmentModal();
+    if (!modal) {
+        return;
+    }
+    newAppointmentModalTrigger = trigger || document.activeElement;
+    if (newAppointmentModalCloseTimer) {
+        clearTimeout(newAppointmentModalCloseTimer);
+        newAppointmentModalCloseTimer = null;
+    }
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('app-drawer-lock');
+    document.body.classList.add('app-drawer-lock');
+    requestAnimationFrame(function() {
+        modal.classList.add('is-open');
+    });
+    window.setTimeout(function() {
+        initializeNewAppointmentModalContent(modal);
+        const firstField = modal.querySelector('#patientSelect, select[name="patient_id"], input, select, textarea, button');
+        if (firstField && typeof firstField.focus === 'function') {
+            firstField.focus();
+        }
+    }, 100);
+}
+
+function closeNewAppointmentModal() {
+    const modal = document.getElementById('newAppointmentModal');
+    if (!modal || modal.classList.contains('hidden')) {
+        return;
+    }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('app-drawer-lock');
+    document.body.classList.remove('app-drawer-lock');
+    newAppointmentModalCloseTimer = setTimeout(function() {
+        modal.classList.add('hidden');
+        if (newAppointmentModalTrigger && typeof newAppointmentModalTrigger.focus === 'function') {
+            newAppointmentModalTrigger.focus();
+        }
+        newAppointmentModalTrigger = null;
+    }, 240);
+}
+
+document.addEventListener('click', function(event) {
+    const openTrigger = event.target.closest('[data-appointment-create-modal-open]');
+    if (openTrigger) {
+        event.preventDefault();
+        openNewAppointmentModal(openTrigger);
+        return;
+    }
+
+    const closeTrigger = event.target.closest('[data-appointment-create-modal-close]');
+    if (closeTrigger) {
+        event.preventDefault();
+        closeNewAppointmentModal();
+    }
+});
+
+document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Escape') {
+        return;
+    }
+    const modal = document.getElementById('newAppointmentModal');
+    if (modal && !modal.classList.contains('hidden')) {
+        event.preventDefault();
+        closeNewAppointmentModal();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (<?= $shouldOpenAppointmentCreateModal ? 'true' : 'false' ?>) {
+        openNewAppointmentModal(document.getElementById('newAppointmentModalTrigger'));
+    }
+});
+
 const appointmentI18n = {
     confirmPrompt: <?= json_encode(lang('UI.appointmentConfirmPrompt')) ?>,
     completePrompt: <?= json_encode(lang('UI.appointmentCompletePrompt')) ?>,
