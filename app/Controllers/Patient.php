@@ -292,7 +292,7 @@ class Patient extends BaseController
             'pageTitle' => 'Patients',
             'patients' => [],
             'pager' => null,
-            'loadSelect2' => false  // Don't load Select2 on patient index page
+            'loadSelect2' => true
         ];
 
         return $this->view('patient/index', $data); 
@@ -484,7 +484,8 @@ class Patient extends BaseController
         $data = [
             'title' => 'Add New Patient',
             'validation' => $validation,
-            'return_to' => $returnTo
+            'return_to' => $returnTo,
+            'loadSelect2' => true,
         ];
 
         return $this->view('patient/create', $data);

@@ -92,7 +92,7 @@ function getAppSelect2DropdownParent(select) {
         return undefined;
     }
 
-    const drawer = select.closest('.app-drawer');
+    const drawer = select.closest('.app-drawer, .app-scale-modal');
     if (!drawer) {
         return window.jQuery(document.body);
     }
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     };
     // Initialize Select2 for elements with data-searchable-select attribute
     const searchableSelects = Array.from(document.querySelectorAll('[data-searchable-select]'))
-        .filter(select => !select.closest('.app-drawer'));
+        .filter(select => !select.closest('.app-drawer, .app-scale-modal'));
     console.log('Select2: Found', searchableSelects.length, 'searchable select elements');
 
     let needsBearer = false;
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize Select2 for regular select elements that should be searchable
     const regularSelects = Array.from(document.querySelectorAll('select:not([data-searchable-select]):not([data-no-select2])'))
-        .filter(select => !select.closest('.app-drawer'));
+        .filter(select => !select.closest('.app-drawer, .app-scale-modal'));
     console.log('Select2: Found', regularSelects.length, 'regular select elements');
     
     regularSelects.forEach((select, index) => {
@@ -879,5 +879,5 @@ window.initAppSelects = async function initAppSelects(root) {
     };
 
     drawerSearchSelects.forEach(select => initializeSelect(select, true));
-    scope.querySelectorAll('select[data-force-select2], .app-drawer select:not([data-no-select2])').forEach(select => initializeSelect(select, false));
+    scope.querySelectorAll('select[data-force-select2], .app-drawer select:not([data-no-select2]), .app-scale-modal select:not([data-no-select2])').forEach(select => initializeSelect(select, false));
 };
