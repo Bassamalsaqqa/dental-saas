@@ -10,6 +10,10 @@ if ($currentQuery !== '') {
     $returnToContext .= '?' . $currentQuery;
 }
 $returnToContextEncoded = urlencode($returnToContext);
+$isRtl = (bool) (session('is_rtl') ?? (service('request')->getLocale() === 'ar'));
+$sourceModal = (string) old('source_modal', '');
+$shouldOpenIncomeModal = $sourceModal === 'finance_income_quick_create';
+$shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 ?>
 
 <!-- DataTables CSS -->
@@ -228,6 +232,85 @@ $returnToContextEncoded = urlencode($returnToContext);
         gap: 8px !important;
     }
 }
+.finance-create-modal {
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 240ms;
+}
+.finance-create-modal.is-open {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+.finance-create-modal__backdrop {
+    opacity: 0;
+    transition: opacity 220ms ease;
+}
+.finance-create-modal.is-open .finance-create-modal__backdrop {
+    opacity: 1;
+}
+.finance-create-modal__panel {
+    display: grid !important;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    opacity: 0;
+    overflow: clip;
+    transform: scale(0.86);
+    transform-origin: center center;
+    height: min(92dvh, 52rem);
+    transition:
+        opacity 180ms ease,
+        transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform, opacity;
+}
+.finance-create-modal.is-open .finance-create-modal__panel {
+    opacity: 1;
+    transform: scale(1);
+}
+.finance-create-modal .select2-container {
+    width: 100% !important;
+}
+.finance-create-modal .finance-leading-input {
+    padding-inline-end: 2.75rem !important;
+}
+.finance-create-modal:dir(rtl) .finance-leading-input,
+[dir="rtl"] .finance-create-modal .finance-leading-input {
+    padding-inline-end: 1rem !important;
+    padding-inline-start: 2.75rem !important;
+}
+.finance-create-modal .select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-inline-end: 2.5rem !important;
+    padding-inline-start: 0.75rem !important;
+}
+.finance-create-modal:dir(rtl) .select2-container--default .select2-selection--single .select2-selection__rendered,
+[dir="rtl"] .finance-create-modal .select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-inline-end: 0.75rem !important;
+    padding-inline-start: 2.5rem !important;
+    text-align: right;
+}
+.finance-create-modal:dir(rtl) .select2-container--default .select2-selection--single .select2-selection__arrow,
+[dir="rtl"] .finance-create-modal .select2-container--default .select2-selection--single .select2-selection__arrow {
+    left: 0.75rem !important;
+    right: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .finance-create-modal__backdrop,
+    .finance-create-modal__panel {
+        transition: none;
+    }
+}
+@media (max-width: 640px) {
+    .finance-create-modal__shell {
+        align-items: stretch;
+        padding: 0;
+    }
+    .finance-create-modal__panel {
+        width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
+}
 </style>
 
 <!-- Enhanced <?= lang('Finance.financeManagement') ?> with Advanced Design -->
@@ -255,11 +338,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                     <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold leading-none rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold leading-none rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-circle-plus mr-2"></i>
                                 <?= esc($tr('addIncome')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold leading-none rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold leading-none rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
@@ -514,6 +597,123 @@ $returnToContextEncoded = urlencode($returnToContext);
             </div>
         </div>
 
+<?php if (has_permission('finance', 'create')): ?>
+    <div id="financeIncomeModal" class="app-scale-modal finance-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeIncomeModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="finance-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-finance-create-modal-close></div>
+        <div class="finance-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
+            <form id="financeIncomeQuickCreateForm" action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent onclick="event.stopPropagation()">
+                <?= csrf_field() ?>
+                <input type="hidden" name="return_to" value="finance">
+                <input type="hidden" name="source_modal" value="finance_income_quick_create">
+
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
+                            <i class="fas fa-circle-plus"></i>
+                        </span>
+                        <div>
+                            <h2 id="financeIncomeModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('addIncome')) ?></h2>
+                            <a href="<?= base_url('finance/income/create?return_to=finance') ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                                <?= esc(lang('UI.openFullPage')) ?>
+                            </a>
+                        </div>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-finance-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                    <?php if (session('error') && $shouldOpenIncomeModal): ?>
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><?= esc(session('error')) ?></div>
+                    <?php endif; ?>
+                    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                        <?= view('finance/partials/form_fields', [
+                            'contextual' => false,
+                            'patients' => $patients ?? [],
+                            'clinic_providers' => $clinic_providers ?? [],
+                            'base_currency' => $base_currency ?? 'ILS',
+                            'currency_options' => $currency_options ?? [],
+                            'liquidity_account_options' => $liquidity_account_options ?? [],
+                            'check_outgoing_liquidity_options' => $check_outgoing_liquidity_options ?? [],
+                            'is_rtl' => $isRtl,
+                            'id_prefix' => 'financeIncomeQuick',
+                            'show_liquidity_account' => false,
+                            'advanced_details_style' => 'flat',
+                        ]) ?>
+                    </section>
+                </div>
+
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                    <button type="button" data-finance-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <?= esc(lang('UI.cancel')) ?>
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-green-700 hover:to-emerald-700 hover:shadow-xl">
+                        <i class="fas fa-save me-2"></i>
+                        <?= esc($tr('addIncome')) ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="financeExpenseModal" class="app-scale-modal finance-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeExpenseModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="finance-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-finance-create-modal-close></div>
+        <div class="finance-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
+            <form id="financeExpenseQuickCreateForm" action="<?= base_url('finance/expenses/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent data-finance-calc data-base-currency="<?= esc($base_currency ?? 'ILS') ?>" onclick="event.stopPropagation()">
+                <?= csrf_field() ?>
+                <input type="hidden" name="return_to" value="finance">
+                <input type="hidden" name="source_modal" value="finance_expense_quick_create">
+
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 text-white shadow-lg">
+                            <i class="fas fa-receipt"></i>
+                        </span>
+                        <div>
+                            <h2 id="financeExpenseModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('newExpense')) ?></h2>
+                            <a href="<?= base_url('finance/expenses/create?return_to=finance') ?>" class="mt-1 inline-flex text-xs font-semibold text-rose-700 hover:text-rose-800">
+                                <?= esc(lang('UI.openFullPage')) ?>
+                            </a>
+                        </div>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-finance-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                    <?php if (session('error') && $shouldOpenExpenseModal): ?>
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><?= esc(session('error')) ?></div>
+                    <?php endif; ?>
+                    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                        <?= view('finance/partials/expense_form_fields', [
+                            'base_currency' => $base_currency ?? 'ILS',
+                            'currency_options' => $currency_options ?? [],
+                            'check_outgoing_liquidity_options' => $check_outgoing_liquidity_options ?? [],
+                            'expense_category_options' => $expense_category_options ?? [],
+                            'supplier_directory' => $supplier_directory ?? [],
+                            'selected_supplier_id' => $selected_supplier_id ?? 0,
+                            'is_rtl' => $isRtl,
+                            'id_prefix' => 'financeExpenseQuick',
+                        ]) ?>
+                    </section>
+                </div>
+
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                    <button type="button" data-finance-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <?= esc(lang('UI.cancel')) ?>
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-rose-600 to-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-rose-700 hover:to-orange-700 hover:shadow-xl">
+                        <i class="fas fa-save me-2"></i>
+                        <?= esc($tr('recordExpense')) ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
@@ -522,6 +722,219 @@ $returnToContextEncoded = urlencode($returnToContext);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
+
+<script>
+let financeCreateModalTrigger = null;
+let financeCreateModalCloseTimer = null;
+
+function mountFinanceCreateModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+    if (modal && modal.dataset.closeControlsBound !== '1') {
+        modal.dataset.closeControlsBound = '1';
+        modal.querySelectorAll('button[data-finance-create-modal-close], a[data-finance-create-modal-close]').forEach(function (control) {
+            control.addEventListener('click', function (event) {
+                event.preventDefault();
+                closeFinanceCreateModal(modal.id);
+            });
+        });
+    }
+    return modal;
+}
+
+function initializeFinanceExpenseModal(modal) {
+    modal.querySelectorAll('form').forEach(function (form) {
+        if (form.dataset.expenseQuickBound === '1') {
+            return;
+        }
+        form.dataset.expenseQuickBound = '1';
+
+        const attachmentInput = form.querySelector('[data-expense-attachment-input]');
+        const attachmentName = form.querySelector('[data-expense-attachment-name]');
+        attachmentInput?.addEventListener('change', function () {
+            if (attachmentName) {
+                attachmentName.textContent = attachmentInput.files?.length ? attachmentInput.files[0].name : '';
+            }
+        });
+
+        const paymentMethod = form.querySelector('[name="payment_method"]');
+        const amountPaidInput = form.querySelector('[data-expense-amount-paid]');
+        const accountField = form.querySelector('[data-expense-liquidity-account-field]');
+        const accountSelect = form.querySelector('[data-expense-liquidity-account]');
+        const syncExpenseLiquidityField = function () {
+            if (!paymentMethod || !amountPaidInput || !accountField || !accountSelect) {
+                return;
+            }
+            const shouldShow = paymentMethod.value === 'check' && (parseFloat(amountPaidInput.value || '0') > 0);
+            accountField.classList.toggle('hidden', !shouldShow);
+            accountSelect.disabled = !shouldShow;
+        };
+        paymentMethod?.addEventListener('change', syncExpenseLiquidityField);
+        amountPaidInput?.addEventListener('input', syncExpenseLiquidityField);
+        if (window.jQuery && paymentMethod) {
+            window.jQuery(paymentMethod).on('select2:select select2:clear change', syncExpenseLiquidityField);
+        }
+        syncExpenseLiquidityField();
+
+        const supplierSelect = form.querySelector('[data-expense-supplier-select]');
+        const counterpartyInput = form.querySelector('[data-expense-counterparty-input]');
+        let lastSupplierName = '';
+        const syncSupplierCounterparty = function () {
+            if (!supplierSelect || !counterpartyInput) {
+                return;
+            }
+            const selected = supplierSelect.options[supplierSelect.selectedIndex];
+            if (!selected) {
+                return;
+            }
+            const supplierName = selected.value ? selected.text.trim() : '';
+            const currentCounterparty = counterpartyInput.value.trim();
+            if (supplierName && (currentCounterparty === '' || currentCounterparty === lastSupplierName)) {
+                counterpartyInput.value = supplierName;
+            }
+            lastSupplierName = supplierName;
+        };
+        supplierSelect?.addEventListener('change', syncSupplierCounterparty);
+        if (window.jQuery && supplierSelect) {
+            window.jQuery(supplierSelect).on('select2:select select2:clear change', syncSupplierCounterparty);
+        }
+        syncSupplierCounterparty();
+    });
+}
+
+function initializeFinanceCreateModalContent(modal) {
+    if (!modal) {
+        return Promise.resolve();
+    }
+    const tasks = [];
+    if (typeof window.initAppSelects === 'function') {
+        tasks.push(Promise.resolve(window.initAppSelects(modal)));
+    }
+    if (typeof window.initializeClinicDateInputs === 'function') {
+        window.initializeClinicDateInputs(modal);
+    }
+    if (typeof window.initFinanceCalculators === 'function') {
+        window.initFinanceCalculators(modal);
+    }
+    initializeFinanceExpenseModal(modal);
+    return Promise.allSettled(tasks);
+}
+
+function resetFinanceCreateModal(modal) {
+    if (!modal) {
+        return;
+    }
+    const form = modal.querySelector('form');
+    if (!form) {
+        return;
+    }
+
+    form.reset();
+    form.querySelectorAll('input[type="file"]').forEach(function (input) {
+        input.value = '';
+    });
+    form.querySelectorAll('[data-check-scan-name], [data-expense-attachment-name]').forEach(function (label) {
+        label.textContent = '';
+    });
+    form.querySelectorAll('select').forEach(function (select) {
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        if (window.jQuery) {
+            window.jQuery(select).trigger('change');
+        }
+    });
+    form.querySelectorAll('input, textarea').forEach(function (field) {
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    if (typeof window.initFinanceCalculators === 'function') {
+        window.initFinanceCalculators(modal);
+    }
+}
+
+function openFinanceCreateModal(modalId, trigger) {
+    const modal = mountFinanceCreateModal(modalId);
+    if (!modal) {
+        return;
+    }
+    financeCreateModalTrigger = trigger || document.activeElement;
+    if (financeCreateModalCloseTimer) {
+        clearTimeout(financeCreateModalCloseTimer);
+        financeCreateModalCloseTimer = null;
+    }
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('app-drawer-lock');
+    document.body.classList.add('app-drawer-lock');
+    requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+    });
+    window.setTimeout(function () {
+        initializeFinanceCreateModalContent(modal);
+        const firstField = modal.querySelector('select, input:not([type="hidden"]), textarea, button');
+        if (firstField && typeof firstField.focus === 'function') {
+            firstField.focus({ preventScroll: true });
+        }
+    }, 80);
+}
+
+function closeFinanceCreateModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal || modal.classList.contains('hidden')) {
+        return;
+    }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('app-drawer-lock');
+    document.body.classList.remove('app-drawer-lock');
+    financeCreateModalCloseTimer = setTimeout(function () {
+        resetFinanceCreateModal(modal);
+        modal.classList.add('hidden');
+        if (financeCreateModalTrigger && typeof financeCreateModalTrigger.focus === 'function') {
+            financeCreateModalTrigger.focus();
+        }
+        financeCreateModalTrigger = null;
+    }, 240);
+}
+
+document.addEventListener('click', function (event) {
+    const openTrigger = event.target.closest('[data-finance-create-modal-open]');
+    if (openTrigger) {
+        event.preventDefault();
+        openFinanceCreateModal(openTrigger.getAttribute('data-finance-create-modal-open'), openTrigger);
+        return;
+    }
+
+    const closeTrigger = event.target.closest('[data-finance-create-modal-close]');
+    if (closeTrigger) {
+        event.preventDefault();
+        const modal = closeTrigger.closest('.finance-create-modal');
+        if (modal) {
+            closeFinanceCreateModal(modal.id);
+        }
+    }
+});
+
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') {
+        return;
+    }
+    document.querySelectorAll('.finance-create-modal:not(.hidden)').forEach(function (modal) {
+        event.preventDefault();
+        closeFinanceCreateModal(modal.id);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (<?= $shouldOpenIncomeModal ? 'true' : 'false' ?>) {
+        openFinanceCreateModal('financeIncomeModal', document.getElementById('addIncomeModalTrigger'));
+    } else if (<?= $shouldOpenExpenseModal ? 'true' : 'false' ?>) {
+        openFinanceCreateModal('financeExpenseModal', document.getElementById('newExpenseModalTrigger'));
+    }
+});
+</script>
 
 <?php
 $financeConfig = [

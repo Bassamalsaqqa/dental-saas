@@ -362,8 +362,23 @@ document.addEventListener('DOMContentLoaded', function () {
         setVisible(row.querySelector('.provider-guest-wrap'), type === 'guest');
         const userSelect = row.querySelector('.provider-user-select');
         const guestInput = row.querySelector('.provider-guest-input');
-        if (userSelect) userSelect.required = splitToggle.checked && type === 'user';
-        if (guestInput) guestInput.required = splitToggle.checked && type === 'guest';
+        if (userSelect) {
+            userSelect.required = splitToggle.checked && type === 'user';
+            userSelect.disabled = type !== 'user';
+            if (type !== 'user') {
+                userSelect.value = '';
+                if (window.jQuery) {
+                    window.jQuery(userSelect).val('').trigger('change');
+                }
+            }
+        }
+        if (guestInput) {
+            guestInput.required = splitToggle.checked && type === 'guest';
+            guestInput.disabled = type !== 'guest';
+            if (type !== 'guest') {
+                guestInput.value = '';
+            }
+        }
         if (type === 'user') {
             initSelect2(userSelect);
         }
@@ -430,9 +445,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const bindRow = (row) => {
         initRowSelects(row);
-        row.querySelector('.provider-type-select')?.addEventListener('change', () => {
+        const providerTypeSelect = row.querySelector('.provider-type-select');
+        const syncProviderType = () => {
             updateRowState(row);
-        });
+        };
+        providerTypeSelect?.addEventListener('change', syncProviderType);
+        if (window.jQuery && providerTypeSelect) {
+            window.jQuery(providerTypeSelect).on('select2:select select2:clear change', syncProviderType);
+        }
         row.querySelector('.provider-split-mode')?.addEventListener('change', updateSummary);
         row.querySelector('.provider-split-value')?.addEventListener('input', updateSummary);
         row.querySelector('.provider-paid-toggle')?.addEventListener('change', () => {

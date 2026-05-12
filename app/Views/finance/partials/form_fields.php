@@ -3,6 +3,12 @@ $contextual = !empty($contextual);
 $selectedPatient = $selected_patient ?? (!empty($patients[0]) ? $patients[0] : null);
 $transactionTypePreset = (string) ($transaction_type_preset ?? old('transaction_type', ''));
 $lockTransactionType = !empty($lock_transaction_type);
+$showLiquidityAccount = array_key_exists('show_liquidity_account', get_defined_vars())
+    ? (bool) $show_liquidity_account
+    : true;
+$advancedDetailsStyle = (string) ($advanced_details_style ?? 'details');
+$useFlatAdvancedDetails = $advancedDetailsStyle === 'flat';
+$isRtlPartial = !empty($is_rtl);
 $baseCurrency = (string) ($base_currency ?? 'ILS');
 $idPrefix = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($id_prefix ?? ''));
 $fieldId = static function (string $id) use ($idPrefix): string {
@@ -72,13 +78,15 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
                 <?php foreach (['cash', 'card', 'bank_transfer', 'check', 'other'] as $method): ?><option value="<?= esc($method) ?>" <?= old('payment_method') === $method ? 'selected' : '' ?>><?= lang('Finance.' . ($method === 'bank_transfer' ? 'bankTransfer' : $method)) ?></option><?php endforeach; ?>
             </select>
         </div>
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.paidFromAccount') ?></label>
-            <select name="liquidity_account" id="<?= esc($fieldId('liquidityAccount')) ?>" data-force-select2 class="<?= esc($selectClass) ?>">
-                <option value=""><?= lang('Finance.select') !== 'Finance.select' ? lang('Finance.select') : '-' ?></option>
-                <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?><option value="<?= esc($key) ?>" <?= old('liquidity_account') === $key ? 'selected' : '' ?>><?= esc($label) ?></option><?php endforeach; ?>
-            </select>
-        </div>
+        <?php if ($showLiquidityAccount): ?>
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.paidFromAccount') ?></label>
+                <select name="liquidity_account" id="<?= esc($fieldId('liquidityAccount')) ?>" data-force-select2 class="<?= esc($selectClass) ?>">
+                    <option value=""><?= lang('Finance.select') !== 'Finance.select' ? lang('Finance.select') : '-' ?></option>
+                    <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?><option value="<?= esc($key) ?>" <?= old('liquidity_account') === $key ? 'selected' : '' ?>><?= esc($label) ?></option><?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="mt-5">
@@ -115,15 +123,16 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
         <textarea name="service_details" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Finance.serviceDetailsPlaceholder')) ?>"><?= old('service_details') ?></textarea>
     </div>
 
-    <details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4" open>
-        <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
-        <div class="mt-4 space-y-5">
+    <?php $advancedDetailsBody = static function () use ($fieldId, $inputClass, $baseCurrency, $clinic_providers, $isRtlPartial, $idPrefix): string {
+        ob_start();
+        ?>
+        <div class="space-y-5">
             <div id="<?= esc($fieldId('checkScanField')) ?>" data-check-scan-field>
                 <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.checkScanOptional') ?></label>
                 <input type="file" name="check_scan" id="<?= esc($fieldId('checkScanInput')) ?>" accept=".pdf,.jpg,.jpeg,.png" class="block w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 file:me-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
                 <span id="<?= esc($fieldId('checkScanName')) ?>" data-check-scan-name class="mt-2 block text-xs text-slate-400"></span>
             </div>
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
                 <div>
                     <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.discountAmount') ?></label>
                     <input type="number" name="discount_amount" id="<?= esc($fieldId('discountAmount')) ?>" value="<?= old('discount_amount', 0) ?>" step="0.01" min="0" class="<?= esc($inputClass) ?>" placeholder="0.00">
@@ -132,20 +141,35 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
                     <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.taxPercentage') ?></label>
                     <input type="number" name="tax_percentage" id="<?= esc($fieldId('taxPercentage')) ?>" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="<?= esc($inputClass) ?>" placeholder="0.00">
                 </div>
-            </div>
-            <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.total') ?> (<?= esc($baseCurrency) ?>)</label>
-                <input type="text" id="<?= esc($fieldId('totalAmountLive')) ?>" data-finance-total readonly class="<?= esc($inputClass) ?> border-emerald-200 bg-emerald-50 font-bold text-emerald-700" value="0.00">
-                <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.totalFormulaHelp') ?></p>
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.total') ?> (<?= esc($baseCurrency) ?>)</label>
+                    <input type="text" id="<?= esc($fieldId('totalAmountLive')) ?>" data-finance-total readonly class="<?= esc($inputClass) ?> border-emerald-200 bg-emerald-50 font-bold text-emerald-700" value="0.00">
+                    <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.totalFormulaHelp') ?></p>
+                </div>
             </div>
             <?= view('finance/partials/provider_split_section', [
                 'clinic_providers' => $clinic_providers ?? [],
                 'provider_payouts' => [],
-                'is_rtl' => $is_rtl ?? false,
+                'is_rtl' => $isRtlPartial,
                 'id_prefix' => $idPrefix,
             ]) ?>
         </div>
-    </details>
+        <?php
+        return (string) ob_get_clean();
+    }; ?>
+
+    <?php if ($useFlatAdvancedDetails): ?>
+        <div class="mt-5">
+            <?= $advancedDetailsBody() ?>
+        </div>
+    <?php else: ?>
+        <details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4" open>
+            <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
+            <div class="mt-4">
+                <?= $advancedDetailsBody() ?>
+            </div>
+        </details>
+    <?php endif; ?>
 
     <div class="mt-5">
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.description') ?></label>

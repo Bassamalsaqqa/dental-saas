@@ -729,6 +729,8 @@ class Finance extends BaseController
     public function index()
     {
         $clinicId = session()->get('active_clinic_id');
+        $expenseViewData = $this->buildExpenseViewData();
+
         $data = [
             'title' => 'Finance Management',
             'finances' => [], // Data will be loaded via AJAX
@@ -736,7 +738,18 @@ class Finance extends BaseController
             'can_access_finance_reports' => $clinicId ? $this->canAccessFinanceReports((int) $clinicId) : false,
             'disableDataTables' => true, // Disable DataTables scripts for custom implementation
             'currency_position' => settings()->get('currency_position', 'before'),
-            'currency_symbol' => settings()->getCurrencySymbol()
+            'currency_symbol' => settings()->getCurrencySymbol(),
+            'patients' => [],
+            'clinic_providers' => $clinicId ? $this->getClinicProviders((int) $clinicId) : [],
+            'validation' => session()->getFlashdata('validation') ?: \Config\Services::validation(),
+            'loadSelect2' => true,
+            'base_currency' => settings()->get('currency', 'ILS'),
+            'currency_options' => $this->getFinanceCurrencyOptions(),
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
+            'expense_category_options' => $expenseViewData['expense_category_options'] ?? [],
+            'supplier_directory' => $expenseViewData['supplier_directory'] ?? [],
+            'selected_supplier_id' => $expenseViewData['selected_supplier_id'] ?? 0,
         ];
 
         return $this->view('finance/index', $data);
@@ -955,6 +968,12 @@ class Finance extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->getPost('source_modal') === 'finance_income_quick_create') {
+                return redirect()->to(base_url('finance'))
+                    ->withInput()
+                    ->with('validation', $this->validator)
+                    ->with('error', 'Please review the highlighted fields.');
+            }
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
@@ -1504,6 +1523,12 @@ class Finance extends BaseController
             'due_date' => 'permit_empty|valid_date',
         ];
         if (!$this->validate($rules)) {
+            if ($this->request->getPost('source_modal') === 'finance_expense_quick_create') {
+                return redirect()->to(base_url('finance'))
+                    ->withInput()
+                    ->with('validation', $this->validator)
+                    ->with('error', 'Please review the highlighted fields.');
+            }
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
