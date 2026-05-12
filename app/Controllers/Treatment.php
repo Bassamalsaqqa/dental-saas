@@ -74,6 +74,12 @@ class Treatment extends BaseController
             // Debug logging
             log_message('debug', 'Treatments loaded: ' . count($treatments ?? []));
 
+            $inventoryItems = $this->inventoryModel->where('status', 'active')
+                ->where('clinic_id', $clinicId)
+                ->where('quantity >', 0)
+                ->orderBy('item_name', 'ASC')
+                ->findAll();
+
             $data = [
                 'title' => 'Treatment Management',
                 'treatments' => $treatments ?? [],
@@ -83,6 +89,10 @@ class Treatment extends BaseController
                 'search_term' => $search,
                 'selected_status' => $statusFilter,
                 'selected_type' => $typeFilter,
+                'loadSelect2' => true,
+                'treatment_types' => $this->getTreatmentTypes(),
+                'inventory_items' => $inventoryItems,
+                'validation' => session()->getFlashdata('validation'),
             ];
 
             return $this->view('treatment/index', $data);
@@ -287,6 +297,14 @@ class Treatment extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->getPost('source_modal') === 'treatment_quick_create') {
+                return redirect()->to(base_url('treatment'))
+                    ->withInput()
+                    ->with('validation', $this->validator)
+                    ->with('errors', $this->validator->getErrors())
+                    ->with('error', 'Please review the highlighted fields and try again.');
+            }
+
             $examId = $this->request->getPost('examination_id');
             $examId = is_numeric($examId) ? (int)$examId : null;
             $selectedPatient = null;

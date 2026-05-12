@@ -48,9 +48,8 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.treatment_description_required')) ?></label>
         <textarea name="description" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Treatment.treatment_description_placeholder')) ?>" required><?= old('description') ?></textarea>
     </div>
-    <details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4" <?= $usageEnabledByOld ? 'open' : '' ?>>
-        <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
-        <div class="mt-4 space-y-4">
+    <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+        <div class="space-y-4">
             <label class="app-toggle-row">
                 <span class="app-toggle-row__text"><?= esc(lang('Treatment.record_inventory_usage')) ?></span>
                 <span class="app-toggle">
@@ -89,5 +88,5 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
                 <textarea name="usage_notes" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Treatment.optional_usage_notes_placeholder')) ?>"><?= old('usage_notes') ?></textarea>
             </div>
         </div>
-    </details>
+    </div>
 </div>
