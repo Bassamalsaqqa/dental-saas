@@ -216,6 +216,8 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
     opacity: 0;
     transform: scale(0.86);
     transform-origin: center center;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     height: 92vh;
     height: 92dvh;
     max-height: 52rem;
