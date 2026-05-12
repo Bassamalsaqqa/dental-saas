@@ -147,7 +147,7 @@ $plainInputClass = $plainInputClass ?? 'w-full px-4 py-3 bg-white border border-
         <div>
             <h5 class="text-sm font-semibold text-gray-700 mb-3"><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></h5>
             <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 items-start" data-medical-alert-grid>
                     <?php
                     $medicalAlertItems = [
                         [
