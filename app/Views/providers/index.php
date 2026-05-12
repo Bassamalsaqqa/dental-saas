@@ -97,6 +97,42 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 }
 .providers-page .provider-filter:hover { border-color: #10b981; color: #047857; background: #ecfdf5; }
 .providers-page .provider-filter.active { border-color: transparent; color: #fff; background: linear-gradient(to right, #10b981, #0d9488); }
+.provider-scale-modal {
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 220ms;
+}
+.provider-scale-modal.is-open {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+.provider-scale-modal__backdrop {
+    opacity: 0;
+    transition: opacity 220ms ease;
+}
+.provider-scale-modal.is-open .provider-scale-modal__backdrop {
+    opacity: 1;
+}
+.provider-scale-modal__panel {
+    opacity: 0;
+    transform: scale(0.86);
+    transform-origin: center center;
+    transition:
+        opacity 180ms ease,
+        transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform, opacity;
+}
+.provider-scale-modal.is-open .provider-scale-modal__panel {
+    opacity: 1;
+    transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+    .provider-scale-modal__backdrop,
+    .provider-scale-modal__panel {
+        transition: none;
+    }
+}
 [dir="rtl"] .providers-page .dataTables_filter { margin-right: auto !important; margin-left: 0 !important; }
 [dir="rtl"] .providers-page .dataTables_length { margin-left: auto !important; margin-right: 0 !important; }
 [dir="rtl"] .providers-page table.dataTable th,
@@ -247,10 +283,10 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     </div>
 </div>
 
-<div id="quickSupplierModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="fixed inset-0 bg-slate-950/45"></div>
+<div id="quickSupplierModal" class="provider-scale-modal fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-hidden="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="provider-scale-modal__backdrop fixed inset-0 bg-slate-950/45" onclick="closeSupplierModal()"></div>
     <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeSupplierModal()">
-        <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+        <div class="provider-scale-modal__panel w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                 <div>
                     <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('Provider.quickAddSupplierTitle')) ?></h4>
@@ -298,6 +334,9 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
 <script>
+let supplierModalCloseTimer = null;
+let supplierModalTrigger = null;
+
 function mountSupplierModal() {
     const modal = document.getElementById('quickSupplierModal');
     if (modal && modal.parentElement !== document.body) {
@@ -306,23 +345,52 @@ function mountSupplierModal() {
     return modal;
 }
 
-function openSupplierModal() {
-    mountSupplierModal()?.classList.remove('hidden');
-    setTimeout(function() {
-        var input = document.getElementById('quickSupplierName');
-        if (input) { input.focus(); }
-    }, 50);
-}
-
-function closeSupplierModal() {
-    var modal = document.getElementById('quickSupplierModal');
-    if (modal) { modal.classList.add('hidden'); }
+function resetSupplierModalFields() {
     ['quickSupplierName', 'quickSupplierContact', 'quickSupplierPhone', 'quickSupplierEmail'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) { el.value = ''; }
     });
     var status = document.getElementById('quickSupplierStatus');
     if (status) { status.classList.add('hidden'); status.textContent = ''; }
+}
+
+function openSupplierModal(event) {
+    const modal = mountSupplierModal();
+    if (!modal) { return; }
+    supplierModalTrigger = event?.currentTarget || document.activeElement;
+    if (supplierModalCloseTimer) {
+        clearTimeout(supplierModalCloseTimer);
+        supplierModalCloseTimer = null;
+    }
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('app-drawer-lock');
+    document.body.classList.add('app-drawer-lock');
+    requestAnimationFrame(function() {
+        modal.classList.add('is-open');
+    });
+    setTimeout(function() {
+        var input = document.getElementById('quickSupplierName');
+        if (input) { input.focus(); }
+    }, 120);
+}
+
+function closeSupplierModal() {
+    var modal = document.getElementById('quickSupplierModal');
+    if (!modal || modal.classList.contains('hidden')) { return; }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('app-drawer-lock');
+    document.body.classList.remove('app-drawer-lock');
+    supplierModalCloseTimer = setTimeout(function() {
+        modal.classList.add('hidden');
+        resetSupplierModalFields();
+        if (supplierModalTrigger && typeof supplierModalTrigger.focus === 'function') {
+            supplierModalTrigger.focus();
+        }
+        supplierModalTrigger = null;
+        supplierModalCloseTimer = null;
+    }, 240);
 }
 
 document.addEventListener('keydown', function(e) {
