@@ -1851,14 +1851,15 @@
                             </label>
                             <div class="relative">
                                 <select id="settlementLiquidityAccount" name="liquidity_account" class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
-                                    <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
-                                    <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                                    <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?>
+                                        <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                 </div>
                             </div>
-                            <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                            <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.paidFromAccountHelp') ?></p>
                         </div>
                         <?php endif; ?>
                         <div class="group/field relative">
@@ -2495,10 +2496,21 @@ function voidPayment(paymentId) {
 function syncExpenseSettlementLiquidityField() {
     const settlementMethod = document.querySelector('#invoicePaymentForm select[name="payment_method"]');
     const settlementField = document.getElementById('settlementLiquidityAccountField');
+    const settlementInput = document.getElementById('settlementLiquidityAccount');
     if (!settlementField || !settlementMethod) {
         return;
     }
-    settlementField.classList.toggle('hidden', settlementMethod.value !== 'check');
+    settlementField.classList.remove('hidden');
+    if (settlementInput) {
+        settlementInput.disabled = false;
+        if (!settlementInput.value) {
+            const defaultAccount = settlementMethod.value === 'cash' ? 'safe_cash' : 'bank';
+            settlementInput.value = defaultAccount;
+            if (window.jQuery) {
+                window.jQuery(settlementInput).val(defaultAccount).trigger('change');
+            }
+        }
+    }
 }
 
 document.querySelector('#invoicePaymentForm select[name="payment_method"]')?.addEventListener('change', syncExpenseSettlementLiquidityField);

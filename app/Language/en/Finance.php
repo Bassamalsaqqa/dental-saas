@@ -357,6 +357,7 @@ return [
     'liquidityAccount.bank' => 'Bank',
     'liquidityAccount.undeposited_checks' => 'Checks on Hand',
     'paidFromAccount' => 'Pay From',
+    'paidFromAccountHelp' => 'Choose the clinic money bucket used for this expense payment.',
     'checkOutgoingAccountHelp' => 'If you pay by check, choose whether the check was issued from the bank or from checks already on hand.',
     'treasuryMovementTitle' => 'Money Movement',
     'treasuryMovementHelp' => 'Shows how money moved between the cash box, bank, and checks on hand during the selected period. Internal moves change where money sits, not the total money on hand.',

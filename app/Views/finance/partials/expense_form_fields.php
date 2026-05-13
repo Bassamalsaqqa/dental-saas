@@ -90,18 +90,19 @@ $selectClass = $inputClass . ' finance-leading-input';
             </select>
         </div>
 
-        <div id="<?= esc($fieldId('expenseLiquidityAccountField')) ?>" data-expense-liquidity-account-field class="hidden">
+        <div id="<?= esc($fieldId('expenseLiquidityAccountField')) ?>" data-expense-liquidity-account-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.paidFromAccount') ?></label>
             <select id="<?= esc($fieldId('expenseLiquidityAccount')) ?>" name="liquidity_account" data-expense-liquidity-account data-force-select2 class="<?= esc($selectClass) ?>">
-                <option value="bank" <?= old('liquidity_account', 'bank') === 'bank' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
-                <option value="undeposited_checks" <?= old('liquidity_account') === 'undeposited_checks' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?>
+                    <option value="<?= esc($key) ?>" <?= old('liquidity_account') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
+                <?php endforeach; ?>
             </select>
-            <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+            <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.paidFromAccountHelp') ?></p>
         </div>
 
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.paymentStatusRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span></label>
-            <select name="payment_status" data-force-select2 data-allow-clear="false" class="<?= esc($selectClass) ?>" required>
+            <select name="payment_status" data-expense-payment-status data-force-select2 data-allow-clear="false" class="<?= esc($selectClass) ?>" required>
                 <option value="paid" <?= old('payment_status', 'paid') === 'paid' ? 'selected' : '' ?>><?= lang('Finance.paid') ?></option>
                 <option value="partial" <?= old('payment_status') === 'partial' ? 'selected' : '' ?>><?= lang('Finance.partial') ?></option>
                 <option value="pending" <?= old('payment_status') === 'pending' ? 'selected' : '' ?>><?= lang('Finance.unpaid') ?></option>

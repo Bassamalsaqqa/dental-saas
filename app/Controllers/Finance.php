@@ -248,8 +248,7 @@ class Finance extends BaseController
 
     private function resolveExpenseOutgoingLiquidityAccount(string $paymentMethod): ?string
     {
-        $fieldName = strtolower(trim($paymentMethod)) === 'check' ? 'liquidity_account' : null;
-        return $this->normalizeLiquidityAccountInput($paymentMethod, 'out', 'expense', $fieldName);
+        return $this->normalizeLiquidityAccountInput($paymentMethod, 'out', 'expense', 'liquidity_account');
     }
 
     private function supportsFinancePaymentExchangeFields(): bool

@@ -690,7 +690,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                         <?= view('finance/partials/expense_form_fields', [
                             'base_currency' => $base_currency ?? 'ILS',
                             'currency_options' => $currency_options ?? [],
-                            'check_outgoing_liquidity_options' => $check_outgoing_liquidity_options ?? [],
+                            'liquidity_account_options' => $liquidity_account_options ?? [],
                             'expense_category_options' => $expense_category_options ?? [],
                             'supplier_directory' => $supplier_directory ?? [],
                             'selected_supplier_id' => $selected_supplier_id ?? 0,
@@ -761,21 +761,42 @@ function initializeFinanceExpenseModal(modal) {
         });
 
         const paymentMethod = form.querySelector('[name="payment_method"]');
+        const paymentStatus = form.querySelector('[data-expense-payment-status]');
         const amountPaidInput = form.querySelector('[data-expense-amount-paid]');
         const accountField = form.querySelector('[data-expense-liquidity-account-field]');
         const accountSelect = form.querySelector('[data-expense-liquidity-account]');
+        const defaultAccountForMethod = function (method) {
+            return method === 'cash' ? 'safe_cash' : 'bank';
+        };
         const syncExpenseLiquidityField = function () {
-            if (!paymentMethod || !amountPaidInput || !accountField || !accountSelect) {
+            if (!paymentMethod || !paymentStatus || !accountField || !accountSelect) {
                 return;
             }
-            const shouldShow = paymentMethod.value === 'check' && (parseFloat(amountPaidInput.value || '0') > 0);
+            const shouldShow = paymentStatus.value !== 'pending';
             accountField.classList.toggle('hidden', !shouldShow);
             accountSelect.disabled = !shouldShow;
+            if (shouldShow && !accountSelect.value) {
+                const defaultAccount = defaultAccountForMethod(paymentMethod.value);
+                accountSelect.value = defaultAccount;
+                if (window.jQuery) {
+                    window.jQuery(accountSelect).val(defaultAccount).trigger('change');
+                }
+            }
+            if (!shouldShow) {
+                accountSelect.value = '';
+                if (window.jQuery) {
+                    window.jQuery(accountSelect).val('').trigger('change');
+                }
+            }
         };
         paymentMethod?.addEventListener('change', syncExpenseLiquidityField);
+        paymentStatus?.addEventListener('change', syncExpenseLiquidityField);
         amountPaidInput?.addEventListener('input', syncExpenseLiquidityField);
         if (window.jQuery && paymentMethod) {
             window.jQuery(paymentMethod).on('select2:select select2:clear change', syncExpenseLiquidityField);
+        }
+        if (window.jQuery && paymentStatus) {
+            window.jQuery(paymentStatus).on('select2:select select2:clear change', syncExpenseLiquidityField);
         }
         syncExpenseLiquidityField();
 

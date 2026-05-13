@@ -64,6 +64,10 @@ class FinanceTreasuryService
             return false;
         }
 
+        if ($direction === 'out' && $transactionType === 'expense') {
+            return true;
+        }
+
         return match ($paymentMethod) {
             'cash' => $account === 'safe_cash',
             'card', 'bank_transfer', 'insurance', 'other' => $account === 'bank',

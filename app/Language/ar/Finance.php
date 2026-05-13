@@ -357,6 +357,7 @@ return [
     'liquidityAccount.bank' => 'الرصيد البنكي',
     'liquidityAccount.undeposited_checks' => 'شيكات في الحيازة',
     'paidFromAccount' => 'الدفع من',
+    'paidFromAccountHelp' => 'اختر مكان المال الذي سيخرج منه دفع هذا المصروف.',
     'checkOutgoingAccountHelp' => 'إذا تم الدفع بشيك، فاختر هل خرج الشيك من البنك أم من الشيكات الموجودة في الحيازة.',
     'treasuryMovementTitle' => 'حركة الأموال',
     'treasuryMovementHelp' => 'يوضح كيف تحركت الأموال بين الصندوق والبنك والشيكات خلال الفترة المحددة. الحركات الداخلية تغيّر مكان المال لكنها لا تغيّر إجمالي المال المتاح.',

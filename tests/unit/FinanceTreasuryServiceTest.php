@@ -16,6 +16,11 @@ class FinanceTreasuryServiceTest extends CIUnitTestCase
         $this->assertSame('bank', $service->defaultLiquidityAccount('bank_transfer', 'out', 'expense'));
         $this->assertSame('undeposited_checks', $service->defaultLiquidityAccount('check', 'in', 'payment'));
         $this->assertSame('bank', $service->defaultLiquidityAccount('check', 'out', 'provider_payout'));
+
+        $this->assertTrue($service->isCompatibleLiquidityAccount('cash', 'out', 'safe_cash', 'expense'));
+        $this->assertTrue($service->isCompatibleLiquidityAccount('cash', 'out', 'bank', 'expense'));
+        $this->assertTrue($service->isCompatibleLiquidityAccount('cash', 'out', 'undeposited_checks', 'expense'));
+        $this->assertFalse($service->isCompatibleLiquidityAccount('cash', 'out', 'bank', 'provider_payout'));
     }
 
     public function test_movement_and_closing_summaries_keep_internal_transfers_neutral_on_total_liquid_funds(): void

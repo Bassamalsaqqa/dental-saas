@@ -174,17 +174,18 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
                                 </div>
                             </div>
 
-                            <div class="group/field relative hidden" id="expenseLiquidityAccountField">
+                            <div class="group/field relative" id="expenseLiquidityAccountField">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
                                     <i class="fas fa-vault text-indigo-600 mr-2"></i><?= lang('Finance.paidFromAccount') ?>
                                 </label>
                                 <div class="relative">
                                     <select id="expenseLiquidityAccount" name="liquidity_account" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
-                                        <option value="bank" <?= old('liquidity_account', $finance['liquidity_account'] ?? 'bank') === 'bank' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
-                                        <option value="undeposited_checks" <?= old('liquidity_account', $finance['liquidity_account'] ?? '') === 'undeposited_checks' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                                        <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?>
+                                            <option value="<?= esc($key) ?>" <?= old('liquidity_account', $finance['liquidity_account'] ?? '') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                                <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.paidFromAccountHelp') ?></p>
                             </div>
 
                             <div class="group/field relative">
@@ -319,6 +320,7 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
     const input = document.getElementById('expenseAttachmentInput');
     const label = document.getElementById('expenseAttachmentName');
     const paymentMethod = document.getElementById('paymentMethod');
+    const paymentStatus = document.querySelector('select[name="payment_status"]');
     const amountPaidInput = document.querySelector('input[name="amount_paid"]');
     const accountField = document.getElementById('expenseLiquidityAccountField');
     const accountSelect = document.getElementById('expenseLiquidityAccount');
@@ -332,19 +334,28 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
     });
 
     const syncExpenseLiquidityField = () => {
-        if (!paymentMethod || !amountPaidInput || !accountField || !accountSelect) {
+        if (!paymentMethod || !paymentStatus || !accountField || !accountSelect) {
             return;
         }
 
-        const method = paymentMethod.value;
-        const amountPaid = parseFloat(amountPaidInput.value || '0');
-        const shouldShow = method === 'check' && amountPaid > 0;
+        const shouldShow = paymentStatus.value !== 'pending';
         accountField.classList.toggle('hidden', !shouldShow);
         accountSelect.disabled = !shouldShow;
+        if (shouldShow && !accountSelect.value) {
+            accountSelect.value = paymentMethod.value === 'cash' ? 'safe_cash' : 'bank';
+        }
+        if (!shouldShow) {
+            accountSelect.value = '';
+        }
     };
 
     paymentMethod?.addEventListener('change', syncExpenseLiquidityField);
+    paymentStatus?.addEventListener('change', syncExpenseLiquidityField);
     amountPaidInput?.addEventListener('input', syncExpenseLiquidityField);
+    if (window.jQuery) {
+        window.jQuery(paymentMethod).on('select2:select select2:clear change', syncExpenseLiquidityField);
+        window.jQuery(paymentStatus).on('select2:select select2:clear change', syncExpenseLiquidityField);
+    }
     syncExpenseLiquidityField();
 
     let lastSupplierName = '';
