@@ -9,6 +9,8 @@ if ($currentQuery !== '') {
     $returnToContext .= '?' . $currentQuery;
 }
 $returnToContextEncoded = urlencode($returnToContext);
+$shouldOpenPrescriptionCreateModal = old('source_modal') === 'prescription_quick_create';
+$isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 ?>
 
 <!-- DataTables CSS -->
@@ -197,6 +199,82 @@ $returnToContextEncoded = urlencode($returnToContext);
     justify-content: space-between !important;
 }
 </style>
+<style>
+.prescription-create-modal {
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 240ms;
+}
+.prescription-create-modal.is-open {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+.prescription-create-modal__backdrop {
+    opacity: 0;
+    transition: opacity 220ms ease;
+}
+.prescription-create-modal.is-open .prescription-create-modal__backdrop {
+    opacity: 1;
+}
+.prescription-create-modal__panel {
+    opacity: 0;
+    transform: scale(0.86);
+    transform-origin: center center;
+    transition:
+        opacity 180ms ease,
+        transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform, opacity;
+}
+.prescription-create-modal.is-open .prescription-create-modal__panel {
+    opacity: 1;
+    transform: scale(1);
+}
+.prescription-create-modal .select2-container {
+    width: 100% !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .prescription-create-modal__backdrop,
+    .prescription-create-modal__panel {
+        transition: none;
+    }
+}
+@media (max-width: 640px) {
+    .prescription-create-modal__shell {
+        align-items: stretch;
+        padding: 0;
+    }
+    .prescription-create-modal__panel {
+        width: 100vw;
+        min-height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
+}
+</style>
+<style>
+[dir="ltr"] .prescription-leading-input {
+    padding-left: 0.75rem !important;
+    padding-right: 2.5rem !important;
+}
+
+[dir="rtl"] .prescription-leading-input {
+    padding-right: 2.5rem !important;
+    padding-left: 0.75rem !important;
+    text-align: right;
+}
+
+[dir="ltr"] input[data-clinic-date="1"].prescription-date-input {
+    padding-left: 1rem !important;
+    padding-right: 2.75rem !important;
+}
+
+[dir="rtl"] input[data-clinic-date="1"].prescription-date-input {
+    padding-right: 2.75rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
+</style>
 
 <!-- Enhanced Prescription Management with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-100 relative overflow-hidden">
@@ -223,7 +301,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
                         <?php if (has_permission('prescriptions', 'create')): ?>
-                            <a href="<?= base_url('prescription/create') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('prescription/create') ?>" id="newPrescriptionModalTrigger" data-prescription-create-modal-open class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= lang('Prescription.new_prescription') ?>
                             </a>
@@ -458,6 +536,71 @@ $returnToContextEncoded = urlencode($returnToContext);
                     </div>
                     </div>
 
+<?php if (has_permission('prescriptions', 'create')): ?>
+    <div id="newPrescriptionModal" class="app-scale-modal prescription-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPrescriptionModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="prescription-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-prescription-create-modal-close></div>
+        <div class="prescription-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-prescription-create-modal-close>
+            <form id="newPrescriptionQuickCreateForm" action="<?= base_url('prescription/store') ?>" method="POST" class="prescription-create-modal__panel flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-prescription-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
+                <?= csrf_field() ?>
+                <input type="hidden" name="return_to" value="<?= esc($returnToContext) ?>">
+                <input type="hidden" name="source_modal" value="prescription_quick_create">
+
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
+                            <i class="fas fa-prescription-bottle-alt"></i>
+                        </span>
+                        <div>
+                            <h2 id="newPrescriptionModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Prescription.new_prescription')) ?></h2>
+                            <a href="<?= base_url('prescription/create?return_to=' . $returnToContextEncoded) ?>" class="mt-1 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-800">
+                                <?= esc(lang('UI.openFullPage')) ?>
+                            </a>
+                        </div>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-prescription-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                    <?php if (session('error') && $shouldOpenPrescriptionCreateModal): ?>
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            <?= esc(session('error')) ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (session('errors') && $shouldOpenPrescriptionCreateModal): ?>
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            <?php foreach ((array) session('errors') as $error): ?>
+                                <div><?= esc($error) ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                        <?= view('prescription/partials/form_fields', [
+                            'selected_patient' => null,
+                            'is_rtl' => $isRtl,
+                            'id_prefix' => 'prescriptionQuick',
+                        ]) ?>
+                    </div>
+                </div>
+
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                    <button type="button" data-prescription-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <?= esc(lang('Prescription.cancel')) ?>
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-teal-600 hover:to-emerald-700 hover:shadow-xl">
+                        <i class="fas fa-prescription-bottle-alt me-2"></i>
+                        <?= esc(lang('Prescription.create_prescription')) ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?= view('prescription/partials/form_script') ?>
+
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
@@ -470,6 +613,8 @@ $returnToContextEncoded = urlencode($returnToContext);
 <script>
 // Global variables
 let prescriptionsTable;
+let newPrescriptionModalTrigger = null;
+let newPrescriptionModalCloseTimer = null;
 const prescriptionI18n = {
     prescriptionId: <?= json_encode(lang('Prescription.prescription_id')) ?>,
     noPhone: <?= json_encode(lang('Prescription.no_phone')) ?>,
@@ -516,7 +661,128 @@ function getPatientAvatar(gender) {
     return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
 }
 
+function mountNewPrescriptionModal() {
+    const modal = document.getElementById('newPrescriptionModal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+    if (modal && modal.dataset.closeControlsBound !== '1') {
+        modal.dataset.closeControlsBound = '1';
+        modal.querySelectorAll('button[data-prescription-create-modal-close], a[data-prescription-create-modal-close]').forEach(function(control) {
+            control.addEventListener('click', function(event) {
+                event.preventDefault();
+                closeNewPrescriptionModal();
+            });
+        });
+    }
+    return modal;
+}
+
+function initializeNewPrescriptionModalContent(modal) {
+    if (!modal) {
+        return Promise.resolve();
+    }
+    const tasks = [];
+    if (typeof window.initAppSelects === 'function') {
+        tasks.push(Promise.resolve(window.initAppSelects(modal)));
+    }
+    if (typeof window.initializeClinicDateInputs === 'function') {
+        window.initializeClinicDateInputs(modal);
+    }
+    if (typeof window.initPrescriptionCreateForms === 'function') {
+        window.initPrescriptionCreateForms(modal);
+    }
+    return Promise.allSettled(tasks);
+}
+
+function openNewPrescriptionModal(trigger) {
+    const modal = mountNewPrescriptionModal();
+    if (!modal) {
+        return;
+    }
+    newPrescriptionModalTrigger = trigger || document.activeElement;
+    if (newPrescriptionModalCloseTimer) {
+        clearTimeout(newPrescriptionModalCloseTimer);
+        newPrescriptionModalCloseTimer = null;
+    }
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('app-drawer-lock');
+    document.body.classList.add('app-drawer-lock');
+    requestAnimationFrame(function() {
+        modal.classList.add('is-open');
+    });
+    window.setTimeout(function() {
+        initializeNewPrescriptionModalContent(modal);
+        const firstField = modal.querySelector('[name="patient_id"], input, select, textarea, button');
+        if (firstField && typeof firstField.focus === 'function') {
+            firstField.focus({ preventScroll: true });
+        }
+    }, 80);
+}
+
+function closeNewPrescriptionModal() {
+    const modal = document.getElementById('newPrescriptionModal');
+    if (!modal || modal.classList.contains('hidden')) {
+        return;
+    }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('app-drawer-lock');
+    document.body.classList.remove('app-drawer-lock');
+    newPrescriptionModalCloseTimer = setTimeout(function() {
+        const form = modal.querySelector('[data-prescription-create-form]');
+        if (form) {
+            form.reset();
+            if (typeof form.prescriptionReset === 'function') {
+                form.prescriptionReset();
+            }
+            form.querySelectorAll('select').forEach(function(select) {
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                if (window.jQuery) {
+                    window.jQuery(select).trigger('change');
+                }
+            });
+        }
+        modal.classList.add('hidden');
+        if (newPrescriptionModalTrigger && typeof newPrescriptionModalTrigger.focus === 'function') {
+            newPrescriptionModalTrigger.focus();
+        }
+        newPrescriptionModalTrigger = null;
+    }, 240);
+}
+
+document.addEventListener('click', function(event) {
+    const openTrigger = event.target.closest('[data-prescription-create-modal-open]');
+    if (openTrigger) {
+        event.preventDefault();
+        openNewPrescriptionModal(openTrigger);
+        return;
+    }
+
+    const closeTrigger = event.target.closest('[data-prescription-create-modal-close]');
+    if (closeTrigger) {
+        event.preventDefault();
+        closeNewPrescriptionModal();
+    }
+});
+
+document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Escape') {
+        return;
+    }
+    const modal = document.getElementById('newPrescriptionModal');
+    if (modal && !modal.classList.contains('hidden')) {
+        event.preventDefault();
+        closeNewPrescriptionModal();
+    }
+});
+
 $(document).ready(function() {
+    if (<?= $shouldOpenPrescriptionCreateModal ? 'true' : 'false' ?>) {
+        openNewPrescriptionModal(document.getElementById('newPrescriptionModalTrigger'));
+    }
+
     // Initialize DataTable with server-side processing
     prescriptionsTable = $('#prescriptionsTable').DataTable({
         processing: true,
