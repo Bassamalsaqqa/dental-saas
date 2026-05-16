@@ -51,6 +51,11 @@ class Inventory extends BaseController
 
             $data = [
                 'title' => 'Inventory Management',
+                'categories' => $this->getCategories(),
+                'suppliers' => $this->getSuppliers(),
+                'supplier_directory' => $this->supplierModel->getActiveOptionsByClinic((int) $clinicId),
+                'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
+                'loadSelect2' => true,
             ];
 
             // Check if inventory table exists first
@@ -102,6 +107,11 @@ class Inventory extends BaseController
                 'low_stock_items' => 0,
                 'out_of_stock_items' => 0,
                 'open_reorder_count' => 0,
+                'categories' => $this->getCategories(),
+                'suppliers' => $this->getSuppliers(),
+                'supplier_directory' => [],
+                'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
+                'loadSelect2' => true,
                 'error' => 'Unable to load inventory data. Please check the database connection.'
             ];
 
@@ -247,6 +257,15 @@ class Inventory extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->getPost('source_modal') === 'inventory_quick_create') {
+                $returnTo = $this->workflowReturnTo(['inventory']) ?? 'inventory';
+
+                return redirect()->to(base_url($returnTo))
+                    ->withInput()
+                    ->with('errors', $this->validator->getErrors())
+                    ->with('error', 'Please review the highlighted fields.');
+            }
+
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -301,11 +320,19 @@ class Inventory extends BaseController
                 "New inventory item '{$inventoryData['item_name']}' added - Category: {$inventoryData['category']}, Quantity: {$inventoryData['quantity']}, Price: " . settings()->getCurrencySymbol() . number_format($inventoryData['unit_price'], 2)
             );
             
-            return redirect()->to(base_url('inventory'))->with('success', 'Item added successfully!');
+            return $this->redirectAfterWorkflow('inventory', ['inventory'])->with('success', 'Item added successfully!');
         } else {
             $errors = $this->inventoryModel->errors();
             log_message('error', 'Inventory creation failed: ' . json_encode($errors));
             log_message('error', 'Inventory data that failed: ' . json_encode($inventoryData));
+            if ($this->request->getPost('source_modal') === 'inventory_quick_create') {
+                $returnTo = $this->workflowReturnTo(['inventory']) ?? 'inventory';
+
+                return redirect()->to(base_url($returnTo))
+                    ->withInput()
+                    ->with('error', 'Failed to add item: ' . implode(', ', $errors));
+            }
+
             return redirect()->back()->withInput()->with('error', 'Failed to add item: ' . implode(', ', $errors));
         }
     }

@@ -239,7 +239,7 @@
                     </div>
                     <div class="flex items-center space-x-3">
                     <?php if (has_permission('inventory', 'create')): ?>
-                            <a href="<?= base_url('inventory/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('inventory/create') ?>" data-inventory-create-modal-open class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= esc($tr('addNewItem')) ?>
                         </a>
@@ -1406,4 +1406,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // loadInventoryStats is already called in $(document).ready
 });
 </script>
+
+<?= view('inventory/partials/quick_create_modal', [
+    'return_to' => 'inventory',
+    'is_rtl' => !empty($is_rtl),
+    'supplier_directory' => $supplier_directory ?? [],
+    'currencies' => $currencies ?? ['ILS'],
+]) ?>
 <?= $this->endSection() ?>
