@@ -207,6 +207,69 @@
             wrap.dataset.examBound = '1';
             const form = wrap.closest('form') || scope;
             const patientSelect = form.querySelector('[name="patient_id"]');
+
+            const syncToggleVisual = (toggle) => {
+                if (!toggle) return;
+                const track = document.getElementById(toggle.dataset.trackId || '');
+                const dot = document.getElementById(toggle.dataset.dotId || '');
+                if (track) {
+                    track.classList.toggle('bg-blue-500', toggle.checked);
+                    track.classList.toggle('bg-gray-200', !toggle.checked);
+                }
+                if (typeof window.applyToggleDotState === 'function') {
+                    window.applyToggleDotState(dot, toggle.checked);
+                } else if (dot) {
+                    dot.style.transform = toggle.checked
+                        ? (document.documentElement.dir === 'rtl' ? 'translateX(-20px)' : 'translateX(20px)')
+                        : 'translateX(0)';
+                }
+            };
+
+            const syncHealthDetails = () => {
+                const toggles = Array.from(wrap.querySelectorAll('.health-update-toggle')).filter((toggle) => !toggle.disabled);
+                const anyChecked = toggles.some((toggle) => toggle.checked);
+                const detailsId = toggles.find((toggle) => toggle.dataset.detailsId)?.dataset.detailsId;
+                const detailsWrap = detailsId ? document.getElementById(detailsId) : wrap.querySelector('[id$="healthUpdateDetailsWrap"]');
+                const detailsField = detailsWrap?.querySelector('textarea, input, select');
+                if (detailsField) {
+                    detailsField.disabled = !anyChecked;
+                    if (!anyChecked) {
+                        detailsField.value = '';
+                    }
+                }
+            };
+
+            wrap.querySelectorAll('[data-exam-optional-toggle]').forEach((toggle) => {
+                const syncOptional = () => {
+                    const section = document.getElementById(toggle.dataset.sectionId || '');
+                    section?.classList.toggle('hidden', !toggle.checked);
+                    syncToggleVisual(toggle);
+                    if (!toggle.checked && section) {
+                        section.querySelectorAll('input[type="checkbox"]').forEach((field) => {
+                            field.checked = false;
+                            syncToggleVisual(field);
+                        });
+                        section.querySelectorAll('textarea, input:not([type="hidden"]):not([type="checkbox"]), select').forEach((field) => {
+                            field.value = '';
+                            if (window.jQuery && field.tagName === 'SELECT') {
+                                window.jQuery(field).trigger('change');
+                            }
+                        });
+                    }
+                    syncHealthDetails();
+                };
+                toggle.addEventListener('change', syncOptional);
+                syncOptional();
+            });
+
+            wrap.querySelectorAll('.health-update-toggle').forEach((toggle) => {
+                toggle.addEventListener('change', () => {
+                    syncToggleVisual(toggle);
+                    syncHealthDetails();
+                });
+                syncToggleVisual(toggle);
+            });
+
             const syncPregnancy = () => {
                 const selectedGender = (wrap.dataset.patientGender || patientSelect?.selectedOptions?.[0]?.dataset?.gender || '').toLowerCase();
                 wrap.querySelectorAll('[data-pregnancy-only="1"]').forEach((item) => {
@@ -225,10 +288,13 @@
                             field.disabled = field.dataset.pregnancyOriginalDisabled === '1';
                         }
                     });
+                    item.querySelectorAll('.health-update-toggle').forEach(syncToggleVisual);
                 });
+                syncHealthDetails();
             };
             patientSelect?.addEventListener('change', syncPregnancy);
             syncPregnancy();
+            syncHealthDetails();
         });
     };
 

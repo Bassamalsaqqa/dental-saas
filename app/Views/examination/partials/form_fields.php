@@ -4,6 +4,10 @@ $validation = $validation ?? session()->getFlashdata('validation');
 $contextual = !empty($contextual);
 $selectedPatient = $selected_patient ?? null;
 $selectedPatientGender = strtolower((string) ($selectedPatient['gender'] ?? ''));
+$idPrefix = isset($id_prefix) && $id_prefix !== '' ? preg_replace('/[^A-Za-z0-9_-]/', '', (string) $id_prefix) : '';
+$fieldId = static function (string $id) use ($idPrefix): string {
+    return $idPrefix !== '' ? $idPrefix . '_' . $id : $id;
+};
 $optionalFieldKeys = [
     'dental_history', 'clinical_findings', 'diagnosis', 'examination_notes',
     'health_update_medical_changes', 'health_update_medication_changes',
@@ -21,14 +25,19 @@ $healthToggleChecked = static function (string $key): bool {
     return in_array(old($key), ['1', 1, true, 'true', 'on', 'yes'], true);
 };
 $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
+$anyHealthToggleChecked = $healthToggleChecked('health_update_medical_changes')
+    || $healthToggleChecked('health_update_medication_changes')
+    || $healthToggleChecked('health_update_allergies_reactions')
+    || $healthToggleChecked('health_update_pregnancy')
+    || $healthToggleChecked('health_update_current_symptoms');
 ?>
 <?php if ($contextual && !empty($selectedPatient['id'])): ?>
     <?= view('patient/partials/context_patient_badge', ['context_patient' => $selectedPatient]) ?>
     <input type="hidden" name="patient_id" value="<?= (int) $selectedPatient['id'] ?>">
 <?php else: ?>
     <div>
-        <label for="patientSelect" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('patient_required')) ?></label>
-        <select name="patient_id" id="patientSelect" class="<?= esc($inputClass) ?>" data-searchable-select data-minimum-input-length="0" data-limit="5" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc($tr('search_patients_placeholder')) ?>" required>
+        <label for="<?= esc($fieldId('patientSelect')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('patient_required')) ?></label>
+        <select name="patient_id" id="<?= esc($fieldId('patientSelect')) ?>" class="<?= esc($inputClass) ?>" data-searchable-select data-minimum-input-length="0" data-limit="5" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc($tr('search_patients_placeholder')) ?>" required>
             <option value=""><?= esc($tr('select_patient')) ?></option>
             <?php if (!empty($selectedPatient)): ?>
                 <option value="<?= (int) $selectedPatient['id'] ?>" data-gender="<?= esc($selectedPatient['gender'] ?? '') ?>" selected>
@@ -42,8 +51,8 @@ $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 te
 
 <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
     <div>
-        <label for="examination_type" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('examination_type_required')) ?></label>
-        <select name="examination_type" id="examination_type" class="<?= esc($inputClass) ?>" data-force-select2 data-allow-clear="false" required>
+        <label for="<?= esc($fieldId('examination_type')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('examination_type_required')) ?></label>
+        <select name="examination_type" id="<?= esc($fieldId('examination_type')) ?>" class="<?= esc($inputClass) ?>" data-force-select2 data-allow-clear="false" required>
             <option value=""><?= esc($tr('select_type')) ?></option>
             <option value="initial" <?= old('examination_type') === 'initial' ? 'selected' : '' ?>><?= esc($tr('type_initial')) ?></option>
             <option value="periodic" <?= old('examination_type') === 'periodic' ? 'selected' : '' ?>><?= esc($tr('type_periodic')) ?></option>
@@ -53,63 +62,124 @@ $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 te
         <?php if ($validation && $validation->hasError('examination_type')): ?><p class="mt-2 text-sm text-red-600"><?= $validation->getError('examination_type') ?></p><?php endif; ?>
     </div>
     <div>
-        <label for="examination_date" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('examination_date_required')) ?></label>
-        <input type="text" name="examination_date" id="examination_date" data-clinic-date="1" value="<?= esc(old('examination_date', date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?>" required>
+        <label for="<?= esc($fieldId('examination_date')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('examination_date_required')) ?></label>
+        <input type="text" name="examination_date" id="<?= esc($fieldId('examination_date')) ?>" data-clinic-date="1" value="<?= esc(old('examination_date', date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?>" required>
         <?php if ($validation && $validation->hasError('examination_date')): ?><p class="mt-2 text-sm text-red-600"><?= $validation->getError('examination_date') ?></p><?php endif; ?>
     </div>
 </div>
 
 <div>
-    <label for="chief_complaint" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('chief_complaint_required')) ?></label>
-    <textarea name="chief_complaint" id="chief_complaint" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('chief_complaint_placeholder')) ?>" required><?= old('chief_complaint') ?></textarea>
+    <label for="<?= esc($fieldId('chief_complaint')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('chief_complaint_required')) ?></label>
+    <textarea name="chief_complaint" id="<?= esc($fieldId('chief_complaint')) ?>" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('chief_complaint_placeholder')) ?>" required><?= old('chief_complaint') ?></textarea>
     <?php if ($validation && $validation->hasError('chief_complaint')): ?><p class="mt-2 text-sm text-red-600"><?= $validation->getError('chief_complaint') ?></p><?php endif; ?>
 </div>
 
-<details class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4" <?= $optionalEnabledByOld ? 'open' : '' ?> data-contextual-exam data-patient-gender="<?= esc($selectedPatientGender) ?>">
-    <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
-    <div class="mt-4 space-y-5">
-        <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
-            <?php
-            $healthUpdateItems = [
-                ['key' => 'health_update_medical_changes', 'label' => $tr('health_q_medical_changes')],
-                ['key' => 'health_update_medication_changes', 'label' => $tr('health_q_medication_changes')],
-                ['key' => 'health_update_allergies_reactions', 'label' => $tr('health_q_allergies_reactions')],
-                ['key' => 'health_update_pregnancy', 'label' => $tr('health_q_pregnancy'), 'pregnancy_only' => true],
-                ['key' => 'health_update_current_symptoms', 'label' => $tr('health_q_current_symptoms')],
-            ];
-            ?>
-            <?php foreach ($healthUpdateItems as $item): ?>
-                <?php $checked = $healthToggleChecked($item['key']); ?>
-                <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-medium text-slate-700" <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
-                    <span><?= esc($item['label']) ?></span>
-                    <span class="inline-flex items-center gap-2">
-                        <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
-                        <input type="checkbox" name="<?= esc($item['key']) ?>" value="1" class="health-update-toggle" <?= $checked ? 'checked' : '' ?>>
-                    </span>
-                </label>
-            <?php endforeach; ?>
-        </div>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6" data-contextual-exam data-patient-gender="<?= esc($selectedPatientGender) ?>">
+    <label class="mb-4 flex cursor-pointer flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <span class="flex min-w-0 items-center gap-3">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-sm">
+                <i class="fas fa-notes-medical text-sm"></i>
+            </span>
+            <span class="min-w-0">
+                <span class="block text-sm font-bold text-slate-900"><?= esc($tr('additional_clinical_details')) ?></span>
+                <span class="block text-xs font-medium text-slate-500"><?= esc($tr('optional')) ?></span>
+            </span>
+        </span>
+        <span class="inline-flex shrink-0 items-center gap-3">
+            <span class="text-sm font-semibold text-slate-700"><?= esc($tr('enable')) ?></span>
+            <span class="relative inline-flex">
+                <input type="checkbox"
+                       id="<?= esc($fieldId('optionalEnabled')) ?>"
+                       class="sr-only"
+                       data-exam-optional-toggle
+                       data-section-id="<?= esc($fieldId('optionalSection')) ?>"
+                       data-track-id="<?= esc($fieldId('optionalTrack')) ?>"
+                       data-dot-id="<?= esc($fieldId('optionalDot')) ?>"
+                       <?= $optionalEnabledByOld ? 'checked' : '' ?>>
+                <span id="<?= esc($fieldId('optionalTrack')) ?>" class="toggle-track relative h-6 w-11 rounded-full <?= $optionalEnabledByOld ? 'bg-blue-500' : 'bg-gray-200' ?>">
+                    <span id="<?= esc($fieldId('optionalDot')) ?>" class="toggle-dot absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow" style="transform: <?= $optionalEnabledByOld ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></span>
+                </span>
+            </span>
+        </span>
+    </label>
+
+    <div id="<?= esc($fieldId('optionalSection')) ?>" class="<?= $optionalEnabledByOld ? '' : 'hidden' ?> space-y-6">
         <div>
-            <label for="health_update_details" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('health_update_details')) ?></label>
-            <textarea name="health_update_details" id="health_update_details" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('health_update_details_placeholder')) ?>"><?= old('health_update_details') ?></textarea>
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <h5 class="text-sm font-bold text-slate-900"><?= esc($tr('health_update_since_last_visit')) ?></h5>
+                <span class="text-xs font-semibold text-slate-500"><?= esc($tr('quick_check')) ?></span>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
+                <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <?php
+                $healthUpdateItems = [
+                    ['key' => 'health_update_medical_changes', 'label' => $tr('health_q_medical_changes'), 'icon' => 'fas fa-notes-medical', 'icon_class' => 'text-emerald-500'],
+                    ['key' => 'health_update_medication_changes', 'label' => $tr('health_q_medication_changes'), 'icon' => 'fas fa-pills', 'icon_class' => 'text-blue-500'],
+                    ['key' => 'health_update_allergies_reactions', 'label' => $tr('health_q_allergies_reactions'), 'icon' => 'fas fa-allergies', 'icon_class' => 'text-red-500'],
+                    ['key' => 'health_update_pregnancy', 'label' => $tr('health_q_pregnancy'), 'icon' => 'fas fa-baby', 'icon_class' => 'text-fuchsia-500', 'pregnancy_only' => true],
+                    ['key' => 'health_update_current_symptoms', 'label' => $tr('health_q_current_symptoms'), 'icon' => 'fas fa-triangle-exclamation', 'icon_class' => 'text-amber-500'],
+                ];
+                ?>
+                <?php foreach ($healthUpdateItems as $item): ?>
+                    <?php $checked = $healthToggleChecked($item['key']); ?>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
+                        <div class="flex items-center justify-between gap-3">
+                            <label for="<?= esc($fieldId($item['key'])) ?>" class="flex min-w-0 items-start gap-2 text-sm font-medium leading-snug text-slate-700">
+                                <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class']) ?> mt-0.5 w-4 shrink-0 text-center"></i>
+                                <span><?= esc($item['label']) ?></span>
+                            </label>
+                            <span class="inline-flex shrink-0 items-center gap-2">
+                                <span class="text-xs font-semibold text-slate-500"><?= esc($tr('no')) ?></span>
+                                <label class="inline-flex cursor-pointer items-center">
+                                    <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
+                                    <input type="checkbox"
+                                           id="<?= esc($fieldId($item['key'])) ?>"
+                                           name="<?= esc($item['key']) ?>"
+                                           value="1"
+                                           class="sr-only health-update-toggle"
+                                           data-track-id="<?= esc($fieldId($item['key'] . '_track')) ?>"
+                                           data-dot-id="<?= esc($fieldId($item['key'] . '_dot')) ?>"
+                                           data-details-id="<?= esc($fieldId('healthUpdateDetailsWrap')) ?>"
+                                           <?= $checked ? 'checked' : '' ?>>
+                                    <span id="<?= esc($fieldId($item['key'] . '_track')) ?>" class="toggle-track relative h-6 w-11 rounded-full <?= $checked ? 'bg-blue-500' : 'bg-gray-200' ?>">
+                                        <span id="<?= esc($fieldId($item['key'] . '_dot')) ?>" class="toggle-dot absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow" style="transform: <?= $checked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></span>
+                                    </span>
+                                </label>
+                                <span class="text-xs font-semibold text-blue-700"><?= esc($tr('yes')) ?></span>
+                            </span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                </div>
+
+            </div>
+
+            <div id="<?= esc($fieldId('healthUpdateDetailsWrap')) ?>" class="mt-3">
+                <label for="<?= esc($fieldId('health_update_details')) ?>" class="mb-2 block text-xs font-semibold text-slate-600"><?= esc($tr('health_update_details')) ?></label>
+                <textarea name="health_update_details" id="<?= esc($fieldId('health_update_details')) ?>" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('health_update_details_placeholder')) ?>" <?= $anyHealthToggleChecked ? '' : 'disabled' ?>><?= old('health_update_details') ?></textarea>
+            </div>
         </div>
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <div>
-                <label for="dental_history" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('dental_history')) ?></label>
-                <textarea name="dental_history" id="dental_history" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history') ?></textarea>
+
+        <div class="space-y-5">
+            <h5 class="mb-3 text-sm font-semibold text-slate-700"><?= esc($tr('additional_clinical_details')) ?></h5>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div>
+                    <label for="<?= esc($fieldId('dental_history')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('dental_history')) ?></label>
+                    <textarea name="dental_history" id="<?= esc($fieldId('dental_history')) ?>" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history') ?></textarea>
+                </div>
+                <div>
+                    <label for="<?= esc($fieldId('clinical_findings')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('clinical_findings')) ?></label>
+                    <textarea name="clinical_findings" id="<?= esc($fieldId('clinical_findings')) ?>" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('clinical_findings_placeholder')) ?>"><?= old('clinical_findings') ?></textarea>
+                </div>
             </div>
             <div>
-                <label for="clinical_findings" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('clinical_findings')) ?></label>
-                <textarea name="clinical_findings" id="clinical_findings" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('clinical_findings_placeholder')) ?>"><?= old('clinical_findings') ?></textarea>
+                <label for="<?= esc($fieldId('diagnosis')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('diagnosis')) ?></label>
+                <textarea name="diagnosis" id="<?= esc($fieldId('diagnosis')) ?>" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis') ?></textarea>
             </div>
-        </div>
-        <div>
-            <label for="diagnosis" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('diagnosis')) ?></label>
-            <textarea name="diagnosis" id="diagnosis" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis') ?></textarea>
-        </div>
-        <div>
-            <label for="examination_notes" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('examination_notes')) ?></label>
-            <textarea name="examination_notes" id="examination_notes" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('examination_notes_placeholder')) ?>"><?= old('examination_notes') ?></textarea>
+            <div>
+                <label for="<?= esc($fieldId('examination_notes')) ?>" class="mb-2 block text-sm font-semibold text-slate-700"><?= esc($tr('examination_notes')) ?></label>
+                <textarea name="examination_notes" id="<?= esc($fieldId('examination_notes')) ?>" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc($tr('examination_notes_placeholder')) ?>"><?= old('examination_notes') ?></textarea>
+            </div>
         </div>
     </div>
-</details>
+</div>

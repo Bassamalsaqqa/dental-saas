@@ -42,7 +42,8 @@ class Examination extends BaseController
     public function index()
     {
         $data = [
-            'title' => 'Examination Management'
+            'title' => 'Examination Management',
+            'loadSelect2' => true,
         ];
 
         // Ensure user data is included
