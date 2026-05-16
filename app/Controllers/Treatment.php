@@ -298,7 +298,11 @@ class Treatment extends BaseController
 
         if (!$this->validate($rules)) {
             if ($this->request->getPost('source_modal') === 'treatment_quick_create') {
-                return redirect()->to(base_url('treatment'))
+                $modalReturnTo = $this->sanitizeInternalReturnTo(
+                    $this->request->getPost('return_to'),
+                    ['patient', 'patients', 'examination', 'treatment', 'treatments']
+                ) ?: 'treatment';
+                return redirect()->to(base_url($modalReturnTo))
                     ->withInput()
                     ->with('validation', $this->validator)
                     ->with('errors', $this->validator->getErrors())

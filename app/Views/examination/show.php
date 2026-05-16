@@ -15,6 +15,7 @@ $patientName = trim(($examination['first_name'] ?? '') . ' ' . ($examination['la
 $patientGender = strtolower((string)($examination['gender'] ?? 'other'));
 $treatmentCount = is_array($treatments ?? null) ? count($treatments) : 0;
 $odontogramConditionCount = (int)($odontogram_stats['total_conditions'] ?? (is_array($odontogram ?? null) ? count($odontogram) : 0));
+$returnToContext = 'examination/' . (int) ($examination['id'] ?? 0);
 
 $statusTone = match ($statusKey) {
     'completed'  => ['bg' => 'rgba(16,185,129,0.22)', 'border' => 'rgba(167,243,208,0.4)'],
@@ -309,7 +310,7 @@ $healthFlags = array_values(array_filter([
                                     <p class="text-sm text-gray-500 mt-1"><?= $treatmentCount > 0 ? esc($tr('treatments_recorded', ['count' => $treatmentCount])) : esc($tr('no_treatments_recorded')) ?></p>
                                 </div>
                                 <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '') ?>" class="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
+                                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=' . urlencode($returnToContext)) ?>" data-treatment-create-modal-open class="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
                                 <?php endif; ?>
                             </div>
                             <?php if (!empty($treatments)): ?>
@@ -359,10 +360,10 @@ $healthFlags = array_values(array_filter([
                     <?php endif; ?>
                     <?php if (has_permission('treatments', 'create')): ?>
                     <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary mb-3"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
-                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
+                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=' . urlencode($returnToContext)) ?>" data-treatment-create-modal-open class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
                     <?php endif; ?>
                     <?php if (has_permission('appointments', 'create')): ?>
-                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary"><i class="fas fa-calendar-plus text-sm"></i><?= esc($tr('schedule_follow_up')) ?></a>
+                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=' . urlencode($returnToContext)) ?>" data-appointment-create-modal-open class="exam-action-secondary"><i class="fas fa-calendar-plus text-sm"></i><?= esc($tr('schedule_follow_up')) ?></a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -405,4 +406,25 @@ $healthFlags = array_values(array_filter([
 
 </div>
 </div>
+<?= view('treatment/partials/quick_create_modal', [
+    'isRtl' => $isRtl,
+    'return_to' => $returnToContext,
+    'contextual' => true,
+    'selected_patient' => $selected_treatment_patient ?? null,
+    'patients' => [],
+    'treatment_types' => $treatment_types ?? [],
+    'inventory_items' => $inventory_items ?? [],
+    'validation' => session()->getFlashdata('validation'),
+    'selected_examination_id' => $selected_examination_id ?? ($examination['id'] ?? null),
+]) ?>
+<?= view('appointment/partials/quick_create_modal', [
+    'isRtl' => $isRtl,
+    'return_to' => $returnToContext,
+    'contextual' => true,
+    'selected_patient' => $selected_appointment_patient ?? null,
+    'chair_options' => $appointment_chair_options ?? [],
+    'requested_date' => date('Y-m-d'),
+    'appointment_type_prefill' => $appointment_type_prefill ?? 'follow_up',
+    'examination_id' => $examination['id'] ?? null,
+]) ?>
 <?= $this->endSection() ?>

@@ -252,6 +252,16 @@ class Appointment extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->getPost('source_modal') === 'appointment_quick_create') {
+                $modalReturnTo = $this->sanitizeInternalReturnTo(
+                    $this->request->getPost('return_to'),
+                    ['patient', 'patients', 'examination', 'appointment', 'appointments']
+                ) ?: 'appointment';
+                return redirect()->to(base_url($modalReturnTo))
+                    ->withInput()
+                    ->with('validation', $this->validator)
+                    ->with('error', 'Please review the highlighted fields and try again.');
+            }
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 

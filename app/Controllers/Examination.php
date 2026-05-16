@@ -7,6 +7,8 @@ use App\Models\PatientModel;
 use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
 use App\Models\TreatmentContractModel;
+use App\Models\InventoryModel;
+use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\OdontogramSnapshotService;
 use App\Services\PlanGuard;
@@ -244,6 +246,18 @@ class Examination extends BaseController
             ->first();
         $planGuard = new PlanGuard();
         $signatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'contracts.signature.enabled', false);
+        $inventoryItems = (new InventoryModel())->where('status', 'active')
+            ->where('clinic_id', $clinicId)
+            ->where('quantity >', 0)
+            ->orderBy('item_name', 'ASC')
+            ->findAll();
+        $selectedTreatmentPatient = [
+            'id' => (int) $examination['patient_id'],
+            'patient_id' => $examination['patient_number'] ?? '',
+            'first_name' => $examination['first_name'] ?? '',
+            'last_name' => $examination['last_name'] ?? '',
+            'gender' => $examination['gender'] ?? '',
+        ];
 
         $data = [
             'title' => 'Examination Details - ' . $examination['examination_id'],
@@ -256,6 +270,14 @@ class Examination extends BaseController
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
+            'loadSelect2' => true,
+            'treatment_types' => TreatmentCatalog::forSelection(),
+            'inventory_items' => $inventoryItems,
+            'selected_treatment_patient' => $selectedTreatmentPatient,
+            'selected_examination_id' => (int) $examination['id'],
+            'selected_appointment_patient' => $selectedTreatmentPatient,
+            'appointment_chair_options' => service('settings')->getBookingChairNames(),
+            'appointment_type_prefill' => 'follow_up',
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations'])
         ];
 
