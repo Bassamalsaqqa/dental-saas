@@ -23,6 +23,11 @@
   - Clicking an existing appointment now opens a calendar-local detail modal instead of immediately leaving `/appointment/calendar`.
   - The detail modal links to the canonical appointment show/edit pages and patient page, preserving canonical module ownership.
   - The existing appointment show page already uses `nav_back()`, which delegates to `NavigationService::previousSafe()` for context-aware Back behavior.
+- Started appointment list/workspace refinement:
+  - `/appointment` now has a compact appointment summary strip using loaded appointment data.
+  - New Appointment entry points on the page open the existing appointment quick-create modal.
+  - Daily schedule period counts now use real loaded rows instead of placeholder random values.
+  - Appointment cards and filters were tightened for a denser appointment operations view.
 
 ## 2026-05-10 - Patient Drawer RTL and Select2 Polish
 
