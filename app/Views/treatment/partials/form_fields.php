@@ -39,10 +39,6 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.estimated_duration_days_required')) ?></label>
             <input type="number" name="estimated_duration" value="<?= esc(old('estimated_duration', 1)) ?>" min="1" class="<?= esc($inputClass) ?>" required>
         </div>
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.cost')) ?></label>
-            <input type="number" name="cost" value="<?= esc(old('cost')) ?>" step="0.01" min="0" class="<?= esc($inputClass) ?>" placeholder="<?= esc(lang('Treatment.zero_amount_placeholder')) ?>">
-        </div>
     </div>
     <div class="mt-5">
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.treatment_description_required')) ?></label>

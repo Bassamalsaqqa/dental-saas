@@ -10,9 +10,6 @@ $statusRaw = $treatment['status'] ?? 'active';
 $statusLabel = lang('Treatment.status_values.' . $statusRaw);
 if ($statusLabel === 'Treatment.status_values.' . $statusRaw) { $statusLabel = ucfirst(str_replace('_', ' ', $statusRaw)); }
 $typeLabel = ucfirst(str_replace('_', ' ', $treatment['treatment_type'] ?? ''));
-$treatmentCost = (float) ($treatment['cost'] ?? 0);
-$usageCost = (float) ($usage_total_cost ?? 0);
-$margin = $treatmentCost - $usageCost;
 $statusTone = match ($statusRaw) {
     'active' => ['bg' => 'rgba(59,130,246,0.22)', 'border' => 'rgba(147,197,253,0.4)'],
     'completed' => ['bg' => 'rgba(16,185,129,0.22)', 'border' => 'rgba(167,243,208,0.4)'],
@@ -135,13 +132,6 @@ $statusTone = match ($statusRaw) {
                                         <span class="patient-hero-chip-value"><?= esc($treatment['tooth_number'] ?? '—') ?></span>
                                     </span>
                                 </div>
-                                <div class="patient-hero-chip" title="<?= esc($tr('cost') . ': ' . formatCurrency($treatmentCost)) ?>">
-                                    <span class="patient-hero-chip-icon"><i class="fas fa-coins"></i></span>
-                                    <span class="patient-hero-chip-text">
-                                        <span class="patient-hero-chip-label"><?= esc($tr('cost')) ?></span>
-                                        <span class="patient-hero-chip-value"><?= esc(formatCurrency($treatmentCost)) ?></span>
-                                    </span>
-                                </div>
                                 <div class="patient-hero-chip" title="<?= esc($tr('start_date') . ': ' . (!empty($treatment['start_date']) ? formatDate($treatment['start_date']) : '—')) ?>">
                                     <span class="patient-hero-chip-icon"><i class="fas fa-calendar"></i></span>
                                     <span class="patient-hero-chip-text">
@@ -252,18 +242,6 @@ $statusTone = match ($statusRaw) {
 
         <!-- Right Column -->
         <div class="space-y-6">
-            <!-- Financials -->
-            <div class="treatment-card">
-                <div class="treatment-card-header">
-                    <i class="fas fa-coins text-emerald-600"></i><span><?= esc($tr('treatment_financials')) ?></span>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm"><span class="text-gray-500"><?= esc($tr('charged')) ?></span><span class="font-semibold text-gray-900"><?= formatCurrency($treatmentCost) ?></span></div>
-                    <div class="flex justify-between text-sm"><span class="text-gray-500"><?= esc($tr('inventory_cost')) ?></span><span class="font-semibold text-rose-600"><?= formatCurrency($usageCost) ?></span></div>
-                    <div class="pt-3 border-t border-gray-100 flex justify-between text-sm"><span class="text-gray-700 font-semibold"><?= esc($tr('gross_margin')) ?></span><span class="font-bold <?= $margin >= 0 ? 'text-emerald-700' : 'text-rose-600' ?>"><?= formatCurrency($margin) ?></span></div>
-                    <?php if (empty($usage_records)): ?><p class="text-xs text-gray-400 pt-1"><?= esc($tr('no_inventory_usage_recorded')) ?></p><?php endif; ?>
-                </div>
-            </div>
 
             <!-- Patient Info -->
             <?php if (!empty($treatment['patient_id'])): ?>

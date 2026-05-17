@@ -196,33 +196,8 @@
                             </div>
                         </div>
 
-                        <!-- Cost and Duration -->
+                        <!-- Duration -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span><?= lang('Treatment.cost') ?></span>
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
-                                        <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
-                                    </div>
-                                    <input type="number" id="cost" name="cost" step="0.01" min="0"
-                                           class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-4' : 'pl-10 pr-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
-                                           value="<?= old('cost', $treatment['cost']) ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-dollar-sign text-gray-400"></i>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2"><?= service('request')->getLocale() === 'ar' ? 'اختياري. اتركه فارغًا إذا لم يتم تسعير هذا العلاج بعد.' : 'Optional. Leave blank if this treatment is not billed yet.' ?></p>
-                                <?php if ($validation && $validation->hasError('cost')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <span><?= $validation->getError('cost') ?></span>
-                                    </p>
-                                <?php endif; ?>
-                            </div>
-
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-clock text-amber-600"></i>

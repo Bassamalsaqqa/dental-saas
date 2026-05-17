@@ -407,12 +407,6 @@
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
-                                            <i class="fas fa-dollar-sign text-pink-600"></i>
-                                    <span><?= lang('Treatment.cost') ?></span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
                                             <i class="fas fa-info-circle text-pink-600"></i>
                                     <span><?= lang('Treatment.status') ?></span>
                                 </div>
@@ -523,18 +517,6 @@ $(document).ready(function() {
                 }
             },
             {
-                data: 'cost',
-                name: 'cost',
-                render: function(data, type, row) {
-                    return data ? `
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-dollar-sign text-pink-600 text-xs"></i>
-                            <span class="text-sm text-gray-900"><?= settings()->getCurrencySymbol() ?>${parseFloat(data).toFixed(2)}</span>
-                        </div>
-                    ` : '<span class="text-gray-400 text-sm"><?= esc(lang('Treatment.no_cost'), 'js') ?></span>';
-                }
-            },
-            {
                 data: 'status',
                 name: 'status',
                 render: function(data, type, row) {
@@ -634,7 +616,7 @@ $(document).ready(function() {
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5] // Patient, Treatment, Date, Status, Cost, Actions
+                    columns: [0, 1, 2, 3, 4] // Patient, Treatment, Status, Date, Actions
                 }
             },
             {
@@ -643,7 +625,7 @@ $(document).ready(function() {
                 className: 'btn-print',
                 title: '<?= esc(lang('Treatment.treatments_report'), 'js') ?>',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5] // Patient, Treatment, Date, Status, Cost, Actions
+                    columns: [0, 1, 2, 3, 4] // Patient, Treatment, Status, Date, Actions
                 }
             },
             {
@@ -652,7 +634,7 @@ $(document).ready(function() {
                 className: 'btn-csv',
                 title: '<?= esc(lang('Treatment.treatments_report'), 'js') ?>',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5] // Patient, Treatment, Date, Status, Cost, Actions
+                    columns: [0, 1, 2, 3, 4] // Patient, Treatment, Status, Date, Actions
                 }
             }
         ],

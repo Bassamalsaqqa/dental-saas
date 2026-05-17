@@ -83,10 +83,6 @@ if ($statusLabel === 'Treatment.status_values.' . $statusRaw) {
                         </span>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600"><?= lang('Treatment.cost') ?>:</p>
-                        <p class="font-semibold text-gray-900"><?= formatCurrency($treatment['cost'] ?? 0) ?></p>
-                    </div>
-                    <div>
                         <p class="text-sm text-gray-600"><?= lang('Treatment.estimated_duration') ?>:</p>
                         <p class="font-semibold text-gray-900"><?= esc($treatment['estimated_duration'] ?? lang('Treatment.na')) ?> <?= lang('Treatment.days') ?></p>
                     </div>
