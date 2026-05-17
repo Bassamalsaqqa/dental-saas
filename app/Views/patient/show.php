@@ -597,16 +597,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if (has_permission('appointments', 'create')): ?>
-                                <a href="<?= base_url('appointment/create?patient_id=' . $patient['id']) ?>" class="patient-header-action patient-header-action-emerald">
+                                <button type="button" data-app-drawer-open="patientAppointmentDrawer" class="patient-header-action patient-header-action-emerald">
                                     <i class="fas fa-calendar-plus"></i>
                                     <span><?= esc(lang('UI.patientBookAppointment')) ?></span>
-                                </a>
+                                </button>
                             <?php endif; ?>
                             <?php if (has_permission('finance', 'create')): ?>
-                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id']) ?>" class="patient-header-action patient-header-action-gold">
+                                <button type="button" data-app-drawer-open="patientChargeDrawer" class="patient-header-action patient-header-action-gold">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                     <span><?= esc(lang('UI.patientCreateInvoice')) ?></span>
-                                </a>
+                                </button>
                             <?php endif; ?>
                         </div>
                     </div>
