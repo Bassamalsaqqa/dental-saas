@@ -94,7 +94,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
             <a href="<?= base_url('appointment') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                 <i class="fas fa-list mr-2"></i><?= esc(lang('UI.appointmentListView')) ?>
             </a>
-            <a href="<?= base_url('appointment/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+            <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                 <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.appointmentNew')) ?>
             </a>
         </div>
@@ -116,7 +116,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
                 </div>
             </div>
 
-            <div class="mb-6 rounded-2xl border border-white/40 bg-white/70 p-4 shadow-lg shadow-blue-500/5 backdrop-blur-sm">
+            <div class="mb-5 rounded-2xl border border-blue-100 bg-gradient-to-br from-slate-50 via-white to-blue-50/60 p-4 shadow-lg shadow-blue-500/10">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div>
                         <label for="calendarSearchFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentSearch')) ?></label>
@@ -124,7 +124,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
                             <input
                                 type="text"
                                 id="calendarSearchFilter"
-                                class="w-full rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 <?= !empty($is_rtl) ? 'pr-10 pl-4' : 'pl-10 pr-4' ?>"
+                                class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 <?= !empty($is_rtl) ? 'pr-10 pl-4' : 'pl-10 pr-4' ?>"
                                 placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>"
                                 autocomplete="off"
                             >
@@ -133,7 +133,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
                     </div>
                     <div>
                         <label for="calendarStatusFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentStatusLabel')) ?></label>
-                        <select id="calendarStatusFilter" class="w-full rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20">
+                        <select id="calendarStatusFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
                             <option value=""><?= esc(lang('UI.appointmentAllStatuses')) ?></option>
                             <option value="scheduled"><?= esc(lang('UI.appointmentStatusScheduled')) ?></option>
                             <option value="confirmed"><?= esc(lang('UI.appointmentStatusConfirmed')) ?></option>
@@ -144,7 +144,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
                     </div>
                     <div>
                         <label for="calendarTypeFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentTypeBadge')) ?></label>
-                        <select id="calendarTypeFilter" class="w-full rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20">
+                        <select id="calendarTypeFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
                             <option value=""><?= esc(lang('UI.appointmentViewAll')) ?></option>
                             <option value="Consultation"><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
                             <option value="Treatment"><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
@@ -155,7 +155,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
                         </select>
                     </div>
                     <div class="flex items-end">
-                        <button type="button" id="calendarClearFilters" class="inline-flex w-full items-center justify-center rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-bold text-slate-700 shadow-lg outline-none transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:ring-4 focus:ring-blue-500/20">
+                        <button type="button" id="calendarClearFilters" class="inline-flex w-full items-center justify-center rounded-xl border-2 border-slate-300 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-800 shadow-sm outline-none transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:ring-4 focus:ring-blue-500/15">
                             <i class="fas fa-eraser me-2"></i><?= esc(lang('UI.appointmentClearAction')) ?>
                         </button>
                     </div>
@@ -208,7 +208,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
 
 <style>
     .appointment-calendar-shell {
-        min-height: min(760px, calc(100vh - 260px));
+        min-height: min(680px, calc(100vh - 240px));
     }
 
     .appointment-calendar-shell .fc {
@@ -241,7 +241,17 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     }
 
     .appointment-calendar-shell .fc-timegrid-slot {
-        height: 2.35rem;
+        height: 1.82rem;
+    }
+
+    .appointment-calendar-shell .fc-timegrid-slot-label {
+        font-size: 0.72rem;
+    }
+
+    .appointment-calendar-shell .fc-col-header-cell-cushion {
+        padding-block: 0.45rem;
+        font-size: 0.78rem;
+        font-weight: 800;
     }
 
     .appointment-calendar-shell .fc-event {
@@ -254,14 +264,14 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     .appointment-calendar-event {
         display: flex;
         flex-direction: column;
-        gap: 0.12rem;
-        padding: 0.35rem 0.45rem;
-        line-height: 1.15;
+        gap: 0.08rem;
+        padding: 0.25rem 0.4rem;
+        line-height: 1.08;
         min-width: 0;
     }
 
     .appointment-calendar-event__time {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
         font-weight: 800;
         opacity: 0.95;
         direction: ltr;
@@ -269,7 +279,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     }
 
     .appointment-calendar-event__title {
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 800;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -280,7 +290,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
         display: flex;
         flex-wrap: wrap;
         gap: 0.25rem;
-        font-size: 0.66rem;
+        font-size: 0.62rem;
         font-weight: 700;
         opacity: 0.9;
     }
@@ -292,12 +302,12 @@ $calendarBusinessDays = array_values(array_unique(array_map(
         white-space: nowrap;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.22);
-        padding: 0.08rem 0.35rem;
+        padding: 0.04rem 0.3rem;
     }
 
     @media (max-width: 640px) {
         .appointment-calendar-shell {
-            min-height: calc(100vh - 220px);
+            min-height: calc(100vh - 210px);
         }
 
         .appointment-calendar-shell .fc-header-toolbar {
