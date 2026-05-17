@@ -19,6 +19,10 @@
   - Clicking an empty date/time slot now opens the existing appointment quick-create modal instead of leaving the calendar.
   - The existing appointment form, store endpoint, Select2/date conventions, CSRF, and `return_to` behavior remain authoritative.
   - Calendar slot date/time values are passed into the existing modal and appointment slot loader without adding new routes or duplicate forms.
+- Continued Phase 2 with calendar appointment click behavior:
+  - Clicking an existing appointment now opens a calendar-local detail modal instead of immediately leaving `/appointment/calendar`.
+  - The detail modal links to the canonical appointment show/edit pages and patient page, preserving canonical module ownership.
+  - The existing appointment show page already uses `nav_back()`, which delegates to `NavigationService::previousSafe()` for context-aware Back behavior.
 
 ## 2026-05-10 - Patient Drawer RTL and Select2 Polish
 

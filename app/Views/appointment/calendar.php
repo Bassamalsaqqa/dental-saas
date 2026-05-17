@@ -166,6 +166,75 @@ $calendarBusinessDays = array_values(array_unique(array_map(
         </div>
     </div>
 
+    <div id="appointmentCalendarDetailsModal" class="appointment-calendar-details-modal fixed inset-0 z-[2147483500] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appointmentCalendarDetailsTitle">
+        <div class="appointment-calendar-details-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-calendar-details-close></div>
+        <div class="appointment-calendar-details-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-calendar-details-close>
+            <div class="appointment-calendar-details-modal__panel grid w-full max-w-xl grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+                <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg">
+                            <i class="fas fa-calendar-check"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <h2 id="appointmentCalendarDetailsTitle" class="truncate text-lg font-bold text-slate-900"><?= esc(lang('UI.appointmentDetails')) ?></h2>
+                            <p id="appointmentCalendarDetailsSubtitle" class="mt-1 truncate text-xs font-semibold text-slate-500"></p>
+                        </div>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-calendar-details-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+                <div class="min-h-0 space-y-4 overflow-y-auto bg-slate-50/75 p-5">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p id="appointmentCalendarDetailsTime" class="text-xl font-black text-slate-900" dir="ltr"></p>
+                                <p id="appointmentCalendarDetailsDate" class="mt-1 text-sm font-semibold text-slate-500" dir="ltr"></p>
+                            </div>
+                            <span id="appointmentCalendarDetailsStatus" class="inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide"></span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentPatientInfo')) ?></p>
+                            <p id="appointmentCalendarDetailsPatient" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentTypeLabel')) ?></p>
+                            <p id="appointmentCalendarDetailsType" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDoctorLabel')) ?></p>
+                            <p id="appointmentCalendarDetailsDoctor" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDurationLabel')) ?></p>
+                            <p id="appointmentCalendarDetailsDuration" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentBookedByLabel')) ?></p>
+                        <p id="appointmentCalendarDetailsBookedBy" class="mt-2 text-sm font-bold text-slate-900"></p>
+                    </div>
+                </div>
+                <div class="flex flex-col-reverse gap-3 border-t border-slate-200 bg-white px-5 py-4 sm:flex-row sm:justify-end">
+                    <button type="button" data-calendar-details-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <?= esc(lang('UI.closeDrawer')) ?>
+                    </button>
+                    <a id="appointmentCalendarDetailsPatientLink" href="#" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-bold text-blue-700 transition hover:bg-blue-100">
+                        <i class="fas fa-user me-2"></i><?= esc(lang('UI.patientView')) ?>
+                    </a>
+                    <a id="appointmentCalendarDetailsEditLink" href="#" class="inline-flex items-center justify-center rounded-xl border border-purple-200 bg-purple-50 px-5 py-2.5 text-sm font-bold text-purple-700 transition hover:bg-purple-100">
+                        <i class="fas fa-edit me-2"></i><?= esc(lang('UI.appointmentEdit')) ?>
+                    </a>
+                    <a id="appointmentCalendarDetailsOpenLink" href="#" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-blue-700 hover:to-purple-700">
+                        <i class="fas fa-external-link-alt me-2"></i><?= esc(lang('UI.openFullPage')) ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Legend -->
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
         <div class="p-6">
@@ -259,6 +328,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
         border: 0;
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
         overflow: hidden;
+        cursor: pointer;
     }
 
     .appointment-calendar-event {
@@ -305,6 +375,42 @@ $calendarBusinessDays = array_values(array_unique(array_map(
         padding: 0.04rem 0.3rem;
     }
 
+    .appointment-calendar-details-modal {
+        visibility: hidden;
+        pointer-events: none;
+        transition: visibility 0s linear 220ms;
+    }
+
+    .appointment-calendar-details-modal.is-open {
+        visibility: visible;
+        pointer-events: auto;
+        transition-delay: 0s;
+    }
+
+    .appointment-calendar-details-modal__backdrop {
+        opacity: 0;
+        transition: opacity 180ms ease;
+    }
+
+    .appointment-calendar-details-modal.is-open .appointment-calendar-details-modal__backdrop {
+        opacity: 1;
+    }
+
+    .appointment-calendar-details-modal__panel {
+        opacity: 0;
+        transform: scale(0.92);
+        transform-origin: center;
+        transition:
+            opacity 160ms ease,
+            transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-height: min(90dvh, 42rem);
+    }
+
+    .appointment-calendar-details-modal.is-open .appointment-calendar-details-modal__panel {
+        opacity: 1;
+        transform: scale(1);
+    }
+
     @media (max-width: 640px) {
         .appointment-calendar-shell {
             min-height: calc(100vh - 210px);
@@ -320,6 +426,19 @@ $calendarBusinessDays = array_values(array_unique(array_map(
             display: flex;
             justify-content: center;
         }
+
+        .appointment-calendar-details-modal__shell {
+            align-items: stretch;
+            padding: 0;
+        }
+
+        .appointment-calendar-details-modal__panel {
+            width: 100vw;
+            max-width: none;
+            height: 100dvh;
+            max-height: 100dvh;
+            border-radius: 0;
+        }
     }
 </style>
 
@@ -331,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusFilter = document.getElementById('calendarStatusFilter');
     const typeFilter = document.getElementById('calendarTypeFilter');
     const clearFilters = document.getElementById('calendarClearFilters');
+    const detailsModal = document.getElementById('appointmentCalendarDetailsModal');
     const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
     const locale = <?= json_encode(service('request')->getLocale() === 'ar' ? 'ar' : 'en') ?>;
     const isCompactViewport = window.matchMedia('(max-width: 768px)').matches;
@@ -338,8 +458,25 @@ document.addEventListener('DOMContentLoaded', function() {
         loadFailed: '<?= esc(lang('UI.appointmentCalendarLoadFailed'), 'js') ?>',
         statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>',
         doctorLabel: '<?= esc(lang('UI.appointmentDoctorLabel'), 'js') ?>',
-        durationSuffix: '<?= esc(lang('UI.patientMinutes'), 'js') ?>'
+        durationSuffix: '<?= esc(lang('UI.patientMinutes'), 'js') ?>',
+        unknown: '<?= esc(lang('UI.appointmentUnknownCreator'), 'js') ?>',
+        statuses: {
+            scheduled: '<?= esc(lang('UI.appointmentStatusScheduled'), 'js') ?>',
+            confirmed: '<?= esc(lang('UI.appointmentStatusConfirmed'), 'js') ?>',
+            completed: '<?= esc(lang('UI.dashboardCompleted'), 'js') ?>',
+            cancelled: '<?= esc(lang('UI.appointmentStatusCancelled'), 'js') ?>',
+            no_show: '<?= esc(lang('UI.appointmentStatusNoShow'), 'js') ?>'
+        },
+        types: {
+            consultation: '<?= esc(lang('UI.appointmentTypeConsultation'), 'js') ?>',
+            treatment: '<?= esc(lang('UI.appointmentTypeTreatment'), 'js') ?>',
+            follow_up: '<?= esc(lang('UI.appointmentTypeFollowUp'), 'js') ?>',
+            emergency: '<?= esc(lang('UI.appointmentTypeEmergency'), 'js') ?>',
+            cleaning: '<?= esc(lang('UI.appointmentTypeCleaning'), 'js') ?>',
+            checkup: '<?= esc(lang('UI.appointmentTypeCheckup'), 'js') ?>'
+        }
     };
+    let calendarDetailsTrigger = null;
     
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: isCompactViewport ? 'timeGridDay' : 'timeGridWeek',
@@ -404,7 +541,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         appointment_type: event.appointment_type || '',
                         duration: event.duration || '',
                         doctor_name: event.doctor_name || '',
-                        booked_by: event.booked_by || ''
+                        booked_by: event.booked_by || '',
+                        title: event.title || ''
                     }
                 }));
                 
@@ -427,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         eventClick: function(info) {
             info.jsEvent.preventDefault();
-            window.location.href = info.event.url;
+            openAppointmentDetailsModal(info.event, info.el);
         },
         dateClick: function(info) {
             const rawDate = String(info.dateStr || '');
@@ -523,6 +661,24 @@ document.addEventListener('DOMContentLoaded', function() {
             calendar.refetchEvents();
         });
     }
+
+    document.addEventListener('click', function(event) {
+        const closeTrigger = event.target.closest('[data-calendar-details-close]');
+        if (closeTrigger) {
+            event.preventDefault();
+            closeAppointmentDetailsModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+        if (detailsModal && !detailsModal.classList.contains('hidden')) {
+            event.preventDefault();
+            closeAppointmentDetailsModal();
+        }
+    });
     
     function getStatusColor(status) {
         const colors = {
@@ -533,6 +689,129 @@ document.addEventListener('DOMContentLoaded', function() {
             'no_show': '#f59e0b'
         };
         return colors[status] || '#6b7280';
+    }
+
+    function getStatusClasses(status) {
+        const classes = {
+            scheduled: 'bg-blue-100 text-blue-800',
+            confirmed: 'bg-green-100 text-green-800',
+            completed: 'bg-emerald-100 text-emerald-800',
+            cancelled: 'bg-red-100 text-red-800',
+            no_show: 'bg-amber-100 text-amber-800'
+        };
+        return classes[status] || 'bg-slate-100 text-slate-800';
+    }
+
+    function formatStatus(status) {
+        const key = String(status || '').toLowerCase();
+        if (appointmentI18n.statuses[key]) {
+            return appointmentI18n.statuses[key];
+        }
+        return key.replace(/_/g, ' ').replace(/\b\w/g, function(letter) {
+            return letter.toUpperCase();
+        });
+    }
+
+    function formatAppointmentType(type) {
+        const normalized = String(type || '').toLowerCase().replace(/\s+/g, '_');
+        return appointmentI18n.types[normalized] || type || appointmentI18n.unknown;
+    }
+
+    function formatModalDate(dateValue) {
+        if (!dateValue) return '';
+        try {
+            return new Intl.DateTimeFormat(locale === 'ar' ? 'ar' : 'en', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }).format(dateValue);
+        } catch (error) {
+            return String(dateValue);
+        }
+    }
+
+    function formatModalTime(dateValue) {
+        if (!dateValue) return '';
+        try {
+            return new Intl.DateTimeFormat('en', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(dateValue);
+        } catch (error) {
+            return String(dateValue);
+        }
+    }
+
+    function setDetailsText(id, value) {
+        const target = document.getElementById(id);
+        if (target) {
+            target.textContent = value || appointmentI18n.unknown;
+        }
+    }
+
+    function openAppointmentDetailsModal(event, trigger) {
+        if (!detailsModal || !event) return;
+        calendarDetailsTrigger = trigger || document.activeElement;
+
+        const props = event.extendedProps || {};
+        const appointmentUrl = event.url || `<?= base_url('appointment') ?>/${event.id}`;
+        const patientUrl = props.patient_id ? `<?= base_url('patient') ?>/${props.patient_id}` : '#';
+        const editUrl = `<?= base_url('appointment') ?>/${event.id}/edit?return_to=appointment/calendar`;
+        const start = event.start;
+        const end = event.end;
+        const timeRange = [formatModalTime(start), formatModalTime(end)].filter(Boolean).join(' - ');
+        const titleParts = String(props.title || event.title || '').split(' - ');
+        const patientName = titleParts[0] || event.title || appointmentI18n.unknown;
+
+        setDetailsText('appointmentCalendarDetailsSubtitle', `#${event.id}`);
+        setDetailsText('appointmentCalendarDetailsTime', timeRange);
+        setDetailsText('appointmentCalendarDetailsDate', formatModalDate(start));
+        setDetailsText('appointmentCalendarDetailsPatient', patientName);
+        setDetailsText('appointmentCalendarDetailsType', formatAppointmentType(props.appointment_type || ''));
+        setDetailsText('appointmentCalendarDetailsDoctor', props.doctor_name || '');
+        setDetailsText('appointmentCalendarDetailsDuration', props.duration ? `${props.duration} ${appointmentI18n.durationSuffix}` : '');
+        setDetailsText('appointmentCalendarDetailsBookedBy', props.booked_by || '');
+
+        const statusEl = document.getElementById('appointmentCalendarDetailsStatus');
+        if (statusEl) {
+            statusEl.className = `inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ${getStatusClasses(props.status)}`;
+            statusEl.textContent = formatStatus(props.status);
+        }
+
+        const openLink = document.getElementById('appointmentCalendarDetailsOpenLink');
+        const editLink = document.getElementById('appointmentCalendarDetailsEditLink');
+        const patientLink = document.getElementById('appointmentCalendarDetailsPatientLink');
+        if (openLink) openLink.href = appointmentUrl;
+        if (editLink) editLink.href = editUrl;
+        if (patientLink) {
+            patientLink.href = patientUrl;
+            patientLink.classList.toggle('hidden', !props.patient_id);
+        }
+
+        detailsModal.classList.remove('hidden');
+        detailsModal.setAttribute('aria-hidden', 'false');
+        document.documentElement.classList.add('app-drawer-lock');
+        document.body.classList.add('app-drawer-lock');
+        requestAnimationFrame(function() {
+            detailsModal.classList.add('is-open');
+        });
+    }
+
+    function closeAppointmentDetailsModal() {
+        if (!detailsModal || detailsModal.classList.contains('hidden')) return;
+        detailsModal.classList.remove('is-open');
+        detailsModal.setAttribute('aria-hidden', 'true');
+        document.documentElement.classList.remove('app-drawer-lock');
+        document.body.classList.remove('app-drawer-lock');
+        window.setTimeout(function() {
+            detailsModal.classList.add('hidden');
+            if (calendarDetailsTrigger && typeof calendarDetailsTrigger.focus === 'function') {
+                calendarDetailsTrigger.focus();
+            }
+            calendarDetailsTrigger = null;
+        }, 220);
     }
 
     function eventMatchesCalendarFilters(event) {
