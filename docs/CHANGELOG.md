@@ -15,6 +15,10 @@
 - Continued Phase 1 with calendar-local filtering:
   - Added patient/search, status, and appointment-type controls to `/appointment/calendar`.
   - Filtering uses the existing calendar feed client-side and does not change routes, controller contracts, database queries, or appointment write behavior.
+- Started Phase 2 calendar create-flow integration:
+  - Clicking an empty date/time slot now opens the existing appointment quick-create modal instead of leaving the calendar.
+  - The existing appointment form, store endpoint, Select2/date conventions, CSRF, and `return_to` behavior remain authoritative.
+  - Calendar slot date/time values are passed into the existing modal and appointment slot loader without adding new routes or duplicate forms.
 
 ## 2026-05-10 - Patient Drawer RTL and Select2 Polish
 

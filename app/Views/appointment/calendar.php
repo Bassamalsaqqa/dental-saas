@@ -420,8 +420,30 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = info.event.url;
         },
         dateClick: function(info) {
-            const date = info.dateStr;
-            window.location.href = `<?= base_url('appointment/create') ?>?date=${date}`;
+            const rawDate = String(info.dateStr || '');
+            const parts = rawDate.split('T');
+            const appointmentDate = (parts[0] || rawDate).slice(0, 10);
+            const appointmentTime = parts[1] ? parts[1].slice(0, 5) : '';
+            const url = new URL(`<?= base_url('appointment/create') ?>`, window.location.origin);
+            if (appointmentDate) {
+                url.searchParams.set('date', appointmentDate);
+                url.searchParams.set('appointment_date', appointmentDate);
+            }
+            if (appointmentTime) {
+                url.searchParams.set('appointment_time', appointmentTime);
+            }
+            url.searchParams.set('return_to', 'appointment/calendar');
+
+            const trigger = document.createElement('a');
+            trigger.href = url.toString();
+            trigger.setAttribute('data-appointment-create-modal-open', '');
+            trigger.dataset.appointmentDate = appointmentDate;
+            if (appointmentTime) {
+                trigger.dataset.appointmentTime = appointmentTime;
+            }
+            document.body.appendChild(trigger);
+            trigger.click();
+            trigger.remove();
         },
         eventContent: function(info) {
             return { domNodes: [buildAppointmentEventNode(info)] };

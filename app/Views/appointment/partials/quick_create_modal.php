@@ -177,6 +177,116 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             }
         }
 
+        function dispatchFieldChange(field) {
+            if (!field) {
+                return;
+            }
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            if (window.jQuery && window.jQuery(field).data('select2')) {
+                window.jQuery(field).trigger('change.select2');
+            }
+        }
+
+        function setFieldValue(form, selector, value) {
+            if (!form || value === null || value === undefined || value === '') {
+                return;
+            }
+            const field = form.querySelector(selector);
+            if (!field) {
+                return;
+            }
+            field.value = value;
+            dispatchFieldChange(field);
+        }
+
+        function splitAppointmentDateTime(rawValue) {
+            const raw = String(rawValue || '').trim();
+            if (!raw) {
+                return { date: '', time: '' };
+            }
+            const parts = raw.split('T');
+            const date = (parts[0] || '').slice(0, 10);
+            const time = parts[1] ? parts[1].slice(0, 5) : '';
+            return { date: date, time: time };
+        }
+
+        function collectTriggerDefaults(trigger) {
+            if (!trigger) {
+                return {};
+            }
+            let params = new URLSearchParams();
+            const href = trigger.getAttribute('href');
+            if (href) {
+                try {
+                    params = new URL(href, window.location.origin).searchParams;
+                } catch (error) {
+                    params = new URLSearchParams();
+                }
+            }
+
+            const dateTime = splitAppointmentDateTime(
+                trigger.dataset.appointmentDateTime
+                || params.get('appointment_datetime')
+                || params.get('date')
+            );
+
+            return {
+                date: trigger.dataset.appointmentDate || params.get('appointment_date') || dateTime.date,
+                time: trigger.dataset.appointmentTime || params.get('appointment_time') || dateTime.time,
+                duration: trigger.dataset.appointmentDuration || params.get('duration'),
+                chair: trigger.dataset.appointmentChair || params.get('chair_name'),
+                type: trigger.dataset.appointmentType || params.get('appointment_type'),
+                patientId: trigger.dataset.patientId || params.get('patient_id'),
+            };
+        }
+
+        function applyAppointmentTriggerDefaults(modal, trigger) {
+            const form = modal?.querySelector('#newAppointmentQuickCreateForm');
+            const wrap = form?.querySelector('[data-contextual-appointment-form]');
+            if (!form || !wrap || !trigger) {
+                return;
+            }
+
+            const defaults = collectTriggerDefaults(trigger);
+            setFieldValue(form, '[name="appointment_date"]', defaults.date);
+            setFieldValue(form, '[name="duration"]', defaults.duration);
+            setFieldValue(form, '[name="chair_name"]', defaults.chair);
+            setFieldValue(form, '[name="appointment_type"]', defaults.type);
+            setFieldValue(form, '[name="patient_id"]', defaults.patientId);
+
+            if (defaults.time) {
+                wrap.dataset.prefillAppointmentTime = defaults.time;
+            } else {
+                delete wrap.dataset.prefillAppointmentTime;
+            }
+
+            const fullPageLink = modal.querySelector('a[href*="appointment/create"]');
+            if (fullPageLink) {
+                fullPageLink.dataset.baseHref = fullPageLink.dataset.baseHref || fullPageLink.href;
+                const fullPageUrl = new URL(fullPageLink.dataset.baseHref, window.location.origin);
+                if (defaults.date) {
+                    fullPageUrl.searchParams.set('date', defaults.date);
+                }
+                if (defaults.time) {
+                    fullPageUrl.searchParams.set('appointment_time', defaults.time);
+                }
+                if (defaults.duration) {
+                    fullPageUrl.searchParams.set('duration', defaults.duration);
+                }
+                if (defaults.chair) {
+                    fullPageUrl.searchParams.set('chair_name', defaults.chair);
+                }
+                if (defaults.type) {
+                    fullPageUrl.searchParams.set('appointment_type', defaults.type);
+                }
+                if (defaults.patientId) {
+                    fullPageUrl.searchParams.set('patient_id', defaults.patientId);
+                }
+                fullPageLink.href = fullPageUrl.toString();
+            }
+        }
+
         function openAppointmentModal(trigger) {
             const modal = mountAppointmentModal();
             if (!modal) {
@@ -189,6 +299,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             }
             modal.classList.remove('hidden');
             modal.setAttribute('aria-hidden', 'false');
+            applyAppointmentTriggerDefaults(modal, trigger);
             document.documentElement.classList.add('app-drawer-lock');
             document.body.classList.add('app-drawer-lock');
             requestAnimationFrame(function () {

@@ -14,6 +14,31 @@
         }
     }
 
+    function normalizeAppointmentTime(value) {
+        const raw = String(value || '').trim();
+        const match = raw.match(/^(\d{1,2}):(\d{2})/);
+        if (!match) return raw;
+        return `${match[1].padStart(2, '0')}:${match[2]}`;
+    }
+
+    function applyPendingAppointmentTime(wrap, timeSelect) {
+        const pendingTime = normalizeAppointmentTime(wrap?.dataset?.prefillAppointmentTime || '');
+        if (!pendingTime || !timeSelect) return;
+
+        const matchingOption = Array.from(timeSelect.options || []).find((option) => {
+            return normalizeAppointmentTime(option.value) === pendingTime;
+        });
+        if (!matchingOption) return;
+
+        timeSelect.value = matchingOption.value;
+        delete wrap.dataset.prefillAppointmentTime;
+        if (window.jQuery && window.jQuery(timeSelect).data('select2')) {
+            window.jQuery(timeSelect).trigger('change.select2');
+        } else {
+            timeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
     function normalizeSlotsPayload(payload) {
         if (Array.isArray(payload)) {
             return payload;
@@ -44,7 +69,12 @@
     window.initContextualAppointmentForms = function initContextualAppointmentForms(root) {
         const scope = root || document;
         scope.querySelectorAll('[data-contextual-appointment-form]').forEach((wrap) => {
-            if (wrap.dataset.appointmentBound === '1') return;
+            if (wrap.dataset.appointmentBound === '1') {
+                if (typeof wrap.__loadAppointmentSlots === 'function') {
+                    wrap.__loadAppointmentSlots();
+                }
+                return;
+            }
             wrap.dataset.appointmentBound = '1';
 
             const dateInput = wrap.querySelector('[data-appointment-date]');
@@ -99,9 +129,12 @@
                             value: slot.value || slot.time || slot,
                             label: slot.display || slot.label || slot.time || slot.value || slot,
                         }))));
+                        applyPendingAppointmentTime(wrap, timeSelect);
                     })
                     .catch(() => setOptions(timeSelect, [{ value: '', label: labels.none }]));
             }
+
+            wrap.__loadAppointmentSlots = loadSlots;
 
             [dateInput, durationSelect, chairSelect].forEach((element) => {
                 element?.addEventListener('change', loadSlots);
