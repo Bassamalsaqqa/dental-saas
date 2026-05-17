@@ -64,8 +64,8 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
 
     <div class="container mx-auto relative z-10">
         <!-- Enhanced Header with Glassmorphism -->
-        <div class="backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-2xl shadow-blue-500/10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8">
+            <div class="rounded-3xl border border-white/60 bg-white/90 p-5 shadow-xl shadow-blue-500/10 backdrop-blur-xl sm:p-6">
                 <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                     <div class="space-y-2">
                         <div class="flex items-start gap-3 sm:items-center">
@@ -77,7 +77,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                             </div>
                             <div>
                                 <h1 class="text-2xl sm:text-3xl font-black text-gray-900"><?= lang('UI.appointmentManagement') ?></h1>
-                                <div class="flex flex-wrap items-center gap-4">
+                                <div class="mt-1 flex flex-wrap items-center gap-4">
                                     <p class="text-sm text-gray-600 font-medium"><?= lang('UI.appointmentManagementSubtitle') ?></p>
                                 </div>
                             </div>
@@ -115,9 +115,9 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+        <div class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-2xl border border-blue-100 bg-white p-5 shadow-lg shadow-blue-500/5">
+                <div class="rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/70 p-4 shadow-md shadow-blue-500/5 sm:p-5">
                     <div class="flex items-center justify-between gap-4">
                         <div>
                             <p class="text-xs font-black uppercase tracking-wide text-blue-600"><?= lang('UI.appointmentTotal') ?></p>
@@ -128,7 +128,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         </span>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-lg shadow-emerald-500/5">
+                <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/70 p-4 shadow-md shadow-emerald-500/5 sm:p-5">
                     <div class="flex items-center justify-between gap-4">
                         <div>
                             <p class="text-xs font-black uppercase tracking-wide text-emerald-600"><?= lang('UI.appointmentStatusConfirmed') ?></p>
@@ -139,7 +139,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         </span>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-amber-100 bg-white p-5 shadow-lg shadow-amber-500/5">
+                <div class="rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/70 p-4 shadow-md shadow-amber-500/5 sm:p-5">
                     <div class="flex items-center justify-between gap-4">
                         <div>
                             <p class="text-xs font-black uppercase tracking-wide text-amber-600"><?= lang('UI.appointmentStatusScheduled') ?></p>
@@ -150,14 +150,14 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         </span>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-purple-100 bg-white p-5 shadow-lg shadow-purple-500/5">
+                <div class="rounded-2xl border border-purple-100 bg-gradient-to-br from-white to-purple-50/70 p-4 shadow-md shadow-purple-500/5 sm:p-5">
                     <div class="flex items-center justify-between gap-4">
                         <div class="min-w-0">
                             <p class="text-xs font-black uppercase tracking-wide text-purple-600"><?= lang('UI.patientNextAppointment') ?></p>
                             <?php if ($nextAppointment): ?>
                                 <?php $nextRow = $nextAppointment['appointment']; ?>
                                 <p class="mt-2 truncate text-sm font-black text-slate-900"><?= esc(trim(($nextRow['first_name'] ?? '') . ' ' . ($nextRow['last_name'] ?? ''))) ?></p>
-                                <p class="mt-1 text-xs font-bold text-slate-500" dir="ltr"><?= esc(formatDate($nextRow['appointment_date'] ?? '')) ?> · <?= esc(formatTime($nextRow['appointment_time'] ?? '')) ?></p>
+                                <p class="mt-1 text-xs font-bold text-slate-500" dir="ltr"><?= esc(formatDate($nextRow['appointment_date'] ?? '')) ?> - <?= esc(formatTime($nextRow['appointment_time'] ?? '')) ?></p>
                             <?php else: ?>
                                 <p class="mt-2 text-sm font-black text-slate-900"><?= lang('UI.dashboardNoUpcomingAppointments') ?></p>
                             <?php endif; ?>
@@ -171,7 +171,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
         </div>
 
         <!-- Flash Messages -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Success Message -->
             <?php if (session()->getFlashdata('success')): ?> 
                 <noscript><div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm" role="status" aria-live="polite">
@@ -209,11 +209,11 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
 
         <!-- Enhanced Filtering Section with Advanced UI -->
         <?php if (!isset($view_mode) || $view_mode !== 'all'): ?>
-        <div class="mb-8">
+        <div class="mb-6">
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500">
-                    <div class="p-6 pb-4">
+                <div class="relative rounded-2xl border border-white/60 bg-white/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl transition-all duration-500">
+                    <div class="p-5 pb-3 sm:p-6 sm:pb-4">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
@@ -224,7 +224,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                             <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentFilterSubtitle') ?></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 gap-6 p-6 pt-0 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="grid grid-cols-1 gap-4 p-5 pt-0 md:grid-cols-2 xl:grid-cols-4 sm:p-6 sm:pt-0">
                         <!-- Date Filter -->
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSelectDate') ?></label>
@@ -285,11 +285,11 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
 
         <!-- Search Section for View All Mode -->
         <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-        <div class="mb-8">
+        <div class="mb-6">
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500">
-                    <div class="p-6 pb-4">
+                <div class="relative rounded-2xl border border-white/60 bg-white/90 shadow-xl shadow-emerald-500/10 backdrop-blur-xl transition-all duration-500">
+                    <div class="p-5 pb-3 sm:p-6 sm:pb-4">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
@@ -298,7 +298,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                             <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSearchAppointmentsSubtitle') ?></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 gap-6 p-6 pt-0 md:grid-cols-2 xl:grid-cols-3">
+                    <div class="grid grid-cols-1 gap-4 p-5 pt-0 md:grid-cols-2 xl:grid-cols-3 sm:p-6 sm:pt-0">
                         <!-- Search Input -->
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearch') ?></label>
