@@ -1,6 +1,87 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$calendarWorkingHours = is_array($workingHours ?? null) ? $workingHours : [];
+
+$normalizeCalendarTime = static function ($value, string $fallback): string {
+    $raw = trim((string) $value);
+    if ($raw === '') {
+        $raw = $fallback;
+    }
+
+    if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $raw) === 1) {
+        [$hour, $minute, $second] = array_pad(explode(':', $raw), 3, '00');
+        $hour = max(0, min(23, (int) $hour));
+        $minute = max(0, min(59, (int) $minute));
+        $second = max(0, min(59, (int) $second));
+        return sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+    }
+
+    $timestamp = strtotime('1970-01-01 ' . $raw);
+    if ($timestamp === false) {
+        $timestamp = strtotime('1970-01-01 ' . $fallback);
+    }
+
+    return $timestamp === false ? $fallback . ':00' : date('H:i:s', $timestamp);
+};
+
+$calendarTimeToSeconds = static function (string $time): int {
+    [$hour, $minute, $second] = array_map('intval', explode(':', $time));
+    return ($hour * 3600) + ($minute * 60) + $second;
+};
+
+$calendarSecondsToDuration = static function (int $seconds): string {
+    if ($seconds >= 86400) {
+        return '24:00:00';
+    }
+
+    $seconds = max(0, min(86399, $seconds));
+    return gmdate('H:i:s', $seconds);
+};
+
+$calendarWorkingStart = $normalizeCalendarTime($calendarWorkingHours['start'] ?? '09:00', '09:00');
+$calendarWorkingEnd = $normalizeCalendarTime($calendarWorkingHours['end'] ?? '17:00', '17:00');
+$calendarWorkingStartSeconds = $calendarTimeToSeconds($calendarWorkingStart);
+$calendarWorkingEndSeconds = $calendarTimeToSeconds($calendarWorkingEnd);
+
+if ($calendarWorkingEndSeconds <= $calendarWorkingStartSeconds) {
+    $calendarWorkingStart = '09:00:00';
+    $calendarWorkingEnd = '17:00:00';
+    $calendarWorkingStartSeconds = 9 * 3600;
+    $calendarWorkingEndSeconds = 17 * 3600;
+}
+
+$calendarSlotMin = $calendarSecondsToDuration($calendarWorkingStartSeconds - 3600);
+$calendarSlotMax = $calendarSecondsToDuration($calendarWorkingEndSeconds + 3600);
+if ($calendarTimeToSeconds($calendarSlotMax === '24:00:00' ? '23:59:59' : $calendarSlotMax) <= $calendarTimeToSeconds($calendarSlotMin)) {
+    $calendarSlotMin = '08:00:00';
+    $calendarSlotMax = '18:00:00';
+}
+
+$rawWorkingDays = $calendarWorkingHours['days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+if (is_string($rawWorkingDays)) {
+    $decodedDays = json_decode($rawWorkingDays, true);
+    $rawWorkingDays = is_array($decodedDays) ? $decodedDays : preg_split('/\s*,\s*/', $rawWorkingDays);
+}
+if (!is_array($rawWorkingDays) || $rawWorkingDays === []) {
+    $rawWorkingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+}
+
+$calendarDayMap = [
+    'sunday' => 0,
+    'monday' => 1,
+    'tuesday' => 2,
+    'wednesday' => 3,
+    'thursday' => 4,
+    'friday' => 5,
+    'saturday' => 6,
+];
+$calendarBusinessDays = array_values(array_unique(array_map(
+    static fn($day) => $calendarDayMap[strtolower(trim((string) $day))] ?? 1,
+    $rawWorkingDays
+)));
+?>
 <div class="container mx-auto px-6 py-8">
 <div class="space-y-8">
     <!-- Page Header -->
@@ -312,20 +393,9 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDisplay: 'block',
         nowIndicator: true,
         businessHours: {
-            daysOfWeek: <?= json_encode(array_map(function($day) {
-                $dayMap = [
-                    'monday' => 1,
-                    'tuesday' => 2,
-                    'wednesday' => 3,
-                    'thursday' => 4,
-                    'friday' => 5,
-                    'saturday' => 6,
-                    'sunday' => 0
-                ];
-                return $dayMap[strtolower($day)] ?? 1;
-            }, $workingHours['days'])) ?>,
-            startTime: '<?= $workingHours['start'] ?>',
-            endTime: '<?= $workingHours['end'] ?>'
+            daysOfWeek: <?= json_encode($calendarBusinessDays) ?>,
+            startTime: <?= json_encode($calendarWorkingStart) ?>,
+            endTime: <?= json_encode($calendarWorkingEnd) ?>
         },
         views: {
             timeGridWeek: {
@@ -347,9 +417,9 @@ document.addEventListener('DOMContentLoaded', function() {
             minute: '2-digit',
             hour12: false
         },
-        scrollTime: '<?= $workingHours['start'] ?>',
-        slotMinTime: '<?= date('H:i:s', strtotime($workingHours['start']) - 3600) ?>',
-        slotMaxTime: '<?= date('H:i:s', strtotime($workingHours['end']) + 3600) ?>'
+        scrollTime: <?= json_encode($calendarWorkingStart) ?>,
+        slotMinTime: <?= json_encode($calendarSlotMin) ?>,
+        slotMaxTime: <?= json_encode($calendarSlotMax) ?>
     });
     
     calendar.render();
