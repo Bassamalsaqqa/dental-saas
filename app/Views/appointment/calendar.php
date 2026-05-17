@@ -277,14 +277,12 @@ $calendarBusinessDays = array_values(array_unique(array_map(
 
 <style>
     .appointment-calendar-shell {
-        height: clamp(560px, calc(100vh - 220px), 820px);
-        min-height: 560px;
+        min-height: 0;
     }
 
     .appointment-calendar-shell .fc {
         --fc-border-color: #e5e7eb;
         --fc-today-bg-color: rgba(59, 130, 246, 0.08);
-        height: 100%;
         font-family: inherit;
     }
 
@@ -312,7 +310,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     }
 
     .appointment-calendar-shell .fc-timegrid-slot {
-        height: 1.36rem;
+        height: 1.12rem;
     }
 
     .appointment-calendar-shell .fc-timegrid-slot-label {
@@ -337,6 +335,10 @@ $calendarBusinessDays = array_values(array_unique(array_map(
 
     .appointment-calendar-shell .fc-timegrid-event {
         margin-inline: 1px;
+    }
+
+    .appointment-calendar-shell .fc-scroller {
+        scrollbar-gutter: stable;
     }
 
     .appointment-calendar-event {
@@ -428,11 +430,6 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     }
 
     @media (max-width: 640px) {
-        .appointment-calendar-shell {
-            height: min(720px, calc(100vh - 180px));
-            min-height: 620px;
-        }
-
         .appointment-calendar-shell .fc-header-toolbar {
             align-items: stretch;
             flex-direction: column;
@@ -471,6 +468,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
     const locale = <?= json_encode(service('request')->getLocale() === 'ar' ? 'ar' : 'en') ?>;
     const isCompactViewport = window.matchMedia('(max-width: 768px)').matches;
+    const getCalendarHeight = function() {
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 720;
+        const compact = window.matchMedia('(max-width: 768px)').matches;
+        const offset = compact ? 210 : 260;
+        const minHeight = compact ? 560 : 520;
+        const maxHeight = compact ? 680 : 700;
+        return Math.max(minHeight, Math.min(maxHeight, viewportHeight - offset));
+    };
     const appointmentI18n = {
         loadFailed: '<?= esc(lang('UI.appointmentCalendarLoadFailed'), 'js') ?>',
         statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>',
@@ -620,12 +625,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}${doctorLine}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
             info.el.setAttribute('title', tooltip);
         },
-        height: '100%',
-        contentHeight: 'auto',
+        height: getCalendarHeight(),
+        contentHeight: getCalendarHeight() - (isCompactViewport ? 110 : 118),
         expandRows: false,
         aspectRatio: 1.45,
         dayMaxEvents: 5,
-        eventMinHeight: 28,
+        eventMinHeight: 22,
         moreLinkClick: 'popover',
         eventDisplay: 'block',
         nowIndicator: true,
@@ -663,6 +668,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     calendar.render();
+
+    let calendarResizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(calendarResizeTimer);
+        calendarResizeTimer = setTimeout(function() {
+            const nextHeight = getCalendarHeight();
+            calendar.setOption('height', nextHeight);
+            calendar.setOption('contentHeight', nextHeight - (window.matchMedia('(max-width: 768px)').matches ? 110 : 118));
+        }, 120);
+    });
 
     [searchFilter, statusFilter, typeFilter].filter(Boolean).forEach(function(control) {
         const eventName = control.tagName === 'INPUT' ? 'input' : 'change';
