@@ -277,12 +277,14 @@ $calendarBusinessDays = array_values(array_unique(array_map(
 
 <style>
     .appointment-calendar-shell {
-        min-height: min(680px, calc(100vh - 240px));
+        height: clamp(560px, calc(100vh - 220px), 820px);
+        min-height: 560px;
     }
 
     .appointment-calendar-shell .fc {
         --fc-border-color: #e5e7eb;
         --fc-today-bg-color: rgba(59, 130, 246, 0.08);
+        height: 100%;
         font-family: inherit;
     }
 
@@ -310,11 +312,13 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     }
 
     .appointment-calendar-shell .fc-timegrid-slot {
-        height: 1.82rem;
+        height: 1.36rem;
     }
 
     .appointment-calendar-shell .fc-timegrid-slot-label {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #64748b;
     }
 
     .appointment-calendar-shell .fc-col-header-cell-cushion {
@@ -326,22 +330,26 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     .appointment-calendar-shell .fc-event {
         border-radius: 0.65rem;
         border: 0;
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
         overflow: hidden;
         cursor: pointer;
+    }
+
+    .appointment-calendar-shell .fc-timegrid-event {
+        margin-inline: 1px;
     }
 
     .appointment-calendar-event {
         display: flex;
         flex-direction: column;
-        gap: 0.08rem;
-        padding: 0.25rem 0.4rem;
-        line-height: 1.08;
+        gap: 0.06rem;
+        padding: 0.18rem 0.34rem;
+        line-height: 1.05;
         min-width: 0;
     }
 
     .appointment-calendar-event__time {
-        font-size: 0.68rem;
+        font-size: 0.62rem;
         font-weight: 800;
         opacity: 0.95;
         direction: ltr;
@@ -349,7 +357,7 @@ $calendarBusinessDays = array_values(array_unique(array_map(
     }
 
     .appointment-calendar-event__title {
-        font-size: 0.74rem;
+        font-size: 0.69rem;
         font-weight: 800;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -363,6 +371,14 @@ $calendarBusinessDays = array_values(array_unique(array_map(
         font-size: 0.62rem;
         font-weight: 700;
         opacity: 0.9;
+    }
+
+    .appointment-calendar-shell .fc-timeGridWeek-view .appointment-calendar-event__meta {
+        display: none;
+    }
+
+    .appointment-calendar-shell .fc-timeGridWeek-view .appointment-calendar-event__title {
+        font-size: 0.67rem;
     }
 
     .appointment-calendar-event__pill {
@@ -413,7 +429,8 @@ $calendarBusinessDays = array_values(array_unique(array_map(
 
     @media (max-width: 640px) {
         .appointment-calendar-shell {
-            min-height: calc(100vh - 210px);
+            height: min(720px, calc(100vh - 180px));
+            min-height: 620px;
         }
 
         .appointment-calendar-shell .fc-header-toolbar {
@@ -603,15 +620,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}${doctorLine}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
             info.el.setAttribute('title', tooltip);
         },
-        height: 'auto',
+        height: '100%',
         contentHeight: 'auto',
-        expandRows: true,
+        expandRows: false,
         aspectRatio: 1.45,
         dayMaxEvents: 5,
-        eventMinHeight: 42,
+        eventMinHeight: 28,
         moreLinkClick: 'popover',
         eventDisplay: 'block',
         nowIndicator: true,
+        stickyHeaderDates: true,
+        stickyFooterScrollbar: true,
+        scrollTimeReset: false,
         businessHours: {
             daysOfWeek: <?= json_encode($calendarBusinessDays) ?>,
             startTime: <?= json_encode($calendarWorkingStart) ?>,
