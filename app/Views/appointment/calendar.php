@@ -115,6 +115,52 @@ $calendarBusinessDays = array_values(array_unique(array_map(
                     </div>
                 </div>
             </div>
+
+            <div class="mb-6 rounded-2xl border border-white/40 bg-white/70 p-4 shadow-lg shadow-blue-500/5 backdrop-blur-sm">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <div>
+                        <label for="calendarSearchFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentSearch')) ?></label>
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="calendarSearchFilter"
+                                class="w-full rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 <?= !empty($is_rtl) ? 'pr-10 pl-4' : 'pl-10 pr-4' ?>"
+                                placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>"
+                                autocomplete="off"
+                            >
+                            <i class="fas fa-search pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 <?= !empty($is_rtl) ? 'right-3' : 'left-3' ?>"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="calendarStatusFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentStatusLabel')) ?></label>
+                        <select id="calendarStatusFilter" class="w-full rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20">
+                            <option value=""><?= esc(lang('UI.appointmentAllStatuses')) ?></option>
+                            <option value="scheduled"><?= esc(lang('UI.appointmentStatusScheduled')) ?></option>
+                            <option value="confirmed"><?= esc(lang('UI.appointmentStatusConfirmed')) ?></option>
+                            <option value="completed"><?= esc(lang('UI.dashboardCompleted')) ?></option>
+                            <option value="cancelled"><?= esc(lang('UI.appointmentStatusCancelled')) ?></option>
+                            <option value="no_show"><?= esc(lang('UI.appointmentStatusNoShow')) ?></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="calendarTypeFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentTypeBadge')) ?></label>
+                        <select id="calendarTypeFilter" class="w-full rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20">
+                            <option value=""><?= esc(lang('UI.appointmentViewAll')) ?></option>
+                            <option value="Consultation"><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
+                            <option value="Treatment"><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
+                            <option value="Follow Up"><?= esc(lang('UI.appointmentTypeFollowUp')) ?></option>
+                            <option value="Emergency"><?= esc(lang('UI.appointmentTypeEmergency')) ?></option>
+                            <option value="Cleaning"><?= esc(lang('UI.appointmentTypeCleaning')) ?></option>
+                            <option value="Checkup"><?= esc(lang('UI.appointmentTypeCheckup')) ?></option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" id="calendarClearFilters" class="inline-flex w-full items-center justify-center rounded-xl border border-white/40 bg-white/85 px-4 py-3 text-sm font-bold text-slate-700 shadow-lg outline-none transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:ring-4 focus:ring-blue-500/20">
+                            <i class="fas fa-eraser me-2"></i><?= esc(lang('UI.appointmentClearAction')) ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
             
             <div id="calendar" class="appointment-calendar-shell w-full"></div>
         </div>
@@ -271,6 +317,10 @@ $calendarBusinessDays = array_values(array_unique(array_map(
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
     const loadingIndicator = document.getElementById('loading-indicator');
+    const searchFilter = document.getElementById('calendarSearchFilter');
+    const statusFilter = document.getElementById('calendarStatusFilter');
+    const typeFilter = document.getElementById('calendarTypeFilter');
+    const clearFilters = document.getElementById('calendarClearFilters');
     const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
     const locale = <?= json_encode(service('request')->getLocale() === 'ar' ? 'ar' : 'en') ?>;
     const isCompactViewport = window.matchMedia('(max-width: 768px)').matches;
@@ -329,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                 }
                 
-                const events = eventsData.map(event => ({
+                const events = eventsData.filter(eventMatchesCalendarFilters).map(event => ({
                     id: event.id,
                     title: event.title,
                     start: event.start,
@@ -423,6 +473,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     calendar.render();
+
+    [searchFilter, statusFilter, typeFilter].filter(Boolean).forEach(function(control) {
+        const eventName = control.tagName === 'INPUT' ? 'input' : 'change';
+        control.addEventListener(eventName, debounce(function() {
+            calendar.refetchEvents();
+        }, 180));
+    });
+
+    if (clearFilters) {
+        clearFilters.addEventListener('click', function() {
+            [searchFilter, statusFilter, typeFilter].filter(Boolean).forEach(function(control) {
+                control.value = '';
+                control.dispatchEvent(new Event('change', { bubbles: true }));
+                control.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            calendar.refetchEvents();
+        });
+    }
     
     function getStatusColor(status) {
         const colors = {
@@ -433,6 +501,46 @@ document.addEventListener('DOMContentLoaded', function() {
             'no_show': '#f59e0b'
         };
         return colors[status] || '#6b7280';
+    }
+
+    function eventMatchesCalendarFilters(event) {
+        const selectedStatus = statusFilter ? statusFilter.value : '';
+        const selectedType = typeFilter ? typeFilter.value : '';
+        const searchTerm = searchFilter ? searchFilter.value.trim().toLowerCase() : '';
+        const eventStatus = String(event.status || '');
+        const eventType = String(event.appointment_type || '');
+
+        if (selectedStatus && eventStatus !== selectedStatus) {
+            return false;
+        }
+
+        if (selectedType && eventType !== selectedType) {
+            return false;
+        }
+
+        if (searchTerm) {
+            const haystack = [
+                event.title,
+                event.appointment_type,
+                event.status,
+                event.doctor_name,
+                event.booked_by
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            if (!haystack.includes(searchTerm)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function debounce(callback, wait) {
+        let timeoutId;
+        return function() {
+            window.clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(callback, wait);
+        };
     }
 
     function buildAppointmentEventNode(info) {

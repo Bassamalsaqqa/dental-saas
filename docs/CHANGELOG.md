@@ -12,6 +12,9 @@
   - Calendar uses explicit RTL direction and locale configuration.
   - Business hours, now indicator, 15-minute slots, and 30-minute labels are configured.
   - Debug console logging was removed.
+- Continued Phase 1 with calendar-local filtering:
+  - Added patient/search, status, and appointment-type controls to `/appointment/calendar`.
+  - Filtering uses the existing calendar feed client-side and does not change routes, controller contracts, database queries, or appointment write behavior.
 
 ## 2026-05-10 - Patient Drawer RTL and Select2 Polish
 
