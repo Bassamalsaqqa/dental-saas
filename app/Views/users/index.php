@@ -17,7 +17,7 @@
                         </a>
                     <?php endif; ?>
                     <?php if (has_permission('users', 'create')): ?>
-                        <a href="<?= base_url('users/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <a href="<?= base_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus mr-2"></i><?= lang('UserRole.createUser') ?>
                         </a>
                     <?php endif; ?>
@@ -288,7 +288,7 @@
                     </div>
                     <h3 class="text-2xl font-bold text-gray-900 mb-4"><?= lang('UserRole.noUsersFound') ?></h3>
                     <p class="text-gray-500 mb-8 max-w-md mx-auto"><?= lang('UserRole.noUsersFoundDescription') ?></p>
-                    <a href="<?= base_url('users/create') ?>" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <a href="<?= base_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <i class="fas fa-plus mr-3"></i><?= lang('UserRole.createFirstUser') ?>
                     </a>
                 </div>
@@ -332,6 +332,14 @@
         <?php endif; ?>
     </div>
 </div>
+
+<?= view('users/partials/quick_create_modal', [
+    'roles' => $roles ?? [],
+    'departments' => $departments ?? [],
+    'return_to' => 'users',
+    'is_rtl' => !empty($is_rtl),
+]) ?>
+<?= view('components/email_check_script', ['emailCheckUrl' => base_url('users/check-email')]) ?>
 
 <script>
 // User Filter Management Class

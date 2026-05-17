@@ -166,6 +166,7 @@ class Users extends BaseController
                 'total_users' => count($users),
                 'active_users' => count(array_filter($users, function($user) { return $user->active == 1; })),
                 'inactive_users' => count(array_filter($users, function($user) { return $user->active == 0; })),
+                'loadSelect2' => true,
             ], $this->getUserDataForView());
 
             return $this->view('users/index', $data);
@@ -181,6 +182,7 @@ class Users extends BaseController
                 'total_users' => 0,
                 'active_users' => 0,
                 'inactive_users' => 0,
+                'loadSelect2' => true,
                 'error' => 'Unable to load user data. Please check the database connection.'
             ], $this->getUserDataForView());
 
@@ -205,6 +207,7 @@ class Users extends BaseController
             'title' => 'Create New User',
             'roles' => $roles,
             'departments' => $this->getDepartments(),
+            'loadSelect2' => true,
         ], $this->getUserDataForView());
 
         return $this->view('users/create', $data);
