@@ -35,7 +35,7 @@
                 </div>
             </div>
             
-            <div id="calendar" class="w-full" style="height: 600px;"></div>
+            <div id="calendar" class="appointment-calendar-shell w-full"></div>
         </div>
     </div>
 
@@ -77,19 +77,133 @@
 
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+
+<style>
+    .appointment-calendar-shell {
+        min-height: min(760px, calc(100vh - 260px));
+    }
+
+    .appointment-calendar-shell .fc {
+        --fc-border-color: #e5e7eb;
+        --fc-today-bg-color: rgba(59, 130, 246, 0.08);
+        font-family: inherit;
+    }
+
+    .appointment-calendar-shell .fc-toolbar-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .appointment-calendar-shell .fc-button {
+        border-radius: 0.75rem;
+        border-color: #d1d5db;
+        background: #fff;
+        color: #374151;
+        font-weight: 700;
+        text-transform: none;
+        box-shadow: none;
+    }
+
+    .appointment-calendar-shell .fc-button:hover,
+    .appointment-calendar-shell .fc-button-primary:not(:disabled).fc-button-active {
+        border-color: #2563eb;
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .appointment-calendar-shell .fc-timegrid-slot {
+        height: 2.35rem;
+    }
+
+    .appointment-calendar-shell .fc-event {
+        border-radius: 0.65rem;
+        border: 0;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+    }
+
+    .appointment-calendar-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.12rem;
+        padding: 0.35rem 0.45rem;
+        line-height: 1.15;
+        min-width: 0;
+    }
+
+    .appointment-calendar-event__time {
+        font-size: 0.72rem;
+        font-weight: 800;
+        opacity: 0.95;
+        direction: ltr;
+        unicode-bidi: isolate;
+    }
+
+    .appointment-calendar-event__title {
+        font-size: 0.78rem;
+        font-weight: 800;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .appointment-calendar-event__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        font-size: 0.66rem;
+        font-weight: 700;
+        opacity: 0.9;
+    }
+
+    .appointment-calendar-event__pill {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        padding: 0.08rem 0.35rem;
+    }
+
+    @media (max-width: 640px) {
+        .appointment-calendar-shell {
+            min-height: calc(100vh - 220px);
+        }
+
+        .appointment-calendar-shell .fc-header-toolbar {
+            align-items: stretch;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .appointment-calendar-shell .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+        }
+    }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
     const loadingIndicator = document.getElementById('loading-indicator');
+    const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
+    const locale = <?= json_encode(service('request')->getLocale() === 'ar' ? 'ar' : 'en') ?>;
+    const isCompactViewport = window.matchMedia('(max-width: 768px)').matches;
     const appointmentI18n = {
         loadFailed: '<?= esc(lang('UI.appointmentCalendarLoadFailed'), 'js') ?>',
         statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>',
-        doctorLabel: '<?= esc(lang('UI.appointmentDoctorLabel'), 'js') ?>'
+        doctorLabel: '<?= esc(lang('UI.appointmentDoctorLabel'), 'js') ?>',
+        durationSuffix: '<?= esc(lang('UI.patientMinutes'), 'js') ?>'
     };
     
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+        initialView: isCompactViewport ? 'timeGridDay' : 'timeGridWeek',
+        locale: locale,
+        direction: isRtl ? 'rtl' : 'ltr',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -118,8 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log('Calendar events loaded:', data);
-                
                 // Refresh CSRF token if present
                 if (data.csrf_token && window.refreshCsrfToken) {
                     window.refreshCsrfToken(data.csrf_token);
@@ -148,6 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     extendedProps: {
                         status: event.status,
                         patient_id: event.patient_id,
+                        appointment_type: event.appointment_type || '',
+                        duration: event.duration || '',
                         doctor_name: event.doctor_name || '',
                         booked_by: event.booked_by || ''
                     }
@@ -178,6 +292,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const date = info.dateStr;
             window.location.href = `<?= base_url('appointment/create') ?>?date=${date}`;
         },
+        eventContent: function(info) {
+            return { domNodes: [buildAppointmentEventNode(info)] };
+        },
         eventDidMount: function(info) {
             // Add tooltip with appointment details
             const event = info.event;
@@ -185,9 +302,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}${doctorLine}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
             info.el.setAttribute('title', tooltip);
         },
-        height: 600,
-        aspectRatio: 1.8,
-        dayMaxEvents: 3,
+        height: 'auto',
+        contentHeight: 'auto',
+        expandRows: true,
+        aspectRatio: 1.45,
+        dayMaxEvents: 5,
+        eventMinHeight: 42,
         moreLinkClick: 'popover',
         eventDisplay: 'block',
         nowIndicator: true,
@@ -207,6 +327,27 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime: '<?= $workingHours['start'] ?>',
             endTime: '<?= $workingHours['end'] ?>'
         },
+        views: {
+            timeGridWeek: {
+                dayMaxEventRows: false
+            },
+            timeGridDay: {
+                dayMaxEventRows: false
+            }
+        },
+        slotDuration: '00:15:00',
+        slotLabelInterval: '00:30:00',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        slotLabelFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        scrollTime: '<?= $workingHours['start'] ?>',
         slotMinTime: '<?= date('H:i:s', strtotime($workingHours['start']) - 3600) ?>',
         slotMaxTime: '<?= date('H:i:s', strtotime($workingHours['end']) + 3600) ?>'
     });
@@ -222,6 +363,55 @@ document.addEventListener('DOMContentLoaded', function() {
             'no_show': '#f59e0b'
         };
         return colors[status] || '#6b7280';
+    }
+
+    function buildAppointmentEventNode(info) {
+        const event = info.event;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'appointment-calendar-event';
+        wrapper.dir = isRtl ? 'rtl' : 'ltr';
+
+        const time = document.createElement('div');
+        time.className = 'appointment-calendar-event__time';
+        time.textContent = info.timeText || formatEventTime(event.start);
+        wrapper.appendChild(time);
+
+        const title = document.createElement('div');
+        title.className = 'appointment-calendar-event__title';
+        title.textContent = event.title || '';
+        wrapper.appendChild(title);
+
+        const meta = document.createElement('div');
+        meta.className = 'appointment-calendar-event__meta';
+
+        const duration = event.extendedProps.duration ? `${event.extendedProps.duration} ${appointmentI18n.durationSuffix}` : '';
+        const status = event.extendedProps.status || '';
+        const doctor = event.extendedProps.doctor_name || '';
+
+        [duration, status, doctor].filter(Boolean).forEach(function(value) {
+            const pill = document.createElement('span');
+            pill.className = 'appointment-calendar-event__pill';
+            pill.textContent = value;
+            meta.appendChild(pill);
+        });
+
+        if (meta.childNodes.length > 0) {
+            wrapper.appendChild(meta);
+        }
+
+        return wrapper;
+    }
+
+    function formatEventTime(date) {
+        if (!(date instanceof Date)) {
+            return '';
+        }
+
+        return date.toLocaleTimeString(locale, {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
     }
     
     function showError(message) {

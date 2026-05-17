@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-05-17 - Appointment Calendar Workspace Phase 1A
+
+- Documented the phased appointment calendar workspace plan in `docs/refactor/APPOINTMENT_CALENDAR_WORKSPACE_PLAN.md`.
+- Kept `/appointment` as the current appointment workspace/default route for now because `/appointment/calendar` has a separate `appointments:calendar` permission.
+- Started Phase 1 with `/appointment/calendar` readability improvements only:
+  - Desktop defaults to week schedule view.
+  - Mobile defaults to day schedule view.
+  - Month view remains available for overview.
+  - Calendar events render time, patient/type title, duration, status, and chair/provider context more clearly.
+  - Calendar uses explicit RTL direction and locale configuration.
+  - Business hours, now indicator, 15-minute slots, and 30-minute labels are configured.
+  - Debug console logging was removed.
+
 ## 2026-05-10 - Patient Drawer RTL and Select2 Polish
 
 - Hardened Select2 field spacing in LTR/RTL so dropdown arrows and clear controls no longer overlap values such as `ILS` or Arabic placeholders.

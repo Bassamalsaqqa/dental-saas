@@ -16,6 +16,7 @@ This is the active documentation surface for the project. Everything else is arc
 | `docs/API_CONTRACT.md` | Canonical `/api/v1/*` contract |
 | `docs/APP_API_CONTRACT.md` | Proposed first-party `/app-api/v1/*` React app API contract |
 | `docs/refactor/APP_API_ROUTE_INVENTORY.md` | Proposed app API route inventory and migration sequencing |
+| `docs/refactor/APPOINTMENT_CALENDAR_WORKSPACE_PLAN.md` | Current PHP appointment calendar workspace improvement plan |
 | `docs/refactor/LOVABLE_STRATEGY_CODEX.md` | Codex frontend rebuild strategy for Lovable/React |
 | `docs/refactor/LOVABLE_STRATEGY_GEMINI.md` | Gemini frontend rebuild strategy for Lovable/React |
 | `docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md` | Codex Laravel backend migration assessment |
