@@ -378,6 +378,7 @@ $routes->group('appointment', ['filter' => ['auth', 'tenant', 'subscription']], 
     $routes->post('(:num)/cancel', 'Appointment::cancel/$1', ['filter' => 'permission:appointments:edit']);
     $routes->get('available-time-slots', 'Appointment::getAvailableTimeSlots', ['filter' => 'permission:appointments:view']);
     $routes->get('calendar-events', 'Appointment::getCalendarEvents', ['filter' => 'permission:appointments:view']);
+    $routes->get('loadMoreAppointments', 'Appointment::loadMoreAppointments', ['filter' => 'permission:appointments:view']);
 });
 
 // Appointment routes (plural alias)
@@ -396,6 +397,7 @@ $routes->group('appointments', ['filter' => ['auth', 'tenant', 'subscription']],
     $routes->post('(:num)/cancel', 'Appointment::cancel/$1', ['filter' => 'permission:appointments:edit']);
     $routes->get('available-time-slots', 'Appointment::getAvailableTimeSlots', ['filter' => 'permission:appointments:view']);
     $routes->get('calendar-events', 'Appointment::getCalendarEvents', ['filter' => 'permission:appointments:view']);
+    $routes->get('loadMoreAppointments', 'Appointment::loadMoreAppointments', ['filter' => 'permission:appointments:view']);
 });
 
 // Treatment routes
