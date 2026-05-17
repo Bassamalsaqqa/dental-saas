@@ -930,7 +930,7 @@
                     <div class="lg:flex items-center space-x-2 hidden">
                         <!-- New Patient -->
                         <div class="relative group">
-                            <a href="<?= base_url('patients/create') ?>" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-50 hover:to-blue-100 border border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10">
+                            <a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-50 hover:to-blue-100 border border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10">
                                 <i class="fas fa-user-plus text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -941,7 +941,7 @@
                         
                         <!-- New Appointment -->
                         <div class="relative group">
-                            <a href="<?= base_url('appointments/create') ?>" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-50 hover:to-purple-100 border border-purple-200 hover:border-purple-300 text-purple-600 hover:text-purple-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-purple-500/10">
+                            <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-50 hover:to-purple-100 border border-purple-200 hover:border-purple-300 text-purple-600 hover:text-purple-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-purple-500/10">
                                 <i class="fas fa-calendar-plus text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -952,7 +952,7 @@
                         
                         <!-- New Examination -->
                         <div class="relative group">
-                            <a href="<?= base_url('examinations/create') ?>" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-emerald-50 to-green-50 hover:from-emerald-50 hover:to-emerald-100 border border-emerald-200 hover:border-emerald-300 text-emerald-600 hover:text-emerald-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-emerald-500/10">
+                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-emerald-50 to-green-50 hover:from-emerald-50 hover:to-emerald-100 border border-emerald-200 hover:border-emerald-300 text-emerald-600 hover:text-emerald-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-emerald-500/10">
                                 <i class="fas fa-stethoscope text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -1108,6 +1108,18 @@
             <?= $this->renderSection('content') ?>
         </main>
     </div>
+
+    <?php
+    $layoutQuickCreateUri = trim(uri_string(), '/');
+    $layoutRendersQuickCreateModals = (
+        (has_permission('patients', 'create') && !in_array($layoutQuickCreateUri, ['patient', 'patients', 'patient/create', 'patients/create'], true) && !preg_match('#^patients?/\d+/edit$#', $layoutQuickCreateUri))
+        || (has_permission('appointments', 'create') && !in_array($layoutQuickCreateUri, ['appointment', 'appointments', 'appointment/create', 'appointments/create'], true) && !preg_match('#^examinations?/\d+$#', $layoutQuickCreateUri))
+        || (has_permission('examinations', 'create') && !in_array($layoutQuickCreateUri, ['examination', 'examinations', 'examination/create', 'examinations/create'], true))
+    );
+    ?>
+    <?php if ($layoutRendersQuickCreateModals): ?>
+        <?= view('components/global_quick_create_modals', ['is_rtl' => !empty($is_rtl)]) ?>
+    <?php endif; ?>
 
     <!-- Notifications Dropdown - Outside main content to avoid overflow issues -->
     <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="absolute hidden flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/12 ring-1 ring-slate-900/5" role="dialog" aria-modal="false" aria-labelledby="notifications-title" style="z-index: 2147483647 !important; width: min(18rem, calc(100vw - 1rem)); max-width: calc(100vw - 1rem); height: min(23rem, calc(100vh - 5rem));">
@@ -2521,7 +2533,7 @@
 </script>
 
 <!-- Select2 Initialization - Only load on pages that need it -->
-<?php if (isset($loadSelect2) && $loadSelect2): ?>
+<?php if ((isset($loadSelect2) && $loadSelect2) || !empty($layoutRendersQuickCreateModals)): ?>
 <script src="<?= base_url('assets/js/select2-init.js') ?>?v=<?= time() ?>"></script>
 <?php endif; ?>
 <script src="<?= base_url('assets/js/app-drawer.js') ?>?v=<?= time() ?>"></script>

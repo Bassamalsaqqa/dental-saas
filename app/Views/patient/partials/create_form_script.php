@@ -1,7 +1,27 @@
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const patientForm = document.querySelector('[data-patient-create-form]');
+(function () {
+if (window.__patientCreateFormsScriptLoaded) {
+    return;
+}
+window.__patientCreateFormsScriptLoaded = true;
+
+window.initPatientCreateForms = function (root) {
+    const scope = root || document;
+    const patientForms = [];
+
+    if (scope.matches && scope.matches('[data-patient-create-form]')) {
+        patientForms.push(scope);
+    }
+
+    scope.querySelectorAll?.('[data-patient-create-form]').forEach(function (form) {
+        patientForms.push(form);
+    });
+
+    patientForms.forEach(function (patientForm) {
     if (!patientForm || patientForm.dataset.patientCreateBound === '1') {
+        if (typeof patientForm.__syncPatientCreateForm === 'function') {
+            patientForm.__syncPatientCreateForm();
+        }
         return;
     }
     patientForm.dataset.patientCreateBound = '1';
@@ -164,6 +184,19 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.jQuery && genderSelect) {
         window.jQuery(genderSelect).on('select2:select select2:clear change.select2', syncPregnancyVisibility);
     }
-    syncPregnancyVisibility();
+    patientForm.__syncPatientCreateForm = function () {
+        syncOptionalState();
+        patientForm.querySelectorAll('.medical-alert-toggle').forEach(function (toggle) {
+            syncMedicalAlertToggle(toggle);
+        });
+        syncPregnancyVisibility();
+    };
+    patientForm.__syncPatientCreateForm();
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    window.initPatientCreateForms(document);
 });
+})();
 </script>

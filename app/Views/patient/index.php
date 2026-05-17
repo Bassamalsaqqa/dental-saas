@@ -612,6 +612,9 @@ function initializeNewPatientModalContent(modal) {
     if (typeof window.initializeClinicDateInputs === 'function') {
         window.initializeClinicDateInputs(modal);
     }
+    if (typeof window.initPatientCreateForms === 'function') {
+        window.initPatientCreateForms(modal);
+    }
     return Promise.allSettled(tasks);
 }
 
