@@ -419,8 +419,32 @@ if ($patientGenderValue === 'female') {
 $heroInfoCapsules = [
     ['label' => lang('UI.patientPatientIdShort'), 'display_label' => '', 'value' => $patient['patient_id'], 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
     ['label' => lang('UI.patientPhone'), 'display_label' => '', 'value' => $patientPhoneChipValue, 'icon' => 'fas fa-phone-alt', 'class' => 'patient-hero-chip-ltr'],
-    ['label' => lang('UI.patientLastVisitShort'), 'value' => $lastVisitChipValue, 'icon' => 'fas fa-history', 'class' => ''],
-    ['label' => lang('UI.patientOutstandingBalanceShort'), 'value' => $outstandingBalanceChipValue, 'icon' => 'fas fa-wallet', 'class' => ''],
+    ['label' => lang('UI.patientGender'), 'display_label' => '', 'value' => $patientGenderChipValue, 'icon' => 'fas fa-user-tag', 'class' => ''],
+    ['label' => lang('UI.patientCity'), 'display_label' => '', 'value' => $patientCityChipValue, 'icon' => 'fas fa-location-dot', 'class' => ''],
+];
+
+$patientHeaderSnapshotCards = [
+    [
+        'label' => lang('UI.patientMedicalAlertsSummary'),
+        'value' => $medicalAlertCount > 0 ? (string) $medicalAlertCount : lang('UI.patientNoneShort'),
+        'detail' => $medicalAlertCount > 0 ? lang('UI.patientProfileAlertSummary', ['count' => $medicalAlertCount]) : lang('UI.patientStatusActive'),
+        'icon' => 'fas fa-triangle-exclamation',
+        'class' => $medicalAlertCount > 0 ? 'patient-header-snapshot-card-alert' : 'patient-header-snapshot-card-calm',
+    ],
+    [
+        'label' => lang('UI.patientNextAppointment'),
+        'value' => $nextAppointmentChipValue,
+        'detail' => $nextAppointmentSubLabel,
+        'icon' => 'fas fa-calendar-check',
+        'class' => 'patient-header-snapshot-card-blue',
+    ],
+    [
+        'label' => lang('UI.patientOutstandingBalanceShort'),
+        'value' => $outstandingBalanceChipValue,
+        'detail' => $outstandingBalanceSubLabel,
+        'icon' => 'fas fa-wallet',
+        'class' => $outstandingBalance > 0.009 ? 'patient-header-snapshot-card-due' : 'patient-header-snapshot-card-calm',
+    ],
 ];
 
 $patientOverviewFacts = [
@@ -530,89 +554,197 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         <section class="patient-hero-card <?= esc($patientHeroThemeClass) ?> overflow-hidden rounded-[28px] border border-slate-200">
             <div class="patient-hero-overlay"></div>
             <div class="relative z-10 p-6 sm:p-8">
-                <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-                    <div class="flex flex-col gap-5">
-                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
-                            <span><?= esc(lang('UI.patientDetailsTitle')) ?></span>
-                            <span class="h-1 w-1 rounded-full bg-blue-200"></span>
-                            <span><?= esc(lang('UI.patientMemberSince')) ?> <?= esc($memberSince) ?></span>
-                        </div>
-                        <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
-                            <div class="patient-avatar-badge <?= esc($patientAvatarToneClass) ?>">
-                                <i class="<?= esc($patientAvatarIconClass) ?>"></i>
+                <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                        <div class="flex flex-col gap-5">
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
+                                <span><?= esc(lang('UI.patientDetailsTitle')) ?></span>
+                                <span class="h-1 w-1 rounded-full bg-blue-200"></span>
+                                <span><?= esc(lang('UI.patientMemberSince')) ?> <?= esc($memberSince) ?></span>
                             </div>
-                            <div class="space-y-4">
+                            <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
+                                <div class="patient-avatar-badge <?= esc($patientAvatarToneClass) ?>">
+                                    <i class="<?= esc($patientAvatarIconClass) ?>"></i>
+                                </div>
                                 <div class="space-y-2">
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($fullName) ?></h1>
-                                        <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold <?= esc($patientStatusTone) ?>">
-                                            <?= esc($patientStatusLabel) ?>
-                                        </span>
+                                    <div class="space-y-2">
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($fullName) ?></h1>
+                                            <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold <?= esc($patientStatusTone) ?>">
+                                                <?= esc($patientStatusLabel) ?>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="patient-hero-chip-grid">
-                                    <?php foreach ($heroInfoCapsules as $capsule): ?>
-                                        <?php
-                                        $capsuleClass = trim('patient-hero-chip ' . ($capsule['class'] ?? ''));
-                                        $capsuleValue = (string) ($capsule['value'] ?? lang('UI.patientNotProvided'));
-                                        $capsuleLabel = (string) ($capsule['label'] ?? '');
-                                        $capsuleDisplayLabel = array_key_exists('display_label', $capsule) ? (string) $capsule['display_label'] : $capsuleLabel;
-                                        $capsuleIcon = (string) ($capsule['icon'] ?? 'fas fa-circle');
-                                        $isButton = !empty($capsule['is_button']);
-                                        ?>
-                                        <?php if ($isButton): ?>
-                                            <button type="button" class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>" onclick="openPatientWhatsAppIdentityModal('<?= esc($patientWhatsAppNumber, 'js') ?>')">
-                                                <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
-                                                <span class="patient-hero-chip-text">
-                                                    <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
-                                                    <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
-                                                </span>
-                                            </button>
-                                        <?php else: ?>
-                                            <div class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>">
-                                                <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
-                                                <span class="patient-hero-chip-text">
-                                                    <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
-                                                    <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
-                                                </span>
-                                            </div>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="w-full space-y-2 xl:w-[21rem]">
-                        <div class="grid gap-2 sm:grid-cols-2">
+                        <aside class="flex w-full flex-wrap items-start justify-start gap-2 xl:w-auto xl:justify-end">
                             <?php if (has_permission('patients', 'edit')): ?>
-                                <a href="<?= base_url('patient/' . $patient['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft">
+                                <button type="button" data-app-drawer-open="patientProfileEditDrawer" class="patient-header-action patient-header-action-soft">
                                     <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UI.patientEditPatient')) ?></span>
-                                </a>
+                                </button>
                             <?php endif; ?>
                             <a href="<?= esc(workflow_back('patients', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas fa-arrow-left"></i>
                                 <span><?= esc(lang('UI.patientBackToPatients')) ?></span>
                             </a>
-                        </div>
-                        <div class="grid gap-2 sm:grid-cols-2">
-                            <?php if (has_permission('appointments', 'create')): ?>
-                                <button type="button" data-app-drawer-open="patientAppointmentDrawer" class="patient-header-action patient-header-action-emerald">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    <span><?= esc(lang('UI.patientBookAppointment')) ?></span>
+                        </aside>
+                    </div>
+                    <div class="patient-header-pill-grid">
+                        <?php foreach ($heroInfoCapsules as $capsule): ?>
+                            <?php
+                            $capsuleClass = trim('patient-hero-chip ' . ($capsule['class'] ?? ''));
+                            $capsuleValue = (string) ($capsule['value'] ?? lang('UI.patientNotProvided'));
+                            $capsuleLabel = (string) ($capsule['label'] ?? '');
+                            $capsuleDisplayLabel = array_key_exists('display_label', $capsule) ? (string) $capsule['display_label'] : $capsuleLabel;
+                            $capsuleIcon = (string) ($capsule['icon'] ?? 'fas fa-circle');
+                            $isButton = !empty($capsule['is_button']);
+                            ?>
+                            <?php if ($isButton): ?>
+                                <button type="button" class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>" onclick="openPatientWhatsAppIdentityModal('<?= esc($patientWhatsAppNumber, 'js') ?>')">
+                                    <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
+                                    <span class="patient-hero-chip-text">
+                                        <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
+                                        <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
+                                    </span>
                                 </button>
+                            <?php else: ?>
+                                <div class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>">
+                                    <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
+                                    <span class="patient-hero-chip-text">
+                                        <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
+                                        <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
+                                    </span>
+                                </div>
                             <?php endif; ?>
-                            <?php if (has_permission('finance', 'create')): ?>
-                                <button type="button" data-app-drawer-open="patientChargeDrawer" class="patient-header-action patient-header-action-gold">
-                                    <i class="fas fa-file-invoice-dollar"></i>
-                                    <span><?= esc(lang('UI.patientCreateInvoice')) ?></span>
-                                </button>
-                            <?php endif; ?>
-                        </div>
+                        <?php endforeach; ?>
+                        <?php foreach ($patientHeaderSnapshotCards as $snapshotCard): ?>
+                            <div class="patient-header-snapshot-pill <?= esc($snapshotCard['class']) ?>" title="<?= esc($snapshotCard['label'] . ': ' . $snapshotCard['detail']) ?>">
+                                <span class="patient-header-snapshot-icon"><i class="<?= esc($snapshotCard['icon']) ?>"></i></span>
+                                <span class="min-w-0">
+                                    <span class="block truncate text-xs font-black"><?= esc($snapshotCard['value']) ?></span>
+                                    <span class="block max-w-[8.5rem] truncate text-[0.64rem] font-bold opacity-80"><?= esc($snapshotCard['label']) ?></span>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
         </section>
+
+        <?php if (has_permission('patients', 'edit')): ?>
+            <?php
+            $patientEditDrawerId = 'patientProfileEditDrawer';
+            $patientEditFormId = 'patientProfileEditDrawerForm';
+            ob_start();
+            ?>
+            <form id="<?= esc($patientEditFormId) ?>" action="<?= base_url('patient/' . (int) $patient['id'] . '/update') ?>" method="post" class="space-y-5">
+                <?= csrf_field() ?>
+                <input type="hidden" name="return_to" value="<?= esc('patient/' . (int) $patient['id']) ?>">
+                <?php foreach ([
+                    'alert_has_allergies',
+                    'alert_allergies_details',
+                    'alert_taking_medications',
+                    'alert_medications_details',
+                    'alert_blood_thinners',
+                    'alert_blood_thinners_details',
+                    'alert_diabetes',
+                    'alert_diabetes_details',
+                    'alert_high_blood_pressure',
+                    'alert_blood_pressure_details',
+                    'alert_heart_condition',
+                    'alert_heart_condition_details',
+                    'alert_pregnant',
+                    'alert_pregnancy_details',
+                    'alert_anesthesia_problem',
+                    'alert_anesthesia_problem_details',
+                ] as $preservedPatientField): ?>
+                    <input type="hidden" name="<?= esc($preservedPatientField) ?>" value="<?= esc((string) ($patient[$preservedPatientField] ?? '')) ?>">
+                <?php endforeach; ?>
+
+                <section class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                    <div class="mb-5 flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-700"><i class="fas fa-user-pen"></i></span>
+                        <div>
+                            <h3 class="text-base font-black text-slate-950"><?= esc(lang('UI.patientEditPatient')) ?></h3>
+                            <p class="text-sm font-semibold text-slate-500"><?= esc($fullName) ?></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label for="profile_edit_first_name" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientFirstName')) ?> *</label>
+                            <input id="profile_edit_first_name" name="first_name" type="text" required value="<?= esc(old('first_name', $patient['first_name'] ?? '')) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                        </div>
+                        <div>
+                            <label for="profile_edit_last_name" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientLastName')) ?> *</label>
+                            <input id="profile_edit_last_name" name="last_name" type="text" required value="<?= esc(old('last_name', $patient['last_name'] ?? '')) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                        </div>
+                        <div>
+                            <label for="profile_edit_phone" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientPhoneNumber')) ?> *</label>
+                            <input id="profile_edit_phone" name="phone" type="tel" required minlength="9" maxlength="15" inputmode="numeric" pattern="\d{9,15}" value="<?= esc(old('phone', $patient['phone'] ?? '')) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15" dir="ltr">
+                        </div>
+                        <div>
+                            <label for="profile_edit_email" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientEmail')) ?></label>
+                            <input id="profile_edit_email" name="email" type="email" value="<?= esc(old('email', $patient['email'] ?? '')) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-500/15">
+                        </div>
+                        <div>
+                            <label for="profile_edit_date_of_birth" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientDateOfBirth')) ?> *</label>
+                            <input id="profile_edit_date_of_birth" name="date_of_birth" type="text" data-clinic-date="1" required value="<?= esc(old('date_of_birth', $patient['date_of_birth'] ?? '')) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15">
+                        </div>
+                        <div data-select2-dropdown-parent>
+                            <label for="profile_edit_gender" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientGender')) ?> *</label>
+                            <select id="profile_edit_gender" name="gender" data-force-select2 required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                                <option value=""><?= esc(lang('UI.patientSelect')) ?></option>
+                                <?php foreach (['male' => lang('UI.patientMale'), 'female' => lang('UI.patientFemale'), 'other' => lang('UI.patientOther')] as $genderValue => $genderLabel): ?>
+                                    <option value="<?= esc($genderValue) ?>" <?= old('gender', $patient['gender'] ?? '') === $genderValue ? 'selected' : '' ?>><?= esc($genderLabel) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rounded-2xl border border-slate-200 bg-white p-5">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label for="profile_edit_city" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientCity')) ?></label>
+                            <input id="profile_edit_city" name="city" type="text" value="<?= esc(old('city', $patient['city'] ?? '')) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="profile_edit_notes" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientNotes')) ?></label>
+                            <textarea id="profile_edit_notes" name="notes" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15"><?= esc(old('notes', $patient['notes'] ?? '')) ?></textarea>
+                        </div>
+                    </div>
+                </section>
+            </form>
+            <?php
+            $patientEditDrawerBody = (string) ob_get_clean();
+            ob_start();
+            ?>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <a href="<?= base_url('patient/' . (int) $patient['id'] . '/edit?' . http_build_query(['return_to' => 'patient/' . (int) $patient['id']])) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-sky-700 hover:bg-sky-50">
+                    <i class="fas fa-up-right-from-square"></i>
+                    <span><?= esc(lang('UI.openFullPage')) ?></span>
+                </a>
+                <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="<?= esc($patientEditDrawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
+                    <button type="submit" form="<?= esc($patientEditFormId) ?>" class="inline-flex items-center justify-center rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-800"><?= esc(lang('UI.settingsSave')) ?></button>
+                </div>
+            </div>
+            <?php
+            $patientEditDrawerFooter = (string) ob_get_clean();
+            ?>
+            <?= view('components/app_drawer', [
+                'id' => $patientEditDrawerId,
+                'title' => lang('UI.patientEditPatient'),
+                'description' => $fullName,
+                'icon' => 'fas fa-user-pen',
+                'tone' => 'bg-sky-700',
+                'size' => 'form',
+                'body' => $patientEditDrawerBody,
+                'footer' => $patientEditDrawerFooter,
+            ]) ?>
+        <?php endif; ?>
 
         <?= view('patient/partials/context_quick_drawers', [
             'patient' => $patient,
@@ -2456,7 +2588,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         gap: 0.58rem;
         min-height: 2.65rem;
         border-radius: 0.95rem;
-        padding: 0.58rem 0.78rem;
+        padding: 0.48rem 0.74rem;
         font-size: 0.76rem;
         font-weight: 700;
         transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -2465,6 +2597,74 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
     .patient-header-action:hover {
         transform: translateY(-1px);
+    }
+
+    .patient-header-pill-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+    }
+
+    .patient-header-pill-grid .patient-hero-chip,
+    .patient-header-snapshot-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-width: 0;
+        width: 100%;
+        max-width: none;
+        min-height: 3.05rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        padding: 0.38rem 0.68rem 0.38rem 0.42rem;
+        color: #ffffff;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .patient-header-snapshot-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.95rem;
+        height: 1.95rem;
+        flex-shrink: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+    }
+
+    .patient-header-pill-grid .patient-hero-chip-value,
+    .patient-header-pill-grid .patient-hero-chip-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (min-width: 768px) {
+        .patient-header-pill-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .patient-header-pill-grid {
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+    }
+
+    .patient-header-snapshot-card-calm {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(13, 148, 136, 0.18));
+    }
+
+    .patient-header-snapshot-card-alert {
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.34), rgba(190, 18, 60, 0.2));
+    }
+
+    .patient-header-snapshot-card-blue {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.30), rgba(37, 99, 235, 0.18));
+    }
+
+    .patient-header-snapshot-card-due {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.34), rgba(217, 119, 6, 0.2));
     }
 
     .patient-header-action-soft {
