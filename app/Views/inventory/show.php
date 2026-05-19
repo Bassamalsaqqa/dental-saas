@@ -71,7 +71,7 @@ if ($item['quantity'] == 0) {
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                         <i class="fas fa-arrow-left text-xs"></i><?= esc($tr('back')) ?>
                     </a>
                     <button onclick="receiveStock(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
@@ -80,7 +80,7 @@ if ($item['quantity'] == 0) {
                     <button onclick="adjustStock(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm">
                         <i class="fas fa-plus-minus text-xs"></i><?= esc($tr('adjustStock')) ?>
                     </button>
-                    <a href="<?= base_url('inventory/' . $item['id'] . '/edit') ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                    <a href="<?= workflow_context_url('inventory/' . $item['id'] . '/edit', $return_to ?? null) ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
                         <i class="fas fa-edit text-xs"></i><?= esc($tr('edit')) ?>
                     </a>
                     <button onclick="deleteItem(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition-colors shadow-sm">

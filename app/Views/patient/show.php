@@ -29,6 +29,7 @@ function loadInlinePatientMiniOdontogramSvg(): string
 }
 
 $isRtl = !empty($is_rtl);
+$patientContextReturnTo = 'patient/' . (int) ($patient['id'] ?? 0);
 $fullName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
 $patientGenderMap = [
     'male' => lang('UI.patientMale'),
@@ -331,7 +332,7 @@ foreach ($finances as $financeItem) {
         'method_label' => $financeMethodLabel($financeItem['payment_method'] ?? null),
         'status_label' => $financeStatusLabel($financeItem['payment_status'] ?? null),
         'status_key' => $paymentStatus !== '' ? $paymentStatus : 'recorded',
-        'action_url' => base_url('finance/' . $financeId . ''),
+        'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
     ];
 }
 
@@ -371,7 +372,7 @@ foreach (($finance_settlements ?? []) as $settlement) {
         'method_label' => $financeMethodLabel($settlement['payment_method'] ?? null),
         'status_label' => $financeTypeLabel($settlementType),
         'status_key' => 'recorded',
-        'action_url' => base_url('finance/' . $financeId . ''),
+        'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
     ];
 }
 
@@ -993,7 +994,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                         <h4><?= esc(lang('UI.patientCurrentOdontogramTitle')) ?></h4>
                                                         <p><?= esc(lang('UI.patientCurrentOdontogramHelp')) ?></p>
                                                     </div>
-                                                    <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="patient-preview-action">
+                                                    <a href="<?= workflow_context_url('odontogram/' . $patient['id'], $patientContextReturnTo) ?>" class="patient-preview-action">
                                                         <i class="fas fa-tooth"></i>
                                                         <span><?= esc(lang('UI.patientOpenFullChart')) ?></span>
                                                     </a>
@@ -1146,7 +1147,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <div class="patient-snapshot-list">
                                             <?php if (!empty($snapshotPreviewRows)): ?>
                                                 <div class="flex justify-end">
-                                                    <a href="<?= base_url('patient/' . $patient['id'] . '/odontogram-versions') ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                                                    <a href="<?= workflow_context_url('patient/' . $patient['id'] . '/odontogram-versions', $patientContextReturnTo) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
                                                         <i class="fas fa-clock-rotate-left"></i>
                                                         <span><?= esc(lang('UI.patientChartHistoryOpenAll')) ?></span>
                                                     </a>
@@ -1163,7 +1164,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                         <p class="patient-snapshot-copy"><?= esc(lang('UI.patientSnapshotTeethAffected', ['count' => (int) $snapshotItem['count']])) ?></p>
                                                         <div class="mt-3 flex flex-wrap gap-2">
                                                             <?php if (!empty($snapshotItem['id'])): ?>
-                                                                <a href="<?= base_url('patient/' . $patient['id'] . '/odontogram-versions/' . $snapshotItem['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                                                                <a href="<?= workflow_context_url('patient/' . $patient['id'] . '/odontogram-versions/' . $snapshotItem['id'], $patientContextReturnTo) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
                                                                     <i class="fas fa-eye"></i>
                                                                     <span><?= esc(lang('UI.patientChartHistoryOpenSelected')) ?></span>
                                                                 </a>
@@ -1226,7 +1227,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-stethoscope',
                                             'color' => 'blue',
-                                            'url' => base_url('examination/' . $exam['id'] . ''),
+                                            'url' => workflow_context_url('examination/' . $exam['id'], $patientContextReturnTo),
                                             'meta' => $examMeta,
                                         ];
                                     }
@@ -1265,7 +1266,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-calendar',
                                             'color' => 'green',
-                                            'url' => base_url('appointment/' . $appt['id'] . ''),
+                                            'url' => workflow_context_url('appointment/' . $appt['id'], $patientContextReturnTo),
                                             'meta' => $apptMeta,
                                         ];
                                     }
@@ -1298,7 +1299,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-tooth',
                                             'color' => 'purple',
-                                            'url' => base_url('treatment/' . $treatment['id'] . ''),
+                                            'url' => workflow_context_url('treatment/' . $treatment['id'], $patientContextReturnTo),
                                             'meta' => $treatmentMeta,
                                         ];
                                     }
@@ -1349,7 +1350,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'id' => $prescription['id'],
                                             'icon' => 'fas fa-prescription',
                                             'color' => 'orange',
-                                            'url' => base_url('prescription/' . $prescription['id'] . ''),
+                                            'url' => workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo),
                                             'meta' => $prescriptionMeta,
                                         ];
                                     }
@@ -1381,7 +1382,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'id' => $contract['id'],
                                             'icon' => 'fas fa-file-signature',
                                             'color' => 'amber',
-                                            'url' => base_url('contracts/' . $contract['id'] . ''),
+                                            'url' => workflow_context_url('contracts/' . $contract['id'], $patientContextReturnTo),
                                             'meta' => $contractMeta,
                                         ];
                                     }
@@ -1438,7 +1439,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'id' => $finance['id'],
                                             'icon' => 'fas fa-dollar-sign',
                                             'color' => 'green',
-                                            'url' => base_url('finance/' . $finance['id'] . ''),
+                                            'url' => workflow_context_url('finance/' . $finance['id'], $patientContextReturnTo),
                                             'meta' => $financeMeta,
                                         ];
                                     }
@@ -1707,7 +1708,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <div class="flex flex-col items-start gap-2 md:items-end">
                                             <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
                                             <?php if (has_permission('patients', 'edit')): ?>
-                                                <a href="<?= base_url('contracts/create/' . $patient['id'] . '') ?>"
+                                                <a href="<?= workflow_context_url('contracts/create/' . $patient['id'], $patientContextReturnTo) ?>"
                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
                                                 </a>
@@ -1734,7 +1735,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             <tbody>
                                                 <?php if (!empty($contracts)): ?>
                                                     <?php foreach ($contracts as $contract): ?>
-                                                        <tr class="patient-record-row" data-date="<?= !empty($contract['created_at']) ? esc(date('Y-m-d', strtotime($contract['created_at']))) : '' ?>" data-href="<?= esc(base_url('contracts/' . $contract['id'])) ?>">
+                                                        <tr class="patient-record-row" data-date="<?= !empty($contract['created_at']) ? esc(date('Y-m-d', strtotime($contract['created_at']))) : '' ?>" data-href="<?= esc(workflow_context_url('contracts/' . $contract['id'], $patientContextReturnTo)) ?>">
                                                             <td class="whitespace-nowrap text-slate-600">
                                                                 <?= !empty($contract['created_at']) ? formatDateTime($contract['created_at']) : '--' ?>
                                                             </td>
@@ -1751,12 +1752,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                             </td>
                                                     <td class="text-right">
                                                         <div class="patient-table-actions">
-                                                        <a href="<?= base_url('contracts/' . $contract['id']) ?>" 
+                                                        <a href="<?= workflow_context_url('contracts/' . $contract['id'], $patientContextReturnTo) ?>" 
                                                            class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
                                                         <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
-                                                            <a href="<?= base_url('contracts/' . $contract['id'] . '/edit') ?>" 
+                                                            <a href="<?= workflow_context_url('contracts/' . $contract['id'] . '/edit', $patientContextReturnTo) ?>" 
                                                                class="patient-table-action" title="<?= esc(lang('UI.patientEdit')) ?>">
                                                                 <i class="fas fa-edit"></i>
                                                             </a>
@@ -1823,7 +1824,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
                                                 <?php foreach ($examinations as $examination): ?>
-                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(base_url('examination/' . $examination['id'])) ?>">
+                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('examination/' . $examination['id'], $patientContextReturnTo)) ?>">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             <?= formatDate($examination['examination_date']) ?>
                                                         </td>
@@ -1840,7 +1841,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                             </span>
                                                         </td>
                                                         <td class="px-6 py-4">
-                                                            <a href="<?= base_url('examination/' . $examination['id']) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors" title="<?= esc(lang('UI.patientView')) ?>">
+                                                            <a href="<?= workflow_context_url('examination/' . $examination['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors" title="<?= esc(lang('UI.patientView')) ?>">
                                                                 <i class="fas fa-eye text-xs"></i>
                                                             </a>
                                                         </td>
@@ -1884,12 +1885,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
                                                 <?php foreach ($appointments as $apt): ?>
-                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(base_url('appointment/' . $apt['id'])) ?>">
+                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo)) ?>">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= formatDate($apt['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($apt['appointment_time']) ?></td>
                                                         <td class="px-6 py-4"><div class="text-sm font-medium text-gray-900"><?= ucfirst($apt['appointment_type'] ?? lang('UI.patientGeneral')) ?></div><div class="text-xs text-gray-500"><?= esc($apt['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></div></td>
                                                         <td class="px-6 py-4 text-sm text-gray-700"><?= $apt['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?></td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['scheduled'=>'bg-blue-100 text-blue-700','confirmed'=>'bg-emerald-100 text-emerald-700','completed'=>'bg-gray-100 text-gray-600','cancelled'=>'bg-rose-100 text-rose-700','no_show'=>'bg-amber-100 text-amber-700'][$apt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($apt['status']) ?></span></td>
-                                                        <td class="px-6 py-4"><a href="<?= base_url('appointment/' . $apt['id']) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-purple-600 hover:bg-purple-50 hover:text-purple-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
+                                                        <td class="px-6 py-4"><a href="<?= workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-purple-600 hover:bg-purple-50 hover:text-purple-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -1928,12 +1929,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
                                                 <?php foreach ($treatments as $trt): ?>
-                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(base_url('treatment/' . $trt['id'])) ?>">
+                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo)) ?>">
                                                         <td class="px-6 py-4"><div class="text-sm font-medium text-gray-900"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></div><div class="text-xs text-gray-500"><?= ucfirst($trt['treatment_type'] ?? lang('UI.patientGeneral')) ?></div></td>
                                                         <td class="px-6 py-4 text-sm text-gray-700"><?= $trt['tooth_number'] ?? '—' ?></td>
                                                         <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= formatCurrency($trt['cost'] ?? 0) ?></td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['active'=>'bg-blue-100 text-blue-700','completed'=>'bg-emerald-100 text-emerald-700','cancelled'=>'bg-rose-100 text-rose-700','on_hold'=>'bg-amber-100 text-amber-700'][$trt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($trt['status']) ?></span></td>
-                                                        <td class="px-6 py-4"><a href="<?= base_url('treatment/' . $trt['id']) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
+                                                        <td class="px-6 py-4"><a href="<?= workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -1954,7 +1955,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('prescriptions', 'create')): ?>
-                                        <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '') ?>"
+                                        <a href="<?= workflow_context_url('prescription/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreatePrescription')) ?>
                                         </a>
@@ -2017,7 +2018,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
                                                 }
                                                 ?>
-                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('prescription/' . $prescription['id'] . '')) ?>">
+                                                  <tr class="patient-record-row" data-href="<?= esc(workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo)) ?>">
                                                       <td>
                                                           <div class="flex items-center space-x-2">
                                                               <i class="fas fa-pills text-teal-600 text-xs"></i>
@@ -2051,7 +2052,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     </td>
                                                       <td class="text-right">
                                                           <div class="patient-table-actions">
-                                                          <a href="<?= base_url('prescription/' . $prescription['id'] . '') ?>" 
+                                                          <a href="<?= workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo) ?>" 
                                                              class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
                                                           </div>
                                                       </td>
@@ -2100,7 +2101,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <i class="fas fa-chart-line mr-2"></i><?= esc(lang('TenantMisc.openFinanceReports')) ?>
                                             </a>
                                             <?php if (has_permission('finance', 'create')): ?>
-                                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '') ?>"
+                                                <a href="<?= workflow_context_url('finance/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                                 </a>

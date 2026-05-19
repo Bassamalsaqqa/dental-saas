@@ -1124,7 +1124,7 @@
                                     <span><?= esc(lang('UserRole.editUser')) ?></span>
                                 </button>
                             <?php endif; ?>
-                            <a href="<?= nav_back('users') ?>" class="patient-header-action patient-header-action-soft">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                                 <span><?= esc(lang('UserRole.backToUsers')) ?></span>
                             </a>
@@ -1740,7 +1740,7 @@ document.querySelectorAll('.user-record-row[data-transaction-url]').forEach((row
     const openTransaction = () => {
         const url = row.dataset.transactionUrl;
         if (url) {
-            window.location.href = url;
+            window.location.href = window.workflowContextUrl ? window.workflowContextUrl(url) : url;
         }
     };
 
@@ -1803,7 +1803,7 @@ function deleteUser(id) {
         if (!data.success) {
             throw new Error(data.message || <?= json_encode(lang('UserRole.errorDeletingUser')) ?>);
         }
-        window.location.href = '<?= base_url('users') ?>';
+        window.location.href = <?= json_encode(workflow_back('users', $return_to ?? null)) ?>;
     })
     .catch(error => {
         notify('error', <?= json_encode(lang('UserRole.error')) ?>, error.message || <?= json_encode(lang('UserRole.errorDeletingUser')) ?>);

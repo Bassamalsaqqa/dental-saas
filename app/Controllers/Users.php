@@ -208,6 +208,7 @@ class Users extends BaseController
             'roles' => $roles,
             'departments' => $this->getDepartments(),
             'loadSelect2' => true,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['users']),
         ], $this->getUserDataForView());
 
         return $this->view('users/create', $data);
@@ -288,7 +289,9 @@ class Users extends BaseController
                 }
             }
 
-            return redirect()->to(base_url('users'))->with('success', 'Existing user added to this clinic.');
+            $returnTo = $this->workflowReturnTo(['users']) ?? 'users';
+
+            return $this->redirectAfterWorkflow($returnTo, ['users'])->with('success', 'Existing user added to this clinic.');
         }
 
         $additionalData = [
@@ -325,7 +328,9 @@ class Users extends BaseController
                     ]);
                 }
 
-                return redirect()->to(base_url('users'))->with('success', 'User created successfully!');
+                $returnTo = $this->workflowReturnTo(['users']) ?? 'users';
+
+                return $this->redirectAfterWorkflow($returnTo, ['users'])->with('success', 'User created successfully!');
             } else {
                 // If role assignment fails, delete the user and show error
                 $this->ionAuth->deleteUser($userId);
@@ -382,6 +387,7 @@ class Users extends BaseController
             'provider_payout_rows' => $this->providerPayoutModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
             'provider_payment_rows' => $this->providerPayoutPaymentModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
             'loadSelect2' => true,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['users', 'finance']),
         ];
         
         // Add current user data for view without overwriting the user being viewed
@@ -430,6 +436,7 @@ class Users extends BaseController
             'user' => $user, // The user being edited
             'roles' => $roles,
             'departments' => $this->getDepartments(),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['users']),
         ];
         
         // Add current user data without conflicts
@@ -525,9 +532,7 @@ class Users extends BaseController
             $roleUpdated = $userRoleModel->assignRoles($id, [$roleId], $currentUserId);
             
             if ($roleUpdated) {
-                $returnTo = trim((string) $this->request->getPost('return_to'));
-                $redirectTarget = $returnTo !== '' ? base_url($returnTo) : base_url('users/' . $id);
-                return redirect()->to($redirectTarget)->with('success', 'User updated successfully!');
+                return $this->redirectAfterWorkflow('users/' . (int) $id, ['users'])->with('success', 'User updated successfully!');
             } else {
                 return redirect()->back()->withInput()->with('error', 'User updated but failed to update role. Please try again.');
             }
@@ -598,6 +603,7 @@ class Users extends BaseController
         $data = array_merge([
             'title' => 'Change Password',
             'user' => $user,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['users']),
         ], $this->getUserDataForView());
 
         return $this->view('users/change_password', $data);
@@ -629,7 +635,7 @@ class Users extends BaseController
 
         // Use IonAuth to change password
         if ($this->ionAuth->changePassword($id, $this->request->getPost('current_password'), $this->request->getPost('new_password'))) {
-            return redirect()->to(base_url('users'))->with('success', 'Password updated successfully!');
+            return $this->redirectAfterWorkflow('users/' . (int) $id, ['users'])->with('success', 'Password updated successfully!');
         } else {
             $errors = $this->ionAuth->errors();
             $errorMessage = is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update password. Please try again.');

@@ -1091,8 +1091,7 @@ $(document).ready(function() {
                 return;
             }
 
-            const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-            window.location.href = `<?= base_url('prescription') ?>/${rowData.id}`;
+            window.location.href = window.workflowContextUrl(`<?= base_url('prescription') ?>/${rowData.id}`);
         });
     }
 

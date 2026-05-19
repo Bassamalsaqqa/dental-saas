@@ -177,7 +177,8 @@ class RoleController extends BaseController
             'title' => 'Create New Role',
             'permissions' => $this->permissionModel->getGroupedByModule(),
             'categories' => \App\Config\Permissions::getCategories(),
-            'action_descriptions' => \App\Config\Permissions::getActionDescriptions()
+            'action_descriptions' => \App\Config\Permissions::getActionDescriptions(),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['roles', 'controlplane/roles']),
         ];
         $data['rolesRoute'] = $this->getRolesRoute();
 
@@ -237,7 +238,7 @@ class RoleController extends BaseController
         $roleId = $this->roleModel->createWithPermissions($roleData, $permissions);
 
         if ($roleId) {
-            return redirect()->to('/' . $this->getRolesRoute())
+            return $this->redirectAfterWorkflow($this->getRolesRoute(), ['roles', 'controlplane/roles'])
                            ->with('success', 'Role created successfully.');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create role.');
@@ -295,7 +296,8 @@ class RoleController extends BaseController
             'permissions' => $this->permissionModel->getGroupedByModule(),
             'categories' => \App\Config\Permissions::getCategories(),
             'action_descriptions' => \App\Config\Permissions::getActionDescriptions(),
-            'role_permissions' => array_column($role['permissions'], 'id')
+            'role_permissions' => array_column($role['permissions'], 'id'),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['roles', 'controlplane/roles']),
         ];
         $data['rolesRoute'] = $this->getRolesRoute();
 
@@ -363,7 +365,7 @@ class RoleController extends BaseController
         $success = $this->roleModel->updateWithPermissions($id, $roleData, $permissions);
 
         if ($success) {
-            return redirect()->to('/' . $this->getRolesRoute())
+            return $this->redirectAfterWorkflow($this->getRolesRoute(), ['roles', 'controlplane/roles'])
                            ->with('success', 'Role updated successfully.');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update role.');

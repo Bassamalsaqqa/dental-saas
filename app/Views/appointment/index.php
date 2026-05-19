@@ -395,7 +395,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                                     $appointmentAvatarColor = 'text-rose-700';
                                 }
                                 ?>
-                                <div class="appointment-record-card group/item relative flex flex-col gap-4 p-4 bg-gradient-to-r from-white/75 to-white/55 backdrop-blur-sm rounded-2xl hover:from-white hover:to-white/80 transition-all duration-300 border border-white/40 shadow-md hover:shadow-xl hover:shadow-blue-500/10 md:p-5 xl:flex-row xl:items-center xl:justify-between <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(base_url('appointment/' . $appointment['id'] . '')) . '"' : '' ?>>
+                                <div class="appointment-record-card group/item relative flex flex-col gap-4 p-4 bg-gradient-to-r from-white/75 to-white/55 backdrop-blur-sm rounded-2xl hover:from-white hover:to-white/80 transition-all duration-300 border border-white/40 shadow-md hover:shadow-xl hover:shadow-blue-500/10 md:p-5 xl:flex-row xl:items-center xl:justify-between <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(workflow_context_url('appointment/' . $appointment['id'])) . '"' : '' ?>>
                                     <!-- Patient Information -->
                                     <div class="flex items-start gap-4 md:gap-6 xl:flex-1">
                                         <span class="inline-flex items-center justify-center w-9 h-9 flex-shrink-0">
@@ -1486,7 +1486,7 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    window.location.href = card.dataset.href;
+    window.location.href = window.workflowContextUrl(card.dataset.href);
 });
 
 // Add real-time search event listeners

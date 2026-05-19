@@ -21,18 +21,16 @@ if (!empty($snapshot['data_snapshot_json'])) {
                 <p class="text-gray-600 mt-1">Patient: <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?></p>
             </div>
             <div class="flex space-x-3">
-                <?php if (!empty($return_to)): ?>
-                    <a href="<?= base_url($return_to) ?>"
-                       class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
-                        <i class="fas fa-arrow-left mr-2"></i>Back to Examination
-                    </a>
-                <?php endif; ?>
+                <a href="<?= esc(workflow_back('patient/' . $patient['id'], $return_to ?? null)) ?>"
+                   class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                    <i class="fas fa-arrow-left mr-2"></i>Back
+                </a>
                 <a href="<?= base_url('patient/' . $patient['id']) ?>" 
                    class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Patient
                 </a>
                 <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
-                    <a href="<?= base_url('contracts/' . $contract['id'] . '/edit') ?>"
+                    <a href="<?= workflow_context_url('contracts/' . $contract['id'] . '/edit', $return_to ?? null) ?>"
                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
                         <i class="fas fa-pen mr-2"></i>Edit Draft
                     </a>

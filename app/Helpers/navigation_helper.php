@@ -30,3 +30,30 @@ if (!function_exists('workflow_cancel')) {
         return workflow_back($fallback, $returnTo);
     }
 }
+
+if (!function_exists('workflow_context_url')) {
+    function workflow_context_url(string $target, ?string $returnTo = null): string
+    {
+        try {
+            if ($returnTo === null) {
+                $returnTo = service('navigation')->currentTarget();
+            }
+            return service('navigation')->withReturnTo($target, $returnTo);
+        } catch (\Throwable $e) {
+        }
+
+        return base_url(ltrim($target, '/'));
+    }
+}
+
+if (!function_exists('workflow_current_target')) {
+    function workflow_current_target(): ?string
+    {
+        try {
+            return service('navigation')->currentTarget();
+        } catch (\Throwable $e) {
+        }
+
+        return null;
+    }
+}

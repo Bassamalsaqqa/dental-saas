@@ -20,7 +20,7 @@
                             <p class="text-sm text-gray-500"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
                         </div>
                     </div>
-                    <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                         <?= lang('Inventory.backToInventory') ?>
                     </a>
@@ -30,6 +30,9 @@
 
         <form action="<?= base_url('inventory/store') ?>" method="POST" class="space-y-5">
             <?= csrf_field() ?>
+            <?php if (!empty($return_to)): ?>
+                <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+            <?php endif; ?>
             <?= view('inventory/partials/form_fields', [
                 'is_rtl' => $isRtl,
                 'supplier_directory' => $supplier_directory ?? [],
@@ -37,7 +40,7 @@
             ]) ?>
 
             <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
-                <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                <a href="<?= workflow_cancel('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
                     <i class="fas fa-times text-xs"></i>
                     <?= lang('Inventory.cancel') ?>
                 </a>

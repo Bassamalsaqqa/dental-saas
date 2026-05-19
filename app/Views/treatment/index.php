@@ -697,8 +697,7 @@ $(document).ready(function() {
                         return;
                     }
 
-                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    window.location.href = `<?= base_url('treatment') ?>/${rowData.id}`;
+                    window.location.href = window.workflowContextUrl(`<?= base_url('treatment') ?>/${rowData.id}`);
                 })
                 .on('mouseenter', 'tr', function () {
                     $(this).addClass('cursor-pointer hover:bg-pink-50/50 transition-colors duration-150');

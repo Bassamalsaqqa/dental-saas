@@ -238,7 +238,8 @@ function showExaminationDetails(event) {
     
     // Set edit button action
     editBtn.onclick = () => {
-        window.location.href = `<?= base_url('examination/edit') ?>/${event.id}`;
+        const target = `<?= base_url('examination/edit') ?>/${event.id}`;
+        window.location.href = window.workflowContextUrl ? window.workflowContextUrl(target) : target;
     };
     
     modal.classList.remove('hidden');

@@ -1408,7 +1408,7 @@ document.addEventListener('click', function(event) {
     }
     const href = row.getAttribute('data-href');
     if (href) {
-        window.location.href = href;
+        window.location.href = window.workflowContextUrl ? window.workflowContextUrl(href) : href;
     }
 });
 

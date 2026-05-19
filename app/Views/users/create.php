@@ -20,7 +20,7 @@
                             </div>
                         </div>
 
-                        <a href="<?= nav_back('users') ?>" class="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
+                        <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
                             <i class="fas fa-arrow-left rtl-back-icon me-2"></i>
                             <span><?= lang('UserRole.backToUsers') ?></span>
                         </a>
@@ -30,6 +30,9 @@
                 <div class="p-8">
                     <form action="<?= base_url('users/store') ?>" method="POST" class="space-y-8" data-user-create-form data-select2-dropdown-parent>
                         <?= csrf_field() ?>
+                        <?php if (!empty($return_to)): ?>
+                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+                        <?php endif; ?>
                         <?= view('users/partials/create_form_fields', [
                             'roles' => $roles ?? [],
                             'departments' => $departments ?? [],
@@ -37,7 +40,7 @@
                         ]) ?>
 
                         <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-slate-200">
-                            <a href="<?= nav_back('users') ?>" class="inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
                                 <i class="fas fa-times me-2"></i>
                                 <span><?= lang('UserRole.cancel') ?></span>
                             </a>

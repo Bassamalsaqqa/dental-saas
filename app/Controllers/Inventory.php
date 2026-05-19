@@ -233,6 +233,7 @@ class Inventory extends BaseController
             'supplier_directory' => $clinicId ? $this->supplierModel->getActiveOptionsByClinic($clinicId) : [],
             'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
             'loadSelect2' => true,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['inventory']),
         ];
 
         return $this->view('inventory/create', $data);
@@ -320,7 +321,9 @@ class Inventory extends BaseController
                 "New inventory item '{$inventoryData['item_name']}' added - Category: {$inventoryData['category']}, Quantity: {$inventoryData['quantity']}, Price: " . settings()->getCurrencySymbol() . number_format($inventoryData['unit_price'], 2)
             );
             
-            return $this->redirectAfterWorkflow('inventory', ['inventory'])->with('success', 'Item added successfully!');
+            $returnTo = $this->workflowReturnTo(['inventory']) ?? 'inventory';
+
+            return $this->redirectAfterWorkflow($returnTo, ['inventory'])->with('success', 'Item added successfully!');
         } else {
             $errors = $this->inventoryModel->errors();
             log_message('error', 'Inventory creation failed: ' . json_encode($errors));
@@ -364,6 +367,7 @@ class Inventory extends BaseController
             'reorder_items' => $this->reorderItemModel->where('clinic_id', (int) $clinicId)->where('inventory_id', (int) $id)->orderBy('created_at', 'DESC')->findAll(),
             'batches' => $this->batchModel->getByInventory((int) $clinicId, (int) $id, 50),
             'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['inventory']),
         ];
 
         return $this->view('inventory/show', $data);
@@ -391,6 +395,7 @@ class Inventory extends BaseController
             'supplier_links' => $this->supplierLinkModel->getByInventory((int) $clinicId, (int) $id),
             'preferred_supplier_link' => $this->supplierLinkModel->getPreferredForInventory((int) $clinicId, (int) $id),
             'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['inventory']),
         ];
 
         return $this->view('inventory/edit', $data);
@@ -459,7 +464,7 @@ class Inventory extends BaseController
                 "Inventory item '{$inventoryData['item_name']}' updated - Category: {$inventoryData['category']}, Quantity: {$inventoryData['quantity']}, Status: {$inventoryData['status']}"
             );
             
-            return redirect()->to(base_url('inventory'))->with('success', 'Item updated successfully!');
+            return $this->redirectAfterWorkflow('inventory/' . (int) $id, ['inventory'])->with('success', 'Item updated successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update item. Please try again.');
         }

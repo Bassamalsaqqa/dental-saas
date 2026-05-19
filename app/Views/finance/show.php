@@ -1147,7 +1147,7 @@
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                                 <span><?= esc($ui['back']) ?></span>
                             </a>
-                            <a href="<?= base_url('finance/' . $finance['id'] . '/edit') ?>" class="patient-header-action patient-header-action-soft">
+                            <a href="<?= workflow_context_url('finance/' . $finance['id'] . '/edit', $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas fa-pen"></i>
                                 <span><?= esc($ui['edit']) ?></span>
                             </a>
@@ -1572,7 +1572,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="<?= base_url('examination/' . $examination['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
+                        <a href="<?= workflow_context_url('examination/' . $examination['id'], $return_to ?? null) ?>" class="finance-show-btn finance-show-btn-soft w-full">
                             <?= lang('Finance.viewClinicalRecord') ?>
                         </a>
                     </div>

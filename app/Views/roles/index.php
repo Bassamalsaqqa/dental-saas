@@ -21,7 +21,7 @@
                 <?php endif; ?>
                 
                 <?php if (has_permission('users', 'create') || has_permission('users', 'roles')): ?>
-                    <a href="<?= base_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <a href="<?= workflow_context_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <i class="fas fa-plus mr-2"></i><?= esc($tr('createRole')) ?>
                     </a>
                 <?php endif; ?>
@@ -232,7 +232,7 @@
 
                             <?php if ($isEditable): ?>
                                 <?php if (has_permission('users', 'edit')): ?>
-                                    <a href="<?= base_url($rolesRoute . '/' . $role['id'] . '/edit') ?>" 
+                                    <a href="<?= workflow_context_url($rolesRoute . '/' . $role['id'] . '/edit') ?>" 
                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                                         <i class="fas fa-edit mr-1"></i>
                                         <?= esc($tr('edit')) ?>
@@ -280,7 +280,7 @@
             </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2"><?= esc($tr('noRolesFound')) ?></h3>
             <p class="text-gray-500 mb-6"><?= esc($tr('getStartedCreateFirstRole')) ?></p>
-            <a href="<?= base_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <a href="<?= workflow_context_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus mr-2"></i><?= esc($tr('createRole')) ?>
             </a>
         </div>

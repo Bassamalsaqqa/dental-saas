@@ -895,12 +895,14 @@ function viewOdontogram(patientId) {
             
             // Navigate after success animation
             setTimeout(() => {
-                window.location.href = '<?= base_url('odontogram/') ?>' + patientId;
+                const target = '<?= base_url('odontogram/') ?>' + patientId;
+                window.location.href = window.workflowContextUrl ? window.workflowContextUrl(target) : target;
             }, 300);
         }, 500);
     } else {
         // Fallback if button not found
-        window.location.href = '<?= base_url('odontogram/') ?>' + patientId;
+        const target = '<?= base_url('odontogram/') ?>' + patientId;
+        window.location.href = window.workflowContextUrl ? window.workflowContextUrl(target) : target;
     }
 }
 

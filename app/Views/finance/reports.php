@@ -128,7 +128,7 @@ $bucketLabels = [
                     <tbody class="divide-y divide-indigo-100 bg-white/90">
                         <?php if (!empty($ap_aging_detail)): ?>
                             <?php foreach ($ap_aging_detail as $row): ?>
-                                <tr class="cursor-pointer transition-colors duration-150 hover:bg-indigo-50/70" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
+                                <tr class="cursor-pointer transition-colors duration-150 hover:bg-indigo-50/70" data-href="<?= esc(workflow_context_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
                                     <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
                                     <td class="px-6 py-4 text-gray-700"><?= esc($row['counterparty_name'] ?? '-') ?></td>
                                     <td class="px-6 py-4 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
@@ -262,7 +262,7 @@ $bucketLabels = [
                     <tbody class="divide-y divide-amber-100 bg-white/90">
                         <?php if (!empty($ar_aging_detail)): ?>
                             <?php foreach ($ar_aging_detail as $row): ?>
-                                <tr class="cursor-pointer transition-colors duration-150 hover:bg-amber-50/70" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
+                                <tr class="cursor-pointer transition-colors duration-150 hover:bg-amber-50/70" data-href="<?= esc(workflow_context_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
                                     <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
                                     <td class="px-6 py-4 text-gray-700">
                                         <div class="font-medium text-gray-900"><?= esc(trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))) ?></div>
@@ -347,9 +347,9 @@ $bucketLabels = [
                                 }
                                 $signed = (float) ($row['signed_amount_base'] ?? 0);
                                 $rowHref = match (true) {
-                                    !empty($row['provider_payout_id']) => base_url('finance/payouts'),
-                                    (string) ($row['event_source'] ?? '') === 'liquidity_transfer' => base_url('finance/transfers'),
-                                    !empty($row['finance_id']) => base_url('finance/' . (int) $row['finance_id']),
+                                    !empty($row['provider_payout_id']) => workflow_context_url('finance/payouts'),
+                                    (string) ($row['event_source'] ?? '') === 'liquidity_transfer' => workflow_context_url('finance/transfers'),
+                                    !empty($row['finance_id']) => workflow_context_url('finance/' . (int) $row['finance_id']),
                                     default => null,
                                 };
                                 ?>
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
         row.addEventListener('click', function(event) {
             if (event.target.closest('a, button, input, select, textarea, label')) return;
             const href = row.getAttribute('data-href');
-            if (href) window.location.href = href;
+            if (href) window.location.href = window.workflowContextUrl(href);
         });
     });
 

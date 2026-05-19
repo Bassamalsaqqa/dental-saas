@@ -26,7 +26,7 @@
                         </div>
                         
                         <div class="flex items-center space-x-3">
-                            <a href="<?= nav_back('users') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UserRole.backToUsers') ?></span>
@@ -40,6 +40,9 @@
 
                     <form action="<?= base_url('users/' . $user->id . '/update') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
+                        <?php if (!empty($return_to)): ?>
+                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+                        <?php endif; ?>
                         
                         <!-- Personal Information -->
                         <div class="group/section relative">
@@ -350,7 +353,7 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
-                            <a href="<?= nav_back('users') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UserRole.cancel') ?></span>
@@ -408,6 +411,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
-
 
 

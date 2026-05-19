@@ -17,7 +17,7 @@
                         </a>
                     <?php endif; ?>
                     <?php if (has_permission('users', 'create')): ?>
-                        <a href="<?= base_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <a href="<?= workflow_context_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus mr-2"></i><?= lang('UserRole.createUser') ?>
                         </a>
                     <?php endif; ?>
@@ -192,15 +192,15 @@
                                     <!-- Actions -->
                                     <div class="flex space-x-2">
                                         <?php if (has_permission('users', 'view')): ?>
-                                            <a href="<?= base_url('users/' . $user->id) ?>" class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="<?= lang('UserRole.viewUser') ?>">
+                                            <a href="<?= workflow_context_url('users/' . $user->id) ?>" class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="<?= lang('UserRole.viewUser') ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('users', 'edit')): ?>
-                                            <a href="<?= base_url('users/' . $user->id . '/edit') ?>" class="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-lg transition-colors" title="<?= lang('UserRole.editUser') ?>">
+                                            <a href="<?= workflow_context_url('users/' . $user->id . '/edit') ?>" class="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-lg transition-colors" title="<?= lang('UserRole.editUser') ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="<?= base_url('users/' . $user->id . '/change-password') ?>" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="<?= lang('UserRole.changePassword') ?>">
+                                            <a href="<?= workflow_context_url('users/' . $user->id . '/change-password') ?>" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="<?= lang('UserRole.changePassword') ?>">
                                                 <i class="fas fa-key"></i>
                                             </a>
                                             <button onclick="toggleStatus(<?= $user->id ?>)" class="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors" title="<?= lang('UserRole.toggleStatus') ?>">
@@ -288,7 +288,7 @@
                     </div>
                     <h3 class="text-2xl font-bold text-gray-900 mb-4"><?= lang('UserRole.noUsersFound') ?></h3>
                     <p class="text-gray-500 mb-8 max-w-md mx-auto"><?= lang('UserRole.noUsersFoundDescription') ?></p>
-                    <a href="<?= base_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <a href="<?= workflow_context_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <i class="fas fa-plus mr-3"></i><?= lang('UserRole.createFirstUser') ?>
                     </a>
                 </div>

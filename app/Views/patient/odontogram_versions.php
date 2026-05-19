@@ -74,7 +74,7 @@ $conditionLabelMap = [
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="<?= nav_back('patient/' . $patient['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/18">
+                    <a href="<?= workflow_back('patient/' . $patient['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/18">
                         <i class="<?= esc($patientAvatarIconClass) ?>"></i>
                         <span><?= esc(lang('UI.backToPatient')) ?></span>
                     </a>

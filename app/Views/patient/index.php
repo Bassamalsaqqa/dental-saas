@@ -1005,12 +1005,12 @@ $(document).ready(function() {
                 return;
             }
 
-            const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
             const profileUrl = `<?= base_url('patient') ?>/${data.id}`;
+            const contextualProfileUrl = window.workflowContextUrl ? window.workflowContextUrl(profileUrl) : profileUrl;
 
             $(row)
                 .addClass('cursor-pointer hover:bg-emerald-50/50 transition-colors duration-150')
-                .attr('data-href', profileUrl)
+                .attr('data-href', contextualProfileUrl)
                 .attr('tabindex', '0')
                 .attr('role', 'link')
                 .attr('aria-label', `${patientI18n.viewPatient}: ${data.name || data.patient_id || ''}`)
@@ -1018,7 +1018,7 @@ $(document).ready(function() {
                     if ($(event.target).closest('a, button').length) {
                         return;
                     }
-                    window.location.href = profileUrl;
+                    window.location.href = contextualProfileUrl;
                 })
                 .on('keydown', function(event) {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -1026,7 +1026,7 @@ $(document).ready(function() {
                             return;
                         }
                         event.preventDefault();
-                        window.location.href = profileUrl;
+                        window.location.href = contextualProfileUrl;
                     }
                 });
 

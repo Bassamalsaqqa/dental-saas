@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200">
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200">
                         <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('backToInventory')) ?>
                     </a>
                 </div>

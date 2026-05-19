@@ -272,7 +272,7 @@ $statusClass = static function (string $status): string {
                                 $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : (string) ($row['transaction_date'] ?? '');
                                 $age = (int) ($row['days_past_due'] ?? 0);
                                 ?>
-                                <tr data-row-url="<?= base_url('finance/' . $financeId) ?>">
+                                <tr data-row-url="<?= workflow_context_url('finance/' . $financeId) ?>">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-3">
                                             <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
@@ -285,7 +285,7 @@ $statusClass = static function (string $status): string {
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <a data-row-action href="<?= base_url('finance/' . $financeId) ?>" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
+                                        <a data-row-action href="<?= workflow_context_url('finance/' . $financeId) ?>" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
                                             <div class="flex items-center space-x-3">
                                                 <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
                                                     <i class="fas fa-receipt text-orange-700 text-xl"></i>
@@ -329,7 +329,7 @@ $statusClass = static function (string $status): string {
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-2">
-                                            <a data-row-action href="<?= base_url('finance/' . $financeId) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= esc($tr('viewTransaction')) ?>">
+                                            <a data-row-action href="<?= workflow_context_url('finance/' . $financeId) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= esc($tr('viewTransaction')) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if (!empty($row['supplier_id'])): ?>
@@ -602,7 +602,7 @@ $(document).ready(function () {
             }
             const rowUrl = this.getAttribute('data-row-url');
             if (rowUrl) {
-                window.location.href = rowUrl;
+                window.location.href = window.workflowContextUrl(rowUrl);
             }
         })
         .on('mouseenter', 'tr', function () {

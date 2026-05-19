@@ -1888,9 +1888,41 @@
             });
     }
 
+    window.workflowContextUrl = function(target, returnTo) {
+        if (!target || target === '#') {
+            return target;
+        }
+
+        try {
+            const url = new URL(target, window.location.origin);
+            if (url.origin !== window.location.origin || url.searchParams.has('return_to')) {
+                return url.toString();
+            }
+
+            const context = returnTo || <?= json_encode(workflow_current_target() ?? '') ?>;
+            if (!context) {
+                return url.toString();
+            }
+
+            const basePrefix = <?= json_encode(parse_url(base_url(), PHP_URL_PATH) ? trim((string) parse_url(base_url(), PHP_URL_PATH), '/') . '/' : '') ?>;
+            let currentPath = (window.location.pathname + window.location.search).replace(/^\/+/, '');
+            if (basePrefix && currentPath.startsWith(basePrefix)) {
+                currentPath = currentPath.slice(basePrefix.length);
+            }
+            if (currentPath === context.replace(/^\/+/, '')) {
+                return url.toString();
+            }
+
+            url.searchParams.set('return_to', context);
+            return url.toString();
+        } catch (error) {
+            return target;
+        }
+    };
+
     function navigateToNotificationTarget(notification) {
         const url = notification && notification.entity_url ? notification.entity_url : notificationsListUrl;
-        window.location.href = url;
+        window.location.href = window.workflowContextUrl(url);
     }
 
     const clinicDateFormat = '<?= esc(settings()->get('date_format', 'd/m/Y')) ?>';

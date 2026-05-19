@@ -502,17 +502,18 @@ document.addEventListener('keydown', function(e) {
                 } },
                 { data: null, responsivePriority: 1, orderable: false, render: function(data, type, row) {
                     if (!row.show_link) return '';
-                    return '<a href="' + escHtml(row.link) + '" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
+                    const href = window.workflowContextUrl ? window.workflowContextUrl(row.link) : row.link;
+                    return '<a href="' + escHtml(href) + '" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
                 } }
             ],
             createdRow: function(row, data) {
                 if (!data.link) return;
                 $(row)
                     .addClass('cursor-pointer')
-                    .attr('data-href', data.link)
+                    .attr('data-href', window.workflowContextUrl ? window.workflowContextUrl(data.link) : data.link)
                     .on('click', function(e) {
                         if ($(e.target).closest('a, button').length) return;
-                        window.location.href = data.link;
+                        window.location.href = $(this).attr('data-href');
                     });
             },
             language: {

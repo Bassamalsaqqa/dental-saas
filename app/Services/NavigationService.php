@@ -71,6 +71,36 @@ class NavigationService
         return base_url($fallback);
     }
 
+    public function withReturnTo(string $target, ?string $returnTo): string
+    {
+        $url = (strpos($target, '://') !== false || strpos($target, '//') === 0)
+            ? $target
+            : base_url(ltrim($target, '/'));
+
+        if (preg_match('#([?&])return_to=#', $url)) {
+            return $url;
+        }
+
+        $returnTo = $this->normalizeInternalTarget($returnTo);
+        if ($returnTo === null || $this->isWorkflowUrl($returnTo)) {
+            return $url;
+        }
+
+        if ($this->relativePath($url) === $returnTo) {
+            return $url;
+        }
+
+        return $url . (str_contains($url, '?') ? '&' : '?') . http_build_query(['return_to' => $returnTo], '', '&', PHP_QUERY_RFC3986);
+    }
+
+    public function currentTarget(): ?string
+    {
+        $uri = service('request')->getUri();
+        $target = $this->relativePath((string) $uri);
+
+        return $this->normalizeInternalTarget($target);
+    }
+
     public function completeWorkflow(): void
     {
         $trail = $this->trail();

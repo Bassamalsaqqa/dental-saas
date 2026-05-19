@@ -10,10 +10,10 @@
                 <p class="text-gray-600 text-lg"><?= lang('Inventory.updateInventoryItemInformation') ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <a href="<?= nav_back('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i><?= lang('Inventory.backToInventory') ?>
                 </a>
-                <a href="<?= base_url('inventory/' . $item['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= workflow_context_url('inventory/' . $item['id'], $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-eye mr-2"></i><?= lang('Inventory.viewItem') ?>
                 </a>
             </div>
@@ -59,6 +59,9 @@
         <div class="p-8">
             <form action="<?= base_url('inventory/' . $item['id'] . '/update') ?>" method="POST" class="space-y-8">
                 <?= csrf_field() ?>
+                <?php if (!empty($return_to)): ?>
+                    <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+                <?php endif; ?>
                 
                 <!-- Basic Information -->
                 <div>
@@ -254,7 +257,7 @@
                         <i class="fas fa-save mr-2"></i><?= lang('Inventory.updateItem') ?>
                     </button>
                     
-                    <a href="<?= base_url('inventory/' . $item['id']) ?>" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                    <a href="<?= workflow_cancel('inventory/' . $item['id'], $return_to ?? ('inventory/' . $item['id'])) ?>" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                         <i class="fas fa-times mr-2"></i><?= lang('Inventory.cancel') ?>
                     </a>
                 </div>
@@ -385,4 +388,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
-
