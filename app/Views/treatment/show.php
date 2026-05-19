@@ -146,12 +146,12 @@ $statusTone = match ($statusRaw) {
                 <div class="w-full space-y-2 xl:w-[21rem]">
                     <div class="grid gap-2 sm:grid-cols-2">
                         <?php if (!empty($treatment['patient_id'])): ?>
-                        <a href="<?= base_url('patient/' . $treatment['patient_id']) ?>" class="patient-header-action patient-header-action-soft">
-                            <i class="fas fa-user"></i><span><?= esc($tr('back_to_patient')) ?></span>
+                        <a href="<?= workflow_context_url('patient/' . $treatment['patient_id'], $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft">
+                            <i class="fas fa-user"></i><span><?= esc(lang('UI.patientProfile')) ?></span>
                         </a>
                         <?php endif; ?>
                         <a href="<?= esc(workflow_back('treatment', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
-                            <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back_to_treatments')) ?></span>
+                            <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back')) ?></span>
                         </a>
                     </div>
                     <div class="grid gap-2 sm:grid-cols-2">
@@ -253,7 +253,7 @@ $statusTone = match ($statusRaw) {
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('patient_name')) ?></span><span class="font-medium text-gray-900"><?= esc($patientName) ?></span></div>
                     <?php if (!empty($treatment['phone'])): ?><div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('phone')) ?></span><span class="text-gray-900"><?= esc($treatment['phone']) ?></span></div><?php endif; ?>
                 </div>
-                <a href="<?= base_url('patient/' . $treatment['patient_id']) ?>" class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800">
+                <a href="<?= workflow_context_url('patient/' . $treatment['patient_id'], $return_to ?? null) ?>" class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800">
                     <i class="fas fa-external-link-alt"></i><?= $isRtl ? 'فتح ملف المريض' : 'Open patient profile' ?>
                 </a>
             </div>

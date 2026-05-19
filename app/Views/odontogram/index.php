@@ -104,16 +104,11 @@ function getStatusText($status) {
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <?php if (!empty($examination_id)): ?>
-                        <a href="<?= base_url('examination/' . $examination_id) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                            <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Examination
-                        </a>
-                    <?php endif; ?>
                     <button onclick="printOdontogram()" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
                         <i class="fas fa-print mr-2 group-hover:animate-pulse"></i>Print
                     </button>
                     <a href="<?= workflow_back('patient/' . $patient['id'], $return_to ?? null) ?>" class="group relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Patient
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back
                     </a>
                 </div>
             </div>

@@ -156,12 +156,12 @@ $statusTone = match ($statusKey) {
                 <div class="w-full space-y-2 xl:w-[21rem]">
                     <div class="grid gap-2 sm:grid-cols-2">
                         <?php if (!empty($prescription['patient_id'])): ?>
-                        <a href="<?= base_url('patient/' . $prescription['patient_id']) ?>" class="patient-header-action patient-header-action-soft">
-                            <i class="fas fa-user"></i><span><?= esc($tr('back_to_patient')) ?></span>
+                        <a href="<?= workflow_context_url('patient/' . $prescription['patient_id'], $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft">
+                            <i class="fas fa-user"></i><span><?= esc($tr('patient_profile')) ?></span>
                         </a>
                         <?php endif; ?>
                         <a href="<?= esc(workflow_back('prescription', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
-                            <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back_to_prescriptions')) ?></span>
+                            <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back')) ?></span>
                         </a>
                     </div>
                     <div class="grid gap-2 sm:grid-cols-2">
@@ -253,7 +253,7 @@ $statusTone = match ($statusKey) {
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('created_by')) ?></span><span class="text-gray-900"><?= esc($doctorName ?: $tr('unknown')) ?></span></div>
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('patient')) ?></span>
                         <?php if (!empty($prescription['patient_id'])): ?>
-                        <a href="<?= base_url('patient/' . $prescription['patient_id']) ?>" class="text-blue-600 hover:text-blue-800 font-medium"><?= esc($patientName) ?></a>
+                        <a href="<?= workflow_context_url('patient/' . $prescription['patient_id'], $return_to ?? null) ?>" class="text-blue-600 hover:text-blue-800 font-medium"><?= esc($patientName) ?></a>
                         <?php else: ?>
                         <span class="text-gray-900">—</span>
                         <?php endif; ?>

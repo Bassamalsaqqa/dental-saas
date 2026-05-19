@@ -588,7 +588,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                             <?php endif; ?>
                             <a href="<?= esc(workflow_back('patients', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas fa-arrow-left"></i>
-                                <span><?= esc(lang('UI.patientBackToPatients')) ?></span>
+                                <span><?= esc(lang('UI.back')) ?></span>
                             </a>
                         </aside>
                     </div>

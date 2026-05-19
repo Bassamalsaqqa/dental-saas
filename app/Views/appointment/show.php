@@ -34,16 +34,16 @@
                         
                         <div class="flex items-center space-x-3">
                             <?php if (!empty($appointment['patient_id'])): ?>
-                                <a href="<?= base_url('patient/' . $appointment['patient_id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/25">
+                                <a href="<?= workflow_context_url('patient/' . $appointment['patient_id'], $return_to ?? null) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-blue-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                     <i class="fas fa-user mr-2 relative z-10"></i>
-                                    <span class="relative z-10"><?= esc(lang('UI.appointmentBackToPatient')) ?></span>
+                                    <span class="relative z-10"><?= esc(lang('UI.patientProfile')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <a href="<?= esc(workflow_back('appointment', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= esc(lang('UI.appointmentBackToAppointments')) ?></span>
+                                <span class="relative z-10"><?= esc(lang('UI.back')) ?></span>
                             </a>
                             <a href="<?= base_url('appointment/' . $appointment['id'] . '/print') ?>" target="_blank" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>

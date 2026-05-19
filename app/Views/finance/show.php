@@ -1492,7 +1492,7 @@
                             </div>
                         </div>
                         <div class="finance-show-context-actions">
-                            <a href="<?= base_url('patient/' . $patient['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
+                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" class="finance-show-btn finance-show-btn-soft w-full">
                                 <?= esc($ui['openProfile']) ?>
                             </a>
                         </div>

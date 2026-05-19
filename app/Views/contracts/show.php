@@ -25,9 +25,9 @@ if (!empty($snapshot['data_snapshot_json'])) {
                    class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
                     <i class="fas fa-arrow-left mr-2"></i>Back
                 </a>
-                <a href="<?= base_url('patient/' . $patient['id']) ?>" 
+                <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" 
                    class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Patient
+                    <i class="fas fa-user mr-2"></i>Patient Profile
                 </a>
                 <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
                     <a href="<?= workflow_context_url('contracts/' . $contract['id'] . '/edit', $return_to ?? null) ?>"

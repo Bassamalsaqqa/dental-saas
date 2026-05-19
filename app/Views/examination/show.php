@@ -203,11 +203,11 @@ $healthFlags = array_values(array_filter([
                     <div class="grid gap-2 sm:grid-cols-2">
                         <a href="<?= workflow_context_url('examination/' . $examination['id'] . '/edit', $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-pen"></i><span><?= esc($tr('edit_examination')) ?></span></a>
                         <?php if (!empty($examination['patient_id'])): ?>
-                        <a href="<?= base_url('patient/' . $examination['patient_id']) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-user"></i><span><?= esc($tr('back_to_patient')) ?></span></a>
+                        <a href="<?= workflow_context_url('patient/' . $examination['patient_id'], $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-user"></i><span><?= esc(lang('UI.patientProfile')) ?></span></a>
                         <?php endif; ?>
                     </div>
                     <div class="grid gap-2 sm:grid-cols-1">
-                        <a href="<?= esc(workflow_back('examination', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft"><i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back_to_examinations')) ?></span></a>
+                        <a href="<?= esc(workflow_back('examination', $return_to ?? null)) ?>" class="patient-header-action patient-header-action-soft"><i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><span><?= esc($tr('back')) ?></span></a>
                     </div>
                     <?php if ($statusKey !== 'completed'): ?>
                     <div class="grid gap-2 sm:grid-cols-1">

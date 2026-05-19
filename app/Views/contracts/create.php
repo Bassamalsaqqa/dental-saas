@@ -58,13 +58,8 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <?php if (!empty($examination_id)): ?>
-                        <a href="<?= base_url('examination/' . $examination_id) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-indigo-200 rounded-lg text-sm font-medium text-indigo-700 hover:text-indigo-900 shadow-sm hover:shadow-md transition-all duration-200">
-                            <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Examination
-                        </a>
-                    <?php endif; ?>
-                    <a href="<?= $returnTo ? base_url($returnTo) : base_url('patient/' . $patient['id']) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                        <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Patient
+                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
+                        <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back
                     </a>
                 </div>
             </div>
