@@ -26,7 +26,8 @@ Three separate charting behaviors exist:
 - Contract creation artificially forced from examination flow
 - Contracts currently seeded from patient baseline odontogram, not exam odontogram
 - Examination/treatment workflow boundary needs clearer product concept
-- No canonical clinical charge-capture layer linking treatments/procedures/contract items to invoice lines, payment allocations, provider production, provider collections, and payout reconciliation
+- Clinical charge-line foundation exists, but clinical workflows do not yet create charge lines automatically.
+- No invoice-line/payment-allocation layer yet linking treatments/procedures/contract items to payments, provider production, provider collections, and payout reconciliation.
 
 ## Finance Traceability
 

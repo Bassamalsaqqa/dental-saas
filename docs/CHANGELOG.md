@@ -7,6 +7,14 @@
 - Kept the UI intentionally simple for clinic managers: charged, paid, balance due, provider remaining, material cost, and linked records.
 - No `/api/v1/*`, `/app-api/v1/*`, React/Lovable, schema, or finance calculation changes were made in this slice.
 
+## 2026-05-20 - Clinical Charge Line Foundation Slice 2A
+
+- Added the `clinical_charge_lines` migration as the canonical future bridge between clinical work and finance.
+- Added `ClinicalChargeLineModel` with tenant scoping, amount normalization, lifecycle status validation, and patient/examination/treatment query helpers.
+- Extended Money Trail to read charge lines when the table exists and display captured clinical work separately from invoiced finance rows.
+- Kept invoice/payment/provider-payout behavior unchanged; automatic clinical charge creation, invoice line items, and payment allocation remain future slices.
+- Deployment note: run `php spark migrate` after pulling this slice so `clinical_charge_lines` exists before future charge-capture work.
+
 ## 2026-05-17 - Appointment Calendar Workspace Phase 1A
 
 - Documented the phased appointment calendar workspace plan in `docs/refactor/APPOINTMENT_CALENDAR_WORKSPACE_PLAN.md`.

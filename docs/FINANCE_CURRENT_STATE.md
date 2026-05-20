@@ -73,16 +73,17 @@ Reporting follows business/settlement dates, not entry timestamps.
 - Patient/examination-linked finance rows
 - Provider payout rows linked to finance rows
 - Generic finance source linkage through `source_entity_type` / `source_entity_id`
+- Clinical charge-line foundation table/model for future treatment/examination/contract-item production rows
 
 ## Clinical-Finance Traceability Status
 
-The app has useful clinical and finance links, but it does not yet have a canonical clinical charge-capture layer.
+The app has useful clinical and finance links and now has a canonical clinical charge-line foundation. Existing clinical workflows do not yet create charge lines automatically.
 
 - Current finance invoices/payments can link to patients and examinations.
 - Inventory usage can auto-post COGS expenses and link back through source entity fields.
 - Treatment contracts have itemized planned procedure rows and totals.
 - Provider payouts are currently derived from finance rows.
-- Missing: billable clinical charge lines, invoice line items linked to treatments/contract items/procedures, payment allocation by line/provider, provider production vs collections reports, and insurance/write-off workflows.
+- Missing: automatic charge-line creation from clinical sources, invoice line items linked to treatments/contract items/procedures, payment allocation by line/provider, provider production vs collections reports, and insurance/write-off workflows.
 
 See `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` for the active plan.
 
@@ -94,7 +95,7 @@ See `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` for the active plan.
 - Bounced check lifecycle
 - Bank fees / card settlement delays
 - Recurring bill engine / vendor master workflow
-- Canonical clinical charge lines
+- Automatic clinical charge-line creation from treatments/examinations/contracts
 - Invoice line items linked to clinical charge lines
 - Payment allocation to charge lines/providers
 - Provider production vs collection reports from line-level data

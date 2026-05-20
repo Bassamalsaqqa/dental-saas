@@ -65,12 +65,31 @@ Implemented:
 
 Not implemented yet:
 
-- canonical clinical charge lines
+- charge-line creation from clinical workflows
 - invoice line items
 - payment allocation by line/treatment
 - provider production by exact treatment line
 - insurance/claim lifecycle
 - accounting export/journal layer
+
+## Implemented Slice 2A: Clinical Charge Line Foundation
+
+Status: implemented as schema/model foundation only.
+
+Implemented:
+
+- `clinical_charge_lines` migration.
+- `ClinicalChargeLineModel` with tenant scoping, amount normalization, status validation, and patient/examination/treatment query helpers.
+- Money Trail can read charge lines if the table exists, but does not require the migration to have run before pages render.
+- Charge lines are displayed separately as captured clinical work so they are not double-counted as invoiced finance rows.
+
+Current scope boundaries:
+
+- no automatic charge creation from treatment/examination/contract workflows yet
+- no automatic invoice generation
+- no invoice line item table yet
+- no payment allocation table yet
+- no provider payout generation from charge lines yet
 
 ## Simple User Experience Target
 
@@ -479,9 +498,10 @@ Goal: add canonical production rows without disrupting existing finance.
 
 Deliverables:
 
-- `clinical_charge_lines`
-- indexes on clinic, patient, examination, treatment, provider, status, service date
-- model + service for creating charge lines
+- `clinical_charge_lines` - implemented
+- indexes on clinic, patient, examination, treatment, provider, status, service/charge date - implemented
+- model for validating/querying charge lines - implemented
+- service for creating charge lines from clinical sources - pending Phase 3
 - no automatic invoice generation yet
 - tests for tenant isolation and source ownership
 

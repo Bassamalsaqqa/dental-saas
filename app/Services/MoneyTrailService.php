@@ -20,6 +20,7 @@ class MoneyTrailService
         $financeIds = $this->ids($financeRows);
 
         return $this->buildTrail(
+            $this->chargeLineRows($clinicId, ['ccl.patient_id' => $patientId]),
             $financeRows,
             $this->paymentRows($clinicId, $financeIds),
             $this->providerPayoutRows($clinicId, ['pp.patient_id' => $patientId], $financeIds),
@@ -34,6 +35,7 @@ class MoneyTrailService
         $financeIds = $this->ids($financeRows);
 
         return $this->buildTrail(
+            $this->chargeLineRows($clinicId, ['ccl.examination_id' => $examinationId]),
             $financeRows,
             $this->paymentRows($clinicId, $financeIds),
             $this->providerPayoutRows($clinicId, [], $financeIds),
@@ -62,6 +64,7 @@ class MoneyTrailService
         $financeIds = $this->ids($financeRows);
 
         return $this->buildTrail(
+            $this->chargeLineRows($clinicId, ['ccl.treatment_id' => $treatmentId]),
             $financeRows,
             $this->paymentRows($clinicId, $financeIds),
             $this->providerPayoutRows($clinicId, [], $financeIds),
@@ -85,6 +88,31 @@ class MoneyTrailService
         return $builder
             ->orderBy('COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at))', 'DESC', false)
             ->orderBy('f.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function chargeLineRows(int $clinicId, array $where): array
+    {
+        if (!$this->db->tableExists('clinical_charge_lines')) {
+            return [];
+        }
+
+        $builder = $this->db->table('clinical_charge_lines ccl')
+            ->select('ccl.*, p.patient_id AS patient_number, p.first_name, p.last_name, e.examination_id AS examination_number, t.treatment_id AS treatment_number, t.treatment_name, f.transaction_id')
+            ->join('patients p', 'p.id = ccl.patient_id AND p.clinic_id = ccl.clinic_id', 'left')
+            ->join('examinations e', 'e.id = ccl.examination_id AND e.clinic_id = ccl.clinic_id', 'left')
+            ->join('treatments t', 't.id = ccl.treatment_id AND t.clinic_id = ccl.clinic_id', 'left')
+            ->join('finances f', 'f.id = ccl.finance_id AND f.clinic_id = ccl.clinic_id', 'left')
+            ->where('ccl.clinic_id', $clinicId);
+
+        foreach ($where as $field => $value) {
+            $builder->where($field, $value);
+        }
+
+        return $builder
+            ->orderBy('ccl.charge_date', 'DESC')
+            ->orderBy('ccl.id', 'DESC')
             ->get()
             ->getResultArray();
     }
@@ -170,9 +198,11 @@ class MoneyTrailService
             ->getResultArray();
     }
 
-    private function buildTrail(array $financeRows, array $paymentRows, array $payoutRows, array $inventoryUsageRows, string $context): array
+    private function buildTrail(array $chargeLineRows, array $financeRows, array $paymentRows, array $payoutRows, array $inventoryUsageRows, string $context): array
     {
         $summary = [
+            'captured_charges' => 0.0,
+            'open_charge_lines' => 0,
             'charged' => 0.0,
             'paid' => 0.0,
             'refunded' => 0.0,
@@ -182,6 +212,16 @@ class MoneyTrailService
             'provider_remaining' => 0.0,
             'inventory_cost' => 0.0,
         ];
+
+        foreach ($chargeLineRows as $row) {
+            $status = strtolower((string) ($row['status'] ?? 'planned'));
+            if ($status !== 'voided') {
+                $summary['captured_charges'] += max(0, (float) ($row['net_production_amount'] ?? 0));
+            }
+            if (!in_array($status, ['invoiced', 'voided'], true)) {
+                $summary['open_charge_lines']++;
+            }
+        }
 
         foreach ($financeRows as $row) {
             $type = strtolower((string) ($row['transaction_type'] ?? ''));
@@ -219,11 +259,12 @@ class MoneyTrailService
         return [
             'context' => $context,
             'summary' => $summary,
+            'charge_lines' => $chargeLineRows,
             'finance_rows' => $financeRows,
             'payment_rows' => $paymentRows,
             'provider_payouts' => $payoutRows,
             'inventory_usage_rows' => $inventoryUsageRows,
-            'has_records' => $financeRows !== [] || $paymentRows !== [] || $payoutRows !== [] || $inventoryUsageRows !== [],
+            'has_records' => $chargeLineRows !== [] || $financeRows !== [] || $paymentRows !== [] || $payoutRows !== [] || $inventoryUsageRows !== [],
         ];
     }
 
