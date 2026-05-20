@@ -46,6 +46,8 @@
     $showSettlementSummary = $isInvoice || $isExpense;
     $showFinanceForms = has_permission('finance', 'edit') && ($isInvoice || $isExpense);
     $showProviderPayoutForms = has_permission('finance', 'edit') && !empty($provider_payouts);
+    $billedClinicalChargeLines = $billed_clinical_charge_lines ?? [];
+    $billedClinicalTotal = array_reduce($billedClinicalChargeLines, static fn(float $carry, array $row): float => $carry + (float) ($row['net_production_amount'] ?? 0), 0.0);
     $settlementCardTitle = $isExpense ? lang('Finance.expenseSettlementOverview') : lang('Finance.invoiceSettlementOverview');
     $recordPaymentTitle = $isExpense ? lang('Finance.recordExpensePayment') : lang('Finance.recordInvoicePayment');
     $markFullyPaidLabel = $isExpense ? lang('Finance.markExpenseAsFullyPaid') : lang('Finance.markInvoiceAsFullyPaid');
@@ -1308,6 +1310,89 @@
                         </div>
                     </div>
                 </div>
+
+                <?php if (!empty($billedClinicalChargeLines)): ?>
+                <div class="finance-show-card finance-show-primary-block overflow-hidden">
+                    <div class="finance-show-card-header">
+                        <div class="finance-show-section-title">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                                <i class="fas fa-tooth"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800"><?= esc(lang('Finance.clinicalWorkBilled')) ?></h2>
+                                <p class="mt-1 text-sm text-slate-500"><?= esc(lang('Finance.clinicalWorkBilledHelp')) ?></p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-emerald-100 text-emerald-700" dir="ltr">
+                            <?= esc(formatCurrency($billedClinicalTotal)) ?>
+                        </span>
+                    </div>
+                    <div class="finance-show-card-body">
+                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-slate-100 text-sm">
+                                    <thead class="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
+                                        <tr>
+                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.procedure')) ?></th>
+                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.linkedTreatment')) ?></th>
+                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.linkedExamination')) ?></th>
+                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.provider')) ?></th>
+                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.serviceDate')) ?></th>
+                                            <th class="px-4 py-3 text-end"><?= esc(lang('Finance.amount')) ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <?php foreach ($billedClinicalChargeLines as $line): ?>
+                                            <?php
+                                                $providerDisplay = trim((string) (($line['provider_first_name'] ?? '') . ' ' . ($line['provider_last_name'] ?? '')));
+                                                if ($providerDisplay === '') {
+                                                    $providerDisplay = trim((string) ($line['provider_name_snapshot'] ?? ''));
+                                                }
+                                                if ($providerDisplay === '') {
+                                                    $providerDisplay = lang('Finance.unknown');
+                                                }
+                                                $treatmentId = (int) ($line['treatment_id'] ?? 0);
+                                                $examinationId = (int) ($line['examination_id'] ?? 0);
+                                                $treatmentLabel = trim((string) ($line['treatment_name'] ?? '')) ?: ((string) ($line['treatment_number'] ?? ''));
+                                                $examinationLabel = trim((string) ($line['examination_number'] ?? ''));
+                                            ?>
+                                            <tr class="align-top">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-semibold text-slate-900"><?= esc($line['procedure_name'] ?? lang('Finance.clinicalChargeLine')) ?></div>
+                                                    <?php if (!empty($line['tooth_numbers'])): ?>
+                                                        <div class="mt-1 text-xs text-slate-500"><?= esc(lang('Finance.tooth')) ?>: <span dir="ltr"><?= esc($line['tooth_numbers']) ?></span></div>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <?php if ($treatmentId > 0): ?>
+                                                        <a href="<?= esc(workflow_context_url('treatment/' . $treatmentId, $return_to ?? null)) ?>" class="font-semibold text-emerald-700 hover:underline">
+                                                            <?= esc($treatmentLabel !== '' ? $treatmentLabel : ('#' . $treatmentId)) ?>
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="text-slate-400"><?= esc(lang('Finance.notAvailable')) ?></span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <?php if ($examinationId > 0): ?>
+                                                        <a href="<?= esc(workflow_context_url('examination/' . $examinationId, $return_to ?? null)) ?>" class="font-semibold text-blue-700 hover:underline">
+                                                            <?= esc($examinationLabel !== '' ? $examinationLabel : ('#' . $examinationId)) ?>
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="text-slate-400"><?= esc(lang('Finance.notAvailable')) ?></span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="px-4 py-3 text-slate-700"><?= esc($providerDisplay) ?></td>
+                                                <td class="px-4 py-3 text-slate-700"><?= !empty($line['service_date']) ? esc(formatDate($line['service_date'])) : esc(lang('Finance.notAvailable')) ?></td>
+                                                <td class="px-4 py-3 text-end font-bold text-emerald-700" dir="ltr"><?= esc(formatCurrency($line['net_production_amount'] ?? 0)) ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <?php if (!empty($provider_payouts)): ?>
                 <div class="finance-show-card finance-show-primary-block overflow-hidden">

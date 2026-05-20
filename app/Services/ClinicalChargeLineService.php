@@ -35,6 +35,21 @@ class ClinicalChargeLineService
             ->findAll();
     }
 
+    public function getRowsForFinance(int $clinicId, int $financeId): array
+    {
+        return $this->chargeLineModel
+            ->select('clinical_charge_lines.*, patients.patient_id AS patient_number, patients.first_name, patients.last_name, examinations.examination_id AS examination_number, treatments.treatment_id AS treatment_number, treatments.treatment_name, users.first_name AS provider_first_name, users.last_name AS provider_last_name')
+            ->join('patients', 'patients.id = clinical_charge_lines.patient_id AND patients.clinic_id = clinical_charge_lines.clinic_id', 'left')
+            ->join('examinations', 'examinations.id = clinical_charge_lines.examination_id AND examinations.clinic_id = clinical_charge_lines.clinic_id', 'left')
+            ->join('treatments', 'treatments.id = clinical_charge_lines.treatment_id AND treatments.clinic_id = clinical_charge_lines.clinic_id', 'left')
+            ->join('users', 'users.id = clinical_charge_lines.provider_user_id', 'left')
+            ->where('clinical_charge_lines.clinic_id', $clinicId)
+            ->where('clinical_charge_lines.finance_id', $financeId)
+            ->orderBy('clinical_charge_lines.service_date', 'ASC')
+            ->orderBy('clinical_charge_lines.id', 'ASC')
+            ->findAll();
+    }
+
     public function prepareInvoiceSelection(int $clinicId, int $patientId, array $ids): array
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));

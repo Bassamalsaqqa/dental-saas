@@ -1257,6 +1257,7 @@ class Finance extends BaseController
             'examination' => $examination,
             'payments' => $payments,
             'paid_total' => $paidTotal,
+            'billed_clinical_charge_lines' => $this->chargeLineService->getRowsForFinance((int) $clinicId, (int) $finance['id']),
             'provider_payouts' => $providerPayouts,
             'provider_payout_summary' => $providerPayoutSummary,
             'provider_payout_payment_history' => $this->getProviderPayoutPaymentHistoryByFinanceId((int) $clinicId, (int) $finance['id']),

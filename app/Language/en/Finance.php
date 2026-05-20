@@ -550,4 +550,10 @@ return [
     'billClinicalWorkHelp' => 'Select treatment charge lines to include in this patient invoice.',
     'billClinicalWorkServerOwned' => 'Invoice totals are recalculated on the server from the selected clinical charge lines.',
     'clinicalChargeLine' => 'Clinical charge line',
+    'clinicalWorkBilled' => 'Clinical Work Billed',
+    'clinicalWorkBilledHelp' => 'Treatment charge lines linked to this invoice.',
+    'linkedTreatment' => 'Linked Treatment',
+    'linkedExamination' => 'Linked Examination',
+    'serviceDate' => 'Service Date',
+    'tooth' => 'Tooth',
 ];

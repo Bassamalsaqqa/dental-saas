@@ -91,10 +91,21 @@ $toneClasses = [
                     </div>
                     <div class="mt-3 grid gap-2 md:grid-cols-2">
                         <?php foreach (array_slice($chargeLines, 0, 6) as $row): ?>
+                            <?php
+                            $chargeFinanceId = (int) ($row['finance_id'] ?? 0);
+                            $chargeTransactionId = trim((string) ($row['transaction_id'] ?? ''));
+                            $chargeInvoiceHref = $chargeFinanceId > 0 ? workflow_context_url('finance/' . $chargeFinanceId, $returnTo) : '';
+                            ?>
                             <div class="rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
-                                <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-start justify-between gap-3">
                                     <span class="min-w-0">
                                         <span class="block truncate font-semibold text-slate-800"><?= esc($row['procedure_name'] ?? lang('UI.patientNa')) ?></span>
+                                        <?php if ($chargeInvoiceHref !== ''): ?>
+                                            <a href="<?= esc($chargeInvoiceHref) ?>" class="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                                <span><?= esc(lang('Finance.invoice')) ?> <?= esc($chargeTransactionId !== '' ? $chargeTransactionId : ('#' . $chargeFinanceId)) ?></span>
+                                            </a>
+                                        <?php endif; ?>
                                         <span class="block truncate text-xs text-slate-500"><?= esc($row['status'] ?? '') ?><?= !empty($row['transaction_id']) ? ' · ' . esc($row['transaction_id']) : '' ?></span>
                                     </span>
                                     <span class="shrink-0 font-bold text-indigo-700" dir="ltr"><?= esc($formatMoney($row['net_production_amount'] ?? 0)) ?></span>

@@ -550,4 +550,10 @@ return [
     'billClinicalWorkHelp' => 'اختر مطالبات العلاج التي تريد إضافتها إلى فاتورة هذا المريض.',
     'billClinicalWorkServerOwned' => 'يتم احتساب إجمالي الفاتورة في الخادم من مطالبات العلاج المختارة.',
     'clinicalChargeLine' => 'مطالبة سريرية',
+    'clinicalWorkBilled' => 'العمل السريري المفوتر',
+    'clinicalWorkBilledHelp' => 'مطالبات العلاج المرتبطة بهذه الفاتورة.',
+    'linkedTreatment' => 'العلاج المرتبط',
+    'linkedExamination' => 'الفحص المرتبط',
+    'serviceDate' => 'تاريخ الخدمة',
+    'tooth' => 'السن',
 ];
