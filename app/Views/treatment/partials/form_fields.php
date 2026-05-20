@@ -44,6 +44,13 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.treatment_description_required')) ?></label>
         <textarea name="description" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Treatment.treatment_description_placeholder')) ?>" required><?= old('description') ?></textarea>
     </div>
+    <?= view('treatment/partials/charge_line_fields', [
+        'validation' => $validation,
+        'clinic_providers' => $clinic_providers ?? [],
+        'charge_line' => $charge_line ?? null,
+        'id_prefix' => $id_prefix ?? 'treatment_quick_charge',
+        'input_class' => $inputClass,
+    ]) ?>
     <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
         <div class="space-y-4">
             <label class="app-toggle-row">

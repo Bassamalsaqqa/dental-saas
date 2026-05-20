@@ -443,6 +443,7 @@
     'patients' => [],
     'treatment_types' => $treatment_types ?? [],
     'inventory_items' => $inventory_items ?? [],
+    'clinic_providers' => $clinic_providers ?? [],
     'validation' => $validation ?? null,
     'selected_examination_id' => null,
 ]) ?>

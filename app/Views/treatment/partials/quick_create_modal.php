@@ -109,8 +109,10 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                             'patients' => $modalContextual ? [] : ($patients ?? []),
                             'treatment_types' => $treatment_types ?? [],
                             'inventory_items' => $inventory_items ?? [],
+                            'clinic_providers' => $clinic_providers ?? [],
                             'validation' => $validation ?? null,
                             'selected_examination_id' => $modalSelectedExaminationId,
+                            'id_prefix' => 'quick_treatment_charge',
                         ]) ?>
                     </div>
                 </div>

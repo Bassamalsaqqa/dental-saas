@@ -60,7 +60,7 @@
 
                 <!-- Form Content -->
                 <div class="p-8"> 
-                    <form action="<?= base_url('treatment/' . $treatment['id'] . '/update') ?>" method="POST" class="space-y-8">
+                    <form action="<?= base_url('treatment/' . $treatment['id'] . '/update') ?>" method="POST" class="space-y-8" data-contextual-treatment-form>
                         <?= csrf_field() ?>
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
@@ -241,6 +241,13 @@
                                 </p>
                             <?php endif; ?>
                         </div>
+
+                        <?= view('treatment/partials/charge_line_fields', [
+                            'validation' => $validation,
+                            'clinic_providers' => $clinic_providers ?? [],
+                            'charge_line' => $charge_line ?? null,
+                            'id_prefix' => 'edit_treatment_charge',
+                        ]) ?>
 
                         <!-- Inventory Usage (Optional) -->
                         <div class="group/field relative">

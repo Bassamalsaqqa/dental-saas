@@ -158,6 +158,11 @@
             const addButton = wrap.querySelector('[data-add-usage-item]');
             const totalEl = wrap.querySelector('[data-usage-grand-total]');
             let rowCount = container ? container.querySelectorAll('.usage-item').length : 1;
+            const chargeToggle = wrap.querySelector('[data-charge-toggle]');
+            const chargeBody = wrap.querySelector('[data-charge-body]');
+            const providerType = wrap.querySelector('[data-charge-provider-type]');
+            const providerUserWrap = wrap.querySelector('[data-provider-user-wrap]');
+            const providerGuestWrap = wrap.querySelector('[data-provider-guest-wrap]');
 
             const formatCurrency = (amount) => {
                 const value = Number.isFinite(amount) ? amount : 0;
@@ -230,6 +235,38 @@
                 if (typeof window.initAppSelects === 'function') window.initAppSelects(newRow);
                 bindRow(newRow);
             });
+
+            const syncChargeToggle = () => {
+                if (!chargeToggle || !chargeBody) return;
+                chargeBody.classList.toggle('hidden', !chargeToggle.checked);
+            };
+
+            const syncProviderFields = () => {
+                const selected = providerType?.value || 'none';
+                providerUserWrap?.classList.toggle('hidden', selected !== 'user');
+                providerGuestWrap?.classList.toggle('hidden', selected !== 'guest');
+                providerUserWrap?.querySelectorAll('select, input, textarea').forEach((field) => {
+                    field.disabled = selected !== 'user';
+                    if (selected !== 'user') {
+                        field.value = '';
+                        if (window.jQuery && field.tagName === 'SELECT') {
+                            window.jQuery(field).val('').trigger('change');
+                        }
+                    }
+                });
+                providerGuestWrap?.querySelectorAll('select, input, textarea').forEach((field) => {
+                    field.disabled = selected !== 'guest';
+                    if (selected !== 'guest') field.value = '';
+                });
+            };
+
+            chargeToggle?.addEventListener('change', syncChargeToggle);
+            providerType?.addEventListener('change', syncProviderFields);
+            if (window.jQuery && providerType) {
+                window.jQuery(providerType).on('select2:select select2:clear change', syncProviderFields);
+            }
+            syncChargeToggle();
+            syncProviderFields();
         });
     };
 

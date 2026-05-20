@@ -420,6 +420,7 @@ $healthFlags = array_values(array_filter([
     'patients' => [],
     'treatment_types' => $treatment_types ?? [],
     'inventory_items' => $inventory_items ?? [],
+    'clinic_providers' => $clinic_providers ?? [],
     'validation' => session()->getFlashdata('validation'),
     'selected_examination_id' => $selected_examination_id ?? ($examination['id'] ?? null),
 ]) ?>

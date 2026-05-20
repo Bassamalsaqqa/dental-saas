@@ -8,6 +8,7 @@ use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
 use App\Models\TreatmentContractModel;
 use App\Models\InventoryModel;
+use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\MoneyTrailService;
@@ -275,6 +276,7 @@ class Examination extends BaseController
             'loadSelect2' => true,
             'treatment_types' => TreatmentCatalog::forSelection(),
             'inventory_items' => $inventoryItems,
+            'clinic_providers' => (new ClinicUserModel())->getActiveUserDirectoryByClinic((int) $clinicId),
             'selected_treatment_patient' => $selectedTreatmentPatient,
             'selected_examination_id' => (int) $examination['id'],
             'selected_appointment_patient' => $selectedTreatmentPatient,

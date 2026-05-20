@@ -137,8 +137,10 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         'patients' => [$patient],
         'treatment_types' => $treatmentTypes,
         'inventory_items' => $inventoryItems,
+        'clinic_providers' => $clinicProviders,
         'validation' => null,
         'is_rtl' => $isRtl,
+        'id_prefix' => 'patient_treatment_charge',
     ]), $returnTo);
     ?>
     <?= view('components/app_drawer', [

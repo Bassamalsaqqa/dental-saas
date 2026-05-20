@@ -99,7 +99,7 @@
 
                 <!-- Form Content -->
                 <div class="p-8"> 
-                    <form action="<?= base_url('treatment/store') ?>" method="POST" class="space-y-8">
+                    <form action="<?= base_url('treatment/store') ?>" method="POST" class="space-y-8" data-contextual-treatment-form>
                         <?= csrf_field() ?>
                         <input type="hidden" name="examination_id" value="<?= esc($selected_examination_id ?? '') ?>">
                         <?php if (!empty($return_to)): ?>
@@ -259,6 +259,13 @@
                                 <?php endif; ?>
                             </div>
                         </div>
+
+                        <?= view('treatment/partials/charge_line_fields', [
+                            'validation' => $validation,
+                            'clinic_providers' => $clinic_providers ?? [],
+                            'charge_line' => null,
+                            'id_prefix' => 'create_treatment_charge',
+                        ]) ?>
 
                         <!-- Inventory Usage (Optional) -->
                         <div class="group/field relative">

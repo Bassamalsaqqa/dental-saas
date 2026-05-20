@@ -6,8 +6,10 @@ use App\Models\TreatmentModel;
 use App\Models\PatientModel;
 use App\Models\InventoryModel;
 use App\Models\InventoryUsageModel;
+use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\ClinicalChargeLineService;
 use App\Services\InventoryUsageService;
 use App\Services\MoneyTrailService;
 use App\Services\StorageService;
@@ -20,6 +22,7 @@ class Treatment extends BaseController
     protected $activityLogger;
     protected $db;
     protected $storageService;
+    protected $chargeLineService;
 
     public function __construct()
     {
@@ -29,6 +32,7 @@ class Treatment extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->db = \Config\Database::connect();
         $this->storageService = new StorageService();
+        $this->chargeLineService = new ClinicalChargeLineService();
     }
 
     public function index()
@@ -93,6 +97,7 @@ class Treatment extends BaseController
                 'loadSelect2' => true,
                 'treatment_types' => $this->getTreatmentTypes(),
                 'inventory_items' => $inventoryItems,
+                'clinic_providers' => $this->getClinicProviders((int) $clinicId),
                 'validation' => session()->getFlashdata('validation'),
             ];
 
@@ -271,6 +276,7 @@ class Treatment extends BaseController
             'loadSelect2' => true,
             'selected_examination_id' => $examinationId,
             'inventory_items' => $inventoryItems,
+            'clinic_providers' => $this->getClinicProviders((int) $clinicId),
             'return_to' => $returnTo
         ];
 
@@ -293,6 +299,7 @@ class Treatment extends BaseController
             'estimated_duration' => 'required|integer|greater_than[0]',
             'examination_id' => 'permit_empty|integer'
         ];
+        $rules = array_merge($rules, $this->chargeLineValidationRules());
 
         if (!$this->validate($rules)) {
             if ($this->request->getPost('source_modal') === 'treatment_quick_create') {
@@ -336,6 +343,7 @@ class Treatment extends BaseController
                 'loadSelect2' => true,
                 'selected_examination_id' => $examId,
                 'inventory_items' => $inventoryItems,
+                'clinic_providers' => $this->getClinicProviders((int) $clinicId),
                 'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments'])
             ];
             return $this->view('treatment/create', $data);
@@ -388,6 +396,20 @@ class Treatment extends BaseController
                 return redirect()
                     ->to(base_url('treatment/' . $treatmentId . '/edit'))
                     ->with('error', $usageResult['message']);
+            }
+
+            $treatmentForCharge = array_merge($treatmentData, ['id' => $treatmentId]);
+            $chargeResult = $this->chargeLineService->syncTreatmentChargeLine(
+                (int) $clinicId,
+                $treatmentForCharge,
+                $this->request->getPost(),
+                $currentUserId
+            );
+            if (!$chargeResult['success']) {
+                return redirect()
+                    ->to(base_url('treatment/' . $treatmentId . '/edit'))
+                    ->withInput()
+                    ->with('error', $chargeResult['message']);
             }
 
             $returnTo = $this->resolveCreateReturnTo(
@@ -500,6 +522,8 @@ class Treatment extends BaseController
             'validation' => null,
             'loadSelect2' => true,
             'inventory_items' => $inventoryItems,
+            'clinic_providers' => $this->getClinicProviders((int) $clinicId),
+            'charge_line' => $this->chargeLineService->getActiveForTreatment((int) $clinicId, (int) $id),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments'])
         ];
 
@@ -527,6 +551,7 @@ class Treatment extends BaseController
             'start_date' => 'required|valid_date',
             'estimated_duration' => 'required|integer|greater_than[0]',
         ];
+        $rules = array_merge($rules, $this->chargeLineValidationRules());
 
         if (!$this->validate($rules)) {
             $inventoryItems = $this->inventoryModel->where('status', 'active')
@@ -542,6 +567,8 @@ class Treatment extends BaseController
                 'treatment_types' => $this->getTreatmentTypes($treatment['treatment_type'] ?? null),
                 'validation' => $this->validator,
                 'inventory_items' => $inventoryItems,
+                'clinic_providers' => $this->getClinicProviders((int) $clinicId),
+                'charge_line' => $this->chargeLineService->getActiveForTreatment((int) $clinicId, (int) $id),
                 'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments'])
             ];
             return $this->view('treatment/edit', $data);
@@ -577,6 +604,22 @@ class Treatment extends BaseController
                     ->back()
                     ->withInput()
                     ->with('error', $usageResult['message']);
+            }
+
+            $treatmentForCharge = array_merge($treatment, $treatmentData, ['id' => (int) $id, 'clinic_id' => (int) $clinicId]);
+            $currentUser = $this->getCurrentUser();
+            $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+            $chargeResult = $this->chargeLineService->syncTreatmentChargeLine(
+                (int) $clinicId,
+                $treatmentForCharge,
+                $this->request->getPost(),
+                $currentUserId
+            );
+            if (!$chargeResult['success']) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', $chargeResult['message']);
             }
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']);
@@ -772,6 +815,38 @@ class Treatment extends BaseController
                 'movement_note' => 'Treatment-linked inventory usage',
             ]
         );
+    }
+
+    private function chargeLineValidationRules(): array
+    {
+        if (!in_array($this->request->getPost('charge_enabled'), [1, '1', true, 'true', 'on', 'yes'], true)) {
+            return [];
+        }
+
+        $rules = [
+            'charge_procedure_name' => 'permit_empty|max_length[255]',
+            'charge_quantity' => 'required|decimal|greater_than[0]',
+            'charge_unit_price' => 'required|decimal|greater_than_equal_to[0]',
+            'charge_discount_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'charge_tax_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'charge_currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
+            'charge_status' => 'permit_empty|in_list[planned,accepted,completed]',
+            'charge_provider_type' => 'permit_empty|in_list[none,user,guest]',
+            'charge_provider_user_id' => 'permit_empty|integer',
+            'charge_provider_name_snapshot' => 'permit_empty|max_length[150]',
+            'charge_notes' => 'permit_empty|max_length[1000]',
+        ];
+
+        if ($this->request->getPost('charge_provider_type') === 'guest') {
+            $rules['charge_provider_name_snapshot'] = 'required|max_length[150]';
+        }
+
+        return $rules;
+    }
+
+    private function getClinicProviders(int $clinicId): array
+    {
+        return (new ClinicUserModel())->getActiveUserDirectoryByClinic($clinicId);
     }
 
     private function getTreatmentTypes(?string $currentType = null)
