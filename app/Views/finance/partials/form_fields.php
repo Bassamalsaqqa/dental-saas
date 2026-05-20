@@ -32,6 +32,11 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
         </div>
     <?php endif; ?>
 
+    <?= view('finance/partials/clinical_charge_line_picker', [
+        'clinical_charge_lines' => $clinical_charge_lines ?? [],
+        'is_rtl' => $isRtlPartial,
+    ]) ?>
+
     <?php if ($lockTransactionType && $transactionTypePreset !== ''): ?>
         <input type="hidden" name="transaction_type" value="<?= esc($transactionTypePreset) ?>">
     <?php endif; ?>

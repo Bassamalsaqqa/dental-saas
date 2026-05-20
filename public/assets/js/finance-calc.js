@@ -16,6 +16,12 @@
     const checkField = field('[data-check-scan-field], #checkScanField');
     const checkInput = field('#checkScanInput, [name="check_scan"]');
     const checkName = field('[data-check-scan-name], #checkScanName');
+    const transactionTypeSelect = field('[name="transaction_type"]');
+    const serviceTypeSelect = field('[name="service_type"]');
+    const serviceDetailsField = field('[name="service_details"]');
+    const chargePicker = field('[data-clinical-charge-picker]');
+    const chargeTotal = field('[data-clinical-charge-total]');
+    const chargeCheckboxes = Array.from(form.querySelectorAll('[data-clinical-charge-line]'));
 
     const baseCurrency = form.getAttribute('data-base-currency') || 'ILS';
 
@@ -81,6 +87,56 @@
       el.addEventListener('blur', fn);
     };
 
+    const selectedChargeLines = () => chargeCheckboxes.filter((checkbox) => checkbox.checked);
+
+    const syncClinicalChargePicker = () => {
+      const transactionType = transactionTypeSelect?.value || form.querySelector('[name="transaction_type"][type="hidden"]')?.value || '';
+      const isInvoice = transactionType === 'invoice';
+      if (chargePicker) {
+        chargePicker.classList.toggle('hidden', !isInvoice);
+      }
+      if (!isInvoice) {
+        chargeCheckboxes.forEach((checkbox) => {
+          checkbox.checked = false;
+        });
+      }
+
+      const selected = selectedChargeLines();
+      const total = selected.reduce((sum, checkbox) => sum + (parseFloat(checkbox.dataset.amount || '0') || 0), 0);
+      const currencies = Array.from(new Set(selected.map((checkbox) => checkbox.dataset.currency || baseCurrency)));
+      if (chargeTotal) {
+        chargeTotal.textContent = selected.length > 0 && currencies.length === 1
+          ? currencies[0] + ' ' + total.toFixed(2)
+          : total.toFixed(2);
+      }
+
+      if (selected.length > 0) {
+        if (amountInput) {
+          amountInput.value = total.toFixed(2);
+          amountInput.readOnly = true;
+        }
+        if (currencySelect && currencies.length === 1) {
+          currencySelect.value = currencies[0];
+          if (window.jQuery) {
+            window.jQuery(currencySelect).val(currencies[0]).trigger('change');
+          }
+        }
+        if (serviceTypeSelect) {
+          serviceTypeSelect.value = 'treatment';
+          if (window.jQuery) {
+            window.jQuery(serviceTypeSelect).val('treatment').trigger('change');
+          }
+        }
+        if (serviceDetailsField) {
+          serviceDetailsField.value = selected.map((checkbox) => checkbox.dataset.label || '').filter(Boolean).join('\n');
+        }
+      } else if (amountInput && amountInput.readOnly) {
+        amountInput.readOnly = false;
+      }
+
+      updateConverted();
+    };
+
     bindLive(amountInput, updateConverted);
     bindLive(rateInput, updateConverted);
     bindLive(discountInput, updateTotal);
@@ -93,6 +149,8 @@
     });
 
     methodSelect?.addEventListener('change', toggleCheck);
+    transactionTypeSelect?.addEventListener('change', syncClinicalChargePicker);
+    chargeCheckboxes.forEach((checkbox) => checkbox.addEventListener('change', syncClinicalChargePicker));
 
     if (window.jQuery) {
       if (currencySelect) {
@@ -104,6 +162,9 @@
       if (methodSelect) {
         window.jQuery(methodSelect).on('select2:select select2:clear change', toggleCheck);
       }
+      if (transactionTypeSelect) {
+        window.jQuery(transactionTypeSelect).on('select2:select select2:clear change', syncClinicalChargePicker);
+      }
     }
 
     checkInput?.addEventListener('change', () => {
@@ -114,6 +175,7 @@
 
     const recomputeAll = () => {
       toggleCurrencyFields();
+      syncClinicalChargePicker();
       updateConverted();
       toggleCheck();
     };

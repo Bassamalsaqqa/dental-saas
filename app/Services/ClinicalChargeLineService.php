@@ -24,6 +24,88 @@ class ClinicalChargeLineService
             ->first();
     }
 
+    public function getInvoiceableForPatient(int $clinicId, int $patientId): array
+    {
+        return $this->chargeLineModel
+            ->where('clinic_id', $clinicId)
+            ->where('patient_id', $patientId)
+            ->whereNotIn('status', ['invoiced', 'voided'])
+            ->orderBy('service_date', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->findAll();
+    }
+
+    public function prepareInvoiceSelection(int $clinicId, int $patientId, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            return ['success' => true, 'rows' => [], 'total' => 0.0, 'currency' => null, 'service_details' => '', 'examination_id' => null];
+        }
+
+        $rows = $this->chargeLineModel
+            ->where('clinic_id', $clinicId)
+            ->where('patient_id', $patientId)
+            ->whereIn('id', $ids)
+            ->whereNotIn('status', ['invoiced', 'voided'])
+            ->findAll();
+
+        if (count($rows) !== count($ids)) {
+            return ['success' => false, 'message' => 'One or more selected clinical charge lines are no longer available.'];
+        }
+
+        $currencies = array_values(array_unique(array_map(static fn (array $row): string => (string) ($row['currency'] ?? 'ILS'), $rows)));
+        if (count($currencies) !== 1) {
+            return ['success' => false, 'message' => 'Selected clinical charge lines must use the same currency.'];
+        }
+
+        $total = 0.0;
+        $details = [];
+        $examinationIds = [];
+        foreach ($rows as $row) {
+            $amount = max(0, (float) ($row['net_production_amount'] ?? 0));
+            $total += $amount;
+            $label = (string) ($row['procedure_name'] ?? 'Clinical charge');
+            $details[] = $label . ' - ' . number_format($amount, 2) . ' ' . $currencies[0];
+            if (!empty($row['examination_id'])) {
+                $examinationIds[] = (int) $row['examination_id'];
+            }
+        }
+
+        if ($total <= 0) {
+            return ['success' => false, 'message' => 'Selected clinical charge lines must have a billable amount.'];
+        }
+
+        $examinationIds = array_values(array_unique($examinationIds));
+
+        return [
+            'success' => true,
+            'rows' => $rows,
+            'total' => round($total, 2),
+            'currency' => $currencies[0],
+            'service_details' => implode("\n", $details),
+            'examination_id' => count($examinationIds) === 1 ? $examinationIds[0] : null,
+        ];
+    }
+
+    public function markInvoiced(int $clinicId, array $ids, int $financeId): bool
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            return true;
+        }
+
+        return (bool) \Config\Database::connect()
+            ->table('clinical_charge_lines')
+            ->where('clinic_id', $clinicId)
+            ->whereIn('id', $ids)
+            ->whereNotIn('status', ['invoiced', 'voided'])
+            ->update([
+                'finance_id' => $financeId,
+                'status' => 'invoiced',
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+    }
+
     public function syncTreatmentChargeLine(int $clinicId, array $treatment, array $payload, ?int $userId = null): array
     {
         $treatmentId = (int) ($treatment['id'] ?? 0);

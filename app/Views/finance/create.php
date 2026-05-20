@@ -157,6 +157,11 @@
                             </div>
                         </div>
 
+                        <?= view('finance/partials/clinical_charge_line_picker', [
+                            'clinical_charge_lines' => $clinical_charge_lines ?? [],
+                            'is_rtl' => $is_rtl ?? false,
+                        ]) ?>
+
                         <!-- Examination -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">

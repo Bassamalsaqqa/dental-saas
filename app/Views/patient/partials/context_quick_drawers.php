@@ -9,6 +9,7 @@ $chairOptions = $patient_command_chair_options ?? [];
 $treatmentTypes = $patient_command_treatment_types ?? [];
 $inventoryItems = $patient_command_inventory_items ?? [];
 $clinicProviders = $patient_command_clinic_providers ?? [];
+$clinicalChargeLines = $patient_command_clinical_charge_lines ?? [];
 $liquidityOptions = $patient_command_liquidity_account_options ?? [];
 $attachmentCategoryOptions = $attachment_category_options ?? [];
 $maxFileMb = $attachments_max_file_mb ?? null;
@@ -173,6 +174,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
             'currency_options' => $currencyOptions,
             'liquidity_account_options' => $liquidityOptions,
             'clinic_providers' => $clinicProviders,
+            'clinical_charge_lines' => $type === 'invoice' ? $clinicalChargeLines : [],
             'is_rtl' => $isRtl,
         ]), $returnTo, true, 'data-finance-calc data-provider-split data-base-currency="' . esc($baseCurrency) . '"');
         ?>

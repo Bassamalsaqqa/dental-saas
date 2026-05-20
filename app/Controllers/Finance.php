@@ -14,6 +14,7 @@ use App\Models\FinanceLiquidityTransferModel;
 use App\Models\SupplierModel;
 use App\Models\UserModel;
 use App\Services\ActivityLogger;
+use App\Services\ClinicalChargeLineService;
 use App\Services\FinanceTreasuryService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
@@ -37,6 +38,7 @@ class Finance extends BaseController
     protected $financeTreasuryService;
     protected $planGuard;
     protected $db;
+    protected ClinicalChargeLineService $chargeLineService;
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
 
     public function __construct()
@@ -57,6 +59,7 @@ class Finance extends BaseController
         $this->financeTreasuryService = new FinanceTreasuryService();
         $this->planGuard = new PlanGuard();
         $this->db = \Config\Database::connect();
+        $this->chargeLineService = new ClinicalChargeLineService();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
 
@@ -787,6 +790,7 @@ class Finance extends BaseController
             'currency_options' => $this->getFinanceCurrencyOptions(),
             'liquidity_account_options' => $this->getLiquidityAccountOptions(),
             'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
+            'clinical_charge_lines' => $patientId ? $this->chargeLineService->getInvoiceableForPatient((int) $clinicId, (int) $patientId) : [],
             'selected_patient_id' => $patientId,
             'return_to' => $returnTo
         ];
@@ -955,11 +959,17 @@ class Finance extends BaseController
     public function store()
     {
         $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $selectedChargeLineIds = $this->selectedClinicalChargeLineIds();
+        $usingClinicalChargeLines = $this->request->getPost('transaction_type') === 'invoice' && $selectedChargeLineIds !== [];
         $rules = [
             'patient_id' => 'required|integer',
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
-            'amount_original' => 'required|decimal|greater_than[0]',
-            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
+            'amount_original' => ($usingClinicalChargeLines ? 'permit_empty' : 'required|decimal|greater_than[0]'),
+            'currency' => ($usingClinicalChargeLines ? 'permit_empty|in_list[ILS,USD,JOD,EUR,GBP]' : 'required|in_list[ILS,USD,JOD,EUR,GBP]'),
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
@@ -983,9 +993,21 @@ class Finance extends BaseController
             return redirect()->back()->withInput()->with('error', $ownershipError);
         }
 
+        $clinicalChargeSelection = ['success' => true, 'rows' => [], 'total' => 0.0, 'currency' => null, 'service_details' => '', 'examination_id' => null];
+        if ($usingClinicalChargeLines) {
+            $clinicalChargeSelection = $this->chargeLineService->prepareInvoiceSelection((int) $clinicId, $patientId, $selectedChargeLineIds);
+            if (!$clinicalChargeSelection['success']) {
+                return redirect()->back()->withInput()->with('error', $clinicalChargeSelection['message']);
+            }
+        }
+
         // Calculate total amount
-        $amountOriginal = floatval($this->request->getPost('amount_original'));
-        $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
+        $amountOriginal = $usingClinicalChargeLines
+            ? (float) $clinicalChargeSelection['total']
+            : floatval($this->request->getPost('amount_original'));
+        $currency = $usingClinicalChargeLines
+            ? (string) $clinicalChargeSelection['currency']
+            : ($this->request->getPost('currency') ?: settings()->get('currency', 'ILS'));
         $baseCurrency = settings()->get('currency', 'ILS');
         $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
         if ($currency === $baseCurrency) {
@@ -1024,7 +1046,9 @@ class Finance extends BaseController
 
         $financeData = [
             'patient_id' => $this->request->getPost('patient_id'),
-            'examination_id' => $this->request->getPost('examination_id'),
+            'examination_id' => $usingClinicalChargeLines && !empty($clinicalChargeSelection['examination_id'])
+                ? (int) $clinicalChargeSelection['examination_id']
+                : $this->request->getPost('examination_id'),
             'transaction_type' => $transactionType,
             'amount' => $amount,
             'currency' => $currency,
@@ -1034,8 +1058,10 @@ class Finance extends BaseController
             'liquidity_account' => $this->resolveDirectFinanceLiquidityAccount((string) $transactionType, (string) $this->request->getPost('payment_method')),
             'payment_status' => $paymentStatus,
             'description' => $this->request->getPost('description'),
-            'service_type' => $this->request->getPost('service_type'),
-            'service_details' => $this->request->getPost('service_details'),
+            'service_type' => $usingClinicalChargeLines ? 'treatment' : $this->request->getPost('service_type'),
+            'service_details' => $usingClinicalChargeLines
+                ? trim((string) $this->request->getPost('service_details') . "\n" . (string) $clinicalChargeSelection['service_details'])
+                : $this->request->getPost('service_details'),
             'discount_amount' => $discountAmount,
             'tax_percentage' => $taxPercentage,
             'tax_amount' => $taxAmount,
@@ -1070,6 +1096,11 @@ class Finance extends BaseController
 
             if ($transactionType === 'invoice') {
                 $this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'));
+            }
+
+            if ($usingClinicalChargeLines && !$this->chargeLineService->markInvoiced((int) $clinicId, $selectedChargeLineIds, (int) $financeId)) {
+                $this->db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'Failed to link selected clinical charge lines to this invoice.');
             }
 
             $this->upsertProviderPayouts(
@@ -1132,6 +1163,16 @@ class Finance extends BaseController
             log_message('error', 'Finance create failed with provider split: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
+    }
+
+    private function selectedClinicalChargeLineIds(): array
+    {
+        $ids = $this->request->getPost('clinical_charge_line_ids');
+        if (!is_array($ids)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
     }
 
     public function show($id)

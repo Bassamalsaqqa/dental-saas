@@ -860,6 +860,7 @@ class Patient extends BaseController
                 ->orderBy('item_name', 'ASC')
                 ->findAll(),
             'patient_command_clinic_providers' => (new ClinicUserModel())->getActiveUserDirectoryByClinic((int) $clinicId),
+            'patient_command_clinical_charge_lines' => (new \App\Services\ClinicalChargeLineService())->getInvoiceableForPatient((int) $clinicId, (int) $id),
             'patient_command_liquidity_account_options' => $this->getPatientCommandLiquidityAccountOptions(),
             'latest_imaging_attachment' => $latestImagingAttachment,
             'latest_imaging_preview_src' => $latestImagingPreviewSrc,

@@ -546,4 +546,8 @@ return [
     'payableAge' => 'Age',
     'supplierPayablesGuidance' => 'Use this area for lab bills, supplier bills, and stock purchases.',
     'providerPayoutsGuidance' => 'Use this area to pay providers from patient-treatment collections. Lab and supplier bills belong under Bills to Pay.',
+    'billClinicalWork' => 'Bill captured clinical work',
+    'billClinicalWorkHelp' => 'Select treatment charge lines to include in this patient invoice.',
+    'billClinicalWorkServerOwned' => 'Invoice totals are recalculated on the server from the selected clinical charge lines.',
+    'clinicalChargeLine' => 'Clinical charge line',
 ];
