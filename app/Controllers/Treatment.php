@@ -9,6 +9,7 @@ use App\Models\InventoryUsageModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\InventoryUsageService;
+use App\Services\MoneyTrailService;
 use App\Services\StorageService;
 
 class Treatment extends BaseController
@@ -438,6 +439,7 @@ class Treatment extends BaseController
             'treatment' => $treatment,
             'usage_records' => $usageRecords,
             'usage_total_cost' => $totalUsageCost,
+            'money_trail' => (new MoneyTrailService())->forTreatment((int) $clinicId, (int) $id),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']),
         ];
 

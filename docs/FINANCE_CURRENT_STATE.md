@@ -70,6 +70,21 @@ Reporting follows business/settlement dates, not entry timestamps.
 - Provider payout accruals and payments
 - Supplier/vendor expense payables with A/P aging
 - Inventory COGS auto-posting to finance expenses
+- Patient/examination-linked finance rows
+- Provider payout rows linked to finance rows
+- Generic finance source linkage through `source_entity_type` / `source_entity_id`
+
+## Clinical-Finance Traceability Status
+
+The app has useful clinical and finance links, but it does not yet have a canonical clinical charge-capture layer.
+
+- Current finance invoices/payments can link to patients and examinations.
+- Inventory usage can auto-post COGS expenses and link back through source entity fields.
+- Treatment contracts have itemized planned procedure rows and totals.
+- Provider payouts are currently derived from finance rows.
+- Missing: billable clinical charge lines, invoice line items linked to treatments/contract items/procedures, payment allocation by line/provider, provider production vs collections reports, and insurance/write-off workflows.
+
+See `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` for the active plan.
 
 ## What Is Not Yet Implemented
 
@@ -79,3 +94,8 @@ Reporting follows business/settlement dates, not entry timestamps.
 - Bounced check lifecycle
 - Bank fees / card settlement delays
 - Recurring bill engine / vendor master workflow
+- Canonical clinical charge lines
+- Invoice line items linked to clinical charge lines
+- Payment allocation to charge lines/providers
+- Provider production vs collection reports from line-level data
+- Insurance claims, EOB/ERA posting, write-offs, denials, and patient responsibility split

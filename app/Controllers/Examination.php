@@ -10,6 +10,7 @@ use App\Models\TreatmentContractModel;
 use App\Models\InventoryModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\MoneyTrailService;
 use App\Services\OdontogramSnapshotService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
@@ -264,6 +265,7 @@ class Examination extends BaseController
             'examination' => $examination,
             'next_appointment' => $nextAppointment,
             'latest_contract' => $latestContract,
+            'money_trail' => (new MoneyTrailService())->forExamination((int) $clinicId, (int) $examination['id']),
             'signature_enabled' => $signatureEnabled,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats((int) $examination['patient_id']),

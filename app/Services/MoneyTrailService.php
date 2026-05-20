@@ -1,0 +1,251 @@
+<?php
+
+namespace App\Services;
+
+use CodeIgniter\Database\BaseConnection;
+use Config\Database;
+
+class MoneyTrailService
+{
+    private BaseConnection $db;
+
+    public function __construct(?BaseConnection $db = null)
+    {
+        $this->db = $db ?? Database::connect();
+    }
+
+    public function forPatient(int $clinicId, int $patientId): array
+    {
+        $financeRows = $this->financeRows($clinicId, ['f.patient_id' => $patientId]);
+        $financeIds = $this->ids($financeRows);
+
+        return $this->buildTrail(
+            $financeRows,
+            $this->paymentRows($clinicId, $financeIds),
+            $this->providerPayoutRows($clinicId, ['pp.patient_id' => $patientId], $financeIds),
+            $this->inventoryUsageRowsForPatient($clinicId, $patientId),
+            'patient'
+        );
+    }
+
+    public function forExamination(int $clinicId, int $examinationId): array
+    {
+        $financeRows = $this->financeRows($clinicId, ['f.examination_id' => $examinationId]);
+        $financeIds = $this->ids($financeRows);
+
+        return $this->buildTrail(
+            $financeRows,
+            $this->paymentRows($clinicId, $financeIds),
+            $this->providerPayoutRows($clinicId, [], $financeIds),
+            $this->inventoryUsageRowsForExamination($clinicId, $examinationId),
+            'examination'
+        );
+    }
+
+    public function forTreatment(int $clinicId, int $treatmentId): array
+    {
+        $treatment = $this->db->table('treatments')
+            ->where('clinic_id', $clinicId)
+            ->where('id', $treatmentId)
+            ->get()
+            ->getRowArray();
+
+        $financeRows = [];
+        if (!empty($treatment['examination_id'])) {
+            $financeRows = $this->financeRows($clinicId, ['f.examination_id' => (int) $treatment['examination_id']]);
+            foreach ($financeRows as &$row) {
+                $row['context_note'] = 'examination';
+            }
+            unset($row);
+        }
+
+        $financeIds = $this->ids($financeRows);
+
+        return $this->buildTrail(
+            $financeRows,
+            $this->paymentRows($clinicId, $financeIds),
+            $this->providerPayoutRows($clinicId, [], $financeIds),
+            $this->inventoryUsageRowsForTreatment($clinicId, $treatmentId),
+            'treatment'
+        );
+    }
+
+    private function financeRows(int $clinicId, array $where): array
+    {
+        $builder = $this->db->table('finances f')
+            ->select('f.*, p.patient_id AS patient_number, p.first_name, p.last_name, e.examination_id AS examination_number')
+            ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
+            ->join('examinations e', 'e.id = f.examination_id AND e.clinic_id = f.clinic_id', 'left')
+            ->where('f.clinic_id', $clinicId);
+
+        foreach ($where as $field => $value) {
+            $builder->where($field, $value);
+        }
+
+        return $builder
+            ->orderBy('COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at))', 'DESC', false)
+            ->orderBy('f.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function paymentRows(int $clinicId, array $financeIds): array
+    {
+        if ($financeIds === []) {
+            return [];
+        }
+
+        return $this->db->table('finance_payments fp')
+            ->select('fp.*, f.transaction_id, f.transaction_type')
+            ->join('finances f', 'f.id = fp.finance_id AND f.clinic_id = fp.clinic_id', 'inner')
+            ->where('fp.clinic_id', $clinicId)
+            ->whereIn('fp.finance_id', $financeIds)
+            ->orderBy('fp.payment_date', 'DESC')
+            ->orderBy('fp.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function providerPayoutRows(int $clinicId, array $where, array $financeIds = []): array
+    {
+        $builder = $this->db->table('provider_payouts pp')
+            ->select('pp.*, f.transaction_id, f.transaction_type, u.first_name AS provider_first_name, u.last_name AS provider_last_name')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
+            ->where('pp.clinic_id', $clinicId);
+
+        foreach ($where as $field => $value) {
+            $builder->where($field, $value);
+        }
+
+        if ($financeIds !== []) {
+            $builder->whereIn('pp.finance_id', $financeIds);
+        } elseif ($where === []) {
+            return [];
+        }
+
+        return $builder
+            ->orderBy('pp.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function inventoryUsageRowsForPatient(int $clinicId, int $patientId): array
+    {
+        return $this->db->table('inventory_usage iu')
+            ->select('iu.*, t.treatment_id AS treatment_number, t.treatment_name, t.examination_id, e.examination_id AS examination_number')
+            ->join('treatments t', 't.id = iu.treatment_id AND t.clinic_id = iu.clinic_id', 'inner')
+            ->join('examinations e', 'e.id = t.examination_id AND e.clinic_id = t.clinic_id', 'left')
+            ->where('iu.clinic_id', $clinicId)
+            ->where('t.patient_id', $patientId)
+            ->orderBy('iu.usage_date', 'DESC')
+            ->orderBy('iu.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function inventoryUsageRowsForExamination(int $clinicId, int $examinationId): array
+    {
+        return $this->db->table('inventory_usage iu')
+            ->select('iu.*, t.treatment_id AS treatment_number, t.treatment_name, t.examination_id')
+            ->join('treatments t', 't.id = iu.treatment_id AND t.clinic_id = iu.clinic_id', 'inner')
+            ->where('iu.clinic_id', $clinicId)
+            ->where('t.examination_id', $examinationId)
+            ->orderBy('iu.usage_date', 'DESC')
+            ->orderBy('iu.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function inventoryUsageRowsForTreatment(int $clinicId, int $treatmentId): array
+    {
+        return $this->db->table('inventory_usage iu')
+            ->select('iu.*, t.treatment_id AS treatment_number, t.treatment_name, t.examination_id')
+            ->join('treatments t', 't.id = iu.treatment_id AND t.clinic_id = iu.clinic_id', 'left')
+            ->where('iu.clinic_id', $clinicId)
+            ->where('iu.treatment_id', $treatmentId)
+            ->orderBy('iu.usage_date', 'DESC')
+            ->orderBy('iu.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function buildTrail(array $financeRows, array $paymentRows, array $payoutRows, array $inventoryUsageRows, string $context): array
+    {
+        $summary = [
+            'charged' => 0.0,
+            'paid' => 0.0,
+            'refunded' => 0.0,
+            'balance_due' => 0.0,
+            'provider_share' => 0.0,
+            'provider_paid' => 0.0,
+            'provider_remaining' => 0.0,
+            'inventory_cost' => 0.0,
+        ];
+
+        foreach ($financeRows as $row) {
+            $type = strtolower((string) ($row['transaction_type'] ?? ''));
+            $amount = $this->financeTotal($row);
+            if ($type === 'invoice') {
+                $summary['charged'] += $amount;
+                $summary['balance_due'] += max(0, (float) ($row['balance_due'] ?? 0));
+            } elseif (in_array($type, ['payment', 'adjustment'], true)) {
+                $summary['paid'] += $amount;
+            } elseif ($type === 'refund') {
+                $summary['refunded'] += $amount;
+            }
+        }
+
+        foreach ($paymentRows as $row) {
+            $type = strtolower((string) ($row['type'] ?? 'payment'));
+            $amount = max(0, (float) ($row['amount'] ?? 0));
+            if (in_array($type, ['payment', 'adjustment'], true)) {
+                $summary['paid'] += $amount;
+            } elseif (in_array($type, ['refund', 'void'], true)) {
+                $summary['refunded'] += $amount;
+            }
+        }
+
+        foreach ($payoutRows as $row) {
+            $summary['provider_share'] += max(0, (float) ($row['provider_share_amount'] ?? 0));
+            $summary['provider_paid'] += max(0, (float) ($row['provider_paid_amount'] ?? 0));
+            $summary['provider_remaining'] += max(0, (float) ($row['provider_balance_due'] ?? 0));
+        }
+
+        foreach ($inventoryUsageRows as $row) {
+            $summary['inventory_cost'] += max(0, (float) ($row['total_cost'] ?? 0));
+        }
+
+        return [
+            'context' => $context,
+            'summary' => $summary,
+            'finance_rows' => $financeRows,
+            'payment_rows' => $paymentRows,
+            'provider_payouts' => $payoutRows,
+            'inventory_usage_rows' => $inventoryUsageRows,
+            'has_records' => $financeRows !== [] || $paymentRows !== [] || $payoutRows !== [] || $inventoryUsageRows !== [],
+        ];
+    }
+
+    private function ids(array $rows): array
+    {
+        $ids = [];
+        foreach ($rows as $row) {
+            $id = (int) ($row['id'] ?? 0);
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    private function financeTotal(array $row): float
+    {
+        if (isset($row['total_amount'])) {
+            return max(0, (float) $row['total_amount']);
+        }
+
+        return max(0, (float) ($row['amount'] ?? 0) - (float) ($row['discount_amount'] ?? 0) + (float) ($row['tax_amount'] ?? 0));
+    }
+}

@@ -26,6 +26,13 @@ Three separate charting behaviors exist:
 - Contract creation artificially forced from examination flow
 - Contracts currently seeded from patient baseline odontogram, not exam odontogram
 - Examination/treatment workflow boundary needs clearer product concept
+- No canonical clinical charge-capture layer linking treatments/procedures/contract items to invoice lines, payment allocations, provider production, provider collections, and payout reconciliation
+
+## Finance Traceability
+
+Clinical modules currently connect to finance through patient/examination context, treatment contracts, and inventory usage COGS. This is useful but incomplete.
+
+The active product/architecture plan is `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`.
 
 ## Key Files
 

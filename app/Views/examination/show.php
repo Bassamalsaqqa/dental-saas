@@ -368,6 +368,12 @@ $healthFlags = array_values(array_filter([
                 </div>
             </div>
 
+            <?= view('components/money_trail_panel', [
+                'money_trail' => $money_trail ?? [],
+                'is_rtl' => $isRtl,
+                'return_to' => $returnToContext ?? null,
+            ]) ?>
+
             <!-- Health Flags -->
             <div class="exam-card exam-card-history">
                 <div class="exam-card-header">

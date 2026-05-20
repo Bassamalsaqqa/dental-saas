@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-05-19 - Clinical Finance Traceability Requires Charge Capture Layer
+
+- **Decision:** DentaCare will treat clinical-to-finance traceability as a charge-capture architecture problem. Clinical records, treatments, contracts, inventory usage, invoices, payments, provider payouts, and reports must be linked through canonical billable charge lines and later invoice/payment allocation rows, rather than guessing financial impact from document-level invoice totals.
+- **Rationale:** Professional dental systems separate production from collections, allocate payments to providers/procedures, and keep patient ledgers traceable to clinical source records. Current DentaCare finance rows can link to patient/examination and provider payouts, but this is not enough for multi-provider invoices, guest doctors, treatment-plan acceptance, partial payments, adjustments, refunds, and production-vs-collection reporting.
+- **Impact:** Future work should follow `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`. Do not mix supplier payables with provider payouts, do not count contracts as revenue, do not treat appointments as production except explicit fees, and do not place finance math in frontend/views. The product UI must stay simple for clinic managers: show charges, payments, balance due, provider share, and linked records instead of accounting jargon.
+
 ## 2026-05-06 - Entity Workspaces Use Contextual Quick-Create Drawers
 
 - **Decision:** Major entity detail pages may become command workspaces with contextual quick-create drawers. The Patient Profile is the reference implementation. Drawers can start related work from the current entity, but canonical modules remain responsible for real workflow ownership.

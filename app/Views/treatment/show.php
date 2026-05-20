@@ -259,6 +259,12 @@ $statusTone = match ($statusRaw) {
             </div>
             <?php endif; ?>
 
+            <?= view('components/money_trail_panel', [
+                'money_trail' => $money_trail ?? [],
+                'is_rtl' => $isRtl,
+                'return_to' => $return_to ?? null,
+            ]) ?>
+
             <!-- Timeline -->
             <div class="treatment-card">
                 <div class="treatment-card-header">

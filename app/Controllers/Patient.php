@@ -19,6 +19,7 @@ use App\Models\InventoryModel;
 use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\MoneyTrailService;
 use App\Services\PlanGuard;
 
 class Patient extends BaseController
@@ -837,6 +838,7 @@ class Patient extends BaseController
             'appointments' => $appointments,
             'finances' => $finances,
             'finance_settlements' => $financeSettlements,
+            'money_trail' => (new MoneyTrailService())->forPatient((int) $clinicId, (int) $id),
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats($id),
             'treatments' => $treatments,

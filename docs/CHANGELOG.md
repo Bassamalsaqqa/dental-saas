@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-20 - Clinical-Finance Money Trail Slice 1
+
+- Added a read-only `MoneyTrailService` that traces existing finance rows, settlement payments, provider payout rows, and inventory usage costs without changing write behavior or schema.
+- Added a reusable Money Trail panel to patient financials, examination detail, and treatment detail pages.
+- Kept the UI intentionally simple for clinic managers: charged, paid, balance due, provider remaining, material cost, and linked records.
+- No `/api/v1/*`, `/app-api/v1/*`, React/Lovable, schema, or finance calculation changes were made in this slice.
+
 ## 2026-05-17 - Appointment Calendar Workspace Phase 1A
 
 - Documented the phased appointment calendar workspace plan in `docs/refactor/APPOINTMENT_CALENDAR_WORKSPACE_PLAN.md`.
@@ -265,3 +272,11 @@ Recent implementation history for work continuation. Full historical logs are ar
 - Branding centralization via settings injection
 - Secure logo upload pipeline
 - Print branding consistency
+## 2026-05-19 - Clinical-Finance Traceability Planning
+
+- Audited current clinical/finance linkage across active docs, models, controllers, and local schema
+- Confirmed existing strengths: patient/examination-linked finance rows, invoice settlement rows, provider payout rows, inventory COGS source links, and treatment contract item pricing
+- Documented the main architecture gap: no canonical clinical charge line / invoice line / payment allocation layer yet
+- Added `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` with phased plan for charge capture, patient ledger, invoice lines, payment allocations, provider production/collections, payout reconciliation, and future insurance/accounting integration
+- Added explicit simplicity rule: daily UX should show money trail, charges, payments, balance due, provider share, and linked clinical records without accounting jargon
+- Updated active docs map, finance current state, clinical current state, and decision log

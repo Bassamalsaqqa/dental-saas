@@ -2090,6 +2090,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <p class="mt-2 text-2xl font-bold text-rose-900"><?= formatCurrency($totalRefunded) ?></p>
                                     </div>
                                 </div>
+                                <?= view('components/money_trail_panel', [
+                                    'money_trail' => $money_trail ?? [],
+                                    'is_rtl' => $isRtl,
+                                    'return_to' => $patientContextReturnTo,
+                                ]) ?>
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
                                     <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
