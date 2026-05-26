@@ -1,6 +1,7 @@
 <?php
 $chargeLines = $clinical_charge_lines ?? [];
-$selectedIds = array_map('strval', (array) old('clinical_charge_line_ids', []));
+$selectedIds = (array) old('clinical_charge_line_ids', $selected_clinical_charge_line_ids ?? []);
+$selectedIds = array_map('strval', $selectedIds);
 $isRtl = !empty($is_rtl);
 ?>
 <?php if (!empty($chargeLines)): ?>

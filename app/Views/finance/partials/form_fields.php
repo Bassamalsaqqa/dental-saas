@@ -34,6 +34,7 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
 
     <?= view('finance/partials/clinical_charge_line_picker', [
         'clinical_charge_lines' => $clinical_charge_lines ?? [],
+        'selected_clinical_charge_line_ids' => $selected_clinical_charge_line_ids ?? [],
         'is_rtl' => $isRtlPartial,
     ]) ?>
 

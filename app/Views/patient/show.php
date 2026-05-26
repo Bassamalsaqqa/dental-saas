@@ -270,6 +270,37 @@ $financeStatusLabel = static function (?string $status): string {
     return ucfirst(str_replace('_', ' ', $status));
 };
 
+$treatmentBillingMeta = static function (array $treatmentRow): array {
+    $chargeId = (int) ($treatmentRow['clinical_charge_line_id'] ?? 0);
+    $status = strtolower((string) ($treatmentRow['clinical_charge_status'] ?? ''));
+    $amount = isset($treatmentRow['clinical_charge_amount']) ? (float) $treatmentRow['clinical_charge_amount'] : null;
+    $currency = (string) ($treatmentRow['clinical_charge_currency'] ?? '');
+    $financeId = (int) ($treatmentRow['clinical_charge_finance_id'] ?? 0);
+    $invoiceNumber = trim((string) ($treatmentRow['clinical_charge_invoice_number'] ?? ''));
+
+    if ($chargeId <= 0 || $amount === null) {
+        return [
+            'amount_text' => lang('UI.patientNotBilledYet'),
+            'status_text' => lang('UI.patientNoChargeCaptured'),
+            'status_class' => 'bg-slate-100 text-slate-600',
+            'finance_id' => 0,
+            'invoice_number' => '',
+            'is_billed' => false,
+        ];
+    }
+
+    $isBilled = $status === 'invoiced' && $financeId > 0;
+
+    return [
+        'amount_text' => trim(($currency !== '' ? $currency . ' ' : '') . number_format($amount, 2)),
+        'status_text' => $isBilled ? lang('UI.patientBilled') : lang('UI.patientReadyToBill'),
+        'status_class' => $isBilled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
+        'finance_id' => $financeId,
+        'invoice_number' => $invoiceNumber,
+        'is_billed' => $isBilled,
+    ];
+};
+
 $totalCharges = 0.0;
 $totalCollected = 0.0;
 $totalRefunded = 0.0;
@@ -1282,10 +1313,21 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 'text' => (string) $treatment['tooth_number'],
                                             ];
                                         }
-                                        if (isset($treatment['cost'])) {
+                                        $treatmentBilling = $treatmentBillingMeta($treatment);
+                                        if ($treatmentBilling['amount_text'] !== lang('UI.patientNotBilledYet')) {
                                             $treatmentMeta[] = [
                                                 'icon' => 'fas fa-dollar-sign',
-                                                'text' => formatCurrency((float) $treatment['cost']),
+                                                'text' => $treatmentBilling['amount_text'],
+                                            ];
+                                        }
+                                        $treatmentMeta[] = [
+                                            'icon' => $treatmentBilling['is_billed'] ? 'fas fa-file-invoice-dollar' : 'fas fa-receipt',
+                                            'text' => $treatmentBilling['status_text'],
+                                        ];
+                                        if ($treatmentBilling['is_billed'] && $treatmentBilling['invoice_number'] !== '') {
+                                            $treatmentMeta[] = [
+                                                'icon' => 'fas fa-hashtag',
+                                                'text' => $treatmentBilling['invoice_number'],
                                             ];
                                         }
                                         $timeline[] = [
@@ -1922,17 +1964,28 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <tr>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-tooth text-pink-600"></i><span><?= esc(lang('UI.patientTreatment')) ?></span></div></th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-tag text-pink-600"></i><span><?= esc(lang('UI.patientTooth')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-dollar-sign text-pink-600"></i><span><?= esc(lang('UI.patientCost')) ?></span></div></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-file-invoice-dollar text-pink-600"></i><span><?= esc(lang('UI.patientBilling')) ?></span></div></th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-circle-info text-pink-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div></th>
                                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-cogs text-pink-600"></i></div></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
                                                 <?php foreach ($treatments as $trt): ?>
+                                                    <?php $rowBilling = $treatmentBillingMeta($trt); ?>
                                                     <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo)) ?>">
                                                         <td class="px-6 py-4"><div class="text-sm font-medium text-gray-900"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></div><div class="text-xs text-gray-500"><?= ucfirst($trt['treatment_type'] ?? lang('UI.patientGeneral')) ?></div></td>
                                                         <td class="px-6 py-4 text-sm text-gray-700"><?= $trt['tooth_number'] ?? '—' ?></td>
-                                                        <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= formatCurrency($trt['cost'] ?? 0) ?></td>
+                                                        <td class="px-6 py-4 text-sm">
+                                                            <div class="font-semibold text-gray-900" dir="ltr"><?= esc($rowBilling['amount_text']) ?></div>
+                                                            <span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold <?= esc($rowBilling['status_class']) ?>">
+                                                                <?= esc($rowBilling['status_text']) ?>
+                                                            </span>
+                                                            <?php if (!empty($rowBilling['finance_id'])): ?>
+                                                                <a href="<?= esc(workflow_context_url('finance/' . (int) $rowBilling['finance_id'], $patientContextReturnTo)) ?>" class="mt-1 block text-xs font-semibold text-emerald-700 hover:underline">
+                                                                    <?= esc($rowBilling['invoice_number'] !== '' ? $rowBilling['invoice_number'] : lang('Finance.invoice')) ?>
+                                                                </a>
+                                                            <?php endif; ?>
+                                                        </td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['active'=>'bg-blue-100 text-blue-700','completed'=>'bg-emerald-100 text-emerald-700','cancelled'=>'bg-rose-100 text-rose-700','on_hold'=>'bg-amber-100 text-amber-700'][$trt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($trt['status']) ?></span></td>
                                                         <td class="px-6 py-4"><a href="<?= workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
                                                     </tr>

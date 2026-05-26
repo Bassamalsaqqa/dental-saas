@@ -805,11 +805,14 @@ class Patient extends BaseController
             ->findAll();
 
         $treatments = $this->treatmentModel
-            ->select('treatments.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+            ->select('treatments.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name, ccl.id AS clinical_charge_line_id, ccl.status AS clinical_charge_status, ccl.net_production_amount AS clinical_charge_amount, ccl.currency AS clinical_charge_currency, ccl.finance_id AS clinical_charge_finance_id, f.transaction_id AS clinical_charge_invoice_number')
             ->join('users', 'users.id = treatments.created_by', 'left')
+            ->join('clinical_charge_lines ccl', "ccl.id = (SELECT ccl_latest.id FROM clinical_charge_lines ccl_latest WHERE ccl_latest.treatment_id = treatments.id AND ccl_latest.clinic_id = treatments.clinic_id AND ccl_latest.source_entity_type = 'treatment' AND ccl_latest.status != 'voided' ORDER BY ccl_latest.id DESC LIMIT 1)", 'left', false)
+            ->join('finances f', 'f.id = ccl.finance_id AND f.clinic_id = ccl.clinic_id', 'left')
             ->where('treatments.clinic_id', $clinicId)
             ->where('treatments.patient_id', $id)
             ->orderBy('treatments.start_date', 'DESC')
+            ->orderBy('ccl.id', 'DESC')
             ->findAll();
 
         $finances = $this->financeModel->getFinanceByPatient($id);

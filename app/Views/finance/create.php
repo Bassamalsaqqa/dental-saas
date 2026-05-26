@@ -142,10 +142,11 @@
                                 <div class="relative">
                                     <select name="transaction_type" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value=""><?= lang('Finance.selectType') ?></option>
-                                        <option value="payment" <?= (old('transaction_type') == 'payment') ? 'selected' : '' ?>><?= lang('Finance.payment') ?></option>
-                                        <option value="invoice" <?= (old('transaction_type') == 'invoice') ? 'selected' : '' ?>><?= lang('Finance.invoice') ?></option>
-                                        <option value="refund" <?= (old('transaction_type') == 'refund') ? 'selected' : '' ?>><?= lang('Finance.refund') ?></option>
-                                        <option value="adjustment" <?= (old('transaction_type') == 'adjustment') ? 'selected' : '' ?>><?= lang('Finance.adjustment') ?></option>
+                                        <?php $selectedTransactionType = old('transaction_type', $transaction_type_preset ?? ''); ?>
+                                        <option value="payment" <?= ($selectedTransactionType == 'payment') ? 'selected' : '' ?>><?= lang('Finance.payment') ?></option>
+                                        <option value="invoice" <?= ($selectedTransactionType == 'invoice') ? 'selected' : '' ?>><?= lang('Finance.invoice') ?></option>
+                                        <option value="refund" <?= ($selectedTransactionType == 'refund') ? 'selected' : '' ?>><?= lang('Finance.refund') ?></option>
+                                        <option value="adjustment" <?= ($selectedTransactionType == 'adjustment') ? 'selected' : '' ?>><?= lang('Finance.adjustment') ?></option>
                                     </select>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('transaction_type')): ?>
@@ -159,6 +160,7 @@
 
                         <?= view('finance/partials/clinical_charge_line_picker', [
                             'clinical_charge_lines' => $clinical_charge_lines ?? [],
+                            'selected_clinical_charge_line_ids' => $selected_clinical_charge_line_ids ?? [],
                             'is_rtl' => $is_rtl ?? false,
                         ]) ?>
 

@@ -461,6 +461,7 @@ class Treatment extends BaseController
             'treatment' => $treatment,
             'usage_records' => $usageRecords,
             'usage_total_cost' => $totalUsageCost,
+            'charge_line' => $this->chargeLineService->getActiveForTreatment((int) $clinicId, (int) $id),
             'money_trail' => (new MoneyTrailService())->forTreatment((int) $clinicId, (int) $id),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']),
         ];

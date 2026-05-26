@@ -774,10 +774,15 @@ class Finance extends BaseController
             }
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance', 'examination', 'treatment', 'treatments']);
         if (!$returnTo && $patientId) {
             $returnTo = 'patient/' . $patientId;
         }
+        $transactionTypePreset = (string) ($this->request->getGet('transaction_type') ?? '');
+        if (!in_array($transactionTypePreset, ['payment', 'invoice', 'refund', 'adjustment'], true)) {
+            $transactionTypePreset = '';
+        }
+        $selectedChargeLineIds = $this->normalizeClinicalChargeLineIdList($this->request->getGet('clinical_charge_line_ids') ?? []);
 
         $data = [
             'title' => 'New Financial Transaction',
@@ -791,6 +796,8 @@ class Finance extends BaseController
             'liquidity_account_options' => $this->getLiquidityAccountOptions(),
             'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
             'clinical_charge_lines' => $patientId ? $this->chargeLineService->getInvoiceableForPatient((int) $clinicId, (int) $patientId) : [],
+            'selected_clinical_charge_line_ids' => $selectedChargeLineIds,
+            'transaction_type_preset' => $transactionTypePreset,
             'selected_patient_id' => $patientId,
             'return_to' => $returnTo
         ];
@@ -1138,18 +1145,18 @@ class Finance extends BaseController
                 }
             }
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance', 'examination', 'treatment', 'treatments']);
             if ($returnTo !== null && !empty($financeData['patient_id'])) {
                 if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches) && (int) $matches[1] !== (int) $financeData['patient_id']) {
                     $returnTo = null;
                 }
             }
             if ($returnTo !== null) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'finance'])
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'finance', 'examination', 'treatment', 'treatments'])
                     ->with('success', 'Financial transaction has been created successfully!');
             }
 
-                return $this->redirectAfterWorkflow('finance', ['patient', 'patients', 'finance'], null, false)
+                return $this->redirectAfterWorkflow('finance', ['patient', 'patients', 'finance', 'examination', 'treatment', 'treatments'], null, false)
                     ->with('success', 'Financial transaction has been created successfully!');
             } else {
                 $this->db->transRollback();
@@ -1167,7 +1174,11 @@ class Finance extends BaseController
 
     private function selectedClinicalChargeLineIds(): array
     {
-        $ids = $this->request->getPost('clinical_charge_line_ids');
+        return $this->normalizeClinicalChargeLineIdList($this->request->getPost('clinical_charge_line_ids') ?? []);
+    }
+
+    private function normalizeClinicalChargeLineIdList($ids): array
+    {
         if (!is_array($ids)) {
             return [];
         }

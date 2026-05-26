@@ -10,6 +10,19 @@ $statusRaw = $treatment['status'] ?? 'active';
 $statusLabel = lang('Treatment.status_values.' . $statusRaw);
 if ($statusLabel === 'Treatment.status_values.' . $statusRaw) { $statusLabel = ucfirst(str_replace('_', ' ', $statusRaw)); }
 $typeLabel = ucfirst(str_replace('_', ' ', $treatment['treatment_type'] ?? ''));
+$chargeLine = $charge_line ?? null;
+$chargeLineId = (int) ($chargeLine['id'] ?? 0);
+$chargeLineStatus = (string) ($chargeLine['status'] ?? '');
+$chargeLineAmount = (float) ($chargeLine['net_production_amount'] ?? 0);
+$chargeLineCurrency = (string) ($chargeLine['currency'] ?? 'ILS');
+$chargeLineIsOpen = $chargeLineId > 0 && !in_array($chargeLineStatus, ['invoiced', 'voided'], true);
+$treatmentReturnTarget = 'treatment/' . (int) ($treatment['id'] ?? 0);
+$billThisTreatmentUrl = $chargeLineIsOpen && !empty($treatment['patient_id'])
+    ? workflow_context_url('finance/create?patient_id=' . (int) $treatment['patient_id'] . '&transaction_type=invoice&clinical_charge_line_ids[]=' . $chargeLineId, $treatmentReturnTarget)
+    : '';
+$linkedInvoiceUrl = !empty($chargeLine['finance_id'])
+    ? workflow_context_url('finance/' . (int) $chargeLine['finance_id'], $treatmentReturnTarget)
+    : '';
 $statusTone = match ($statusRaw) {
     'active' => ['bg' => 'rgba(59,130,246,0.22)', 'border' => 'rgba(147,197,253,0.4)'],
     'completed' => ['bg' => 'rgba(16,185,129,0.22)', 'border' => 'rgba(167,243,208,0.4)'],
@@ -258,6 +271,51 @@ $statusTone = match ($statusRaw) {
                 </a>
             </div>
             <?php endif; ?>
+
+            <!-- Patient Billing -->
+            <div class="treatment-card">
+                <div class="treatment-card-header">
+                    <i class="fas fa-file-invoice-dollar text-emerald-600"></i><span><?= esc($tr('patient_billing')) ?></span>
+                </div>
+                <div class="space-y-3 text-sm">
+                    <p class="text-slate-500"><?= esc($tr('patient_billing_help')) ?></p>
+                    <?php if ($chargeLineId > 0): ?>
+                        <div class="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold uppercase tracking-wide text-emerald-700"><?= esc($tr('captured_charge')) ?></p>
+                                    <p class="mt-1 truncate font-bold text-slate-900"><?= esc($chargeLine['procedure_name'] ?? $treatment['treatment_name'] ?? $tr('treatment')) ?></p>
+                                    <?php if (!empty($chargeLine['tooth_numbers'])): ?>
+                                        <p class="mt-1 text-xs text-slate-500"><?= esc($tr('tooth_number_short')) ?>: <span dir="ltr"><?= esc($chargeLine['tooth_numbers']) ?></span></p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="shrink-0 text-end">
+                                    <p class="font-black text-emerald-700" dir="ltr"><?= esc($chargeLineCurrency) ?> <?= number_format($chargeLineAmount, 2) ?></p>
+                                    <span class="mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-bold <?= $chargeLineIsOpen ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                                        <?= esc($chargeLineIsOpen ? $tr('not_billed_yet') : $tr('already_billed')) ?>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <?php if ($billThisTreatmentUrl !== ''): ?>
+                            <a href="<?= esc($billThisTreatmentUrl) ?>" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700">
+                                <i class="fas fa-file-invoice-dollar"></i><span><?= esc($tr('create_invoice_from_treatment')) ?></span>
+                            </a>
+                        <?php elseif ($linkedInvoiceUrl !== ''): ?>
+                            <a href="<?= esc($linkedInvoiceUrl) ?>" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50">
+                                <i class="fas fa-link"></i><span><?= esc($tr('open_linked_invoice')) ?></span>
+                            </a>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-slate-600">
+                            <p class="font-semibold text-slate-800"><?= esc($tr('no_charge_captured')) ?></p>
+                            <a href="<?= workflow_context_url('treatment/' . $treatment['id'] . '/edit', $return_to ?? null) ?>" class="mt-2 inline-flex items-center gap-2 text-xs font-bold text-emerald-700 hover:text-emerald-800">
+                                <i class="fas fa-pen"></i><span><?= esc($tr('edit_to_capture_charge')) ?></span>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
 
             <?= view('components/money_trail_panel', [
                 'money_trail' => $money_trail ?? [],
