@@ -48,6 +48,31 @@
     $showProviderPayoutForms = has_permission('finance', 'edit') && !empty($provider_payouts);
     $billedClinicalChargeLines = $billed_clinical_charge_lines ?? [];
     $billedClinicalTotal = array_reduce($billedClinicalChargeLines, static fn(float $carry, array $row): float => $carry + (float) ($row['net_production_amount'] ?? 0), 0.0);
+    $billedClinicalTreatmentIds = [];
+    $billedClinicalExaminationIds = [];
+    $billedClinicalProviderNames = [];
+    foreach ($billedClinicalChargeLines as $clinicalLine) {
+        $lineTreatmentId = (int) ($clinicalLine['treatment_id'] ?? 0);
+        if ($lineTreatmentId > 0) {
+            $billedClinicalTreatmentIds[$lineTreatmentId] = true;
+        }
+
+        $lineExaminationId = (int) ($clinicalLine['examination_id'] ?? 0);
+        if ($lineExaminationId > 0) {
+            $billedClinicalExaminationIds[$lineExaminationId] = true;
+        }
+
+        $lineProviderName = trim((string) (($clinicalLine['provider_first_name'] ?? '') . ' ' . ($clinicalLine['provider_last_name'] ?? '')));
+        if ($lineProviderName === '') {
+            $lineProviderName = trim((string) ($clinicalLine['provider_name_snapshot'] ?? ''));
+        }
+        if ($lineProviderName !== '') {
+            $billedClinicalProviderNames[$lineProviderName] = true;
+        }
+    }
+    $billedClinicalTreatmentCount = count($billedClinicalTreatmentIds);
+    $billedClinicalExaminationCount = count($billedClinicalExaminationIds);
+    $billedClinicalProviderCount = count($billedClinicalProviderNames);
     $settlementCardTitle = $isExpense ? lang('Finance.expenseSettlementOverview') : lang('Finance.invoiceSettlementOverview');
     $recordPaymentTitle = $isExpense ? lang('Finance.recordExpensePayment') : lang('Finance.recordInvoicePayment');
     $markFullyPaidLabel = $isExpense ? lang('Finance.markExpenseAsFullyPaid') : lang('Finance.markInvoiceAsFullyPaid');
@@ -1327,7 +1352,46 @@
                             <?= esc(formatCurrency($billedClinicalTotal)) ?>
                         </span>
                     </div>
-                    <div class="finance-show-card-body">
+                    <div class="finance-show-card-body space-y-5">
+                        <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-4">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-emerald-700"><?= esc(lang('Finance.clinicalTraceSnapshot')) ?></p>
+                                    <p class="mt-1 text-sm text-slate-600"><?= esc(lang('Finance.clinicalTraceSnapshotHelp')) ?></p>
+                                </div>
+                                <?php if (!empty($patient['id'])): ?>
+                                    <a href="<?= esc(workflow_context_url('patient/' . (int) $patient['id'], $return_to ?? null)) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-bold text-emerald-700 shadow-sm hover:bg-emerald-50">
+                                        <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
+                                        <span><?= esc(lang('Finance.openPatientProfile')) ?></span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTracePatient')) ?></p>
+                                    <p class="mt-1 truncate text-sm font-bold text-slate-900">
+                                        <?= esc($relatedPartyValue !== '' ? $relatedPartyValue : lang('Finance.unknown')) ?>
+                                    </p>
+                                    <p class="mt-1 truncate text-xs text-slate-500"><?= esc($relatedPartyMeta) ?></p>
+                                </div>
+                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceLines')) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold text-emerald-700"><?= esc((string) count($billedClinicalChargeLines)) ?></p>
+                                </div>
+                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceTreatments')) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold text-blue-700"><?= esc((string) $billedClinicalTreatmentCount) ?></p>
+                                </div>
+                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceExaminations')) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold text-indigo-700"><?= esc((string) $billedClinicalExaminationCount) ?></p>
+                                </div>
+                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceProviders')) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold text-purple-700"><?= esc((string) $billedClinicalProviderCount) ?></p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-slate-100 text-sm">
@@ -1355,10 +1419,22 @@
                                                 $examinationId = (int) ($line['examination_id'] ?? 0);
                                                 $treatmentLabel = trim((string) ($line['treatment_name'] ?? '')) ?: ((string) ($line['treatment_number'] ?? ''));
                                                 $examinationLabel = trim((string) ($line['examination_number'] ?? ''));
+                                                $sourceType = trim((string) ($line['source_entity_type'] ?? ''));
+                                                $sourceId = (int) ($line['source_entity_id'] ?? 0);
                                             ?>
                                             <tr class="align-top">
                                                 <td class="px-4 py-3">
                                                     <div class="font-semibold text-slate-900"><?= esc($line['procedure_name'] ?? lang('Finance.clinicalChargeLine')) ?></div>
+                                                    <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5">
+                                                            <?= esc(lang('Finance.clinicalChargeLine')) ?> #<?= esc((string) ($line['id'] ?? '')) ?>
+                                                        </span>
+                                                        <?php if ($sourceType !== ''): ?>
+                                                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">
+                                                                <?= esc(lang('Finance.clinicalSource')) ?>: <?= esc($sourceType) ?><?= $sourceId > 0 ? ' #' . esc((string) $sourceId) : '' ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </div>
                                                     <?php if (!empty($line['tooth_numbers'])): ?>
                                                         <div class="mt-1 text-xs text-slate-500"><?= esc(lang('Finance.tooth')) ?>: <span dir="ltr"><?= esc($line['tooth_numbers']) ?></span></div>
                                                     <?php endif; ?>
