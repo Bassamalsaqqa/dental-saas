@@ -561,6 +561,7 @@ return [
     'clinicalTraceProviders' => 'مقدمو الخدمة',
     'clinicalSource' => 'المصدر',
     'openPatientProfile' => 'فتح ملف المريض',
+    'openProviderProfile' => 'فتح ملف مقدم الخدمة',
     'linkedTreatment' => 'العلاج المرتبط',
     'linkedExamination' => 'الفحص المرتبط',
     'serviceDate' => 'تاريخ الخدمة',

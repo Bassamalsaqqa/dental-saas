@@ -561,6 +561,7 @@ return [
     'clinicalTraceProviders' => 'Providers',
     'clinicalSource' => 'Source',
     'openPatientProfile' => 'Open patient profile',
+    'openProviderProfile' => 'Open provider profile',
     'linkedTreatment' => 'Linked Treatment',
     'linkedExamination' => 'Linked Examination',
     'serviceDate' => 'Service Date',

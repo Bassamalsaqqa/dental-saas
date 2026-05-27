@@ -15,6 +15,8 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
     private array $treatmentIds = [];
     private array $financeIds = [];
     private array $paymentIds = [];
+    private array $providerPayoutIds = [];
+    private array $providerPayoutPaymentIds = [];
     private array $chargeLineIds = [];
 
     protected function setUp(): void
@@ -27,6 +29,8 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
     {
         if ($this->db) {
             $this->deleteRows('clinical_charge_lines', $this->chargeLineIds);
+            $this->deleteRows('provider_payout_payments', $this->providerPayoutPaymentIds);
+            $this->deleteRows('provider_payouts', $this->providerPayoutIds);
             $this->deleteRows('finance_payments', $this->paymentIds);
             $this->deleteRows('finances', $this->financeIds);
             $this->deleteRows('treatments', $this->treatmentIds);
@@ -151,6 +155,7 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $line = $this->captureTreatmentCharge($service, $clinicId, $treatmentId, 240.00);
         $financeId = $this->createInvoice($clinicId, $patientId, 240.00, 'INV-BRIDGE-TRACE');
         $this->createPayment($clinicId, $financeId, 100.00);
+        $this->createProviderPayout($clinicId, $financeId, $patientId, 80.00, 30.00);
 
         $this->assertTrue($service->markInvoiced($clinicId, [(int) $line['id']], $financeId));
 
@@ -167,14 +172,20 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $this->assertSame(240.0, $trail['summary']['charged']);
         $this->assertSame(100.0, $trail['summary']['paid']);
         $this->assertSame(140.0, $trail['summary']['balance_due']);
+        $this->assertSame(80.0, $trail['summary']['provider_share']);
+        $this->assertSame(30.0, $trail['summary']['provider_paid']);
+        $this->assertSame(50.0, $trail['summary']['provider_remaining']);
         $this->assertSame(0, $trail['summary']['open_charge_lines']);
         $this->assertCount(1, $trail['charge_lines']);
         $this->assertCount(1, $trail['finance_rows']);
         $this->assertCount(1, $trail['payment_rows']);
+        $this->assertCount(1, $trail['provider_payouts']);
         $this->assertSame('invoiced', $trail['charge_lines'][0]['status']);
         $this->assertSame('INV-BRIDGE-TRACE', $trail['charge_lines'][0]['transaction_id']);
         $this->assertSame('INV-BRIDGE-TRACE', $trail['finance_rows'][0]['transaction_id']);
         $this->assertSame('100.00', $trail['payment_rows'][0]['amount']);
+        $this->assertSame('Outside Bridge Doctor', $trail['provider_payouts'][0]['provider_name_snapshot']);
+        $this->assertSame('partial', $trail['provider_payouts'][0]['status']);
 
         $patientTrail = (new MoneyTrailService($this->db))->forPatient($clinicId, $patientId);
         $this->assertTrue($patientTrail['has_records']);
@@ -182,9 +193,13 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $this->assertSame(240.0, $patientTrail['summary']['charged']);
         $this->assertSame(100.0, $patientTrail['summary']['paid']);
         $this->assertSame(140.0, $patientTrail['summary']['balance_due']);
+        $this->assertSame(80.0, $patientTrail['summary']['provider_share']);
+        $this->assertSame(30.0, $patientTrail['summary']['provider_paid']);
+        $this->assertSame(50.0, $patientTrail['summary']['provider_remaining']);
         $this->assertCount(1, $patientTrail['charge_lines']);
         $this->assertCount(1, $patientTrail['finance_rows']);
         $this->assertCount(1, $patientTrail['payment_rows']);
+        $this->assertCount(1, $patientTrail['provider_payouts']);
     }
 
     private function createTreatmentFixture(?int $clinicId = null): array
@@ -341,6 +356,51 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
             ]);
 
         return $paymentId;
+    }
+
+    private function createProviderPayout(int $clinicId, int $financeId, int $patientId, float $shareAmount, float $paidAmount): int
+    {
+        $balance = round(max(0, $shareAmount - $paidAmount), 2);
+        $this->db->table('provider_payouts')->insert([
+            'clinic_id' => $clinicId,
+            'finance_id' => $financeId,
+            'patient_id' => $patientId,
+            'provider_type' => 'guest',
+            'provider_user_id' => null,
+            'provider_name_snapshot' => 'Outside Bridge Doctor',
+            'split_mode' => 'fixed',
+            'split_value' => number_format($shareAmount, 2, '.', ''),
+            'gross_amount' => '240.00',
+            'provider_share_amount' => number_format($shareAmount, 2, '.', ''),
+            'clinic_share_amount' => number_format(max(0, 240.00 - $shareAmount), 2, '.', ''),
+            'provider_paid_amount' => number_format($paidAmount, 2, '.', ''),
+            'provider_balance_due' => number_format($balance, 2, '.', ''),
+            'status' => $balance <= 0 ? 'paid' : ($paidAmount > 0 ? 'partial' : 'unpaid'),
+            'currency' => 'ILS',
+            'notes' => 'Bridge provider share',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $payoutId = (int) $this->db->insertID();
+        $this->providerPayoutIds[] = $payoutId;
+
+        if ($paidAmount > 0) {
+            $this->db->table('provider_payout_payments')->insert([
+                'clinic_id' => $clinicId,
+                'provider_payout_id' => $payoutId,
+                'amount' => number_format($paidAmount, 2, '.', ''),
+                'payment_method' => 'cash',
+                'liquidity_account' => 'safe_cash',
+                'paid_date' => date('Y-m-d'),
+                'notes' => 'Bridge provider payment',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            $this->providerPayoutPaymentIds[] = (int) $this->db->insertID();
+        }
+
+        return $payoutId;
     }
 
     private function treatment(int $treatmentId): array

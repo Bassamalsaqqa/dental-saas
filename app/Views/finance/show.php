@@ -1524,12 +1524,18 @@
                                     $providerStatusClass = $providerStatusKey === 'paid'
                                         ? 'bg-emerald-100 text-emerald-700'
                                         : ($providerStatusKey === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700');
+                                    $providerTypeKey = (string) ($providerPayout['provider_type'] ?? 'guest');
+                                    $providerTypeLabel = $providerTypeKey === 'user' ? lang('Finance.clinicUser') : lang('Finance.guestProvider');
+                                    $providerUserId = (int) ($providerPayout['provider_user_id'] ?? 0);
                                 ?>
                                 <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
                                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                         <div>
-                                            <div class="flex items-center gap-2">
+                                            <div class="flex flex-wrap items-center gap-2">
                                                 <h3 class="text-base font-bold text-slate-900"><?= esc($providerDisplayName) ?></h3>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                                                    <?= esc($providerTypeLabel) ?>
+                                                </span>
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold <?= $providerStatusClass ?>">
                                                     <?= esc($providerStatusLabel) ?>
                                                 </span>
@@ -1541,6 +1547,12 @@
                                             </p>
                                             <?php if (!empty($providerPayout['notes'])): ?>
                                                 <p class="mt-2 text-sm text-slate-600"><?= esc($providerPayout['notes']) ?></p>
+                                            <?php endif; ?>
+                                            <?php if ($providerTypeKey === 'user' && $providerUserId > 0): ?>
+                                                <a href="<?= esc(workflow_context_url('users/' . $providerUserId, $return_to ?? null)) ?>" class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-indigo-700 hover:text-indigo-900">
+                                                    <i class="fas fa-user-doctor"></i>
+                                                    <span><?= esc(lang('Finance.openProviderProfile')) ?></span>
+                                                </a>
                                             <?php endif; ?>
                                         </div>
                                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">

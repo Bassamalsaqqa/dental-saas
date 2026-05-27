@@ -39,6 +39,23 @@ $providerName = static function (array $row): string {
     $snapshot = trim((string) ($row['provider_name_snapshot'] ?? ''));
     return $snapshot !== '' ? $snapshot : lang('UI.moneyTrailProvider');
 };
+$providerStatusLabel = static function (?string $status): string {
+    $status = trim((string) $status);
+    if ($status === '') {
+        return lang('UI.patientNa');
+    }
+
+    $label = lang('Finance.' . $status);
+    return $label === 'Finance.' . $status ? ucfirst(str_replace('_', ' ', $status)) : $label;
+};
+$providerStatusClass = static function (?string $status): string {
+    return match (trim((string) $status)) {
+        'paid' => 'bg-emerald-100 text-emerald-700',
+        'partial' => 'bg-amber-100 text-amber-700',
+        'void' => 'bg-slate-100 text-slate-600',
+        default => 'bg-rose-100 text-rose-700',
+    };
+};
 $stats = [
     ['key' => 'captured_charges', 'label' => $moneyLabel('moneyTrailCapturedWork'), 'value' => $summary['captured_charges'] ?? 0, 'tone' => 'indigo'],
     ['key' => 'charged', 'label' => $moneyLabel('moneyTrailCharged'), 'value' => $summary['charged'] ?? 0, 'tone' => 'slate'],
@@ -107,7 +124,7 @@ $toneClasses = [
                             $chargeTransactionId = trim((string) ($row['transaction_id'] ?? ''));
                             $chargeInvoiceHref = $chargeFinanceId > 0 ? workflow_context_url('finance/' . $chargeFinanceId, $returnTo) : '';
                             ?>
-                            <div class="rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
+                            <div class="flex flex-col gap-2 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
                                 <div class="flex items-start justify-between gap-3">
                                     <span class="min-w-0">
                                         <span class="block truncate font-semibold text-slate-800"><?= esc($row['procedure_name'] ?? lang('UI.patientNa')) ?></span>
@@ -182,12 +199,28 @@ $toneClasses = [
                             </div>
                         <?php endforeach; ?>
                         <?php foreach (array_slice($payoutRows, 0, 4) as $row): ?>
-                            <div class="flex items-center justify-between gap-3 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
+                            <?php
+                            $providerFinanceId = (int) ($row['finance_id'] ?? 0);
+                            $providerTransactionId = trim((string) ($row['transaction_id'] ?? ''));
+                            $providerHref = $providerFinanceId > 0 ? workflow_context_url('finance/' . $providerFinanceId, $returnTo) : '';
+                            ?>
+                            <div class="flex flex-col gap-2 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
                                 <span class="min-w-0">
                                     <span class="block truncate font-semibold text-slate-800"><?= esc($providerName($row)) ?></span>
-                                    <span class="block truncate text-xs text-slate-500"><?= esc($moneyLabel('moneyTrailProviderShare')) ?> · <?= esc($row['status'] ?? '') ?></span>
+                                    <span class="mt-1 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-bold <?= esc($providerStatusClass($row['status'] ?? '')) ?>"><?= esc($providerStatusLabel($row['status'] ?? '')) ?></span>
+                                    <span class="block truncate text-xs text-slate-500"><?= esc($moneyLabel('moneyTrailProviderShare')) ?></span>
                                 </span>
                                 <span class="shrink-0 font-bold text-violet-700" dir="ltr"><?= esc($formatMoney($row['provider_share_amount'] ?? 0)) ?></span>
+                                <div class="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
+                                    <span><?= esc($moneyLabel('moneyTrailPaid')) ?>: <strong class="text-emerald-700" dir="ltr"><?= esc($formatMoney($row['provider_paid_amount'] ?? 0)) ?></strong></span>
+                                    <span><?= esc($moneyLabel('moneyTrailProviderRemaining')) ?>: <strong class="<?= ((float) ($row['provider_balance_due'] ?? 0) > 0.009) ? 'text-rose-700' : 'text-emerald-700' ?>" dir="ltr"><?= esc($formatMoney($row['provider_balance_due'] ?? 0)) ?></strong></span>
+                                </div>
+                                <?php if ($providerHref !== ''): ?>
+                                    <a href="<?= esc($providerHref) ?>" class="mt-2 inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100">
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                        <span><?= esc(lang('Finance.invoice')) ?> <?= esc($providerTransactionId !== '' ? $providerTransactionId : ('#' . $providerFinanceId)) ?></span>
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                         <?php if (empty($paymentRows) && empty($payoutRows)): ?>
