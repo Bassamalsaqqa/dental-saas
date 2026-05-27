@@ -53,6 +53,8 @@ class MoneyTrailService
             ->getRowArray();
 
         $financeRows = [];
+        $chargeLineRows = $this->chargeLineRows($clinicId, ['ccl.treatment_id' => $treatmentId]);
+
         if (!empty($treatment['examination_id'])) {
             $financeRows = $this->financeRows($clinicId, ['f.examination_id' => (int) $treatment['examination_id']]);
             foreach ($financeRows as &$row) {
@@ -61,10 +63,25 @@ class MoneyTrailService
             unset($row);
         }
 
+        $chargeLineFinanceIds = [];
+        foreach ($chargeLineRows as $row) {
+            $financeId = (int) ($row['finance_id'] ?? 0);
+            if ($financeId > 0) {
+                $chargeLineFinanceIds[] = $financeId;
+            }
+        }
+
+        foreach ($this->financeRowsByIds($clinicId, $chargeLineFinanceIds) as $row) {
+            $row['context_note'] = 'clinical_charge_line';
+            $financeRows[] = $row;
+        }
+
+        $financeRows = $this->uniqueRowsById($financeRows);
+
         $financeIds = $this->ids($financeRows);
 
         return $this->buildTrail(
-            $this->chargeLineRows($clinicId, ['ccl.treatment_id' => $treatmentId]),
+            $chargeLineRows,
             $financeRows,
             $this->paymentRows($clinicId, $financeIds),
             $this->providerPayoutRows($clinicId, [], $financeIds),
@@ -86,6 +103,25 @@ class MoneyTrailService
         }
 
         return $builder
+            ->orderBy('COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at))', 'DESC', false)
+            ->orderBy('f.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function financeRowsByIds(int $clinicId, array $financeIds): array
+    {
+        $financeIds = array_values(array_unique(array_filter(array_map('intval', $financeIds))));
+        if ($financeIds === []) {
+            return [];
+        }
+
+        return $this->db->table('finances f')
+            ->select('f.*, p.patient_id AS patient_number, p.first_name, p.last_name, e.examination_id AS examination_number')
+            ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
+            ->join('examinations e', 'e.id = f.examination_id AND e.clinic_id = f.clinic_id', 'left')
+            ->where('f.clinic_id', $clinicId)
+            ->whereIn('f.id', $financeIds)
             ->orderBy('COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at))', 'DESC', false)
             ->orderBy('f.id', 'DESC')
             ->get()
@@ -279,6 +315,20 @@ class MoneyTrailService
         }
 
         return array_values(array_unique($ids));
+    }
+
+    private function uniqueRowsById(array $rows): array
+    {
+        $unique = [];
+        foreach ($rows as $row) {
+            $id = (int) ($row['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            $unique[$id] = $row;
+        }
+
+        return array_values($unique);
     }
 
     private function financeTotal(array $row): float

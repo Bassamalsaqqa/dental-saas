@@ -20,6 +20,17 @@ $financeType = static function (?string $type): string {
     $label = lang('Finance.' . $type);
     return $label === 'Finance.' . $type ? ucfirst(str_replace('_', ' ', $type)) : $label;
 };
+$financeRowAmount = static function (array $row): float {
+    return isset($row['total_amount']) ? (float) $row['total_amount'] : (float) ($row['amount'] ?? 0);
+};
+$paymentVerb = static function (?string $type): string {
+    $type = trim((string) $type);
+    if ($type === '') {
+        $type = 'payment';
+    }
+    $label = lang('Finance.' . $type);
+    return $label === 'Finance.' . $type ? ucfirst(str_replace('_', ' ', $type)) : $label;
+};
 $providerName = static function (array $row): string {
     $name = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
     if ($name !== '') {
@@ -125,13 +136,22 @@ $toneClasses = [
                                 $financeId = (int) ($row['id'] ?? 0);
                                 $reference = (string) ($row['transaction_id'] ?? ('#' . $financeId));
                                 $href = $financeId > 0 ? workflow_context_url('finance/' . $financeId, $returnTo) : '#';
+                                $rowTotal = $financeRowAmount($row);
+                                $rowPaid = max(0, (float) ($row['amount_paid'] ?? 0));
+                                $rowBalance = max(0, (float) ($row['balance_due'] ?? 0));
                                 ?>
                                 <a href="<?= esc($href) ?>" class="flex items-center justify-between gap-3 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm hover:border-emerald-200 hover:bg-emerald-50/60">
                                     <span class="min-w-0">
                                         <span class="block truncate font-semibold text-slate-800"><?= esc($reference) ?> · <?= esc($financeType($row['transaction_type'] ?? '')) ?></span>
                                         <span class="block truncate text-xs text-slate-500"><?= esc($row['description'] ?? $row['service_type'] ?? lang('UI.patientNa')) ?></span>
+                                        <?php if (($row['transaction_type'] ?? '') === 'invoice'): ?>
+                                            <span class="mt-1 block truncate text-[11px] font-semibold <?= $rowBalance > 0.009 ? 'text-amber-700' : 'text-emerald-700' ?>">
+                                                <?= esc($moneyLabel('moneyTrailPaid')) ?> <?= esc($formatMoney($rowPaid)) ?>
+                                                · <?= esc($moneyLabel('moneyTrailBalanceDue')) ?> <?= esc($formatMoney($rowBalance)) ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </span>
-                                    <span class="shrink-0 font-bold text-slate-900" dir="ltr"><?= esc($formatMoney($row['total_amount'] ?? $row['amount'] ?? 0)) ?></span>
+                                    <span class="shrink-0 font-bold text-slate-900" dir="ltr"><?= esc($formatMoney($rowTotal)) ?></span>
                                 </a>
                             <?php endforeach; ?>
                         <?php else: ?>
@@ -144,12 +164,21 @@ $toneClasses = [
                     <h4 class="text-sm font-bold text-slate-900"><?= esc($moneyLabel('moneyTrailPaymentsAndProviders')) ?></h4>
                     <div class="mt-3 space-y-2">
                         <?php foreach (array_slice($paymentRows, 0, 4) as $row): ?>
+                            <?php
+                            $paymentType = strtolower((string) ($row['type'] ?? 'payment'));
+                            $paymentTone = in_array($paymentType, ['refund', 'void'], true) ? 'text-rose-700' : 'text-emerald-700';
+                            ?>
                             <div class="flex items-center justify-between gap-3 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
                                 <span class="min-w-0">
                                     <span class="block truncate font-semibold text-slate-800"><?= esc($financeType($row['type'] ?? 'payment')) ?> · <?= esc($row['transaction_id'] ?? '') ?></span>
-                                    <span class="block truncate text-xs text-slate-500"><?= !empty($row['payment_date']) ? formatDate($row['payment_date']) : esc(lang('UI.patientNa')) ?></span>
+                                    <span class="block truncate text-xs text-slate-500">
+                                        <?= !empty($row['payment_date']) ? formatDate($row['payment_date']) : esc(lang('UI.patientNa')) ?>
+                                        <?php if (!empty($row['payment_method'])): ?>
+                                            · <?= esc($paymentVerb($row['payment_method'])) ?>
+                                        <?php endif; ?>
+                                    </span>
                                 </span>
-                                <span class="shrink-0 font-bold text-emerald-700" dir="ltr"><?= esc($formatMoney($row['amount'] ?? 0)) ?></span>
+                                <span class="shrink-0 font-bold <?= esc($paymentTone) ?>" dir="ltr"><?= esc($formatMoney($row['amount'] ?? 0)) ?></span>
                             </div>
                         <?php endforeach; ?>
                         <?php foreach (array_slice($payoutRows, 0, 4) as $row): ?>

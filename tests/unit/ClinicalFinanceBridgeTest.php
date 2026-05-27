@@ -14,6 +14,7 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
     private array $patientIds = [];
     private array $treatmentIds = [];
     private array $financeIds = [];
+    private array $paymentIds = [];
     private array $chargeLineIds = [];
 
     protected function setUp(): void
@@ -26,6 +27,7 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
     {
         if ($this->db) {
             $this->deleteRows('clinical_charge_lines', $this->chargeLineIds);
+            $this->deleteRows('finance_payments', $this->paymentIds);
             $this->deleteRows('finances', $this->financeIds);
             $this->deleteRows('treatments', $this->treatmentIds);
             $this->deleteRows('patients', $this->patientIds);
@@ -148,6 +150,7 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $service = new ClinicalChargeLineService();
         $line = $this->captureTreatmentCharge($service, $clinicId, $treatmentId, 240.00);
         $financeId = $this->createInvoice($clinicId, $patientId, 240.00, 'INV-BRIDGE-TRACE');
+        $this->createPayment($clinicId, $financeId, 100.00);
 
         $this->assertTrue($service->markInvoiced($clinicId, [(int) $line['id']], $financeId));
 
@@ -161,10 +164,17 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
 
         $this->assertTrue($trail['has_records']);
         $this->assertSame(240.0, $trail['summary']['captured_charges']);
+        $this->assertSame(240.0, $trail['summary']['charged']);
+        $this->assertSame(100.0, $trail['summary']['paid']);
+        $this->assertSame(140.0, $trail['summary']['balance_due']);
         $this->assertSame(0, $trail['summary']['open_charge_lines']);
         $this->assertCount(1, $trail['charge_lines']);
+        $this->assertCount(1, $trail['finance_rows']);
+        $this->assertCount(1, $trail['payment_rows']);
         $this->assertSame('invoiced', $trail['charge_lines'][0]['status']);
         $this->assertSame('INV-BRIDGE-TRACE', $trail['charge_lines'][0]['transaction_id']);
+        $this->assertSame('INV-BRIDGE-TRACE', $trail['finance_rows'][0]['transaction_id']);
+        $this->assertSame('100.00', $trail['payment_rows'][0]['amount']);
     }
 
     private function createTreatmentFixture(?int $clinicId = null): array
@@ -283,6 +293,44 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $this->financeIds[] = $financeId;
 
         return $financeId;
+    }
+
+    private function createPayment(int $clinicId, int $financeId, float $amount): int
+    {
+        $this->db->table('finance_payments')->insert([
+            'clinic_id' => $clinicId,
+            'finance_id' => $financeId,
+            'amount' => number_format($amount, 2, '.', ''),
+            'currency' => 'ILS',
+            'amount_original' => number_format($amount, 2, '.', ''),
+            'exchange_rate' => '1.000000',
+            'type' => 'payment',
+            'payment_method' => 'cash',
+            'liquidity_account' => 'safe_cash',
+            'payment_date' => date('Y-m-d'),
+            'notes' => 'Bridge payment',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $paymentId = (int) $this->db->insertID();
+        $this->paymentIds[] = $paymentId;
+
+        $finance = $this->db->table('finances')->where('id', $financeId)->get()->getRowArray();
+        $total = (float) ($finance['total_amount'] ?? $finance['amount'] ?? 0);
+        $paid = round((float) ($finance['amount_paid'] ?? 0) + $amount, 2);
+        $balance = round(max(0, $total - $paid), 2);
+        $this->db->table('finances')
+            ->where('id', $financeId)
+            ->where('clinic_id', $clinicId)
+            ->update([
+                'amount_paid' => number_format($paid, 2, '.', ''),
+                'balance_due' => number_format($balance, 2, '.', ''),
+                'payment_status' => $balance <= 0 ? 'paid' : 'partial',
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        return $paymentId;
     }
 
     private function treatment(int $treatmentId): array
