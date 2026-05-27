@@ -168,6 +168,10 @@ return [
     'open_linked_invoice' => 'فتح الفاتورة المرتبطة',
     'no_charge_captured' => 'لا توجد مطالبة مريض مسجلة لهذا العلاج.',
     'edit_to_capture_charge' => 'عدّل العلاج لتسجيل مطالبة على المريض',
+    'operational_snapshot' => 'ملخص تشغيلي',
+    'clinical_finance_trace' => 'تتبع سريري ومالي',
+    'billing_state' => 'حالة الفوترة',
+    'not_available' => 'غير متوفر',
     'status_values' => [
         'active' => 'نشط',
         'completed' => 'مكتمل',

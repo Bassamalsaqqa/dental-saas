@@ -168,6 +168,10 @@ return [
     'open_linked_invoice' => 'Open linked invoice',
     'no_charge_captured' => 'No patient charge captured for this treatment.',
     'edit_to_capture_charge' => 'Edit treatment to capture a patient charge',
+    'operational_snapshot' => 'Operational snapshot',
+    'clinical_finance_trace' => 'Clinical and finance trace',
+    'billing_state' => 'Billing state',
+    'not_available' => 'Not available',
     'status_values' => [
         'active' => 'Active',
         'completed' => 'Completed',

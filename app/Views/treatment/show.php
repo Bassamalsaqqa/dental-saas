@@ -23,6 +23,17 @@ $billThisTreatmentUrl = $chargeLineIsOpen && !empty($treatment['patient_id'])
 $linkedInvoiceUrl = !empty($chargeLine['finance_id'])
     ? workflow_context_url('finance/' . (int) $chargeLine['finance_id'], $treatmentReturnTarget)
     : '';
+$moneyTrail = $money_trail ?? [];
+$moneySummary = $moneyTrail['summary'] ?? [];
+$billingStateLabel = $chargeLineId <= 0
+    ? $tr('no_charge_captured')
+    : ($chargeLineIsOpen ? $tr('not_billed_yet') : $tr('already_billed'));
+$billingStateTone = $chargeLineId <= 0
+    ? 'border-slate-200 bg-slate-50 text-slate-700'
+    : ($chargeLineIsOpen ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800');
+$invoiceBalance = (float) ($moneySummary['balance_due'] ?? 0);
+$providerRemaining = (float) ($moneySummary['provider_remaining'] ?? 0);
+$inventoryCost = (float) ($moneySummary['inventory_cost'] ?? 0);
 $statusTone = match ($statusRaw) {
     'active' => ['bg' => 'rgba(59,130,246,0.22)', 'border' => 'rgba(147,197,253,0.4)'],
     'completed' => ['bg' => 'rgba(16,185,129,0.22)', 'border' => 'rgba(167,243,208,0.4)'],
@@ -33,20 +44,233 @@ $statusTone = match ($statusRaw) {
 ?>
 
 <style>
+.treatment-page-shell {
+    font-family: var(--app-font-sans, "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif);
+}
+[dir="rtl"] .treatment-page-shell {
+    font-family: var(--app-font-ar, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif);
+}
 .treatment-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-    padding: 1.25rem 1.5rem;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.32);
+    border-radius: 1.25rem;
+    background:
+        radial-gradient(circle at 92% 8%, rgba(255,255,255,0.24), transparent 30%),
+        linear-gradient(135deg, rgba(30,64,175,0.9), rgba(14,116,144,0.82));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 42px -30px rgba(15,23,42,0.58);
+    overflow: hidden;
 }
+.treatment-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 8% 18%, rgba(255,255,255,0.16), transparent 32%),
+        radial-gradient(circle at 88% 88%, rgba(125,211,252,0.18), transparent 34%),
+        linear-gradient(120deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+    opacity: 1;
+}
+.treatment-card > * {
+    position: relative;
+    z-index: 1;
+}
+.treatment-card--clinical {
+    border-color: rgba(191,219,254,0.42);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.22), transparent 32%),
+        radial-gradient(circle at 12% 92%, rgba(34,211,238,0.22), transparent 34%),
+        linear-gradient(135deg, rgba(30,64,175,0.9) 0%, rgba(14,116,144,0.84) 100%);
+}
+.treatment-card--notes {
+    border-color: rgba(253,230,138,0.42);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.2), transparent 32%),
+        radial-gradient(circle at 12% 92%, rgba(251,191,36,0.24), transparent 34%),
+        linear-gradient(135deg, rgba(180,83,9,0.88) 0%, rgba(15,118,110,0.78) 100%);
+}
+.treatment-card--inventory {
+    border-color: rgba(167,243,208,0.42);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.22), transparent 32%),
+        radial-gradient(circle at 12% 92%, rgba(45,212,191,0.24), transparent 34%),
+        linear-gradient(135deg, rgba(6,95,70,0.9) 0%, rgba(14,116,144,0.78) 100%);
+}
+.treatment-card--patient {
+    border-color: rgba(196,181,253,0.44);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.22), transparent 32%),
+        radial-gradient(circle at 12% 92%, rgba(96,165,250,0.22), transparent 34%),
+        linear-gradient(135deg, rgba(91,33,182,0.86) 0%, rgba(30,64,175,0.78) 100%);
+}
+.treatment-card--billing {
+    border-color: rgba(94,234,212,0.44);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.22), transparent 32%),
+        radial-gradient(circle at 12% 92%, rgba(16,185,129,0.24), transparent 34%),
+        linear-gradient(135deg, rgba(4,120,87,0.9) 0%, rgba(21,94,117,0.78) 100%);
+}
+.treatment-card--timeline {
+    border-color: rgba(165,180,252,0.44);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.22), transparent 32%),
+        radial-gradient(circle at 12% 92%, rgba(129,140,248,0.24), transparent 34%),
+        linear-gradient(135deg, rgba(49,46,129,0.88) 0%, rgba(14,116,144,0.76) 100%);
+}
+.treatment-workspace-section {
+    border-radius: 1.6rem;
+    border: 1px solid rgba(203,213,225,0.76);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(59,130,246,0.08), transparent 28%),
+        radial-gradient(circle at 100% 18%, rgba(16,185,129,0.1), transparent 30%),
+        linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 22px 56px -42px rgba(15,23,42,0.5);
+    padding: 1rem;
+}
+@media (min-width: 640px) { .treatment-workspace-section { padding: 1.25rem; } }
 .treatment-card-header {
-    display: flex; align-items: center; gap: 0.625rem;
-    margin-bottom: 1rem; padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-weight: 700; font-size: 0.9375rem; color: #1e293b;
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.16);
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05)),
+        linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
+    font-weight: 800; font-size: 0.9375rem; color: #f8fafc;
 }
-.treatment-card-header i { opacity: 0.7; }
+.treatment-card-header i {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2rem; height: 2rem; border-radius: 0.8rem;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), 0 14px 22px -18px rgba(15,23,42,0.72);
+}
+.treatment-card-header i.text-blue-600,
+.treatment-card-header i.text-amber-500,
+.treatment-card-header i.text-emerald-600,
+.treatment-card-header i.text-purple-600,
+.treatment-card-header i.text-indigo-600 {
+    color: #fff !important;
+}
+.treatment-card-body { padding: 1.25rem; }
+.treatment-card-body + .treatment-card-body { border-top: 1px solid rgba(255,255,255,0.12); }
+.treatment-card-body > p,
+.treatment-card-body > .text-slate-500,
+.treatment-card-body > .text-gray-500 {
+    color: rgba(239,246,255,0.86) !important;
+}
+.treatment-card-panel .text-slate-500,
+.treatment-card-panel .text-gray-500,
+.treatment-card-panel .text-slate-600,
+.treatment-card-panel .text-gray-600,
+.treatment-card-empty .text-slate-500,
+.treatment-card-empty .text-gray-500,
+.treatment-card-empty .text-slate-600,
+.treatment-card-empty .text-gray-600 {
+    color: rgba(226,232,240,0.9) !important;
+}
+.treatment-card-panel .text-slate-900,
+.treatment-card-panel .text-gray-900,
+.treatment-card-panel .text-slate-800,
+.treatment-card-panel .text-gray-800,
+.treatment-card-panel .text-gray-700,
+.treatment-card-empty .text-slate-900,
+.treatment-card-empty .text-gray-900,
+.treatment-card-empty .text-slate-800,
+.treatment-card-empty .text-gray-800,
+.treatment-card-empty .text-gray-700 {
+    color: #fff !important;
+}
+.treatment-card-panel .text-emerald-700,
+.treatment-card-empty .text-emerald-700 {
+    color: #a7f3d0 !important;
+}
+.treatment-card-panel .text-amber-700,
+.treatment-card-empty .text-amber-700 {
+    color: #fde68a !important;
+}
+.treatment-card-panel .bg-emerald-100,
+.treatment-card-empty .bg-emerald-100 {
+    background: rgba(16,185,129,0.22) !important;
+}
+.treatment-card-panel .bg-amber-100,
+.treatment-card-empty .bg-amber-100 {
+    background: rgba(245,158,11,0.24) !important;
+}
+.treatment-card-panel .border-gray-100,
+.treatment-card-panel .border-gray-50 {
+    border-color: rgba(255,255,255,0.16) !important;
+}
+.treatment-card-panel tbody > :not([hidden]) ~ :not([hidden]) {
+    border-color: rgba(255,255,255,0.12) !important;
+}
+.treatment-card-panel tbody tr:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+.treatment-detail-copy {
+    border-radius: 1rem;
+    border: 1px solid rgba(255,255,255,0.26);
+    background: rgba(255,255,255,0.18);
+    padding: 1rem;
+    color: #f8fafc;
+    line-height: 1.75;
+}
+.treatment-detail-copy .text-gray-400 {
+    color: rgba(226,232,240,0.82) !important;
+}
+.treatment-info-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.26);
+    background: rgba(255,255,255,0.18);
+    padding: 0.8rem 0.9rem;
+}
+.treatment-info-label {
+    color: rgba(219,234,254,0.9);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.treatment-info-value {
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 800;
+    text-align: end;
+}
+.treatment-card-panel {
+    border: 1px solid rgba(255,255,255,0.26);
+    background: rgba(255,255,255,0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.62);
+}
+.treatment-card-empty {
+    border: 1px dashed rgba(255,255,255,0.36);
+    background: rgba(255,255,255,0.16);
+    color: #f8fafc;
+}
+.treatment-card-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.treatment-card-action:hover { transform: translateY(-1px); }
+.treatment-card-action.border-blue-200,
+.treatment-card-action.border-emerald-200 {
+    border-color: rgba(255,255,255,0.34) !important;
+    background: rgba(255,255,255,0.16) !important;
+    color: #f8fafc !important;
+}
+.treatment-card-action.border-blue-200:hover,
+.treatment-card-action.border-emerald-200:hover {
+    background: rgba(255,255,255,0.24) !important;
+    color: #fff !important;
+}
 
 /* Hero card CSS (shared from patient pattern) */
 .patient-hero-card {
@@ -103,9 +327,71 @@ $statusTone = match ($statusRaw) {
     backdrop-filter: blur(12px); border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.09);
     transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease; text-align: center;
 }
+.treatment-snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+@media (min-width: 640px) { .treatment-snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .treatment-snapshot-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.treatment-snapshot-card {
+    min-height: 6rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255,255,255,0.44);
+    background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.22), transparent 35%),
+        linear-gradient(135deg, rgba(15,63,144,0.94), rgba(22,86,193,0.84) 54%, rgba(15,124,193,0.74));
+    padding: 1rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 3px rgba(15,23,42,0.04), 0 12px 28px -22px rgba(15,23,42,0.4);
+}
+.treatment-snapshot-card .text-amber-700,
+.treatment-snapshot-card .text-emerald-700,
+.treatment-snapshot-card .text-violet-700,
+.treatment-snapshot-card .text-slate-700,
+.treatment-snapshot-card .text-rose-700 {
+    color: #fff !important;
+}
+.treatment-card--timeline .flex.justify-between {
+    gap: 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.26);
+    background: rgba(255,255,255,0.18);
+    padding: 0.8rem 0.9rem;
+}
+.treatment-card--timeline .flex.justify-between .text-gray-500 {
+    color: rgba(219,234,254,0.9) !important;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.treatment-card--timeline .flex.justify-between .text-gray-900 {
+    color: #fff !important;
+    font-size: 0.86rem;
+    font-weight: 800;
+    text-align: end;
+}
+.treatment-snapshot-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(219,234,254,0.9);
+}
+.treatment-snapshot-value {
+    margin-top: 0.45rem;
+    font-size: 1rem;
+    line-height: 1.25;
+    font-weight: 800;
+    color: #fff;
+}
+.treatment-snapshot-meta {
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: rgba(239,246,255,0.82);
+}
 </style>
 
-<div class="min-h-screen bg-slate-50">
+<div class="treatment-page-shell min-h-screen bg-slate-50">
 <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
 
     <!-- Hero Header -->
@@ -192,35 +478,85 @@ $statusTone = match ($statusRaw) {
         </div>
     </section>
 
+    <section class="mb-6 rounded-[1.6rem] border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/30 to-sky-50/40 p-4 shadow-sm sm:p-5">
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-[0.16em] text-emerald-700"><?= esc($tr('operational_snapshot')) ?></p>
+                <h2 class="mt-1 text-lg font-extrabold text-slate-900"><?= esc($tr('clinical_finance_trace')) ?></h2>
+            </div>
+            <?php if ($linkedInvoiceUrl !== ''): ?>
+                <a href="<?= esc($linkedInvoiceUrl) ?>" class="inline-flex w-fit items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span><?= esc($tr('open_linked_invoice')) ?></span>
+                </a>
+            <?php endif; ?>
+        </div>
+        <div class="treatment-snapshot-grid">
+            <div class="treatment-snapshot-card">
+                <p class="treatment-snapshot-label"><?= esc($tr('billing_state')) ?></p>
+                <p class="treatment-snapshot-value"><?= esc($billingStateLabel) ?></p>
+                <p class="treatment-snapshot-meta" dir="ltr">
+                    <?= $chargeLineId > 0 ? esc($chargeLineCurrency . ' ' . number_format($chargeLineAmount, 2)) : esc($tr('not_available')) ?>
+                </p>
+            </div>
+            <div class="treatment-snapshot-card">
+                <p class="treatment-snapshot-label"><?= esc($tr('patient')) ?></p>
+                <p class="treatment-snapshot-value truncate"><?= esc($patientName !== '' ? $patientName : $tr('not_available')) ?></p>
+                <p class="treatment-snapshot-meta"><?= !empty($treatment['phone']) ? esc($treatment['phone']) : esc($tr('not_available')) ?></p>
+            </div>
+            <div class="treatment-snapshot-card">
+                <p class="treatment-snapshot-label"><?= esc(lang('UI.moneyTrailBalanceDue')) ?></p>
+                <p class="treatment-snapshot-value <?= $invoiceBalance > 0.009 ? 'text-amber-700' : 'text-emerald-700' ?>" dir="ltr"><?= esc(formatCurrency($invoiceBalance)) ?></p>
+                <p class="treatment-snapshot-meta"><?= esc(lang('UI.moneyTrailCharged')) ?>: <span dir="ltr"><?= esc(formatCurrency($moneySummary['charged'] ?? 0)) ?></span></p>
+            </div>
+            <div class="treatment-snapshot-card">
+                <p class="treatment-snapshot-label"><?= esc(lang('UI.moneyTrailProviderRemaining')) ?></p>
+                <p class="treatment-snapshot-value <?= $providerRemaining > 0.009 ? 'text-violet-700' : 'text-slate-700' ?>" dir="ltr"><?= esc(formatCurrency($providerRemaining)) ?></p>
+                <p class="treatment-snapshot-meta"><?= esc(lang('UI.moneyTrailProviderShare')) ?>: <span dir="ltr"><?= esc(formatCurrency($moneySummary['provider_share'] ?? 0)) ?></span></p>
+            </div>
+            <div class="treatment-snapshot-card">
+                <p class="treatment-snapshot-label"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
+                <p class="treatment-snapshot-value <?= $inventoryCost > 0.009 ? 'text-rose-700' : 'text-slate-700' ?>" dir="ltr"><?= esc(formatCurrency($inventoryCost)) ?></p>
+                <p class="treatment-snapshot-meta"><?= esc($tr('inventory_usage')) ?>: <?= esc((string) count($usage_records ?? [])) ?></p>
+            </div>
+        </div>
+    </section>
+
     <!-- Content Grid -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="treatment-workspace-section grid grid-cols-1 gap-6">
 
         <!-- Left Column -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="grid gap-6 xl:grid-cols-2">
             <!-- Treatment Description -->
-            <div class="treatment-card">
+            <div class="treatment-card treatment-card--clinical">
                 <div class="treatment-card-header">
                     <i class="fas fa-align-left text-blue-600"></i><span><?= esc($tr('treatment_description')) ?></span>
                 </div>
-                <p class="text-sm text-gray-700 leading-relaxed"><?= !empty($treatment['treatment_description']) ? nl2br(htmlspecialchars($treatment['treatment_description'])) : '<span class="text-gray-400 italic">' . esc($tr('no_description_provided')) . '</span>' ?></p>
+                <div class="treatment-card-body">
+                    <div class="treatment-detail-copy text-sm"><?= !empty($treatment['treatment_description']) ? nl2br(htmlspecialchars($treatment['treatment_description'])) : '<span class="text-gray-400 italic">' . esc($tr('no_description_provided')) . '</span>' ?></div>
+                </div>
             </div>
 
             <!-- Treatment Notes -->
             <?php if (!empty($treatment['treatment_notes'])): ?>
-            <div class="treatment-card">
+            <div class="treatment-card treatment-card--notes">
                 <div class="treatment-card-header">
                     <i class="fas fa-sticky-note text-amber-500"></i><span><?= esc($tr('treatment_notes')) ?></span>
                 </div>
-                <p class="text-sm text-gray-700 leading-relaxed"><?= nl2br(htmlspecialchars($treatment['treatment_notes'])) ?></p>
+                <div class="treatment-card-body">
+                    <div class="treatment-detail-copy text-sm"><?= nl2br(htmlspecialchars($treatment['treatment_notes'])) ?></div>
+                </div>
             </div>
             <?php endif; ?>
 
             <!-- Inventory Usage -->
             <?php if (!empty($usage_records)): ?>
-            <div class="treatment-card">
+            <div class="treatment-card treatment-card--inventory xl:col-span-2">
                 <div class="treatment-card-header">
                     <i class="fas fa-boxes text-emerald-600"></i><span><?= esc($tr('inventory_usage')) ?></span>
                 </div>
+                <div class="treatment-card-body">
+                <div class="treatment-card-panel overflow-hidden rounded-xl">
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
@@ -249,38 +585,40 @@ $statusTone = match ($statusRaw) {
                         </tbody>
                     </table>
                 </div>
+                </div>
+                </div>
             </div>
             <?php endif; ?>
         </div>
 
         <!-- Right Column -->
-        <div class="space-y-6">
+        <div class="grid gap-6 xl:grid-cols-2">
 
             <!-- Patient Info -->
             <?php if (!empty($treatment['patient_id'])): ?>
-            <div class="treatment-card">
+            <div class="treatment-card treatment-card--patient">
                 <div class="treatment-card-header">
                     <i class="fas fa-user text-purple-600"></i><span><?= esc($tr('patient_information')) ?></span>
                 </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('patient_name')) ?></span><span class="font-medium text-gray-900"><?= esc($patientName) ?></span></div>
-                    <?php if (!empty($treatment['phone'])): ?><div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('phone')) ?></span><span class="text-gray-900"><?= esc($treatment['phone']) ?></span></div><?php endif; ?>
-                </div>
-                <a href="<?= workflow_context_url('patient/' . $treatment['patient_id'], $return_to ?? null) ?>" class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-external-link-alt"></i><?= $isRtl ? 'فتح ملف المريض' : 'Open patient profile' ?>
+                <div class="treatment-card-body space-y-3 text-sm">
+                    <div class="treatment-info-row"><span class="treatment-info-label"><?= esc($tr('patient_name')) ?></span><span class="treatment-info-value"><?= esc($patientName) ?></span></div>
+                    <?php if (!empty($treatment['phone'])): ?><div class="treatment-info-row"><span class="treatment-info-label"><?= esc($tr('phone')) ?></span><span class="treatment-info-value" dir="ltr"><?= esc($treatment['phone']) ?></span></div><?php endif; ?>
+                <a href="<?= workflow_context_url('patient/' . $treatment['patient_id'], $return_to ?? null) ?>" class="treatment-card-action w-full border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                    <i class="fas fa-external-link-alt"></i><span><?= esc(lang('UI.patientProfile')) ?></span>
                 </a>
+                </div>
             </div>
             <?php endif; ?>
 
             <!-- Patient Billing -->
-            <div class="treatment-card">
+            <div class="treatment-card treatment-card--billing">
                 <div class="treatment-card-header">
                     <i class="fas fa-file-invoice-dollar text-emerald-600"></i><span><?= esc($tr('patient_billing')) ?></span>
                 </div>
-                <div class="space-y-3 text-sm">
+                <div class="treatment-card-body space-y-4 text-sm">
                     <p class="text-slate-500"><?= esc($tr('patient_billing_help')) ?></p>
                     <?php if ($chargeLineId > 0): ?>
-                        <div class="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+                        <div class="treatment-card-panel rounded-2xl p-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="text-xs font-bold uppercase tracking-wide text-emerald-700"><?= esc($tr('captured_charge')) ?></p>
@@ -298,16 +636,16 @@ $statusTone = match ($statusRaw) {
                             </div>
                         </div>
                         <?php if ($billThisTreatmentUrl !== ''): ?>
-                            <a href="<?= esc($billThisTreatmentUrl) ?>" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700">
+                            <a href="<?= esc($billThisTreatmentUrl) ?>" class="treatment-card-action w-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700">
                                 <i class="fas fa-file-invoice-dollar"></i><span><?= esc($tr('create_invoice_from_treatment')) ?></span>
                             </a>
                         <?php elseif ($linkedInvoiceUrl !== ''): ?>
-                            <a href="<?= esc($linkedInvoiceUrl) ?>" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50">
+                            <a href="<?= esc($linkedInvoiceUrl) ?>" class="treatment-card-action w-full border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50">
                                 <i class="fas fa-link"></i><span><?= esc($tr('open_linked_invoice')) ?></span>
                             </a>
                         <?php endif; ?>
                     <?php else: ?>
-                        <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-slate-600">
+                        <div class="treatment-card-empty rounded-2xl p-4">
                             <p class="font-semibold text-slate-800"><?= esc($tr('no_charge_captured')) ?></p>
                             <a href="<?= workflow_context_url('treatment/' . $treatment['id'] . '/edit', $return_to ?? null) ?>" class="mt-2 inline-flex items-center gap-2 text-xs font-bold text-emerald-700 hover:text-emerald-800">
                                 <i class="fas fa-pen"></i><span><?= esc($tr('edit_to_capture_charge')) ?></span>
@@ -317,20 +655,22 @@ $statusTone = match ($statusRaw) {
                 </div>
             </div>
 
+            <div class="xl:col-span-2">
             <?= view('components/money_trail_panel', [
                 'money_trail' => $money_trail ?? [],
                 'is_rtl' => $isRtl,
                 'return_to' => $return_to ?? null,
             ]) ?>
+            </div>
 
             <!-- Timeline -->
-            <div class="treatment-card">
+            <div class="treatment-card treatment-card--timeline">
                 <div class="treatment-card-header">
                     <i class="fas fa-clock text-indigo-600"></i><span><?= esc($tr('treatment_timeline')) ?></span>
                 </div>
-                <div class="space-y-2 text-sm">
+                <div class="treatment-card-body space-y-3 text-sm">
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('start_date')) ?></span><span class="text-gray-900"><?= !empty($treatment['start_date']) ? formatDate($treatment['start_date']) : '—' ?></span></div>
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('completion_date')) ?></span><span class="text-gray-900"><?= !empty($treatment['completion_date']) ? formatDateTime($treatment['completion_date']) : esc($tr('not_completed')) ?></span></div>
+                    <div class="treatment-info-row"><span class="treatment-info-label"><?= esc($tr('completion_date')) ?></span><span class="treatment-info-value"><?= !empty($treatment['completion_date']) ? formatDateTime($treatment['completion_date']) : esc($tr('not_completed')) ?></span></div>
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('created_by')) ?></span><span class="text-gray-900"><?= $doctorName !== '' ? esc($doctorName) : '—' ?></span></div>
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('last_updated')) ?></span><span class="text-gray-900 text-xs"><?= !empty($treatment['updated_at']) ? formatDateTime($treatment['updated_at']) : '—' ?></span></div>
                 </div>
