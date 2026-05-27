@@ -175,6 +175,16 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $this->assertSame('INV-BRIDGE-TRACE', $trail['charge_lines'][0]['transaction_id']);
         $this->assertSame('INV-BRIDGE-TRACE', $trail['finance_rows'][0]['transaction_id']);
         $this->assertSame('100.00', $trail['payment_rows'][0]['amount']);
+
+        $patientTrail = (new MoneyTrailService($this->db))->forPatient($clinicId, $patientId);
+        $this->assertTrue($patientTrail['has_records']);
+        $this->assertSame(240.0, $patientTrail['summary']['captured_charges']);
+        $this->assertSame(240.0, $patientTrail['summary']['charged']);
+        $this->assertSame(100.0, $patientTrail['summary']['paid']);
+        $this->assertSame(140.0, $patientTrail['summary']['balance_due']);
+        $this->assertCount(1, $patientTrail['charge_lines']);
+        $this->assertCount(1, $patientTrail['finance_rows']);
+        $this->assertCount(1, $patientTrail['payment_rows']);
     }
 
     private function createTreatmentFixture(?int $clinicId = null): array

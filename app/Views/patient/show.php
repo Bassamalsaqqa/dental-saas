@@ -211,7 +211,7 @@ foreach ($appointments as $appointmentItem) {
         $nextAppointmentLabel = formatDate(date('Y-m-d', $timestamp));
         $timeValue = !empty($appointmentItem['appointment_time']) ? formatTime($appointmentItem['appointment_time']) : null;
         $typeValue = $appointmentItem['appointment_type'] ?? lang('UI.patientAppointments');
-        $nextAppointmentSubLabel = trim($typeValue . ($timeValue ? ' · ' . $timeValue : ''));
+        $nextAppointmentSubLabel = trim($typeValue . ($timeValue ? ' - ' . $timeValue : ''));
     }
 }
 
@@ -270,36 +270,87 @@ $financeStatusLabel = static function (?string $status): string {
     return ucfirst(str_replace('_', ' ', $status));
 };
 
-$treatmentBillingMeta = static function (array $treatmentRow): array {
+$treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatusLabel): array {
     $chargeId = (int) ($treatmentRow['clinical_charge_line_id'] ?? 0);
     $status = strtolower((string) ($treatmentRow['clinical_charge_status'] ?? ''));
     $amount = isset($treatmentRow['clinical_charge_amount']) ? (float) $treatmentRow['clinical_charge_amount'] : null;
     $currency = (string) ($treatmentRow['clinical_charge_currency'] ?? '');
     $financeId = (int) ($treatmentRow['clinical_charge_finance_id'] ?? 0);
     $invoiceNumber = trim((string) ($treatmentRow['clinical_charge_invoice_number'] ?? ''));
+    $invoiceStatus = strtolower((string) ($treatmentRow['clinical_charge_invoice_status'] ?? ''));
+    $invoicePaid = isset($treatmentRow['clinical_charge_invoice_paid']) ? max(0, (float) $treatmentRow['clinical_charge_invoice_paid']) : 0.0;
+    $invoiceBalance = isset($treatmentRow['clinical_charge_invoice_balance']) ? max(0, (float) $treatmentRow['clinical_charge_invoice_balance']) : 0.0;
 
     if ($chargeId <= 0 || $amount === null) {
         return [
             'amount_text' => lang('UI.patientNotBilledYet'),
+            'amount_raw' => 0.0,
             'status_text' => lang('UI.patientNoChargeCaptured'),
             'status_class' => 'bg-slate-100 text-slate-600',
             'finance_id' => 0,
             'invoice_number' => '',
+            'invoice_status' => '',
+            'invoice_status_text' => '',
+            'invoice_status_class' => 'bg-slate-100 text-slate-600',
+            'paid_amount' => 0.0,
+            'paid_text' => '',
+            'balance_amount' => 0.0,
+            'balance_text' => '',
             'is_billed' => false,
+            'is_paid' => false,
+            'has_balance' => false,
         ];
     }
 
     $isBilled = $status === 'invoiced' && $financeId > 0;
+    $isPaid = $isBilled && $invoiceBalance <= 0.009 && in_array($invoiceStatus, ['paid', 'partial', 'pending', 'overdue'], true);
+    $hasBalance = $isBilled && $invoiceBalance > 0.009;
+    $invoiceStatusClass = match ($invoiceStatus) {
+        'paid' => 'bg-emerald-100 text-emerald-700',
+        'partial' => 'bg-blue-100 text-blue-700',
+        'overdue' => 'bg-rose-100 text-rose-700',
+        'pending' => 'bg-amber-100 text-amber-700',
+        default => 'bg-slate-100 text-slate-600',
+    };
 
     return [
         'amount_text' => trim(($currency !== '' ? $currency . ' ' : '') . number_format($amount, 2)),
+        'amount_raw' => $amount,
         'status_text' => $isBilled ? lang('UI.patientBilled') : lang('UI.patientReadyToBill'),
         'status_class' => $isBilled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
         'finance_id' => $financeId,
         'invoice_number' => $invoiceNumber,
+        'invoice_status' => $invoiceStatus,
+        'invoice_status_text' => $invoiceStatus !== '' ? $financeStatusLabel($invoiceStatus) : '',
+        'invoice_status_class' => $invoiceStatusClass,
+        'paid_amount' => $invoicePaid,
+        'paid_text' => formatCurrency($invoicePaid),
+        'balance_amount' => $invoiceBalance,
+        'balance_text' => formatCurrency($invoiceBalance),
         'is_billed' => $isBilled,
+        'is_paid' => $isPaid,
+        'has_balance' => $hasBalance,
     ];
 };
+
+$openClinicalChargeCount = 0;
+$openClinicalChargeTotal = 0.0;
+$paidBilledTreatmentCount = 0;
+$unpaidBilledTreatmentCount = 0;
+foreach ($treatments as $treatmentItem) {
+    $billingMeta = $treatmentBillingMeta($treatmentItem);
+    if (!$billingMeta['is_billed'] && ($billingMeta['amount_raw'] ?? 0) > 0) {
+        $openClinicalChargeCount++;
+        $openClinicalChargeTotal += (float) $billingMeta['amount_raw'];
+    }
+    if ($billingMeta['is_billed']) {
+        if ($billingMeta['has_balance']) {
+            $unpaidBilledTreatmentCount++;
+        } else {
+            $paidBilledTreatmentCount++;
+        }
+    }
+}
 
 $totalCharges = 0.0;
 $totalCollected = 0.0;
@@ -1330,6 +1381,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 'text' => $treatmentBilling['invoice_number'],
                                             ];
                                         }
+                                        if ($treatmentBilling['is_billed']) {
+                                            $treatmentMeta[] = [
+                                                'icon' => 'fas fa-hand-holding-dollar',
+                                                'text' => lang('UI.patientPaidShort') . ': ' . $treatmentBilling['paid_text'],
+                                            ];
+                                            $treatmentMeta[] = [
+                                                'icon' => 'fas fa-scale-balanced',
+                                                'text' => lang('UI.patientBalanceShort') . ': ' . $treatmentBilling['balance_text'],
+                                            ];
+                                        }
                                         $timeline[] = [
                                             'type' => 'treatment',
                                             'date' => $treatment['start_date'],
@@ -1956,6 +2017,21 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <span class="text-xs text-gray-400"><?= count($treatments) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
                                     </div>
                                 </div>
+                                <div class="px-6 py-3 border-b border-gray-100 bg-white">
+                                    <div class="grid gap-3 sm:grid-cols-3">
+                                        <div class="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2">
+                                            <p class="text-[11px] font-semibold uppercase tracking-wide text-amber-700"><?= esc(lang('UI.patientUnbilledWork')) ?></p>
+                                            <p class="mt-1 text-sm font-bold text-amber-900"><?= esc($openClinicalChargeCount) ?> &middot; <span dir="ltr"><?= formatCurrency($openClinicalChargeTotal) ?></span></p>
+                                        </div>
+                                        <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2">
+                                            <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700"><?= esc(lang('UI.patientBilledPaid')) ?></p>
+                                            <p class="mt-1 text-sm font-bold text-emerald-900"><?= esc($paidBilledTreatmentCount) ?></p>
+                                        </div>
+                                        <div class="rounded-xl border border-blue-100 bg-blue-50 px-3 py-2">
+                                            <p class="text-[11px] font-semibold uppercase tracking-wide text-blue-700"><?= esc(lang('UI.patientBilledWithBalance')) ?></p>
+                                            <p class="mt-1 text-sm font-bold text-blue-900"><?= esc($unpaidBilledTreatmentCount) ?></p>
+                                        </div>
+                                    </div>
                                 </div>
                                 <?php if (!empty($treatments)): ?>
                                     <div class="overflow-x-auto">
@@ -1984,6 +2060,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                                 <a href="<?= esc(workflow_context_url('finance/' . (int) $rowBilling['finance_id'], $patientContextReturnTo)) ?>" class="mt-1 block text-xs font-semibold text-emerald-700 hover:underline">
                                                                     <?= esc($rowBilling['invoice_number'] !== '' ? $rowBilling['invoice_number'] : lang('Finance.invoice')) ?>
                                                                 </a>
+                                                                <div class="mt-2 grid gap-1 text-xs text-slate-600">
+                                                                    <?php if ($rowBilling['invoice_status_text'] !== ''): ?>
+                                                                        <span class="inline-flex w-fit items-center rounded-full px-2 py-0.5 font-semibold <?= esc($rowBilling['invoice_status_class']) ?>">
+                                                                            <?= esc($rowBilling['invoice_status_text']) ?>
+                                                                        </span>
+                                                                    <?php endif; ?>
+                                                                    <span><?= esc(lang('UI.patientPaidShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['paid_text']) ?></strong></span>
+                                                                    <span class="<?= $rowBilling['has_balance'] ? 'text-amber-700' : 'text-emerald-700' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
+                                                                </div>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['active'=>'bg-blue-100 text-blue-700','completed'=>'bg-emerald-100 text-emerald-700','cancelled'=>'bg-rose-100 text-rose-700','on_hold'=>'bg-amber-100 text-amber-700'][$trt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($trt['status']) ?></span></td>
@@ -5243,3 +5328,4 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 </script>
 
 <?= $this->endSection() ?>
+
