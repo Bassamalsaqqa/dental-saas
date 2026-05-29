@@ -711,6 +711,8 @@ return [
     'patientClinicalSource' => 'المصدر السريري',
     'patientClinicalWork' => 'عمل سريري',
     'patientClinicalExamination' => 'فحص سريري',
+    'patientSameDayClinicalWork' => 'عمل سريري في نفس اليوم',
+    'patientProviderCompensation' => 'حساب مقدم الخدمة',
     'patientNoClinicalSource' => 'لا يوجد مصدر سريري',
     'patientCreateInvoiceFromWork' => 'إنشاء فاتورة من هذا العمل',
     'patientBilled' => 'مفوتر',

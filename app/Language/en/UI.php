@@ -708,6 +708,8 @@ return [
     'patientClinicalSource' => 'Clinical source',
     'patientClinicalWork' => 'Clinical work',
     'patientClinicalExamination' => 'Clinical examination',
+    'patientSameDayClinicalWork' => 'Same-day clinical work',
+    'patientProviderCompensation' => 'Provider pay',
     'patientNoClinicalSource' => 'No clinical source',
     'patientCreateInvoiceFromWork' => 'Create invoice from this work',
     'patientBilled' => 'Billed',

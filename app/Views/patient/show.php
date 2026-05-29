@@ -363,6 +363,53 @@ $financialLedgerRows = [];
 $financeLookup = [];
 $moneyTrailForPatient = $money_trail ?? [];
 $clinicalSourcesByFinanceId = [];
+$providerPayoutsByFinanceId = [];
+$sameDayClinicalByDate = [];
+
+$providerPayoutName = static function (array $row): string {
+    $name = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
+    if ($name !== '') {
+        return $name;
+    }
+
+    $snapshot = trim((string) ($row['provider_name_snapshot'] ?? ''));
+    return $snapshot !== '' ? $snapshot : lang('UI.moneyTrailProvider');
+};
+
+foreach ($examinations as $examRow) {
+    $examDate = !empty($examRow['examination_date']) ? substr((string) $examRow['examination_date'], 0, 10) : '';
+    if ($examDate === '') {
+        continue;
+    }
+
+    if (!isset($sameDayClinicalByDate[$examDate])) {
+        $sameDayClinicalByDate[$examDate] = ['examinations' => [], 'treatments' => [], 'captured_amount' => 0.0];
+    }
+
+    $sameDayClinicalByDate[$examDate]['examinations'][] = [
+        'label' => (string) ($examRow['examination_id'] ?? lang('UI.patientClinicalExamination')),
+        'url' => workflow_context_url('examination/' . (int) ($examRow['id'] ?? 0), $patientContextReturnTo),
+    ];
+}
+
+foreach ($treatments as $treatmentRow) {
+    $treatmentDate = !empty($treatmentRow['start_date']) ? substr((string) $treatmentRow['start_date'], 0, 10) : '';
+    if ($treatmentDate === '') {
+        continue;
+    }
+
+    if (!isset($sameDayClinicalByDate[$treatmentDate])) {
+        $sameDayClinicalByDate[$treatmentDate] = ['examinations' => [], 'treatments' => [], 'captured_amount' => 0.0];
+    }
+
+    $billingMeta = $treatmentBillingMeta($treatmentRow);
+    $sameDayClinicalByDate[$treatmentDate]['treatments'][] = [
+        'label' => (string) ($treatmentRow['treatment_name'] ?? lang('UI.patientTreatment')),
+        'url' => workflow_context_url('treatment/' . (int) ($treatmentRow['id'] ?? 0), $patientContextReturnTo),
+        'amount' => (float) ($billingMeta['amount_raw'] ?? 0),
+    ];
+    $sameDayClinicalByDate[$treatmentDate]['captured_amount'] += (float) ($billingMeta['amount_raw'] ?? 0);
+}
 
 foreach (($moneyTrailForPatient['charge_lines'] ?? []) as $chargeLineRow) {
     $sourceFinanceId = (int) ($chargeLineRow['finance_id'] ?? 0);
@@ -396,6 +443,29 @@ foreach (($moneyTrailForPatient['charge_lines'] ?? []) as $chargeLineRow) {
         'icon' => $sourceIcon,
         'amount' => isset($chargeLineRow['net_production_amount']) ? (float) $chargeLineRow['net_production_amount'] : null,
         'currency' => (string) ($chargeLineRow['currency'] ?? ''),
+    ];
+}
+
+foreach (($moneyTrailForPatient['provider_payouts'] ?? []) as $payoutRow) {
+    $sourceFinanceId = (int) ($payoutRow['finance_id'] ?? 0);
+    if ($sourceFinanceId <= 0) {
+        continue;
+    }
+
+    $providerShare = max(0, (float) ($payoutRow['provider_share_amount'] ?? 0));
+    $providerPaid = max(0, (float) ($payoutRow['provider_paid_amount'] ?? 0));
+    $providerBalance = max(0, (float) ($payoutRow['provider_balance_due'] ?? 0));
+
+    $providerPayoutsByFinanceId[$sourceFinanceId][] = [
+        'provider_name' => $providerPayoutName($payoutRow),
+        'status' => (string) ($payoutRow['status'] ?? ''),
+        'share_amount' => $providerShare,
+        'paid_amount' => $providerPaid,
+        'balance_amount' => $providerBalance,
+        'share_text' => formatCurrency($providerShare),
+        'paid_text' => formatCurrency($providerPaid),
+        'balance_text' => formatCurrency($providerBalance),
+        'url' => workflow_context_url('finance/' . $sourceFinanceId, $patientContextReturnTo),
     ];
 }
 
@@ -455,6 +525,7 @@ foreach ($finances as $financeItem) {
         'status_key' => $paymentStatus !== '' ? $paymentStatus : 'recorded',
         'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
         'clinical_sources' => $clinicalSourcesByFinanceId[$financeId] ?? [],
+        'provider_payouts' => $providerPayoutsByFinanceId[$financeId] ?? [],
     ];
 }
 
@@ -496,6 +567,7 @@ foreach (($finance_settlements ?? []) as $settlement) {
         'status_key' => 'recorded',
         'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
         'clinical_sources' => $clinicalSourcesByFinanceId[$financeId] ?? [],
+        'provider_payouts' => $providerPayoutsByFinanceId[$financeId] ?? [],
     ];
 }
 
@@ -1360,6 +1432,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         $doctorName = trim(($appt['doctor_first_name'] ?? '') . ' ' . ($appt['doctor_last_name'] ?? ''));
                                         $apptStatus = ucfirst((string) ($appt['status'] ?? lang('UI.patientUnknown')));
                                         $apptMeta = [];
+                                        $apptDateKey = !empty($appt['appointment_date']) ? substr((string) $appt['appointment_date'], 0, 10) : '';
+                                        $sameDayClinical = $apptDateKey !== '' ? ($sameDayClinicalByDate[$apptDateKey] ?? null) : null;
                                         if (!empty($appt['appointment_time'])) {
                                             $apptMeta[] = [
                                                 'icon' => 'fas fa-clock',
@@ -1377,6 +1451,23 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 'icon' => 'fas fa-door-open',
                                                 'text' => $appt['chair_name'],
                                             ];
+                                        }
+                                        if (!empty($sameDayClinical)) {
+                                            $sameDayExamCount = count($sameDayClinical['examinations'] ?? []);
+                                            $sameDayTreatmentCount = count($sameDayClinical['treatments'] ?? []);
+                                            $sameDayParts = [];
+                                            if ($sameDayExamCount > 0) {
+                                                $sameDayParts[] = $sameDayExamCount . ' ' . lang('UI.patientClinicalExamination');
+                                            }
+                                            if ($sameDayTreatmentCount > 0) {
+                                                $sameDayParts[] = $sameDayTreatmentCount . ' ' . lang('UI.patientTreatment');
+                                            }
+                                            if ($sameDayParts !== []) {
+                                                $apptMeta[] = [
+                                                    'icon' => 'fas fa-link',
+                                                    'text' => lang('UI.patientSameDayClinicalWork') . ': ' . implode(' / ', $sameDayParts),
+                                                ];
+                                            }
                                         }
                                         $timeline[] = [
                                             'type' => 'appointment',
@@ -1577,6 +1668,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             $financeMeta[] = [
                                                 'icon' => $clinicalSource['icon'] ?? 'fas fa-link',
                                                 'text' => lang('UI.patientClinicalSource') . ': ' . (string) ($clinicalSource['label'] ?? lang('UI.patientClinicalWork')),
+                                            ];
+                                        }
+                                        foreach (($providerPayoutsByFinanceId[(int) ($finance['id'] ?? 0)] ?? []) as $providerPayout) {
+                                            $financeMeta[] = [
+                                                'icon' => 'fas fa-user-doctor',
+                                                'text' => lang('UI.patientProviderCompensation') . ': ' . (string) ($providerPayout['provider_name'] ?? lang('UI.moneyTrailProvider')) . ' - ' . (string) ($providerPayout['share_text'] ?? ''),
                                             ];
                                         }
                                         $timeline[] = [
@@ -2062,9 +2159,39 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
                                                 <?php foreach ($appointments as $apt): ?>
+                                                    <?php
+                                                    $appointmentDateKey = !empty($apt['appointment_date']) ? substr((string) $apt['appointment_date'], 0, 10) : '';
+                                                    $appointmentClinical = $appointmentDateKey !== '' ? ($sameDayClinicalByDate[$appointmentDateKey] ?? null) : null;
+                                                    $appointmentClinicalCount = !empty($appointmentClinical)
+                                                        ? count($appointmentClinical['examinations'] ?? []) + count($appointmentClinical['treatments'] ?? [])
+                                                        : 0;
+                                                    ?>
                                                     <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo)) ?>">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= formatDate($apt['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($apt['appointment_time']) ?></td>
-                                                        <td class="px-6 py-4"><div class="text-sm font-medium text-gray-900"><?= ucfirst($apt['appointment_type'] ?? lang('UI.patientGeneral')) ?></div><div class="text-xs text-gray-500"><?= esc($apt['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></div></td>
+                                                        <td class="px-6 py-4">
+                                                            <div class="text-sm font-medium text-gray-900"><?= ucfirst($apt['appointment_type'] ?? lang('UI.patientGeneral')) ?></div>
+                                                            <div class="text-xs text-gray-500"><?= esc($apt['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></div>
+                                                            <?php if ($appointmentClinicalCount > 0): ?>
+                                                                <div class="mt-2 flex flex-wrap gap-1.5">
+                                                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-800">
+                                                                        <i class="fas fa-link"></i>
+                                                                        <span><?= esc(lang('UI.patientSameDayClinicalWork')) ?>: <?= esc($appointmentClinicalCount) ?></span>
+                                                                    </span>
+                                                                    <?php foreach (array_slice(($appointmentClinical['examinations'] ?? []), 0, 1) as $clinicalItem): ?>
+                                                                        <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-800 hover:bg-blue-100">
+                                                                            <i class="fas fa-stethoscope"></i>
+                                                                            <span><?= esc($clinicalItem['label']) ?></span>
+                                                                        </a>
+                                                                    <?php endforeach; ?>
+                                                                    <?php foreach (array_slice(($appointmentClinical['treatments'] ?? []), 0, 1) as $clinicalItem): ?>
+                                                                        <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border border-pink-200 bg-pink-50 px-2 py-1 text-xs font-semibold text-pink-800 hover:bg-pink-100">
+                                                                            <i class="fas fa-tooth"></i>
+                                                                            <span><?= esc($clinicalItem['label']) ?></span>
+                                                                        </a>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </td>
                                                         <td class="px-6 py-4 text-sm text-gray-700"><?= $apt['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?></td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['scheduled'=>'bg-blue-100 text-blue-700','confirmed'=>'bg-emerald-100 text-emerald-700','completed'=>'bg-gray-100 text-gray-600','cancelled'=>'bg-rose-100 text-rose-700','no_show'=>'bg-amber-100 text-amber-700'][$apt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($apt['status']) ?></span></td>
                                                         <td class="px-6 py-4"><a href="<?= workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-purple-600 hover:bg-purple-50 hover:text-purple-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
@@ -2419,6 +2546,17 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                                     </div>
                                                                 <?php else: ?>
                                                                     <span class="text-xs text-slate-400"><?= esc(lang('UI.patientNoClinicalSource')) ?></span>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($ledgerRow['provider_payouts'])): ?>
+                                                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                                                                        <?php foreach ($ledgerRow['provider_payouts'] as $providerPayout): ?>
+                                                                            <a href="<?= esc($providerPayout['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-2 py-1 text-xs font-semibold text-violet-800 hover:bg-violet-100">
+                                                                                <i class="fas fa-user-doctor"></i>
+                                                                                <span><?= esc(lang('UI.patientProviderCompensation')) ?>: <?= esc($providerPayout['provider_name']) ?></span>
+                                                                                <span dir="ltr"><?= esc($providerPayout['share_text']) ?></span>
+                                                                            </a>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td class="font-semibold <?= $amountClass ?>">
