@@ -365,6 +365,8 @@ $moneyTrailForPatient = $money_trail ?? [];
 $clinicalSourcesByFinanceId = [];
 $providerPayoutsByFinanceId = [];
 $sameDayClinicalByDate = [];
+$inventoryUsageByTreatmentId = [];
+$inventoryUsageByExaminationId = [];
 
 $providerPayoutName = static function (array $row): string {
     $name = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
@@ -374,6 +376,33 @@ $providerPayoutName = static function (array $row): string {
 
     $snapshot = trim((string) ($row['provider_name_snapshot'] ?? ''));
     return $snapshot !== '' ? $snapshot : lang('UI.moneyTrailProvider');
+};
+
+$inventoryUsageSummary = static function (array $row): string {
+    $items = json_decode((string) ($row['items_used'] ?? ''), true);
+    if (!is_array($items) || $items === []) {
+        return lang('UI.moneyTrailInventoryUsage');
+    }
+
+    $labels = [];
+    foreach (array_slice($items, 0, 2) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $name = trim((string) ($item['item_name'] ?? ''));
+        $qty = trim((string) ($item['quantity_used'] ?? ''));
+        if ($name === '') {
+            continue;
+        }
+        $labels[] = $qty !== '' ? $name . ' x' . $qty : $name;
+    }
+
+    if ($labels === []) {
+        return lang('UI.moneyTrailInventoryUsage');
+    }
+
+    $remaining = count($items) - count($labels);
+    return implode(', ', $labels) . ($remaining > 0 ? ' +' . $remaining : '');
 };
 
 foreach ($examinations as $examRow) {
@@ -409,6 +438,18 @@ foreach ($treatments as $treatmentRow) {
         'amount' => (float) ($billingMeta['amount_raw'] ?? 0),
     ];
     $sameDayClinicalByDate[$treatmentDate]['captured_amount'] += (float) ($billingMeta['amount_raw'] ?? 0);
+}
+
+foreach (($moneyTrailForPatient['inventory_usage_rows'] ?? []) as $usageRow) {
+    $usageTreatmentId = (int) ($usageRow['treatment_id'] ?? 0);
+    $usageExaminationId = (int) ($usageRow['examination_id'] ?? 0);
+
+    if ($usageTreatmentId > 0) {
+        $inventoryUsageByTreatmentId[$usageTreatmentId][] = $usageRow;
+    }
+    if ($usageExaminationId > 0) {
+        $inventoryUsageByExaminationId[$usageExaminationId][] = $usageRow;
+    }
 }
 
 foreach (($moneyTrailForPatient['charge_lines'] ?? []) as $chargeLineRow) {
@@ -1397,6 +1438,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     foreach ($examinations as $exam) {
                                         $doctorName = trim(($exam['doctor_first_name'] ?? '') . ' ' . ($exam['doctor_last_name'] ?? ''));
                                         $examStatus = ucfirst((string) ($exam['status'] ?? lang('UI.patientUnknown')));
+                                        $examId = (int) ($exam['id'] ?? 0);
                                         $examMeta = [];
                                         $examMeta[] = [
                                             'icon' => 'fas fa-stethoscope',
@@ -1409,6 +1451,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             $examMeta[] = [
                                                 'icon' => 'fas fa-comment-medical',
                                                 'text' => $examComplaintPreview,
+                                            ];
+                                        }
+                                        $examInventoryCost = 0.0;
+                                        foreach (($inventoryUsageByExaminationId[$examId] ?? []) as $usageRow) {
+                                            $examInventoryCost += max(0, (float) ($usageRow['total_cost'] ?? 0));
+                                        }
+                                        if ($examInventoryCost > 0.009) {
+                                            $examMeta[] = [
+                                                'icon' => 'fas fa-boxes-stacked',
+                                                'text' => lang('UI.moneyTrailInventoryCost') . ': ' . formatCurrency($examInventoryCost),
                                             ];
                                         }
                                         $timeline[] = [
@@ -1489,6 +1541,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     foreach ($treatments as $treatment) {
                                         $doctorName = trim(($treatment['doctor_first_name'] ?? '') . ' ' . ($treatment['doctor_last_name'] ?? ''));
                                         $treatmentStatus = ucfirst((string) ($treatment['status'] ?? lang('UI.patientUnknown')));
+                                        $treatmentId = (int) ($treatment['id'] ?? 0);
                                         $treatmentMeta = [];
                                         if (!empty($treatment['tooth_number'])) {
                                             $treatmentMeta[] = [
@@ -1521,6 +1574,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             $treatmentMeta[] = [
                                                 'icon' => 'fas fa-scale-balanced',
                                                 'text' => lang('UI.patientBalanceShort') . ': ' . $treatmentBilling['balance_text'],
+                                            ];
+                                        }
+                                        $treatmentInventoryCost = 0.0;
+                                        foreach (($inventoryUsageByTreatmentId[$treatmentId] ?? []) as $usageRow) {
+                                            $treatmentInventoryCost += max(0, (float) ($usageRow['total_cost'] ?? 0));
+                                        }
+                                        if ($treatmentInventoryCost > 0.009) {
+                                            $treatmentMeta[] = [
+                                                'icon' => 'fas fa-boxes-stacked',
+                                                'text' => lang('UI.moneyTrailInventoryCost') . ': ' . formatCurrency($treatmentInventoryCost),
                                             ];
                                         }
                                         $timeline[] = [
@@ -1688,6 +1751,136 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             'color' => 'green',
                                             'url' => workflow_context_url('finance/' . $finance['id'], $patientContextReturnTo),
                                             'meta' => $financeMeta,
+                                        ];
+                                    }
+
+                                    // Add invoice settlement rows recorded against patient invoices.
+                                    foreach (($moneyTrailForPatient['payment_rows'] ?? []) as $paymentRow) {
+                                        $paymentFinanceId = (int) ($paymentRow['finance_id'] ?? 0);
+                                        if ($paymentFinanceId <= 0) {
+                                            continue;
+                                        }
+
+                                        $paymentType = strtolower((string) ($paymentRow['type'] ?? 'payment'));
+                                        $paymentAmount = max(0, (float) ($paymentRow['amount'] ?? 0));
+                                        $paymentReference = trim((string) ($paymentRow['transaction_id'] ?? ('#' . $paymentFinanceId)));
+                                        $paymentMeta = [
+                                            [
+                                                'icon' => 'fas fa-dollar-sign',
+                                                'text' => formatCurrency($paymentAmount),
+                                            ],
+                                            [
+                                                'icon' => 'fas fa-file-invoice-dollar',
+                                                'text' => $paymentReference,
+                                            ],
+                                        ];
+                                        if (!empty($paymentRow['payment_method'])) {
+                                            $paymentMeta[] = [
+                                                'icon' => 'fas fa-wallet',
+                                                'text' => $financeMethodLabel((string) $paymentRow['payment_method']),
+                                            ];
+                                        }
+                                        foreach (($clinicalSourcesByFinanceId[$paymentFinanceId] ?? []) as $clinicalSource) {
+                                            $paymentMeta[] = [
+                                                'icon' => $clinicalSource['icon'] ?? 'fas fa-link',
+                                                'text' => lang('UI.patientClinicalSource') . ': ' . (string) ($clinicalSource['label'] ?? lang('UI.patientClinicalWork')),
+                                            ];
+                                        }
+
+                                        $timeline[] = [
+                                            'type' => 'finance_payment',
+                                            'date' => $paymentRow['payment_date'] ?? $paymentRow['created_at'] ?? null,
+                                            'title' => lang('UI.patientTimelinePaymentTitle', ['type' => $financeTypeLabel($paymentType)]),
+                                            'description' => $paymentRow['notes'] ?? $paymentReference,
+                                            'status' => $paymentType,
+                                            'status_label' => $financeTypeLabel($paymentType),
+                                            'id' => $paymentRow['id'] ?? null,
+                                            'icon' => 'fas fa-hand-holding-dollar',
+                                            'color' => in_array($paymentType, ['refund', 'void'], true) ? 'orange' : 'green',
+                                            'url' => workflow_context_url('finance/' . $paymentFinanceId, $patientContextReturnTo),
+                                            'meta' => $paymentMeta,
+                                        ];
+                                    }
+
+                                    // Add provider-share rows so the patient timeline shows doctor compensation impact.
+                                    foreach (($moneyTrailForPatient['provider_payouts'] ?? []) as $providerRow) {
+                                        $providerFinanceId = (int) ($providerRow['finance_id'] ?? 0);
+                                        if ($providerFinanceId <= 0) {
+                                            continue;
+                                        }
+
+                                        $providerName = $providerPayoutName($providerRow);
+                                        $providerShare = max(0, (float) ($providerRow['provider_share_amount'] ?? 0));
+                                        $providerPaid = max(0, (float) ($providerRow['provider_paid_amount'] ?? 0));
+                                        $providerBalance = max(0, (float) ($providerRow['provider_balance_due'] ?? 0));
+                                        $providerMeta = [
+                                            [
+                                                'icon' => 'fas fa-user-doctor',
+                                                'text' => $providerName,
+                                            ],
+                                            [
+                                                'icon' => 'fas fa-scale-balanced',
+                                                'text' => lang('UI.moneyTrailProviderShare') . ': ' . formatCurrency($providerShare),
+                                            ],
+                                            [
+                                                'icon' => 'fas fa-hand-holding-dollar',
+                                                'text' => lang('UI.moneyTrailPaid') . ': ' . formatCurrency($providerPaid),
+                                            ],
+                                            [
+                                                'icon' => 'fas fa-wallet',
+                                                'text' => lang('UI.moneyTrailProviderRemaining') . ': ' . formatCurrency($providerBalance),
+                                            ],
+                                        ];
+
+                                        $timeline[] = [
+                                            'type' => 'provider_payout',
+                                            'date' => $providerRow['created_at'] ?? null,
+                                            'title' => lang('Finance.providerPayout') . ' - ' . $providerName,
+                                            'description' => trim((string) ($providerRow['notes'] ?? '')) !== '' ? (string) $providerRow['notes'] : (string) ($providerRow['transaction_id'] ?? lang('Finance.providerShare')),
+                                            'status' => $providerRow['status'] ?? null,
+                                            'status_label' => $financeStatusLabel($providerRow['status'] ?? null),
+                                            'id' => $providerRow['id'] ?? null,
+                                            'icon' => 'fas fa-user-doctor',
+                                            'color' => $providerBalance > 0.009 ? 'purple' : 'green',
+                                            'url' => workflow_context_url('finance/' . $providerFinanceId, $patientContextReturnTo),
+                                            'meta' => $providerMeta,
+                                        ];
+                                    }
+
+                                    // Add material usage rows linked to patient treatments.
+                                    foreach (($moneyTrailForPatient['inventory_usage_rows'] ?? []) as $usageRow) {
+                                        $usageTreatmentId = (int) ($usageRow['treatment_id'] ?? 0);
+                                        $usageTreatmentLabel = trim((string) ($usageRow['treatment_name'] ?? $usageRow['treatment_number'] ?? ''));
+                                        $usageCost = max(0, (float) ($usageRow['total_cost'] ?? 0));
+                                        $usageMeta = [
+                                            [
+                                                'icon' => 'fas fa-boxes-stacked',
+                                                'text' => $inventoryUsageSummary($usageRow),
+                                            ],
+                                            [
+                                                'icon' => 'fas fa-dollar-sign',
+                                                'text' => formatCurrency($usageCost),
+                                            ],
+                                        ];
+                                        if ($usageTreatmentLabel !== '') {
+                                            $usageMeta[] = [
+                                                'icon' => 'fas fa-tooth',
+                                                'text' => $usageTreatmentLabel,
+                                            ];
+                                        }
+
+                                        $timeline[] = [
+                                            'type' => 'inventory_usage',
+                                            'date' => $usageRow['usage_date'] ?? $usageRow['created_at'] ?? null,
+                                            'title' => lang('UI.moneyTrailInventoryUsage'),
+                                            'description' => trim((string) ($usageRow['notes'] ?? '')) !== '' ? (string) $usageRow['notes'] : $inventoryUsageSummary($usageRow),
+                                            'status' => 'recorded',
+                                            'status_label' => lang('UI.patientRecorded'),
+                                            'id' => $usageRow['id'] ?? null,
+                                            'icon' => 'fas fa-boxes-stacked',
+                                            'color' => 'amber',
+                                            'url' => $usageTreatmentId > 0 ? workflow_context_url('treatment/' . $usageTreatmentId, $patientContextReturnTo) : '',
+                                            'meta' => $usageMeta,
                                         ];
                                     }
                                     
