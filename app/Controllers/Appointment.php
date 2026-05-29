@@ -3,8 +3,14 @@
 namespace App\Controllers;
 
 use App\Models\AppointmentModel;
+use App\Models\ClinicUserModel;
+use App\Models\ExaminationModel;
+use App\Models\InventoryModel;
 use App\Models\PatientModel;
+use App\Models\TreatmentModel;
+use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\MoneyTrailService;
 use App\Services\WhatsAppWorkflowService;
 
 class Appointment extends BaseController
@@ -401,10 +407,115 @@ class Appointment extends BaseController
             $appointment['created_at_formatted'] = formatDateTime($appointment['created_at']);
         }
 
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
+        $returnToContext = 'appointment/' . (int) $appointment['id'];
+        $appointmentDate = substr((string) ($appointment['appointment_date'] ?? ''), 0, 10);
+        $patientId = (int) ($appointment['patient_id'] ?? 0);
+
+        $selectedPatient = [
+            'id' => $patientId,
+            'patient_id' => $appointment['patient_number'] ?? '',
+            'first_name' => $appointment['first_name'] ?? '',
+            'last_name' => $appointment['last_name'] ?? '',
+            'gender' => $appointment['gender'] ?? '',
+            'phone' => $appointment['phone'] ?? '',
+        ];
+
+        $linkedExaminations = [];
+        if ($patientId > 0 && $appointmentDate !== '') {
+            $linkedExaminations = (new ExaminationModel())
+                ->select('examinations.*, users.first_name AS doctor_first_name, users.last_name AS doctor_last_name')
+                ->join('users', 'users.id = examinations.created_by', 'left')
+                ->where('examinations.clinic_id', $clinicId)
+                ->where('examinations.patient_id', $patientId)
+                ->where('DATE(examinations.examination_date)', $appointmentDate)
+                ->orderBy('examinations.examination_date', 'DESC')
+                ->orderBy('examinations.id', 'DESC')
+                ->findAll();
+        }
+
+        $linkedExaminationIds = array_values(array_filter(array_map(
+            static fn(array $row): int => (int) ($row['id'] ?? 0),
+            $linkedExaminations
+        )));
+
+        $linkedTreatments = [];
+        if ($linkedExaminationIds !== []) {
+            $linkedTreatments = (new TreatmentModel())
+                ->where('clinic_id', $clinicId)
+                ->whereIn('examination_id', $linkedExaminationIds)
+                ->orderBy('start_date', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->findAll();
+        }
+
+        $moneyTrailService = new MoneyTrailService();
+        $appointmentMoneyTrails = [];
+        $invoiceableChargeLinesById = [];
+        foreach ($linkedExaminationIds as $examinationId) {
+            $trail = $moneyTrailService->forExamination((int) $clinicId, $examinationId);
+            $appointmentMoneyTrails[$examinationId] = $trail;
+            foreach (($trail['charge_lines'] ?? []) as $line) {
+                $lineId = (int) ($line['id'] ?? 0);
+                $status = strtolower((string) ($line['status'] ?? 'planned'));
+                if ($lineId > 0 && !in_array($status, ['invoiced', 'voided'], true)) {
+                    $invoiceableChargeLinesById[$lineId] = $line;
+                }
+            }
+        }
+
+        $appointmentMoneySummary = [
+            'captured_charges' => 0.0,
+            'charged' => 0.0,
+            'paid' => 0.0,
+            'balance_due' => 0.0,
+            'open_charge_lines' => 0,
+        ];
+        foreach ($appointmentMoneyTrails as $trail) {
+            $summary = $trail['summary'] ?? [];
+            foreach (['captured_charges', 'charged', 'paid', 'balance_due'] as $key) {
+                $appointmentMoneySummary[$key] += (float) ($summary[$key] ?? 0);
+            }
+            $appointmentMoneySummary['open_charge_lines'] += (int) ($summary['open_charge_lines'] ?? 0);
+        }
+
+        $liquidityOptions = [
+            'safe_cash' => 'Safe Cash',
+            'bank' => 'Bank',
+            'undeposited_checks' => 'Checks on Hand',
+        ];
+        foreach ($liquidityOptions as $key => $fallback) {
+            $translated = lang('Finance.liquidityAccount.' . $key);
+            $liquidityOptions[$key] = is_string($translated) && $translated !== 'Finance.liquidityAccount.' . $key
+                ? $translated
+                : $fallback;
+        }
+
+        $inventoryItems = (new InventoryModel())->where('status', 'active')
+            ->where('clinic_id', $clinicId)
+            ->where('quantity >', 0)
+            ->orderBy('item_name', 'ASC')
+            ->findAll();
+
         $data = [
             'title' => 'Appointment Details - ' . $appointment['appointment_id'],
             'appointment' => $appointment,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+            'appointment_context_patient' => $selectedPatient,
+            'appointment_linked_examinations' => $linkedExaminations,
+            'appointment_linked_treatments' => $linkedTreatments,
+            'appointment_money_trails' => $appointmentMoneyTrails,
+            'appointment_money_summary' => $appointmentMoneySummary,
+            'appointment_invoiceable_charge_lines' => array_values($invoiceableChargeLinesById),
+            'appointment_finance_base_currency' => settings()->get('currency', 'ILS'),
+            'appointment_finance_currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'appointment_finance_liquidity_options' => $liquidityOptions,
+            'treatment_types' => TreatmentCatalog::forSelection(),
+            'inventory_items' => $inventoryItems,
+            'clinic_providers' => (new ClinicUserModel())->getActiveUserDirectoryByClinic((int) $clinicId),
+            'selected_examination_id' => $linkedExaminationIds[0] ?? null,
+            'appointment_chair_options' => $this->getChairOptions(),
+            'return_to_context' => $returnToContext,
+            'return_to' => $returnTo
         ];
 
         return $this->view('appointment/show', $data);

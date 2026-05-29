@@ -1,6 +1,26 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$isRtl = !empty($is_rtl);
+$returnToContext = (string) ($return_to_context ?? ('appointment/' . (int) ($appointment['id'] ?? 0)));
+$contextPatient = $appointment_context_patient ?? null;
+$linkedExaminations = is_array($appointment_linked_examinations ?? null) ? $appointment_linked_examinations : [];
+$linkedTreatments = is_array($appointment_linked_treatments ?? null) ? $appointment_linked_treatments : [];
+$moneySummary = is_array($appointment_money_summary ?? null) ? $appointment_money_summary : [];
+$invoiceableChargeLines = is_array($appointment_invoiceable_charge_lines ?? null) ? $appointment_invoiceable_charge_lines : [];
+$invoiceableChargeLineIds = array_values(array_filter(array_map(
+    static fn(array $row): int => (int) ($row['id'] ?? 0),
+    $invoiceableChargeLines
+)));
+$invoiceableChargeTotal = array_reduce(
+    $invoiceableChargeLines,
+    static fn(float $carry, array $row): float => $carry + max(0, (float) ($row['net_production_amount'] ?? 0)),
+    0.0
+);
+$primaryLinkedExamination = $linkedExaminations[0] ?? null;
+$traceDateLabel = !empty($appointment['appointment_date']) ? formatDate($appointment['appointment_date']) : '';
+?>
 <!-- Enhanced Appointment Details with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
@@ -217,11 +237,190 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="mt-8 rounded-3xl border border-white/40 bg-white/80 p-5 shadow-xl shadow-blue-500/10 backdrop-blur md:p-6">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            <div class="max-w-2xl">
+                                <p class="text-xs font-black uppercase tracking-[0.18em] text-blue-700"><?= esc(lang('UI.appointmentClinicalBillingTrace')) ?></p>
+                                <h4 class="mt-1 text-xl font-black text-slate-950"><?= esc(lang('UI.appointmentClinicalBillingTitle')) ?></h4>
+                                <p class="mt-2 text-sm font-medium leading-6 text-slate-600">
+                                    <?= esc(lang('UI.appointmentClinicalBillingHelp', ['date' => $traceDateLabel])) ?>
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <?php if (has_permission('examinations', 'create')): ?>
+                                    <?php if (!empty($primaryLinkedExamination['id'])): ?>
+                                        <a href="<?= esc(workflow_context_url('examination/' . (int) $primaryLinkedExamination['id'], $returnToContext)) ?>" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-700">
+                                            <i class="fas fa-stethoscope me-2"></i><?= esc(lang('UI.appointmentOpenExamination')) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= esc(base_url('examination/create?' . http_build_query(['patient_id' => (int) ($appointment['patient_id'] ?? 0), 'return_to' => $returnToContext])), 'attr') ?>" data-examination-create-modal-open class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-700">
+                                            <i class="fas fa-stethoscope me-2"></i><?= esc(lang('UI.appointmentStartExamination')) ?>
+                                        </a>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                                <?php if (has_permission('treatments', 'create') && !empty($primaryLinkedExamination['id'])): ?>
+                                    <a href="<?= esc(base_url('treatment/create?' . http_build_query(['examination_id' => (int) $primaryLinkedExamination['id'], 'return_to' => $returnToContext])), 'attr') ?>" data-treatment-create-modal-open class="inline-flex items-center justify-center rounded-xl border border-pink-200 bg-pink-50 px-4 py-2.5 text-sm font-bold text-pink-800 transition hover:bg-pink-100">
+                                        <i class="fas fa-tooth me-2"></i><?= esc(lang('UI.appointmentAddTreatment')) ?>
+                                    </a>
+                                <?php endif; ?>
+                                <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+                                    <button type="button" data-app-drawer-open="appointmentInvoiceDrawer" class="inline-flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-900 transition hover:bg-amber-100">
+                                        <i class="fas fa-file-invoice-dollar me-2"></i><?= esc(lang('UI.appointmentCreateInvoiceFromWork')) ?>
+                                        <span class="ms-2 rounded-lg bg-white/80 px-2 py-0.5 text-xs" dir="ltr"><?= esc(formatCurrency($invoiceableChargeTotal)) ?></span>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-3">
+                            <div class="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 shadow-sm">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h5 class="text-sm font-black text-blue-950"><?= esc(lang('UI.appointmentLinkedExaminations')) ?></h5>
+                                    <span class="rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-blue-700"><?= count($linkedExaminations) ?></span>
+                                </div>
+                                <div class="mt-3 space-y-2">
+                                    <?php if ($linkedExaminations): ?>
+                                        <?php foreach (array_slice($linkedExaminations, 0, 3) as $exam): ?>
+                                            <a href="<?= esc(workflow_context_url('examination/' . (int) $exam['id'], $returnToContext)) ?>" class="block rounded-xl border border-white/70 bg-white/80 p-3 text-sm transition hover:bg-white hover:shadow-sm">
+                                                <span class="block font-bold text-slate-900"><?= esc($exam['examination_id'] ?? ('#' . (int) $exam['id'])) ?></span>
+                                                <span class="mt-1 block text-xs font-semibold text-slate-500"><?= esc(ucwords(str_replace('_', ' ', (string) ($exam['examination_type'] ?? '')))) ?> · <?= esc(ucwords(str_replace('_', ' ', (string) ($exam['status'] ?? '')))) ?></span>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p class="rounded-xl border border-dashed border-blue-200 bg-white/60 p-3 text-sm font-medium text-slate-500"><?= esc(lang('UI.appointmentNoLinkedClinicalWork')) ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-pink-100 bg-gradient-to-br from-pink-50 to-purple-50 p-4 shadow-sm">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h5 class="text-sm font-black text-pink-950"><?= esc(lang('UI.appointmentLinkedTreatments')) ?></h5>
+                                    <span class="rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-pink-700"><?= count($linkedTreatments) ?></span>
+                                </div>
+                                <div class="mt-3 space-y-2">
+                                    <?php if ($linkedTreatments): ?>
+                                        <?php foreach (array_slice($linkedTreatments, 0, 3) as $treatment): ?>
+                                            <a href="<?= esc(workflow_context_url('treatment/' . (int) $treatment['id'], $returnToContext)) ?>" class="block rounded-xl border border-white/70 bg-white/80 p-3 text-sm transition hover:bg-white hover:shadow-sm">
+                                                <span class="block font-bold text-slate-900"><?= esc($treatment['treatment_name'] ?? $treatment['treatment_id'] ?? ('#' . (int) $treatment['id'])) ?></span>
+                                                <span class="mt-1 block text-xs font-semibold text-slate-500"><?= esc($treatment['treatment_id'] ?? '') ?> · <?= esc(ucwords(str_replace('_', ' ', (string) ($treatment['status'] ?? '')))) ?></span>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p class="rounded-xl border border-dashed border-pink-200 bg-white/60 p-3 text-sm font-medium text-slate-500"><?= esc(lang('UI.appointmentNoLinkedTreatments')) ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-4 shadow-sm">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h5 class="text-sm font-black text-emerald-950"><?= esc(lang('UI.appointmentFinancialTrace')) ?></h5>
+                                    <?php if (!empty($invoiceableChargeLineIds)): ?>
+                                        <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-800"><?= esc(lang('UI.moneyTrailOpenChargeLines', ['count' => count($invoiceableChargeLineIds)])) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="mt-3 grid grid-cols-2 gap-2">
+                                    <div class="rounded-xl bg-white/85 p-3">
+                                        <p class="text-xs font-bold text-slate-500"><?= esc(lang('UI.moneyTrailCapturedWork')) ?></p>
+                                        <p class="mt-1 text-base font-black text-slate-950" dir="ltr"><?= esc(formatCurrency($moneySummary['captured_charges'] ?? 0)) ?></p>
+                                    </div>
+                                    <div class="rounded-xl bg-white/85 p-3">
+                                        <p class="text-xs font-bold text-slate-500"><?= esc(lang('UI.moneyTrailCharged')) ?></p>
+                                        <p class="mt-1 text-base font-black text-slate-950" dir="ltr"><?= esc(formatCurrency($moneySummary['charged'] ?? 0)) ?></p>
+                                    </div>
+                                    <div class="rounded-xl bg-white/85 p-3">
+                                        <p class="text-xs font-bold text-slate-500"><?= esc(lang('UI.moneyTrailPaid')) ?></p>
+                                        <p class="mt-1 text-base font-black text-emerald-700" dir="ltr"><?= esc(formatCurrency($moneySummary['paid'] ?? 0)) ?></p>
+                                    </div>
+                                    <div class="rounded-xl bg-white/85 p-3">
+                                        <p class="text-xs font-bold text-slate-500"><?= esc(lang('UI.moneyTrailBalanceDue')) ?></p>
+                                        <p class="mt-1 text-base font-black text-amber-700" dir="ltr"><?= esc(formatCurrency($moneySummary['balance_due'] ?? 0)) ?></p>
+                                    </div>
+                                </div>
+                                <?php if (empty($linkedExaminations)): ?>
+                                    <p class="mt-3 text-xs font-semibold text-slate-500"><?= esc(lang('UI.appointmentFinancialTraceEmpty')) ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<?= view('examination/partials/quick_create_modal', [
+    'is_rtl' => $isRtl,
+    'return_to' => $returnToContext,
+    'contextual' => true,
+    'selected_patient' => $contextPatient,
+]) ?>
+<?php if (!empty($primaryLinkedExamination['id'])): ?>
+    <?= view('treatment/partials/quick_create_modal', [
+        'isRtl' => $isRtl,
+        'return_to' => $returnToContext,
+        'contextual' => true,
+        'selected_patient' => $contextPatient,
+        'patients' => [],
+        'treatment_types' => $treatment_types ?? [],
+        'inventory_items' => $inventory_items ?? [],
+        'clinic_providers' => $clinic_providers ?? [],
+        'validation' => session()->getFlashdata('validation'),
+        'selected_examination_id' => (int) $primaryLinkedExamination['id'],
+    ]) ?>
+<?php endif; ?>
+<?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+    <?php
+    $appointmentInvoiceDrawerId = 'appointmentInvoiceDrawer';
+    $appointmentInvoiceFormId = 'appointmentInvoiceDrawerForm';
+    ob_start();
+    ?>
+    <form id="<?= esc($appointmentInvoiceFormId) ?>"
+          method="post"
+          action="<?= base_url('finance/store') ?>"
+          enctype="multipart/form-data"
+          data-finance-calc
+          data-provider-split
+          data-base-currency="<?= esc($appointment_finance_base_currency ?? settings()->get('currency', 'ILS')) ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="return_to" value="<?= esc($returnToContext) ?>">
+        <?= view('finance/partials/form_fields', [
+            'contextual' => true,
+            'id_prefix' => $appointmentInvoiceDrawerId,
+            'selected_patient' => $contextPatient,
+            'patients' => !empty($contextPatient) ? [$contextPatient] : [],
+            'transaction_type_preset' => 'invoice',
+            'lock_transaction_type' => true,
+            'base_currency' => $appointment_finance_base_currency ?? settings()->get('currency', 'ILS'),
+            'currency_options' => $appointment_finance_currency_options ?? ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'liquidity_account_options' => $appointment_finance_liquidity_options ?? [],
+            'clinic_providers' => $clinic_providers ?? [],
+            'clinical_charge_lines' => $invoiceableChargeLines,
+            'selected_clinical_charge_line_ids' => $invoiceableChargeLineIds,
+            'is_rtl' => $isRtl,
+        ]) ?>
+    </form>
+    <?php $appointmentInvoiceDrawerBody = (string) ob_get_clean(); ?>
+    <?= view('components/app_drawer', [
+        'id' => $appointmentInvoiceDrawerId,
+        'title' => lang('UI.appointmentCreateInvoiceFromWork'),
+        'description' => lang('UI.appointmentCreateInvoiceFromWorkHelp'),
+        'icon' => 'fas fa-file-invoice-dollar',
+        'tone' => 'bg-amber-600',
+        'size' => 'wide',
+        'body' => $appointmentInvoiceDrawerBody,
+        'footer' => '<div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">'
+            . '<button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="' . esc($appointmentInvoiceDrawerId) . '">' . esc(lang('UI.cancel')) . '</button>'
+            . '<a href="' . esc(workflow_context_url('finance/create?' . http_build_query([
+                'patient_id' => (int) ($appointment['patient_id'] ?? 0),
+                'transaction_type' => 'invoice',
+                'clinical_charge_line_ids' => $invoiceableChargeLineIds,
+            ], '', '&', PHP_QUERY_RFC3986), $returnToContext)) . '" class="inline-flex items-center justify-center rounded-xl border border-amber-200 px-4 py-2.5 text-sm font-bold text-amber-800 hover:bg-amber-50">' . esc(lang('UI.openFullPage')) . '</a>'
+            . '<button type="submit" form="' . esc($appointmentInvoiceFormId) . '" class="inline-flex items-center justify-center rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-amber-700">' . esc(lang('Finance.createTransaction')) . '</button>'
+            . '</div>',
+    ]) ?>
+    <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
+<?php endif; ?>
 
 <script>
 function confirmAppointment(id) {

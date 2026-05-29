@@ -2,7 +2,13 @@
 $tr = static fn(string $key, array $params = []) => lang('Examination.' . $key, $params);
 $isRtl = !empty($is_rtl);
 $modalReturnTo = (string) ($return_to ?? 'examination');
+$modalSelectedPatient = $selected_patient ?? null;
+$modalContextual = !empty($contextual);
 $shouldOpenExaminationCreateModal = old('source_modal') === 'examination_quick_create';
+$modalFullPageQuery = ['return_to' => $modalReturnTo];
+if (!empty($modalSelectedPatient['id'])) {
+    $modalFullPageQuery['patient_id'] = (int) $modalSelectedPatient['id'];
+}
 ?>
 <?php if (has_permission('examinations', 'create')): ?>
     <style>
@@ -80,7 +86,7 @@ $shouldOpenExaminationCreateModal = old('source_modal') === 'examination_quick_c
                         </span>
                         <div>
                             <h2 id="newExaminationModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('new_examination')) ?></h2>
-                            <a href="<?= base_url('examination/create?' . http_build_query(['return_to' => $modalReturnTo])) ?>" class="mt-1 inline-flex text-xs font-semibold text-orange-700 hover:text-orange-800">
+                            <a href="<?= esc(base_url('examination/create?' . http_build_query($modalFullPageQuery)), 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-orange-700 hover:text-orange-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
@@ -99,7 +105,8 @@ $shouldOpenExaminationCreateModal = old('source_modal') === 'examination_quick_c
 
                     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
                         <?= view('examination/partials/form_fields', [
-                            'selected_patient' => null,
+                            'contextual' => $modalContextual,
+                            'selected_patient' => $modalSelectedPatient,
                             'validation' => session()->getFlashdata('validation'),
                             'is_rtl' => $isRtl,
                             'id_prefix' => 'examinationQuick',
