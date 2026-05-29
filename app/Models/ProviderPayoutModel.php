@@ -332,6 +332,40 @@ class ProviderPayoutModel extends TenantAwareModel
                 p.last_name AS patient_last_name,
                 p.gender AS patient_gender,
                 f.transaction_type,
+                (
+                    SELECT COUNT(*)
+                    FROM clinical_charge_lines ccl
+                    WHERE ccl.clinic_id = pp.clinic_id
+                      AND ccl.finance_id = pp.finance_id
+                      AND ccl.provider_user_id = pp.provider_user_id
+                      AND ccl.status != 'voided'
+                ) AS clinical_line_count,
+                (
+                    SELECT COUNT(DISTINCT ccl.treatment_id)
+                    FROM clinical_charge_lines ccl
+                    WHERE ccl.clinic_id = pp.clinic_id
+                      AND ccl.finance_id = pp.finance_id
+                      AND ccl.provider_user_id = pp.provider_user_id
+                      AND ccl.treatment_id IS NOT NULL
+                      AND ccl.status != 'voided'
+                ) AS treatment_count,
+                (
+                    SELECT COUNT(DISTINCT ccl.examination_id)
+                    FROM clinical_charge_lines ccl
+                    WHERE ccl.clinic_id = pp.clinic_id
+                      AND ccl.finance_id = pp.finance_id
+                      AND ccl.provider_user_id = pp.provider_user_id
+                      AND ccl.examination_id IS NOT NULL
+                      AND ccl.status != 'voided'
+                ) AS examination_count,
+                (
+                    SELECT GROUP_CONCAT(DISTINCT ccl.procedure_name ORDER BY ccl.id SEPARATOR ', ')
+                    FROM clinical_charge_lines ccl
+                    WHERE ccl.clinic_id = pp.clinic_id
+                      AND ccl.finance_id = pp.finance_id
+                      AND ccl.provider_user_id = pp.provider_user_id
+                      AND ccl.status != 'voided'
+                ) AS clinical_procedures,
                 pay.payment_count,
                 pay.last_paid_date
             ", false)
@@ -350,6 +384,9 @@ class ProviderPayoutModel extends TenantAwareModel
         foreach ($rows as &$row) {
             $row['patient_name'] = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
             $row['payment_count'] = (int) ($row['payment_count'] ?? 0);
+            $row['clinical_line_count'] = (int) ($row['clinical_line_count'] ?? 0);
+            $row['treatment_count'] = (int) ($row['treatment_count'] ?? 0);
+            $row['examination_count'] = (int) ($row['examination_count'] ?? 0);
         }
         unset($row);
 

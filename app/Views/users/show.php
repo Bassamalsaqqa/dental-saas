@@ -1319,7 +1319,7 @@
                                     <div class="user-payment-summary-list">
                                         <?php foreach ($recentProviderPaymentRows as $row): ?>
                                             <?php $patientAvatar = $patientAvatarFor($row['patient_gender'] ?? null); ?>
-                                            <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="user-payment-summary-item">
+                                            <a href="<?= esc(workflow_context_url('finance/' . (int) ($row['finance_id'] ?? 0), 'users/' . (int) ($viewedUser->id ?? 0)), 'attr') ?>" class="user-payment-summary-item">
                                                 <span class="user-payment-summary-main">
                                                     <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-50">
                                                         <i class="<?= esc($patientAvatar['icon']) ?> <?= esc($patientAvatar['color']) ?> text-base"></i>
@@ -1420,7 +1420,7 @@
                                             };
                                             $canSettlePayout = $canEditFinance && !in_array($rowStatus, ['paid', 'void'], true);
                                         ?>
-                                        <tr class="user-record-row" tabindex="0" data-transaction-url="<?= esc(base_url('finance/' . (int) ($row['finance_id'] ?? 0)), 'attr') ?>" title="<?= esc(lang('Finance.viewTransaction')) ?>">
+                                        <tr class="user-record-row" tabindex="0" data-transaction-url="<?= esc(workflow_context_url('finance/' . (int) ($row['finance_id'] ?? 0), 'users/' . (int) ($viewedUser->id ?? 0)), 'attr') ?>" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                             <td>
                                                 <div class="user-record-cell">
                                                     <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-slate-50">
@@ -1428,6 +1428,24 @@
                                                     </span>
                                                     <div class="user-record-main">
                                                         <span class="user-record-title"><?= esc((string) ($row['transaction_id'] ?? '-')) ?></span>
+                                                        <?php if ((int) ($row['clinical_line_count'] ?? 0) > 0): ?>
+                                                            <span class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                                                                <span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700">
+                                                                    <?= esc(lang('Finance.clinicalTraceLines')) ?>: <?= esc((string) ($row['clinical_line_count'] ?? 0)) ?>
+                                                                </span>
+                                                                <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">
+                                                                    <?= esc(lang('Finance.clinicalTraceTreatments')) ?>: <?= esc((string) ($row['treatment_count'] ?? 0)) ?>
+                                                                </span>
+                                                                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700">
+                                                                    <?= esc(lang('Finance.clinicalTraceExaminations')) ?>: <?= esc((string) ($row['examination_count'] ?? 0)) ?>
+                                                                </span>
+                                                            </span>
+                                                            <?php if (trim((string) ($row['clinical_procedures'] ?? '')) !== ''): ?>
+                                                                <span class="mt-1 block max-w-xs truncate text-xs font-medium text-slate-500" title="<?= esc((string) $row['clinical_procedures'], 'attr') ?>">
+                                                                    <?= esc((string) $row['clinical_procedures']) ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </td>
@@ -1459,7 +1477,7 @@
                                             <td>
                                                 <div class="user-record-actions">
                                                     <span class="<?= esc($rowStatusClass) ?>"><?= esc(lang('Finance.' . $rowStatus)) ?></span>
-                                                    <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" data-row-action="true" title="<?= esc(lang('Finance.viewTransaction')) ?>">
+                                                    <a href="<?= esc(workflow_context_url('finance/' . (int) ($row['finance_id'] ?? 0), 'users/' . (int) ($viewedUser->id ?? 0)), 'attr') ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" data-row-action="true" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <?php if ($canSettlePayout): ?>
