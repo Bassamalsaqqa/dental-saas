@@ -47,6 +47,42 @@
     $showFinanceForms = has_permission('finance', 'edit') && ($isInvoice || $isExpense);
     $showProviderPayoutForms = has_permission('finance', 'edit') && !empty($provider_payouts);
     $billedClinicalChargeLines = $billed_clinical_charge_lines ?? [];
+    $billedInventoryUsageRows = $billed_inventory_usage_rows ?? [];
+    $billedInventoryUsageByTreatmentId = [];
+    $billedInventoryUsageTotal = 0.0;
+    foreach ($billedInventoryUsageRows as $usageRow) {
+        $usageTreatmentId = (int) ($usageRow['treatment_id'] ?? 0);
+        if ($usageTreatmentId > 0) {
+            $billedInventoryUsageByTreatmentId[$usageTreatmentId][] = $usageRow;
+        }
+        $billedInventoryUsageTotal += max(0, (float) ($usageRow['total_cost'] ?? 0));
+    }
+    $summarizeInventoryUsage = static function (array $row): string {
+        $items = json_decode((string) ($row['items_used'] ?? ''), true);
+        if (!is_array($items) || $items === []) {
+            return lang('UI.moneyTrailInventoryUsage');
+        }
+
+        $labels = [];
+        foreach (array_slice($items, 0, 2) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $name = trim((string) ($item['item_name'] ?? ''));
+            $qty = trim((string) ($item['quantity_used'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            $labels[] = $qty !== '' ? $name . ' x' . $qty : $name;
+        }
+
+        if ($labels === []) {
+            return lang('UI.moneyTrailInventoryUsage');
+        }
+
+        $remaining = count($items) - count($labels);
+        return implode(', ', $labels) . ($remaining > 0 ? ' +' . $remaining : '');
+    };
     $billedClinicalTotal = array_reduce($billedClinicalChargeLines, static fn(float $carry, array $row): float => $carry + (float) ($row['net_production_amount'] ?? 0), 0.0);
     $billedClinicalTreatmentIds = [];
     $billedClinicalExaminationIds = [];
@@ -1366,7 +1402,7 @@
                                     </a>
                                 <?php endif; ?>
                             </div>
-                            <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
                                 <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTracePatient')) ?></p>
                                     <p class="mt-1 truncate text-sm font-bold text-slate-900">
@@ -1390,6 +1426,10 @@
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceProviders')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold text-purple-700"><?= esc((string) $billedClinicalProviderCount) ?></p>
                                 </div>
+                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold <?= $billedInventoryUsageTotal > 0.009 ? 'text-rose-700' : 'text-slate-500' ?>" dir="ltr"><?= esc(formatCurrency($billedInventoryUsageTotal)) ?></p>
+                                </div>
                             </div>
                         </div>
                         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -1402,6 +1442,7 @@
                                             <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.linkedExamination')) ?></th>
                                             <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.provider')) ?></th>
                                             <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.serviceDate')) ?></th>
+                                            <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></th>
                                             <th class="px-4 py-3 text-end"><?= esc(lang('Finance.amount')) ?></th>
                                         </tr>
                                     </thead>
@@ -1421,6 +1462,8 @@
                                                 $examinationLabel = trim((string) ($line['examination_number'] ?? ''));
                                                 $sourceType = trim((string) ($line['source_entity_type'] ?? ''));
                                                 $sourceId = (int) ($line['source_entity_id'] ?? 0);
+                                                $lineInventoryRows = $treatmentId > 0 ? ($billedInventoryUsageByTreatmentId[$treatmentId] ?? []) : [];
+                                                $lineInventoryCost = array_reduce($lineInventoryRows, static fn(float $carry, array $row): float => $carry + max(0, (float) ($row['total_cost'] ?? 0)), 0.0);
                                             ?>
                                             <tr class="align-top">
                                                 <td class="px-4 py-3">
@@ -1459,6 +1502,29 @@
                                                 </td>
                                                 <td class="px-4 py-3 text-slate-700"><?= esc($providerDisplay) ?></td>
                                                 <td class="px-4 py-3 text-slate-700"><?= !empty($line['service_date']) ? esc(formatDate($line['service_date'])) : esc(lang('Finance.notAvailable')) ?></td>
+                                                <td class="px-4 py-3">
+                                                    <?php if ($lineInventoryCost > 0.009): ?>
+                                                        <div class="font-bold text-rose-700" dir="ltr"><?= esc(formatCurrency($lineInventoryCost)) ?></div>
+                                                        <div class="mt-1 flex flex-wrap gap-1.5">
+                                                            <?php foreach (array_slice($lineInventoryRows, 0, 2) as $usageRow): ?>
+                                                                <?php $usageFinanceId = (int) ($usageRow['finance_entry_id'] ?? 0); ?>
+                                                                <?php if ($usageFinanceId > 0): ?>
+                                                                    <a href="<?= esc(workflow_context_url('finance/' . $usageFinanceId, $return_to ?? null)) ?>" class="inline-flex items-center gap-1 rounded-full border border-rose-100 bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700 hover:bg-rose-100">
+                                                                        <i class="fas fa-boxes-stacked"></i>
+                                                                        <span><?= esc($summarizeInventoryUsage($usageRow)) ?></span>
+                                                                    </a>
+                                                                <?php else: ?>
+                                                                    <span class="inline-flex items-center gap-1 rounded-full border border-rose-100 bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700">
+                                                                        <i class="fas fa-boxes-stacked"></i>
+                                                                        <span><?= esc($summarizeInventoryUsage($usageRow)) ?></span>
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <span class="text-slate-400"><?= esc(lang('Finance.notAvailable')) ?></span>
+                                                    <?php endif; ?>
+                                                </td>
                                                 <td class="px-4 py-3 text-end font-bold text-emerald-700" dir="ltr"><?= esc(formatCurrency($line['net_production_amount'] ?? 0)) ?></td>
                                             </tr>
                                         <?php endforeach; ?>

@@ -1260,6 +1260,36 @@ class Finance extends BaseController
             $paidTotal = $this->financePaymentModel->getNetSettledAmount($clinicId, $finance['id']);
         }
 
+        $billedClinicalChargeLines = $this->chargeLineService->getRowsForFinance((int) $clinicId, (int) $finance['id']);
+        $billedTreatmentIds = [];
+        foreach ($billedClinicalChargeLines as $line) {
+            $treatmentId = (int) ($line['treatment_id'] ?? 0);
+            if ($treatmentId > 0) {
+                $billedTreatmentIds[] = $treatmentId;
+            }
+        }
+        $billedTreatmentIds = array_values(array_unique($billedTreatmentIds));
+        $billedInventoryUsageRows = [];
+        if ($billedTreatmentIds !== []) {
+            $billedInventoryUsageRows = $this->db->table('inventory_usage iu')
+                ->select('iu.*, t.treatment_id AS treatment_number, t.treatment_name, cogs.id AS finance_entry_id, cogs.transaction_id AS finance_transaction_id')
+                ->join('treatments t', 't.id = iu.treatment_id AND t.clinic_id = iu.clinic_id', 'left')
+                ->join(
+                    'finances cogs',
+                    "cogs.clinic_id = iu.clinic_id
+                    AND cogs.source_entity_type = 'inventory_usage'
+                    AND cogs.source_entity_id = iu.id
+                    AND cogs.transaction_type = 'expense'",
+                    'left'
+                )
+                ->where('iu.clinic_id', (int) $clinicId)
+                ->whereIn('iu.treatment_id', $billedTreatmentIds)
+                ->orderBy('iu.usage_date', 'DESC')
+                ->orderBy('iu.id', 'DESC')
+                ->get()
+                ->getResultArray();
+        }
+
         $data = [
             'title' => 'Financial Transaction Details - ' . $finance['transaction_id'],
             'finance' => $finance,
@@ -1268,7 +1298,8 @@ class Finance extends BaseController
             'examination' => $examination,
             'payments' => $payments,
             'paid_total' => $paidTotal,
-            'billed_clinical_charge_lines' => $this->chargeLineService->getRowsForFinance((int) $clinicId, (int) $finance['id']),
+            'billed_clinical_charge_lines' => $billedClinicalChargeLines,
+            'billed_inventory_usage_rows' => $billedInventoryUsageRows,
             'provider_payouts' => $providerPayouts,
             'provider_payout_summary' => $providerPayoutSummary,
             'provider_payout_payment_history' => $this->getProviderPayoutPaymentHistoryByFinanceId((int) $clinicId, (int) $finance['id']),
