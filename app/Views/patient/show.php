@@ -2162,10 +2162,13 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                                     <span class="<?= $rowBilling['has_balance'] ? 'text-amber-700' : 'text-emerald-700' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
                                                                 </div>
                                                             <?php elseif ($billTreatmentFromPatientUrl !== ''): ?>
-                                                                <a href="<?= esc($billTreatmentFromPatientUrl) ?>" class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100">
+                                                                <button type="button"
+                                                                        data-patient-charge-line-open
+                                                                        data-charge-line-id="<?= (int) $rowBilling['charge_line_id'] ?>"
+                                                                        class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100">
                                                                     <i class="fas fa-file-invoice-dollar"></i>
                                                                     <?= esc(lang('UI.patientCreateInvoiceFromWork')) ?>
-                                                                </a>
+                                                                </button>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['active'=>'bg-blue-100 text-blue-700','completed'=>'bg-emerald-100 text-emerald-700','cancelled'=>'bg-rose-100 text-rose-700','on_hold'=>'bg-amber-100 text-amber-700'][$trt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($trt['status']) ?></span></td>
@@ -5056,6 +5059,31 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     document.addEventListener('click', function(event) {
+        const chargeLineTrigger = event.target.closest('[data-patient-charge-line-open]');
+        if (chargeLineTrigger) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const chargeLineId = chargeLineTrigger.getAttribute('data-charge-line-id');
+            const drawer = document.getElementById('patientChargeDrawer');
+            const form = document.getElementById('patientChargeDrawerForm');
+            if (drawer && form && chargeLineId) {
+                form.querySelectorAll('[data-clinical-charge-line]').forEach((checkbox) => {
+                    checkbox.checked = checkbox.value === chargeLineId;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+
+                if (typeof window.initFinanceCalculators === 'function') {
+                    window.initFinanceCalculators(form);
+                }
+                if (window.AppDrawer && typeof window.AppDrawer.open === 'function') {
+                    window.AppDrawer.open('patientChargeDrawer', chargeLineTrigger);
+                }
+            }
+
+            return;
+        }
+
         const row = event.target.closest('.patient-record-row[data-href]');
         if (!row) {
             return;

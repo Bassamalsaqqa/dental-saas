@@ -14,6 +14,14 @@ $doctorName = trim(($examination['doctor_first_name'] ?? '') . ' ' . ($examinati
 $patientName = trim(($examination['first_name'] ?? '') . ' ' . ($examination['last_name'] ?? ''));
 $patientGender = strtolower((string)($examination['gender'] ?? 'other'));
 $treatmentCount = is_array($treatments ?? null) ? count($treatments) : 0;
+$invoiceableChargeLines = $examination_invoiceable_charge_lines ?? [];
+$invoiceableChargeLineIds = array_map(static fn(array $row): int => (int) ($row['id'] ?? 0), $invoiceableChargeLines);
+$invoiceableChargeLineIds = array_values(array_filter($invoiceableChargeLineIds, static fn(int $id): bool => $id > 0));
+$invoiceableChargeTotal = array_reduce(
+    $invoiceableChargeLines,
+    static fn(float $carry, array $row): float => $carry + max(0, (float) ($row['net_production_amount'] ?? 0)),
+    0.0
+);
 $odontogramConditionCount = (int)($odontogram_stats['total_conditions'] ?? (is_array($odontogram ?? null) ? count($odontogram) : 0));
 $returnToContext = 'examination/' . (int) ($examination['id'] ?? 0);
 
@@ -142,6 +150,15 @@ $healthFlags = array_values(array_filter([
     transition: all 0.2s ease;
 }
 .exam-action-secondary:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.exam-action-secondary-warning {
+    border-color: #fde68a;
+    background: #fffbeb;
+    color: #92400e;
+}
+.exam-action-secondary-warning:hover {
+    background: #fef3c7;
+    border-color: #fcd34d;
+}
 
 /* health flag pill */
 .health-flag {
@@ -362,6 +379,13 @@ $healthFlags = array_values(array_filter([
                     <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary mb-3"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
                     <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=' . urlencode($returnToContext)) ?>" data-treatment-create-modal-open class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
                     <?php endif; ?>
+                    <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+                    <button type="button" data-app-drawer-open="examinationInvoiceDrawer" class="exam-action-secondary exam-action-secondary-warning mb-3">
+                        <i class="fas fa-file-invoice-dollar text-sm"></i>
+                        <span><?= esc($tr('create_invoice_from_work')) ?></span>
+                        <span class="ms-auto text-xs font-black" dir="ltr"><?= esc(formatCurrency($invoiceableChargeTotal)) ?></span>
+                    </button>
+                    <?php endif; ?>
                     <?php if (has_permission('appointments', 'create')): ?>
                     <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=' . urlencode($returnToContext)) ?>" data-appointment-create-modal-open class="exam-action-secondary"><i class="fas fa-calendar-plus text-sm"></i><?= esc($tr('schedule_follow_up')) ?></a>
                     <?php endif; ?>
@@ -424,6 +448,58 @@ $healthFlags = array_values(array_filter([
     'validation' => session()->getFlashdata('validation'),
     'selected_examination_id' => $selected_examination_id ?? ($examination['id'] ?? null),
 ]) ?>
+<?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+    <?php
+    $examinationInvoiceDrawerId = 'examinationInvoiceDrawer';
+    $examinationInvoiceFormId = 'examinationInvoiceDrawerForm';
+    ob_start();
+    ?>
+    <form id="<?= esc($examinationInvoiceFormId) ?>"
+          method="post"
+          action="<?= base_url('finance/store') ?>"
+          enctype="multipart/form-data"
+          data-finance-calc
+          data-provider-split
+          data-base-currency="<?= esc($examination_finance_base_currency ?? settings()->get('currency', 'ILS')) ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="return_to" value="<?= esc($returnToContext) ?>">
+        <?= view('finance/partials/form_fields', [
+            'contextual' => true,
+            'id_prefix' => $examinationInvoiceDrawerId,
+            'selected_patient' => $selected_treatment_patient ?? null,
+            'patients' => !empty($selected_treatment_patient) ? [$selected_treatment_patient] : [],
+            'transaction_type_preset' => 'invoice',
+            'lock_transaction_type' => true,
+            'base_currency' => $examination_finance_base_currency ?? settings()->get('currency', 'ILS'),
+            'currency_options' => $examination_finance_currency_options ?? ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'liquidity_account_options' => $examination_finance_liquidity_options ?? [],
+            'clinic_providers' => $clinic_providers ?? [],
+            'clinical_charge_lines' => $invoiceableChargeLines,
+            'selected_clinical_charge_line_ids' => $invoiceableChargeLineIds,
+            'is_rtl' => $isRtl,
+        ]) ?>
+    </form>
+    <?php $examinationInvoiceDrawerBody = (string) ob_get_clean(); ?>
+    <?= view('components/app_drawer', [
+        'id' => $examinationInvoiceDrawerId,
+        'title' => $tr('create_invoice_from_work'),
+        'description' => $tr('create_invoice_from_work_help'),
+        'icon' => 'fas fa-file-invoice-dollar',
+        'tone' => 'bg-amber-600',
+        'size' => 'wide',
+        'body' => $examinationInvoiceDrawerBody,
+        'footer' => '<div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">'
+            . '<button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="' . esc($examinationInvoiceDrawerId) . '">' . esc(lang('UI.cancel')) . '</button>'
+            . '<a href="' . esc(workflow_context_url('finance/create?' . http_build_query([
+                'patient_id' => (int) ($examination['patient_id'] ?? 0),
+                'transaction_type' => 'invoice',
+                'clinical_charge_line_ids' => $invoiceableChargeLineIds,
+            ], '', '&', PHP_QUERY_RFC3986), $returnToContext)) . '" class="inline-flex items-center justify-center rounded-xl border border-amber-200 px-4 py-2.5 text-sm font-bold text-amber-800 hover:bg-amber-50">' . esc($tr('open_full_finance_page')) . '</a>'
+            . '<button type="submit" form="' . esc($examinationInvoiceFormId) . '" class="inline-flex items-center justify-center rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-amber-700">' . esc(lang('Finance.createTransaction')) . '</button>'
+            . '</div>',
+    ]) ?>
+    <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
+<?php endif; ?>
 <?= view('appointment/partials/quick_create_modal', [
     'isRtl' => $isRtl,
     'return_to' => $returnToContext,

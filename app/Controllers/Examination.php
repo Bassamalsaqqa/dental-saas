@@ -261,12 +261,34 @@ class Examination extends BaseController
             'gender' => $examination['gender'] ?? '',
         ];
 
+        $moneyTrail = (new MoneyTrailService())->forExamination((int) $clinicId, (int) $examination['id']);
+        $invoiceableChargeLines = array_values(array_filter(
+            $moneyTrail['charge_lines'] ?? [],
+            static fn(array $row): bool => !in_array(strtolower((string) ($row['status'] ?? 'planned')), ['invoiced', 'voided'], true)
+        ));
+
+        $liquidityOptions = [
+            'safe_cash' => 'Safe Cash',
+            'bank' => 'Bank',
+            'undeposited_checks' => 'Checks on Hand',
+        ];
+        foreach ($liquidityOptions as $key => $fallback) {
+            $translated = lang('Finance.liquidityAccount.' . $key);
+            $liquidityOptions[$key] = is_string($translated) && $translated !== 'Finance.liquidityAccount.' . $key
+                ? $translated
+                : $fallback;
+        }
+
         $data = [
             'title' => 'Examination Details - ' . $examination['examination_id'],
             'examination' => $examination,
             'next_appointment' => $nextAppointment,
             'latest_contract' => $latestContract,
-            'money_trail' => (new MoneyTrailService())->forExamination((int) $clinicId, (int) $examination['id']),
+            'money_trail' => $moneyTrail,
+            'examination_invoiceable_charge_lines' => $invoiceableChargeLines,
+            'examination_finance_base_currency' => settings()->get('currency', 'ILS'),
+            'examination_finance_currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'examination_finance_liquidity_options' => $liquidityOptions,
             'signature_enabled' => $signatureEnabled,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats((int) $examination['patient_id']),
