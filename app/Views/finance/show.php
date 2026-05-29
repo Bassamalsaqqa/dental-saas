@@ -2271,7 +2271,15 @@
         <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) <= 0): ?>
             <?php continue; ?>
         <?php endif; ?>
-        <?php $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id']; ?>
+        <?php
+            $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id'];
+            $providerDisplayName = trim(($providerPayout['provider_first_name'] ?? '') . ' ' . ($providerPayout['provider_last_name'] ?? ''));
+            if ($providerDisplayName === '') {
+                $providerDisplayName = $providerPayout['provider_name_snapshot'] ?? lang('Finance.guestProvider');
+            }
+            $providerBalanceDue = max(0, (float) ($providerPayout['provider_balance_due'] ?? 0));
+            $providerPayoutAmountValue = number_format($providerBalanceDue, 2, '.', '');
+        ?>
         <div id="<?= esc($providerPayoutModalId) ?>" class="fixed inset-0 z-50 hidden overflow-y-auto" data-finance-modal-root="<?= esc($providerPayoutModalId) ?>" role="dialog" aria-modal="true" aria-labelledby="<?= esc($providerPayoutModalId) ?>Title">
             <div class="finance-inline-modal-backdrop fixed inset-0" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')"></div>
             <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="if (event.target === this) closeFinanceModal('<?= esc($providerPayoutModalId) ?>')">
@@ -2291,13 +2299,39 @@
                     </div>
                     <form class="finance-inline-modal-form provider-payout-payment-form" data-url="<?= esc(base_url('finance/payouts/' . (int) $providerPayout['id'] . '/payments')) ?>" data-finance-modal-close="<?= esc($providerPayoutModalId) ?>">
                         <?= csrf_field() ?>
+                        <div class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-emerald-50 p-4 shadow-sm">
+                            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold uppercase tracking-wide text-indigo-700"><?= esc($providerPayoutUi['kicker']) ?></p>
+                                    <h5 class="mt-1 truncate text-base font-bold text-slate-900"><?= esc($providerDisplayName) ?></h5>
+                                    <p class="mt-1 text-xs text-slate-500">
+                                        <?= esc(lang('Finance.financeTransaction')) ?>:
+                                        <span class="font-semibold text-slate-700"><?= esc($finance['transaction_id'] ?? ('#' . ($finance['id'] ?? ''))) ?></span>
+                                    </p>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center md:min-w-[22rem]">
+                                    <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 shadow-sm">
+                                        <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['doctorShare']) ?></p>
+                                        <p class="mt-1 text-sm font-bold text-indigo-700" dir="ltr"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 shadow-sm">
+                                        <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['paid']) ?></p>
+                                        <p class="mt-1 text-sm font-bold text-emerald-700" dir="ltr"><?= formatCurrency($providerPayout['provider_paid_amount'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 shadow-sm">
+                                        <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
+                                        <p class="mt-1 text-sm font-bold text-rose-700" dir="ltr"><?= formatCurrency($providerBalanceDue) ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="finance-inline-modal-grid finance-inline-modal-grid-3">
                             <div class="group/field relative">
                                 <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
                                     <i class="fas fa-dollar-sign text-emerald-600"></i>
                                     <span><?= esc($ui['amountRequired']) ?></span>
                                 </label>
-                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayout['provider_balance_due'] ?? 0) ?>" class="finance-show-input" placeholder="0.00" required>
+                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayoutAmountValue) ?>" value="<?= esc($providerPayoutAmountValue) ?>" class="finance-show-input" placeholder="0.00" required>
                             </div>
                             <div class="group/field relative">
                                 <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
@@ -2342,6 +2376,13 @@
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
                             </div>
+                        </div>
+                        <div class="group/field relative">
+                            <label class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
+                                <i class="fas fa-note-sticky text-amber-600"></i>
+                                <span><?= esc($providerPayoutUi['historyNotes']) ?></span>
+                            </label>
+                            <textarea name="notes" rows="2" class="finance-show-input min-h-[5rem]" placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
                         <div class="finance-inline-modal-actions">
                             <button type="button" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
@@ -2771,6 +2812,9 @@ document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
             liquidityInput.disabled = !isCheck;
             if (!isCheck) {
                 liquidityInput.value = 'bank';
+                if (window.jQuery) {
+                    window.jQuery(liquidityInput).val('bank').trigger('change');
+                }
             }
         }
     };
