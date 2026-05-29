@@ -285,6 +285,7 @@ $treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatu
         return [
             'amount_text' => lang('UI.patientNotBilledYet'),
             'amount_raw' => 0.0,
+            'charge_line_id' => 0,
             'status_text' => lang('UI.patientNoChargeCaptured'),
             'status_class' => 'bg-slate-100 text-slate-600',
             'finance_id' => 0,
@@ -316,6 +317,7 @@ $treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatu
     return [
         'amount_text' => trim(($currency !== '' ? $currency . ' ' : '') . number_format($amount, 2)),
         'amount_raw' => $amount,
+        'charge_line_id' => $chargeId,
         'status_text' => $isBilled ? lang('UI.patientBilled') : lang('UI.patientReadyToBill'),
         'status_class' => $isBilled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
         'finance_id' => $financeId,
@@ -359,6 +361,43 @@ $outstandingBalance = 0.0;
 $openInvoicesCount = 0;
 $financialLedgerRows = [];
 $financeLookup = [];
+$moneyTrailForPatient = $money_trail ?? [];
+$clinicalSourcesByFinanceId = [];
+
+foreach (($moneyTrailForPatient['charge_lines'] ?? []) as $chargeLineRow) {
+    $sourceFinanceId = (int) ($chargeLineRow['finance_id'] ?? 0);
+    if ($sourceFinanceId <= 0) {
+        continue;
+    }
+
+    $sourceTreatmentId = (int) ($chargeLineRow['treatment_id'] ?? 0);
+    $sourceExaminationId = (int) ($chargeLineRow['examination_id'] ?? 0);
+    $sourceLabel = trim((string) ($chargeLineRow['treatment_name'] ?? ''));
+    $sourceReference = trim((string) ($chargeLineRow['treatment_number'] ?? ''));
+    $sourceIcon = 'fas fa-stethoscope';
+    $sourceUrl = null;
+
+    if ($sourceTreatmentId > 0) {
+        $sourceIcon = 'fas fa-tooth';
+        $sourceUrl = workflow_context_url('treatment/' . $sourceTreatmentId, $patientContextReturnTo);
+        if ($sourceLabel === '') {
+            $sourceLabel = $sourceReference !== '' ? $sourceReference : lang('UI.patientTreatment');
+        }
+    } elseif ($sourceExaminationId > 0) {
+        $sourceUrl = workflow_context_url('examination/' . $sourceExaminationId, $patientContextReturnTo);
+        $sourceReference = trim((string) ($chargeLineRow['examination_number'] ?? ''));
+        $sourceLabel = $sourceReference !== '' ? $sourceReference : lang('UI.patientClinicalExamination');
+    }
+
+    $clinicalSourcesByFinanceId[$sourceFinanceId][] = [
+        'label' => $sourceLabel !== '' ? $sourceLabel : lang('UI.patientClinicalWork'),
+        'reference' => $sourceReference,
+        'url' => $sourceUrl,
+        'icon' => $sourceIcon,
+        'amount' => isset($chargeLineRow['net_production_amount']) ? (float) $chargeLineRow['net_production_amount'] : null,
+        'currency' => (string) ($chargeLineRow['currency'] ?? ''),
+    ];
+}
 
 foreach ($finances as $financeItem) {
     $financeId = (int) ($financeItem['id'] ?? 0);
@@ -415,6 +454,7 @@ foreach ($finances as $financeItem) {
         'status_label' => $financeStatusLabel($financeItem['payment_status'] ?? null),
         'status_key' => $paymentStatus !== '' ? $paymentStatus : 'recorded',
         'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
+        'clinical_sources' => $clinicalSourcesByFinanceId[$financeId] ?? [],
     ];
 }
 
@@ -455,6 +495,7 @@ foreach (($finance_settlements ?? []) as $settlement) {
         'status_label' => $financeTypeLabel($settlementType),
         'status_key' => 'recorded',
         'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
+        'clinical_sources' => $clinicalSourcesByFinanceId[$financeId] ?? [],
     ];
 }
 
@@ -1532,6 +1573,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 'text' => ucfirst(str_replace('_', ' ', (string) $finance['payment_method'])),
                                             ];
                                         }
+                                        foreach (($clinicalSourcesByFinanceId[(int) ($finance['id'] ?? 0)] ?? []) as $clinicalSource) {
+                                            $financeMeta[] = [
+                                                'icon' => $clinicalSource['icon'] ?? 'fas fa-link',
+                                                'text' => lang('UI.patientClinicalSource') . ': ' . (string) ($clinicalSource['label'] ?? lang('UI.patientClinicalWork')),
+                                            ];
+                                        }
                                         $timeline[] = [
                                             'type' => 'finance',
                                             'date' => $finance['created_at'],
@@ -1554,35 +1601,62 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     
                                     foreach ($timeline as $index => $item): 
                                     ?>
-                                    <li>
-                                        <div class="relative pb-8">
+                                    <li class="patient-timeline-node">
+                                        <div class="relative">
                                             <?php if ($index !== count($timeline) - 1): ?>
                                                 <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
                                             <?php endif; ?>
-                                            <div class="relative flex space-x-3">
-                                                <div>
-                                                    <span class="h-8 w-8 rounded-full bg-<?= $item['color'] ?>-500 flex items-center justify-center ring-8 ring-white">
-                                                        <i class="<?= $item['icon'] ?> text-white text-xs"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                            <?php if (!empty($item['url'])): ?>
+                                                <a href="<?= esc($item['url']) ?>" class="patient-timeline-link">
+                                            <?php else: ?>
+                                                <div class="patient-timeline-link">
+                                            <?php endif; ?>
+                                                <div class="patient-timeline-shell">
                                                     <div>
-                                                        <p class="text-sm text-gray-500">
-                                                            <span class="font-medium text-gray-900"><?= $item['title'] ?></span>
-                                                            <span class="text-gray-500"><?= esc(lang('UI.patientTimelineOn')) ?> <?= formatDate($item['date']) ?></span>
-                                                        </p>
-                                                        <p class="text-sm text-gray-500"><?= $item['description'] ?></p>
-                                                        <?php if (!empty($item['doctor'])): ?>
-                                                            <p class="text-xs text-gray-400 mt-1"><?= esc(lang('UI.patientCreatedBy')) ?>: <?= esc($item['doctor']) ?></p>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<?= $item['color'] ?>-100 text-<?= $item['color'] ?>-800">
-                                                            <?= ucfirst($item['status']) ?>
+                                                        <span class="patient-timeline-icon bg-<?= esc($item['color']) ?>-500">
+                                                            <i class="<?= esc($item['icon']) ?> text-sm"></i>
                                                         </span>
                                                     </div>
+                                                    <div class="patient-timeline-main">
+                                                        <div class="patient-timeline-title-block">
+                                                            <div class="patient-timeline-title"><?= esc($item['title']) ?></div>
+                                                            <div class="patient-timeline-date"><?= esc(lang('UI.patientTimelineOn')) ?> <?= !empty($item['date']) ? formatDate($item['date']) : esc(lang('UI.patientNa')) ?></div>
+                                                        </div>
+                                                        <div class="patient-timeline-summary">
+                                                            <p class="patient-timeline-description"><?= esc($item['description']) ?></p>
+                                                            <?php
+                                                            $timelineMeta = $item['meta'] ?? [];
+                                                            if (!empty($item['doctor'])) {
+                                                                $timelineMeta[] = [
+                                                                    'icon' => 'fas fa-user-md',
+                                                                    'text' => 'Dr. ' . $item['doctor'],
+                                                                ];
+                                                            }
+                                                            ?>
+                                                            <?php if (!empty($timelineMeta)): ?>
+                                                                <div class="patient-timeline-meta">
+                                                                    <?php foreach ($timelineMeta as $metaItem): ?>
+                                                                        <?php if (empty($metaItem['text'])) { continue; } ?>
+                                                                        <span class="patient-timeline-meta-chip">
+                                                                            <?php if (!empty($metaItem['icon'])): ?><i class="<?= esc($metaItem['icon']) ?>"></i><?php endif; ?>
+                                                                            <span><?= esc($metaItem['text']) ?></span>
+                                                                        </span>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="patient-timeline-status">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<?= esc($item['color']) ?>-100 text-<?= esc($item['color']) ?>-800">
+                                                                <?= esc($item['status_label'] ?? ucfirst((string) ($item['status'] ?? ''))) ?>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            <?php if (!empty($item['url'])): ?>
+                                                </a>
+                                            <?php else: ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </li>
                                     <?php endforeach; ?>
@@ -2047,7 +2121,25 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
                                                 <?php foreach ($treatments as $trt): ?>
-                                                    <?php $rowBilling = $treatmentBillingMeta($trt); ?>
+                                                    <?php
+                                                    $rowBilling = $treatmentBillingMeta($trt);
+                                                    $billTreatmentFromPatientUrl = '';
+                                                    if (
+                                                        has_permission('finance', 'create')
+                                                        && !$rowBilling['is_billed']
+                                                        && (int) ($rowBilling['charge_line_id'] ?? 0) > 0
+                                                        && (float) ($rowBilling['amount_raw'] ?? 0) > 0
+                                                    ) {
+                                                        $billTreatmentFromPatientUrl = workflow_context_url(
+                                                            'finance/create?' . http_build_query([
+                                                                'patient_id' => (int) $patient['id'],
+                                                                'transaction_type' => 'invoice',
+                                                                'clinical_charge_line_ids' => [(int) $rowBilling['charge_line_id']],
+                                                            ], '', '&', PHP_QUERY_RFC3986),
+                                                            'patient/' . (int) $patient['id'] . '?tab=treatments'
+                                                        );
+                                                    }
+                                                    ?>
                                                     <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo)) ?>">
                                                         <td class="px-6 py-4"><div class="text-sm font-medium text-gray-900"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></div><div class="text-xs text-gray-500"><?= ucfirst($trt['treatment_type'] ?? lang('UI.patientGeneral')) ?></div></td>
                                                         <td class="px-6 py-4 text-sm text-gray-700"><?= $trt['tooth_number'] ?? '—' ?></td>
@@ -2069,6 +2161,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                                     <span><?= esc(lang('UI.patientPaidShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['paid_text']) ?></strong></span>
                                                                     <span class="<?= $rowBilling['has_balance'] ? 'text-amber-700' : 'text-emerald-700' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
                                                                 </div>
+                                                            <?php elseif ($billTreatmentFromPatientUrl !== ''): ?>
+                                                                <a href="<?= esc($billTreatmentFromPatientUrl) ?>" class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100">
+                                                                    <i class="fas fa-file-invoice-dollar"></i>
+                                                                    <?= esc(lang('UI.patientCreateInvoiceFromWork')) ?>
+                                                                </a>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['active'=>'bg-blue-100 text-blue-700','completed'=>'bg-emerald-100 text-emerald-700','cancelled'=>'bg-rose-100 text-rose-700','on_hold'=>'bg-amber-100 text-amber-700'][$trt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($trt['status']) ?></span></td>
@@ -2237,7 +2334,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientFinancialRecords')) ?></h3>
-                                        <p class="text-xs text-gray-500 mt-1"><?= esc($isRtl ? 'يعرض هذا السجل المالي الفواتير والتحصيلات والاستردادات والتسويات والرصيد الحالي للمريض في مكان واحد.' : lang('UI.patientFinancialRecordsSubtitle')) ?></p>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientFinancialRecordsSubtitle')) ?></p>
                                     </div>
                                         <div class="flex flex-wrap gap-2">
                                             <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200">
@@ -2261,6 +2358,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.detailsReference')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientClinicalSource')) ?></th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.method')) ?></th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
@@ -2296,6 +2394,29 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                                 <div class="patient-record-main">
                                                                     <div class="patient-record-title"><?= esc($ledgerRow['reference']) ?></div>
                                                                 </div>
+                                                            </td>
+                                                            <td>
+                                                                <?php if (!empty($ledgerRow['clinical_sources'])): ?>
+                                                                    <div class="flex flex-wrap gap-1.5">
+                                                                        <?php foreach ($ledgerRow['clinical_sources'] as $clinicalSource): ?>
+                                                                            <?php $clinicalSourceLabel = trim((string) ($clinicalSource['label'] ?? '')); ?>
+                                                                            <?php if ($clinicalSourceLabel === '') { continue; } ?>
+                                                                            <?php if (!empty($clinicalSource['url'])): ?>
+                                                                                <a href="<?= esc($clinicalSource['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-800 hover:bg-sky-100">
+                                                                                    <i class="<?= esc($clinicalSource['icon'] ?? 'fas fa-link') ?>"></i>
+                                                                                    <span><?= esc($clinicalSourceLabel) ?></span>
+                                                                                </a>
+                                                                            <?php else: ?>
+                                                                                <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-700">
+                                                                                    <i class="<?= esc($clinicalSource['icon'] ?? 'fas fa-link') ?>"></i>
+                                                                                    <span><?= esc($clinicalSourceLabel) ?></span>
+                                                                                </span>
+                                                                            <?php endif; ?>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                <?php else: ?>
+                                                                    <span class="text-xs text-slate-400"><?= esc(lang('UI.patientNoClinicalSource')) ?></span>
+                                                                <?php endif; ?>
                                                             </td>
                                                             <td class="font-semibold <?= $amountClass ?>">
                                                                 <?= ($rowAmount < 0 ? '- ' : '') . formatCurrency(abs($rowAmount)) ?>
@@ -4707,11 +4828,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endDateRaw) : endDateRaw;
         
         filteredTimelineData = allTimelineData.filter(item => {
+            const metaText = Array.isArray(item.meta)
+                ? item.meta.map(metaItem => metaItem && metaItem.text ? String(metaItem.text).toLowerCase() : '').join(' ')
+                : '';
             const matchesSearch = !searchTerm || 
                 item.title.toLowerCase().includes(searchTerm) ||
                 item.description.toLowerCase().includes(searchTerm) ||
                 item.status.toLowerCase().includes(searchTerm) ||
-                (item.doctor && item.doctor.toLowerCase().includes(searchTerm));
+                (item.doctor && item.doctor.toLowerCase().includes(searchTerm)) ||
+                metaText.includes(searchTerm);
                 
             const itemDate = new Date(item.date);
             const matchesDateRange = (!startDate || itemDate >= new Date(startDate)) &&
