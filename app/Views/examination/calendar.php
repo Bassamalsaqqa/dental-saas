@@ -14,7 +14,7 @@
                 <a href="<?= base_url('examination') ?>" class="inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
                     <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('back_to_examinations')) ?>
                 </a>
-                <a href="<?= base_url('examination/create') ?>" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
                     <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
                 </a>
             </div>

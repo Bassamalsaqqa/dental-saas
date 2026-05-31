@@ -39,6 +39,7 @@ Last updated: 2026-05-05
 - The current PHP Patient Profile is the reference first slice: contextual drawers can start related work while canonical modules still own validation, writes, redirects, permissions, tenant checks, audit logging, and finance math.
 - When applying the pattern to another entity page, reuse the rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`.
 - Do not copy patient actions blindly to provider, user, supplier, finance, inventory, or appointment pages; each entity gets actions that match its domain.
+- Deferred manual QA reminder: when testing time is available, run the full clinical-finance chain end to end: treatment -> invoice -> patient payment -> patient profile trace -> treatment trace -> finance trace -> provider payout payment -> provider/user payout ledger.
 
 ## Local Environment
 

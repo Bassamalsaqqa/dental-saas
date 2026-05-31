@@ -389,7 +389,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 p-4 pt-0">
                         <!-- Add Patient Action -->
-                        <a href="<?= base_url('patient/create') ?>" class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/80 hover:to-indigo-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-105 hover:-translate-y-2">
+                        <a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/80 hover:to-indigo-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-105 hover:-translate-y-2">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-200 opacity-0 group-hover/action:opacity-100"></div>
                             <div class="relative z-10 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-3 shadow-2xl shadow-blue-500/25 group-hover/action:scale-110 group-hover/action:rotate-6 transition-all duration-200">
                                 <i class="fas fa-user-plus text-lg text-white"></i>
@@ -401,7 +401,7 @@
                         </a>
 
                         <!-- New Examination Action -->
-                        <a href="<?= base_url('examination/create') ?>" class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-emerald-200 hover:border-emerald-400 hover:bg-gradient-to-br hover:from-emerald-50/80 hover:to-cyan-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-emerald-500/20 hover:scale-105 hover:-translate-y-2">
+                        <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-emerald-200 hover:border-emerald-400 hover:bg-gradient-to-br hover:from-emerald-50/80 hover:to-cyan-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-emerald-500/20 hover:scale-105 hover:-translate-y-2">
                             <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-200 opacity-0 group-hover/action:opacity-100"></div>
                             <div class="relative z-10 w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-xl flex items-center justify-center mb-3 shadow-2xl shadow-emerald-500/25 group-hover/action:scale-110 group-hover/action:rotate-6 transition-all duration-200">
                                 <i class="fas fa-stethoscope text-lg text-white"></i>
@@ -413,7 +413,7 @@
                         </a>
 
                         <!-- Book Appointment Action -->
-                        <a href="<?= base_url('appointment/create') ?>" class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-amber-200 hover:border-amber-400 hover:bg-gradient-to-br hover:from-amber-50/80 hover:to-orange-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-amber-500/20 hover:scale-105 hover:-translate-y-2">
+                        <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-amber-200 hover:border-amber-400 hover:bg-gradient-to-br hover:from-amber-50/80 hover:to-orange-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-amber-500/20 hover:scale-105 hover:-translate-y-2">
                             <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-200 opacity-0 group-hover/action:opacity-100"></div>
                             <div class="relative z-10 w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center mb-3 shadow-2xl shadow-amber-500/25 group-hover/action:scale-110 group-hover/action:rotate-6 transition-all duration-200">
                                 <i class="fas fa-calendar-plus text-lg text-white"></i>
