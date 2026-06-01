@@ -571,6 +571,13 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
     </div>
 <?php endif; ?>
 
+<?= view('examination/partials/quick_create_modal', [
+    'is_rtl' => $isRtl,
+    'return_to' => 'patients',
+    'contextual' => false,
+    'selected_patient' => null,
+]) ?>
+
 <?= view('treatment/partials/quick_create_modal', [
     'isRtl' => $isRtl,
     'return_to' => 'patients',

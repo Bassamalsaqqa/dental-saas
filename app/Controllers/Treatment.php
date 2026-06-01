@@ -458,11 +458,20 @@ class Treatment extends BaseController
 
         $data = [
             'title' => 'Treatment Details',
+            'loadSelect2' => true,
             'treatment' => $treatment,
             'usage_records' => $usageRecords,
             'usage_total_cost' => $totalUsageCost,
             'charge_line' => $this->chargeLineService->getActiveForTreatment((int) $clinicId, (int) $id),
             'money_trail' => (new MoneyTrailService())->forTreatment((int) $clinicId, (int) $id),
+            'clinic_providers' => $this->getClinicProviders((int) $clinicId),
+            'treatment_finance_base_currency' => settings()->get('currency', 'ILS'),
+            'treatment_finance_currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'treatment_finance_liquidity_options' => [
+                'safe_cash' => lang('Finance.liquidityAccount.safe_cash') !== 'Finance.liquidityAccount.safe_cash' ? lang('Finance.liquidityAccount.safe_cash') : 'Safe Cash',
+                'bank' => lang('Finance.liquidityAccount.bank') !== 'Finance.liquidityAccount.bank' ? lang('Finance.liquidityAccount.bank') : 'Bank',
+                'undeposited_checks' => lang('Finance.liquidityAccount.undeposited_checks') !== 'Finance.liquidityAccount.undeposited_checks' ? lang('Finance.liquidityAccount.undeposited_checks') : 'Checks on Hand',
+            ],
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']),
         ];
 

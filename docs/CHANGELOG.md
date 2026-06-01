@@ -9,6 +9,8 @@
 - Preserved canonical full-page create links where they are intentional fallbacks or where a safe shared modal is not loaded yet.
 - Continued with patient-row contextual prefill: `/patients` New Examination row actions now open the existing examination quick-create modal with the selected patient injected into the canonical patient Select2 field, while preserving the full-page fallback link.
 - Continued with patient-row contextual prefill: `/patients` New Treatment row actions now open the existing treatment quick-create modal with the selected patient injected into the canonical patient Select2 field; the modal resets on close so later row actions start fresh.
+- Fixed the `/patients` row workflow gap by loading the existing examination quick-create modal on the page, so row New Examination actions can stay in context instead of falling back to the full create page.
+- Continued the treatment workflow-focus slice: `/treatment/{id}` Create invoice from this treatment now opens an app drawer with the canonical finance form partial, selected patient, selected clinical charge line, CSRF, and full-page fallback preserved.
 - Known follow-up: consider scoped slices for dashboard finance quick-create, supplier/payable expense quick-create, and patient-detail item actions only after their shared modal/drawer data requirements are made safe.
 
 ## 2026-05-20 - Clinical-Finance Money Trail Slice 1

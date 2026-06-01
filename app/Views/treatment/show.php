@@ -23,6 +23,15 @@ $billThisTreatmentUrl = $chargeLineIsOpen && !empty($treatment['patient_id'])
 $linkedInvoiceUrl = !empty($chargeLine['finance_id'])
     ? workflow_context_url('finance/' . (int) $chargeLine['finance_id'], $treatmentReturnTarget)
     : '';
+$treatmentFinancePatient = !empty($treatment['patient_id']) ? [
+    'id' => (int) $treatment['patient_id'],
+    'first_name' => (string) ($treatment['first_name'] ?? ''),
+    'last_name' => (string) ($treatment['last_name'] ?? ''),
+    'patient_id' => (string) ($treatment['patient_number'] ?? $treatment['patient_id'] ?? ''),
+    'phone' => (string) ($treatment['phone'] ?? ''),
+] : null;
+$invoiceableChargeLines = $chargeLineIsOpen && is_array($chargeLine) ? [$chargeLine] : [];
+$invoiceableChargeLineIds = $chargeLineId > 0 ? [$chargeLineId] : [];
 $moneyTrail = $money_trail ?? [];
 $moneySummary = $moneyTrail['summary'] ?? [];
 $billingStateLabel = $chargeLineId <= 0
@@ -523,7 +532,7 @@ $statusTone = match ($statusRaw) {
     </section>
 
     <!-- Content Grid -->
-    <div class="treatment-workspace-section grid grid-cols-1 gap-6">
+    <div class="treatment-workspace-section grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(22rem,0.75fr)] xl:items-start">
 
         <!-- Left Column -->
         <div class="grid gap-6 xl:grid-cols-2">
@@ -592,7 +601,7 @@ $statusTone = match ($statusRaw) {
         </div>
 
         <!-- Right Column -->
-        <div class="grid gap-6 xl:grid-cols-2">
+        <div class="grid gap-6">
 
             <!-- Patient Info -->
             <?php if (!empty($treatment['patient_id'])): ?>
@@ -636,9 +645,9 @@ $statusTone = match ($statusRaw) {
                             </div>
                         </div>
                         <?php if ($billThisTreatmentUrl !== ''): ?>
-                            <a href="<?= esc($billThisTreatmentUrl) ?>" class="treatment-card-action w-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700">
+                            <button type="button" data-app-drawer-open="treatmentInvoiceDrawer" class="treatment-card-action w-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700">
                                 <i class="fas fa-file-invoice-dollar"></i><span><?= esc($tr('create_invoice_from_treatment')) ?></span>
-                            </a>
+                            </button>
                         <?php elseif ($linkedInvoiceUrl !== ''): ?>
                             <a href="<?= esc($linkedInvoiceUrl) ?>" class="treatment-card-action w-full border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50">
                                 <i class="fas fa-link"></i><span><?= esc($tr('open_linked_invoice')) ?></span>
@@ -655,7 +664,7 @@ $statusTone = match ($statusRaw) {
                 </div>
             </div>
 
-            <div class="xl:col-span-2">
+            <div>
             <?= view('components/money_trail_panel', [
                 'money_trail' => $money_trail ?? [],
                 'is_rtl' => $isRtl,
@@ -681,6 +690,55 @@ $statusTone = match ($statusRaw) {
 </div>
 </div>
 
+<?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+    <?php
+    $treatmentInvoiceDrawerId = 'treatmentInvoiceDrawer';
+    $treatmentInvoiceFormId = 'treatmentInvoiceDrawerForm';
+    ob_start();
+    ?>
+    <form id="<?= esc($treatmentInvoiceFormId) ?>"
+          method="post"
+          action="<?= base_url('finance/store') ?>"
+          enctype="multipart/form-data"
+          data-finance-calc
+          data-provider-split
+          data-base-currency="<?= esc($treatment_finance_base_currency ?? settings()->get('currency', 'ILS')) ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="return_to" value="<?= esc($treatmentReturnTarget) ?>">
+        <?= view('finance/partials/form_fields', [
+            'contextual' => true,
+            'id_prefix' => $treatmentInvoiceDrawerId,
+            'selected_patient' => $treatmentFinancePatient,
+            'patients' => !empty($treatmentFinancePatient) ? [$treatmentFinancePatient] : [],
+            'transaction_type_preset' => 'invoice',
+            'lock_transaction_type' => true,
+            'base_currency' => $treatment_finance_base_currency ?? settings()->get('currency', 'ILS'),
+            'currency_options' => $treatment_finance_currency_options ?? ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'liquidity_account_options' => $treatment_finance_liquidity_options ?? [],
+            'clinic_providers' => $clinic_providers ?? [],
+            'clinical_charge_lines' => $invoiceableChargeLines,
+            'selected_clinical_charge_line_ids' => $invoiceableChargeLineIds,
+            'is_rtl' => $isRtl,
+            'advanced_details_style' => 'flat',
+        ]) ?>
+    </form>
+    <?php $treatmentInvoiceDrawerBody = (string) ob_get_clean(); ?>
+    <?= view('components/app_drawer', [
+        'id' => $treatmentInvoiceDrawerId,
+        'title' => $tr('create_invoice_from_treatment'),
+        'description' => $tr('patient_billing_help'),
+        'icon' => 'fas fa-file-invoice-dollar',
+        'tone' => 'bg-emerald-600',
+        'size' => 'wide',
+        'body' => $treatmentInvoiceDrawerBody,
+        'footer' => '<div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">'
+            . '<button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="' . esc($treatmentInvoiceDrawerId) . '">' . esc(lang('UI.cancel')) . '</button>'
+            . '<a href="' . esc($billThisTreatmentUrl) . '" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 px-4 py-2.5 text-sm font-bold text-emerald-800 hover:bg-emerald-50">' . esc(lang('UI.openFullPage')) . '</a>'
+            . '<button type="submit" form="' . esc($treatmentInvoiceFormId) . '" class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700">' . esc(lang('Finance.createTransaction')) . '</button>'
+            . '</div>',
+    ]) ?>
+    <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
+<?php endif; ?>
 <script>
 function completeTreatment(id) {
     if (!confirm('<?= esc(lang('Treatment.confirm_mark_completed'), 'js') ?>')) return;
