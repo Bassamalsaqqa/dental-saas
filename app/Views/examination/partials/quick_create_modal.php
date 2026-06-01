@@ -158,6 +158,85 @@ if (!empty($modalSelectedPatient['id'])) {
             return modal;
         }
 
+        function getNewExaminationPatientSelect(modal) {
+            return modal?.querySelector('select[name="patient_id"]') || null;
+        }
+
+        function clearDynamicExaminationPatient(modal) {
+            const patientSelect = getNewExaminationPatientSelect(modal);
+            if (!patientSelect) {
+                return;
+            }
+            patientSelect.querySelectorAll('option[data-dynamic-patient-option="1"]').forEach(function (option) {
+                option.remove();
+            });
+            patientSelect.value = '';
+            if (window.jQuery) {
+                window.jQuery(patientSelect).val('').trigger('change');
+            } else {
+                patientSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            modal.querySelectorAll('[data-contextual-exam]').forEach(function (wrap) {
+                wrap.dataset.patientGender = '';
+                delete wrap.dataset.examBound;
+            });
+        }
+
+        function applyNewExaminationTriggerContext(modal, trigger) {
+            if (!modal) {
+                return;
+            }
+            const patientId = trigger?.dataset?.contextPatientId || '';
+            const patientSelect = getNewExaminationPatientSelect(modal);
+            const fullPageLink = modal.querySelector('a[href*="examination/create"]');
+            if (fullPageLink && !fullPageLink.dataset.defaultHref) {
+                fullPageLink.dataset.defaultHref = fullPageLink.getAttribute('href') || '';
+            }
+            if (!patientId || !patientSelect) {
+                clearDynamicExaminationPatient(modal);
+                if (fullPageLink?.dataset.defaultHref) {
+                    fullPageLink.setAttribute('href', fullPageLink.dataset.defaultHref);
+                }
+                return;
+            }
+            const patientName = trigger.dataset.contextPatientName || '';
+            const patientCode = trigger.dataset.contextPatientCode || '';
+            const patientGender = (trigger.dataset.contextPatientGender || '').toLowerCase();
+            const label = patientName && patientCode ? `${patientName} (${patientCode})` : (patientName || patientCode || `#${patientId}`);
+            patientSelect.querySelectorAll('option[data-dynamic-patient-option="1"]').forEach(function (option) {
+                option.remove();
+            });
+            let option = Array.from(patientSelect.options).find(function (candidate) {
+                return String(candidate.value) === String(patientId);
+            });
+            if (!option) {
+                option = new Option(label, patientId, true, true);
+                option.dataset.dynamicPatientOption = '1';
+                patientSelect.appendChild(option);
+            }
+            option.selected = true;
+            option.dataset.gender = patientGender;
+            patientSelect.value = patientId;
+            modal.querySelectorAll('[data-contextual-exam]').forEach(function (wrap) {
+                wrap.dataset.patientGender = patientGender;
+                delete wrap.dataset.examBound;
+            });
+            if (window.jQuery) {
+                window.jQuery(patientSelect).val(patientId).trigger('change');
+            } else {
+                patientSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (fullPageLink?.dataset.defaultHref) {
+                try {
+                    const href = new URL(fullPageLink.dataset.defaultHref, window.location.origin);
+                    href.searchParams.set('patient_id', patientId);
+                    href.searchParams.set('return_to', 'patients');
+                    fullPageLink.setAttribute('href', href.toString());
+                } catch (error) {
+                    fullPageLink.setAttribute('href', `<?= base_url('examination/create') ?>?patient_id=${encodeURIComponent(patientId)}&return_to=patients`);
+                }
+            }
+        }
         function initializeNewExaminationModalContent(modal) {
             if (!modal) {
                 return Promise.resolve();
@@ -181,6 +260,7 @@ if (!empty($modalSelectedPatient['id'])) {
                 return;
             }
             newExaminationModalTrigger = trigger || document.activeElement;
+            applyNewExaminationTriggerContext(modal, trigger);
             if (newExaminationModalCloseTimer) {
                 clearTimeout(newExaminationModalCloseTimer);
                 newExaminationModalCloseTimer = null;
@@ -220,6 +300,7 @@ if (!empty($modalSelectedPatient['id'])) {
                             window.jQuery(field).trigger('change');
                         }
                     });
+                    clearDynamicExaminationPatient(modal);
                     if (typeof window.initContextualExaminationForms === 'function') {
                         window.initContextualExaminationForms(form);
                     }

@@ -7,7 +7,8 @@
 - Added a deferred manual QA reminder in `docs/PROJECT_STATE.md` because full end-to-end testing is postponed: treatment -> invoice -> patient payment -> patient profile trace -> treatment trace -> finance trace -> provider payout payment -> provider/user payout ledger.
 - Tightened workflow-focus entry points so Dashboard quick actions and Examination Calendar new-examination action open existing quick-create modals instead of navigating away.
 - Preserved canonical full-page create links where they are intentional fallbacks or where a safe shared modal is not loaded yet.
-- Known follow-up: consider scoped slices for dashboard finance quick-create, supplier/payable expense quick-create, and patient-row contextual quick actions only after dynamic modal prefill is made safe.
+- Continued with patient-row contextual prefill: `/patients` New Examination row actions now open the existing examination quick-create modal with the selected patient injected into the canonical patient Select2 field, while preserving the full-page fallback link.
+- Known follow-up: consider scoped slices for dashboard finance quick-create, supplier/payable expense quick-create, and patient-row treatment quick actions only after their shared modal data requirements are made safe.
 
 ## 2026-05-20 - Clinical-Finance Money Trail Slice 1
 

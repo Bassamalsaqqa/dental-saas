@@ -737,6 +737,15 @@ const patientI18n = {
     deleteConfirm: '<?= esc(lang('UI.patientDeleteConfirm'), 'js') ?>'
 };
 
+function escapeHtmlAttribute(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 function getCookieValue(name) {
     if (!name) {
         return '';
@@ -973,8 +982,14 @@ $(document).ready(function() {
                         </a>`;
 
                     // New examination button
+                    const patientContextLabel = row.name || row.patient_id || '';
                     actions += `
-                        <a href="<?= base_url('examination/create?patient_id=') ?>${data}"
+                        <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=patients"
+                           data-examination-create-modal-open
+                           data-context-patient-id="${data}"
+                           data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
+                           data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
+                           data-context-patient-gender="${escapeHtmlAttribute(row.gender || '')}"
                            class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="${patientI18n.newExamination}">
                             <i class="fas fa-stethoscope"></i>
                         </a>`;
