@@ -8,6 +8,9 @@ $modalFullPageQuery = ['return_to' => $modalReturnTo];
 if (!empty($modalSelectedExaminationId)) {
     $modalFullPageQuery['examination_id'] = $modalSelectedExaminationId;
 }
+if (!empty($modalSelectedPatient['id'])) {
+    $modalFullPageQuery['patient_id'] = $modalSelectedPatient['id'];
+}
 $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullPageQuery));
 ?>
 <?php if (has_permission('treatments', 'create')): ?>
@@ -85,7 +88,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                         </span>
                         <div>
                             <h2 id="newTreatmentModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Treatment.new_treatment')) ?></h2>
-                            <a href="<?= esc($modalFullPageHref, 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-pink-700 hover:text-pink-800">
+                            <a href="<?= esc($modalFullPageHref, 'attr') ?>" data-treatment-full-page-link data-default-href="<?= esc($modalFullPageHref, 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-pink-700 hover:text-pink-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
@@ -174,6 +177,95 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
             return Promise.allSettled(tasks);
         }
 
+        function getTreatmentPatientSelect(modal) {
+            return modal ? modal.querySelector('select[name="patient_id"]') : null;
+        }
+
+        function updateTreatmentFullPageLink(modal, patientId) {
+            const link = modal ? modal.querySelector('[data-treatment-full-page-link]') : null;
+            if (!link) {
+                return;
+            }
+
+            const defaultHref = link.dataset.defaultHref || link.getAttribute('href') || '<?= esc($modalFullPageHref, 'js') ?>';
+            if (!patientId) {
+                link.setAttribute('href', defaultHref);
+                return;
+            }
+
+            try {
+                const url = new URL(defaultHref, window.location.origin);
+                url.searchParams.set('patient_id', patientId);
+                if (!url.searchParams.get('return_to')) {
+                    url.searchParams.set('return_to', '<?= esc($modalReturnTo, 'js') ?>');
+                }
+                link.setAttribute('href', url.toString());
+            } catch (error) {
+                link.setAttribute('href', '<?= base_url('treatment/create') ?>?patient_id=' + encodeURIComponent(patientId) + '&return_to=<?= rawurlencode($modalReturnTo) ?>');
+            }
+        }
+
+        function triggerTreatmentFieldChange(field) {
+            if (!field) {
+                return;
+            }
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            if (window.jQuery && window.jQuery.fn && window.jQuery.fn.select2 && window.jQuery(field).hasClass('select2-hidden-accessible')) {
+                window.jQuery(field).trigger('change.select2');
+            }
+        }
+
+        function clearDynamicTreatmentPatient(modal) {
+            const patientSelect = getTreatmentPatientSelect(modal);
+            if (patientSelect) {
+                patientSelect.querySelectorAll('option[data-dynamic-patient-option="1"]').forEach(function (option) {
+                    option.remove();
+                });
+                patientSelect.value = '';
+                triggerTreatmentFieldChange(patientSelect);
+            }
+            updateTreatmentFullPageLink(modal, '');
+        }
+
+        function applyTreatmentTriggerContext(modal, trigger) {
+            const patientSelect = getTreatmentPatientSelect(modal);
+            const patientId = trigger && trigger.dataset ? (trigger.dataset.contextPatientId || '') : '';
+            if (!patientSelect || !patientId) {
+                updateTreatmentFullPageLink(modal, patientId);
+                return;
+            }
+
+            const patientName = trigger.dataset.contextPatientName || '';
+            const patientCode = trigger.dataset.contextPatientCode || '';
+            const patientLabel = [patientName, patientCode].filter(Boolean).join(' - ') || ('Patient #' + patientId);
+            let option = Array.from(patientSelect.options).find(function (candidate) {
+                return candidate.value === patientId;
+            });
+            if (!option) {
+                option = new Option(patientLabel, patientId, true, true);
+                option.dataset.dynamicPatientOption = '1';
+                patientSelect.add(option);
+            }
+            option.text = patientLabel;
+            option.selected = true;
+            patientSelect.value = patientId;
+            triggerTreatmentFieldChange(patientSelect);
+            updateTreatmentFullPageLink(modal, patientId);
+        }
+
+        function resetTreatmentModalForm(modal) {
+            const form = modal ? modal.querySelector('form') : null;
+            if (!form) {
+                return;
+            }
+            form.reset();
+            clearDynamicTreatmentPatient(modal);
+            form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach(triggerTreatmentFieldChange);
+            if (typeof window.initContextualTreatmentForms === 'function') {
+                window.initContextualTreatmentForms(modal);
+            }
+        }
+
         function openTreatmentModal(trigger) {
             const modal = mountTreatmentModal();
             if (!modal) {
@@ -191,6 +283,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
             requestAnimationFrame(function () {
                 modal.classList.add('is-open');
             });
+            applyTreatmentTriggerContext(modal, trigger);
             window.setTimeout(function () {
                 initializeTreatmentModalContent(modal);
             }, 80);
@@ -213,6 +306,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
             document.body.classList.remove('app-drawer-lock');
             treatmentModalCloseTimer = setTimeout(function () {
                 modal.classList.add('hidden');
+                resetTreatmentModalForm(modal);
                 if (treatmentModalTrigger && typeof treatmentModalTrigger.focus === 'function') {
                     treatmentModalTrigger.focus();
                 }

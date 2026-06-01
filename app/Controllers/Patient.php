@@ -288,12 +288,28 @@ class Patient extends BaseController
             return $this->getPatientsData();
         }
 
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        $inventoryItems = [];
+        $clinicProviders = [];
+        if ($clinicId > 0) {
+            $inventoryItems = (new InventoryModel())
+                ->where('status', 'active')
+                ->where('clinic_id', $clinicId)
+                ->where('quantity >', 0)
+                ->orderBy('item_name', 'ASC')
+                ->findAll();
+            $clinicProviders = (new ClinicUserModel())->getActiveUserDirectoryByClinic($clinicId);
+        }
+
         $data = [
             'title' => 'Patient Management',
             'pageTitle' => 'Patients',
             'patients' => [],
             'pager' => null,
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'patient_index_treatment_types' => TreatmentCatalog::forSelection(),
+            'patient_index_inventory_items' => $inventoryItems,
+            'patient_index_clinic_providers' => $clinicProviders,
         ];
 
         return $this->view('patient/index', $data); 
