@@ -712,6 +712,22 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+document.addEventListener('click', function(event) {
+    const examinationTrigger = event.target.closest('[data-examination-create-modal-open]');
+    if (examinationTrigger && document.getElementById('newExaminationModal') && typeof window.openNewExaminationModal === 'function') {
+        event.preventDefault();
+        event.stopPropagation();
+        window.openNewExaminationModal(examinationTrigger);
+        return;
+    }
+
+    const treatmentTrigger = event.target.closest('[data-treatment-create-modal-open]');
+    if (treatmentTrigger && document.getElementById('newTreatmentModal') && typeof window.openTreatmentModal === 'function') {
+        event.preventDefault();
+        event.stopPropagation();
+        window.openTreatmentModal(treatmentTrigger);
+    }
+}, true);
 document.addEventListener('DOMContentLoaded', function() {
     if (<?= $shouldOpenPatientCreateModal ? 'true' : 'false' ?>) {
         openNewPatientModal(document.getElementById('newPatientModalTrigger'));

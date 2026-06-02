@@ -313,6 +313,9 @@ if (!empty($modalSelectedPatient['id'])) {
             }, 240);
         }
 
+        window.openNewExaminationModal = openNewExaminationModal;
+        window.closeNewExaminationModal = closeNewExaminationModal;
+
         document.addEventListener('click', function (event) {
             const openTrigger = event.target.closest('[data-examination-create-modal-open]');
             if (openTrigger) {

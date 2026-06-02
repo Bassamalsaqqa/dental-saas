@@ -314,6 +314,9 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
             }, 240);
         }
 
+        window.openTreatmentModal = openTreatmentModal;
+        window.closeTreatmentModal = closeTreatmentModal;
+
         document.addEventListener('click', function (event) {
             const openTrigger = event.target.closest('[data-treatment-create-modal-open]');
             if (openTrigger) {
