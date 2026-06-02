@@ -316,6 +316,18 @@ if (!empty($modalSelectedPatient['id'])) {
         window.openNewExaminationModal = openNewExaminationModal;
         window.closeNewExaminationModal = closeNewExaminationModal;
 
+        // capture-phase examination modal close: form panels stop bubbling clicks.
+        document.addEventListener('click', function (event) {
+            const closeTrigger = event.target.closest('[data-examination-create-modal-close]');
+            const isExplicitCloseControl = closeTrigger && closeTrigger.matches('button, a');
+            const isBackdropOrShellClick = closeTrigger && event.target === closeTrigger;
+            if (isExplicitCloseControl || isBackdropOrShellClick) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeNewExaminationModal();
+            }
+        }, true);
+
         document.addEventListener('click', function (event) {
             const openTrigger = event.target.closest('[data-examination-create-modal-open]');
             if (openTrigger) {

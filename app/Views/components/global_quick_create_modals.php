@@ -5,7 +5,8 @@ $isRtl = !empty($is_rtl);
 
 $renderPatientCreate = !in_array($currentUri, ['patient', 'patients', 'patient/create', 'patients/create'], true)
     && !preg_match('#^patients?/\d+/edit$#', $currentUri);
-$renderExaminationCreate = !in_array($currentUri, ['examination', 'examinations', 'examination/create', 'examinations/create'], true)
+$renderExaminationCreate = !in_array($currentUri, ['patient', 'patients', 'examination', 'examinations', 'examination/create', 'examinations/create'], true)
+    && !preg_match('#^patients?/\d+$#', $currentUri)
     && !preg_match('#^appointments?/\d+$#', $currentUri);
 $renderAppointmentCreate = !in_array($currentUri, ['appointment', 'appointments', 'appointment/create', 'appointments/create'], true)
     && !preg_match('#^examinations?/\d+$#', $currentUri);
