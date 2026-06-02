@@ -15,7 +15,7 @@ $attachmentCategoryOptions = $attachment_category_options ?? [];
 $maxFileMb = $attachments_max_file_mb ?? null;
 
 $fullUrl = static function (string $path) use ($patientId, $returnTo): string {
-    return base_url($path . '?patient_id=' . $patientId . '&return_to=' . urlencode($returnTo));
+    return workflow_context_url($path . '?patient_id=' . $patientId, $returnTo);
 };
 $buttonClass = 'patient-command-action inline-flex min-h-[2.85rem] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-sky-500/15';
 $primaryButtonClass = 'patient-command-action patient-command-action-primary inline-flex min-h-[2.85rem] items-center justify-center gap-2 rounded-xl border border-teal-700 bg-teal-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-teal-500/20';

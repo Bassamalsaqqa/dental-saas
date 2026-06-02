@@ -230,10 +230,10 @@ if (!empty($modalSelectedPatient['id'])) {
                 try {
                     const href = new URL(fullPageLink.dataset.defaultHref, window.location.origin);
                     href.searchParams.set('patient_id', patientId);
-                    href.searchParams.set('return_to', 'patients');
+                    href.searchParams.set('return_to', <?= json_encode($modalReturnTo) ?>);
                     fullPageLink.setAttribute('href', href.toString());
                 } catch (error) {
-                    fullPageLink.setAttribute('href', `<?= base_url('examination/create') ?>?patient_id=${encodeURIComponent(patientId)}&return_to=patients`);
+                    fullPageLink.setAttribute('href', `<?= base_url('examination/create') ?>?patient_id=${encodeURIComponent(patientId)}&return_to=<?= rawurlencode($modalReturnTo) ?>`);
                 }
             }
         }
@@ -260,7 +260,17 @@ if (!empty($modalSelectedPatient['id'])) {
                 return;
             }
             newExaminationModalTrigger = trigger || document.activeElement;
-            applyNewExaminationTriggerContext(modal, trigger);
+            if (typeof applyNewExaminationTriggerContext === 'function') {
+                applyNewExaminationTriggerContext(modal, trigger);
+            }
+            if (window.AppModal) {
+                window.AppModal.open(modal, {
+                    trigger: trigger,
+                    onOpen: initializeNewExaminationModalContent,
+                    focusSelector: '[name="patient_id"], input, select, textarea, button'
+                });
+                return;
+            }
             if (newExaminationModalCloseTimer) {
                 clearTimeout(newExaminationModalCloseTimer);
                 newExaminationModalCloseTimer = null;
@@ -281,9 +291,33 @@ if (!empty($modalSelectedPatient['id'])) {
             }, 80);
         }
 
+        function resetNewExaminationModal(modal) {
+            const form = modal ? modal.querySelector('[data-examination-create-form]') : null;
+            if (form) {
+                form.reset();
+                form.querySelectorAll('select, input[type="checkbox"]').forEach(function (field) {
+                    field.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (window.jQuery && field.tagName === 'SELECT') {
+                        window.jQuery(field).trigger('change');
+                    }
+                });
+                if (typeof clearDynamicExaminationPatient === 'function') {
+                    clearDynamicExaminationPatient(modal);
+                }
+                if (typeof window.initContextualExaminationForms === 'function') {
+                    window.initContextualExaminationForms(form);
+                }
+            }
+            newExaminationModalTrigger = null;
+        }
+
         function closeNewExaminationModal() {
             const modal = document.getElementById('newExaminationModal');
             if (!modal || modal.classList.contains('hidden')) {
+                return;
+            }
+            if (window.AppModal) {
+                window.AppModal.close(modal, { onReset: resetNewExaminationModal });
                 return;
             }
             modal.classList.remove('is-open');
@@ -291,25 +325,11 @@ if (!empty($modalSelectedPatient['id'])) {
             document.documentElement.classList.remove('app-drawer-lock');
             document.body.classList.remove('app-drawer-lock');
             newExaminationModalCloseTimer = setTimeout(function () {
-                const form = modal.querySelector('[data-examination-create-form]');
-                if (form) {
-                    form.reset();
-                    form.querySelectorAll('select, input[type="checkbox"]').forEach(function (field) {
-                        field.dispatchEvent(new Event('change', { bubbles: true }));
-                        if (window.jQuery && field.tagName === 'SELECT') {
-                            window.jQuery(field).trigger('change');
-                        }
-                    });
-                    clearDynamicExaminationPatient(modal);
-                    if (typeof window.initContextualExaminationForms === 'function') {
-                        window.initContextualExaminationForms(form);
-                    }
-                }
+                resetNewExaminationModal(modal);
                 modal.classList.add('hidden');
                 if (newExaminationModalTrigger && typeof newExaminationModalTrigger.focus === 'function') {
                     newExaminationModalTrigger.focus();
                 }
-                newExaminationModalTrigger = null;
             }, 240);
         }
 

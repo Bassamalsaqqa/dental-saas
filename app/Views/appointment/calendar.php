@@ -793,7 +793,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const props = event.extendedProps || {};
         const appointmentUrl = event.url || `<?= base_url('appointment') ?>/${event.id}`;
         const patientUrl = props.patient_id ? `<?= base_url('patient') ?>/${props.patient_id}` : '#';
-        const editUrl = `<?= base_url('appointment') ?>/${event.id}/edit?return_to=appointment/calendar`;
+        const editUrlBase = `<?= base_url('appointment') ?>/${event.id}/edit`;
+        const editUrl = window.WorkflowNavigationContext?.withCurrentContext ? window.WorkflowNavigationContext.withCurrentContext(editUrlBase) : editUrlBase;
         const start = event.start;
         const end = event.end;
         const timeRange = [formatModalTime(start), formatModalTime(end)].filter(Boolean).join(' - ');

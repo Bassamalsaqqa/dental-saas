@@ -680,7 +680,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         </span>
                         <div>
                             <h2 id="newExaminationModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('new_examination')) ?></h2>
-                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="mt-1 inline-flex text-xs font-semibold text-orange-700 hover:text-orange-800">
+                            <a href="<?= workflow_context_url('examination/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-orange-700 hover:text-orange-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
@@ -889,6 +889,17 @@ function openNewExaminationModal(trigger) {
         return;
     }
     newExaminationModalTrigger = trigger || document.activeElement;
+    if (typeof applyNewExaminationTriggerContext === 'function') {
+        applyNewExaminationTriggerContext(modal, trigger);
+    }
+    if (window.AppModal) {
+        window.AppModal.open(modal, {
+            trigger: trigger,
+            onOpen: initializeNewExaminationModalContent,
+            focusSelector: '[name="patient_id"], input, select, textarea, button'
+});
+        return;
+    }
     if (newExaminationModalCloseTimer) {
         clearTimeout(newExaminationModalCloseTimer);
         newExaminationModalCloseTimer = null;
@@ -897,16 +908,36 @@ function openNewExaminationModal(trigger) {
     modal.setAttribute('aria-hidden', 'false');
     document.documentElement.classList.add('app-drawer-lock');
     document.body.classList.add('app-drawer-lock');
-    requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
         modal.classList.add('is-open');
     });
-    window.setTimeout(function() {
+    window.setTimeout(function () {
         initializeNewExaminationModalContent(modal);
         const firstField = modal.querySelector('[name="patient_id"], input, select, textarea, button');
         if (firstField && typeof firstField.focus === 'function') {
             firstField.focus({ preventScroll: true });
-        }
+}
     }, 80);
+}
+
+        function resetNewExaminationModal(modal) {
+    const form = modal ? modal.querySelector('[data-examination-create-form]') : null;
+    if (form) {
+        form.reset();
+        form.querySelectorAll('select, input[type="checkbox"]').forEach(function (field) {
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            if (window.jQuery && field.tagName === 'SELECT') {
+        window.jQuery(field).trigger('change');
+    }
+});
+        if (typeof clearDynamicExaminationPatient === 'function') {
+            clearDynamicExaminationPatient(modal);
+}
+        if (typeof window.initContextualExaminationForms === 'function') {
+            window.initContextualExaminationForms(form);
+}
+    }
+    newExaminationModalTrigger = null;
 }
 
 function closeNewExaminationModal() {
@@ -914,33 +945,24 @@ function closeNewExaminationModal() {
     if (!modal || modal.classList.contains('hidden')) {
         return;
     }
+    if (window.AppModal) {
+        window.AppModal.close(modal, { onReset: resetNewExaminationModal });
+        return;
+    }
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden', 'true');
     document.documentElement.classList.remove('app-drawer-lock');
     document.body.classList.remove('app-drawer-lock');
-    newExaminationModalCloseTimer = setTimeout(function() {
-        const form = modal.querySelector('[data-examination-create-form]');
-        if (form) {
-            form.reset();
-            form.querySelectorAll('select, input[type="checkbox"]').forEach(function(field) {
-                field.dispatchEvent(new Event('change', { bubbles: true }));
-                if (window.jQuery && field.tagName === 'SELECT') {
-                    window.jQuery(field).trigger('change');
-                }
-            });
-            if (typeof window.initContextualExaminationForms === 'function') {
-                window.initContextualExaminationForms(form);
-            }
-        }
+    newExaminationModalCloseTimer = setTimeout(function () {
+        resetNewExaminationModal(modal);
         modal.classList.add('hidden');
         if (newExaminationModalTrigger && typeof newExaminationModalTrigger.focus === 'function') {
             newExaminationModalTrigger.focus();
-        }
-        newExaminationModalTrigger = null;
+}
     }, 240);
 }
 
-// capture-phase examination modal close: form panels stop bubbling clicks.
+        // capture-phase examination modal close: form panels stop bubbling clicks.
 document.addEventListener('click', function(event) {
     const closeTrigger = event.target.closest('[data-examination-create-modal-close]');
     const isExplicitCloseControl = closeTrigger && closeTrigger.matches('button, a');

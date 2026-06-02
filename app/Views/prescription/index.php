@@ -552,7 +552,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         </span>
                         <div>
                             <h2 id="newPrescriptionModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Prescription.new_prescription')) ?></h2>
-                            <a href="<?= base_url('prescription/create?return_to=' . $returnToContextEncoded) ?>" class="mt-1 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-800">
+                            <a href="<?= workflow_context_url('prescription/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>

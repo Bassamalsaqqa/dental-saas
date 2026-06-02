@@ -245,7 +245,6 @@
                     data: 'transaction_id',
                     name: 'transaction_id',
                     render: function (data, type, row) {
-                        var returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                         var typeMeta = getTransactionTypeMeta(row.transaction_type);
                         var identityHtml =
                             '<div class="flex items-center space-x-3">' +
@@ -258,7 +257,7 @@
                             '</div>' +
                             '</div>';
                         if (permissions.finance && permissions.finance.view) {
-                            return '<a href="' + financeUrls.base + '/' + row.id + '?return_to=' + returnTo + '" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">' + identityHtml + '</a>';
+                            return '<a href="' + financeUrls.base + '/' + row.id + '" data-workflow-context="1" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">' + identityHtml + '</a>';
                         }
                         return identityHtml;
                     }
@@ -367,20 +366,19 @@
                     orderable: false,
                     searchable: false,
                     render: function (data, type, row) {
-                        var returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                         var actions = '<div class="flex items-center space-x-2">';
 
                         if (permissions.finance && permissions.finance.view) {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '?return_to=' + returnTo + '" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="' + actionLabel('viewTransaction', 'View Transaction') + '"><i class="fas fa-eye"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '" data-workflow-context="1" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="' + actionLabel('viewTransaction', 'View Transaction') + '"><i class="fas fa-eye"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.view && row.transaction_type === 'invoice') {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '/invoice?return_to=' + returnTo + '" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="' + actionLabel('viewInvoice', 'View Invoice') + '"><i class="fas fa-file-invoice"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '/invoice" data-workflow-context="1" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="' + actionLabel('viewInvoice', 'View Invoice') + '"><i class="fas fa-file-invoice"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.edit && row.transaction_type === 'invoice') {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '?return_to=' + returnTo + '" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="' + actionLabel('addPayment', 'Add Payment') + '"><i class="fas fa-money-bill-wave"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '" data-workflow-context="1" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="' + actionLabel('addPayment', 'Add Payment') + '"><i class="fas fa-money-bill-wave"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.edit) {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '/edit?return_to=' + returnTo + '" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="' + actionLabel('editTransaction', 'Edit Transaction') + '"><i class="fas fa-edit"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '/edit" data-workflow-context="1" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="' + actionLabel('editTransaction', 'Edit Transaction') + '"><i class="fas fa-edit"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.delete) {
                             actions += '<button onclick="deleteTransaction(' + data + ')" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="' + actionLabel('deleteTransaction', 'Delete Transaction') + '"><i class="fas fa-trash"></i></button>';
@@ -453,9 +451,11 @@
                     if (!rowData || !rowData.id) {
                         return;
                     }
-
-                    var returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    window.location.href = financeUrls.base + '/' + rowData.id + '?return_to=' + returnTo;
+                    var targetUrl = financeUrls.base + '/' + rowData.id;
+                    if (window.WorkflowNavigationContext && typeof window.WorkflowNavigationContext.withCurrentContext === 'function') {
+                        targetUrl = window.WorkflowNavigationContext.withCurrentContext(targetUrl);
+                    }
+                    window.location.href = targetUrl;
                 })
                 .on('mouseenter', 'tr', function () {
                     $(this).addClass('cursor-pointer hover:bg-green-50/50 transition-colors duration-150');

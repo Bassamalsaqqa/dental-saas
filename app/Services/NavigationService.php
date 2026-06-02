@@ -54,7 +54,7 @@ class NavigationService
 
         $trail = $this->trail();
         $last = end($trail);
-        if ($last && (($last['url'] ?? '') === current_url())) {
+        if ($last && ($this->relativePath((string) ($last['url'] ?? '')) === $this->relativePath((string) service('request')->getUri()))) {
             // Non-workflow GET pages are tracked before rendering. Back targets come from earlier entries.
             array_pop($trail);
         }

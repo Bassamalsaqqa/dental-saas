@@ -1143,6 +1143,7 @@
 <!-- JavaScript -->
 <script>
     // Global CSRF configuration
+    window.appBaseUrl = '<?= rtrim(base_url(), '/') ?>/';
     window.csrfConfig = {
         name: document.querySelector('meta[name="csrf-name"]')?.getAttribute('content') || '<?= csrf_token() ?>',
         header: document.querySelector('meta[name="csrf-header"]')?.getAttribute('content') || '<?= csrf_header() ?>',
@@ -2568,6 +2569,8 @@
 <?php if ((isset($loadSelect2) && $loadSelect2) || !empty($layoutRendersQuickCreateModals)): ?>
 <script src="<?= base_url('assets/js/select2-init.js') ?>?v=<?= time() ?>"></script>
 <?php endif; ?>
+<script src="<?= base_url('assets/js/app-modal.js') ?>?v=<?= time() ?>"></script>
+<script src="<?= base_url('assets/js/navigation-context.js') ?>?v=<?= time() ?>"></script>
 <script src="<?= base_url('assets/js/app-drawer.js') ?>?v=<?= time() ?>"></script>
 <script src="<?= base_url('assets/js/contextual-workspace.js') ?>?v=<?= time() ?>"></script>
 

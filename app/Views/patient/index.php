@@ -8,6 +8,7 @@ if (!$validation instanceof \CodeIgniter\Validation\Validation) {
 }
 $shouldOpenPatientCreateModal = old('source_modal') === 'patient_quick_create';
 $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
+$patientIndexReturnTo = workflow_current_target() ?? 'patients';
 ?>
 
 <!-- DataTables CSS -->
@@ -529,7 +530,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         </span>
                         <div>
                             <h2 id="newPatientModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientNewPatient')) ?></h2>
-                            <a href="<?= base_url('patient/create?return_to=patients') ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                            <a href="<?= workflow_context_url('patient/create', $patientIndexReturnTo) ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
@@ -573,14 +574,14 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
 <?= view('examination/partials/quick_create_modal', [
     'is_rtl' => $isRtl,
-    'return_to' => 'patients',
+    'return_to' => $patientIndexReturnTo,
     'contextual' => false,
     'selected_patient' => null,
 ]) ?>
 
 <?= view('treatment/partials/quick_create_modal', [
     'isRtl' => $isRtl,
-    'return_to' => 'patients',
+    'return_to' => $patientIndexReturnTo,
     'contextual' => false,
     'selected_patient' => null,
     'patients' => [],
@@ -1020,7 +1021,7 @@ $(document).ready(function() {
                     if (permissions.patients.view) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}"
-                               class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="${patientI18n.viewPatient}">
+                               data-workflow-context="1" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="${patientI18n.viewPatient}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -1046,8 +1047,9 @@ $(document).ready(function() {
                     // New examination button
                     if (permissions.examinations.create) {
                         actions += `
-                            <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=patients"
+                            <a href="<?= base_url('examination/create?patient_id=') ?>${data}"
                                data-examination-create-modal-open
+                               data-workflow-context="1"
                                data-context-patient-id="${data}"
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
@@ -1060,8 +1062,9 @@ $(document).ready(function() {
                     // New treatment button
                     if (permissions.treatments.create) {
                         actions += `
-                            <a href="<?= base_url('treatment/create?patient_id=') ?>${data}&return_to=patients"
+                            <a href="<?= base_url('treatment/create?patient_id=') ?>${data}"
                                data-treatment-create-modal-open
+                               data-workflow-context="1"
                                data-context-patient-id="${data}"
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"

@@ -1408,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?= view('inventory/partials/quick_create_modal', [
-    'return_to' => 'inventory',
+    'return_to' => workflow_current_target() ?? 'inventory',
     'is_rtl' => !empty($is_rtl),
     'supplier_directory' => $supplier_directory ?? [],
     'currencies' => $currencies ?? ['ILS'],

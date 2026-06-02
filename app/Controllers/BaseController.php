@@ -131,7 +131,7 @@ abstract class BaseController extends Controller
             $segments = $uri->getSegments();
             $segment1 = $segments[0] ?? '';
             $segment2 = $segments[1] ?? '';
-            $currentUrl = current_url();
+            $currentUrl = (string) $this->request->getUri();
 
             $icon = 'fa-circle';
             $label = ucfirst($segment1);

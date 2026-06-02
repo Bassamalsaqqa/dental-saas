@@ -438,7 +438,7 @@
 
 <?= view('treatment/partials/quick_create_modal', [
     'isRtl' => $isRtl,
-    'return_to' => 'treatment',
+    'return_to' => workflow_current_target() ?? 'treatment',
     'contextual' => false,
     'patients' => [],
     'treatment_types' => $treatment_types ?? [],

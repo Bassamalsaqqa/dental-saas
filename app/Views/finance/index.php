@@ -613,7 +613,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                         </span>
                         <div>
                             <h2 id="financeIncomeModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('addIncome')) ?></h2>
-                            <a href="<?= base_url('finance/income/create?return_to=finance') ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                            <a href="<?= workflow_context_url('finance/income/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
@@ -672,7 +672,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                         </span>
                         <div>
                             <h2 id="financeExpenseModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('newExpense')) ?></h2>
-                            <a href="<?= base_url('finance/expenses/create?return_to=finance') ?>" class="mt-1 inline-flex text-xs font-semibold text-rose-700 hover:text-rose-800">
+                            <a href="<?= workflow_context_url('finance/expenses/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-rose-700 hover:text-rose-800">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>

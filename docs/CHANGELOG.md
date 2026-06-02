@@ -11,6 +11,9 @@
 - Continued with patient-row contextual prefill: `/patients` New Treatment row actions now open the existing treatment quick-create modal with the selected patient injected into the canonical patient Select2 field; the modal resets on close so later row actions start fresh.
 - Fixed the `/patients` row workflow gap by loading the existing examination quick-create modal on the page, so row New Examination actions can stay in context instead of falling back to the full create page.
 - Continued the treatment workflow-focus slice: `/treatment/{id}` Create invoice from this treatment now opens an app drawer with the canonical finance form partial, selected patient, selected clinical charge line, CSRF, and full-page fallback preserved.
+- Added the follow-up workflow navigation cleanup: visible action links and JS-generated create/edit/show links now use `workflow_context_url()` or the shared `WorkflowNavigationContext` helper instead of hardcoded `return_to=patients`, `return_to=finance`, `return_to=inventory`, `return_to=users`, or `return_to=appointment/calendar` destinations.
+- Preserved hidden `return_to` fields, language-switch `return_to`, modal fallback metadata, and controller sanitization because those remain the secure post-submit/context redirect contract.
+- Added shared modal/context helpers (`app-modal.js`, `navigation-context.js`) so existing quick-create popups can reset/close consistently and fallback links can inherit the current list, tab, filter, or show-page context without duplicating page-specific return logic.
 - Known follow-up: consider scoped slices for dashboard finance quick-create, supplier/payable expense quick-create, and patient-detail item actions only after their shared modal/drawer data requirements are made safe.
 
 ## 2026-05-20 - Clinical-Finance Money Trail Slice 1

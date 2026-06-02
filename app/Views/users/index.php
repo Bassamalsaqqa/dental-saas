@@ -336,7 +336,7 @@
 <?= view('users/partials/quick_create_modal', [
     'roles' => $roles ?? [],
     'departments' => $departments ?? [],
-    'return_to' => 'users',
+    'return_to' => workflow_current_target() ?? 'users',
     'is_rtl' => !empty($is_rtl),
 ]) ?>
 <?= view('components/email_check_script', ['emailCheckUrl' => base_url('users/check-email')]) ?>
