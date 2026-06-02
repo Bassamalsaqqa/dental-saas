@@ -1000,29 +1000,34 @@ $(document).ready(function() {
                             <i class="fas fa-tooth"></i>
                         </a>`;
 
-                    // New examination button
                     const patientContextLabel = row.name || row.patient_id || '';
-                    actions += `
-                        <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=patients"
-                           data-examination-create-modal-open
-                           data-context-patient-id="${data}"
-                           data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
-                           data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
-                           data-context-patient-gender="${escapeHtmlAttribute(row.gender || '')}"
-                           class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="${patientI18n.newExamination}">
-                            <i class="fas fa-stethoscope"></i>
-                        </a>`;
+
+                    // New examination button
+                    if (permissions.examinations.create) {
+                        actions += `
+                            <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=patients"
+                               data-examination-create-modal-open
+                               data-context-patient-id="${data}"
+                               data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
+                               data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
+                               data-context-patient-gender="${escapeHtmlAttribute(row.gender || '')}"
+                               class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="${patientI18n.newExamination}">
+                                <i class="fas fa-stethoscope"></i>
+                            </a>`;
+                    }
 
                     // New treatment button
-                    actions += `
-                        <a href="<?= base_url('treatment/create?patient_id=') ?>${data}&return_to=patients"
-                           data-treatment-create-modal-open
-                           data-context-patient-id="${data}"
-                           data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
-                           data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
-                           class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="${patientI18n.newTreatment}">
-                            <i class="fas fa-briefcase-medical"></i>
-                        </a>`;
+                    if (permissions.treatments.create) {
+                        actions += `
+                            <a href="<?= base_url('treatment/create?patient_id=') ?>${data}&return_to=patients"
+                               data-treatment-create-modal-open
+                               data-context-patient-id="${data}"
+                               data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
+                               data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
+                               class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="${patientI18n.newTreatment}">
+                                <i class="fas fa-briefcase-medical"></i>
+                            </a>`;
+                    }
                     
                     // Delete button
                     if (permissions.patients.delete) {
@@ -1232,13 +1237,19 @@ function deletePatient(patientId) {
     confirmDelete('<?= base_url('patient') ?>/' + patientId, patientI18n.deleteConfirm);
 }
 
-// Permissions object (you'll need to populate this from your backend)
+// Permissions mirrored from backend so visible row actions have matching modal support
 var permissions = {
     patients: {
-        view: true,
-        edit: true,
-        delete: true,
-        create: true
+        view: <?= has_permission('patients', 'view') ? 'true' : 'false' ?>,
+        edit: <?= has_permission('patients', 'edit') ? 'true' : 'false' ?>,
+        delete: <?= has_permission('patients', 'delete') ? 'true' : 'false' ?>,
+        create: <?= has_permission('patients', 'create') ? 'true' : 'false' ?>
+    },
+    examinations: {
+        create: <?= has_permission('examinations', 'create') ? 'true' : 'false' ?>
+    },
+    treatments: {
+        create: <?= has_permission('treatments', 'create') ? 'true' : 'false' ?>
     }
 };
 </script>
