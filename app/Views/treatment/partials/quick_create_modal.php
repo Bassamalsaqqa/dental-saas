@@ -259,6 +259,23 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                 return;
             }
             form.reset();
+            const usageContainer = form.querySelector('[data-usage-items-container]');
+            if (usageContainer) {
+                const rows = Array.from(usageContainer.querySelectorAll('.usage-item'));
+                rows.slice(1).forEach(function (row) { row.remove(); });
+                rows.slice(0, 1).forEach(function (row) {
+                    row.querySelectorAll('select, input').forEach(function (field) {
+                        field.value = '';
+                        if (field.classList.contains('total-cost')) {
+                            field.dataset.value = '0';
+                        }
+                        if (window.jQuery && field.tagName === 'SELECT' && window.jQuery(field).data('select2')) {
+                            window.jQuery(field).val('').trigger('change');
+                        }
+                    });
+                });
+            }
+            form.querySelectorAll('[data-usage-grand-total]').forEach(function (field) { field.textContent = '0.00'; });
             clearDynamicTreatmentPatient(modal);
             form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach(triggerTreatmentFieldChange);
             if (typeof window.initContextualTreatmentForms === 'function') {

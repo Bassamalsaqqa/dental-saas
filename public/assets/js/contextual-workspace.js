@@ -150,7 +150,12 @@
     window.initContextualTreatmentForms = function initContextualTreatmentForms(root) {
         const scope = root || document;
         scope.querySelectorAll('[data-contextual-treatment-form]').forEach((wrap) => {
-            if (wrap.dataset.treatmentBound === '1') return;
+            if (wrap.dataset.treatmentBound === '1') {
+                if (typeof wrap.__syncTreatmentForm === 'function') {
+                    wrap.__syncTreatmentForm();
+                }
+                return;
+            }
             wrap.dataset.treatmentBound = '1';
             const toggle = wrap.querySelector('[data-usage-toggle]');
             const section = wrap.querySelector('[data-usage-section]');
@@ -265,8 +270,13 @@
             if (window.jQuery && providerType) {
                 window.jQuery(providerType).on('select2:select select2:clear change', syncProviderFields);
             }
-            syncChargeToggle();
-            syncProviderFields();
+            wrap.__syncTreatmentForm = function () {
+                section?.classList.toggle('hidden', !toggle?.checked);
+                calculateTotal();
+                syncChargeToggle();
+                syncProviderFields();
+            };
+            wrap.__syncTreatmentForm();
         });
     };
 

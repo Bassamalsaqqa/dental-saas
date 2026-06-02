@@ -287,6 +287,28 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             }
         }
 
+        function resetAppointmentModalForm(modal) {
+            const form = modal ? modal.querySelector('#newAppointmentQuickCreateForm') : null;
+            if (!form) {
+                return;
+            }
+
+            form.reset();
+            form.querySelectorAll('[data-contextual-appointment-form]').forEach(function (wrap) {
+                delete wrap.dataset.prefillAppointmentTime;
+            });
+            form.querySelectorAll('select, input, textarea').forEach(function (field) {
+                dispatchFieldChange(field);
+            });
+            const fullPageLink = modal.querySelector('a[href*="appointment/create"]');
+            if (fullPageLink && fullPageLink.dataset.baseHref) {
+                fullPageLink.href = fullPageLink.dataset.baseHref;
+            }
+            if (typeof window.initContextualAppointmentForms === 'function') {
+                window.initContextualAppointmentForms(modal);
+            }
+        }
+
         function openAppointmentModal(trigger) {
             const modal = mountAppointmentModal();
             if (!modal) {
@@ -325,12 +347,16 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             document.body.classList.remove('app-drawer-lock');
             appointmentModalCloseTimer = setTimeout(function () {
                 modal.classList.add('hidden');
+                resetAppointmentModalForm(modal);
                 if (appointmentModalTrigger && typeof appointmentModalTrigger.focus === 'function') {
                     appointmentModalTrigger.focus();
                 }
                 appointmentModalTrigger = null;
             }, 240);
         }
+
+        window.openAppointmentModal = openAppointmentModal;
+        window.closeAppointmentModal = closeAppointmentModal;
 
         document.addEventListener('click', function (event) {
             const openTrigger = event.target.closest('[data-appointment-create-modal-open]');

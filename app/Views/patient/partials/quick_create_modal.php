@@ -167,6 +167,30 @@ $shouldOpenPatientCreateModal = old('source_modal') === 'patient_quick_create';
             return Promise.allSettled(tasks);
         }
 
+        function resetNewPatientModalForm(modal) {
+            const form = modal ? modal.querySelector('[data-patient-create-form]') : null;
+            if (!form) {
+                return;
+            }
+
+            form.reset();
+            form.querySelectorAll('select').forEach(function (field) {
+                if (window.jQuery && window.jQuery(field).data('select2')) {
+                    window.jQuery(field).val('').trigger('change');
+                } else {
+                    field.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+            form.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function (field) {
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            if (typeof form.__syncPatientCreateForm === 'function') {
+                form.__syncPatientCreateForm();
+            } else if (typeof window.initPatientCreateForms === 'function') {
+                window.initPatientCreateForms(form);
+            }
+        }
+
         function openNewPatientModal(trigger) {
             const modal = mountNewPatientModal();
             if (!modal) {
@@ -204,6 +228,7 @@ $shouldOpenPatientCreateModal = old('source_modal') === 'patient_quick_create';
             document.body.classList.remove('app-drawer-lock');
             newPatientModalCloseTimer = setTimeout(function () {
                 modal.classList.add('hidden');
+                resetNewPatientModalForm(modal);
                 if (newPatientModalTrigger && typeof newPatientModalTrigger.focus === 'function') {
                     newPatientModalTrigger.focus();
                 }
