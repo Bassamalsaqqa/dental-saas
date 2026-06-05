@@ -2401,109 +2401,191 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Treatments Tab -->
                         <div id="treatments-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-lg mb-4">
-                                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-2 h-2 bg-pink-500 rounded-full"></div>
-                                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientTreatments')) ?></h3>
+                            <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-rose-50/55 to-cyan-50/60 shadow-xl shadow-slate-200/60">
+                                <div class="pointer-events-none absolute inset-0 opacity-80">
+                                    <div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-pink-300/25 blur-3xl"></div>
+                                    <div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-cyan-300/25 blur-3xl"></div>
+                                </div>
+                                <div class="relative border-b border-white/70 px-4 py-4 sm:px-6">
+                                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-600 to-rose-700 text-white shadow-lg shadow-pink-500/25">
+                                                <i class="fas fa-tooth"></i>
+                                            </span>
+                                            <div>
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientTreatments')) ?></h3>
+                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= count($treatments) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
+                                                </div>
+                                                <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientBilling')) ?> / <?= esc(lang('UI.patientStatus')) ?> / <?= esc(lang('Finance.provider')) ?></p>
+                                            </div>
                                         </div>
-                                        <span class="text-xs text-gray-400"><?= count($treatments) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
+                                        <?php if (has_permission('treatments', 'create')): ?>
+                                            <button type="button" data-treatment-create-modal-open data-context-patient-id="<?= (int) $patient['id'] ?>" data-context-patient-name="<?= esc($fullName !== '' ? $fullName : ($patient['patient_id'] ?? ''), 'attr') ?>" data-context-patient-code="<?= esc((string) ($patient['patient_id'] ?? ''), 'attr') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-600 to-rose-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-pink-500/25 transition hover:-translate-y-0.5 hover:from-pink-700 hover:to-rose-800 focus:outline-none focus:ring-4 focus:ring-pink-500/20">
+                                                <i class="fas fa-plus"></i>
+                                                <span><?= esc(lang('UI.patientCreateTreatmentPlan')) ?></span>
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
-                                <div class="px-6 py-3 border-b border-gray-100 bg-white">
-                                    <div class="grid gap-3 sm:grid-cols-3">
-                                        <div class="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2">
-                                            <p class="text-[11px] font-semibold uppercase tracking-wide text-amber-700"><?= esc(lang('UI.patientUnbilledWork')) ?></p>
-                                            <p class="mt-1 text-sm font-bold text-amber-900"><?= esc($openClinicalChargeCount) ?> &middot; <span dir="ltr"><?= formatCurrency($openClinicalChargeTotal) ?></span></p>
+
+                                <div class="relative px-4 py-4 sm:px-6">
+                                    <div class="grid gap-3 md:grid-cols-3">
+                                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-4 text-white shadow-lg shadow-amber-500/20">
+                                            <div class="absolute -end-8 -top-8 h-24 w-24 rounded-full bg-white/20 blur-2xl"></div>
+                                            <div class="relative flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p class="text-xs font-bold uppercase tracking-wide text-amber-50/90"><?= esc(lang('UI.patientUnbilledWork')) ?></p>
+                                                    <p class="mt-2 text-2xl font-black" dir="ltr"><?= formatCurrency($openClinicalChargeTotal) ?></p>
+                                                    <p class="mt-1 text-xs font-semibold text-amber-50/90"><?= esc($openClinicalChargeCount) ?> <?= esc(lang('UI.patientTreatments')) ?></p>
+                                                </div>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 text-white"><i class="fas fa-file-invoice-dollar"></i></span>
+                                            </div>
                                         </div>
-                                        <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2">
-                                            <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700"><?= esc(lang('UI.patientBilledPaid')) ?></p>
-                                            <p class="mt-1 text-sm font-bold text-emerald-900"><?= esc($paidBilledTreatmentCount) ?></p>
+                                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 text-white shadow-lg shadow-emerald-500/20">
+                                            <div class="absolute -end-8 -top-8 h-24 w-24 rounded-full bg-white/20 blur-2xl"></div>
+                                            <div class="relative flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p class="text-xs font-bold uppercase tracking-wide text-emerald-50/90"><?= esc(lang('UI.patientBilledPaid')) ?></p>
+                                                    <p class="mt-2 text-2xl font-black"><?= esc($paidBilledTreatmentCount) ?></p>
+                                                    <p class="mt-1 text-xs font-semibold text-emerald-50/90"><?= esc(lang('UI.patientPaidShort')) ?></p>
+                                                </div>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 text-white"><i class="fas fa-circle-check"></i></span>
+                                            </div>
                                         </div>
-                                        <div class="rounded-xl border border-blue-100 bg-blue-50 px-3 py-2">
-                                            <p class="text-[11px] font-semibold uppercase tracking-wide text-blue-700"><?= esc(lang('UI.patientBilledWithBalance')) ?></p>
-                                            <p class="mt-1 text-sm font-bold text-blue-900"><?= esc($unpaidBilledTreatmentCount) ?></p>
+                                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-4 text-white shadow-lg shadow-blue-500/20">
+                                            <div class="absolute -end-8 -top-8 h-24 w-24 rounded-full bg-white/20 blur-2xl"></div>
+                                            <div class="relative flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p class="text-xs font-bold uppercase tracking-wide text-blue-50/90"><?= esc(lang('UI.patientBilledWithBalance')) ?></p>
+                                                    <p class="mt-2 text-2xl font-black"><?= esc($unpaidBilledTreatmentCount) ?></p>
+                                                    <p class="mt-1 text-xs font-semibold text-blue-50/90"><?= esc(lang('UI.patientBalanceShort')) ?></p>
+                                                </div>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 text-white"><i class="fas fa-scale-balanced"></i></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <?php if (!empty($treatments)): ?>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-tooth text-pink-600"></i><span><?= esc(lang('UI.patientTreatment')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-tag text-pink-600"></i><span><?= esc(lang('UI.patientTooth')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-file-invoice-dollar text-pink-600"></i><span><?= esc(lang('UI.patientBilling')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-circle-info text-pink-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-cogs text-pink-600"></i></div></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-100">
-                                                <?php foreach ($treatments as $trt): ?>
-                                                    <?php
-                                                    $rowBilling = $treatmentBillingMeta($trt);
-                                                    $billTreatmentFromPatientUrl = '';
-                                                    if (
-                                                        has_permission('finance', 'create')
-                                                        && !$rowBilling['is_billed']
-                                                        && (int) ($rowBilling['charge_line_id'] ?? 0) > 0
-                                                        && (float) ($rowBilling['amount_raw'] ?? 0) > 0
-                                                    ) {
-                                                        $billTreatmentFromPatientUrl = workflow_context_url(
-                                                            'finance/create?' . http_build_query([
-                                                                'patient_id' => (int) $patient['id'],
-                                                                'transaction_type' => 'invoice',
-                                                                'clinical_charge_line_ids' => [(int) $rowBilling['charge_line_id']],
-                                                            ], '', '&', PHP_QUERY_RFC3986),
-                                                            'patient/' . (int) $patient['id'] . '?tab=treatments'
-                                                        );
-                                                    }
-                                                    ?>
-                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo)) ?>">
-                                                        <td class="px-6 py-4"><div class="text-sm font-medium text-gray-900"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></div><div class="text-xs text-gray-500"><?= ucfirst($trt['treatment_type'] ?? lang('UI.patientGeneral')) ?></div></td>
-                                                        <td class="px-6 py-4 text-sm text-gray-700"><?= $trt['tooth_number'] ?? '—' ?></td>
-                                                        <td class="px-6 py-4 text-sm">
-                                                            <div class="font-semibold text-gray-900" dir="ltr"><?= esc($rowBilling['amount_text']) ?></div>
-                                                            <span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold <?= esc($rowBilling['status_class']) ?>">
-                                                                <?= esc($rowBilling['status_text']) ?>
-                                                            </span>
-                                                            <?php if (!empty($rowBilling['finance_id'])): ?>
-                                                                <a href="<?= esc(workflow_context_url('finance/' . (int) $rowBilling['finance_id'], $patientContextReturnTo)) ?>" class="mt-1 block text-xs font-semibold text-emerald-700 hover:underline">
-                                                                    <?= esc($rowBilling['invoice_number'] !== '' ? $rowBilling['invoice_number'] : lang('Finance.invoice')) ?>
-                                                                </a>
-                                                                <div class="mt-2 grid gap-1 text-xs text-slate-600">
-                                                                    <?php if ($rowBilling['invoice_status_text'] !== ''): ?>
-                                                                        <span class="inline-flex w-fit items-center rounded-full px-2 py-0.5 font-semibold <?= esc($rowBilling['invoice_status_class']) ?>">
-                                                                            <?= esc($rowBilling['invoice_status_text']) ?>
-                                                                        </span>
-                                                                    <?php endif; ?>
-                                                                    <span><?= esc(lang('UI.patientPaidShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['paid_text']) ?></strong></span>
-                                                                    <span class="<?= $rowBilling['has_balance'] ? 'text-amber-700' : 'text-emerald-700' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
-                                                                </div>
-                                                            <?php elseif ($billTreatmentFromPatientUrl !== ''): ?>
-                                                                <button type="button"
-                                                                        data-patient-charge-line-open
-                                                                        data-charge-line-id="<?= (int) $rowBilling['charge_line_id'] ?>"
-                                                                        class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100">
-                                                                    <i class="fas fa-file-invoice-dollar"></i>
-                                                                    <?= esc(lang('UI.patientCreateInvoiceFromWork')) ?>
-                                                                </button>
+                                    <div class="relative space-y-3 px-4 pb-5 sm:px-6">
+                                        <?php foreach ($treatments as $trt): ?>
+                                            <?php
+                                            $rowBilling = $treatmentBillingMeta($trt);
+                                            $treatmentId = (int) ($trt['id'] ?? 0);
+                                            $treatmentUrl = workflow_context_url('treatment/' . $treatmentId, $patientContextReturnTo);
+                                            $treatmentStatus = strtolower((string) ($trt['status'] ?? ''));
+                                            $treatmentStatusLabel = match ($treatmentStatus) {
+                                                'active' => lang('UI.patientStatusActive'),
+                                                'completed' => lang('UI.patientTreatmentStatusCompleted'),
+                                                'pending' => lang('UI.patientTreatmentStatusPending'),
+                                                'in_progress' => lang('UI.patientTreatmentStatusInProgress'),
+                                                'needs_attention' => lang('UI.patientTreatmentStatusNeedsAttention'),
+                                                'on_hold' => lang('UI.patientStatusPending'),
+                                                'cancelled' => lang('UI.patientStatusInactive'),
+                                                default => $treatmentStatus !== '' ? ucfirst(str_replace('_', ' ', $treatmentStatus)) : lang('UI.patientNa'),
+                                            };
+                                            $statusClass = match ($treatmentStatus) {
+                                                'active', 'in_progress' => 'bg-blue-100 text-blue-800 ring-blue-200/70',
+                                                'completed' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
+                                                'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200/70',
+                                                'on_hold', 'pending', 'needs_attention' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
+                                                default => 'bg-slate-100 text-slate-700 ring-slate-200/70',
+                                            };
+                                            $doctorName = trim((string) (($trt['doctor_first_name'] ?? '') . ' ' . ($trt['doctor_last_name'] ?? '')));
+                                            if ($doctorName === '') {
+                                                $doctorName = lang('UI.patientUnknownDoctor');
+                                            }
+                                            $treatmentType = trim((string) ($trt['treatment_type'] ?? ''));
+                                            $treatmentTypeLabel = $treatmentType !== '' ? ucfirst(str_replace('_', ' ', $treatmentType)) : lang('UI.patientGeneral');
+                                            $billTreatmentFromPatientUrl = '';
+                                            if (
+                                                has_permission('finance', 'create')
+                                                && !$rowBilling['is_billed']
+                                                && (int) ($rowBilling['charge_line_id'] ?? 0) > 0
+                                                && (float) ($rowBilling['amount_raw'] ?? 0) > 0
+                                            ) {
+                                                $billTreatmentFromPatientUrl = workflow_context_url(
+                                                    'finance/create?' . http_build_query([
+                                                        'patient_id' => (int) $patient['id'],
+                                                        'transaction_type' => 'invoice',
+                                                        'clinical_charge_line_ids' => [(int) $rowBilling['charge_line_id']],
+                                                    ], '', '&', PHP_QUERY_RFC3986),
+                                                    'patient/' . (int) $patient['id'] . '?tab=treatments'
+                                                );
+                                            }
+                                            ?>
+                                            <article class="patient-record-row group relative overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-4 shadow-md shadow-slate-200/70 ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-pink-100/70 sm:p-5" data-href="<?= esc($treatmentUrl) ?>">
+                                                <div class="absolute inset-y-0 start-0 w-1.5 bg-gradient-to-b from-pink-500 via-rose-500 to-cyan-500"></div>
+                                                <div class="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)_auto] xl:items-center">
+                                                    <div class="min-w-0 ps-2">
+                                                        <div class="flex flex-wrap items-center gap-2">
+                                                            <h4 class="truncate text-base font-extrabold text-slate-950"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></h4>
+                                                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= esc($statusClass) ?>"><?= esc($treatmentStatusLabel) ?></span>
+                                                        </div>
+                                                        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
+                                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-pink-50 px-2.5 py-1 text-pink-800 ring-1 ring-pink-100"><i class="fas fa-tag text-[10px]"></i><?= esc($treatmentTypeLabel) ?></span>
+                                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1 text-slate-700 ring-1 ring-slate-100"><i class="fas fa-tooth text-[10px]"></i><?= esc(lang('UI.patientTooth')) ?>: <span dir="ltr"><?= esc($trt['tooth_number'] ?? '�') ?></span></span>
+                                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-cyan-50 px-2.5 py-1 text-cyan-800 ring-1 ring-cyan-100"><i class="fas fa-user-doctor text-[10px]"></i><?= esc($doctorName) ?></span>
+                                                            <?php if (!empty($trt['start_date'])): ?>
+                                                                <span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-800 ring-1 ring-indigo-100"><i class="fas fa-calendar text-[10px]"></i><span dir="ltr"><?= esc(formatDate($trt['start_date'])) ?></span></span>
                                                             <?php endif; ?>
-                                                        </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['active'=>'bg-blue-100 text-blue-700','completed'=>'bg-emerald-100 text-emerald-700','cancelled'=>'bg-rose-100 text-rose-700','on_hold'=>'bg-amber-100 text-amber-700'][$trt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($trt['status']) ?></span></td>
-                                                        <td class="px-6 py-4"><a href="<?= workflow_context_url('treatment/' . $trt['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
+                                                        </div>
+                                                        <?php if (!empty($trt['treatment_description'])): ?>
+                                                            <p class="mt-3 text-sm font-medium leading-6 text-slate-600"><?= esc($trt['treatment_description']) ?></p>
+                                                        <?php endif; ?>
+                                                    </div>
+
+                                                    <div class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-white p-3 shadow-inner">
+                                                        <div class="flex items-start justify-between gap-3">
+                                                            <div>
+                                                                <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.patientBilling')) ?></p>
+                                                                <p class="mt-1 text-lg font-black text-slate-950" dir="ltr"><?= esc($rowBilling['amount_text']) ?></p>
+                                                            </div>
+                                                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold <?= esc($rowBilling['status_class']) ?>"><?= esc($rowBilling['status_text']) ?></span>
+                                                        </div>
+                                                        <?php if (!empty($rowBilling['finance_id'])): ?>
+                                                            <div class="mt-3 grid gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-2">
+                                                                <a href="<?= esc(workflow_context_url('finance/' . (int) $rowBilling['finance_id'], $patientContextReturnTo)) ?>" class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-2.5 py-2 text-emerald-800 ring-1 ring-emerald-100 hover:bg-emerald-100">
+                                                                    <i class="fas fa-file-invoice-dollar"></i>
+                                                                    <span class="truncate"><?= esc($rowBilling['invoice_number'] !== '' ? $rowBilling['invoice_number'] : lang('Finance.invoice')) ?></span>
+                                                                </a>
+                                                                <?php if ($rowBilling['invoice_status_text'] !== ''): ?>
+                                                                    <span class="inline-flex items-center justify-center rounded-xl px-2.5 py-2 font-bold <?= esc($rowBilling['invoice_status_class']) ?>"><?= esc($rowBilling['invoice_status_text']) ?></span>
+                                                                <?php endif; ?>
+                                                                <span><?= esc(lang('UI.patientPaidShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['paid_text']) ?></strong></span>
+                                                                <span class="<?= $rowBilling['has_balance'] ? 'text-amber-700' : 'text-emerald-700' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
+                                                            </div>
+                                                        <?php elseif ($billTreatmentFromPatientUrl !== ''): ?>
+                                                            <button type="button"
+                                                                    data-patient-charge-line-open
+                                                                    data-charge-line-id="<?= (int) $rowBilling['charge_line_id'] ?>"
+                                                                    class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3 py-2.5 text-xs font-extrabold text-white shadow-md shadow-amber-500/20 transition hover:from-amber-600 hover:to-orange-700">
+                                                                <i class="fas fa-file-invoice-dollar"></i>
+                                                                <?= esc(lang('UI.patientCreateInvoiceFromWork')) ?>
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    </div>
+
+                                                    <div class="flex shrink-0 items-center justify-end gap-2">
+                                                        <a href="<?= esc($treatmentUrl) ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 text-pink-700 ring-1 ring-pink-100 transition hover:bg-pink-100" title="<?= esc(lang('UI.patientView')) ?>">
+                                                            <i class="fas fa-eye text-sm"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>
-                                    <div class="text-center py-10"><i class="fas fa-tooth text-gray-300 text-4xl mb-3"></i><p class="text-sm text-gray-400"><?= esc(lang('UI.patientNoTreatments')) ?></p></div>
+                                    <div class="relative px-6 pb-8">
+                                        <div class="rounded-2xl border border-dashed border-pink-200 bg-white/70 px-6 py-12 text-center shadow-inner">
+                                            <i class="fas fa-tooth mb-3 text-4xl text-pink-200"></i>
+                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoTreatments')) ?></p>
+                                        </div>
+                                    </div>
                                 <?php endif; ?>
-                            </div>
+                            </section>
                         </div>
-
                         <!-- Prescriptions Tab -->
                         <div id="prescriptions-content" class="tab-content hidden">
                             <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
@@ -2631,21 +2713,21 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
                             <div class="space-y-6">
                                 <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                                    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.patientTotalBilled')) ?></p>
-                                        <p class="mt-2 text-2xl font-bold text-slate-900"><?= formatCurrency($totalCharges) ?></p>
+                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 p-4 text-white shadow-lg shadow-slate-500/20">
+                                        <p class="text-xs font-bold uppercase tracking-wide text-slate-200/90"><?= esc(lang('UI.patientTotalBilled')) ?></p>
+                                        <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($totalCharges) ?></p>
                                     </div>
-                                    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc(lang('UI.patientTotalPaid')) ?></p>
-                                        <p class="mt-2 text-2xl font-bold text-emerald-900"><?= formatCurrency($totalCollected) ?></p>
+                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 text-white shadow-lg shadow-emerald-500/20">
+                                        <p class="text-xs font-bold uppercase tracking-wide text-emerald-50/90"><?= esc(lang('UI.patientTotalPaid')) ?></p>
+                                        <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($totalCollected) ?></p>
                                     </div>
-                                    <div class="rounded-xl border <?= $outstandingBalance > 0.009 ? 'border-amber-200 bg-amber-50' : 'border-sky-200 bg-sky-50' ?> p-4 shadow-sm">
-                                        <p class="text-xs font-semibold uppercase tracking-wide <?= $outstandingBalance > 0.009 ? 'text-amber-700' : 'text-sky-700' ?>"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
-                                        <p class="mt-2 text-2xl font-bold <?= $outstandingBalance > 0.009 ? 'text-amber-900' : 'text-sky-900' ?>"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
+                                    <div class="relative overflow-hidden rounded-2xl <?= $outstandingBalance > 0.009 ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/20' : 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-sky-500/20' ?> p-4 text-white shadow-lg">
+                                        <p class="text-xs font-bold uppercase tracking-wide text-white/90"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
+                                        <p class="mt-2 text-2xl font-black text-white"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
                                     </div>
-                                    <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 shadow-sm">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-700"><?= esc(lang('Finance.refunds')) ?></p>
-                                        <p class="mt-2 text-2xl font-bold text-rose-900"><?= formatCurrency($totalRefunded) ?></p>
+                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 to-pink-700 p-4 text-white shadow-lg shadow-rose-500/20">
+                                        <p class="text-xs font-bold uppercase tracking-wide text-rose-50/90"><?= esc(lang('Finance.refunds')) ?></p>
+                                        <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($totalRefunded) ?></p>
                                     </div>
                                 </div>
                                 <?= view('components/money_trail_panel', [
@@ -3657,6 +3739,20 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         display: none;
     }
 
+    .patient-tab-ambient {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.76);
+        border-radius: 1.25rem;
+        background: radial-gradient(circle at 10% 0%, rgba(59,130,246,0.13), transparent 32%), radial-gradient(circle at 90% 8%, rgba(14,165,233,0.12), transparent 30%), linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.78));
+        box-shadow: 0 24px 58px -42px rgba(15,23,42,0.42);
+        padding: 1rem;
+    }
+
+    .patient-tab-ambient-timeline {
+        background: radial-gradient(circle at 10% 0%, rgba(37,99,235,0.12), transparent 32%), radial-gradient(circle at 92% 8%, rgba(16,185,129,0.12), transparent 30%), linear-gradient(135deg, rgba(255,255,255,0.96), rgba(241,245,249,0.82));
+    }
+
     .patient-view table thead th {
         font-size: 0.72rem;
         letter-spacing: 0.12em;
@@ -3727,17 +3823,55 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         color: #1d4ed8;
     }
 
-    /* Table card backgrounds — neutral tint on header, clean body */
-    .patient-shell .tab-content > .bg-white.rounded-xl {
-        background: linear-gradient(180deg, #fafbfc 0%, #fff 25%) !important;
+    /* Rich tab workspaces: one visual language for clinical, schedule, documents, contracts, prescriptions, and finance tabs. */
+    .patient-shell .tab-content > .bg-white.rounded-xl,
+    .patient-shell .tab-content > .bg-white.rounded-lg {
+        --patient-tab-accent: #2563eb;
+        --patient-tab-accent-2: #0ea5e9;
+        --patient-tab-soft: rgba(239, 246, 255, 0.82);
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(255,255,255,0.76) !important;
+        background:
+            radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--patient-tab-accent) 16%, transparent), transparent 30%),
+            radial-gradient(circle at 92% 4%, color-mix(in srgb, var(--patient-tab-accent-2) 13%, transparent), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.96) 0%, var(--patient-tab-soft) 42%, rgba(255,255,255,0.98) 100%) !important;
+        box-shadow: 0 24px 58px -42px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.92) inset !important;
+        backdrop-filter: blur(14px);
     }
+
+    #examinations-content > .bg-white.rounded-xl { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #f97316; --patient-tab-soft: rgba(239,246,255,0.86); }
+    #appointments-content > .bg-white.rounded-xl { --patient-tab-accent: #7c3aed; --patient-tab-accent-2: #0ea5e9; --patient-tab-soft: rgba(245,243,255,0.84); }
+    #prescriptions-content > .bg-white.rounded-xl,
+    #prescriptions-content > .bg-white.rounded-lg { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #14b8a6; --patient-tab-soft: rgba(239,246,255,0.84); }
+    #finances-content > .bg-white.rounded-xl,
+    #finances-content > .bg-white.rounded-lg { --patient-tab-accent: #059669; --patient-tab-accent-2: #f59e0b; --patient-tab-soft: rgba(236,253,245,0.84); }
+    #contracts-content > .bg-white.rounded-xl,
+    #contracts-content > .bg-white.rounded-lg { --patient-tab-accent: #4f46e5; --patient-tab-accent-2: #06b6d4; --patient-tab-soft: rgba(238,242,255,0.84); }
+    #attachments-content .bg-white.rounded-lg,
+    #attachments-content section.bg-white { --patient-tab-accent: #0891b2; --patient-tab-accent-2: #2563eb; --patient-tab-soft: rgba(236,254,255,0.82); }
+
+    .patient-shell .tab-content > .bg-white.rounded-xl > div:first-child,
+    .patient-shell .tab-content > .bg-white.rounded-lg > div:first-child {
+        background:
+            linear-gradient(135deg, color-mix(in srgb, var(--patient-tab-accent) 12%, white) 0%, rgba(255,255,255,0.72) 58%, color-mix(in srgb, var(--patient-tab-accent-2) 10%, white) 100%) !important;
+        border-bottom-color: rgba(226,232,240,0.86) !important;
+    }
+
+    .patient-shell .tab-content > .bg-white.rounded-xl h3,
+    .patient-shell .tab-content > .bg-white.rounded-lg h3,
+    .patient-shell .tab-content > .bg-white.rounded-lg h4 {
+        color: #0f172a !important;
+        font-weight: 800 !important;
+    }
+
     .patient-shell .tab-content thead th {
-        background: #f8f9fa;
-        color: #64748b;
-        border-bottom-color: #e2e8f0;
+        background: linear-gradient(180deg, rgba(248,250,252,0.96) 0%, rgba(241,245,249,0.96) 100%) !important;
+        color: #475569;
+        border-bottom-color: rgba(203,213,225,0.9);
     }
     .patient-shell .tab-content thead th i {
-        color: #94a3b8;
+        color: var(--patient-tab-accent) !important;
     }
 
     .patient-record-table th {
