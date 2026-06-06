@@ -119,21 +119,21 @@ $healthFlags = array_values(array_filter([
 
 .exam-card-header {
     display: flex; align-items: center; gap: 0.625rem;
-    padding: 1.125rem 1.5rem;
+    padding: 1.05rem 1.35rem;
     border-bottom: 1px solid #f1f5f9;
-    font-weight: 700; font-size: 0.9375rem; color: #0f172a;
+    font-weight: 900; font-size: 1rem; color: #0f172a;
 }
 .exam-card-header .exam-icon-circle {
     display: inline-flex; height: 2rem; width: 2rem; align-items: center; justify-content: center;
     border-radius: 0.625rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
-.exam-card-body { padding: 1.5rem; }
+.exam-card-body { padding: 1.35rem; }
 
 .exam-field-label {
-    font-size: 0.6875rem; font-weight: 700; color: #94a3b8;
-    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem;
+    font-size: 0.72rem; font-weight: 900; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.52rem;
 }
-.exam-field-value { font-size: 0.875rem; color: #334155; line-height: 1.7; }
+.exam-field-value { font-size: 0.96rem; font-weight: 700; color: #1e293b; line-height: 1.75; }
 .exam-field-value p { margin-bottom: 0.25rem; }
 
 /* workflow action buttons */
@@ -170,9 +170,388 @@ $healthFlags = array_values(array_filter([
 .health-flag:hover { border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 .health-flag-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; flex-shrink: 0; }
 .health-flag i { font-size: 0.875rem; width: 1.25rem; text-align: center; }
+
+/* Examination detail visual contract: match treatment/user entity-detail hierarchy. */
+.exam-page-shell {
+    background:
+        radial-gradient(900px 520px at 8% -12%, rgba(37, 99, 235, 0.09), transparent 60%),
+        radial-gradient(760px 460px at 92% 0%, rgba(16, 185, 129, 0.08), transparent 55%),
+        #f8fafc;
+}
+.exam-snapshot-section,
+.exam-workspace-section {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.6rem;
+    border: 1px solid rgba(255,255,255,0.76);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(37,99,235,0.11), transparent 28%),
+        radial-gradient(circle at 100% 18%, rgba(16,185,129,0.12), transparent 30%),
+        linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
+    box-shadow: 0 24px 58px -42px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.92) inset;
+}
+.exam-snapshot-section::before,
+.exam-workspace-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 9% 0%, rgba(37,99,235,0.14), transparent 29%),
+        radial-gradient(circle at 95% 10%, rgba(5,150,105,0.12), transparent 30%);
+}
+.exam-snapshot-section > *,
+.exam-workspace-section > * {
+    position: relative;
+    z-index: 1;
+}
+.exam-snapshot-eyebrow {
+    color: #1d4ed8;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+.exam-snapshot-title {
+    color: #0f172a;
+    font-size: 1.18rem;
+    font-weight: 900;
+    line-height: 1.2;
+}
+.exam-snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+@media (min-width: 640px) { .exam-snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1180px) { .exam-snapshot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.exam-snapshot-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 7rem;
+    border-radius: 1.2rem;
+    padding: 1.05rem;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -28px rgba(15,23,42,0.55);
+}
+.exam-snapshot-card::after {
+    content: "";
+    position: absolute;
+    inset-block-start: -42%;
+    inset-inline-end: -10%;
+    width: 9.5rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.16);
+}
+.exam-snapshot-card > * { position: relative; z-index: 1; }
+.exam-snapshot-card:nth-child(1) {
+    background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
+}
+.exam-snapshot-card:nth-child(2) {
+    background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #059669, #047857 55%, #064e3b);
+}
+.exam-snapshot-card:nth-child(3) {
+    background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.20), transparent 34%), linear-gradient(135deg, #7c3aed, #6d28d9 56%, #4c1d95);
+}
+.exam-snapshot-card:nth-child(4) {
+    background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #d97706, #b45309 58%, #92400e);
+}
+.exam-snapshot-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(239,246,255,0.88);
+}
+.exam-snapshot-value {
+    margin-top: 0.5rem;
+    font-size: 1.18rem;
+    line-height: 1.25;
+    font-weight: 900;
+    color: #fff;
+}
+.exam-snapshot-meta {
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: rgba(239,246,255,0.84);
+}
+.exam-workspace-section { padding: 1rem; }
+@media (min-width: 640px) { .exam-workspace-section { padding: 1.25rem; } }
+.exam-section-heading {
+    --section-start: #2563eb;
+    --section-end: #0f766e;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.4rem;
+    padding: 1.1rem 1.25rem;
+    color: #fff;
+    background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.24), transparent 34%), linear-gradient(135deg, var(--section-start), var(--section-end));
+    box-shadow: 0 22px 44px -32px color-mix(in srgb, var(--section-end) 78%, transparent);
+}
+.exam-section-heading::after {
+    content: "";
+    position: absolute;
+    inset-block-start: -48%;
+    inset-inline-end: -5%;
+    width: 13rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.16);
+}
+.exam-section-heading > * { position: relative; z-index: 1; }
+.exam-section-heading-icon {
+    display: inline-flex;
+    width: 2.65rem;
+    height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.24);
+}
+.exam-section-heading p {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(239,246,255,0.88);
+}
+.exam-section-heading h2 {
+    margin-top: 0.2rem;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    font-weight: 900;
+    color: #fff;
+}
+.exam-section-heading--context { --section-start: #047857; --section-end: #1d4ed8; }
+.exam-card {
+    --exam-card-accent: #2563eb;
+    --exam-card-accent-soft: rgba(239,246,255,0.88);
+    border-radius: 1.2rem;
+    border-color: rgba(255,255,255,0.82) !important;
+    background:
+        radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--exam-card-accent) 15%, transparent), transparent 31%),
+        radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
+        linear-gradient(135deg, rgba(255,255,255,0.98), var(--exam-card-accent-soft) 46%, rgba(255,255,255,0.98)) !important;
+    box-shadow: 0 20px 48px -38px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.92) inset !important;
+}
+.exam-card-clinical { --exam-card-accent: #2563eb; --exam-card-accent-soft: rgba(219,234,254,0.92); }
+.exam-card-findings { --exam-card-accent: #4f46e5; --exam-card-accent-soft: rgba(238,242,255,0.92); }
+.exam-card-careplan { --exam-card-accent: #059669; --exam-card-accent-soft: rgba(209,250,229,0.92); }
+.exam-card-workflow { --exam-card-accent: #d97706; --exam-card-accent-soft: rgba(254,243,199,0.92); }
+.exam-card-history { --exam-card-accent: #e11d48; --exam-card-accent-soft: rgba(255,228,230,0.92); }
+.exam-card-header {
+    min-height: 4rem;
+    border-bottom-color: rgba(203,213,225,0.72) !important;
+    background: linear-gradient(90deg, rgba(255,255,255,0.72), color-mix(in srgb, var(--exam-card-accent) 12%, white)) !important;
+}
+.exam-icon-circle {
+    background: linear-gradient(135deg, var(--exam-card-accent), color-mix(in srgb, var(--exam-card-accent) 78%, #0f172a)) !important;
+    color: #fff !important;
+    box-shadow: 0 14px 24px -18px rgba(15,23,42,0.72) !important;
+}
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border {
+    position: relative;
+    overflow: hidden;
+    border: 0 !important;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -30px rgba(15,23,42,0.58) !important;
+    padding: 1.05rem !important;
+}
+.exam-card-careplan .rounded-xl.border:nth-child(1) {
+    background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #0284c7, #0369a1 55%, #0c4a6e) !important;
+}
+.exam-card-careplan .rounded-xl.border:nth-child(2) {
+    background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #059669, #047857 55%, #064e3b) !important;
+}
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .exam-field-label,
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .text-gray-500,
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .text-xs {
+    color: rgba(239,246,255,0.88) !important;
+}
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .text-gray-900,
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .text-gray-700,
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .text-sm,
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border .exam-field-value {
+    color: #fff !important;
+    font-weight: 800 !important;
+    line-height: 1.55;
+}
+.exam-card-careplan .exam-card-body > .grid > .rounded-xl.border a {
+    background: rgba(255,255,255,0.15) !important;
+    border-color: rgba(255,255,255,0.18) !important;
+    color: #fff !important;
+}
+.exam-card-findings .rounded-xl.border {
+    border-color: rgba(203,213,225,0.82) !important;
+    background: rgba(255,255,255,0.82) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 28px -26px rgba(15,23,42,0.32);
+}
+.exam-action-primary {
+    background: linear-gradient(135deg, #059669, #047857) !important;
+    color: #fff !important;
+    box-shadow: 0 18px 34px -26px rgba(5,150,105,0.72);
+}
+.exam-action-secondary {
+    border-color: rgba(203,213,225,0.82) !important;
+    background: rgba(255,255,255,0.86) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.exam-action-secondary-warning {
+    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    color: #fff !important;
+    border-color: rgba(217,119,6,0.25) !important;
+    box-shadow: 0 18px 34px -26px rgba(217,119,6,0.72);
+}
+.health-flag {
+    border: 0 !important;
+    border-inline-start: 4px solid #e11d48 !important;
+    background: rgba(255,255,255,0.86) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 28px -26px rgba(15,23,42,0.32);
+}
+.exam-text-tile,
+.exam-notes-panel,
+.exam-history-text-block {
+    position: relative;
+    overflow: hidden;
+    min-height: 7rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(203,213,225,0.78);
+    background: rgba(255,255,255,0.88);
+    padding: 1.12rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 14px 30px -27px rgba(15,23,42,0.35);
+}
+.exam-text-tile::after,
+.exam-notes-panel::after,
+.exam-history-text-block::after {
+    content: "";
+    position: absolute;
+    inset-block-start: -3.8rem;
+    inset-inline-end: -2.8rem;
+    width: 8.5rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.48);
+    pointer-events: none;
+}
+.exam-text-tile > *,
+.exam-notes-panel > *,
+.exam-history-text-block > * {
+    position: relative;
+    z-index: 1;
+}
+.exam-text-tile-blue {
+    border-inline-start: 5px solid #2563eb;
+    background: radial-gradient(circle at 96% 0%, rgba(37,99,235,0.16), transparent 36%), linear-gradient(135deg, rgba(239,246,255,0.98), rgba(255,255,255,0.94));
+}
+.exam-text-tile-indigo {
+    border-inline-start: 5px solid #4f46e5;
+    background: radial-gradient(circle at 96% 0%, rgba(79,70,229,0.16), transparent 36%), linear-gradient(135deg, rgba(238,242,255,0.98), rgba(255,255,255,0.94));
+}
+.exam-text-tile-violet {
+    border-inline-start: 5px solid #7c3aed;
+    background: radial-gradient(circle at 96% 0%, rgba(124,58,237,0.16), transparent 36%), linear-gradient(135deg, rgba(245,243,255,0.98), rgba(255,255,255,0.94));
+}
+.exam-text-tile-emerald {
+    border-inline-start: 5px solid #059669;
+    background: radial-gradient(circle at 96% 0%, rgba(5,150,105,0.18), transparent 36%), linear-gradient(135deg, rgba(236,253,245,0.98), rgba(255,255,255,0.94));
+}
+.exam-text-tile-amber {
+    border-inline-start: 5px solid #d97706;
+    background: radial-gradient(circle at 96% 0%, rgba(217,119,6,0.18), transparent 36%), linear-gradient(135deg, rgba(255,251,235,0.98), rgba(255,255,255,0.94));
+}
+.exam-text-tile-sky {
+    border-inline-start: 5px solid #0284c7;
+    background: radial-gradient(circle at 96% 0%, rgba(2,132,199,0.16), transparent 36%), linear-gradient(135deg, rgba(240,249,255,0.98), rgba(255,255,255,0.94));
+}
+.exam-odontogram-callout {
+    position: relative;
+    overflow: hidden;
+    border: 0 !important;
+    background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.24), transparent 35%), linear-gradient(135deg, #2563eb, #0f766e 62%, #064e3b) !important;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 36px -28px rgba(15,23,42,0.62);
+    padding: 1.08rem !important;
+}
+.exam-odontogram-callout::after {
+    content: "";
+    position: absolute;
+    inset-block-start: -4rem;
+    inset-inline-end: -2rem;
+    width: 11rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+}
+.exam-odontogram-callout > * { position: relative; z-index: 1; }
+.exam-odontogram-callout .text-gray-800,
+.exam-odontogram-callout .text-gray-500,
+.exam-odontogram-callout .text-sm,
+.exam-odontogram-callout .text-xs {
+    color: rgba(255,255,255,0.88) !important;
+}
+.exam-odontogram-callout .text-gray-800 {
+    color: #fff !important;
+}
+.exam-odontogram-callout a {
+    border-color: rgba(255,255,255,0.18) !important;
+    background: rgba(255,255,255,0.16) !important;
+    color: #fff !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.exam-workflow-stack {
+    display: grid;
+    gap: 0.7rem;
+}
+.exam-money-trail-shell {
+    border-radius: 1.2rem;
+    background: radial-gradient(circle at 10% 0%, rgba(5,150,105,0.12), transparent 32%), linear-gradient(135deg, rgba(236,253,245,0.94), rgba(255,255,255,0.98));
+    box-shadow: 0 20px 48px -38px rgba(15,23,42,0.5), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.exam-money-trail-shell > * {
+    border-radius: 1.2rem !important;
+}
+.exam-notes-panel {
+    min-height: 5.6rem;
+    border-inline-start: 5px solid #0f766e;
+    background: radial-gradient(circle at 96% 0%, rgba(15,118,110,0.16), transparent 36%), linear-gradient(135deg, rgba(240,253,250,0.98), rgba(255,255,255,0.94));
+}
+.exam-history-text-block {
+    min-height: 5.6rem;
+    border-inline-start: 5px solid #e11d48;
+    background: radial-gradient(circle at 96% 0%, rgba(225,29,72,0.14), transparent 36%), linear-gradient(135deg, rgba(255,241,242,0.98), rgba(255,255,255,0.94));
+}
+.exam-text-tile .text-gray-400,
+.exam-notes-panel .text-gray-400,
+.exam-history-text-block .text-gray-400 {
+    color: #64748b !important;
+    font-weight: 700;
+}
+.exam-card .text-gray-500 {
+    color: #475569 !important;
+}
+.exam-card .text-xs {
+    line-height: 1.45;
+}
+.exam-treatment-chip {
+    font-weight: 800 !important;
+    letter-spacing: 0.01em;
+}
+.exam-history-empty {
+    border-radius: 1rem;
+    border: 1px dashed rgba(225,29,72,0.25);
+    background: rgba(255,241,242,0.72);
+    padding: 1rem;
+    color: #9f1239 !important;
+    font-weight: 800;
+}
 </style>
 
-<div class="min-h-screen bg-slate-50">
+<div class="exam-page-shell min-h-screen bg-slate-50">
 <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
 
     <!-- ===== Hero Header ===== -->
@@ -182,7 +561,7 @@ $healthFlags = array_values(array_filter([
             <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                 <div class="flex flex-col gap-5">
                     <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
-                        <span><?= $isRtl ? 'الفحوصات' : 'Examinations' ?></span>
+                        <span><?= esc($tr('examination_management')) ?></span>
                         <span class="h-1 w-1 rounded-full bg-blue-200"></span>
                         <span><?= esc($examination['examination_id'] ?? ('EX-' . $examination['id'])) ?></span>
                     </div>
@@ -240,11 +619,55 @@ $healthFlags = array_values(array_filter([
         </div>
     </section>
 
+    <section class="exam-snapshot-section mb-6 p-4 sm:p-5">
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="exam-snapshot-eyebrow"><?= esc($tr('examination_details')) ?></p>
+                <h2 class="exam-snapshot-title"><?= esc($tr('examination_summary_help')) ?></h2>
+            </div>
+            <?php if (!empty($invoiceableChargeLineIds)): ?>
+                <button type="button" data-app-drawer-open="examinationInvoiceDrawer" class="inline-flex w-fit items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-700 px-3.5 py-2.5 text-sm font-black text-white shadow-lg shadow-amber-500/20 transition hover:-translate-y-0.5">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span><?= esc($tr('create_invoice_from_work')) ?></span>
+                </button>
+            <?php endif; ?>
+        </div>
+        <div class="exam-snapshot-grid">
+            <div class="exam-snapshot-card">
+                <p class="exam-snapshot-label"><?= esc($tr('detail_status')) ?></p>
+                <p class="exam-snapshot-value"><?= esc($statusLabel) ?></p>
+                <p class="exam-snapshot-meta"><?= esc($tr('examination_date')) ?>: <?= !empty($examination['examination_date']) ? esc(formatDate($examination['examination_date'])) : esc($tr('na')) ?></p>
+            </div>
+            <div class="exam-snapshot-card">
+                <p class="exam-snapshot-label"><?= esc($tr('related_treatments')) ?></p>
+                <p class="exam-snapshot-value"><?= esc((string) $treatmentCount) ?></p>
+                <p class="exam-snapshot-meta"><?= $treatmentCount > 0 ? esc($tr('treatments_recorded', ['count' => $treatmentCount])) : esc($tr('no_treatments_recorded')) ?></p>
+            </div>
+            <div class="exam-snapshot-card">
+                <p class="exam-snapshot-label"><?= esc($tr('dental_chart_odontogram')) ?></p>
+                <p class="exam-snapshot-value"><?= esc((string) $odontogramConditionCount) ?></p>
+                <p class="exam-snapshot-meta"><?= $odontogramConditionCount > 0 ? esc($tr('odontogram_conditions_recorded', ['count' => $odontogramConditionCount])) : esc($tr('no_odontogram_data_recorded')) ?></p>
+            </div>
+            <div class="exam-snapshot-card">
+                <p class="exam-snapshot-label"><?= esc($tr('create_invoice_from_work')) ?></p>
+                <p class="exam-snapshot-value" dir="ltr"><?= esc(formatCurrency($invoiceableChargeTotal)) ?></p>
+                <p class="exam-snapshot-meta"><?= esc($tr('open_full_finance_page')) ?></p>
+            </div>
+        </div>
+    </section>
+
     <!-- ===== Content ===== -->
-    <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+    <div class="exam-workspace-section grid grid-cols-1 gap-6 xl:grid-cols-12">
 
         <!-- LEFT COLUMN -->
         <div class="xl:col-span-8 space-y-6">
+            <div class="exam-section-heading flex items-center gap-3">
+                <span class="exam-section-heading-icon"><i class="fas fa-notes-medical"></i></span>
+                <div>
+                    <p><?= esc($tr('clinical_summary')) ?></p>
+                    <h2><?= esc($tr('care_plan_help')) ?></h2>
+                </div>
+            </div>
 
             <!-- Chief Complaint + HPI -->
             <div class="exam-card exam-card-clinical">
@@ -253,12 +676,12 @@ $healthFlags = array_values(array_filter([
                     <span><?= esc($tr('clinical_summary')) ?></span>
                 </div>
                 <div class="exam-card-body">
-                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <div>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div class="exam-text-tile exam-text-tile-blue">
                             <p class="exam-field-label"><?= esc($tr('chief_complaint')) ?></p>
                             <div class="exam-field-value"><?= !empty($examination['chief_complaint']) ? nl2br(esc($examination['chief_complaint'])) : '<span class="text-gray-400">' . esc($tr('na')) . '</span>' ?></div>
                         </div>
-                        <div>
+                        <div class="exam-text-tile exam-text-tile-indigo">
                             <p class="exam-field-label"><?= esc($tr('history_of_present_illness')) ?></p>
                             <div class="exam-field-value"><?= !empty($examination['history_of_present_illness']) ? nl2br(esc($examination['history_of_present_illness'])) : '<span class="text-gray-400">' . esc($tr('na')) . '</span>' ?></div>
                         </div>
@@ -273,17 +696,17 @@ $healthFlags = array_values(array_filter([
                     <span><?= esc($tr('clinical_findings')) ?> &amp; <?= esc($tr('diagnosis')) ?></span>
                 </div>
                 <div class="exam-card-body space-y-6">
-                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <div>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div class="exam-text-tile exam-text-tile-violet">
                             <p class="exam-field-label"><?= esc($tr('clinical_findings')) ?></p>
                             <div class="exam-field-value"><?= !empty($examination['clinical_findings']) ? nl2br(esc($examination['clinical_findings'])) : '<span class="text-gray-400">' . esc($tr('no_clinical_findings_recorded')) . '</span>' ?></div>
                         </div>
-                        <div>
+                        <div class="exam-text-tile exam-text-tile-emerald">
                             <p class="exam-field-label"><?= esc($tr('diagnosis')) ?></p>
                             <div class="exam-field-value"><?= !empty($examination['diagnosis']) ? nl2br(esc($examination['diagnosis'])) : '<span class="text-gray-400">' . esc($tr('no_diagnosis_recorded')) . '</span>' ?></div>
                         </div>
                     </div>
-                    <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4">
+                    <div class="exam-odontogram-callout rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-gray-800"><?= esc($tr('dental_chart_odontogram')) ?></p>
@@ -309,11 +732,11 @@ $healthFlags = array_values(array_filter([
                         <div class="rounded-xl border p-4 transition-shadow hover:shadow-md" style="border-color:#cffafe;background:#f0fdfa;">
                             <p class="exam-field-label"><?= esc($tr('treatment_plan')) ?></p>
                             <?php if (!empty($latest_contract)): ?>
-                                <p class="text-sm font-semibold text-gray-900 mt-1"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p>
-                                <p class="text-xs text-gray-500 mt-0.5"><?= esc($tr('total')) ?> <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?></p>
+                                <p class="mt-2 text-base font-black leading-snug text-gray-900"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p>
+                                <p class="mt-1 text-sm font-bold text-gray-500"><?= esc($tr('total')) ?> <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?></p>
                                 <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-cyan-700 hover:text-cyan-800 transition-colors"><i class="fas fa-arrow-up-right-from-square"></i><?= esc($tr('view')) ?></a>
                             <?php else: ?>
-                                <p class="text-sm text-gray-500 mt-1"><?= esc($tr('treatment_plan_hint')) ?></p>
+                                <p class="mt-2 text-sm font-bold leading-relaxed text-gray-500"><?= esc($tr('treatment_plan_hint')) ?></p>
                                 <?php if (has_permission('treatments', 'create')): ?>
                                 <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-cyan-700 hover:text-cyan-800 transition-colors"><i class="fas fa-plus"></i><?= esc($tr('add_treatment_plan')) ?></a>
                                 <?php endif; ?>
@@ -324,7 +747,7 @@ $healthFlags = array_values(array_filter([
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="exam-field-label"><?= esc($tr('related_treatments')) ?></p>
-                                    <p class="text-sm text-gray-500 mt-1"><?= $treatmentCount > 0 ? esc($tr('treatments_recorded', ['count' => $treatmentCount])) : esc($tr('no_treatments_recorded')) ?></p>
+                                    <p class="mt-2 text-sm font-bold leading-relaxed text-gray-500"><?= $treatmentCount > 0 ? esc($tr('treatments_recorded', ['count' => $treatmentCount])) : esc($tr('no_treatments_recorded')) ?></p>
                                 </div>
                                 <?php if (has_permission('treatments', 'create')): ?>
                                 <a href="<?= workflow_context_url('treatment/create?examination_id=' . (int) $examination['id'], $returnToContext) ?>" data-treatment-create-modal-open class="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
@@ -333,24 +756,24 @@ $healthFlags = array_values(array_filter([
                             <?php if (!empty($treatments)): ?>
                             <div class="mt-3 flex flex-wrap gap-1.5">
                                 <?php foreach ($treatments as $t): ?>
-                                <a href="<?= base_url('treatment/' . $t['id']) ?>" class="inline-flex rounded-lg bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"><?= esc($t['treatment_name']) ?></a>
+                                <a href="<?= base_url('treatment/' . $t['id']) ?>" class="exam-treatment-chip inline-flex rounded-lg bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"><?= esc($t['treatment_name']) ?></a>
                                 <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
                         </div>
                         <!-- Prognosis -->
-                        <div>
+                        <div class="exam-text-tile exam-text-tile-amber">
                             <p class="exam-field-label"><?= esc($tr('prognosis')) ?></p>
                             <div class="exam-field-value"><?= !empty($examination['prognosis']) ? nl2br(esc($examination['prognosis'])) : '<span class="text-gray-400">' . esc($tr('no_prognosis_recorded')) . '</span>' ?></div>
                         </div>
                         <!-- Recommendations -->
-                        <div>
+                        <div class="exam-text-tile exam-text-tile-sky">
                             <p class="exam-field-label"><?= esc($tr('recommendations')) ?></p>
                             <div class="exam-field-value"><?= !empty($examination['recommendations']) ? nl2br(esc($examination['recommendations'])) : '<span class="text-gray-400">' . esc($tr('no_recommendations_recorded')) . '</span>' ?></div>
                         </div>
                     </div>
                     <?php if (!empty($examination['examination_notes'])): ?>
-                    <div class="pt-4 border-t border-gray-100">
+                    <div class="exam-notes-panel">
                         <p class="exam-field-label"><?= esc($tr('examination_notes')) ?></p>
                         <div class="exam-field-value"><?= nl2br(esc($examination['examination_notes'])) ?></div>
                     </div>
@@ -360,27 +783,35 @@ $healthFlags = array_values(array_filter([
         </div>
 
         <!-- RIGHT COLUMN -->
-        <div class="xl:col-span-4 space-y-6">
+        <aside class="xl:col-span-4 xl:sticky xl:top-6 space-y-6">
+            <div class="exam-section-heading exam-section-heading--context flex items-center gap-3">
+                <span class="exam-section-heading-icon"><i class="fas fa-route"></i></span>
+                <div>
+                    <p><?= esc($tr('workflow_heading')) ?></p>
+                    <h2><?= esc($tr('workflow_help')) ?></h2>
+                </div>
+            </div>
+
             <!-- Quick Workflow -->
             <div class="exam-card exam-card-workflow">
                 <div class="exam-card-header">
                     <span class="exam-icon-circle" style="background:#fef3c7;color:#d97706;"><i class="fas fa-bolt text-sm"></i></span>
                     <span><?= esc($tr('workflow_heading')) ?></span>
                 </div>
-                <div class="exam-card-body">
+                <div class="exam-card-body exam-workflow-stack">
                     <?php if ($statusKey !== 'completed'): ?>
-                    <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>" class="mb-4">
+                    <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>">
                         <?= csrf_field() ?>
                         <?php if (!empty($return_to)): ?><input type="hidden" name="return_to" value="<?= esc($return_to) ?>"><?php endif; ?>
                         <button type="submit" class="exam-action-primary" style="background:#059669;color:#fff;"><?= esc($tr('finalize_assessment')) ?></button>
                     </form>
                     <?php endif; ?>
                     <?php if (has_permission('treatments', 'create')): ?>
-                    <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary mb-3"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
-                    <a href="<?= workflow_context_url('treatment/create?examination_id=' . (int) $examination['id'], $returnToContext) ?>" data-treatment-create-modal-open class="exam-action-secondary mb-3"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
+                    <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="exam-action-secondary"><i class="fas fa-file-signature text-sm"></i><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></a>
+                    <a href="<?= workflow_context_url('treatment/create?examination_id=' . (int) $examination['id'], $returnToContext) ?>" data-treatment-create-modal-open class="exam-action-secondary"><i class="fas fa-plus text-sm"></i><?= esc($tr('add_treatment')) ?></a>
                     <?php endif; ?>
                     <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
-                    <button type="button" data-app-drawer-open="examinationInvoiceDrawer" class="exam-action-secondary exam-action-secondary-warning mb-3">
+                    <button type="button" data-app-drawer-open="examinationInvoiceDrawer" class="exam-action-secondary exam-action-secondary-warning">
                         <i class="fas fa-file-invoice-dollar text-sm"></i>
                         <span><?= esc($tr('create_invoice_from_work')) ?></span>
                         <span class="ms-auto text-xs font-black" dir="ltr"><?= esc(formatCurrency($invoiceableChargeTotal)) ?></span>
@@ -392,11 +823,13 @@ $healthFlags = array_values(array_filter([
                 </div>
             </div>
 
-            <?= view('components/money_trail_panel', [
-                'money_trail' => $money_trail ?? [],
-                'is_rtl' => $isRtl,
-                'return_to' => $returnToContext ?? null,
-            ]) ?>
+            <div class="exam-money-trail-shell">
+                <?= view('components/money_trail_panel', [
+                    'money_trail' => $money_trail ?? [],
+                    'is_rtl' => $isRtl,
+                    'return_to' => $returnToContext ?? null,
+                ]) ?>
+            </div>
 
             <!-- Health Flags -->
             <div class="exam-card exam-card-history">
@@ -415,23 +848,23 @@ $healthFlags = array_values(array_filter([
                         <?php endforeach; ?>
                     <?php endif; ?>
                     <?php if (!empty($examination['medical_history'])): ?>
-                    <div class="pt-2">
+                    <div class="exam-history-text-block">
                         <p class="exam-field-label"><?= esc($tr('medical_history')) ?></p>
                         <div class="exam-field-value text-sm"><?= nl2br(esc($examination['medical_history'])) ?></div>
                     </div>
                     <?php endif; ?>
                     <?php if (!empty($examination['dental_history'])): ?>
-                    <div class="pt-2">
+                    <div class="exam-history-text-block">
                         <p class="exam-field-label"><?= esc($tr('dental_history')) ?></p>
                         <div class="exam-field-value text-sm"><?= nl2br(esc($examination['dental_history'])) ?></div>
                     </div>
                     <?php endif; ?>
                     <?php if (empty($healthFlags) && empty($examination['medical_history']) && empty($examination['dental_history'])): ?>
-                    <p class="text-sm text-gray-400 py-2"><?= esc($tr('no_medical_dental_history_recorded')) ?></p>
+                    <p class="exam-history-empty text-sm py-2"><?= esc($tr('no_medical_dental_history_recorded')) ?></p>
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
 
 </div>
