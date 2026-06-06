@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-06 - Entity Detail Page Visual Contract
+
+- Refined `/treatment/{id}` into the app's reference entity detail page layout: stable hero identity, operational snapshot strip, primary clinical content column, and contextual patient/billing/timeline sidebar.
+- Added the reusable entity detail page visual contract to `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` so future detail pages follow the same hierarchy, stronger domain colors, readable contrast, and workflow-focus rules.
+- Preserved existing treatment actions, invoice drawer, permissions, workflow navigation, and backend write behavior.
+
 ## 2026-05-31 - Clinical-Finance Trace and Workflow-Focus Follow-Up
 
 - Continued the clinical-finance connection work across treatment, patient, finance, inventory/material cost, and provider payout surfaces.

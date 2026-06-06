@@ -24,6 +24,24 @@ This avoids a parallel workflow engine and keeps CSRF, tenant checks, permission
 - Drawers submit normal forms to existing canonical routes.
 - Full module links remain available for advanced workflows.
 
+## Entity Detail Page Visual Contract
+
+Entity detail pages should use the same work style established on the treatment detail page:
+
+- Keep the existing app hero/header card as the stable identity anchor.
+- Place the high-level operational snapshot directly below the hero.
+- Use strong primary color surfaces for major summary/status cards, not only pale secondary tints.
+- Use color intentionally by domain: clinical/work context, patient context, billing/money trail, inventory/material cost, and timeline should be visually distinguishable.
+- Prefer a readable detail-page structure over many peer cards:
+  - primary work/content column for the entity record itself
+  - contextual sidebar for patient/user/billing/timeline/linked-record context
+  - sticky sidebar on desktop only when it helps orientation
+- Do not make every card visually equal. Section headers, card size, placement, and color should tell the user what matters first.
+- Avoid dark nested cards inside dark parent cards; preserve readable contrast for English and Arabic text.
+- Keep canonical actions in context with drawers/popups where already available, but preserve full-page fallbacks.
+- Do not change controller contracts, tenant checks, permissions, workflow redirects, or finance calculations for visual redesign work.
+- Use the app fonts, existing icons, translation keys, `esc()`, permission checks, and workflow navigation helpers.
+
 ## First Slice
 
 Implemented drawers:
