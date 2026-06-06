@@ -2360,77 +2360,137 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Appointments Tab -->
                         <div id="appointments-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-lg mb-4">
-                                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientAppointments')) ?></h3>
+                            <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-blue-50/65 to-emerald-50/60 shadow-xl shadow-slate-200/60">
+                                <div class="pointer-events-none absolute inset-0 opacity-90">
+                                    <div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-blue-400/25 blur-3xl"></div>
+                                    <div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-emerald-300/25 blur-3xl"></div>
+                                </div>
+                                <div class="relative border-b border-white/70 px-4 py-4 sm:px-6">
+                                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg shadow-blue-500/25">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </span>
+                                            <div class="min-w-0">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientAppointments')) ?></h3>
+                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= count($appointments) ?> <?= esc(lang('UI.patientTabAppts')) ?></span>
+                                                </div>
+                                                <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
+                                            </div>
                                         </div>
-                                        <span class="text-xs text-gray-400"><?= count($appointments) ?> <?= esc(lang('UI.patientAppts')) ?></span>
+                                        <span class="inline-flex w-fit items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-blue-500/20">
+                                            <i class="fas fa-clock"></i>
+                                            <span><?= esc(lang('UI.patientScheduleAppointment')) ?></span>
+                                        </span>
                                     </div>
                                 </div>
                                 <?php if (!empty($appointments)): ?>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-calendar text-purple-600"></i><span><?= esc(lang('UI.patientDateTime')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-tag text-purple-600"></i><span><?= esc(lang('UI.patientType')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-clock text-purple-600"></i><span><?= esc(lang('UI.patientDuration')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-circle-info text-purple-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><div class="flex items-center gap-2"><i class="fas fa-cogs text-purple-600"></i></div></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-100">
-                                                <?php foreach ($appointments as $apt): ?>
-                                                    <?php
-                                                    $appointmentDateKey = !empty($apt['appointment_date']) ? substr((string) $apt['appointment_date'], 0, 10) : '';
-                                                    $appointmentClinical = $appointmentDateKey !== '' ? ($sameDayClinicalByDate[$appointmentDateKey] ?? null) : null;
-                                                    $appointmentClinicalCount = !empty($appointmentClinical)
-                                                        ? count($appointmentClinical['examinations'] ?? []) + count($appointmentClinical['treatments'] ?? [])
-                                                        : 0;
-                                                    ?>
-                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo)) ?>">
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= formatDate($apt['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($apt['appointment_time']) ?></td>
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm font-medium text-gray-900"><?= ucfirst($apt['appointment_type'] ?? lang('UI.patientGeneral')) ?></div>
-                                                            <div class="text-xs text-gray-500"><?= esc($apt['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></div>
-                                                            <?php if ($appointmentClinicalCount > 0): ?>
-                                                                <div class="mt-2 flex flex-wrap gap-1.5">
-                                                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-800">
-                                                                        <i class="fas fa-link"></i>
-                                                                        <span><?= esc(lang('UI.patientSameDayClinicalWork')) ?>: <?= esc($appointmentClinicalCount) ?></span>
-                                                                    </span>
-                                                                    <?php foreach (array_slice(($appointmentClinical['examinations'] ?? []), 0, 1) as $clinicalItem): ?>
-                                                                        <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-800 hover:bg-blue-100">
-                                                                            <i class="fas fa-stethoscope"></i>
-                                                                            <span><?= esc($clinicalItem['label']) ?></span>
-                                                                        </a>
-                                                                    <?php endforeach; ?>
-                                                                    <?php foreach (array_slice(($appointmentClinical['treatments'] ?? []), 0, 1) as $clinicalItem): ?>
-                                                                        <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border border-pink-200 bg-pink-50 px-2 py-1 text-xs font-semibold text-pink-800 hover:bg-pink-100">
-                                                                            <i class="fas fa-tooth"></i>
-                                                                            <span><?= esc($clinicalItem['label']) ?></span>
-                                                                        </a>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-sm text-gray-700"><?= $apt['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?></td>
-                                                        <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= ['scheduled'=>'bg-blue-100 text-blue-700','confirmed'=>'bg-emerald-100 text-emerald-700','completed'=>'bg-gray-100 text-gray-600','cancelled'=>'bg-rose-100 text-rose-700','no_show'=>'bg-amber-100 text-amber-700'][$apt['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= ucfirst($apt['status']) ?></span></td>
-                                                        <td class="px-6 py-4"><a href="<?= workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-purple-600 hover:bg-purple-50 hover:text-purple-700 transition-colors"><i class="fas fa-eye text-xs"></i></a></td>
+                                    <div class="relative px-4 py-5 sm:px-6">
+                                        <div class="overflow-x-auto rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                            <table class="patient-record-table w-full min-w-full" data-record-type="appointments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                                <thead class="bg-gradient-to-r from-slate-50 via-blue-50/70 to-emerald-50/70">
+                                                    <tr>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientDateTime')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientType')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientDuration')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientActions')) ?></th>
                                                     </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-200/70 bg-white/95">
+                                                    <?php foreach ($appointments as $apt): ?>
+                                                        <?php
+                                                        $appointmentDateKey = !empty($apt['appointment_date']) ? substr((string) $apt['appointment_date'], 0, 10) : '';
+                                                        $appointmentClinical = $appointmentDateKey !== '' ? ($sameDayClinicalByDate[$appointmentDateKey] ?? null) : null;
+                                                        $appointmentClinicalCount = !empty($appointmentClinical)
+                                                            ? count($appointmentClinical['examinations'] ?? []) + count($appointmentClinical['treatments'] ?? [])
+                                                            : 0;
+                                                        $appointmentStatusKey = strtolower((string) ($apt['status'] ?? ''));
+                                                        $appointmentStatusLabel = match ($appointmentStatusKey) {
+                                                            'scheduled' => lang('UI.appointmentStatusScheduled'),
+                                                            'confirmed' => lang('UI.appointmentStatusConfirmed'),
+                                                            'cancelled' => lang('UI.appointmentStatusCancelled'),
+                                                            'no_show' => lang('UI.appointmentStatusNoShow'),
+                                                            'completed' => lang('UI.patientTreatmentStatusCompleted'),
+                                                            default => $appointmentStatusKey !== '' ? ucfirst(str_replace('_', ' ', $appointmentStatusKey)) : lang('UI.patientUnknown'),
+                                                        };
+                                                        $appointmentStatusClass = [
+                                                            'scheduled' => 'bg-blue-100 text-blue-800 ring-blue-200/70',
+                                                            'confirmed' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
+                                                            'completed' => 'bg-slate-100 text-slate-800 ring-slate-200/70',
+                                                            'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200/70',
+                                                            'no_show' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
+                                                        ][$appointmentStatusKey] ?? 'bg-slate-100 text-slate-700 ring-slate-200/70';
+                                                        $appointmentTypeRaw = trim((string) ($apt['appointment_type'] ?? ''));
+                                                        $appointmentTypeLabel = $appointmentTypeRaw !== '' ? ucfirst(str_replace('_', ' ', $appointmentTypeRaw)) : lang('UI.patientGeneral');
+                                                        $appointmentChairLabel = trim((string) ($apt['chair_name'] ?? '')) !== '' ? (string) $apt['chair_name'] : lang('UI.appointmentChairDefault');
+                                                        $appointmentUrl = workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo);
+                                                        ?>
+                                                        <tr class="patient-record-row transition-colors hover:bg-blue-50/70" data-href="<?= esc($appointmentUrl) ?>" data-date="<?= esc($appointmentDateKey, 'attr') ?>">
+                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                                                                <div class="font-extrabold text-slate-950"><?= esc(formatDate($apt['appointment_date'])) ?></div>
+                                                                <div class="mt-1 text-xs font-bold text-blue-700"><?= esc(lang('UI.patientAt')) ?> <?= esc(formatTime($apt['appointment_time'])) ?></div>
+                                                            </td>
+                                                            <td class="px-6 py-4">
+                                                                <div class="patient-record-title text-sm font-extrabold text-slate-950"><?= esc($appointmentTypeLabel) ?></div>
+                                                                <div class="mt-1 inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-800 ring-1 ring-indigo-100">
+                                                                    <i class="fas fa-chair text-[10px]"></i>
+                                                                    <?= esc($appointmentChairLabel) ?>
+                                                                </div>
+                                                                <?php if ($appointmentClinicalCount > 0): ?>
+                                                                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
+                                                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-sky-800 ring-1 ring-sky-100">
+                                                                            <i class="fas fa-link text-sky-600"></i>
+                                                                            <span><?= esc(lang('UI.patientSameDayClinicalWork')) ?>: <?= esc((string) $appointmentClinicalCount) ?></span>
+                                                                        </span>
+                                                                        <?php foreach (array_slice(($appointmentClinical['examinations'] ?? []), 0, 1) as $clinicalItem): ?>
+                                                                            <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-blue-800 ring-1 ring-blue-100 hover:bg-blue-100">
+                                                                                <i class="fas fa-stethoscope"></i>
+                                                                                <span><?= esc($clinicalItem['label']) ?></span>
+                                                                            </a>
+                                                                        <?php endforeach; ?>
+                                                                        <?php foreach (array_slice(($appointmentClinical['treatments'] ?? []), 0, 1) as $clinicalItem): ?>
+                                                                            <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-rose-800 ring-1 ring-rose-100 hover:bg-rose-100">
+                                                                                <i class="fas fa-tooth"></i>
+                                                                                <span><?= esc($clinicalItem['label']) ?></span>
+                                                                            </a>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 ring-1 ring-slate-200">
+                                                                    <i class="fas fa-hourglass-half text-slate-500"></i>
+                                                                    <?= esc($apt['duration'] ?? '30') ?> <?= esc(lang('UI.patientMinutes')) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= esc($appointmentStatusClass) ?>">
+                                                                    <?= esc($appointmentStatusLabel) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                                                <a href="<?= esc($appointmentUrl) ?>" class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 <?php else: ?>
-                                    <div class="text-center py-10"><i class="fas fa-calendar text-gray-300 text-4xl mb-3"></i><p class="text-sm text-gray-400"><?= esc(lang('UI.patientNoAppointments')) ?></p></div>
+                                    <div class="relative px-6 py-8">
+                                        <div class="rounded-2xl border border-dashed border-blue-200 bg-white/70 px-6 py-12 text-center shadow-inner">
+                                            <i class="fas fa-calendar-times mb-3 text-4xl text-blue-200"></i>
+                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoAppointments')) ?></p>
+                                        </div>
+                                    </div>
                                 <?php endif; ?>
-                            </div>
+                            </section>
                         </div>
-
                         <!-- Treatments Tab -->
                         <div id="treatments-content" class="tab-content hidden">
                             <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-rose-50/55 to-cyan-50/60 shadow-xl shadow-slate-200/60">
@@ -3873,7 +3933,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     #examinations-content > .bg-white.rounded-xl { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #f97316; --patient-tab-soft: rgba(239,246,255,0.86); }
-    #appointments-content > .bg-white.rounded-xl { --patient-tab-accent: #7c3aed; --patient-tab-accent-2: #0ea5e9; --patient-tab-soft: rgba(245,243,255,0.84); }
+    #appointments-content > section { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #059669; --patient-tab-soft: rgba(239,246,255,0.86); }
+
     #prescriptions-content > .bg-white.rounded-xl,
     #prescriptions-content > .bg-white.rounded-lg { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #14b8a6; --patient-tab-soft: rgba(239,246,255,0.84); }
     #finances-content > .bg-white.rounded-xl,
