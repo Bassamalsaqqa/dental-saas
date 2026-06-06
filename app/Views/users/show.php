@@ -1509,6 +1509,135 @@
         background: rgba(255,255,255,0.74);
         box-shadow: inset 0 0 0 1px rgba(226,232,240,0.88);
     }
+
+    /* Consistency pass: remove old pale-card spirit from roles and provider pay panels. */
+    .user-section-card-roles .user-info-tile {
+        overflow: hidden;
+        border: 0 !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -30px rgba(15,23,42,0.58) !important;
+    }
+
+    .user-section-card-roles .user-info-tile::after {
+        content: "";
+        position: absolute;
+        inset-block-start: -48%;
+        inset-inline-end: -12%;
+        width: 8.5rem;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.16);
+    }
+
+    .user-section-card-roles .user-info-tile > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .user-section-card-roles .user-info-tile:nth-child(1) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #4f46e5, #4338ca 55%, #312e81) !important;
+    }
+
+    .user-section-card-roles .user-info-tile:nth-child(2) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #2563eb, #1d4ed8 55%, #1e3a8a) !important;
+    }
+
+    .user-section-card-roles .user-info-tile:nth-child(3) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #0284c7, #0369a1 55%, #0c4a6e) !important;
+    }
+
+    .user-section-card-roles .user-info-tile:nth-child(4) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #059669, #047857 55%, #064e3b) !important;
+    }
+
+    .user-section-card-roles .user-info-label,
+    .user-section-card-roles .user-info-label i,
+    .user-section-card-roles .user-info-help {
+        color: rgba(239,246,255,0.88) !important;
+    }
+
+    .user-section-card-roles .user-info-value {
+        color: #fff !important;
+        font-weight: 900;
+    }
+
+    .user-section-card-roles .user-role-pill,
+    .user-section-card-roles .user-summary-badge {
+        background: rgba(255,255,255,0.16) !important;
+        color: #fff !important;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile {
+        overflow: hidden;
+        min-height: 6.2rem;
+        border: 0 !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -30px rgba(15,23,42,0.58) !important;
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile::after {
+        content: "";
+        position: absolute;
+        inset-block-start: -48%;
+        inset-inline-end: -12%;
+        width: 8rem;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.16);
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile:nth-child(1) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #059669, #047857 55%, #064e3b) !important;
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile:nth-child(2) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #e11d48, #be123c 55%, #881337) !important;
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile .user-info-label,
+    .user-payment-summary-card .user-info-tile.user-finance-tile .user-info-label i {
+        color: rgba(239,246,255,0.88) !important;
+    }
+
+    .user-payment-summary-card .user-info-tile.user-finance-tile .user-info-value {
+        color: #fff !important;
+        font-weight: 900;
+    }
+
+    .user-payment-summary-card:first-child {
+        border-block-start: 5px solid #059669 !important;
+    }
+
+    .user-payment-summary-card:nth-child(2) {
+        border-block-start: 5px solid #4f46e5 !important;
+    }
+
+    .user-payment-summary-empty {
+        border: 0 !important;
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.20), transparent 34%),
+            linear-gradient(135deg, #64748b, #334155 58%, #0f172a) !important;
+        color: rgba(255,255,255,0.9) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 16px 30px -28px rgba(15,23,42,0.58);
+    }
 </style>
 
 <div class="user-page-shell min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
