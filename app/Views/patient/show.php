@@ -2010,9 +2010,9 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 <?php endif; ?>
 
-                                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.95fr)] mb-6">
-                                    <section class="rounded-3xl border border-slate-200 bg-white shadow-[0_22px_55px_-42px_rgba(15,23,42,0.30)]">
-                                        <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50/70 px-5 py-4">
+                                <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-cyan-50/65 to-blue-50/60 p-4 shadow-xl shadow-slate-200/60 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-cyan-400/25 blur-3xl"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-blue-400/25 blur-3xl"></div></div><div class="relative grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.95fr)] mb-5">
+                                    <section class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                        <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-cyan-50/80 to-blue-50/80 px-5 py-4">
                                             <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientImagingWorkspaceLatestTitle')) ?></h3>
                                             <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
                                         </div>
@@ -2060,8 +2060,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </section>
 
                                     <aside>
-                                        <section class="rounded-3xl border border-slate-200 bg-white shadow-[0_22px_55px_-42px_rgba(15,23,42,0.30)]">
-                                            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-cyan-50/70 px-5 py-4">
+                                        <section class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                            <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-cyan-50/80 to-blue-50/80 px-5 py-4">
                                                 <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientUploadFiles')) ?></h3>
                                                 <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UI.patientAttachmentsSubtitle', ['max' => ($maxFileMb === null ? lang('UI.patientUnlimited') : ((int) $maxFileMb . 'MB'))])) ?></p>
                                             </div>
@@ -2102,19 +2102,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </aside>
                                 </div>
 
-                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-                                    <div class="px-6 py-4 border-b border-gray-200">
-                                        <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
+                                <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                    <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-indigo-50/80 to-cyan-50/80 px-5 py-4">
+                                        <h4 class="text-base font-extrabold text-slate-950"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
                                         <table class="patient-record-table" data-record-type="attachments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead>
                                                 <tr>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientFile')) ?></th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientCategory')) ?></th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientNotes')) ?></th>
-                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientFile')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientCategory')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientNotes')) ?></th>
+                                                    <th class="px-6 py-4 text-right text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -2168,12 +2168,14 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </table>
                                     </div>
                                 </div>
+                                </div></section>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($contracts_enabled)): ?>
                             <!-- Contracts Tab -->
                             <div id="contracts-content" class="tab-content hidden">
+                                <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-indigo-50/65 to-cyan-50/60 p-4 shadow-xl shadow-slate-200/60 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-indigo-400/25 blur-3xl"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-cyan-300/25 blur-3xl"></div></div><div class="relative space-y-5">
                                 <?php if (session('success')): ?>
                                     <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 text-sm">
                                         <?= esc(session('success')) ?>
@@ -2185,17 +2187,17 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 <?php endif; ?>
 
-                                <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
-                                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                    <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-indigo-50/80 to-cyan-50/80 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                         <div>
-                                            <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientContractsTitle')) ?></h3>
-                                            <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsSubtitle')) ?></p>
+                                            <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientContractsTitle')) ?></h3>
+                                            <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('UI.patientContractsSubtitle')) ?></p>
                                         </div>
                                         <div class="flex flex-col items-start gap-2 md:items-end">
-                                            <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
+                                            <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('UI.patientContractsHint')) ?></p>
                                             <?php if (has_permission('patients', 'edit')): ?>
                                                 <a href="<?= workflow_context_url('contracts/create/' . $patient['id'], $patientContextReturnTo) ?>"
-                                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                                   class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-700 hover:to-cyan-800">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
                                                 </a>
                                             <?php endif; ?>
@@ -2203,19 +2205,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 </div>
 
-                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-                                    <div class="px-6 py-4 border-b border-gray-200">
-                                        <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientContractHistory')) ?></h4>
+                                <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                    <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-indigo-50/80 to-cyan-50/80 px-5 py-4">
+                                        <h4 class="text-base font-extrabold text-slate-950"><?= esc(lang('UI.patientContractHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
                                         <table class="patient-record-table" data-record-type="contracts" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead>
                                                 <tr>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientExam')) ?></th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
-                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientExam')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
+                                                    <th class="px-6 py-4 text-right text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -2271,6 +2273,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </table>
                                     </div>
                                 </div>
+                                </div></section>
                             </div>
                         <?php endif; ?>
 
@@ -2824,7 +2827,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <!-- Financials Tab -->
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
-                            <div class="space-y-6">
+                            <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-emerald-50/65 to-amber-50/55 p-4 shadow-xl shadow-slate-200/60 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-emerald-400/25 blur-3xl"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-amber-300/25 blur-3xl"></div></div><div class="relative space-y-5">
                                 <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
                                     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 p-4 text-white shadow-lg shadow-slate-500/20">
                                         <p class="text-xs font-bold uppercase tracking-wide text-slate-200/90"><?= esc(lang('UI.patientTotalBilled')) ?></p>
@@ -2848,11 +2851,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     'is_rtl' => $isRtl,
                                     'return_to' => $patientContextReturnTo,
                                 ]) ?>
-                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-                                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                    <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-emerald-50/80 to-amber-50/80 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientFinancialRecords')) ?></h3>
-                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientFinancialRecordsSubtitle')) ?></p>
+                                        <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientFinancialRecords')) ?></h3>
+                                        <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('UI.patientFinancialRecordsSubtitle')) ?></p>
                                     </div>
                                         <div class="flex flex-wrap gap-2">
                                             <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200">
@@ -2860,7 +2863,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             </a>
                                             <?php if (has_permission('finance', 'create')): ?>
                                                 <a href="<?= workflow_context_url('finance/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
-                                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                                   class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-amber-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-700 hover:to-amber-700">
                                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                                 </a>
                                             <?php endif; ?>
@@ -2868,19 +2871,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 </div>
                                 <?php if (!empty($financialLedgerRows)): ?>
-                                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                                    <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
                                         <div class="overflow-x-auto">
                                             <table class="patient-record-table" data-record-type="finances" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                                <thead>
+                                                <thead class="bg-gradient-to-r from-slate-50 via-emerald-50/70 to-amber-50/70">
                                                     <tr>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.detailsReference')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientClinicalSource')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.method')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('Finance.detailsReference')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientClinicalSource')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('Finance.method')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -2952,7 +2955,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                             </td>
                                                             <td><?= esc($ledgerRow['method_label']) ?></td>
                                                             <td class="whitespace-nowrap">
-                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
+                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= $colorClass ?>">
                                                                     <?= esc($ledgerRow['status_label']) ?>
                                                                 </span>
                                                             </td>
@@ -2968,12 +2971,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </div>
                                     </div>
                                 <?php else: ?>
-                                <div class="text-center py-8">
-                                    <i class="fas fa-file-invoice text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoFinancialRecords')) ?></p>
+                                <div class="rounded-2xl border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center shadow-inner">
+                                    <i class="fas fa-file-invoice mb-3 text-4xl text-emerald-200"></i>
+                                    <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoFinancialRecords')) ?></p>
                                 </div>
                                 <?php endif; ?>
-                            </div>
+                            </div></section>
                         </div>
 
                         <!-- Tooth Modal -->
@@ -3957,12 +3960,9 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     #appointments-content > section { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #059669; --patient-tab-soft: rgba(239,246,255,0.86); }
 
     #prescriptions-content > section { --patient-tab-accent: #0f766e; --patient-tab-accent-2: #2563eb; --patient-tab-soft: rgba(240,253,250,0.86); }
-    #finances-content > .bg-white.rounded-xl,
-    #finances-content > .bg-white.rounded-lg { --patient-tab-accent: #059669; --patient-tab-accent-2: #f59e0b; --patient-tab-soft: rgba(236,253,245,0.84); }
-    #contracts-content > .bg-white.rounded-xl,
-    #contracts-content > .bg-white.rounded-lg { --patient-tab-accent: #4f46e5; --patient-tab-accent-2: #06b6d4; --patient-tab-soft: rgba(238,242,255,0.84); }
-    #attachments-content .bg-white.rounded-lg,
-    #attachments-content section.bg-white { --patient-tab-accent: #0891b2; --patient-tab-accent-2: #2563eb; --patient-tab-soft: rgba(236,254,255,0.82); }
+    #finances-content > section { --patient-tab-accent: #059669; --patient-tab-accent-2: #f59e0b; --patient-tab-soft: rgba(236,253,245,0.84); }
+    #contracts-content > section { --patient-tab-accent: #4f46e5; --patient-tab-accent-2: #06b6d4; --patient-tab-soft: rgba(238,242,255,0.84); }
+    #attachments-content > section { --patient-tab-accent: #0891b2; --patient-tab-accent-2: #2563eb; --patient-tab-soft: rgba(236,254,255,0.82); }
     .patient-exam-workspace {
         position: relative;
         overflow: hidden;
