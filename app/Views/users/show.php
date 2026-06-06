@@ -1068,9 +1068,450 @@
         line-height: 1rem;
         min-width: 0;
     }
+
+    /* User detail visual contract: mirrors the treatment entity-detail hierarchy. */
+    .user-page-shell {
+        background:
+            radial-gradient(900px 520px at 8% -12%, rgba(37, 99, 235, 0.09), transparent 60%),
+            radial-gradient(760px 460px at 92% 0%, rgba(124, 58, 237, 0.08), transparent 55%),
+            #f8fafc;
+    }
+
+    .user-snapshot-section,
+    .user-workspace-section {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.6rem;
+        border: 1px solid rgba(255, 255, 255, 0.76);
+        background:
+            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.11), transparent 28%),
+            radial-gradient(circle at 100% 18%, rgba(124, 58, 237, 0.12), transparent 30%),
+            linear-gradient(135deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.96));
+        box-shadow: 0 24px 58px -42px rgba(15, 23, 42, 0.42), 0 1px 0 rgba(255, 255, 255, 0.92) inset;
+    }
+
+    .user-snapshot-section::before,
+    .user-workspace-section::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 9% 0%, rgba(37, 99, 235, 0.14), transparent 29%),
+            radial-gradient(circle at 95% 10%, rgba(5, 150, 105, 0.12), transparent 30%);
+    }
+
+    .user-snapshot-section > *,
+    .user-workspace-section > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .user-snapshot-heading {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .user-snapshot-eyebrow {
+        color: #1d4ed8;
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .user-snapshot-title {
+        color: #0f172a;
+        font-size: 1.18rem;
+        font-weight: 900;
+        line-height: 1.2;
+    }
+
+    .user-snapshot-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 0.9rem;
+    }
+
+    @media (min-width: 640px) {
+        .user-snapshot-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1180px) {
+        .user-snapshot-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .user-snapshot-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 7.2rem;
+        border-radius: 1.2rem;
+        padding: 1rem;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -28px rgba(15,23,42,0.55);
+    }
+
+    .user-snapshot-card::after {
+        content: "";
+        position: absolute;
+        inset-block-start: -42%;
+        inset-inline-end: -10%;
+        width: 9.5rem;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.16);
+    }
+
+    .user-snapshot-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .user-snapshot-card:nth-child(1) {
+        background:
+            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
+    }
+
+    .user-snapshot-card:nth-child(2) {
+        background:
+            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.20), transparent 34%),
+            linear-gradient(135deg, #7c3aed, #6d28d9 56%, #4c1d95);
+    }
+
+    .user-snapshot-card:nth-child(3) {
+        background:
+            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #047857, #0f766e 56%, #064e3b);
+    }
+
+    .user-snapshot-card:nth-child(4) {
+        background:
+            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.20), transparent 34%),
+            linear-gradient(135deg, #d97706, #b45309 58%, #92400e);
+    }
+
+    .user-snapshot-label {
+        font-size: 0.68rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(239,246,255,0.88);
+    }
+
+    .user-snapshot-value {
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+        line-height: 1.25;
+        font-weight: 900;
+        color: #fff;
+    }
+
+    .user-snapshot-meta {
+        margin-top: 0.35rem;
+        font-size: 0.76rem;
+        line-height: 1.25;
+        color: rgba(239,246,255,0.84);
+    }
+
+    .user-workspace-section {
+        padding: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .user-workspace-section {
+            padding: 1.25rem;
+        }
+    }
+
+    .user-section-card {
+        border-radius: 1.2rem;
+        border-color: rgba(255,255,255,0.82);
+        background:
+            radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--user-card-accent) 15%, transparent), transparent 31%),
+            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), var(--user-card-accent-soft) 46%, rgba(255,255,255,0.98));
+        box-shadow: 0 20px 48px -38px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.92) inset;
+    }
+
+    .user-section-card-roles {
+        --user-card-bg: #eef2ff;
+        --user-card-accent: #4f46e5;
+        --user-card-accent-soft: rgba(238, 242, 255, 0.92);
+    }
+
+    .user-section-card-actions {
+        --user-card-bg: #e0f2fe;
+        --user-card-accent: #0284c7;
+        --user-card-accent-soft: rgba(224, 242, 254, 0.92);
+    }
+
+    .user-section-card-finance {
+        --user-card-bg: #dcfce7;
+        --user-card-accent: #047857;
+        --user-card-accent-soft: rgba(209, 250, 229, 0.92);
+    }
+
+    .user-section-card-ledger {
+        --user-card-bg: #e2e8f0;
+        --user-card-accent: #334155;
+        --user-card-accent-soft: rgba(226, 232, 240, 0.92);
+    }
+
+    .user-section-header {
+        border-bottom: 1px solid rgba(203, 213, 225, 0.72);
+        background: linear-gradient(90deg, rgba(255,255,255,0.72), color-mix(in srgb, var(--user-card-accent) 12%, white));
+    }
+
+    .user-section-title-dot {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.85rem;
+        background: linear-gradient(135deg, var(--user-card-accent), color-mix(in srgb, var(--user-card-accent) 78%, #0f172a));
+        box-shadow: 0 16px 26px -20px rgba(15,23,42,0.78);
+    }
+
+    .user-section-title-dot::before {
+        content: "";
+        display: block;
+        width: 0.62rem;
+        height: 0.62rem;
+        margin: 0.82rem auto;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.9);
+    }
+
+    .user-info-tile,
+    .user-payment-summary-card,
+    .user-payment-summary-item {
+        border-color: rgba(203, 213, 225, 0.82);
+        background: rgba(255,255,255,0.82);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+
+    .user-action-row-modal:first-child {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        box-shadow: 0 18px 34px -28px rgba(37,99,235,0.72);
+    }
+
+    .user-action-row-modal:first-child .user-action-row-title,
+    .user-action-row-modal:first-child .user-action-row-copy,
+    .user-action-row-modal:first-child .user-action-row-icon,
+    .user-action-row-modal:first-child i {
+        color: #fff !important;
+    }
+
+    /* Lower user detail sections: provider finance and ledger should carry stronger hierarchy. */
+    .user-section-card-finance .user-section-header {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.42), transparent 30%),
+            linear-gradient(135deg, rgba(236,253,245,0.98), rgba(219,234,254,0.98));
+    }
+
+    .user-section-card-finance .user-section-header a:first-child {
+        border-color: rgba(5,150,105,0.28) !important;
+        background: linear-gradient(135deg, #059669, #0f766e) !important;
+        color: #fff !important;
+        box-shadow: 0 16px 30px -24px rgba(5,150,105,0.7);
+    }
+
+    .user-section-card-finance .user-section-header a:first-child i {
+        color: #fff !important;
+    }
+
+    .user-section-card-finance .user-section-header a:last-child {
+        border-color: rgba(37,99,235,0.24) !important;
+        background: rgba(255,255,255,0.86) !important;
+        color: #1d4ed8 !important;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child {
+        gap: 1rem;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile {
+        min-height: 7.35rem;
+        overflow: hidden;
+        border: 0;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 20px 36px -30px rgba(15,23,42,0.66);
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile::after {
+        content: "";
+        position: absolute;
+        inset-block-start: -42%;
+        inset-inline-end: -12%;
+        width: 9rem;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.16);
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile:nth-child(1) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #4f46e5, #4338ca 55%, #312e81) !important;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile:nth-child(2) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #059669, #047857 55%, #064e3b) !important;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile:nth-child(3) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #e11d48, #be123c 55%, #881337) !important;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile:nth-child(4) {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%),
+            linear-gradient(135deg, #334155, #1e293b 55%, #0f172a) !important;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile .user-info-label,
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile .user-info-label i {
+        color: rgba(239,246,255,0.9) !important;
+    }
+
+    .user-section-card-finance .user-section-body > .grid:first-child > .user-finance-tile .user-info-value {
+        color: #fff !important;
+        font-size: 1.22rem;
+        font-weight: 900;
+    }
+
+    .user-payment-summary-grid {
+        gap: 1.15rem;
+        align-items: stretch;
+    }
+
+    .user-payment-summary-card {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(255,255,255,0.86) !important;
+        background:
+            radial-gradient(circle at 6% 0%, rgba(37,99,235,0.12), transparent 31%),
+            radial-gradient(circle at 100% 0%, rgba(5,150,105,0.12), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.94)) !important;
+        box-shadow: 0 22px 46px -36px rgba(15,23,42,0.48), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .user-payment-summary-card:nth-child(2) {
+        background:
+            radial-gradient(circle at 6% 0%, rgba(5,150,105,0.14), transparent 31%),
+            radial-gradient(circle at 100% 0%, rgba(79,70,229,0.12), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(236,253,245,0.94)) !important;
+    }
+
+    .user-payment-summary-title {
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .user-payment-summary-title i {
+        display: inline-flex;
+        width: 2rem;
+        height: 2rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #fff !important;
+        box-shadow: 0 14px 24px -18px rgba(5,150,105,0.72);
+    }
+
+    .user-payment-summary-card:nth-child(2) .user-payment-summary-title i {
+        background: linear-gradient(135deg, #4f46e5, #4338ca);
+        box-shadow: 0 14px 24px -18px rgba(79,70,229,0.72);
+    }
+
+    .user-payment-summary-item {
+        border: 1px solid rgba(226,232,240,0.88) !important;
+        border-inline-start: 4px solid #059669 !important;
+        background: rgba(255,255,255,0.86) !important;
+        box-shadow: 0 16px 32px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .user-payment-summary-amount {
+        color: #047857;
+        font-size: 0.9rem;
+        font-weight: 900;
+    }
+
+    .user-section-card-ledger .user-section-header {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.26), transparent 28%),
+            linear-gradient(135deg, #1e293b, #334155 56%, #0f172a) !important;
+    }
+
+    .user-section-card-ledger .user-section-title,
+    .user-section-card-ledger .user-section-subtitle {
+        color: #fff !important;
+    }
+
+    .user-section-card-ledger .user-section-subtitle {
+        color: rgba(226,232,240,0.86) !important;
+    }
+
+    .user-section-card-ledger .user-section-title-dot {
+        background: linear-gradient(135deg, #60a5fa, #22c55e) !important;
+        box-shadow: 0 16px 26px -20px rgba(96,165,250,0.88);
+    }
+
+    .user-section-card-ledger .user-summary-badge {
+        background: rgba(255,255,255,0.14);
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);
+    }
+
+    .user-section-card-ledger .overflow-x-auto {
+        margin: 1.1rem;
+        overflow: hidden;
+        border-radius: 1.1rem;
+        border: 1px solid rgba(203,213,225,0.74);
+        box-shadow: 0 18px 36px -32px rgba(15,23,42,0.5);
+    }
+
+    .user-section-card-ledger .user-record-table thead th {
+        color: rgba(239,246,255,0.92) !important;
+        background: linear-gradient(180deg, #1e293b 0%, #334155 100%) !important;
+        border-bottom-color: rgba(148,163,184,0.36) !important;
+    }
+
+    .user-section-card-ledger .user-record-table thead th i {
+        color: #93c5fd !important;
+    }
+
+    .user-section-card-ledger .user-record-table tbody td {
+        background: rgba(255,255,255,0.96);
+    }
+
+    .user-section-card-ledger .user-record-table tbody tr:nth-child(even) td {
+        background: rgba(248,250,252,0.98);
+    }
+
+    .user-section-card-ledger .user-record-row:hover td {
+        background: #eef6ff !important;
+    }
+
+    .user-section-card-ledger .user-record-actions a,
+    .user-section-card-ledger .user-record-actions button {
+        border-radius: 0.75rem;
+        background: rgba(255,255,255,0.74);
+        box-shadow: inset 0 0 0 1px rgba(226,232,240,0.88);
+    }
 </style>
 
-<div class="min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+<div class="user-page-shell min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="space-y-6">
             <section class="patient-hero-card <?= esc($userHeroThemeClass) ?> overflow-hidden rounded-[28px] border border-slate-200 text-white">
@@ -1166,6 +1607,42 @@
                 </div>
             </section>
 
+            <section class="user-snapshot-section p-4 sm:p-5">
+                <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="user-snapshot-heading">
+                        <p class="user-snapshot-eyebrow"><?= esc(lang('UserRole.userDetails')) ?></p>
+                        <h2 class="user-snapshot-title"><?= esc(lang('UserRole.statusAndGroups')) ?></h2>
+                    </div>
+                    <span class="inline-flex w-fit items-center gap-2 rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">
+                        <i class="fas fa-user-shield text-indigo-600"></i>
+                        <span><?= esc($userRoleSummary) ?></span>
+                    </span>
+                </div>
+                <div class="user-snapshot-grid">
+                    <div class="user-snapshot-card">
+                        <p class="user-snapshot-label"><?= esc(lang('UserRole.statusAndGroups')) ?></p>
+                        <p class="user-snapshot-value"><?= esc($statusText) ?></p>
+                        <p class="user-snapshot-meta"><?= esc(lang('UserRole.lastLoginColon')) ?> <?= esc($lastLoginText) ?></p>
+                    </div>
+                    <div class="user-snapshot-card">
+                        <p class="user-snapshot-label"><?= esc(lang('UserRole.roles')) ?></p>
+                        <p class="user-snapshot-value"><?= esc((string) count($viewedUserRoles)) ?></p>
+                        <p class="user-snapshot-meta"><?= esc($departmentText) ?></p>
+                    </div>
+                    <div class="user-snapshot-card">
+                        <p class="user-snapshot-label"><?= esc(lang('Finance.providerShareTotal')) ?></p>
+                        <p class="user-snapshot-value" dir="ltr"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
+                        <p class="user-snapshot-meta"><?= esc(lang('Finance.paidToProvider')) ?>: <span dir="ltr"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></span></p>
+                    </div>
+                    <div class="user-snapshot-card">
+                        <p class="user-snapshot-label"><?= esc(lang('Finance.balance')) ?></p>
+                        <p class="user-snapshot-value" dir="ltr"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                        <p class="user-snapshot-meta"><?= esc(lang('Finance.providerPayoutCount')) ?>: <?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="user-workspace-section space-y-6">
             <div class="user-profile-grid">
                 <section class="user-section-card user-section-card-roles">
                     <div class="user-section-header">
@@ -1506,6 +1983,7 @@
                     <?php endif; ?>
                 </section>
             <?php endif; ?>
+            </div>
 
 <?php if ($canEditUsers): ?>
     <div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
