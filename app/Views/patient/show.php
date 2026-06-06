@@ -1428,8 +1428,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Timeline Tab -->
                         <div id="timeline-content" class="tab-content hidden">
-                            <div class="flow-root">
-                                <ul class="-mb-8">
+                            <div class="patient-tab-ambient patient-timeline-workspace">
+                                <div class="patient-timeline-workspace-header">
+                                    <div class="patient-timeline-heading">
+                                        <span class="patient-timeline-heading-icon">
+                                            <i class="fas fa-clock-rotate-left"></i>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <h3><?= esc(lang('UI.patientTabTimeline')) ?></h3>
+                                            <p><?= esc(lang('UI.patientHistory')) ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul class="patient-timeline-list">
                                     <?php 
                                     // Combine all records into a timeline
                                     $timeline = [];
@@ -1894,7 +1905,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     <li class="patient-timeline-node">
                                         <div class="relative">
                                             <?php if ($index !== count($timeline) - 1): ?>
-                                                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                                <span class="patient-timeline-rail" aria-hidden="true"></span>
                                             <?php endif; ?>
                                             <?php if (!empty($item['url'])): ?>
                                                 <a href="<?= esc($item['url']) ?>" class="patient-timeline-link">
@@ -1910,7 +1921,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                     <div class="patient-timeline-main">
                                                         <div class="patient-timeline-title-block">
                                                             <div class="patient-timeline-title"><?= esc($item['title']) ?></div>
-                                                            <div class="patient-timeline-date"><?= esc(lang('UI.patientTimelineOn')) ?> <?= !empty($item['date']) ? formatDate($item['date']) : esc(lang('UI.patientNa')) ?></div>
+                                                            <div class="patient-timeline-date">
+                                                                <i class="fas fa-calendar-day"></i>
+                                                                <span><?= esc(lang('UI.patientTimelineOn')) ?> <?= !empty($item['date']) ? formatDate($item['date']) : esc(lang('UI.patientNa')) ?></span>
+                                                            </div>
                                                         </div>
                                                         <div class="patient-timeline-summary">
                                                             <p class="patient-timeline-description"><?= esc($item['description']) ?></p>
@@ -1922,21 +1936,26 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                                     'text' => 'Dr. ' . $item['doctor'],
                                                                 ];
                                                             }
+                                                            $timelineFacts = array_values(array_filter($timelineMeta, static fn($metaItem): bool => !empty($metaItem['text'])));
+                                                            $timelineFactsPreview = array_slice($timelineFacts, 0, 3);
+                                                            $timelineFactsMore = max(0, count($timelineFacts) - count($timelineFactsPreview));
                                                             ?>
-                                                            <?php if (!empty($timelineMeta)): ?>
-                                                                <div class="patient-timeline-meta">
-                                                                    <?php foreach ($timelineMeta as $metaItem): ?>
-                                                                        <?php if (empty($metaItem['text'])) { continue; } ?>
-                                                                        <span class="patient-timeline-meta-chip">
+                                                            <?php if (!empty($timelineFactsPreview)): ?>
+                                                                <div class="patient-timeline-facts">
+                                                                    <?php foreach ($timelineFactsPreview as $metaItem): ?>
+                                                                        <span class="patient-timeline-fact">
                                                                             <?php if (!empty($metaItem['icon'])): ?><i class="<?= esc($metaItem['icon']) ?>"></i><?php endif; ?>
                                                                             <span><?= esc($metaItem['text']) ?></span>
                                                                         </span>
                                                                     <?php endforeach; ?>
+                                                                    <?php if ($timelineFactsMore > 0): ?>
+                                                                        <span class="patient-timeline-fact-more">+<?= (int) $timelineFactsMore ?></span>
+                                                                    <?php endif; ?>
                                                                 </div>
                                                             <?php endif; ?>
                                                         </div>
                                                         <div class="patient-timeline-status">
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<?= esc($item['color']) ?>-100 text-<?= esc($item['color']) ?>-800">
+                                                            <span class="patient-timeline-status-label bg-<?= esc($item['color']) ?>-100 text-<?= esc($item['color']) ?>-800">
                                                                 <?= esc($item['status_label'] ?? ucfirst((string) ($item['status'] ?? ''))) ?>
                                                             </span>
                                                         </div>
@@ -3993,6 +4012,62 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         border-color: #fecdd3;
     }
 
+    .patient-timeline-workspace {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        background:
+            radial-gradient(circle at top left, rgba(14, 165, 233, 0.13), transparent 34%),
+            radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.1), transparent 30%),
+            linear-gradient(180deg, #f8fbff 0%, #ffffff 48%, #f7fafc 100%);
+    }
+
+    .patient-timeline-workspace-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.2rem 0.1rem 0.85rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .patient-timeline-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        min-width: 0;
+    }
+
+    .patient-timeline-heading h3 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.05rem;
+        line-height: 1.35rem;
+        font-weight: 800;
+    }
+
+    .patient-timeline-heading p {
+        margin: 0.18rem 0 0;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.2rem;
+        font-weight: 650;
+    }
+
+    .patient-timeline-heading-icon {
+        width: 2.55rem;
+        height: 2.55rem;
+        border-radius: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+        box-shadow: 0 18px 32px -24px rgba(14, 116, 144, 0.8);
+        flex: 0 0 auto;
+    }
+
     .patient-timeline-list {
         margin: 0;
         padding: 0;
@@ -4001,150 +4076,178 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
     .patient-timeline-node {
         position: relative;
-        padding-bottom: 1.15rem;
+        padding-bottom: 0.85rem;
+    }
+
+    .patient-timeline-node:last-child {
+        padding-bottom: 0;
+    }
+
+    .patient-timeline-rail {
+        position: absolute;
+        inset-block-start: 2.55rem;
+        inset-block-end: -0.85rem;
+        inset-inline-start: 1.17rem;
+        width: 2px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(14, 165, 233, 0.28), rgba(148, 163, 184, 0.08));
+        pointer-events: none;
     }
 
     .patient-timeline-link {
         display: block;
-        border: 1px solid #dbe4ef;
-        border-radius: 1rem;
-        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-        box-shadow: 0 18px 36px -32px rgba(15, 23, 42, 0.28);
-        transition: all 0.2s ease;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 1.05rem;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9)),
+            radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 38%);
+        box-shadow: 0 20px 44px -34px rgba(15, 23, 42, 0.42);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
         text-decoration: none;
+        position: relative;
+        z-index: 1;
     }
 
     .patient-timeline-link:hover {
-        border-color: #cbdcf9;
-        background: #ffffff;
-        box-shadow: 0 20px 36px -30px rgba(37, 99, 235, 0.22);
+        border-color: rgba(14, 165, 233, 0.32);
+        background:
+            linear-gradient(135deg, #ffffff, #f8fbff),
+            radial-gradient(circle at top right, rgba(14, 165, 233, 0.14), transparent 40%);
+        box-shadow: 0 24px 46px -32px rgba(14, 116, 144, 0.38);
         transform: translateY(-1px);
     }
 
     .patient-timeline-shell {
         display: flex;
         align-items: flex-start;
-        gap: 1rem;
-        padding: 1rem 1.05rem;
+        gap: 0.95rem;
+        padding: 0.95rem;
     }
 
     .patient-timeline-icon {
-        width: 2.25rem;
-        height: 2.25rem;
+        width: 2.35rem;
+        height: 2.35rem;
         border-radius: 0.85rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         color: #fff;
         flex-shrink: 0;
-        box-shadow: 0 12px 24px -20px rgba(15, 23, 42, 0.5);
+        box-shadow: 0 14px 26px -18px rgba(15, 23, 42, 0.65);
     }
 
     .patient-timeline-main {
         min-width: 0;
         flex: 1;
         display: grid;
-        gap: 0.7rem;
-        align-items: center;
-    }
-
-    .patient-timeline-title {
-        font-size: 0.95rem;
-        line-height: 1.35rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .patient-timeline-date {
-        margin-top: 0.15rem;
-        font-size: 0.78rem;
-        color: #64748b;
-    }
-
-    .patient-timeline-status {
-        flex-shrink: 0;
+        gap: 0.55rem;
+        align-items: start;
     }
 
     .patient-timeline-title-block {
         min-width: 0;
     }
 
-    .patient-timeline-description {
-        font-size: 0.84rem;
-        line-height: 1.45rem;
-        color: #475569;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .patient-timeline-title {
+        font-size: 0.96rem;
+        line-height: 1.35rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .patient-timeline-date {
+        margin-top: 0.22rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.76rem;
+        line-height: 1rem;
+        color: #64748b;
+        font-weight: 700;
     }
 
     .patient-timeline-summary {
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        gap: 0.75rem;
         min-width: 0;
-        overflow: hidden;
+        display: grid;
+        gap: 0.42rem;
     }
 
-    .patient-timeline-meta {
+    .patient-timeline-description {
+        margin: 0;
+        font-size: 0.84rem;
+        line-height: 1.45rem;
+        color: #334155;
+        font-weight: 560;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .patient-timeline-facts {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        align-items: center;
+        gap: 0.35rem 0.7rem;
         min-width: 0;
-        justify-content: flex-start;
     }
 
-    .patient-timeline-meta-chip {
+    .patient-timeline-fact,
+    .patient-timeline-fact-more {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        padding: 0.38rem 0.62rem;
-        border-radius: 9999px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        gap: 0.35rem;
+        min-width: 0;
+        max-width: 100%;
+        color: #64748b;
         font-size: 0.74rem;
         line-height: 1rem;
-        color: #475569;
+        font-weight: 700;
+    }
+
+    .patient-timeline-fact i {
+        color: #0f766e;
+        opacity: 0.82;
+        flex: 0 0 auto;
+    }
+
+    .patient-timeline-fact span:last-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .patient-timeline-fact-more {
+        color: #0f766e;
+    }
+
+    .patient-timeline-status {
+        flex-shrink: 0;
+    }
+
+    .patient-timeline-status-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        padding: 0.34rem 0.65rem;
+        font-size: 0.72rem;
+        line-height: 1rem;
+        font-weight: 800;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+        white-space: nowrap;
     }
 
     @media (min-width: 1024px) {
         .patient-timeline-main {
-            grid-template-columns: minmax(15rem, 1fr) minmax(18rem, 1.45fr) auto;
+            grid-template-columns: minmax(14rem, 1.05fr) minmax(18rem, 1.55fr) auto;
             align-items: center;
-            column-gap: 1.1rem;
+            column-gap: 1rem;
         }
 
         .patient-timeline-status {
             justify-self: end;
         }
-    }
-
-    html[dir="rtl"] .patient-table-sort-label,
-    body[dir="rtl"] .patient-table-sort-label,
-    .patient-view[dir="rtl"] .patient-table-sort-label {
-        flex-direction: row-reverse;
-    }
-
-    html[dir="rtl"] .patient-table-actions,
-    body[dir="rtl"] .patient-table-actions,
-    .patient-view[dir="rtl"] .patient-table-actions {
-        justify-content: flex-start;
-    }
-
-    html[dir="rtl"] .patient-record-table th:last-child,
-    html[dir="rtl"] .patient-record-table td:last-child,
-    body[dir="rtl"] .patient-record-table th:last-child,
-    body[dir="rtl"] .patient-record-table td:last-child,
-    .patient-view[dir="rtl"] .patient-record-table th:last-child,
-    .patient-view[dir="rtl"] .patient-record-table td:last-child {
-        text-align: start;
-    }
-
-    html[dir="rtl"] .patient-timeline-meta,
-    body[dir="rtl"] .patient-timeline-meta,
-    .patient-view[dir="rtl"] .patient-timeline-meta {
-        justify-content: flex-end;
     }
 
     html[dir="rtl"] .patient-timeline-status,
@@ -4153,7 +4256,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-self: start;
     }
 
-    .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm,
+    html[dir="rtl"] .patient-timeline-facts,
+    body[dir="rtl"] .patient-timeline-facts,
+    .patient-view[dir="rtl"] .patient-timeline-facts {
+        justify-content: flex-start;
+    }
+.patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm,
     .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm.group {
         border-color: #dbe4ef;
         box-shadow: 0 16px 32px -28px rgba(15, 23, 42, 0.28);
@@ -5350,7 +5458,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             
             if (index !== filteredTimelineData.length - 1) {
                 const spanLine = document.createElement('span');
-                spanLine.className = 'absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200';
+                spanLine.className = 'patient-timeline-rail';
                 spanLine.setAttribute('aria-hidden', 'true');
                 divRelative.appendChild(spanLine);
             }
@@ -5386,7 +5494,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             dateDiv.className = 'patient-timeline-date';
             const itemIso = String(item.date || '').split(' ')[0];
             const itemDisplay = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(itemIso) : itemIso;
-            dateDiv.textContent = `${patientShowI18n.timelineOn} ${itemDisplay}`;
+            const dateIcon = document.createElement('i');
+            dateIcon.className = 'fas fa-calendar-day';
+            const dateText = document.createElement('span');
+            dateText.textContent = `${patientShowI18n.timelineOn} ${itemDisplay}`;
+            dateDiv.appendChild(dateIcon);
+            dateDiv.appendChild(dateText);
             titleBlock.appendChild(titleDiv);
             titleBlock.appendChild(dateDiv);
             
@@ -5405,34 +5518,37 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             pDesc.textContent = item.description;
             summaryWrap.appendChild(pDesc);
 
-            if (timelineMeta.length > 0) {
+            const timelineFacts = timelineMeta.filter((metaItem) => metaItem && metaItem.text);
+            const timelineFactsPreview = timelineFacts.slice(0, 3);
+            if (timelineFactsPreview.length > 0) {
                 const metaWrap = document.createElement('div');
-                metaWrap.className = 'patient-timeline-meta';
-                timelineMeta.forEach((metaItem) => {
-                    if (!metaItem || !metaItem.text) {
-                        return;
-                    }
-                    const chip = document.createElement('span');
-                    chip.className = 'patient-timeline-meta-chip';
+                metaWrap.className = 'patient-timeline-facts';
+                timelineFactsPreview.forEach((metaItem) => {
+                    const fact = document.createElement('span');
+                    fact.className = 'patient-timeline-fact';
                     if (metaItem.icon) {
                         const metaIcon = document.createElement('i');
                         metaIcon.className = metaItem.icon;
-                        chip.appendChild(metaIcon);
+                        fact.appendChild(metaIcon);
                     }
                     const metaText = document.createElement('span');
                     metaText.textContent = metaItem.text;
-                    chip.appendChild(metaText);
-                    metaWrap.appendChild(chip);
+                    fact.appendChild(metaText);
+                    metaWrap.appendChild(fact);
                 });
-                if (metaWrap.childNodes.length > 0) {
-                    summaryWrap.appendChild(metaWrap);
+                if (timelineFacts.length > timelineFactsPreview.length) {
+                    const more = document.createElement('span');
+                    more.className = 'patient-timeline-fact-more';
+                    more.textContent = `+${timelineFacts.length - timelineFactsPreview.length}`;
+                    metaWrap.appendChild(more);
                 }
+                summaryWrap.appendChild(metaWrap);
             }
             
             const divStatus = document.createElement('div');
             divStatus.className = 'patient-timeline-status';
             const spanStatus = document.createElement('span');
-            spanStatus.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${item.color}-100 text-${item.color}-800`;
+            spanStatus.className = `patient-timeline-status-label bg-${item.color}-100 text-${item.color}-800`;
             spanStatus.textContent = item.status_label || (item.status.charAt(0).toUpperCase() + item.status.slice(1));
             divStatus.appendChild(spanStatus);
             
