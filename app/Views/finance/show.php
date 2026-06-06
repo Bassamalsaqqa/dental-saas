@@ -248,7 +248,10 @@
 <style>
     .finance-show-shell {
         min-height: 100vh;
-        background: #f8fafc;
+        background:
+            radial-gradient(920px 520px at 6% -10%, rgba(16, 185, 129, 0.10), transparent 58%),
+            radial-gradient(780px 480px at 92% 0%, rgba(37, 99, 235, 0.10), transparent 54%),
+            #f8fafc;
     }
 
     /* === Patient hero card pattern (shared from users/show.php) === */
@@ -311,13 +314,25 @@
     }
 
     .finance-show-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+        --finance-card-accent: #2563eb;
+        --finance-card-soft: rgba(239,246,255,0.9);
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 7% 0%, color-mix(in srgb, var(--finance-card-accent) 14%, transparent), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), var(--finance-card-soft) 46%, rgba(255,255,255,0.98));
+        border: 1px solid rgba(255,255,255,0.82);
+        border-radius: 1.2rem;
+        box-shadow: 0 22px 50px -40px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.92) inset;
         transition: box-shadow 0.2s;
     }
-    .finance-show-card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05); }
+    .finance-show-card:hover { box-shadow: 0 26px 56px -40px rgba(15,23,42,0.54), 0 1px 0 rgba(255,255,255,0.92) inset; }
+    .finance-show-card > * { position: relative; z-index: 1; }
+    .finance-detail-card { --finance-card-accent: #2563eb; --finance-card-soft: rgba(219,234,254,0.92); }
+    .finance-clinical-card { --finance-card-accent: #059669; --finance-card-soft: rgba(209,250,229,0.9); }
+    .finance-provider-card { --finance-card-accent: #4f46e5; --finance-card-soft: rgba(238,242,255,0.92); }
+    .finance-notes-card { --finance-card-accent: #d97706; --finance-card-soft: rgba(254,243,199,0.92); }
+    .finance-history-card { --finance-card-accent: #0f766e; --finance-card-soft: rgba(204,251,241,0.9); }
 
     .finance-show-card-hero {
         background: #fff;
@@ -330,13 +345,13 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        padding: 14px 20px;
-        border-bottom: 1px solid #f1f5f9;
-        background: #f8fafc;
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(203,213,225,0.72);
+        background: linear-gradient(90deg, rgba(255,255,255,0.78), color-mix(in srgb, var(--finance-card-accent) 11%, white));
     }
 
     .finance-show-card-body {
-        padding: 20px;
+        padding: 22px;
     }
 
     .finance-show-page-grid {
@@ -492,7 +507,9 @@
     }
 
     .finance-show-summary-card {
-        padding: 24px;
+        --finance-card-accent: #047857;
+        --finance-card-soft: rgba(220,252,231,0.9);
+        padding: 20px;
     }
 
     .finance-show-summary-grid {
@@ -504,26 +521,50 @@
 
     .finance-show-summary-stat {
         position: relative;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: #f8fafc;
-        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        min-height: 7rem;
+        padding: 16px;
+        border-radius: 18px;
+        background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
+        border: 0;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -28px rgba(15,23,42,0.55);
+    }
+    .finance-show-summary-stat:nth-child(2) {
+        background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #059669, #047857 55%, #064e3b);
+    }
+    .finance-show-summary-stat:nth-child(3) {
+        background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #d97706, #b45309 58%, #92400e);
+    }
+    .finance-show-summary-stat::after {
+        content: "";
+        position: absolute;
+        inset-block-start: -44%;
+        inset-inline-end: -10%;
+        width: 9.5rem;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.16);
     }
 
     .finance-show-summary-label {
-        font-size: 0.6875rem;
-        font-weight: 700;
-        color: #94a3b8;
+        position: relative;
+        z-index: 1;
+        font-size: 0.72rem;
+        font-weight: 900;
+        color: rgba(239,246,255,0.88);
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 4px;
+        letter-spacing: 0.08em;
+        margin-bottom: 8px;
     }
 
     .finance-show-summary-value {
-        font-size: 1.375rem;
+        position: relative;
+        z-index: 1;
+        font-size: 1.45rem;
         line-height: 1.2;
-        font-weight: 800;
-        color: #0f172a;
+        font-weight: 900;
+        color: #fff;
     }
 
     .finance-show-main {
@@ -1018,6 +1059,205 @@
         right: auto !important;
     }
 
+    .finance-show-content-tile,
+    .finance-breakdown-panel,
+    .finance-clinical-snapshot,
+    .finance-provider-payout-card,
+    .finance-sidebar-inner-card,
+    .finance-notes-body {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1rem;
+        border: 1px solid rgba(203,213,225,0.78);
+        background: rgba(255,255,255,0.9);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 14px 30px -27px rgba(15,23,42,0.35);
+    }
+
+    .finance-show-content-tile {
+        min-height: 7rem;
+        padding: 1.12rem;
+        border-inline-start: 5px solid #2563eb;
+        background: radial-gradient(circle at 96% 0%, rgba(37,99,235,0.16), transparent 36%), linear-gradient(135deg, rgba(239,246,255,0.98), rgba(255,255,255,0.94));
+    }
+
+    .finance-show-content-tile:nth-child(2n) {
+        border-inline-start-color: #059669;
+        background: radial-gradient(circle at 96% 0%, rgba(5,150,105,0.16), transparent 36%), linear-gradient(135deg, rgba(236,253,245,0.98), rgba(255,255,255,0.94));
+    }
+
+    .finance-show-content-tile .text-gray-800,
+    .finance-show-content-tile .text-gray-700 {
+        color: #1e293b !important;
+        font-size: 0.96rem;
+        font-weight: 800;
+        line-height: 1.7;
+    }
+
+    .finance-show-content-tile .text-gray-400 {
+        color: #64748b !important;
+        font-weight: 700;
+    }
+
+    .finance-breakdown-panel {
+        border: 0 !important;
+        background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.12), transparent 34%), linear-gradient(135deg, #0f172a, #1e293b 58%, #334155) !important;
+        color: #fff;
+    }
+
+    .finance-breakdown-panel .divide-y > div {
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+
+    .finance-breakdown-panel span,
+    .finance-breakdown-panel .text-slate-500,
+    .finance-breakdown-panel .text-slate-700,
+    .finance-breakdown-panel .text-slate-800,
+    .finance-breakdown-panel .text-slate-900 {
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    .finance-breakdown-panel .bg-slate-50\/80 {
+        background: rgba(255,255,255,0.11) !important;
+    }
+
+    .finance-breakdown-panel .text-rose-600,
+    .finance-breakdown-panel .text-rose-700 { color: #fecdd3 !important; }
+    .finance-breakdown-panel .text-emerald-700 { color: #bbf7d0 !important; }
+
+    .finance-clinical-snapshot {
+        border: 0 !important;
+        background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.22), transparent 35%), linear-gradient(135deg, #059669, #047857 58%, #064e3b) !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 36px -28px rgba(15,23,42,0.62);
+    }
+
+    .finance-clinical-snapshot .text-emerald-700,
+    .finance-clinical-snapshot .text-slate-600,
+    .finance-clinical-snapshot .text-slate-500 {
+        color: rgba(255,255,255,0.88) !important;
+    }
+
+    .finance-trace-stat {
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        background: rgba(255,255,255,0.15) !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+
+    .finance-trace-stat p,
+    .finance-trace-stat .text-slate-500,
+    .finance-trace-stat .text-slate-900,
+    .finance-trace-stat .text-emerald-700,
+    .finance-trace-stat .text-blue-700,
+    .finance-trace-stat .text-indigo-700,
+    .finance-trace-stat .text-purple-700,
+    .finance-trace-stat .text-rose-700 {
+        color: #fff !important;
+    }
+
+    .finance-provider-stat {
+        border: 0 !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 16px 30px -26px rgba(15,23,42,0.52);
+    }
+
+    .finance-provider-stat:nth-child(1) { background: linear-gradient(135deg, #2563eb, #1d4ed8) !important; }
+    .finance-provider-stat:nth-child(2) { background: linear-gradient(135deg, #4f46e5, #4338ca) !important; }
+    .finance-provider-stat:nth-child(3) { background: linear-gradient(135deg, #059669, #047857) !important; }
+    .finance-provider-stat:nth-child(4) { background: linear-gradient(135deg, #e11d48, #be123c) !important; }
+    .finance-provider-stat:nth-child(5) { background: linear-gradient(135deg, #0284c7, #0369a1) !important; }
+    .finance-provider-stat p { color: #fff !important; }
+
+    .finance-provider-payout-card {
+        border: 1px solid rgba(199,210,254,0.76) !important;
+        background: radial-gradient(circle at 6% 0%, rgba(79,70,229,0.16), transparent 33%), linear-gradient(135deg, rgba(238,242,255,0.98), rgba(255,255,255,0.96)) !important;
+    }
+
+    .finance-provider-mini-stat {
+        border: 0 !important;
+        color: #fff !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 14px 28px -24px rgba(15,23,42,0.48);
+    }
+
+    .finance-provider-mini-stat:nth-child(1) { background: linear-gradient(135deg, #4f46e5, #3730a3) !important; }
+    .finance-provider-mini-stat:nth-child(2) { background: linear-gradient(135deg, #059669, #047857) !important; }
+    .finance-provider-mini-stat:nth-child(3) { background: linear-gradient(135deg, #e11d48, #be123c) !important; }
+    .finance-provider-mini-stat p { color: #fff !important; }
+
+    .finance-provider-history-panel,
+    .finance-attachment-item {
+        border: 1px solid rgba(203,213,225,0.78) !important;
+        background: rgba(255,255,255,0.86) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 14px 30px -27px rgba(15,23,42,0.35);
+    }
+
+    .finance-provider-cta {
+        border: 0 !important;
+        background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.24), transparent 35%), linear-gradient(135deg, #059669, #047857 58%, #064e3b) !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 16px 30px -26px rgba(15,23,42,0.52);
+    }
+
+    .finance-provider-cta p { color: #fff !important; }
+
+    .finance-table-panel {
+        border: 1px solid rgba(203,213,225,0.82) !important;
+        border-radius: 1rem !important;
+        box-shadow: 0 16px 36px -30px rgba(15,23,42,0.44);
+    }
+
+    .finance-show-table thead th {
+        font-weight: 900 !important;
+        color: #334155 !important;
+    }
+
+    .finance-show-table tbody td {
+        font-weight: 650;
+        color: #334155;
+    }
+
+    .finance-sidebar-inner-card {
+        padding: 1rem;
+        border-inline-start: 5px solid #4f46e5;
+        background: radial-gradient(circle at 96% 0%, rgba(79,70,229,0.15), transparent 34%), linear-gradient(135deg, rgba(238,242,255,0.98), rgba(255,255,255,0.95));
+    }
+
+    .finance-sidebar-inner-card--attachments {
+        border-inline-start-color: #0f766e;
+        background: radial-gradient(circle at 96% 0%, rgba(15,118,110,0.16), transparent 34%), linear-gradient(135deg, rgba(240,253,250,0.98), rgba(255,255,255,0.95));
+    }
+
+    .finance-sidebar-inner-card--clinical {
+        border-inline-start-color: #059669;
+        background: radial-gradient(circle at 96% 0%, rgba(5,150,105,0.16), transparent 34%), linear-gradient(135deg, rgba(236,253,245,0.98), rgba(255,255,255,0.95));
+    }
+
+    .finance-notes-body {
+        border-inline-start: 5px solid #d97706 !important;
+        background: radial-gradient(circle at 96% 0%, rgba(217,119,6,0.16), transparent 36%), linear-gradient(135deg, rgba(255,251,235,0.98), rgba(255,255,255,0.94)) !important;
+        color: #1e293b !important;
+        font-size: 0.96rem;
+        font-weight: 800;
+        line-height: 1.75;
+    }
+
+    .finance-history-card .finance-show-card-header {
+        background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.2), transparent 34%), linear-gradient(135deg, #0f766e, #047857) !important;
+        color: #fff;
+    }
+
+    .finance-history-card .finance-show-card-header h3,
+    .finance-history-card .finance-show-card-header p,
+    .finance-history-card .finance-show-card-header .text-gray-500 {
+        color: #fff !important;
+    }
+
+    .finance-history-card .finance-show-card-header .bg-white {
+        background: rgba(255,255,255,0.16) !important;
+        border-color: rgba(255,255,255,0.18) !important;
+        color: #fff !important;
+    }
+
     @media (min-width: 1280px) {
         .finance-show-page-grid {
             grid-template-columns: minmax(0, 1.95fr) minmax(300px, 0.8fr);
@@ -1032,14 +1272,16 @@
         .finance-show-summary-stat::after {
             content: "";
             position: absolute;
-            inset-block: 6px;
-            inset-inline-end: -16px;
-            width: 1px;
-            background: #e2e8f0;
+            inset-block-start: -44%;
+            inset-inline-end: -10%;
+            width: 9.5rem;
+            aspect-ratio: 1;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
         }
 
         .finance-show-summary-stat:last-child::after {
-            display: none;
+            display: block;
         }
 
         .finance-show-main--with-forms {
@@ -1273,7 +1515,7 @@
             <div class="finance-show-main">
 
                 <!-- Financial Details & Breakdown -->
-                <div class="finance-show-card finance-show-primary-block overflow-hidden">
+                <div class="finance-show-card finance-detail-card finance-show-primary-block overflow-hidden">
                     <div class="finance-show-card-header">
                         <div class="finance-show-section-title">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
@@ -1288,20 +1530,20 @@
                     <div class="finance-show-card-body">
                         <div class="space-y-6">
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
+                                <div class="finance-show-content-tile">
                                     <label class="finance-show-field-label"><?= $isExpense ? lang('Finance.expenseDescription') : lang('Finance.serviceDescription') ?></label>
                                     <div class="text-gray-800 leading-relaxed">
                                         <?= !empty($finance['description']) ? nl2br(htmlspecialchars($finance['description'])) : '<span class="text-gray-400 italic">' . esc(lang('Finance.noDescriptionProvided')) . '</span>' ?>
                                     </div>
                                 </div>
-                                <div>
+                                <div class="finance-show-content-tile">
                                     <label class="finance-show-field-label"><?= lang('Finance.createdByLabel') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
                                         <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : lang('Finance.unknown') ?>
                                     </div>
                                 </div>
                                 <?php if ($isExpense && !empty($finance['counterparty_name'])): ?>
-                                <div>
+                                <div class="finance-show-content-tile">
                                     <label class="finance-show-field-label"><?= lang('Finance.payeeVendor') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
                                         <?php if (!empty($supplier['id'])): ?>
@@ -1316,7 +1558,7 @@
                                 </div>
                                 <?php endif; ?>
                                 <?php if (!empty($finance['service_details'])): ?>
-                                <div>
+                                <div class="finance-show-content-tile">
                                     <label class="finance-show-field-label"><?= lang('Finance.technicalDetails') ?></label>
                                     <div class="text-gray-800 leading-relaxed">
                                         <?= nl2br(htmlspecialchars($finance['service_details'])) ?>
@@ -1325,7 +1567,7 @@
                                 <?php endif; ?>
                             </div>
 
-                            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            <div class="finance-breakdown-panel overflow-hidden rounded-xl border border-slate-200 bg-white">
                                 <div class="divide-y divide-slate-100 text-sm">
                                     <div class="flex items-center justify-between gap-4 px-5 py-4">
                                         <span class="font-medium text-slate-500"><?= lang('Finance.subtotal') ?></span>
@@ -1373,7 +1615,7 @@
                 </div>
 
                 <?php if (!empty($billedClinicalChargeLines)): ?>
-                <div class="finance-show-card finance-show-primary-block overflow-hidden">
+                <div class="finance-show-card finance-clinical-card finance-show-primary-block overflow-hidden">
                     <div class="finance-show-card-header">
                         <div class="finance-show-section-title">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
@@ -1389,7 +1631,7 @@
                         </span>
                     </div>
                     <div class="finance-show-card-body space-y-5">
-                        <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-4">
+                        <div class="finance-clinical-snapshot rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-4">
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                 <div>
                                     <p class="text-xs font-bold uppercase tracking-wide text-emerald-700"><?= esc(lang('Finance.clinicalTraceSnapshot')) ?></p>
@@ -1403,36 +1645,36 @@
                                 <?php endif; ?>
                             </div>
                             <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                <div class="finance-trace-stat rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTracePatient')) ?></p>
                                     <p class="mt-1 truncate text-sm font-bold text-slate-900">
                                         <?= esc($relatedPartyValue !== '' ? $relatedPartyValue : lang('Finance.unknown')) ?>
                                     </p>
                                     <p class="mt-1 truncate text-xs text-slate-500"><?= esc($relatedPartyMeta) ?></p>
                                 </div>
-                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                <div class="finance-trace-stat rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceLines')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold text-emerald-700"><?= esc((string) count($billedClinicalChargeLines)) ?></p>
                                 </div>
-                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                <div class="finance-trace-stat rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceTreatments')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold text-blue-700"><?= esc((string) $billedClinicalTreatmentCount) ?></p>
                                 </div>
-                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                <div class="finance-trace-stat rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceExaminations')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold text-indigo-700"><?= esc((string) $billedClinicalExaminationCount) ?></p>
                                 </div>
-                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                <div class="finance-trace-stat rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('Finance.clinicalTraceProviders')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold text-purple-700"><?= esc((string) $billedClinicalProviderCount) ?></p>
                                 </div>
-                                <div class="rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
+                                <div class="finance-trace-stat rounded-xl border border-white/70 bg-white/85 p-3 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold <?= $billedInventoryUsageTotal > 0.009 ? 'text-rose-700' : 'text-slate-500' ?>" dir="ltr"><?= esc(formatCurrency($billedInventoryUsageTotal)) ?></p>
                                 </div>
                             </div>
                         </div>
-                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                        <div class="finance-table-panel overflow-hidden rounded-xl border border-slate-200 bg-white">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-slate-100 text-sm">
                                     <thead class="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -1537,7 +1779,7 @@
                 <?php endif; ?>
 
                 <?php if (!empty($provider_payouts)): ?>
-                <div class="finance-show-card finance-show-primary-block overflow-hidden">
+                <div class="finance-show-card finance-provider-card finance-show-primary-block overflow-hidden">
                     <div class="finance-show-card-header">
                         <div class="finance-show-section-title">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
@@ -1552,23 +1794,23 @@
                     </div>
                     <div class="finance-show-card-body space-y-5">
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['collected']) ?></p>
                                 <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout_summary['gross_amount'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                 <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout_summary['provider_share_amount'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['paid']) ?></p>
                                 <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout_summary['provider_paid_amount'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['left']) ?></p>
                                 <p class="mt-1 font-bold text-rose-700"><?= formatCurrency($provider_payout_summary['provider_balance_due'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['clinicKeeps']) ?></p>
                                 <p class="mt-1 font-bold text-sky-700"><?= formatCurrency($provider_payout_summary['clinic_share_amount'] ?? 0) ?></p>
                             </div>
@@ -1594,7 +1836,7 @@
                                     $providerTypeLabel = $providerTypeKey === 'user' ? lang('Finance.clinicUser') : lang('Finance.guestProvider');
                                     $providerUserId = (int) ($providerPayout['provider_user_id'] ?? 0);
                                 ?>
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
+                                <div class="finance-provider-payout-card rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
                                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                         <div>
                                             <div class="flex flex-wrap items-center gap-2">
@@ -1622,22 +1864,22 @@
                                             <?php endif; ?>
                                         </div>
                                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
-                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                            <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-indigo-700"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
                                             </div>
-                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                            <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['paid']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-emerald-700"><?= formatCurrency($providerPayout['provider_paid_amount'] ?? 0) ?></p>
                                             </div>
-                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                            <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                                    <div class="finance-provider-history-panel rounded-2xl border border-slate-200 bg-white overflow-hidden">
                                         <div class="flex items-center justify-between gap-3 px-4 py-3 bg-slate-50">
                                             <div>
                                                 <h4 class="text-sm font-semibold text-slate-900"><?= esc($providerPayoutUi['history']) ?></h4>
@@ -1677,7 +1919,7 @@
 
                                     <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
                                         <?php $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id']; ?>
-                                        <div class="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                        <div class="finance-provider-cta flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="<?= $isRtl ? 'text-right' : 'text-left' ?>">
                                                 <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($providerPayoutUi['balanceReady']) ?></p>
                                                 <p class="mt-1 text-sm font-bold text-slate-900"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
@@ -1700,11 +1942,11 @@
 
                 <?php if (!empty($finance['notes'])): ?>
                 <!-- Additional Notes -->
-                <div class="finance-show-card finance-show-primary-block p-6">
+                <div class="finance-show-card finance-notes-card finance-show-primary-block p-6">
                     <h2 class="mb-4 flex items-center gap-3 text-xl font-bold text-gray-800">
                         <i class="fas fa-sticky-note text-yellow-600"></i><?= lang('Finance.administrativeNotes') ?>
                     </h2>
-                    <div class="text-gray-700 leading-relaxed bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                    <div class="finance-notes-body text-gray-700 leading-relaxed bg-yellow-50 p-4 rounded-xl border border-yellow-100">
                         <?= nl2br(htmlspecialchars($finance['notes'])) ?>
                     </div>
                 </div>
@@ -1714,7 +1956,7 @@
             <aside class="finance-show-sidebar">
                 <div class="finance-show-sidebar-stack">
                     <?php if ($patient): ?>
-                    <div class="finance-show-sidebar-card finance-show-context-card">
+                    <div class="finance-show-sidebar-card finance-sidebar-inner-card finance-show-context-card">
                         <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
                             <i class="fas fa-user text-purple-600"></i>
                             <?= esc($ui['patient']) ?>
@@ -1739,14 +1981,14 @@
                     <?php endif; ?>
 
                     <?php if (!empty($check_attachment) || !empty($finance_attachment)): ?>
-                    <div class="finance-show-sidebar-card text-sm">
+                    <div class="finance-show-sidebar-card finance-sidebar-inner-card finance-sidebar-inner-card--attachments text-sm">
                         <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
                             <i class="fas fa-paperclip text-slate-600"></i>
                             <?= $isRtl ? 'المرفقات' : 'Attachments' ?>
                         </h2>
                         <dl class="finance-show-meta-list">
                             <?php if (!empty($check_attachment)): ?>
-                            <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                            <div class="finance-attachment-item space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
                                 <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.checkScanLabel') ?></dt>
                                 <div class="finance-show-attachment-actions">
                                     <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
@@ -1767,7 +2009,7 @@
                             </div>
                             <?php endif; ?>
                             <?php if (!empty($finance_attachment)): ?>
-                            <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                            <div class="finance-attachment-item space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
                                 <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.attachmentLabel') ?></dt>
                                 <div class="finance-show-attachment-actions">
                                     <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
@@ -1793,7 +2035,7 @@
                     <?php endif; ?>
 
                     <?php if ($examination): ?>
-                    <div class="finance-show-sidebar-card">
+                    <div class="finance-show-sidebar-card finance-sidebar-inner-card finance-sidebar-inner-card--clinical">
                         <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
                             <i class="fas fa-stethoscope text-emerald-600"></i>
                             <?= lang('Finance.clinicalLink') ?>
@@ -1821,7 +2063,7 @@
         </div>
 
         <?php if ($isInvoice || $isExpense): ?>
-        <div class="finance-show-card finance-show-full-span mt-6 overflow-hidden">
+        <div class="finance-show-card finance-history-card finance-show-full-span mt-6 overflow-hidden">
             <div class="finance-show-card-header">
                 <div class="flex items-center gap-3">
                     <span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>
@@ -2780,6 +3022,7 @@ function syncExpenseSettlementLiquidityField() {
     if (!settlementField || !settlementMethod) {
         return;
     }
+
     settlementField.classList.remove('hidden');
     if (settlementInput) {
         settlementInput.disabled = false;
