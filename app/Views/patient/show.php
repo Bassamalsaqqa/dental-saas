@@ -2680,127 +2680,148 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <!-- Prescriptions Tab -->
                         <div id="prescriptions-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
-                                <div class="px-4 py-2.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientPrescriptions')) ?></h3>
-                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
+                            <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-teal-50/65 to-blue-50/60 shadow-xl shadow-slate-200/60">
+                                <div class="pointer-events-none absolute inset-0 opacity-90">
+                                    <div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-teal-400/25 blur-3xl"></div>
+                                    <div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-blue-400/25 blur-3xl"></div>
+                                </div>
+                                <div class="relative border-b border-white/70 px-4 py-4 sm:px-6">
+                                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-600 to-blue-700 text-white shadow-lg shadow-teal-500/25">
+                                                <i class="fas fa-prescription-bottle-medical"></i>
+                                            </span>
+                                            <div class="min-w-0">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientPrescriptions')) ?></h3>
+                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= count($prescriptions) ?> <?= esc(lang('UI.patientTabRx')) ?></span>
+                                                </div>
+                                                <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
+                                            </div>
+                                        </div>
+                                        <?php if (has_permission('prescriptions', 'create')): ?>
+                                            <a href="<?= workflow_context_url('prescription/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
+                                               class="inline-flex w-fit items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-blue-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-teal-500/20 transition hover:-translate-y-0.5 hover:from-teal-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-teal-500/20">
+                                                <i class="fas fa-plus"></i>
+                                                <span><?= esc(lang('UI.patientCreatePrescription')) ?></span>
+                                            </a>
+                                        <?php endif; ?>
                                     </div>
-                                    <?php if (has_permission('prescriptions', 'create')): ?>
-                                        <a href="<?= workflow_context_url('prescription/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreatePrescription')) ?>
-                                        </a>
-                                    <?php endif; ?>
                                 </div>
-                            </div>
-                            <?php if (!empty($prescriptions)): ?>
-                                <div class="overflow-x-auto">
-                                      <table class="patient-record-table" data-record-type="prescriptions" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                          <thead>
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientMedication')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDosage')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientFrequency')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientPrescribedDate')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
-                                            </tr>
-                                        </thead>
-                                          <tbody>
-                                            <?php foreach ($prescriptions as $prescription): ?>
-                                                <?php
-                                                // Parse medication JSON data
-                                                $medicines = [];
-                                                $medicationName = lang('UI.patientNa');
-                                                $dosage = lang('UI.patientNa');
-                                                $frequency = lang('UI.patientNa');
-                                                
-                                                try {
-                                                    $medicinesData = json_decode($prescription['medication_name'], true);
-                                                    if (is_array($medicinesData) && !empty($medicinesData)) {
-                                                        $medicines = $medicinesData;
-                                                        $medicineNames = [];
-                                                        $dosages = [];
-                                                        $frequencies = [];
-                                                        
-                                                        foreach ($medicinesData as $medicine) {
-                                                            if (isset($medicine['name'])) {
-                                                                $medicineNames[] = $medicine['name'];
-                                                            }
-                                                            if (isset($medicine['dosage'])) {
-                                                                $dosages[] = $medicine['dosage'];
-                                                            }
-                                                            if (isset($medicine['frequency'])) {
-                                                                $frequencies[] = $medicine['frequency'];
-                                                            }
-                                                        }
-                                                        
-                                                        $medicationName = implode(', ', $medicineNames);
-                                                        $dosage = implode(', ', $dosages);
-                                                        $frequency = implode(', ', $frequencies);
-                                                    } else {
-                                                        $medicationName = $prescription['medication_name'] ?? lang('UI.patientNa');
-                                                        $dosage = $prescription['dosage'] ?? lang('UI.patientNa');
-                                                        $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
-                                                    }
-                                                } catch (Exception $e) {
-                                                    $medicationName = $prescription['medication_name'] ?? lang('UI.patientNa');
-                                                    $dosage = $prescription['dosage'] ?? lang('UI.patientNa');
-                                                    $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
-                                                }
-                                                ?>
-                                                  <tr class="patient-record-row" data-href="<?= esc(workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo)) ?>">
-                                                      <td>
-                                                          <div class="flex items-center space-x-2">
-                                                              <i class="fas fa-pills text-teal-600 text-xs"></i>
-                                                              <div class="patient-record-main">
-                                                                  <div class="patient-record-title"><?= htmlspecialchars($medicationName) ?></div>
-                                                              </div>
-                                                          </div>
-                                                      </td>
-                                                      <td>
-                                                          <?= htmlspecialchars($dosage) ?>
-                                                      </td>
-                                                      <td>
-                                                          <?= htmlspecialchars($frequency) ?>
-                                                      </td>
-                                                      <td class="whitespace-nowrap">
-                                                          <?= formatDate($prescription['prescribed_date']) ?>
-                                                      </td>
-                                                      <td class="whitespace-nowrap">
-                                                        <?php
-                                                        $statusColors = [
-                                                            'active' => 'bg-green-100 text-green-800',
-                                                            'expired' => 'bg-red-100 text-red-800',
-                                                            'cancelled' => 'bg-gray-100 text-gray-800',
-                                                            'pending' => 'bg-yellow-100 text-yellow-800'
-                                                        ];
-                                                        $colorClass = $statusColors[$prescription['status']] ?? 'bg-gray-100 text-gray-800';
-                                                        ?>
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
-                                                            <?= ucfirst($prescription['status']) ?>
-                                                        </span>
-                                                    </td>
-                                                      <td class="text-right">
-                                                          <div class="patient-table-actions">
-                                                          <a href="<?= workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo) ?>" 
-                                                             class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
-                                                          </div>
-                                                      </td>
-                                                  </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <?php else: ?>
-                                <div class="text-center py-8">
-                                    <i class="fas fa-prescription text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoPrescriptions')) ?></p>
-                                </div>
-                            <?php endif; ?>
-                        </div>
 
+                                <?php if (!empty($prescriptions)): ?>
+                                    <div class="relative px-4 py-5 sm:px-6">
+                                        <div class="overflow-x-auto rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                            <table class="patient-record-table w-full min-w-full" data-record-type="prescriptions" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                                <thead class="bg-gradient-to-r from-slate-50 via-teal-50/70 to-blue-50/70">
+                                                    <tr>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientMedication')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientDosage')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientFrequency')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientPrescribedDate')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientActions')) ?></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-200/70 bg-white/95">
+                                                    <?php foreach ($prescriptions as $prescription): ?>
+                                                        <?php
+                                                        $medicationName = lang('UI.patientNa');
+                                                        $dosage = lang('UI.patientNa');
+                                                        $frequency = lang('UI.patientNa');
+
+                                                        try {
+                                                            $medicinesData = json_decode((string) ($prescription['medication_name'] ?? ''), true);
+                                                            if (is_array($medicinesData) && !empty($medicinesData)) {
+                                                                $medicineNames = [];
+                                                                $dosages = [];
+                                                                $frequencies = [];
+
+                                                                foreach ($medicinesData as $medicine) {
+                                                                    if (!empty($medicine['name'])) {
+                                                                        $medicineNames[] = (string) $medicine['name'];
+                                                                    }
+                                                                    if (!empty($medicine['dosage'])) {
+                                                                        $dosages[] = (string) $medicine['dosage'];
+                                                                    }
+                                                                    if (!empty($medicine['frequency'])) {
+                                                                        $frequencies[] = (string) $medicine['frequency'];
+                                                                    }
+                                                                }
+
+                                                                $medicationName = !empty($medicineNames) ? implode(', ', $medicineNames) : lang('UI.patientNa');
+                                                                $dosage = !empty($dosages) ? implode(', ', $dosages) : lang('UI.patientNa');
+                                                                $frequency = !empty($frequencies) ? implode(', ', $frequencies) : lang('UI.patientNa');
+                                                            } else {
+                                                                $medicationName = $prescription['medication_name'] ?? lang('UI.patientNa');
+                                                                $dosage = $prescription['dosage'] ?? lang('UI.patientNa');
+                                                                $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
+                                                            }
+                                                        } catch (Exception $e) {
+                                                            $medicationName = $prescription['medication_name'] ?? lang('UI.patientNa');
+                                                            $dosage = $prescription['dosage'] ?? lang('UI.patientNa');
+                                                            $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
+                                                        }
+
+                                                        $prescriptionStatusKey = strtolower((string) ($prescription['status'] ?? ''));
+                                                        $prescriptionStatusLabel = match ($prescriptionStatusKey) {
+                                                            'active' => lang('UI.patientStatusActive'),
+                                                            'pending' => lang('UI.patientStatusPending'),
+                                                            'cancelled' => lang('UI.patientStatusInactive'),
+                                                            default => $prescriptionStatusKey !== '' ? ucfirst(str_replace('_', ' ', $prescriptionStatusKey)) : lang('UI.patientUnknown'),
+                                                        };
+                                                        $prescriptionStatusClass = match ($prescriptionStatusKey) {
+                                                            'active' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
+                                                            'pending' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
+                                                            'expired', 'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200/70',
+                                                            default => 'bg-slate-100 text-slate-700 ring-slate-200/70',
+                                                        };
+                                                        $prescriptionUrl = workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo);
+                                                        $prescribedDateIso = !empty($prescription['prescribed_date']) ? substr((string) $prescription['prescribed_date'], 0, 10) : '';
+                                                        ?>
+                                                        <tr class="patient-record-row transition-colors hover:bg-teal-50/70" data-href="<?= esc($prescriptionUrl) ?>" data-date="<?= esc($prescribedDateIso, 'attr') ?>">
+                                                            <td class="px-6 py-4">
+                                                                <div class="flex items-center gap-3">
+                                                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700 ring-1 ring-teal-100">
+                                                                        <i class="fas fa-pills text-sm"></i>
+                                                                    </span>
+                                                                    <div class="min-w-0">
+                                                                        <div class="patient-record-title truncate text-sm font-extrabold text-slate-950"><?= esc($medicationName) ?></div>
+                                                                        <div class="mt-1 text-xs font-bold text-teal-700"><?= esc(lang('UI.patientMedicationDetails')) ?></div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm font-semibold text-slate-700"><?= esc($dosage) ?></td>
+                                                            <td class="px-6 py-4 text-sm font-semibold text-slate-700"><?= esc($frequency) ?></td>
+                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-700">
+                                                                <?= !empty($prescription['prescribed_date']) ? esc(formatDate($prescription['prescribed_date'])) : esc(lang('UI.patientNa')) ?>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= esc($prescriptionStatusClass) ?>">
+                                                                    <?= esc($prescriptionStatusLabel) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                                                <a href="<?= esc($prescriptionUrl) ?>" class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="relative px-6 py-8">
+                                        <div class="rounded-2xl border border-dashed border-teal-200 bg-white/70 px-6 py-12 text-center shadow-inner">
+                                            <i class="fas fa-prescription-bottle-medical mb-3 text-4xl text-teal-200"></i>
+                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoPrescriptions')) ?></p>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </section>
+                        </div>
                         <!-- Financials Tab -->
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
                             <div class="space-y-6">
@@ -3935,8 +3956,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     #examinations-content > .bg-white.rounded-xl { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #f97316; --patient-tab-soft: rgba(239,246,255,0.86); }
     #appointments-content > section { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #059669; --patient-tab-soft: rgba(239,246,255,0.86); }
 
-    #prescriptions-content > .bg-white.rounded-xl,
-    #prescriptions-content > .bg-white.rounded-lg { --patient-tab-accent: #2563eb; --patient-tab-accent-2: #14b8a6; --patient-tab-soft: rgba(239,246,255,0.84); }
+    #prescriptions-content > section { --patient-tab-accent: #0f766e; --patient-tab-accent-2: #2563eb; --patient-tab-soft: rgba(240,253,250,0.86); }
     #finances-content > .bg-white.rounded-xl,
     #finances-content > .bg-white.rounded-lg { --patient-tab-accent: #059669; --patient-tab-accent-2: #f59e0b; --patient-tab-soft: rgba(236,253,245,0.84); }
     #contracts-content > .bg-white.rounded-xl,
