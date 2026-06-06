@@ -2276,73 +2276,86 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
-                            <div class="bg-white rounded-xl border border-gray-200 shadow-lg mb-4">
-                                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientExaminations')) ?></h3>
+                            <section class="patient-tab-ambient patient-exam-workspace">
+                                <div class="patient-exam-header">
+                                    <div class="patient-exam-heading">
+                                        <span class="patient-exam-heading-icon"><i class="fas fa-stethoscope"></i></span>
+                                        <div class="min-w-0">
+                                            <h3><?= esc(lang('UI.patientExaminations')) ?></h3>
+                                            <p><?= esc(lang('UI.patientExaminationsSubtitle')) ?></p>
                                         </div>
-                                        <span class="text-xs text-gray-400"><?= count($examinations) ?> <?= esc(lang('UI.patientExams')) ?></span>
+                                    </div>
+                                    <div class="patient-exam-count">
+                                        <strong><?= count($examinations) ?></strong>
+                                        <span><?= esc(lang('UI.patientTabExams')) ?></span>
                                     </div>
                                 </div>
+
                                 <?php if (!empty($examinations)): ?>
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center space-x-2"><i class="fas fa-calendar text-blue-600"></i><span><?= esc(lang('UI.patientDate')) ?></span></div>
-                                                    </th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center space-x-2"><i class="fas fa-stethoscope text-blue-600"></i><span><?= esc(lang('UI.patientType')) ?></span></div>
-                                                    </th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center space-x-2"><i class="fas fa-align-left text-blue-600"></i><span><?= esc(lang('UI.patientChiefComplaint')) ?></span></div>
-                                                    </th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center space-x-2"><i class="fas fa-circle-info text-blue-600"></i><span><?= esc(lang('UI.patientStatus')) ?></span></div>
-                                                    </th>
-                                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        <div class="flex items-center space-x-2"><i class="fas fa-cogs text-blue-600"></i></div>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-100">
-                                                <?php foreach ($examinations as $examination): ?>
-                                                    <tr class="patient-record-row hover:bg-gray-50 transition-colors cursor-pointer" data-href="<?= esc(workflow_context_url('examination/' . $examination['id'], $patientContextReturnTo)) ?>">
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            <?= formatDate($examination['examination_date']) ?>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm font-medium text-gray-900"><?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?></div>
-                                                            <div class="text-xs text-gray-500"><?= esc(lang('UI.patientExam')) ?></div>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
-                                                            <?= $examination['chief_complaint'] ? esc(substr($examination['chief_complaint'], 0, 60) . (strlen($examination['chief_complaint']) > 60 ? '...' : '')) : '<span class="text-gray-400">' . esc(lang('UI.patientNoComplaint')) . '</span>' ?>
-                                                        </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $examination['status'] == 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
-                                                                <?= ucfirst($examination['status']) ?>
-                                                            </span>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <a href="<?= workflow_context_url('examination/' . $examination['id'], $patientContextReturnTo) ?>" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors" title="<?= esc(lang('UI.patientView')) ?>">
-                                                                <i class="fas fa-eye text-xs"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
+                                    <div class="patient-exam-list" data-patient-record-list>
+                                        <?php foreach ($examinations as $examination): ?>
+                                            <?php
+                                            $examStatusKey = strtolower((string) ($examination['status'] ?? ''));
+                                            $examStatusLabel = match ($examStatusKey) {
+                                                'completed' => lang('UI.patientTreatmentStatusCompleted'),
+                                                'in_progress' => lang('UI.patientTreatmentStatusInProgress'),
+                                                'pending' => lang('UI.patientStatusPending'),
+                                                'active' => lang('UI.patientStatusActive'),
+                                                'cancelled' => lang('UI.patientStatusInactive'),
+                                                default => $examStatusKey !== '' ? ucfirst(str_replace('_', ' ', $examStatusKey)) : lang('UI.patientUnknown'),
+                                            };
+                                            $examStatusClass = $examStatusKey === 'completed' ? 'patient-exam-status-complete' : 'patient-exam-status-open';
+                                            $examTypeRaw = trim((string) ($examination['examination_type'] ?? ''));
+                                            $examTypeLabel = $examTypeRaw !== '' ? ucfirst(str_replace('_', ' ', $examTypeRaw)) : lang('UI.patientGeneral');
+                                            $examComplaint = trim((string) ($examination['chief_complaint'] ?? ''));
+                                            $examComplaintPreview = $examComplaint !== ''
+                                                ? (function_exists('mb_strimwidth') ? mb_strimwidth($examComplaint, 0, 130, '...') : (strlen($examComplaint) > 127 ? substr($examComplaint, 0, 127) . '...' : $examComplaint))
+                                                : lang('UI.patientNoComplaint');
+                                            $examDoctorName = trim(((string) ($examination['doctor_first_name'] ?? '')) . ' ' . ((string) ($examination['doctor_last_name'] ?? '')));
+                                            $examDateIso = !empty($examination['examination_date']) ? substr((string) $examination['examination_date'], 0, 10) : '';
+                                            $examUrl = workflow_context_url('examination/' . $examination['id'], $patientContextReturnTo);
+                                            ?>
+                                            <article class="patient-exam-card patient-record-row" data-href="<?= esc($examUrl) ?>" data-date="<?= esc($examDateIso, 'attr') ?>">
+                                                <div class="patient-exam-date-block" data-filter-cell>
+                                                    <span class="patient-exam-date-icon"><i class="fas fa-calendar-day"></i></span>
+                                                    <span class="patient-exam-date-text"><?= esc(formatDate($examination['examination_date'])) ?></span>
+                                                </div>
+                                                <div class="patient-exam-card-main">
+                                                    <div class="patient-exam-card-title-row">
+                                                        <div class="min-w-0" data-filter-cell>
+                                                            <h4><?= esc($examTypeLabel) ?></h4>
+                                                            <p><?= esc(lang('UI.patientExam')) ?></p>
+                                                        </div>
+                                                        <span class="patient-exam-status <?= esc($examStatusClass) ?>" data-filter-cell><?= esc($examStatusLabel) ?></span>
+                                                    </div>
+                                                    <div class="patient-exam-complaint" data-filter-cell>
+                                                        <i class="fas fa-comment-medical"></i>
+                                                        <span><?= esc($examComplaintPreview) ?></span>
+                                                    </div>
+                                                    <?php if ($examDoctorName !== ''): ?>
+                                                        <div class="patient-exam-fact" data-filter-cell>
+                                                            <i class="fas fa-user-md"></i>
+                                                            <span><?= esc($examDoctorName) ?></span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <a href="<?= esc($examUrl) ?>" class="patient-exam-action" title="<?= esc(lang('UI.patientView')) ?>">
+                                                    <i class="fas fa-arrow-right rtl:rotate-180"></i>
+                                                </a>
+                                            </article>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <div class="patient-filter-empty hidden text-center py-10">
+                                        <i class="fas fa-search text-slate-300 text-4xl mb-3"></i>
+                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoExaminations')) ?></p>
                                     </div>
                                 <?php else: ?>
-                                    <div class="text-center py-10">
-                                        <i class="fas fa-stethoscope text-gray-300 text-4xl mb-3"></i>
-                                        <p class="text-sm text-gray-400"><?= esc(lang('UI.patientNoExaminations')) ?></p>
+                                    <div class="patient-exam-empty text-center py-10">
+                                        <i class="fas fa-stethoscope text-slate-300 text-4xl mb-3"></i>
+                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoExaminations')) ?></p>
                                     </div>
                                 <?php endif; ?>
-                            </div>
+                            </section>
                         </div>
 
                         <!-- Appointments Tab -->
@@ -3869,6 +3882,260 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     #contracts-content > .bg-white.rounded-lg { --patient-tab-accent: #4f46e5; --patient-tab-accent-2: #06b6d4; --patient-tab-soft: rgba(238,242,255,0.84); }
     #attachments-content .bg-white.rounded-lg,
     #attachments-content section.bg-white { --patient-tab-accent: #0891b2; --patient-tab-accent-2: #2563eb; --patient-tab-soft: rgba(236,254,255,0.82); }
+    .patient-exam-workspace {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(147, 197, 253, 0.34);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.15), transparent 32%),
+            radial-gradient(circle at 92% 8%, rgba(249, 115, 22, 0.12), transparent 30%),
+            linear-gradient(180deg, #f8fbff 0%, #ffffff 50%, #f8fafc 100%);
+    }
+
+    .patient-exam-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .patient-exam-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        min-width: 0;
+    }
+
+    .patient-exam-heading h3 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.08rem;
+        line-height: 1.35rem;
+        font-weight: 800;
+    }
+
+    .patient-exam-heading p {
+        margin: 0.18rem 0 0;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.2rem;
+        font-weight: 600;
+    }
+
+    .patient-exam-heading-icon {
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 55%, #f97316 100%);
+        box-shadow: 0 18px 34px -24px rgba(37, 99, 235, 0.84);
+        flex: 0 0 auto;
+    }
+
+    .patient-exam-count {
+        min-width: 5.7rem;
+        border-radius: 1rem;
+        padding: 0.65rem 0.85rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(191, 219, 254, 0.7);
+        box-shadow: 0 18px 34px -30px rgba(15, 23, 42, 0.42);
+    }
+
+    .patient-exam-count strong {
+        display: block;
+        color: #1d4ed8;
+        font-size: 1.18rem;
+        line-height: 1.25rem;
+        font-weight: 900;
+    }
+
+    .patient-exam-count span {
+        display: block;
+        margin-top: 0.15rem;
+        color: #64748b;
+        font-size: 0.72rem;
+        line-height: 1rem;
+        font-weight: 800;
+    }
+
+    .patient-exam-list {
+        display: grid;
+        gap: 0.82rem;
+    }
+
+    .patient-exam-card {
+        display: grid;
+        grid-template-columns: minmax(7.2rem, 0.28fr) minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.85rem;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        border-radius: 1.05rem;
+        padding: 0.95rem;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9)),
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.1), transparent 38%);
+        box-shadow: 0 20px 44px -35px rgba(15, 23, 42, 0.44);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
+    }
+
+    .patient-exam-card:hover {
+        border-color: rgba(37, 99, 235, 0.34);
+        background:
+            linear-gradient(135deg, #ffffff, #f8fbff),
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.14), transparent 40%);
+        box-shadow: 0 24px 46px -32px rgba(37, 99, 235, 0.34);
+        transform: translateY(-1px);
+    }
+
+    .patient-exam-date-block {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+
+    .patient-exam-date-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: linear-gradient(135deg, #2563eb, #0ea5e9);
+        box-shadow: 0 14px 26px -18px rgba(37, 99, 235, 0.8);
+        flex: 0 0 auto;
+    }
+
+    .patient-exam-date-text {
+        color: #0f172a;
+        font-size: 0.82rem;
+        line-height: 1.15rem;
+        font-weight: 800;
+    }
+
+    .patient-exam-card-main {
+        min-width: 0;
+        display: grid;
+        gap: 0.55rem;
+    }
+
+    .patient-exam-card-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.85rem;
+        min-width: 0;
+    }
+
+    .patient-exam-card h4 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 0.98rem;
+        line-height: 1.35rem;
+        font-weight: 800;
+    }
+
+    .patient-exam-card h4 + p {
+        margin: 0.1rem 0 0;
+        color: #64748b;
+        font-size: 0.74rem;
+        line-height: 1rem;
+        font-weight: 700;
+    }
+
+    .patient-exam-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 0.34rem 0.65rem;
+        font-size: 0.72rem;
+        line-height: 1rem;
+        font-weight: 800;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.58);
+        white-space: nowrap;
+    }
+
+    .patient-exam-status-complete {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .patient-exam-status-open {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .patient-exam-complaint,
+    .patient-exam-fact {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+        color: #475569;
+        font-size: 0.82rem;
+        line-height: 1.3rem;
+        font-weight: 600;
+    }
+
+    .patient-exam-complaint i,
+    .patient-exam-fact i {
+        color: #2563eb;
+        opacity: 0.82;
+        flex: 0 0 auto;
+    }
+
+    .patient-exam-complaint span,
+    .patient-exam-fact span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .patient-exam-action {
+        width: 2.35rem;
+        height: 2.35rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.85rem;
+        color: #2563eb;
+        background: rgba(239, 246, 255, 0.9);
+        border: 1px solid rgba(191, 219, 254, 0.8);
+        transition: all 0.18s ease;
+    }
+
+    .patient-exam-action:hover {
+        color: #ffffff;
+        background: #2563eb;
+        border-color: #2563eb;
+        box-shadow: 0 16px 28px -22px rgba(37, 99, 235, 0.9);
+    }
+
+    @media (max-width: 767px) {
+        .patient-exam-header,
+        .patient-exam-card-title-row {
+            align-items: flex-start;
+        }
+
+        .patient-exam-card {
+            grid-template-columns: 1fr auto;
+        }
+
+        .patient-exam-date-block {
+            grid-column: 1 / -1;
+        }
+    }
 
     .patient-shell .tab-content > .bg-white.rounded-xl > div:first-child,
     .patient-shell .tab-content > .bg-white.rounded-lg > div:first-child {
@@ -4052,7 +4319,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         color: #64748b;
         font-size: 0.82rem;
         line-height: 1.2rem;
-        font-weight: 650;
+        font-weight: 600;
     }
 
     .patient-timeline-heading-icon {
@@ -5573,22 +5840,25 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         const startDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(startDateRaw) : startDateRaw;
         const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endDateRaw) : endDateRaw;
         
-        const table = document.querySelector(`#${tabName}-content table tbody`);
-        if (!table) return;
+        const tableBody = document.querySelector(`#${tabName}-content table tbody`);
+        const cardList = document.querySelector(`#${tabName}-content [data-patient-record-list]`);
+        const rowContainer = tableBody || cardList;
+        if (!rowContainer) return;
         
-        const rows = table.querySelectorAll('tr');
+        const rows = tableBody ? rowContainer.querySelectorAll('tr') : rowContainer.querySelectorAll('.patient-record-row');
         let visibleCount = 0;
         
         rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length === 0) return;
+            const cells = tableBody ? row.querySelectorAll('td') : row.querySelectorAll('[data-filter-cell]');
+            if (cells.length === 0 && !row.textContent.trim()) return;
             
             let matchesSearch = true;
             let matchesDateRange = true;
             
             // Check search term
             if (searchTerm) {
-                matchesSearch = Array.from(cells).some(cell => 
+                const searchableNodes = cells.length > 0 ? Array.from(cells) : [row];
+                matchesSearch = searchableNodes.some(cell => 
                     cell.textContent.toLowerCase().includes(searchTerm)
                 );
             }
@@ -5618,7 +5888,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         });
         
         // Show/hide "no results" message
-        const noResultsDiv = document.querySelector(`#${tabName}-content .text-center`);
+        const noResultsDiv = document.querySelector(`#${tabName}-content .patient-filter-empty`) || document.querySelector(`#${tabName}-content .text-center`);
         if (noResultsDiv && visibleCount === 0) {
             noResultsDiv.style.display = 'block';
         } else if (noResultsDiv) {
