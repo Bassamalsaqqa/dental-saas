@@ -2390,10 +2390,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
                                             </div>
                                         </div>
-                                        <span class="inline-flex w-fit items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-blue-500/20">
-                                            <i class="fas fa-clock"></i>
-                                            <span><?= esc(lang('UI.patientScheduleAppointment')) ?></span>
-                                        </span>
+                                        <?php if (has_permission('appointments', 'create')): ?>
+                                            <button type="button" data-app-drawer-open="patientAppointmentDrawer" class="patient-appointment-create-action">
+                                                <i class="fas fa-clock"></i>
+                                                <span><?= esc(lang('UI.patientScheduleAppointment')) ?></span>
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <?php if (!empty($appointments)): ?>
@@ -4512,6 +4514,150 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     .patient-exam-date-icon {
         background: rgba(255,255,255,0.18) !important;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.22) !important;
+    }
+    /* Patient appointments table refinement. */
+    #appointments-content > section {
+        border-color: rgba(191,219,254,0.72) !important;
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.10), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.64) 58%, rgba(255,255,255,0.98)) !important;
+        box-shadow: 0 18px 42px -34px rgba(15,23,42,0.38), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+    }
+
+    #appointments-content > section > .relative.border-b {
+        background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(239,246,255,0.86)) !important;
+        border-bottom-color: rgba(191,219,254,0.68) !important;
+    }
+
+    #appointments-content > section > .relative.border-b h3 {
+        color: #0f172a !important;
+    }
+
+    #appointments-content > section > .relative.border-b p {
+        color: #475569 !important;
+    }
+
+    .patient-appointment-create-action {
+        display: inline-flex;
+        width: fit-content;
+        min-height: 2.75rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        border: 0;
+        border-radius: 0.9rem;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        padding: 0.72rem 1rem;
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 900;
+        box-shadow: 0 14px 26px -20px rgba(37,99,235,0.70);
+        transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .patient-appointment-create-action:hover {
+        filter: brightness(1.03);
+        transform: translateY(-1px);
+        box-shadow: 0 18px 30px -22px rgba(37,99,235,0.76);
+    }
+
+    .patient-appointment-create-action,
+    .patient-appointment-create-action i,
+    .patient-appointment-create-action span {
+        color: #fff !important;
+    }
+
+    #appointments-content .overflow-x-auto {
+        border-color: rgba(226,232,240,0.92) !important;
+        background: rgba(255,255,255,0.92) !important;
+        box-shadow: 0 14px 32px -30px rgba(15,23,42,0.34) !important;
+    }
+
+    #appointments-content .patient-record-table {
+        border-collapse: separate !important;
+        border-spacing: 0 0.5rem !important;
+    }
+
+    #appointments-content .patient-record-table thead th {
+        background: linear-gradient(180deg, rgba(248,250,252,0.98), rgba(239,246,255,0.84)) !important;
+        color: #334155 !important;
+        border-bottom: 0 !important;
+    }
+
+    #appointments-content .patient-record-table tbody {
+        background: transparent !important;
+    }
+
+    #appointments-content .patient-record-row {
+        background: transparent !important;
+        transition: transform 0.18s ease;
+    }
+
+    #appointments-content .patient-record-row:hover {
+        transform: translateY(-1px);
+    }
+
+    #appointments-content .patient-record-row td {
+        border-block: 1px solid rgba(226,232,240,0.92);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
+        box-shadow: 0 10px 22px -22px rgba(15,23,42,0.30);
+    }
+
+    #appointments-content .patient-record-row:nth-child(even) td {
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%) !important;
+    }
+
+    #appointments-content .patient-record-row:hover td {
+        border-block-color: rgba(37,99,235,0.32);
+        box-shadow: 0 14px 28px -24px rgba(37,99,235,0.34);
+    }
+
+    #appointments-content .patient-record-row td:first-child {
+        border-inline-start: 1px solid rgba(226,232,240,0.92);
+        border-start-start-radius: 0.85rem;
+        border-end-start-radius: 0.85rem;
+    }
+
+    #appointments-content .patient-record-row td:last-child {
+        border-inline-end: 1px solid rgba(226,232,240,0.92);
+        border-start-end-radius: 0.85rem;
+        border-end-end-radius: 0.85rem;
+    }
+
+    #appointments-content .patient-record-row td:first-child > div:first-child {
+        color: #0f172a !important;
+        font-weight: 900 !important;
+    }
+
+    #appointments-content .patient-record-row td:first-child > div:nth-child(2) {
+        color: #2563eb !important;
+        font-weight: 800 !important;
+    }
+
+    #appointments-content .patient-record-title {
+        color: #0f172a !important;
+        font-weight: 900 !important;
+    }
+
+    #appointments-content .patient-table-action {
+        background: #eff6ff !important;
+        border-color: rgba(191,219,254,0.86) !important;
+        color: #1d4ed8 !important;
+    }
+
+    #appointments-content .patient-table-action:hover {
+        background: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #fff !important;
+    }
+    @media (max-width: 767px) {
+        #appointments-content .patient-record-table {
+            min-width: 48rem;
+        }
+
+        .patient-appointment-create-action {
+            width: 100%;
+        }
     }
 
     @media (max-width: 767px) {
