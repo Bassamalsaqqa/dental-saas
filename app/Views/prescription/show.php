@@ -27,17 +27,212 @@ $statusTone = match ($statusKey) {
 
 <style>
 .rx-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-    padding: 1.25rem 1.5rem;
+    --rx-accent: #2563eb;
+    --rx-soft: rgba(239,246,255,0.94);
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 7% 0%, color-mix(in srgb, var(--rx-accent) 15%, transparent), transparent 30%),
+        linear-gradient(135deg, rgba(255,255,255,0.99), var(--rx-soft) 48%, rgba(255,255,255,0.98));
+    border: 1px solid rgba(255,255,255,0.82);
+    border-radius: 1.2rem;
+    box-shadow: 0 22px 50px -40px rgba(15,23,42,0.48), inset 0 1px 0 rgba(255,255,255,0.9);
+    padding: 1.25rem;
 }
 .rx-card-header {
-    display: flex; align-items: center; gap: 0.625rem;
-    margin-bottom: 1rem; padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-weight: 700; font-size: 0.9375rem; color: #1e293b;
+    display: flex; align-items: center; gap: 0.75rem;
+    margin: -1.25rem -1.25rem 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(203,213,225,0.62);
+    background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, var(--rx-accent), color-mix(in srgb, var(--rx-accent) 82%, #0f172a));
+    font-weight: 900; font-size: 0.98rem; color: #fff;
+}
+.rx-card-header i,
+.rx-card-header span,
+.rx-card-header h3,
+.rx-card-header p {
+    color: #fff !important;
+}
+
+.rx-card-header > i {
+    display: inline-flex;
+    width: 2.65rem;
+    height: 2.65rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.16);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 14px 26px -24px rgba(15,23,42,0.52);
+}
+
+.rx-card-medication { --rx-accent: #0891b2; --rx-soft: rgba(207,250,254,0.92); padding: 0; }
+.rx-card-metadata { --rx-accent: #4f46e5; --rx-soft: rgba(238,242,255,0.94); }
+.rx-card-instructions { --rx-accent: #0f766e; --rx-soft: rgba(204,251,241,0.92); }
+.rx-card-notice { --rx-accent: #d97706; --rx-soft: rgba(254,243,199,0.94); }
+
+.rx-card-medication .rx-card-header {
+    margin: 0;
+    padding: 1.15rem 1.35rem;
+    border-bottom: 0;
+    background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.24), transparent 34%), linear-gradient(135deg, #0891b2, #0e7490 58%, #164e63);
+}
+
+.rx-section-subtitle {
+    margin-top: 0.25rem;
+    color: rgba(255,255,255,0.84);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.rx-medication-table-wrap {
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(236,254,255,0.64), rgba(255,255,255,0.88));
+}
+
+.rx-medication-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid rgba(14,116,144,0.14);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 30px -28px rgba(15,23,42,0.36);
+}
+
+.rx-medication-table thead {
+    background: linear-gradient(135deg, #ecfeff, #f8fafc);
+}
+
+.rx-medication-table th {
+    padding: 0.95rem 1.15rem;
+    color: #334155;
+    font-size: 0.73rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: start;
+    white-space: nowrap;
+}
+
+.rx-medication-table td {
+    padding: 1rem 1.15rem;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 700;
+    vertical-align: top;
+}
+
+.rx-medication-table tbody tr {
+    background: rgba(255,255,255,0.86);
+    transition: background 0.2s ease;
+}
+
+.rx-medication-table tbody tr:hover {
+    background: rgba(236,254,255,0.75);
+}
+
+.rx-medicine-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+.rx-medicine-icon {
+    display: inline-flex;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, #0891b2, #0e7490);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 16px 28px -24px rgba(14,116,144,0.8);
+}
+
+.rx-info-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.rx-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.15rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255,255,255,0.72);
+    background: rgba(255,255,255,0.76);
+    padding: 0.8rem 0.9rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.86), 0 12px 24px -24px rgba(15,23,42,0.38);
+}
+
+.rx-info-label {
+    color: #64748b;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.rx-info-value {
+    color: #0f172a;
+    font-size: 0.88rem;
+    font-weight: 900;
+    text-align: end;
+}
+
+.rx-instructions-body {
+    min-height: 8rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(13,148,136,0.16);
+    background: rgba(255,255,255,0.76);
+    padding: 1rem;
+    color: #1e293b;
+    font-size: 0.95rem;
+    font-weight: 750;
+    line-height: 1.75;
+}
+
+.rx-notice-body {
+    display: flex;
+    gap: 0.85rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #d97706, #b45309 58%, #92400e);
+    padding: 1rem;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -28px rgba(146,64,14,0.7);
+}
+
+[dir="rtl"] .rx-notice-body { flex-direction: row-reverse; }
+
+.rx-notice-body i,
+.rx-notice-body p,
+.rx-notice-body h4 {
+    color: #fff !important;
+}
+
+.rx-empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.92rem;
+    font-weight: 800;
+}
+
+[dir="rtl"] .rx-medication-table th,
+[dir="rtl"] .rx-medication-table td {
+    text-align: right;
+}
+
+[dir="rtl"] .rx-medicine-name,
+[dir="rtl"] .rx-card-header {
+    flex-direction: row-reverse;
 }
 
 .patient-hero-card {
@@ -194,48 +389,49 @@ $statusTone = match ($statusKey) {
         <!-- Left: Medications + Instructions -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Medication Plan -->
-            <div class="rx-card !p-0 overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 bg-cyan-500 rounded-full"></span>
-                        <h3 class="text-base font-bold text-gray-900"><?= esc($tr('medication_plan')) ?></h3>
+            <div class="rx-card rx-card-medication overflow-hidden">
+                <div class="rx-card-header">
+                    <i class="fas fa-capsules"></i>
+                    <div>
+                        <h3 class="text-base font-black"><?= esc($tr('medication_plan')) ?></h3>
+                        <p class="rx-section-subtitle"><?= esc($tr('medication_plan_help')) ?></p>
                     </div>
                 </div>
                 <?php if (!empty($medicines)): ?>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
+                <div class="rx-medication-table-wrap overflow-x-auto">
+                    <table class="rx-medication-table min-w-full">
                         <thead>
-                            <tr class="bg-gray-50">
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center gap-2"><i class="fas fa-capsules text-cyan-600"></i><span><?= esc($tr('medicine_name')) ?></span></div>
+                            <tr>
+                                <th>
+                                    <div class="flex items-center gap-2"><i class="fas fa-capsules text-cyan-700"></i><span><?= esc($tr('medicine_name')) ?></span></div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center gap-2"><i class="fas fa-weight-scale text-cyan-600"></i><span><?= esc($tr('dosage')) ?></span></div>
+                                <th>
+                                    <div class="flex items-center gap-2"><i class="fas fa-weight-scale text-cyan-700"></i><span><?= esc($tr('dosage')) ?></span></div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center gap-2"><i class="fas fa-clock text-cyan-600"></i><span><?= esc($tr('frequency')) ?></span></div>
+                                <th>
+                                    <div class="flex items-center gap-2"><i class="fas fa-clock text-cyan-700"></i><span><?= esc($tr('frequency')) ?></span></div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-range text-cyan-600"></i><span><?= esc($tr('duration')) ?></span></div>
+                                <th>
+                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-range text-cyan-700"></i><span><?= esc($tr('duration')) ?></span></div>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-slate-100">
                             <?php foreach ($medicines as $m): ?>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-semibold text-gray-900"><?= esc($m['name'] ?? '—') ?></div>
+                                <tr>
+                                    <td>
+                                        <div class="rx-medicine-name"><span class="rx-medicine-icon"><i class="fas fa-pills"></i></span><span><?= esc($m['name'] ?? '-') ?></span></div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= esc($m['dosage'] ?? '—') ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= esc($m['frequency'] ?? '—') ?></td>
-                                    <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= esc($m['duration'] ?? '—') ?></td>
+                                    <td><?= esc($m['dosage'] ?? '-') ?></td>
+                                    <td><?= esc($m['frequency'] ?? '-') ?></td>
+                                    <td><?= esc($m['duration'] ?? '-') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
                 <?php else: ?>
-                    <p class="text-sm text-gray-400 text-center py-10"><?= esc($tr('no_medication_information_available')) ?></p>
+                    <p class="rx-empty-state"><?= esc($tr('no_medication_information_available')) ?></p>
                 <?php endif; ?>
             </div>
 
@@ -243,30 +439,50 @@ $statusTone = match ($statusKey) {
 
         <!-- Right: Metadata + Instructions -->
         <div class="space-y-6">
-            <div class="rx-card">
+            <div class="rx-card rx-card-metadata">
                 <div class="rx-card-header">
-                    <i class="fas fa-clipboard-list text-indigo-600"></i><span><?= esc($tr('rx_metadata')) ?></span>
+                    <i class="fas fa-clipboard-list"></i>
+                    <div>
+                        <h3 class="text-base font-black"><?= esc($tr('rx_metadata')) ?></h3>
+                        <p class="rx-section-subtitle"><?= esc($tr('prescription_summary_side_help')) ?></p>
+                    </div>
                 </div>
-                <div class="space-y-2.5 text-sm">
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('prescription_id')) ?></span><span class="font-mono text-gray-900"><?= esc($prescriptionReference) ?></span></div>
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('status')) ?></span><span class="text-gray-900"><?= esc($statusLabel) ?></span></div>
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('created_by')) ?></span><span class="text-gray-900"><?= esc($doctorName ?: $tr('unknown')) ?></span></div>
-                    <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('patient')) ?></span>
+                <div class="rx-info-list">
+                    <div class="rx-info-row"><span class="rx-info-label"><?= esc($tr('prescription_id')) ?></span><span class="rx-info-value font-mono"><?= esc($prescriptionReference) ?></span></div>
+                    <div class="rx-info-row"><span class="rx-info-label"><?= esc($tr('status')) ?></span><span class="rx-info-value"><?= esc($statusLabel) ?></span></div>
+                    <div class="rx-info-row"><span class="rx-info-label"><?= esc($tr('created_by')) ?></span><span class="rx-info-value"><?= esc($doctorName ?: $tr('unknown')) ?></span></div>
+                    <div class="rx-info-row"><span class="rx-info-label"><?= esc($tr('patient')) ?></span>
                         <?php if (!empty($prescription['patient_id'])): ?>
-                        <a href="<?= workflow_context_url('patient/' . $prescription['patient_id'], $return_to ?? null) ?>" class="text-blue-600 hover:text-blue-800 font-medium"><?= esc($patientName) ?></a>
+                        <a href="<?= workflow_context_url('patient/' . $prescription['patient_id'], $return_to ?? null) ?>" class="rx-info-value text-blue-700 hover:text-blue-900 hover:underline"><?= esc($patientName) ?></a>
                         <?php else: ?>
-                        <span class="text-gray-900">—</span>
+                        <span class="rx-info-value">-</span>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
 
-            <div class="rx-card">
+            <div class="rx-card rx-card-instructions">
                 <div class="rx-card-header">
-                    <i class="fas fa-circle-info text-teal-600"></i><span><?= esc($tr('important_instructions')) ?></span>
+                    <i class="fas fa-circle-info"></i>
+                    <div>
+                        <h3 class="text-base font-black"><?= esc($tr('important_instructions')) ?></h3>
+                        <p class="rx-section-subtitle"><?= esc($tr('instructions_help')) ?></p>
+                    </div>
                 </div>
-                <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                <div class="rx-instructions-body whitespace-pre-line">
                     <?= nl2br(esc($prescription['instructions'] ?? $tr('no_instructions_provided'))) ?>
+                </div>
+            </div>
+
+            <div class="rx-card rx-card-notice">
+                <div class="rx-notice-body">
+                    <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white/15">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </span>
+                    <div>
+                        <h4 class="text-sm font-black"><?= esc($tr('emergency_notice')) ?></h4>
+                        <p class="mt-1 text-sm font-semibold leading-relaxed opacity-95"><?= esc($tr('emergency_notice_body')) ?></p>
+                    </div>
                 </div>
             </div>
         </div>
