@@ -2288,9 +2288,17 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             <p><?= esc(lang('UI.patientExaminationsSubtitle')) ?></p>
                                         </div>
                                     </div>
-                                    <div class="patient-exam-count">
-                                        <strong><?= count($examinations) ?></strong>
-                                        <span><?= esc(lang('UI.patientTabExams')) ?></span>
+                                    <div class="patient-exam-header-actions">
+                                        <div class="patient-exam-count">
+                                            <strong><?= count($examinations) ?></strong>
+                                            <span><?= esc(lang('UI.patientTabExams')) ?></span>
+                                        </div>
+                                        <?php if (has_permission('examinations', 'create')): ?>
+                                            <button type="button" data-app-drawer-open="patientExamDrawer" class="patient-exam-create-action">
+                                                <i class="fas fa-plus"></i>
+                                                <span><?= esc(lang('UI.patientCreateExamination')) ?></span>
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
 
@@ -4201,6 +4209,309 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         background: #2563eb;
         border-color: #2563eb;
         box-shadow: 0 16px 28px -22px rgba(37, 99, 235, 0.9);
+    }
+    .patient-exam-workspace {
+        border: 1px solid rgba(255,255,255,0.76) !important;
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.20), transparent 32%),
+            radial-gradient(circle at 92% 8%, rgba(249,115,22,0.18), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.82) 44%, rgba(255,255,255,0.98)) !important;
+        box-shadow: 0 24px 58px -42px rgba(15,23,42,0.48), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+        padding: 0 !important;
+    }
+
+    .patient-exam-header {
+        margin: 0 !important;
+        padding: 1rem 1.25rem !important;
+        border-bottom: 0 !important;
+        background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a) !important;
+        color: #fff;
+    }
+
+    .patient-exam-heading h3,
+    .patient-exam-heading p,
+    .patient-exam-heading i {
+        color: #fff !important;
+    }
+
+    .patient-exam-heading p {
+        color: rgba(239,246,255,0.86) !important;
+    }
+
+    .patient-exam-heading-icon {
+        background: rgba(255,255,255,0.16) !important;
+        border: 1px solid rgba(255,255,255,0.18);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 16px 28px -24px rgba(15,23,42,0.62) !important;
+    }
+
+    .patient-exam-header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+
+    [dir="rtl"] .patient-exam-header-actions {
+        justify-content: flex-start;
+    }
+
+    .patient-exam-count {
+        min-width: 5.75rem !important;
+        background: rgba(255,255,255,0.16) !important;
+        border: 1px solid rgba(255,255,255,0.18) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 16px 28px -24px rgba(15,23,42,0.55) !important;
+    }
+
+    .patient-exam-count strong,
+    .patient-exam-count span {
+        color: #fff !important;
+    }
+
+    .patient-exam-create-action {
+        display: inline-flex;
+        min-height: 2.85rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        border: 0;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #f97316, #ea580c 58%, #c2410c);
+        padding: 0.75rem 1rem;
+        color: #fff;
+        font-size: 0.86rem;
+        font-weight: 900;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 32px -24px rgba(194,65,12,0.88);
+        transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .patient-exam-create-action:hover {
+        filter: brightness(1.04) saturate(1.06);
+        transform: translateY(-1px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 22px 38px -26px rgba(194,65,12,0.9);
+    }
+
+    .patient-exam-create-action i,
+    .patient-exam-create-action span {
+        color: #fff !important;
+    }
+
+    .patient-exam-list {
+        padding: 1rem !important;
+        gap: 0.9rem !important;
+    }
+
+    .patient-exam-card {
+        border: 1px solid rgba(255,255,255,0.84) !important;
+        border-radius: 1.2rem !important;
+        padding: 1rem !important;
+        background:
+            radial-gradient(circle at 4% 0%, rgba(37,99,235,0.12), transparent 30%),
+            radial-gradient(circle at 98% 0%, rgba(249,115,22,0.10), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92)) !important;
+        box-shadow: 0 18px 42px -34px rgba(15,23,42,0.46), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+    }
+
+
+    .patient-exam-date-icon {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    }
+
+    .patient-exam-status-complete {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+        color: #fff !important;
+    }
+
+    .patient-exam-status-open {
+        background: linear-gradient(135deg, #f97316, #ea580c) !important;
+        color: #fff !important;
+    }
+
+    .patient-exam-complaint,
+    .patient-exam-fact {
+        border-radius: 0.85rem;
+        background: rgba(248,250,252,0.74);
+        padding: 0.55rem 0.7rem;
+    }
+    /* Patient examinations second-pass spacing polish. */
+    .patient-exam-header {
+        gap: 1.1rem !important;
+        padding: 1.15rem 1.35rem !important;
+    }
+
+    .patient-exam-heading {
+        gap: 0.95rem !important;
+    }
+
+    .patient-exam-header-actions {
+        gap: 0.85rem !important;
+    }
+
+    .patient-exam-create-action {
+        min-height: 2.95rem;
+        padding: 0.82rem 1.1rem;
+    }
+
+    .patient-exam-list {
+        padding: 1.15rem !important;
+        gap: 1rem !important;
+    }
+
+    .patient-exam-card {
+        gap: 1rem !important;
+        padding: 1.1rem 1.15rem !important;
+    }
+
+    .patient-exam-card-main {
+        gap: 0.72rem !important;
+    }
+
+    .patient-exam-card-title-row {
+        gap: 1rem !important;
+    }
+
+    .patient-exam-date-block {
+        gap: 0.75rem !important;
+        padding-inline-start: 0.2rem;
+    }
+
+    .patient-exam-complaint,
+    .patient-exam-fact {
+        padding: 0.65rem 0.8rem;
+    }
+    /* Patient examinations row distinction pass. */
+    .patient-exam-list {
+        background: rgba(255,255,255,0.34);
+        border-top: 1px solid rgba(219,234,254,0.72);
+    }
+
+    .patient-exam-card {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(37,99,235,0.20) !important;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(37,99,235,0.20), transparent 34%),
+            radial-gradient(circle at 92% 12%, rgba(249,115,22,0.16), transparent 32%),
+            linear-gradient(135deg, #ffffff 0%, #f5f9ff 42%, #dbeafe 100%) !important;
+        box-shadow: 0 14px 30px -24px rgba(15,23,42,0.54), 0 1px 0 rgba(255,255,255,0.95) inset !important;
+    }
+
+    .patient-exam-card:nth-child(even) {
+        border-color: rgba(14,165,233,0.22) !important;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(14,165,233,0.20), transparent 34%),
+            radial-gradient(circle at 92% 12%, rgba(16,185,129,0.16), transparent 32%),
+            linear-gradient(135deg, #ffffff 0%, #f3fcff 44%, #cffafe 100%) !important;
+    }
+
+    .patient-exam-card:hover {
+        border-color: rgba(37,99,235,0.42) !important;
+        box-shadow: 0 22px 44px -28px rgba(37,99,235,0.42), 0 1px 0 rgba(255,255,255,0.95) inset !important;
+    }
+
+
+    .patient-exam-date-block {
+        align-self: stretch;
+        border-radius: 1rem;
+        background: rgba(255,255,255,0.72);
+        border: 1px solid rgba(191,219,254,0.72);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+        padding: 0.75rem 0.85rem;
+    }
+
+    .patient-exam-card-main {
+        border-radius: 1rem;
+        background: rgba(255,255,255,0.48);
+        padding: 0.2rem 0.1rem;
+    }
+
+    .patient-exam-card h4 {
+        color: #0b1220 !important;
+        font-size: 1.03rem !important;
+        font-weight: 900 !important;
+    }
+
+    .patient-exam-card h4 + p {
+        color: #475569 !important;
+        font-weight: 800 !important;
+    }
+
+    .patient-exam-complaint,
+    .patient-exam-fact {
+        border: 1px solid rgba(226,232,240,0.86);
+        background: rgba(255,255,255,0.78) !important;
+        color: #334155 !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.86);
+    }
+
+    .patient-exam-action {
+        background: rgba(255,255,255,0.82) !important;
+        border-color: rgba(37,99,235,0.24) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 24px -20px rgba(37,99,235,0.8);
+    }
+    /* Patient examinations final row readability pass. */
+    .patient-exam-list {
+        background:
+            linear-gradient(180deg, rgba(239,246,255,0.72), rgba(255,255,255,0.50)) !important;
+        gap: 1.15rem !important;
+    }
+
+    .patient-exam-card {
+        border: 1px solid rgba(29,78,216,0.58) !important;
+        background:
+            radial-gradient(circle at 12% 18%, rgba(37,99,235,0.34), transparent 34%),
+            radial-gradient(circle at 88% 0%, rgba(249,115,22,0.28), transparent 32%),
+            linear-gradient(135deg, #f8fbff 0%, #bfdbfe 54%, #93c5fd 100%) !important;
+        box-shadow: 0 18px 38px -26px rgba(30,64,175,0.50), 0 1px 0 rgba(255,255,255,0.96) inset !important;
+    }
+
+    .patient-exam-card:nth-child(even) {
+        border-color: rgba(8,145,178,0.58) !important;
+        background:
+            radial-gradient(circle at 12% 18%, rgba(8,145,178,0.34), transparent 34%),
+            radial-gradient(circle at 88% 0%, rgba(16,185,129,0.28), transparent 32%),
+            linear-gradient(135deg, #f7feff 0%, #a5f3fc 54%, #67e8f9 100%) !important;
+    }
+
+    .patient-exam-card:hover {
+        border-color: rgba(29,78,216,0.56) !important;
+        box-shadow: 0 24px 48px -28px rgba(29,78,216,0.56), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+    }
+
+    .patient-exam-date-block {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+        border-color: rgba(255,255,255,0.34) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 12px 24px -22px rgba(37,99,235,0.76) !important;
+    }
+
+    .patient-exam-card:nth-child(even) .patient-exam-date-block {
+        background: linear-gradient(135deg, #0891b2, #0e7490) !important;
+        border-color: rgba(255,255,255,0.34) !important;
+    }
+
+    .patient-exam-card-main {
+        background: transparent !important;
+        padding: 0 !important;
+    }
+
+    .patient-exam-complaint,
+    .patient-exam-fact {
+        background: rgba(255,255,255,0.86) !important;
+        border-color: rgba(203,213,225,0.92) !important;
+    }
+
+    .patient-exam-status {
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 10px 20px -18px rgba(15,23,42,0.55) !important;
+    }
+    .patient-exam-date-block,
+    .patient-exam-date-block .patient-exam-date-text,
+    .patient-exam-date-block i {
+        color: #ffffff !important;
+    }
+
+    .patient-exam-date-icon {
+        background: rgba(255,255,255,0.18) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22) !important;
     }
 
     @media (max-width: 767px) {
