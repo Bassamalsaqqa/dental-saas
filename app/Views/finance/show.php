@@ -1137,12 +1137,90 @@
         color: rgba(255,255,255,0.88) !important;
     }
 
-    .finance-trace-stat {
-        border: 1px solid rgba(255,255,255,0.2) !important;
-        background: rgba(255,255,255,0.15) !important;
-        color: #fff;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+    .finance-clinical-card .finance-show-card-header {
+        border: 0 !important;
+        background: radial-gradient(circle at 8% 0%, rgba(255,255,255,0.22), transparent 34%), linear-gradient(135deg, #059669, #047857 58%, #064e3b) !important;
+        color: #fff !important;
     }
+
+    .finance-clinical-card .finance-show-card-header h2,
+    .finance-clinical-card .finance-show-card-header p,
+    .finance-clinical-card .finance-show-card-header .text-gray-800,
+    .finance-clinical-card .finance-show-card-header .text-slate-500 {
+        color: #fff !important;
+    }
+
+    .finance-clinical-card .finance-show-card-header .bg-emerald-100 {
+        background: rgba(255,255,255,0.17) !important;
+        color: #fff !important;
+        border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .finance-clinical-card .finance-show-card-header .rounded-full {
+        background: rgba(255,255,255,0.18) !important;
+        border: 1px solid rgba(255,255,255,0.22);
+        color: #fff !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16);
+    }
+
+    .finance-clinical-profile-action,
+    .finance-context-patient-action {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.6rem !important;
+        border: 0 !important;
+        border-radius: 1rem !important;
+        background: linear-gradient(135deg, #facc15, #f59e0b) !important;
+        color: #111827 !important;
+        font-weight: 900 !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 18px 34px -24px rgba(146,64,14,0.8) !important;
+        transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease !important;
+        text-decoration: none !important;
+    }
+
+    .finance-clinical-profile-action {
+        min-height: 2.65rem !important;
+        padding: 0.7rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    .finance-context-patient-action {
+        width: 100% !important;
+        min-height: 2.9rem !important;
+        padding: 0.8rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .finance-clinical-profile-action:hover,
+    .finance-context-patient-action:hover {
+        color: #111827 !important;
+        filter: saturate(1.08) brightness(1.02);
+        transform: translateY(-1px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.26), 0 22px 38px -25px rgba(146,64,14,0.9) !important;
+    }
+
+    .finance-clinical-profile-action span,
+    .finance-clinical-profile-action i,
+    .finance-context-patient-action span,
+    .finance-context-patient-action i {
+        color: #111827 !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
+    }
+
+    .finance-trace-stat {
+        border: 1px solid rgba(255,255,255,0.18) !important;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 16px 30px -26px rgba(15,23,42,0.52);
+    }
+
+    .finance-trace-stat:nth-child(1) { background: linear-gradient(135deg, #2563eb, #1d4ed8) !important; }
+    .finance-trace-stat:nth-child(2) { background: linear-gradient(135deg, #059669, #047857) !important; }
+    .finance-trace-stat:nth-child(3) { background: linear-gradient(135deg, #4f46e5, #4338ca) !important; }
+    .finance-trace-stat:nth-child(4) { background: linear-gradient(135deg, #7c3aed, #6d28d9) !important; }
+    .finance-trace-stat:nth-child(5) { background: linear-gradient(135deg, #0284c7, #0369a1) !important; }
+    .finance-trace-stat:nth-child(6) { background: linear-gradient(135deg, #e11d48, #be123c) !important; }
 
     .finance-trace-stat p,
     .finance-trace-stat .text-slate-500,
@@ -1339,6 +1417,23 @@
             grid-column: 2;
             grid-row: 1 / span 3;
             align-self: start;
+        }
+
+        .finance-show-page-grid > .finance-show-main {
+            display: contents;
+        }
+
+        .finance-show-page-grid > .finance-show-main > .finance-show-card {
+            grid-column: 1;
+        }
+
+        .finance-show-page-grid > .finance-show-main > .finance-clinical-card {
+            grid-column: 1 / -1;
+        }
+
+        .finance-show-page-grid > .finance-show-sidebar {
+            grid-column: 2;
+            grid-row: 1;
         }
 
         .finance-show-sidebar-stack {
@@ -1678,7 +1773,7 @@
                                     <p class="mt-1 text-sm text-slate-600"><?= esc(lang('Finance.clinicalTraceSnapshotHelp')) ?></p>
                                 </div>
                                 <?php if (!empty($patient['id'])): ?>
-                                    <a href="<?= esc(workflow_context_url('patient/' . (int) $patient['id'], $return_to ?? null)) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-bold text-emerald-700 shadow-sm hover:bg-emerald-50">
+                                    <a href="<?= esc(workflow_context_url('patient/' . (int) $patient['id'], $return_to ?? null)) ?>" class="finance-clinical-profile-action">
                                         <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
                                         <span><?= esc(lang('Finance.openPatientProfile')) ?></span>
                                     </a>
@@ -2013,11 +2108,9 @@
                             </div>
                         </div>
                         <div class="finance-show-context-actions">
-                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>"
-                               class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-black shadow-lg transition hover:-translate-y-0.5"
-                               style="background: linear-gradient(135deg, #facc15, #f59e0b); border-color: rgba(146,64,14,0.28); color: #111827 !important; box-shadow: 0 18px 32px -24px rgba(146,64,14,0.75);">
-                                <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>" style="color: #111827 !important;"></i>
-                                <span style="color: #111827 !important; opacity: 1 !important; text-shadow: none !important;"><?= esc($ui['openProfile']) ?></span>
+                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" class="finance-context-patient-action">
+                                <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
+                                <span><?= esc(lang('Finance.openPatientProfile')) ?></span>
                             </a>
                         </div>
                     </div>
