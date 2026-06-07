@@ -1232,6 +1232,46 @@
         background: radial-gradient(circle at 96% 0%, rgba(5,150,105,0.16), transparent 34%), linear-gradient(135deg, rgba(236,253,245,0.98), rgba(255,255,255,0.95));
     }
 
+    .finance-context-primary-link {
+        display: inline-flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        min-height: 2.9rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(79,70,229,0.28);
+        background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.96), transparent 34%), linear-gradient(135deg, #ffffff, #eef2ff 62%, #e0e7ff);
+        color: #312e81 !important;
+        font-size: 0.9rem;
+        font-weight: 900;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.94), 0 18px 32px -25px rgba(67,56,202,0.45);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .finance-context-primary-link:hover {
+        color: #1e1b4b !important;
+        background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.98), transparent 34%), linear-gradient(135deg, #ffffff, #e0e7ff 62%, #c7d2fe);
+        transform: translateY(-1px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 22px 38px -27px rgba(67,56,202,0.58);
+    }
+
+    .finance-context-primary-link span,
+    .finance-context-primary-link i {
+        color: #312e81 !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
+    }
+
+    .finance-context-primary-link:hover span,
+    .finance-context-primary-link:hover i {
+        color: #1e1b4b !important;
+    }
+
+    [dir="rtl"] .finance-context-primary-link {
+        flex-direction: row-reverse;
+    }
+
     .finance-notes-body {
         border-inline-start: 5px solid #d97706 !important;
         background: radial-gradient(circle at 96% 0%, rgba(217,119,6,0.16), transparent 36%), linear-gradient(135deg, rgba(255,251,235,0.98), rgba(255,255,255,0.94)) !important;
@@ -1973,8 +2013,9 @@
                             </div>
                         </div>
                         <div class="finance-show-context-actions">
-                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" class="finance-show-btn finance-show-btn-soft w-full">
-                                <?= esc($ui['openProfile']) ?>
+                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" class="finance-context-primary-link">
+                                <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
+                                <span><?= esc($ui['openProfile']) ?></span>
                             </a>
                         </div>
                     </div>
