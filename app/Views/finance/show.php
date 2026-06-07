@@ -2013,9 +2013,11 @@
                             </div>
                         </div>
                         <div class="finance-show-context-actions">
-                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" class="finance-context-primary-link">
-                                <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
-                                <span><?= esc($ui['openProfile']) ?></span>
+                            <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>"
+                               class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-black shadow-lg transition hover:-translate-y-0.5"
+                               style="background: linear-gradient(135deg, #facc15, #f59e0b); border-color: rgba(146,64,14,0.28); color: #111827 !important; box-shadow: 0 18px 32px -24px rgba(146,64,14,0.75);">
+                                <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>" style="color: #111827 !important;"></i>
+                                <span style="color: #111827 !important; opacity: 1 !important; text-shadow: none !important;"><?= esc($ui['openProfile']) ?></span>
                             </a>
                         </div>
                     </div>
