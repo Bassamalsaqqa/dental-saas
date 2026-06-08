@@ -18,40 +18,45 @@ $bucketLabels = [
 
 <div class="space-y-6">
     <div class="mx-auto max-w-7xl space-y-6">
-        <section>
-            <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
-                <div class="px-6 py-5 border-b border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div class="flex items-start gap-3">
-                        <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-chart-line text-green-600 text-sm"></i>
+        <section class="overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-emerald-700 via-teal-800 to-slate-950 text-white shadow-2xl shadow-emerald-900/20">
+            <div class="relative">
+                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%),radial-gradient(circle_at_92%_8%,rgba(16,185,129,0.24),transparent_30%)]"></div>
+                <div class="relative px-6 py-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                    <div class="flex items-start gap-4">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg shadow-black/10 ring-1 ring-white/20">
+                            <i class="fas fa-chart-line text-lg"></i>
                         </div>
                         <div>
-                            <h1 class="text-lg font-semibold text-gray-900"><?= lang('Finance.financialReports') ?></h1>
-                            <p class="text-xs text-gray-500"><?= lang('Finance.financialReportsHelp') ?></p>
+                            <h1 class="text-2xl font-black tracking-tight"><?= lang('Finance.financialReports') ?></h1>
+                            <p class="mt-1 max-w-3xl text-sm font-semibold text-emerald-50/90"><?= lang('Finance.financialReportsHelp') ?></p>
+                            <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold">
+                                <span class="rounded-full bg-white/10 px-3 py-1.5 ring-1 ring-white/20"><?= esc($start_date) ?> - <?= esc($end_date) ?></span>
+                                <span class="rounded-full bg-white/10 px-3 py-1.5 ring-1 ring-white/20"><?= lang('Finance.reportBasisLabel') ?>: <?= lang('Finance.selectedPeriod') ?></span>
+                            </div>
                         </div>
                     </div>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                        <i class="fas fa-arrow-left rtl-back-icon"></i>
                         <?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
-                <form method="GET" action="<?= base_url('finance/reports') ?>" class="px-6 py-4 flex flex-wrap items-end gap-4">
+                <form method="GET" action="<?= base_url('finance/reports') ?>" class="relative mx-4 mb-4 flex flex-wrap items-end gap-4 rounded-2xl border border-white/20 bg-white/95 px-5 py-4 text-slate-900 shadow-xl shadow-black/10">
                     <div class="flex-1 min-w-[160px] max-w-xs space-y-1">
-                        <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.startDate') ?></label>
-                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full">
+                        <label class="block text-xs font-bold text-slate-600"><?= lang('Finance.startDate') ?></label>
+                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15">
                     </div>
                     <div class="flex-1 min-w-[160px] max-w-xs space-y-1">
-                        <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.endDate') ?></label>
-                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full">
+                        <label class="block text-xs font-bold text-slate-600"><?= lang('Finance.endDate') ?></label>
+                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15">
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium">
+                        <button type="submit" class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-700 hover:to-teal-800">
                             <?= lang('Finance.filter') ?>
                         </button>
-                        <button type="button" onclick="exportReport()" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
+                        <button type="button" onclick="exportReport()" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
                             <?= lang('Finance.exportCashCsv') ?>
                         </button>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex justify-center bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
                             <?= lang('Finance.reset') ?>
                         </a>
                     </div>
@@ -60,12 +65,17 @@ $bucketLabels = [
         </section>
 
         <section class="mb-8">
-            <div class="mb-4">
-                <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.ownerSummaryTitle') ?></h2>
-                <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.ownerSummaryHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+            <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 class="text-xl font-black text-slate-950"><?= lang('Finance.ownerSummaryTitle') ?></h2>
+                    <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('Finance.ownerSummaryHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                </div>
+                <span class="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                    <i class="fas fa-circle-info text-emerald-600"></i><?= lang('Finance.reportBasisLabel') ?>
+                </span>
             </div>
-            <div class="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-                <span class="font-semibold text-slate-800"><?= lang('Finance.reportBasisLabel') ?>:</span>
+            <div class="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm font-medium text-emerald-900 shadow-sm">
+                <span class="font-black text-emerald-950"><?= lang('Finance.reportBasisLabel') ?>:</span>
                 <?= lang('Finance.reportBasisHelp') ?>
             </div>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 sm:gap-6 items-stretch">
@@ -78,39 +88,40 @@ $bucketLabels = [
                     ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? 0, 'help' => lang('Finance.netPositionHelp'), 'accent' => 'slate'],
                 ];
                 $accentMap = [
-                    'green' => ['card' => 'border-emerald-200 bg-emerald-50', 'badge' => 'bg-emerald-100 text-emerald-700', 'value' => 'text-emerald-950'],
-                    'rose' => ['card' => 'border-rose-200 bg-rose-50', 'badge' => 'bg-rose-100 text-rose-700', 'value' => 'text-rose-950'],
-                    'amber' => ['card' => 'border-amber-200 bg-amber-50', 'badge' => 'bg-amber-100 text-amber-700', 'value' => 'text-amber-950'],
-                    'indigo' => ['card' => 'border-indigo-200 bg-indigo-50', 'badge' => 'bg-indigo-100 text-indigo-700', 'value' => 'text-indigo-950'],
-                    'slate' => ['card' => 'border-slate-200 bg-slate-50', 'badge' => 'bg-slate-100 text-slate-700', 'value' => ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700'],
+                    'green' => ['card' => 'bg-gradient-to-br from-emerald-600 to-teal-800 shadow-emerald-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-emerald-50/90', 'help' => 'text-emerald-50/80'],
+                    'rose' => ['card' => 'bg-gradient-to-br from-rose-600 to-pink-800 shadow-rose-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-rose-50/90', 'help' => 'text-rose-50/80'],
+                    'amber' => ['card' => 'bg-gradient-to-br from-amber-500 to-orange-700 shadow-amber-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-amber-50/95', 'help' => 'text-amber-50/80'],
+                    'indigo' => ['card' => 'bg-gradient-to-br from-indigo-600 to-blue-900 shadow-indigo-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-indigo-50/90', 'help' => 'text-indigo-50/80'],
+                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'bg-gradient-to-br from-slate-700 to-slate-950 shadow-slate-500/25' : 'bg-gradient-to-br from-rose-700 to-slate-950 shadow-rose-500/25', 'badge' => 'bg-white/10 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-slate-100/90', 'help' => 'text-slate-100/80'],
                 ];
                 ?>
                 <?php foreach ($summaryCards as $card): ?>
                     <?php $accent = $accentMap[$card['accent']]; ?>
-                    <div class="rounded-xl border p-5 shadow-sm <?= esc($accent['card']) ?>">
-                        <div class="flex items-start justify-between gap-4">
+                    <div class="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg <?= esc($accent['card']) ?>">
+                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.22),transparent_34%)]"></div>
+                        <div class="relative flex items-start justify-between gap-4">
                             <div class="min-w-0">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= esc($card['title']) ?></p>
+                                <p class="text-xs font-black uppercase tracking-wide <?= esc($accent['label']) ?>"><?= esc($card['title']) ?></p>
                                 <p class="mt-3 text-3xl font-black <?= esc($accent['value']) ?>"><?= $formatMoney($card['value']) ?></p>
                             </div>
-                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl <?= esc($accent['badge']) ?>">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 <?= esc($accent['badge']) ?>">
                                 <i class="fas <?= esc($card['icon']) ?> text-base"></i>
                             </div>
                         </div>
-                        <p class="mt-3 text-xs text-gray-500"><?= esc($card['help']) ?></p>
+                        <p class="relative mt-3 text-xs font-semibold <?= esc($accent['help']) ?>"><?= esc($card['help']) ?></p>
                     </div>
                 <?php endforeach; ?>
             </div>
         </section>
 
-        <section class="overflow-hidden rounded-xl border border-indigo-200 bg-indigo-50/40 shadow-sm">
-            <div class="border-b border-indigo-100 px-6 py-5">
+        <section class="overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-white via-indigo-50/80 to-white shadow-xl shadow-indigo-100/60">
+            <div class="border-b border-indigo-100 bg-gradient-to-r from-indigo-700 to-blue-900 px-6 py-5 text-white">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.apAgingDetail') ?></h2>
-                        <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.apAgingDetailHelp') ?></p>
+                        <h2 class="text-xl font-black"><?= lang('Finance.apAgingDetail') ?></h2>
+                        <p class="mt-1 text-sm font-semibold text-indigo-50/90"><?= lang('Finance.apAgingDetailHelp') ?></p>
                     </div>
-                    <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800"><?= esc(lang('Finance.openPayablesTop', ['count' => count($ap_aging_detail ?? [])])) ?></span>
+                    <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= esc(lang('Finance.openPayablesTop', ['count' => count($ap_aging_detail ?? [])])) ?></span>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -143,16 +154,15 @@ $bucketLabels = [
                     </tbody>
                 </table>
             </div>
-            </div>
         </section>
 
-        <section class="mb-8">
+        <section class="mb-8 rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-white p-5 shadow-xl shadow-emerald-100/60">
             <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.treasuryOverviewTitle') ?></h2>
-                    <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.treasuryOverviewHelp', ['date' => $end_date])) ?></p>
+                    <h2 class="text-xl font-black text-slate-950"><?= lang('Finance.treasuryOverviewTitle') ?></h2>
+                    <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('Finance.treasuryOverviewHelp', ['date' => $end_date])) ?></p>
                 </div>
-                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-50">
                     <i class="fas fa-right-left mr-2"></i><?= lang('Finance.treasuryTransfers') ?>
                 </a>
             </div>
@@ -237,14 +247,14 @@ $bucketLabels = [
             </div>
         </section>
 
-        <section class="overflow-hidden rounded-xl border border-amber-200 bg-amber-50/40 shadow-sm">
-            <div class="border-b border-amber-100 px-6 py-5">
+        <section class="overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50/80 to-white shadow-xl shadow-amber-100/60">
+            <div class="border-b border-amber-100 bg-gradient-to-r from-amber-500 to-orange-700 px-6 py-5 text-white">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.arAgingDetail') ?></h2>
-                        <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.arAgingDetailHelp') ?></p>
+                        <h2 class="text-xl font-black"><?= lang('Finance.arAgingDetail') ?></h2>
+                        <p class="mt-1 text-sm font-semibold text-amber-50/90"><?= lang('Finance.arAgingDetailHelp') ?></p>
                     </div>
-                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800"><?= esc(lang('Finance.openInvoicesTop', ['count' => count($ar_aging_detail ?? [])])) ?></span>
+                    <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= esc(lang('Finance.openInvoicesTop', ['count' => count($ar_aging_detail ?? [])])) ?></span>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -279,19 +289,20 @@ $bucketLabels = [
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
         </section>
 
-        <section class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/40 shadow-sm">
-            <div class="border-b border-slate-100 px-6 py-5">
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white shadow-xl shadow-slate-200/70">
+            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-800 to-slate-950 px-6 py-5 text-white">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
-                        <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.unifiedLedgerHelp') ?></p>
+                        <h2 class="text-xl font-black"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
+                        <p class="mt-1 text-sm font-semibold text-slate-200/90"><?= lang('Finance.unifiedLedgerHelp') ?></p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.eventsLabel') ?></span>
-                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><?= lang('Finance.inflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
-                        <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"><?= lang('Finance.outflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? 0) ?></span>
+                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-100 ring-1 ring-white/20"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.eventsLabel') ?></span>
+                        <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 ring-1 ring-emerald-200/20"><?= lang('Finance.inflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
+                        <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.outflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? 0) ?></span>
                     </div>
                 </div>
             </div>
@@ -383,7 +394,6 @@ $bucketLabels = [
                         <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
             </div>
         </section>
 
