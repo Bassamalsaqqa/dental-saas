@@ -28,10 +28,8 @@ $bucketLabels = [
                         </div>
                         <div>
                             <h1 class="text-2xl font-black tracking-tight"><?= lang('Finance.financialReports') ?></h1>
-                            <p class="mt-1 max-w-3xl text-sm font-semibold text-emerald-50/90"><?= lang('Finance.financialReportsHelp') ?></p>
                             <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                                 <span class="rounded-full bg-white/10 px-3 py-1.5 ring-1 ring-white/20"><?= esc($start_date) ?> - <?= esc($end_date) ?></span>
-                                <span class="rounded-full bg-white/10 px-3 py-1.5 ring-1 ring-white/20"><?= lang('Finance.reportBasisLabel') ?>: <?= lang('Finance.selectedPeriod') ?></span>
                             </div>
                         </div>
                     </div>
@@ -65,34 +63,26 @@ $bucketLabels = [
         </section>
 
         <section class="mb-8">
-            <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div class="mb-4">
                 <div>
                     <h2 class="text-xl font-black text-slate-950"><?= lang('Finance.ownerSummaryTitle') ?></h2>
-                    <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('Finance.ownerSummaryHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
                 </div>
-                <span class="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-                    <i class="fas fa-circle-info text-emerald-600"></i><?= lang('Finance.reportBasisLabel') ?>
-                </span>
-            </div>
-            <div class="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm font-medium text-emerald-900 shadow-sm">
-                <span class="font-black text-emerald-950"><?= lang('Finance.reportBasisLabel') ?>:</span>
-                <?= lang('Finance.reportBasisHelp') ?>
             </div>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 sm:gap-6 items-stretch">
                 <?php
                 $summaryCards = [
-                    ['icon' => 'fa-arrow-down-wide-short', 'title' => lang('Finance.moneyIn'), 'value' => $ownerSummary['money_in'] ?? 0, 'help' => lang('Finance.moneyInHelp'), 'accent' => 'green'],
-                    ['icon' => 'fa-arrow-up-wide-short', 'title' => lang('Finance.moneyOut'), 'value' => $ownerSummary['money_out'] ?? 0, 'help' => lang('Finance.moneyOutHelp'), 'accent' => 'rose'],
-                    ['icon' => 'fa-file-invoice-dollar', 'title' => lang('Finance.customersOweUs'), 'value' => $ownerSummary['customers_owe_us'] ?? 0, 'help' => lang('Finance.customersOweUsHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date]), 'accent' => 'amber'],
-                    ['icon' => 'fa-hand-holding-dollar', 'title' => lang('Finance.weOweOthers'), 'value' => $ownerSummary['we_owe_others'] ?? 0, 'help' => lang('Finance.weOweOthersHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date]), 'accent' => 'indigo'],
-                    ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? 0, 'help' => lang('Finance.netPositionHelp'), 'accent' => 'slate'],
+                    ['icon' => 'fa-arrow-down-wide-short', 'title' => lang('Finance.moneyIn'), 'value' => $ownerSummary['money_in'] ?? 0, 'accent' => 'green'],
+                    ['icon' => 'fa-arrow-up-wide-short', 'title' => lang('Finance.moneyOut'), 'value' => $ownerSummary['money_out'] ?? 0, 'accent' => 'rose'],
+                    ['icon' => 'fa-file-invoice-dollar', 'title' => lang('Finance.customersOweUs'), 'value' => $ownerSummary['customers_owe_us'] ?? 0, 'accent' => 'amber'],
+                    ['icon' => 'fa-hand-holding-dollar', 'title' => lang('Finance.weOweOthers'), 'value' => $ownerSummary['we_owe_others'] ?? 0, 'accent' => 'indigo'],
+                    ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? 0, 'accent' => 'slate'],
                 ];
                 $accentMap = [
-                    'green' => ['card' => 'bg-gradient-to-br from-emerald-600 to-teal-800 shadow-emerald-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-emerald-50/90', 'help' => 'text-emerald-50/80'],
-                    'rose' => ['card' => 'bg-gradient-to-br from-rose-600 to-pink-800 shadow-rose-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-rose-50/90', 'help' => 'text-rose-50/80'],
-                    'amber' => ['card' => 'bg-gradient-to-br from-amber-500 to-orange-700 shadow-amber-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-amber-50/95', 'help' => 'text-amber-50/80'],
-                    'indigo' => ['card' => 'bg-gradient-to-br from-indigo-600 to-blue-900 shadow-indigo-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-indigo-50/90', 'help' => 'text-indigo-50/80'],
-                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'bg-gradient-to-br from-slate-700 to-slate-950 shadow-slate-500/25' : 'bg-gradient-to-br from-rose-700 to-slate-950 shadow-rose-500/25', 'badge' => 'bg-white/10 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-slate-100/90', 'help' => 'text-slate-100/80'],
+                    'green' => ['card' => 'bg-gradient-to-br from-emerald-600 to-teal-800 shadow-emerald-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-emerald-50/90'],
+                    'rose' => ['card' => 'bg-gradient-to-br from-rose-600 to-pink-800 shadow-rose-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-rose-50/90'],
+                    'amber' => ['card' => 'bg-gradient-to-br from-amber-500 to-orange-700 shadow-amber-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-amber-50/95'],
+                    'indigo' => ['card' => 'bg-gradient-to-br from-indigo-600 to-blue-900 shadow-indigo-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-indigo-50/90'],
+                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'bg-gradient-to-br from-slate-700 to-slate-950 shadow-slate-500/25' : 'bg-gradient-to-br from-rose-700 to-slate-950 shadow-rose-500/25', 'badge' => 'bg-white/10 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-slate-100/90'],
                 ];
                 ?>
                 <?php foreach ($summaryCards as $card): ?>
@@ -108,22 +98,23 @@ $bucketLabels = [
                                 <i class="fas <?= esc($card['icon']) ?> text-base"></i>
                             </div>
                         </div>
-                        <p class="relative mt-3 text-xs font-semibold <?= esc($accent['help']) ?>"><?= esc($card['help']) ?></p>
                     </div>
                 <?php endforeach; ?>
             </div>
         </section>
 
-        <section class="overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-white via-indigo-50/80 to-white shadow-xl shadow-indigo-100/60">
-            <div class="border-b border-indigo-100 bg-gradient-to-r from-indigo-700 to-blue-900 px-6 py-5 text-white">
+        <details class="group overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-white via-indigo-50/80 to-white shadow-xl shadow-indigo-100/60">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-indigo-100 bg-gradient-to-r from-indigo-700 to-blue-900 px-6 py-5 text-white">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-black"><?= lang('Finance.apAgingDetail') ?></h2>
-                        <p class="mt-1 text-sm font-semibold text-indigo-50/90"><?= lang('Finance.apAgingDetailHelp') ?></p>
                     </div>
                     <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= esc(lang('Finance.openPayablesTop', ['count' => count($ap_aging_detail ?? [])])) ?></span>
                 </div>
-            </div>
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </span>
+            </summary>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-indigo-50">
@@ -154,13 +145,12 @@ $bucketLabels = [
                     </tbody>
                 </table>
             </div>
-        </section>
+        </details>
 
         <section class="mb-8 rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-white p-5 shadow-xl shadow-emerald-100/60">
             <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 class="text-xl font-black text-slate-950"><?= lang('Finance.treasuryOverviewTitle') ?></h2>
-                    <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('Finance.treasuryOverviewHelp', ['date' => $end_date])) ?></p>
                 </div>
                 <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-50">
                     <i class="fas fa-right-left mr-2"></i><?= lang('Finance.treasuryTransfers') ?>
@@ -170,22 +160,18 @@ $bucketLabels = [
                 <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($liquidityLabels['safe_cash'] ?? lang('Finance.liquidityAccount.safe_cash')) ?></p>
                     <p class="mt-2 text-3xl font-black text-emerald-950"><?= $formatMoney($treasuryClosing['safe_cash'] ?? 0) ?></p>
-                    <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.closingSafeCashHelp') ?></p>
                 </div>
                 <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-blue-700"><?= esc($liquidityLabels['bank'] ?? lang('Finance.liquidityAccount.bank')) ?></p>
                     <p class="mt-2 text-3xl font-black text-blue-950"><?= $formatMoney($treasuryClosing['bank'] ?? 0) ?></p>
-                    <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.closingBankCashHelp') ?></p>
                 </div>
                 <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= esc($liquidityLabels['undeposited_checks'] ?? lang('Finance.liquidityAccount.undeposited_checks')) ?></p>
                     <p class="mt-2 text-3xl font-black text-amber-950"><?= $formatMoney($treasuryClosing['undeposited_checks'] ?? 0) ?></p>
-                    <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.closingChecksOnHandHelp') ?></p>
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.totalLiquidFunds') ?></p>
                     <p class="mt-2 text-3xl font-black text-slate-950"><?= $formatMoney($treasuryClosing['total_liquid_funds'] ?? 0) ?></p>
-                    <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.totalLiquidFundsHelp') ?></p>
                 </div>
             </div>
             <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -241,22 +227,20 @@ $bucketLabels = [
                     </div>
                 </div>
             </div>
-            <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-                <span class="font-semibold text-blue-900"><?= lang('Finance.reportBasisLabel') ?>:</span>
-                <?= lang('Finance.treasuryAccuracyNote') ?>
-            </div>
         </section>
 
-        <section class="overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50/80 to-white shadow-xl shadow-amber-100/60">
-            <div class="border-b border-amber-100 bg-gradient-to-r from-amber-500 to-orange-700 px-6 py-5 text-white">
+        <details class="group overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50/80 to-white shadow-xl shadow-amber-100/60">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-amber-100 bg-gradient-to-r from-amber-500 to-orange-700 px-6 py-5 text-white">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-black"><?= lang('Finance.arAgingDetail') ?></h2>
-                        <p class="mt-1 text-sm font-semibold text-amber-50/90"><?= lang('Finance.arAgingDetailHelp') ?></p>
                     </div>
                     <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= esc(lang('Finance.openInvoicesTop', ['count' => count($ar_aging_detail ?? [])])) ?></span>
                 </div>
-            </div>
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </span>
+            </summary>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-amber-50">
@@ -290,14 +274,13 @@ $bucketLabels = [
                     </tbody>
                 </table>
             </div>
-        </section>
+        </details>
 
-        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white shadow-xl shadow-slate-200/70">
-            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-800 to-slate-950 px-6 py-5 text-white">
+        <details class="group overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white shadow-xl shadow-slate-200/70">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-slate-200 bg-gradient-to-r from-slate-800 to-slate-950 px-6 py-5 text-white">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div>
                         <h2 class="text-xl font-black"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
-                        <p class="mt-1 text-sm font-semibold text-slate-200/90"><?= lang('Finance.unifiedLedgerHelp') ?></p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                         <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-100 ring-1 ring-white/20"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.eventsLabel') ?></span>
@@ -305,7 +288,10 @@ $bucketLabels = [
                         <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.outflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? 0) ?></span>
                     </div>
                 </div>
-            </div>
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </span>
+            </summary>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-slate-100/80">
@@ -395,30 +381,28 @@ $bucketLabels = [
                     </tbody>
                 </table>
             </div>
-        </section>
+        </details>
 
-        <details class="group rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <summary class="flex cursor-pointer list-none items-center justify-between px-6 py-5">
+        <details class="group overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-emerald-50/45 shadow-xl shadow-slate-200/70">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 px-6 py-5 text-white">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.detailsBreakdownTitle') ?></h2>
-                    <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.detailsBreakdownHelp') ?></p>
+                    <h2 class="text-xl font-black"><?= lang('Finance.detailsBreakdownTitle') ?></h2>
                 </div>
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors group-open:bg-green-100 group-open:text-green-600">
-                    <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-open:rotate-180"></i>
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                    <i class="fas fa-chevron-down text-xs"></i>
                 </span>
             </summary>
-            <div class="space-y-6 border-t border-gray-200 px-6 py-6">
+            <div class="space-y-6 border-t border-slate-200 px-6 py-6">
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4"><p class="text-sm font-semibold text-gray-700"><?= lang('Finance.grossCollections') ?></p><p class="mt-2 text-2xl font-black text-emerald-950"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p></div>
-                    <div class="rounded-lg border border-rose-200 bg-rose-50 p-4"><p class="text-sm font-semibold text-gray-700"><?= lang('Finance.refunds') ?></p><p class="mt-2 text-2xl font-black text-rose-950"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p></div>
-                    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4"><p class="text-sm font-semibold text-gray-700"><?= lang('Finance.expensesPaid') ?></p><p class="mt-2 text-2xl font-black text-amber-950"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p></div>
-                    <div class="rounded-lg border border-indigo-200 bg-indigo-50 p-4"><p class="text-sm font-semibold text-gray-700"><?= lang('Finance.providerPaidCash') ?></p><p class="mt-2 text-2xl font-black text-indigo-950"><?= $formatMoney($stats['provider_paid_cash_total'] ?? 0) ?></p></div>
-                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4"><p class="text-sm font-semibold text-gray-700"><?= lang('Finance.netClinicCash') ?></p><p class="mt-2 text-2xl font-black text-slate-950"><?= $formatMoney($stats['net_clinic_cash'] ?? 0) ?></p></div>
+                    <div class="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-600 to-teal-800 p-4 text-white shadow-lg shadow-emerald-500/20"><p class="text-sm font-black text-emerald-50/90"><?= lang('Finance.grossCollections') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p></div>
+                    <div class="rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-600 to-pink-800 p-4 text-white shadow-lg shadow-rose-500/20"><p class="text-sm font-black text-rose-50/90"><?= lang('Finance.refunds') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p></div>
+                    <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-500 to-orange-700 p-4 text-white shadow-lg shadow-amber-500/20"><p class="text-sm font-black text-amber-50/95"><?= lang('Finance.expensesPaid') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p></div>
+                    <div class="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-600 to-blue-900 p-4 text-white shadow-lg shadow-indigo-500/20"><p class="text-sm font-black text-indigo-50/90"><?= lang('Finance.providerPaidCash') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['provider_paid_cash_total'] ?? 0) ?></p></div>
+                    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-700 to-slate-950 p-4 text-white shadow-lg shadow-slate-500/20"><p class="text-sm font-black text-slate-100/90"><?= lang('Finance.netClinicCash') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['net_clinic_cash'] ?? 0) ?></p></div>
                 </div>
                 <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
                     <section class="rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.treasuryMovementTitle') ?></h3>
-                        <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.treasuryMovementHelp') ?></p>
                         <div class="mt-4 grid gap-4 md:grid-cols-3">
                             <?php foreach (['safe_cash', 'bank', 'undeposited_checks'] as $accountKey): ?>
                                 <?php $bucket = $treasuryMovement[$accountKey] ?? ['in' => 0, 'out' => 0, 'net' => 0]; ?>
@@ -435,7 +419,6 @@ $bucketLabels = [
                     </section>
                     <section class="rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.accountsReceivableAging') ?></h3>
-                        <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.accountsReceivableAgingSummaryHelp', ['date' => $end_date])) ?></p>
                         <div class="mt-4 grid grid-cols-2 gap-3">
                             <?php foreach ($bucketLabels as $bucketKey => $bucketLabel): ?>
                                 <div class="rounded-lg border border-gray-200 bg-white p-4"><p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= esc($bucketLabel) ?></p><p class="mt-2 text-xl font-black text-gray-900"><?= $formatMoney($ar_aging_summary[$bucketKey] ?? 0) ?></p></div>
@@ -447,7 +430,6 @@ $bucketLabels = [
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                             <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.accountsPayableAging') ?></h3>
-                            <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.accountsPayableAgingSummaryHelp', ['date' => $end_date])) ?></p>
                         </div>
                         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <div class="rounded-lg border border-indigo-200 bg-white p-4">
@@ -468,7 +450,6 @@ $bucketLabels = [
                 </section>
                 <section class="rounded-xl border border-gray-200 bg-gray-50 p-5">
                     <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.monthlyCollectionsTrend') ?></h3>
-                    <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.monthlyCollectionsTrendHelp') ?></p>
                     <div class="mt-4 h-72 rounded-xl border border-gray-200 bg-white p-4"><canvas id="financeRevenueChart"></canvas></div>
                 </section>
             </div>
