@@ -2187,22 +2187,13 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                 <?php endif; ?>
 
-                                <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
-                                    <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-indigo-50/80 to-cyan-50/80 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientContractsTitle')) ?></h3>
-                                            <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('UI.patientContractsSubtitle')) ?></p>
-                                        </div>
-                                        <div class="flex flex-col items-start gap-2 md:items-end">
-                                            <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('UI.patientContractsHint')) ?></p>
-                                            <?php if (has_permission('patients', 'edit')): ?>
-                                                <a href="<?= workflow_context_url('contracts/create/' . $patient['id'], $patientContextReturnTo) ?>"
-                                                   class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-700 hover:to-cyan-800">
-                                                    <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
-                                                </a>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
+                                <div class="flex flex-wrap items-center justify-end gap-2">
+                                    <?php if (has_permission('patients', 'edit')): ?>
+                                        <a href="<?= workflow_context_url('contracts/create/' . $patient['id'], $patientContextReturnTo) ?>"
+                                           class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-700 hover:to-cyan-800">
+                                            <i class="fas fa-plus"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
@@ -5119,35 +5110,41 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
     .patient-compact-card {
         position: relative;
-        border: 1px solid #dbe4ef;
-        border-radius: 1rem;
-        background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
-        box-shadow: 0 16px 32px -28px rgba(15, 23, 42, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.82);
+        border-radius: 1.18rem;
+        background:
+            radial-gradient(circle at 12% 0%, rgba(37, 99, 235, 0.08), transparent 30%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+        box-shadow: 0 22px 54px -42px rgba(15, 23, 42, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.86);
         overflow: hidden;
     }
 
     .patient-compact-card-profile {
         background:
-            linear-gradient(180deg, rgba(239, 246, 255, 0.9), rgba(255, 255, 255, 0) 16%),
-            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.18), transparent 34%),
+            radial-gradient(circle at 92% 0%, rgba(14, 165, 233, 0.14), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #eff6ff 48%, #ffffff 100%);
     }
 
     .patient-compact-card-clinical {
         background:
-            linear-gradient(180deg, rgba(240, 249, 255, 0.95), rgba(255, 255, 255, 0) 16%),
-            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            radial-gradient(circle at 10% 0%, rgba(14, 165, 233, 0.18), transparent 34%),
+            radial-gradient(circle at 92% 0%, rgba(37, 99, 235, 0.14), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #ecfeff 46%, #ffffff 100%);
     }
 
     .patient-compact-card-alerts {
         background:
-            linear-gradient(180deg, rgba(255, 251, 235, 0.95), rgba(255, 255, 255, 0) 18%),
-            linear-gradient(180deg, #ffffff 0%, #fffdf9 100%);
+            radial-gradient(circle at 12% 0%, rgba(245, 158, 11, 0.22), transparent 34%),
+            radial-gradient(circle at 92% 0%, rgba(244, 63, 94, 0.12), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #fffbeb 48%, #fff7ed 100%);
     }
 
     .patient-compact-card-history {
         background:
-            linear-gradient(180deg, rgba(236, 254, 255, 0.9), rgba(255, 255, 255, 0) 18%),
-            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            radial-gradient(circle at 10% 0%, rgba(8, 145, 178, 0.18), transparent 34%),
+            radial-gradient(circle at 92% 0%, rgba(79, 70, 229, 0.12), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #ecfeff 46%, #ffffff 100%);
     }
 
     .patient-compact-header {
@@ -5155,23 +5152,25 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         align-items: flex-start;
         justify-content: space-between;
         gap: 0.85rem;
-        padding: 1rem 1.05rem 0.85rem;
-        border-bottom: 1px solid #e5edf6;
-        background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.88));
+        padding: 1.08rem 1.14rem 0.95rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.72);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.46));
+        backdrop-filter: blur(12px);
     }
 
     .patient-compact-title {
-        font-size: 0.98rem;
-        line-height: 1.25rem;
-        font-weight: 700;
+        font-size: 1.02rem;
+        line-height: 1.28rem;
+        font-weight: 800;
         color: #0f172a;
     }
 
     .patient-compact-copy {
         margin-top: 0.28rem;
-        font-size: 0.76rem;
-        line-height: 1.22rem;
-        color: #64748b;
+        font-size: 0.78rem;
+        line-height: 1.28rem;
+        font-weight: 600;
+        color: #475569;
     }
 
     .patient-facts-split {
@@ -5278,22 +5277,24 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-content: flex-start;
         min-width: 0;
         min-height: 5.85rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.85rem;
-        background: #fff;
-        padding: 0.8rem 0.92rem 0.84rem;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 8px -4px rgba(0,0,0,0.06);
+        border: 1px solid rgba(255, 255, 255, 0.74);
+        border-radius: 1rem;
+        background:
+            radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.34), transparent 34%),
+            linear-gradient(135deg, #ffffff, #f8fafc);
+        padding: 0.86rem 0.98rem 0.92rem;
+        box-shadow: 0 18px 36px -31px rgba(15, 23, 42, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.76);
         transition: box-shadow 0.2s, transform 0.2s;
         overflow: hidden;
     }
     .patient-fact-card:hover {
-        box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 16px -6px rgba(0,0,0,0.08);
+        box-shadow: 0 22px 42px -30px rgba(15, 23, 42, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.86);
         transform: translateY(-1px);
     }
 
     .patient-facts-section-primary .patient-fact-card {
         min-height: 6.1rem;
-        padding: 0.9rem 1rem 0.95rem;
+        padding: 0.96rem 1.08rem 1rem;
     }
 
     .patient-fact-card-wide {
@@ -5301,34 +5302,26 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     /* Accent backgrounds on fact cards */
-    .patient-fact-accent-blue { background: #eff6ff; border-color: #bfdbfe; }
-    .patient-fact-accent-slate { background: #f1f5f9; border-color: #cbd5e1; }
-    .patient-fact-accent-emerald { background: #ecfdf5; border-color: #a7f3d0; }
-    .patient-fact-accent-violet { background: #f5f3ff; border-color: #c4b5fd; }
-    .patient-fact-accent-amber { background: #fffbeb; border-color: #fde68a; }
-
-    .patient-fact-card::before {
-        content: none;
-    }
-        border-radius: 9999px;
-        background: #cbd5e1;
-    }
+    .patient-fact-accent-blue { background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.34), transparent 34%), linear-gradient(135deg, #1d4ed8, #0ea5e9); border-color: rgba(191, 219, 254, 0.58); }
+    .patient-fact-accent-slate { background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.26), transparent 34%), linear-gradient(135deg, #334155, #0f172a); border-color: rgba(203, 213, 225, 0.58); }
+    .patient-fact-accent-emerald { background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.30), transparent 34%), linear-gradient(135deg, #059669, #0f766e); border-color: rgba(167, 243, 208, 0.58); }
+    .patient-fact-accent-violet { background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.28), transparent 34%), linear-gradient(135deg, #7c3aed, #4f46e5); border-color: rgba(196, 181, 253, 0.58); }
+    .patient-fact-accent-amber { background: radial-gradient(circle at 12% 0%, rgba(255,255,255,0.34), transparent 34%), linear-gradient(135deg, #f59e0b, #ea580c); border-color: rgba(253, 230, 138, 0.62); }
 
     .patient-fact-label {
         display: block;
-        padding-inline-start: 0.8rem;
         font-size: 0.72rem;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: 0.01em;
-        color: #64748b;
+        color: rgba(255, 255, 255, 0.78);
     }
 
     .patient-fact-value {
-        margin-top: 0.38rem;
-        font-size: 0.92rem;
-        line-height: 1.34rem;
-        font-weight: 600;
-        color: #0f172a;
+        margin-top: 0.42rem;
+        font-size: 0.98rem;
+        line-height: 1.36rem;
+        font-weight: 800;
+        color: #ffffff;
         word-break: break-word;
         overflow-wrap: anywhere;
     }
@@ -5414,13 +5407,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     .patient-preview-card {
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 0.9rem;
         min-width: 0;
-        border: 1px solid #dbe5f0;
-        border-radius: 0.95rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 255, 0.97));
-        padding: 1rem;
-        box-shadow: 0 14px 24px -24px rgba(15, 23, 42, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        border-radius: 1.08rem;
+        background:
+            radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.16), transparent 34%),
+            radial-gradient(circle at 92% 0%, rgba(14, 165, 233, 0.13), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.9));
+        padding: 1.05rem;
+        box-shadow: 0 22px 42px -34px rgba(15, 23, 42, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.84);
     }
 
     .patient-preview-card-header {
@@ -5448,23 +5444,32 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         align-items: center;
         gap: 0.45rem;
         border-radius: 9999px;
-        border: 1px solid #dbeafe;
-        background: #eff6ff;
+        border: 1px solid rgba(191, 219, 254, 0.78);
+        background: linear-gradient(135deg, #ffffff, #eff6ff);
         color: #1d4ed8;
-        padding: 0.48rem 0.8rem;
+        padding: 0.5rem 0.82rem;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 800;
         white-space: nowrap;
+        box-shadow: 0 12px 22px -20px rgba(37, 99, 235, 0.48);
+    }
+
+    .patient-preview-action:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+        color: #ffffff;
     }
 
     .patient-preview-frame {
         position: relative;
         aspect-ratio: 16 / 9;
         overflow: hidden;
-        border-radius: 0.9rem;
-        border: 1px solid #dde7f2;
-        background: linear-gradient(180deg, #f8fafc, #f1f5f9);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+        border-radius: 0.95rem;
+        border: 1px solid rgba(191, 219, 254, 0.66);
+        background:
+            radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 34%),
+            linear-gradient(180deg, #ffffff, #eff6ff);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 16px 34px -30px rgba(37, 99, 235, 0.42);
     }
 
     .patient-preview-empty {
@@ -5536,11 +5541,13 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         align-items: center;
         gap: 0.35rem;
         border-radius: 9999px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        color: #334155;
-        padding: 0.4rem 0.7rem;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(191, 219, 254, 0.7);
+        color: #1e3a8a;
+        padding: 0.42rem 0.74rem;
         font-size: 0.74rem;
+        font-weight: 700;
+        box-shadow: 0 10px 18px -18px rgba(37, 99, 235, 0.38);
     }
 
     .patient-preview-meta {
@@ -5577,11 +5584,13 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-snapshot-item {
-        border: 1px solid #dce6f0;
-        border-radius: 0.9rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(236, 254, 255, 0.94));
-        padding: 0.92rem 0.95rem;
-        box-shadow: 0 12px 22px -24px rgba(15, 23, 42, 0.14);
+        border: 1px solid rgba(207, 250, 254, 0.82);
+        border-radius: 1rem;
+        background:
+            radial-gradient(circle at 10% 0%, rgba(8, 145, 178, 0.14), transparent 34%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(236, 254, 255, 0.94));
+        padding: 0.98rem 1rem;
+        box-shadow: 0 18px 36px -32px rgba(8, 145, 178, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.82);
     }
 
     .patient-snapshot-item-topline {
