@@ -4517,16 +4517,14 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
     /* Patient appointments table refinement. */
     #appointments-content > section {
-        border-color: rgba(191,219,254,0.72) !important;
-        background:
-            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.10), transparent 30%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.64) 58%, rgba(255,255,255,0.98)) !important;
-        box-shadow: 0 18px 42px -34px rgba(15,23,42,0.38), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+        border-color: rgba(226,232,240,0.92) !important;
+        background: #ffffff !important;
+        box-shadow: 0 18px 42px -36px rgba(15,23,42,0.32) !important;
     }
 
     #appointments-content > section > .relative.border-b {
-        background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(239,246,255,0.86)) !important;
-        border-bottom-color: rgba(191,219,254,0.68) !important;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        border-bottom-color: rgba(226,232,240,0.92) !important;
     }
 
     #appointments-content > section > .relative.border-b h3 {
@@ -4568,60 +4566,56 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     #appointments-content .overflow-x-auto {
-        border-color: rgba(226,232,240,0.92) !important;
-        background: rgba(255,255,255,0.92) !important;
-        box-shadow: 0 14px 32px -30px rgba(15,23,42,0.34) !important;
+        border-color: rgba(226,232,240,0.95) !important;
+        background: #ffffff !important;
+        box-shadow: 0 12px 28px -26px rgba(15,23,42,0.28) !important;
     }
 
     #appointments-content .patient-record-table {
-        border-collapse: separate !important;
-        border-spacing: 0 0.5rem !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
     }
 
     #appointments-content .patient-record-table thead th {
-        background: linear-gradient(180deg, rgba(248,250,252,0.98), rgba(239,246,255,0.84)) !important;
-        color: #334155 !important;
-        border-bottom: 0 !important;
+        background: #f8fafc !important;
+        color: #475569 !important;
+        border-bottom: 1px solid rgba(226,232,240,0.95) !important;
     }
 
     #appointments-content .patient-record-table tbody {
-        background: transparent !important;
+        background: #ffffff !important;
     }
 
     #appointments-content .patient-record-row {
-        background: transparent !important;
-        transition: transform 0.18s ease;
+        background: #ffffff !important;
+        transition: background-color 0.18s ease;
     }
 
     #appointments-content .patient-record-row:hover {
-        transform: translateY(-1px);
+        background: #eff6ff !important;
+        transform: none !important;
     }
 
     #appointments-content .patient-record-row td {
-        border-block: 1px solid rgba(226,232,240,0.92);
-        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
-        box-shadow: 0 10px 22px -22px rgba(15,23,42,0.30);
+        border-block: 0 !important;
+        border-bottom: 1px solid rgba(226,232,240,0.82) !important;
+        background: transparent !important;
+        box-shadow: none !important;
     }
 
     #appointments-content .patient-record-row:nth-child(even) td {
-        background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%) !important;
+        background: transparent !important;
     }
 
     #appointments-content .patient-record-row:hover td {
-        border-block-color: rgba(37,99,235,0.32);
-        box-shadow: 0 14px 28px -24px rgba(37,99,235,0.34);
+        border-block-color: transparent !important;
+        box-shadow: none !important;
     }
 
-    #appointments-content .patient-record-row td:first-child {
-        border-inline-start: 1px solid rgba(226,232,240,0.92);
-        border-start-start-radius: 0.85rem;
-        border-end-start-radius: 0.85rem;
-    }
-
+    #appointments-content .patient-record-row td:first-child,
     #appointments-content .patient-record-row td:last-child {
-        border-inline-end: 1px solid rgba(226,232,240,0.92);
-        border-start-end-radius: 0.85rem;
-        border-end-end-radius: 0.85rem;
+        border-inline: 0 !important;
+        border-radius: 0 !important;
     }
 
     #appointments-content .patient-record-row td:first-child > div:first-child {
