@@ -2837,48 +2837,48 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <!-- Financials Tab -->
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
-                            <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-emerald-50/65 to-amber-50/55 p-4 shadow-xl shadow-slate-200/60 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-emerald-400/25 blur-3xl"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-amber-300/25 blur-3xl"></div></div><div class="relative space-y-5">
-                                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 p-4 text-white shadow-lg shadow-slate-500/20">
-                                        <p class="text-xs font-bold uppercase tracking-wide text-slate-200/90"><?= esc(lang('UI.patientTotalBilled')) ?></p>
-                                        <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($totalCharges) ?></p>
-                                    </div>
-                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 text-white shadow-lg shadow-emerald-500/20">
-                                        <p class="text-xs font-bold uppercase tracking-wide text-emerald-50/90"><?= esc(lang('UI.patientTotalPaid')) ?></p>
-                                        <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($totalCollected) ?></p>
-                                    </div>
-                                    <div class="relative overflow-hidden rounded-2xl <?= $outstandingBalance > 0.009 ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/20' : 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-sky-500/20' ?> p-4 text-white shadow-lg">
-                                        <p class="text-xs font-bold uppercase tracking-wide text-white/90"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
-                                        <p class="mt-2 text-2xl font-black text-white"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
-                                    </div>
-                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 to-pink-700 p-4 text-white shadow-lg shadow-rose-500/20">
-                                        <p class="text-xs font-bold uppercase tracking-wide text-rose-50/90"><?= esc(lang('Finance.refunds')) ?></p>
-                                        <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($totalRefunded) ?></p>
-                                    </div>
+                            <section class="patient-finance-workspace relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-emerald-50/65 to-amber-50/55 p-4 shadow-xl shadow-slate-200/60 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-emerald-400/20 blur-3xl"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-amber-300/20 blur-3xl"></div></div><div class="relative space-y-5">
+                                <div class="flex flex-wrap items-center justify-end gap-2">
+                                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white/90 px-4 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm transition hover:bg-emerald-50">
+                                        <i class="fas fa-chart-line"></i><?= esc(lang('TenantMisc.openFinanceReports')) ?>
+                                    </a>
+                                    <?php if (has_permission('finance', 'create')): ?>
+                                        <button type="button" data-app-drawer-open="patientChargeDrawer" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-700 hover:to-teal-800">
+                                            <i class="fas fa-plus"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
-                                <?= view('components/money_trail_panel', [
-                                    'money_trail' => $money_trail ?? [],
-                                    'is_rtl' => $isRtl,
-                                    'return_to' => $patientContextReturnTo,
-                                ]) ?>
-                                <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
-                                    <div class="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-emerald-50/80 to-amber-50/80 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <div>
-                                        <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientFinancialRecords')) ?></h3>
-                                        <p class="mt-1 text-sm font-medium text-slate-600"><?= esc(lang('UI.patientFinancialRecordsSubtitle')) ?></p>
-                                    </div>
-                                        <div class="flex flex-wrap gap-2">
-                                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200">
-                                                <i class="fas fa-chart-line mr-2"></i><?= esc(lang('TenantMisc.openFinanceReports')) ?>
-                                            </a>
-                                            <?php if (has_permission('finance', 'create')): ?>
-                                                <a href="<?= workflow_context_url('finance/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
-                                                   class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-amber-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-700 hover:to-amber-700">
-                                                    <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
-                                                </a>
-                                            <?php endif; ?>
+
+                                <div class="patient-finance-summary grid gap-3 md:grid-cols-4">
+                                    <div class="patient-finance-balance-card relative overflow-hidden rounded-2xl <?= $outstandingBalance > 0.009 ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/25' : 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-sky-500/25' ?> p-5 text-white shadow-lg">
+                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.24),transparent_34%)]"></div>
+                                        <div class="relative">
+                                            <p class="text-xs font-bold uppercase tracking-wide text-white/90"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
+                                            <p class="mt-2 text-3xl font-black text-white"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
                                         </div>
                                     </div>
+                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-950 p-4 text-white shadow-lg shadow-slate-500/25">
+                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.18),transparent_32%)]"></div>
+                                        <div class="relative">
+                                            <p class="text-xs font-bold uppercase tracking-wide text-slate-100/90"><?= esc(lang('UI.patientTotalBilled')) ?></p>
+                                            <p class="mt-2 text-xl font-black text-white"><?= formatCurrency($totalCharges) ?></p>
+                                        </div>
+                                    </div>
+                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 p-4 text-white shadow-lg shadow-emerald-500/25">
+                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%)]"></div>
+                                        <div class="relative">
+                                            <p class="text-xs font-bold uppercase tracking-wide text-emerald-50/90"><?= esc(lang('UI.patientTotalPaid')) ?></p>
+                                            <p class="mt-2 text-xl font-black text-white"><?= formatCurrency($totalCollected) ?></p>
+                                        </div>
+                                    </div>
+                                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 to-pink-800 p-4 text-white shadow-lg shadow-rose-500/25">
+                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%)]"></div>
+                                        <div class="relative">
+                                            <p class="text-xs font-bold uppercase tracking-wide text-rose-50/90"><?= esc(lang('Finance.refunds')) ?></p>
+                                            <p class="mt-2 text-xl font-black text-white"><?= formatCurrency($totalRefunded) ?></p>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <?php if (!empty($financialLedgerRows)): ?>
                                     <div class="overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
@@ -2986,6 +2986,22 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoFinancialRecords')) ?></p>
                                 </div>
                                 <?php endif; ?>
+                                <details class="patient-finance-trace overflow-hidden rounded-2xl border border-white/80 bg-white/90 shadow-md shadow-slate-200/70 ring-1 ring-slate-100">
+                                    <summary class="flex cursor-pointer items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-emerald-50/70 to-amber-50/70 px-5 py-4 text-sm font-extrabold text-slate-900">
+                                        <span class="inline-flex items-center gap-2"><i class="fas fa-route text-emerald-700"></i><?= esc(lang('UI.moneyTrailTitle')) ?></span>
+                                        <span class="inline-flex items-center gap-2 text-xs font-bold text-slate-500">
+                                            <?= esc(lang('UI.moneyTrailLinkedRecords')) ?>
+                                            <i class="fas fa-chevron-down text-slate-400"></i>
+                                        </span>
+                                    </summary>
+                                    <div class="border-t border-slate-100 p-3 sm:p-4">
+                                        <?= view('components/money_trail_panel', [
+                                            'money_trail' => $money_trail ?? [],
+                                            'is_rtl' => $isRtl,
+                                            'return_to' => $patientContextReturnTo,
+                                        ]) ?>
+                                    </div>
+                                </details>
                             </div></section>
                         </div>
 
