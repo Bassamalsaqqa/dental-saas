@@ -3,17 +3,60 @@
 <?= $this->section('content') ?>
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<?php
+    $clinicDisplayName = trim((string) ($settings['clinic_name'] ?? ''));
+    $clinicDisplayName = $clinicDisplayName !== '' ? $clinicDisplayName : lang('UI.settingsClinicProfile');
+    $planDisplayName = (string) ($subscription_plan['name'] ?? lang('TenantMisc.unassigned'));
+    $subscriptionStatus = (string) ($subscription['status'] ?? lang('TenantMisc.none'));
+    $timezoneDisplay = (string) ($settings['timezone'] ?? 'Asia/Jerusalem');
+    $languageDisplay = (string) (($settings['ui_language'] ?? 'en') === 'ar' ? 'AR' : 'EN');
+?>
 <style>
     .settings-shell {
         background:
-            radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24rem),
-            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 22rem),
-            linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 25rem),
+            radial-gradient(circle at 12% 20%, rgba(20, 184, 166, 0.16), transparent 21rem),
+            radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.10), transparent 24rem),
+            linear-gradient(135deg, #f8fafc 0%, #eef6ff 45%, #ecfdf5 100%);
+    }
+    .settings-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 2rem;
+        background:
+            radial-gradient(circle at 92% 10%, rgba(20, 184, 166, 0.55), transparent 16rem),
+            radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.46), transparent 18rem),
+            linear-gradient(135deg, #0f172a 0%, #1d4ed8 52%, #0f766e 100%);
+        box-shadow: 0 30px 70px -40px rgba(15, 23, 42, 0.7);
+    }
+    .settings-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(120deg, rgba(255, 255, 255, 0.18), transparent 38%),
+            repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px);
+        pointer-events: none;
+    }
+    .settings-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+    .settings-hero-icon {
+        background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12));
+        border: 1px solid rgba(255,255,255,0.28);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 18px 38px -24px rgba(0,0,0,0.55);
+    }
+    .settings-hero-chip {
+        border: 1px solid rgba(255, 255, 255, 0.20);
+        background: rgba(255, 255, 255, 0.14);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+        backdrop-filter: blur(14px);
     }
     .settings-shell-card {
-        background: rgba(255, 255, 255, 0.82);
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.35);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.88));
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.45);
         backdrop-filter: blur(22px);
     }
     .settings-shell-breadcrumb {
@@ -30,7 +73,7 @@
         padding: 0.85rem 0.95rem;
         border-radius: 0.9rem;
         border: 1px solid rgba(226, 232, 240, 0.8);
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.78);
         color: #334155;
         font-size: 0.875rem;
         font-weight: 600;
@@ -50,6 +93,9 @@
         color: #475569;
         transition: color 0.2s ease;
     }
+    .settings-menu-btn span {
+        min-width: 0;
+    }
     .settings-menu-btn.is-active {
         background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
         color: #fff;
@@ -58,6 +104,89 @@
     }
     .settings-menu-btn.is-active i {
         color: #fff;
+    }
+    .settings-nav-group {
+        border-radius: 1.25rem;
+        background: rgba(248, 250, 252, 0.78);
+        border: 1px solid rgba(226, 232, 240, 0.72);
+        padding: 0.75rem;
+    }
+    .settings-nav-kicker {
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .settings-nav-kicker::before {
+        content: '';
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, #2563eb, #14b8a6);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+    #settings-tabs {
+        min-width: 0;
+    }
+    #settings-tabs .settings-tab > div:first-child {
+        border-radius: 2rem !important;
+        border: 1px solid rgba(255,255,255,0.72) !important;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.92)) !important;
+        box-shadow: 0 28px 70px -45px rgba(15, 23, 42, 0.58) !important;
+        overflow: hidden;
+    }
+    #settings-tabs .settings-tab > div:first-child > div:first-child {
+        background:
+            radial-gradient(circle at 96% 0%, rgba(45, 212, 191, 0.42), transparent 13rem),
+            radial-gradient(circle at 4% 0%, rgba(96, 165, 250, 0.45), transparent 15rem),
+            linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0f766e 100%) !important;
+    }
+    #settings-tabs .settings-tab > div:first-child > div:first-child h3,
+    #settings-tabs .settings-tab > div:first-child > div:first-child p {
+        color: #fff !important;
+    }
+    #settings-tabs .settings-tab > div:first-child > div:first-child p {
+        opacity: 0.82;
+    }
+    #settings-tabs .settings-tab form,
+    #settings-tabs .settings-tab section,
+    #settings-tabs .settings-tab .rounded-2xl {
+        scroll-margin-top: 1.5rem;
+    }
+    #settings-tabs .settings-tab form.bg-white,
+    #settings-tabs .settings-tab section.bg-white,
+    #settings-tabs .settings-tab div.bg-white.border,
+    #settings-tabs .settings-tab div.bg-gray-50,
+    #settings-tabs .settings-tab div.bg-slate-50 {
+        background:
+            radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.08), transparent 9rem),
+            linear-gradient(180deg, #ffffff, #f8fafc) !important;
+        border-color: rgba(203, 213, 225, 0.72) !important;
+        box-shadow: 0 18px 45px -36px rgba(15, 23, 42, 0.35);
+    }
+    #settings-tabs label {
+        color: #1f2937;
+    }
+    #settings-tabs input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    #settings-tabs textarea,
+    #settings-tabs select {
+        min-height: 3.25rem;
+        background-color: rgba(255,255,255,0.92);
+        border-color: #dbe3ef !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    #settings-tabs input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+    #settings-tabs textarea:focus,
+    #settings-tabs select:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+        outline: none;
+    }
+    #settings-tabs button[type="submit"],
+    #settings-tabs button[onclick^="save"],
+    #settings-tabs button[onclick^="submit"] {
+        box-shadow: 0 18px 36px -24px rgba(37, 99, 235, 0.55);
     }
     .select2-container--default .select2-selection--single {
         height: 56px !important;
@@ -157,22 +286,50 @@
         direction: ltr;
         text-align: left;
     }
+    [dir="rtl"] .settings-hero-chip,
+    [dir="rtl"] .settings-hero {
+        text-align: right;
+    }
+    @media (max-width: 767px) {
+        .settings-hero {
+            border-radius: 1.5rem;
+        }
+        #settings-tabs .settings-tab > div:first-child {
+            border-radius: 1.5rem !important;
+        }
+    }
 </style>
 
 <div class="settings-shell min-h-screen">
     <div class="mx-auto max-w-6xl px-6 py-8">
-        <!-- Page Header -->
-        <div class="mb-5">
-            <div class="flex items-center space-x-4">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
-                    <i class="fas fa-cog text-xl"></i>
+        <section class="settings-hero mb-5 p-5 sm:p-6 lg:p-7 text-white">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex items-start gap-4">
+                    <div class="settings-hero-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white">
+                        <i class="fas fa-cog text-2xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/90"><?= lang('UI.menuSettings') ?></p>
+                        <h1 class="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl"><?= lang('UI.systemSettings') ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-blue-50/90"><?= lang('UI.settingsConfigureSystem') ?></p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-950"><?= lang('UI.systemSettings') ?></h1>
-                    <p class="text-slate-600"><?= lang('UI.settingsConfigureSystem') ?></p>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
+                    <div class="settings-hero-chip rounded-2xl px-4 py-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsClinicProfile') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($clinicDisplayName) ?></p>
+                    </div>
+                    <div class="settings-hero-chip rounded-2xl px-4 py-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsSubscription') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($planDisplayName) ?> <span class="font-bold text-cyan-100/80">/ <?= esc($subscriptionStatus) ?></span></p>
+                    </div>
+                    <div class="settings-hero-chip rounded-2xl px-4 py-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsSystemTab') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold text-cyan-100/80">/ <?= esc($languageDisplay) ?></span></p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <nav class="settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-slate-500" id="settings-breadcrumb">
             <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors"><?= lang('UI.home') ?></a>
@@ -212,47 +369,49 @@
             <div class="xl:sticky xl:top-8">
                 <div class="settings-shell-card rounded-[1.75rem] p-4">
                     <div class="mb-3 px-2">
-                        <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500"><?= lang('UI.settingsMenu') ?></p>
+                        <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsMenu') ?></p>
                     </div>
-                    <nav class="space-y-2">
+                    <nav class="space-y-3">
+                        <div class="settings-nav-group space-y-2">
                         <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn">
-                            <i class="fas fa-building w-5 h-5"></i> <?= lang('UI.settingsClinicProfile') ?>
+                            <i class="fas fa-building w-5 h-5"></i> <span><?= lang('UI.settingsClinicProfile') ?></span>
                         </button>
                         <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn">
-                            <i class="fas fa-layer-group w-5 h-5"></i> <?= lang('UI.settingsSubscription') ?>
+                            <i class="fas fa-layer-group w-5 h-5"></i> <span><?= lang('UI.settingsSubscription') ?></span>
                         </button>
                         <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn">
-                            <i class="fas fa-cog w-5 h-5"></i> <?= lang('UI.settingsSystemTab') ?>
+                            <i class="fas fa-cog w-5 h-5"></i> <span><?= lang('UI.settingsSystemTab') ?></span>
                         </button>
                         <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn">
-                            <i class="fas fa-clock w-5 h-5"></i> <?= lang('UI.settingsOperations') ?>
+                            <i class="fas fa-clock w-5 h-5"></i> <span><?= lang('UI.settingsOperations') ?></span>
                         </button>
                         <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn">
-                            <i class="fas fa-tablet-alt w-5 h-5"></i> <?= lang('UI.settingsKiosk') ?>
+                            <i class="fas fa-tablet-alt w-5 h-5"></i> <span><?= lang('UI.settingsKiosk') ?></span>
                         </button>
                         <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn">
-                            <i class="fas fa-database w-5 h-5"></i> <?= lang('UI.settingsBackupRestore') ?>
+                            <i class="fas fa-database w-5 h-5"></i> <span><?= lang('UI.settingsBackupRestore') ?></span>
                         </button>
+                        </div>
                         
-                        <div class="mt-4 border-t border-slate-200 pt-4">
+                        <div class="settings-nav-group">
                             <div class="mb-3 px-2">
-                                <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500"><?= lang('UI.settingsCommunications') ?></p>
+                                <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsCommunications') ?></p>
                             </div>
                             <div class="space-y-2">
                             <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn">
-                                <i class="fas fa-th-large w-5 h-5"></i> <?= lang('UI.settingsChannels') ?>
+                                <i class="fas fa-th-large w-5 h-5"></i> <span><?= lang('UI.settingsChannels') ?></span>
                             </button>
                             <button onclick="showSettingsTab('email')" id="tab-email" class="settings-menu-btn">
-                                <i class="fas fa-envelope w-5 h-5"></i> <?= lang('UI.settingsEmail') ?>
+                                <i class="fas fa-envelope w-5 h-5"></i> <span><?= lang('UI.settingsEmail') ?></span>
                             </button>
                             <button onclick="showSettingsTab('sms')" id="tab-sms" class="settings-menu-btn">
-                                <i class="fas fa-sms w-5 h-5"></i> <?= lang('UI.settingsSms') ?>
+                                <i class="fas fa-sms w-5 h-5"></i> <span><?= lang('UI.settingsSms') ?></span>
                             </button>
                             <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="settings-menu-btn">
-                                <i class="fab fa-whatsapp w-5 h-5"></i> <?= lang('UI.settingsWhatsApp') ?>
+                                <i class="fab fa-whatsapp w-5 h-5"></i> <span><?= lang('UI.settingsWhatsApp') ?></span>
                             </button>
                             <button onclick="showSettingsTab('alerts')" id="tab-alerts" class="settings-menu-btn">
-                                <i class="fas fa-user-cog w-5 h-5"></i> <?= lang('UI.settingsMyAlerts') ?>
+                                <i class="fas fa-user-cog w-5 h-5"></i> <span><?= lang('UI.settingsMyAlerts') ?></span>
                             </button>
                             </div>
                         </div>
@@ -262,7 +421,7 @@
             </div>
 
             <!-- Main Content Area -->
-            <div class="min-w-0">
+            <div id="settings-tabs" class="min-w-0">
                 <!-- Clinic Information Tab -->
                 <?= $this->include('settings/partials/clinic') ?>
                 <?= $this->include('settings/partials/subscription') ?>
