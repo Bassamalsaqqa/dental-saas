@@ -660,6 +660,183 @@ $statusTone = match ($statusRaw) {
     background: linear-gradient(135deg, #059669, #0f766e) !important;
     box-shadow: 0 18px 32px -24px rgba(5,150,105,0.78);
 }
+
+/* Treatment lower-half completion: match the mature user profile cards. */
+.treatment-workspace-section {
+    gap: 1.35rem;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(37,99,235,0.14), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(16,185,129,0.14), transparent 30%),
+        linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96)) !important;
+}
+.treatment-card {
+    --treatment-card-bg: #dbeafe;
+    --treatment-card-accent: #2563eb;
+    --treatment-card-shadow: rgba(37,99,235,0.22);
+    border-color: rgba(255,255,255,0.72) !important;
+    background: var(--treatment-card-bg) !important;
+    box-shadow:
+        0 24px 50px -34px rgba(15,23,42,0.42),
+        0 14px 32px -26px var(--treatment-card-shadow),
+        inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+.treatment-card::after {
+    background:
+        radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--treatment-card-accent) 18%, transparent), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(255,255,255,0.58), transparent 28%) !important;
+    opacity: 1 !important;
+}
+.treatment-card--clinical { --treatment-card-bg: #bfdbfe; --treatment-card-accent: #2563eb; --treatment-card-shadow: rgba(37,99,235,0.24); }
+.treatment-card--notes { --treatment-card-bg: #fde68a; --treatment-card-accent: #d97706; --treatment-card-shadow: rgba(217,119,6,0.24); }
+.treatment-card--inventory { --treatment-card-bg: #bbf7d0; --treatment-card-accent: #059669; --treatment-card-shadow: rgba(5,150,105,0.24); }
+.treatment-card--patient { --treatment-card-bg: #ddd6fe; --treatment-card-accent: #7c3aed; --treatment-card-shadow: rgba(124,58,237,0.24); }
+.treatment-card--billing { --treatment-card-bg: #a7f3d0; --treatment-card-accent: #047857; --treatment-card-shadow: rgba(4,120,87,0.24); }
+.treatment-card--timeline { --treatment-card-bg: #c7d2fe; --treatment-card-accent: #4338ca; --treatment-card-shadow: rgba(67,56,202,0.24); }
+.treatment-card-header {
+    min-height: 0 !important;
+    padding: 1rem 1.45rem !important;
+    border-bottom-color: rgba(255,255,255,0.58) !important;
+    background: rgba(255,255,255,0.28) !important;
+    color: #0f172a !important;
+    font-size: 1.02rem !important;
+    font-weight: 900 !important;
+}
+.treatment-card-header i {
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+    border-radius: 0.9rem !important;
+    background: linear-gradient(135deg, var(--treatment-card-accent), color-mix(in srgb, var(--treatment-card-accent) 74%, #0f172a)) !important;
+    color: #fff !important;
+    box-shadow: 0 14px 24px -18px rgba(15,23,42,0.72) !important;
+}
+.treatment-card-body {
+    padding: 1.35rem 1.45rem !important;
+}
+.treatment-detail-copy,
+.treatment-info-row,
+.treatment-card-panel,
+.treatment-card-empty,
+.treatment-card--timeline .flex.justify-between {
+    border-color: rgba(255,255,255,0.72) !important;
+    background: rgba(255,255,255,0.72) !important;
+    color: #0f172a !important;
+    box-shadow:
+        0 14px 28px -26px rgba(15,23,42,0.34),
+        inset 0 1px 0 rgba(255,255,255,0.78) !important;
+}
+.treatment-detail-copy {
+    font-weight: 650;
+    line-height: 1.75;
+}
+.treatment-info-label,
+.treatment-card--timeline .flex.justify-between .text-gray-500 {
+    color: #475569 !important;
+    font-size: 0.76rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em;
+}
+.treatment-info-value,
+.treatment-card--timeline .flex.justify-between .text-gray-900,
+.treatment-card-panel .text-slate-900,
+.treatment-card-panel .text-gray-900,
+.treatment-card-panel .text-slate-800,
+.treatment-card-panel .text-gray-800,
+.treatment-card-panel .text-gray-700,
+.treatment-card-empty .text-slate-900,
+.treatment-card-empty .text-gray-900,
+.treatment-card-empty .text-slate-800,
+.treatment-card-empty .text-gray-800,
+.treatment-card-empty .text-gray-700 {
+    color: #0f172a !important;
+    font-weight: 850;
+}
+.treatment-card-panel .text-slate-500,
+.treatment-card-panel .text-gray-500,
+.treatment-card-panel .text-slate-600,
+.treatment-card-panel .text-gray-600,
+.treatment-card-empty .text-slate-500,
+.treatment-card-empty .text-gray-500,
+.treatment-card-empty .text-slate-600,
+.treatment-card-empty .text-gray-600 {
+    color: #64748b !important;
+}
+.treatment-card-panel .text-emerald-700,
+.treatment-card-empty .text-emerald-700 { color: #047857 !important; }
+.treatment-card-panel .text-amber-700,
+.treatment-card-empty .text-amber-700 { color: #b45309 !important; }
+.treatment-card-panel .bg-emerald-100,
+.treatment-card-empty .bg-emerald-100 { background: #dcfce7 !important; color: #047857 !important; }
+.treatment-card-panel .bg-amber-100,
+.treatment-card-empty .bg-amber-100 { background: #fef3c7 !important; color: #b45309 !important; }
+.treatment-card-action.border-blue-200,
+.treatment-card-action.border-emerald-200,
+.treatment-card-action.bg-white {
+    background: rgba(255,255,255,0.76) !important;
+    color: var(--treatment-card-accent) !important;
+    border-color: rgba(255,255,255,0.78) !important;
+    box-shadow: 0 14px 26px -24px var(--treatment-card-shadow);
+}
+.treatment-card-action.border-blue-200:hover,
+.treatment-card-action.border-emerald-200:hover,
+.treatment-card-action.bg-white:hover {
+    background: rgba(255,255,255,0.92) !important;
+}
+.treatment-money-trail > section {
+    border-radius: 1.25rem !important;
+    border-color: rgba(255,255,255,0.72) !important;
+    background: #dcfce7 !important;
+    box-shadow:
+        0 24px 50px -34px rgba(15,23,42,0.42),
+        0 14px 32px -26px rgba(16,185,129,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+.treatment-money-trail > section > div:first-child {
+    border-bottom-color: rgba(255,255,255,0.64) !important;
+    background: rgba(255,255,255,0.3) !important;
+}
+.treatment-money-trail > section > div:first-child p {
+    display: none;
+}
+.treatment-money-trail .rounded-xl.bg-slate-50\/70,
+.treatment-money-trail .rounded-xl.bg-indigo-50\/60,
+.treatment-money-trail .rounded-xl.bg-rose-50\/60 {
+    border-color: rgba(255,255,255,0.76) !important;
+    background: rgba(255,255,255,0.72) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
+}
+
+/* Use the full page width: clinical first, then balanced billing cards. */
+.treatment-workspace-section {
+    display: block !important;
+}
+.treatment-workspace-section > div:first-child {
+    display: grid !important;
+    gap: 1.35rem !important;
+    margin-bottom: 1.35rem;
+}
+.treatment-workspace-section > aside {
+    position: static !important;
+    top: auto !important;
+    display: grid !important;
+    gap: 1.35rem !important;
+}
+.treatment-workspace-section > aside > .treatment-section-heading,
+.treatment-workspace-section > aside > .treatment-money-trail {
+    grid-column: 1 / -1;
+}
+@media (min-width: 1280px) {
+    .treatment-workspace-section > div:first-child {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .treatment-workspace-section > div:first-child > .treatment-section-heading,
+    .treatment-workspace-section > div:first-child > .treatment-card--inventory {
+        grid-column: 1 / -1;
+    }
+    .treatment-workspace-section > aside {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+    }
+}
 </style>
 
 <div class="treatment-page-shell min-h-screen bg-slate-50">
@@ -902,7 +1079,6 @@ $statusTone = match ($statusRaw) {
                     <i class="fas fa-file-invoice-dollar text-emerald-600"></i><span><?= esc($tr('patient_billing')) ?></span>
                 </div>
                 <div class="treatment-card-body space-y-4 text-sm">
-                    <p class="text-slate-500"><?= esc($tr('patient_billing_help')) ?></p>
                     <?php if ($chargeLineId > 0): ?>
                         <div class="treatment-card-panel rounded-2xl p-4">
                             <div class="flex items-start justify-between gap-3">
@@ -941,7 +1117,7 @@ $statusTone = match ($statusRaw) {
                 </div>
             </div>
 
-            <div>
+            <div class="treatment-money-trail">
             <?= view('components/money_trail_panel', [
                 'money_trail' => $money_trail ?? [],
                 'is_rtl' => $isRtl,
