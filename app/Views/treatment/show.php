@@ -805,37 +805,104 @@ $statusTone = match ($statusRaw) {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
 }
 
-/* Use the full page width: clinical first, then balanced billing cards. */
+/* Professional wireframe: one content grid, cards sized by the work they show. */
 .treatment-workspace-section {
-    display: block !important;
-}
-.treatment-workspace-section > div:first-child {
     display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.35rem !important;
-    margin-bottom: 1.35rem;
+    align-items: start;
 }
-.treatment-workspace-section > aside {
+.treatment-clinical-grid,
+.treatment-context-grid {
+    display: contents !important;
     position: static !important;
     top: auto !important;
-    display: grid !important;
-    gap: 1.35rem !important;
 }
-.treatment-workspace-section > aside > .treatment-section-heading,
-.treatment-workspace-section > aside > .treatment-money-trail {
+.treatment-section-heading,
+.treatment-card--inventory,
+.treatment-money-trail {
     grid-column: 1 / -1;
 }
-@media (min-width: 1280px) {
-    .treatment-workspace-section > div:first-child {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (min-width: 1024px) {
+    .treatment-workspace-section {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
     }
-    .treatment-workspace-section > div:first-child > .treatment-section-heading,
-    .treatment-workspace-section > div:first-child > .treatment-card--inventory {
+    .treatment-section-heading--clinical {
+        order: 1;
+    }
+    .treatment-clinical-grid-has-notes > .treatment-card--clinical {
+        order: 2;
+        grid-column: span 6;
+    }
+    .treatment-clinical-grid-has-notes > .treatment-card--notes {
+        order: 4;
+        grid-column: span 6;
+    }
+    .treatment-clinical-grid-no-notes > .treatment-card--clinical {
+        order: 2;
+        grid-column: span 6;
+    }
+    .treatment-section-heading--billing {
+        display: none !important;
+    }
+    .treatment-context-grid > .treatment-card--billing,
+    .treatment-context-grid-no-patient > .treatment-card--billing {
+        order: 3;
+        grid-column: span 6;
+    }
+    .treatment-context-grid > .treatment-money-trail,
+    .treatment-context-grid-no-patient > .treatment-money-trail {
+        order: 7;
         grid-column: 1 / -1;
     }
-    .treatment-workspace-section > aside {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        align-items: stretch;
+    .treatment-clinical-grid > .treatment-card--inventory {
+        order: 8;
+        grid-column: 1 / -1;
     }
+    .treatment-workspace-has-inventory .treatment-card--timeline {
+        order: 5;
+        grid-column: span 6;
+    }
+    .treatment-workspace-no-inventory .treatment-card--timeline {
+        order: 5;
+        grid-column: span 6;
+    }
+    .treatment-clinical-grid-no-notes ~ .treatment-context-grid .treatment-card--timeline {
+        grid-column: span 4;
+    }
+    .treatment-clinical-grid-no-notes ~ .treatment-context-grid .treatment-money-trail {
+        grid-column: span 8;
+    }
+}
+@media (min-width: 1280px) {
+    .treatment-clinical-grid-has-notes > .treatment-card--clinical {
+        grid-column: span 6;
+    }
+    .treatment-context-grid > .treatment-card--billing,
+    .treatment-context-grid-no-patient > .treatment-card--billing {
+        grid-column: span 6;
+    }
+}
+.treatment-card {
+    align-self: stretch;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.treatment-card-body {
+    flex: 1 1 auto;
+}
+.treatment-card--clinical .treatment-detail-copy {
+    min-height: 6.5rem;
+}
+.treatment-card--notes .treatment-detail-copy {
+    min-height: 6.5rem;
+}
+.treatment-card--inventory .treatment-card-body {
+    padding: 1rem !important;
+}
+.treatment-money-trail {
+    margin-top: 0.1rem;
 }
 </style>
 
@@ -971,10 +1038,10 @@ $statusTone = match ($statusRaw) {
     </section>
 
     <!-- Content Grid -->
-    <div class="treatment-workspace-section grid grid-cols-1 gap-6 xl:grid-cols-12 xl:items-start">
+    <div class="treatment-workspace-section <?= !empty($usage_records) ? 'treatment-workspace-has-inventory' : 'treatment-workspace-no-inventory' ?>">
 
         <!-- Left Column -->
-        <div class="grid gap-6 xl:col-span-8">
+        <div class="treatment-clinical-grid <?= !empty($treatment['treatment_notes']) ? 'treatment-clinical-grid-has-notes' : 'treatment-clinical-grid-no-notes' ?>">
             <div class="treatment-section-heading treatment-section-heading--clinical flex items-center gap-3">
                 <span class="treatment-section-icon"><i class="fas fa-notes-medical"></i></span>
                 <div>
@@ -1048,7 +1115,7 @@ $statusTone = match ($statusRaw) {
         </div>
 
         <!-- Right Column -->
-        <aside class="grid gap-6 xl:col-span-4 xl:sticky xl:top-6">
+        <aside class="treatment-context-grid <?= !empty($treatment['patient_id']) ? 'treatment-context-grid-has-patient' : 'treatment-context-grid-no-patient' ?>">
             <div class="treatment-section-heading treatment-section-heading--billing flex items-center gap-3">
                 <span class="treatment-section-icon"><i class="fas fa-route"></i></span>
                 <div>
@@ -1056,22 +1123,6 @@ $statusTone = match ($statusRaw) {
                     <h2><?= esc($tr('patient_billing')) ?></h2>
                 </div>
             </div>
-
-            <!-- Patient Info -->
-            <?php if (!empty($treatment['patient_id'])): ?>
-            <div class="treatment-card treatment-card--patient">
-                <div class="treatment-card-header">
-                    <i class="fas fa-user text-purple-600"></i><span><?= esc($tr('patient_information')) ?></span>
-                </div>
-                <div class="treatment-card-body space-y-3 text-sm">
-                    <div class="treatment-info-row"><span class="treatment-info-label"><?= esc($tr('patient_name')) ?></span><span class="treatment-info-value"><?= esc($patientName) ?></span></div>
-                    <?php if (!empty($treatment['phone'])): ?><div class="treatment-info-row"><span class="treatment-info-label"><?= esc($tr('phone')) ?></span><span class="treatment-info-value" dir="ltr"><?= esc($treatment['phone']) ?></span></div><?php endif; ?>
-                <a href="<?= workflow_context_url('patient/' . $treatment['patient_id'], $return_to ?? null) ?>" class="treatment-card-action w-full border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
-                    <i class="fas fa-external-link-alt"></i><span><?= esc(lang('UI.patientProfile')) ?></span>
-                </a>
-                </div>
-            </div>
-            <?php endif; ?>
 
             <!-- Patient Billing -->
             <div class="treatment-card treatment-card--billing">
