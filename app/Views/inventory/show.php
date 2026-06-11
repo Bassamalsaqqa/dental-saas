@@ -3,14 +3,205 @@
 <?= $this->section('content') ?>
 
 <style>
-.show-card {
-    background: #fff;
-    border-radius: 1rem;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-    transition: box-shadow 0.2s;
+.inventory-detail-shell {
+    font-family: inherit;
 }
-.show-card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05); }
+.inventory-hero-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    border: 1px solid rgba(255,255,255,0.55);
+    background:
+        radial-gradient(circle at 8% 0%, rgba(255,255,255,0.22), transparent 28%),
+        radial-gradient(circle at 92% 16%, rgba(20,184,166,0.36), transparent 28%),
+        linear-gradient(135deg, #0f766e 0%, #155e75 54%, #1d4ed8 100%);
+    box-shadow: 0 30px 72px -46px rgba(15, 23, 42, 0.78);
+}
+[dir="rtl"] .inventory-hero-card {
+    background:
+        radial-gradient(circle at 92% 0%, rgba(255,255,255,0.22), transparent 28%),
+        radial-gradient(circle at 8% 16%, rgba(20,184,166,0.36), transparent 28%),
+        linear-gradient(225deg, #0f766e 0%, #155e75 54%, #1d4ed8 100%);
+}
+.inventory-hero-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -8rem -10rem auto;
+    width: 24rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.13);
+}
+.inventory-hero-content {
+    position: relative;
+    z-index: 1;
+}
+.inventory-hero-avatar {
+    display: inline-flex;
+    width: 5rem;
+    height: 5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(153,246,228,0.16));
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 42px -28px rgba(15,23,42,0.8);
+}
+.inventory-hero-chip-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+@media (min-width: 640px) {
+    .inventory-hero-chip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1180px) {
+    .inventory-hero-chip-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.inventory-hero-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.14);
+    padding: 0.6rem 0.85rem;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.inventory-hero-chip i {
+    display: inline-flex;
+    width: 1.9rem;
+    height: 1.9rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.18);
+}
+.inventory-hero-chip span {
+    display: block;
+    min-width: 0;
+}
+.inventory-hero-chip .label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: rgba(224,242,254,0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.inventory-hero-chip .value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.88rem;
+    font-weight: 900;
+}
+.inventory-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.65rem;
+    border-radius: 0.95rem;
+    padding: 0.72rem 0.95rem;
+    font-size: 0.875rem;
+    font-weight: 850;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.inventory-action:hover {
+    transform: translateY(-1px);
+}
+.inventory-action-soft {
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+}
+.inventory-action-soft:hover {
+    background: rgba(255,255,255,0.2);
+}
+.inventory-action-emerald {
+    background: linear-gradient(135deg, #10b981, #047857);
+    color: #fff;
+    box-shadow: 0 18px 34px -24px rgba(16,185,129,0.82);
+}
+.inventory-action-blue {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    box-shadow: 0 18px 34px -24px rgba(37,99,235,0.82);
+}
+.inventory-action-rose {
+    background: linear-gradient(135deg, #e11d48, #be123c);
+    color: #fff;
+    box-shadow: 0 18px 34px -24px rgba(225,29,72,0.82);
+}
+.inventory-snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+@media (min-width: 640px) {
+    .inventory-snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1180px) {
+    .inventory-snapshot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.inventory-snapshot-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.75);
+    padding: 1rem;
+    box-shadow: 0 18px 36px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.78);
+}
+.inventory-snapshot-card::after {
+    content: "";
+    position: absolute;
+    inset: -3rem -2rem auto auto;
+    width: 8rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.42);
+}
+.inventory-snapshot-card > * {
+    position: relative;
+    z-index: 1;
+}
+.inventory-snapshot-stock { background: linear-gradient(135deg, #bbf7d0, #5eead4); }
+.inventory-snapshot-risk { background: linear-gradient(135deg, #fed7aa, #facc15); }
+.inventory-snapshot-value { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
+.inventory-snapshot-location { background: linear-gradient(135deg, #ddd6fe, #c4b5fd); }
+.inventory-snapshot-label {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(15,23,42,0.62);
+}
+.inventory-snapshot-value-text {
+    margin-top: 0.3rem;
+    font-size: 1.45rem;
+    line-height: 1.12;
+    font-weight: 950;
+    color: #0f172a;
+}
+.inventory-snapshot-meta {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 750;
+    color: rgba(15,23,42,0.66);
+}
+.show-card {
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+    border-radius: 1.35rem;
+    border: 1px solid rgba(226,232,240,0.9);
+    box-shadow: 0 22px 48px -36px rgba(15,23,42,0.32), inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.show-card:hover { box-shadow: 0 28px 62px -42px rgba(15,23,42,0.38), inset 0 1px 0 rgba(255,255,255,0.84); }
 .show-card-header {
     display: flex;
     align-items: center;
@@ -34,6 +225,34 @@
 .show-metric-value { font-size: 1.75rem; font-weight: 900; color: #0f172a; line-height: 1.2; }
 .show-metric-label { font-size: 0.6875rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
 .show-metric-sub { font-size: 0.6875rem; color: #94a3b8; }
+.inventory-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+}
+@media (min-width: 1180px) {
+    .inventory-detail-grid {
+        grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr);
+    }
+}
+.inventory-table-wrap {
+    border-radius: 1rem;
+    border: 1px solid rgba(226,232,240,0.84);
+    background: rgba(255,255,255,0.76);
+}
+.inventory-table-wrap table thead tr {
+    background: rgba(248,250,252,0.92);
+}
+.inventory-empty {
+    border-radius: 1rem;
+    border: 1px dashed rgba(148,163,184,0.5);
+    background: rgba(248,250,252,0.72);
+    padding: 1.5rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 650;
+}
 </style>
 
 <?php
@@ -49,49 +268,124 @@ if ($item['quantity'] == 0) {
 } elseif (isset($item['min_quantity']) && $item['quantity'] <= $item['min_quantity']) {
     $stockStatus = 'low_stock'; $statusClass = 'bg-yellow-100 text-yellow-800'; $statusText = $tr('lowStockStatus');
 }
+$quantity = (int) ($item['quantity'] ?? 0);
+$minQuantity = (int) ($item['min_quantity'] ?? 0);
+$unitPrice = (float) ($item['unit_price'] ?? 0);
+$totalValue = $quantity * $unitPrice;
+$expiryDisplay = '—';
+$expiryTone = 'text-slate-700';
+if (!empty($item['expiry_date'])) {
+    $daysUntilExpiry = (int) ceil((strtotime((string) $item['expiry_date']) - time()) / 86400);
+    if ($daysUntilExpiry < 0) {
+        $expiryDisplay = $tr('expiredLabel');
+        $expiryTone = 'text-rose-800';
+    } elseif ($daysUntilExpiry <= 30) {
+        $expiryDisplay = $daysUntilExpiry . ' days';
+        $expiryTone = 'text-amber-800';
+    } else {
+        $expiryDisplay = date('M j, Y', strtotime((string) $item['expiry_date']));
+    }
+}
 ?>
 
-<div class="min-h-screen bg-slate-50">
-    <div class="px-4 sm:px-6 lg:px-8 py-6">
+<div class="inventory-detail-shell min-h-screen bg-slate-50">
+    <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
 
-        <!-- Header + Action Buttons -->
-        <div class="mb-6">
+        <section class="inventory-hero-card mb-6">
+            <div class="inventory-hero-content p-6 sm:p-8">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-box text-white text-lg"></i>
+                    <div class="inventory-hero-avatar">
+                        <i class="fas fa-box-open text-3xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black text-gray-900"><?= esc($item['item_name']) ?></h1>
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700"><?= ucfirst($item['category']) ?></span>
-                            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full <?= $statusClass ?>"><?= $statusText ?></span>
-                            <span class="text-xs text-gray-400">#<?= $item['id'] ?></span>
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-teal-100/90">
+                            <span><?= esc($tr('inventoryItems')) ?></span>
+                            <span class="h-1 w-1 rounded-full bg-teal-100"></span>
+                            <span>#<?= (int) $item['id'] ?></span>
                         </div>
+                        <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($item['item_name']) ?></h1>
+                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                            <span class="inline-flex items-center rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-black text-white"><?= esc(ucfirst((string) $item['category'])) ?></span>
+                            <span class="inline-flex items-center rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-black text-white"><?= esc($statusText) ?></span>
+                        </div>
+                        <?php if (!empty($item['description'])): ?>
+                            <p class="mt-4 max-w-3xl text-sm font-semibold leading-6 text-teal-50/90"><?= esc($item['description']) ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-arrow-left text-xs"></i><?= esc($tr('back')) ?>
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inventory-action inventory-action-soft">
+                        <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><?= esc($tr('back')) ?>
                     </a>
-                    <button onclick="receiveStock(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
-                        <i class="fas fa-box-open text-xs"></i><?= esc($tr('receiveStock')) ?>
+                    <button onclick="receiveStock(<?= $item['id'] ?>)" class="inventory-action inventory-action-emerald">
+                        <i class="fas fa-box-open"></i><?= esc($tr('receiveStock')) ?>
                     </button>
-                    <button onclick="adjustStock(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-                        <i class="fas fa-plus-minus text-xs"></i><?= esc($tr('adjustStock')) ?>
+                    <button onclick="adjustStock(<?= $item['id'] ?>)" class="inventory-action inventory-action-emerald">
+                        <i class="fas fa-plus-minus"></i><?= esc($tr('adjustStock')) ?>
                     </button>
-                    <a href="<?= workflow_context_url('inventory/' . $item['id'] . '/edit', $return_to ?? null) ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-                        <i class="fas fa-edit text-xs"></i><?= esc($tr('edit')) ?>
+                    <a href="<?= workflow_context_url('inventory/' . $item['id'] . '/edit', $return_to ?? null) ?>" class="inventory-action inventory-action-blue">
+                        <i class="fas fa-edit"></i><?= esc($tr('edit')) ?>
                     </a>
-                    <button onclick="deleteItem(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition-colors shadow-sm">
-                        <i class="fas fa-trash text-xs"></i><?= esc($tr('delete')) ?>
+                    <button onclick="deleteItem(<?= $item['id'] ?>)" class="inventory-action inventory-action-rose">
+                        <i class="fas fa-trash"></i><?= esc($tr('delete')) ?>
                     </button>
                 </div>
             </div>
-        </div>
+            <div class="mt-6 inventory-hero-chip-grid">
+                <div class="inventory-hero-chip">
+                    <i class="fas fa-location-dot"></i>
+                    <span><span class="label"><?= esc($tr('location')) ?></span><span class="value"><?= esc($item['location'] ?: '—') ?></span></span>
+                </div>
+                <div class="inventory-hero-chip">
+                    <i class="fas fa-truck"></i>
+                    <span><span class="label"><?= esc($tr('supplier')) ?></span><span class="value"><?= esc($item['supplier'] ?: '—') ?></span></span>
+                </div>
+                <div class="inventory-hero-chip">
+                    <i class="fas fa-calendar-day"></i>
+                    <span><span class="label"><?= esc($tr('expiry')) ?></span><span class="value"><?= esc($expiryDisplay) ?></span></span>
+                </div>
+                <div class="inventory-hero-chip">
+                    <i class="fas fa-user-clock"></i>
+                    <span><span class="label"><?= esc($tr('created')) ?></span><span class="value"><?= $item['created_at'] ? esc(date('M j, Y', strtotime($item['created_at']))) : '—' ?></span></span>
+                </div>
+            </div>
+            </div>
+        </section>
 
-        <!-- Overview + Key Metrics (2-col layout) -->
-        <div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section class="mb-6 rounded-[1.5rem] border border-white/80 bg-gradient-to-br from-white via-teal-50/70 to-blue-50/60 p-4 shadow-xl shadow-slate-200/60 sm:p-5">
+            <div class="inventory-snapshot-grid">
+                <div class="inventory-snapshot-card inventory-snapshot-stock">
+                    <p class="inventory-snapshot-label"><?= esc($tr('current')) ?></p>
+                    <p class="inventory-snapshot-value-text" dir="ltr"><?= esc((string) $quantity) ?></p>
+                    <p class="inventory-snapshot-meta"><?= esc($tr('unitInStock')) ?> / <?= esc($tr('minimum')) ?> <span dir="ltr"><?= esc((string) $minQuantity) ?></span></p>
+                </div>
+                <div class="inventory-snapshot-card inventory-snapshot-risk">
+                    <p class="inventory-snapshot-label"><?= esc($tr('status')) ?></p>
+                    <p class="inventory-snapshot-value-text"><?= esc($statusText) ?></p>
+                    <p class="inventory-snapshot-meta <?= esc($expiryTone) ?>"><?= esc($tr('expiry')) ?>: <?= esc($expiryDisplay) ?></p>
+                </div>
+                <div class="inventory-snapshot-card inventory-snapshot-value">
+                    <p class="inventory-snapshot-label"><?= esc($tr('totalValue')) ?></p>
+                    <p class="inventory-snapshot-value-text" dir="ltr"><?= formatCurrency($totalValue) ?></p>
+                    <p class="inventory-snapshot-meta"><?= esc($tr('unitPrice')) ?>: <span dir="ltr"><?= formatCurrency($unitPrice) ?></span></p>
+                </div>
+                <div class="inventory-snapshot-card inventory-snapshot-location">
+                    <p class="inventory-snapshot-label"><?= esc($tr('lastUpdated')) ?></p>
+                    <p class="inventory-snapshot-value-text text-xl"><?= $item['updated_at'] ? esc(date('M j, Y', strtotime($item['updated_at']))) : '—' ?></p>
+                    <p class="inventory-snapshot-meta"><?= $creatorName !== '' ? esc($creatorName) : '—' ?></p>
+                </div>
+            </div>
+            <?php if ($quantity <= $minQuantity): ?>
+                <div class="mt-4 flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">
+                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                    <span><?= esc($tr('lowStockAlert')) ?></span>
+                </div>
+            <?php endif; ?>
+        </section>
+
+        <!-- Legacy overview kept hidden while the detail page uses the stronger snapshot band above. -->
+        <div class="hidden">
             <!-- Left: Item identity & description -->
             <div class="lg:col-span-2 show-card p-5">
                 <?php if (!empty($item['description'])): ?>
@@ -149,8 +443,8 @@ if ($item['quantity'] == 0) {
         </div>
 
         <!-- Supplier Procurement Mapping -->
-        <div class="mb-6 grid grid-cols-1 gap-4 xl:grid-cols-5">
-            <div class="xl:col-span-3 show-card p-5">
+        <div class="mb-6 grid grid-cols-1 gap-5 xl:grid-cols-5">
+            <div class="xl:col-span-3 show-card p-5 bg-gradient-to-br from-amber-50 via-white to-orange-50">
                 <div class="flex items-center justify-between mb-4">
                     <div class="show-card-header mb-0 pb-0 border-b-0">
                         <i class="fas fa-truck-ramp-box text-sm" style="background:#fef3c7;color:#d97706;"></i>
@@ -161,7 +455,7 @@ if ($item['quantity'] == 0) {
                 <?php if (!empty($supplier_links)): ?>
                     <div class="space-y-2">
                         <?php foreach (($supplier_links ?? []) as $link): ?>
-                            <div class="rounded-lg border border-gray-200 bg-gray-50/50 p-3">
+                            <div class="rounded-2xl border border-amber-100 bg-white/78 p-3 shadow-sm">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <span class="font-semibold text-sm text-gray-900"><?= esc($link['supplier_name'] ?? ('Supplier #' . (int) $link['supplier_id'])) ?></span>
@@ -187,11 +481,11 @@ if ($item['quantity'] == 0) {
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="text-sm text-gray-400 text-center py-6"><?= esc($tr('noSupplierMappings')) ?></p>
+                    <div class="inventory-empty"><?= esc($tr('noSupplierMappings')) ?></div>
                 <?php endif; ?>
             </div>
 
-            <div class="xl:col-span-2 show-card p-5">
+            <div class="xl:col-span-2 show-card p-5 bg-gradient-to-br from-white via-emerald-50/70 to-teal-50">
                 <div class="show-card-header mb-3 pb-0 border-b-0">
                     <i class="fas fa-link text-sm" style="background:#fef3c7;color:#d97706;"></i>
                     <span><?= esc($tr('addUpdateMapping')) ?></span>
@@ -230,7 +524,7 @@ if ($item['quantity'] == 0) {
         </div>
 
         <!-- Stock Movements -->
-        <div class="mb-6 show-card p-5">
+        <div class="mb-6 show-card p-5 bg-gradient-to-br from-white via-emerald-50/70 to-blue-50/70">
             <div class="flex items-center justify-between mb-4">
                 <div class="show-card-header mb-0 pb-0 border-b-0">
                     <i class="fas fa-arrows-rotate text-sm" style="background:#d1fae5;color:#059669;"></i>
@@ -239,7 +533,7 @@ if ($item['quantity'] == 0) {
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600"><?= esc($tr('rowsCount', ['count' => count($movements ?? [])])) ?></span>
             </div>
             <?php if (!empty($movements)): ?>
-                <div class="overflow-x-auto">
+                <div class="inventory-table-wrap overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
                             <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
@@ -278,13 +572,13 @@ if ($item['quantity'] == 0) {
                     </table>
                 </div>
             <?php else: ?>
-                <p class="text-sm text-gray-400 text-center py-6">No stock movements recorded yet.</p>
+                <div class="inventory-empty">No stock movements recorded yet.</div>
             <?php endif; ?>
         </div>
 
         <!-- Batches -->
         <?php if (!empty($batches)): ?>
-        <div class="mb-6 show-card p-5">
+        <div class="mb-6 show-card p-5 bg-gradient-to-br from-white via-cyan-50/80 to-blue-50/70">
             <div class="flex items-center justify-between mb-4">
                 <div class="show-card-header mb-0 pb-0 border-b-0">
                     <i class="fas fa-tags text-sm" style="background:#e0f2fe;color:#0284c7;"></i>
@@ -292,7 +586,7 @@ if ($item['quantity'] == 0) {
                 </div>
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-700"><?= count($batches) ?> batches</span>
             </div>
-            <div class="overflow-x-auto">
+            <div class="inventory-table-wrap overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
@@ -323,11 +617,8 @@ if ($item['quantity'] == 0) {
 
         <!-- Bottom Actions -->
         <div class="flex flex-wrap gap-2">
-            <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors shadow-sm">
+            <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="inventory-action bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20">
                 <i class="fas fa-cart-plus text-xs"></i><?= esc($tr('addToReorderList')) ?>
-            </button>
-            <button onclick="deleteItem(<?= $item['id'] ?>)" class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors">
-                <i class="fas fa-trash text-xs"></i><?= esc($tr('delete')) ?>
             </button>
         </div>
     </div>
