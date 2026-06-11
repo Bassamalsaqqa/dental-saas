@@ -1,35 +1,269 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<?php $tr = static fn(string $key, array $params = []) => lang('ActivityLog.' . $key, $params); ?>
+<?php
+$tr = static fn(string $key, array $params = []) => lang('ActivityLog.' . $key, $params);
+$isRtl = !empty($is_rtl);
+$initialActivities = $activities ?? [];
+$initialActivityCount = count($initialActivities);
+$initialEntityCount = count($filters['entity_types'] ?? []);
+$initialActionCount = count($filters['actions'] ?? []);
+?>
+<style>
+.activity-log-shell {
+    font-family: inherit;
+}
+.activity-hero-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    border: 1px solid rgba(255,255,255,0.56);
+    background:
+        radial-gradient(circle at 9% 4%, rgba(255,255,255,0.24), transparent 29%),
+        radial-gradient(circle at 88% 14%, rgba(129,140,248,0.36), transparent 28%),
+        linear-gradient(135deg, #334155 0%, #2563eb 54%, #0f766e 100%);
+    box-shadow: 0 30px 72px -46px rgba(15,23,42,0.78);
+}
+[dir="rtl"] .activity-hero-card {
+    background:
+        radial-gradient(circle at 91% 4%, rgba(255,255,255,0.24), transparent 29%),
+        radial-gradient(circle at 12% 14%, rgba(129,140,248,0.36), transparent 28%),
+        linear-gradient(225deg, #334155 0%, #2563eb 54%, #0f766e 100%);
+}
+.activity-hero-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -8rem -10rem auto;
+    width: 24rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.13);
+}
+.activity-hero-content {
+    position: relative;
+    z-index: 1;
+}
+.activity-hero-avatar {
+    display: inline-flex;
+    width: 5rem;
+    height: 5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(125,211,252,0.16));
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 42px -28px rgba(15,23,42,0.8);
+}
+.activity-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.7rem;
+    border-radius: 0.95rem;
+    padding: 0.72rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 850;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.activity-action:hover {
+    transform: translateY(-1px);
+}
+.activity-action-blue {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    box-shadow: 0 18px 34px -24px rgba(37,99,235,0.82);
+}
+.activity-action-emerald {
+    background: linear-gradient(135deg, #10b981, #047857);
+    color: #fff;
+    box-shadow: 0 18px 34px -24px rgba(16,185,129,0.82);
+}
+.activity-snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+@media (min-width: 640px) {
+    .activity-snapshot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.activity-snapshot-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.75);
+    padding: 1rem;
+    box-shadow: 0 18px 36px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.78);
+}
+.activity-snapshot-card::after {
+    content: "";
+    position: absolute;
+    inset: -3rem -2rem auto auto;
+    width: 8rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.42);
+}
+.activity-snapshot-card > * {
+    position: relative;
+    z-index: 1;
+}
+.activity-snapshot-total { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
+.activity-snapshot-types { background: linear-gradient(135deg, #ddd6fe, #c4b5fd); }
+.activity-snapshot-actions { background: linear-gradient(135deg, #bbf7d0, #5eead4); }
+.activity-snapshot-label {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(15,23,42,0.62);
+}
+.activity-snapshot-value {
+    margin-top: 0.3rem;
+    font-size: 1.75rem;
+    line-height: 1.1;
+    font-weight: 950;
+    color: #0f172a;
+}
+.activity-snapshot-meta {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 750;
+    color: rgba(15,23,42,0.66);
+}
+.activity-panel {
+    overflow: hidden;
+    border-radius: 1.45rem;
+    border: 1px solid rgba(226,232,240,0.9);
+    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+    box-shadow: 0 22px 48px -36px rgba(15,23,42,0.32), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.activity-filter-card {
+    border-radius: 1.35rem;
+    border: 1px solid rgba(255,255,255,0.76);
+    background: linear-gradient(135deg, #eef2ff, #f0fdfa);
+    box-shadow: 0 20px 42px -34px rgba(15,23,42,0.36), inset 0 1px 0 rgba(255,255,255,0.82);
+}
+.activity-filter-field {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(203,213,225,0.95);
+    background: rgba(255,255,255,0.88);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 650;
+    color: #0f172a;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.76);
+}
+.activity-filter-field:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.14), inset 0 1px 0 rgba(255,255,255,0.76);
+}
+.activity-filter-label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #475569;
+}
+.activity-table-wrap {
+    border-radius: 1.1rem;
+    border: 1px solid rgba(226,232,240,0.84);
+    background: rgba(255,255,255,0.82);
+}
+.activity-table-wrap table thead tr {
+    background: rgba(248,250,252,0.94);
+}
+.activity-row {
+    transition: background 0.16s ease;
+}
+.activity-row:hover {
+    background: rgba(239,246,255,0.72);
+}
+.activity-pagination-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.35rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgba(203,213,225,0.9);
+    background: #fff;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #475569;
+}
+.activity-pagination-button:hover:not(:disabled) {
+    background: #f8fafc;
+    color: #0f172a;
+}
+</style>
 <!-- Activity Log Page -->
-<div class="min-h-screen">
-    <div class="container mx-auto px-4 py-6">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                <div class="space-y-2">
-                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900"><?= esc($tr('title')) ?></h1>
-                    <p class="text-gray-600 text-base lg:text-lg"><?= esc($tr('subtitle')) ?></p>
-                </div>
-                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                    <button onclick="refreshActivities()" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-sync-alt mr-2"></i><?= esc($tr('refresh')) ?>
-                    </button>
-                    <button onclick="exportActivities()" class="inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-download mr-2"></i><?= esc($tr('export')) ?>
-                    </button>
+<div class="activity-log-shell min-h-screen bg-slate-50">
+    <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
+        <section class="activity-hero-card mb-6">
+            <div class="activity-hero-content p-6 sm:p-8">
+                <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                    <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
+                        <div class="activity-hero-avatar">
+                            <i class="fas fa-history text-3xl"></i>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
+                                <span><?= esc($tr('recentActivities')) ?></span>
+                                <span class="h-1 w-1 rounded-full bg-blue-100"></span>
+                                <span><?= esc($tr('activities')) ?></span>
+                            </div>
+                            <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($tr('title')) ?></h1>
+                            <p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90"><?= esc($tr('subtitle')) ?></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 sm:flex-row xl:flex-col xl:w-[13rem]">
+                        <button onclick="refreshActivities()" class="activity-action activity-action-blue">
+                            <i class="fas fa-sync-alt"></i><?= esc($tr('refresh')) ?>
+                        </button>
+                        <button onclick="exportActivities()" class="activity-action activity-action-emerald">
+                            <i class="fas fa-download"></i><?= esc($tr('export')) ?>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <section class="mb-6 rounded-[1.5rem] border border-white/80 bg-gradient-to-br from-white via-blue-50/70 to-teal-50/60 p-4 shadow-xl shadow-slate-200/60 sm:p-5">
+            <div class="activity-snapshot-grid">
+                <div class="activity-snapshot-card activity-snapshot-total">
+                    <p class="activity-snapshot-label"><?= esc($tr('recentActivities')) ?></p>
+                    <p class="activity-snapshot-value" id="activity-snapshot-total" dir="ltr"><?= esc((string) $initialActivityCount) ?></p>
+                    <p class="activity-snapshot-meta"><?= esc($tr('activities')) ?></p>
+                </div>
+                <div class="activity-snapshot-card activity-snapshot-types">
+                    <p class="activity-snapshot-label"><?= esc($tr('entityType')) ?></p>
+                    <p class="activity-snapshot-value" dir="ltr"><?= esc((string) $initialEntityCount) ?></p>
+                    <p class="activity-snapshot-meta"><?= esc($tr('allTypes')) ?></p>
+                </div>
+                <div class="activity-snapshot-card activity-snapshot-actions">
+                    <p class="activity-snapshot-label"><?= esc($tr('action')) ?></p>
+                    <p class="activity-snapshot-value" dir="ltr"><?= esc((string) $initialActionCount) ?></p>
+                    <p class="activity-snapshot-meta"><?= esc($tr('allActions')) ?></p>
+                </div>
+            </div>
+        </section>
 
         <!-- Filters -->
         <div class="mb-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-4 lg:space-y-0">
+            <div class="activity-filter-card p-4 sm:p-5">
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:items-end">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('entityType')) ?></label>
-                        <select id="entityTypeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <label class="activity-filter-label"><?= esc($tr('entityType')) ?></label>
+                        <select id="entityTypeFilter" class="activity-filter-field">
                             <option value=""><?= esc($tr('allTypes')) ?></option>
                             <?php foreach ($filters['entity_types'] as $type): ?>
                                 <option value="<?= $type ?>"><?= ucfirst($type) ?></option>
@@ -37,8 +271,8 @@
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('action')) ?></label>
-                        <select id="actionFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <label class="activity-filter-label"><?= esc($tr('action')) ?></label>
+                        <select id="actionFilter" class="activity-filter-field">
                             <option value=""><?= esc($tr('allActions')) ?></option>
                             <?php foreach ($filters['actions'] as $action): ?>
                                 <option value="<?= $action ?>"><?= ucfirst($action) ?></option>
@@ -46,12 +280,12 @@
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('user')) ?></label>
-                        <input type="text" id="userFilter" placeholder="<?= esc($tr('searchByUserName')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <label class="activity-filter-label"><?= esc($tr('user')) ?></label>
+                        <input type="text" id="userFilter" placeholder="<?= esc($tr('searchByUserName')) ?>" class="activity-filter-field">
                     </div>
                     <div class="flex items-end">
-                        <button onclick="applyFilters()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fas fa-filter mr-2"></i><?= esc($tr('filter')) ?>
+                        <button onclick="applyFilters()" class="activity-action activity-action-blue w-full">
+                            <i class="fas fa-filter"></i><?= esc($tr('filter')) ?>
                         </button>
                     </div>
                 </div>
@@ -59,19 +293,24 @@
         </div>
 
         <!-- Activity Log Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="activity-panel">
             <!-- Table Header -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
-                <div class="flex items-center justify-between">
+            <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-slate-50 to-blue-50 px-5 py-4 sm:px-6">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('recentActivities')) ?></h3>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-teal-600 text-white shadow-lg shadow-blue-500/20">
+                            <i class="fas fa-stream"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-950"><?= esc($tr('recentActivities')) ?></h3>
+                            <p class="text-xs font-semibold text-slate-500"><?= esc($tr('subtitle')) ?></p>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="text-sm text-gray-600">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-700 ring-1 ring-blue-100">
                             <span id="total-activities">0</span> <?= esc($tr('activities')) ?>
                         </div>
-                        <div class="text-sm text-gray-600">
+                        <div class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700 ring-1 ring-emerald-100">
                             <span id="filtered-activities">0</span> <?= esc($tr('filtered')) ?>
                         </div>
                     </div>
@@ -79,19 +318,19 @@
             </div>
 
             <!-- Table Content -->
-            <div class="overflow-x-auto">
+            <div class="activity-table-wrap m-4 overflow-x-auto sm:m-5">
                 <table id="activitiesTable" class="w-full">
-                    <thead class="bg-gray-50">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('activity')) ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('user')) ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('entity')) ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('description')) ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('time')) ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('ipAddress')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('activity')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('user')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('entity')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('description')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('time')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('ipAddress')) ?></th>
                         </tr>
                     </thead>
-                    <tbody id="activitiesTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="activitiesTableBody" class="divide-y divide-slate-100 bg-white">
                         <!-- Activities will be loaded here -->
                     </tbody>
                 </table>
@@ -99,36 +338,36 @@
 
             <!-- Loading State -->
             <div id="loadingState" class="hidden p-8 text-center">
-                <div class="inline-flex items-center space-x-2">
-                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                    <span class="text-gray-600"><?= esc($tr('loadingActivities')) ?></span>
+                <div class="inline-flex items-center gap-3 rounded-2xl bg-blue-50 px-4 py-3 font-bold text-blue-700">
+                    <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-200 border-b-blue-700"></div>
+                    <span><?= esc($tr('loadingActivities')) ?></span>
                 </div>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="hidden p-8 text-center">
-                <div class="text-gray-400 mb-4">
+                <div class="mb-4 text-slate-400">
                     <i class="fas fa-history text-4xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2"><?= esc($tr('noActivitiesFound')) ?></h3>
-                <p class="text-gray-500"><?= esc($tr('noActivitiesMatchFilters')) ?></p>
+                <h3 class="mb-2 text-lg font-black text-slate-900"><?= esc($tr('noActivitiesFound')) ?></h3>
+                <p class="font-semibold text-slate-500"><?= esc($tr('noActivitiesMatchFilters')) ?></p>
             </div>
 
             <!-- Pagination -->
-            <div id="paginationContainer" class="hidden px-6 py-4 border-t border-gray-200 bg-gray-50/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <button id="prevPage" class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <div id="paginationContainer" class="hidden border-t border-slate-200/80 bg-slate-50/70 px-5 py-4 sm:px-6">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-2">
+                        <button id="prevPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50">
                             <i class="fas fa-chevron-left mr-1"></i><?= esc($tr('previous')) ?>
                         </button>
-                        <span id="pageInfo" class="text-sm text-gray-700"></span>
-                        <button id="nextPage" class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="pageInfo" class="rounded-full bg-white px-3 py-1 text-sm font-bold text-slate-700 ring-1 ring-slate-200"></span>
+                        <button id="nextPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50">
                             <?= esc($tr('next')) ?><i class="fas fa-chevron-right ml-1"></i>
                         </button>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <label class="text-sm text-gray-700"><?= esc($tr('show')) ?></label>
-                        <select id="pageSize" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-bold text-slate-700"><?= esc($tr('show')) ?></label>
+                        <select id="pageSize" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
                             <option value="25">25</option>
                             <option value="50" selected>50</option>
                             <option value="100">100</option>
@@ -225,11 +464,11 @@ function displayActivities(activities) {
     
     activities.forEach(activity => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 transition-colors duration-200';
+        tr.className = 'activity-row';
 
         // Activity Cell
         const tdActivity = document.createElement('td');
-        tdActivity.className = 'px-6 py-4 whitespace-nowrap cursor-pointer';
+        tdActivity.className = 'px-5 py-4 whitespace-nowrap cursor-pointer';
         tdActivity.setAttribute('role', 'button');
         tdActivity.setAttribute('tabindex', '0');
         tdActivity.title = '<?= esc($tr('openActivityDetails'), 'js') ?>';
@@ -242,20 +481,20 @@ function displayActivities(activities) {
         });
         
         const divFlex = document.createElement('div');
-        divFlex.className = 'flex items-center space-x-3';
+        divFlex.className = 'flex items-center gap-3';
         
         const divIcon = document.createElement('div');
-        divIcon.className = `w-8 h-8 ${getActivityIconBgClass(activity.color)} rounded-full flex items-center justify-center`;
+        divIcon.className = `flex h-9 w-9 items-center justify-center rounded-xl ${getActivityIconBgClass(activity.color)}`;
         const icon = document.createElement('i');
         icon.className = `${activity.icon} ${getActivityIconClass(activity.color)} text-sm`;
         divIcon.appendChild(icon);
         
         const divText = document.createElement('div');
         const divTitle = document.createElement('div');
-        divTitle.className = 'text-sm font-medium text-gray-900';
+        divTitle.className = 'text-sm font-black text-slate-900';
         divTitle.textContent = activity.title;
         const divAction = document.createElement('div');
-        divAction.className = 'text-xs text-gray-500';
+        divAction.className = 'text-xs font-semibold text-slate-500';
         divAction.textContent = `${activity.action} • ${activity.entity_type}`;
         
         divText.appendChild(divTitle);
@@ -266,49 +505,49 @@ function displayActivities(activities) {
 
         // User Cell
         const tdUser = document.createElement('td');
-        tdUser.className = 'px-6 py-4 whitespace-nowrap';
+        tdUser.className = 'px-5 py-4 whitespace-nowrap';
         const divUserName = document.createElement('div');
-        divUserName.className = 'text-sm text-gray-900';
+        divUserName.className = 'text-sm font-bold text-slate-900';
         divUserName.textContent = activity.user_name;
         const divUserEmail = document.createElement('div');
-        divUserEmail.className = 'text-xs text-gray-500';
+        divUserEmail.className = 'text-xs font-semibold text-slate-500';
         divUserEmail.textContent = activity.user_email;
         tdUser.appendChild(divUserName);
         tdUser.appendChild(divUserEmail);
 
         // Entity Cell
         const tdEntity = document.createElement('td');
-        tdEntity.className = 'px-6 py-4 whitespace-nowrap';
+        tdEntity.className = 'px-5 py-4 whitespace-nowrap';
         const spanBadge = document.createElement('span');
-        spanBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEntityBadgeClass(activity.entity_type)}`;
+        spanBadge.className = `inline-flex items-center rounded-full px-2.5 py-1 text-xs font-black ${getEntityBadgeClass(activity.entity_type)}`;
         spanBadge.textContent = activity.entity_type;
         tdEntity.appendChild(spanBadge);
 
         // Description Cell
         const tdDesc = document.createElement('td');
-        tdDesc.className = 'px-6 py-4';
+        tdDesc.className = 'px-5 py-4';
         const divDesc = document.createElement('div');
-        divDesc.className = 'text-sm text-gray-900 max-w-xs truncate';
+        divDesc.className = 'max-w-sm truncate text-sm font-semibold text-slate-800';
         divDesc.textContent = activity.description;
         tdDesc.appendChild(divDesc);
 
         // Time Cell
         const tdTime = document.createElement('td');
-        tdTime.className = 'px-6 py-4 whitespace-nowrap';
+        tdTime.className = 'px-5 py-4 whitespace-nowrap';
         const divTimeFormatted = document.createElement('div');
-        divTimeFormatted.className = 'text-sm text-gray-900';
+        divTimeFormatted.className = 'text-sm font-bold text-slate-900';
         divTimeFormatted.textContent = activity.formatted_time;
         const divTimeFull = document.createElement('div');
-        divTimeFull.className = 'text-xs text-gray-500';
+        divTimeFull.className = 'text-xs font-semibold text-slate-500';
         divTimeFull.textContent = new Date(activity.created_at).toLocaleString();
         tdTime.appendChild(divTimeFormatted);
         tdTime.appendChild(divTimeFull);
 
         // IP Cell
         const tdIp = document.createElement('td');
-        tdIp.className = 'px-6 py-4 whitespace-nowrap';
+        tdIp.className = 'px-5 py-4 whitespace-nowrap';
         const divIp = document.createElement('div');
-        divIp.className = 'text-sm text-gray-500';
+        divIp.className = 'text-sm font-semibold text-slate-500';
         divIp.textContent = activity.ip_address || '<?= esc($tr('notAvailable'), 'js') ?>';
         tdIp.appendChild(divIp);
 
@@ -371,6 +610,10 @@ function updatePagination() {
 function updateCounts() {
     document.getElementById('total-activities').textContent = totalActivities;
     document.getElementById('filtered-activities').textContent = filteredActivities;
+    const snapshotTotal = document.getElementById('activity-snapshot-total');
+    if (snapshotTotal) {
+        snapshotTotal.textContent = filteredActivities || totalActivities || 0;
+    }
 }
 
 function applyFilters() {
