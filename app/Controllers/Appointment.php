@@ -897,7 +897,9 @@ class Appointment extends BaseController
         $data = [
             'title' => 'Appointment Calendar',
             'stats' => $this->appointmentModel->getAppointmentStatsByClinic($clinicId),
-            'workingHours' => getWorkingHours()
+            'workingHours' => getWorkingHours(),
+            'loadSelect2' => true,
+            'chair_options' => $this->getChairOptions(),
         ];
 
         return $this->view('appointment/calendar', $data);
