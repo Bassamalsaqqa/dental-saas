@@ -168,9 +168,9 @@ $formatHumanLabel = static function (?string $value): string {
     }
 
     .dashboard-stat-label {
-        font-size: 0.72rem;
+        font-size: 0.84rem;
         font-weight: 900;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.055em;
         text-transform: uppercase;
         color: rgba(239, 246, 255, 0.86);
     }
