@@ -21,26 +21,12 @@ $statusCounts = [
     'cancelled' => 0,
     'no_show' => 0,
 ];
-$periodCounts = [
-    'morning' => 0,
-    'afternoon' => 0,
-    'evening' => 0,
-];
 $nowTimestamp = time();
 $nextAppointment = null;
 foreach ($appointmentRows as $row) {
     $rowStatus = (string) ($row['status'] ?? 'scheduled');
     if (array_key_exists($rowStatus, $statusCounts)) {
         $statusCounts[$rowStatus]++;
-    }
-
-    $hour = (int) date('G', strtotime((string) ($row['appointment_time'] ?? '00:00:00')));
-    if ($hour < 12) {
-        $periodCounts['morning']++;
-    } elseif ($hour < 17) {
-        $periodCounts['afternoon']++;
-    } else {
-        $periodCounts['evening']++;
     }
 
     $appointmentTimestamp = strtotime((string) ($row['appointment_date'] ?? '') . ' ' . (string) ($row['appointment_time'] ?? ''));
@@ -50,128 +36,120 @@ foreach ($appointmentRows as $row) {
         }
     }
 }
-$periodMax = max(1, $periodCounts['morning'], $periodCounts['afternoon'], $periodCounts['evening']);
-$periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($value / $periodMax) * 100)));
+$viewAllMode = isset($view_mode) && $view_mode === 'all';
+$activeCount = $statusCounts['scheduled'] + $statusCounts['confirmed'];
+$doneCount = $statusCounts['completed'];
+$riskCount = $statusCounts['cancelled'] + $statusCounts['no_show'];
+$nextAppointmentLabel = lang('UI.dashboardNoUpcomingAppointments');
+if ($nextAppointment) {
+    $nextRow = $nextAppointment['appointment'];
+    $nextAppointmentLabel = trim((string) (($nextRow['first_name'] ?? '') . ' ' . ($nextRow['last_name'] ?? '')));
+}
 ?>
-<!-- Enhanced Appointment Management with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-amber-400/10 to-orange-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
+<style>
+    .appointment-page {
+        font-family: var(--app-font-sans);
+        background:
+            radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.12), transparent 30%),
+            radial-gradient(circle at 92% 12%, rgba(16, 185, 129, 0.1), transparent 28%),
+            linear-gradient(135deg, #eef5ff 0%, #f8fafc 46%, #ecfdf5 100%);
+    }
 
-    <div class="container mx-auto relative z-10">
-        <!-- Enhanced Header with Glassmorphism -->
-        <div class="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8">
-            <div class="rounded-3xl border border-white/60 bg-white/90 p-5 shadow-xl shadow-blue-500/10 backdrop-blur-xl sm:p-6">
-                <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                    <div class="space-y-2">
-                        <div class="flex items-start gap-3 sm:items-center">
-                            <div class="relative group">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+    [dir="rtl"] .appointment-page {
+        font-family: var(--app-font-ar);
+    }
+
+    .appointment-panel {
+        border-radius: 1.25rem;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 18px 42px -34px rgba(15, 23, 42, 0.42);
+    }
+</style>
+
+<div class="appointment-page min-h-screen">
+    <div class="w-full">
+        <div class="w-full px-3 pt-3 sm:px-4 lg:px-5">
+            <div class="overflow-hidden rounded-2xl border border-blue-900/10 bg-slate-950 shadow-xl shadow-blue-900/16">
+                <div class="relative p-4 sm:p-5">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(59,130,246,.5),transparent_30%),radial-gradient(circle_at_84%_10%,rgba(16,185,129,.34),transparent_25%),linear-gradient(135deg,#0f3f90_0%,#1656c1_54%,#0f7cc1_100%)]"></div>
+                    <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(440px,.9fr)] xl:items-center">
+                            <div class="flex min-w-0 items-start gap-4">
+                                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
+                                    <i class="fas fa-calendar-check text-2xl"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-200"><?= $viewAllMode ? lang('UI.appointmentAllAppointments') : lang('UI.appointmentTodaySchedule') ?></p>
+                                    <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= lang('UI.appointmentManagement') ?></h1>
+                                    <p class="mt-1 max-w-2xl text-sm font-semibold leading-6 text-blue-50/90"><?= lang('UI.appointmentManagementSubtitle') ?></p>
                                 </div>
                             </div>
-                            <div>
-                                <h1 class="text-2xl sm:text-3xl font-black text-gray-900"><?= lang('UI.appointmentManagement') ?></h1>
-                                <div class="mt-1 flex flex-wrap items-center gap-4">
-                                    <p class="text-sm text-gray-600 font-medium"><?= lang('UI.appointmentManagementSubtitle') ?></p>
+
+                            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                                <div class="rounded-2xl bg-white/15 p-3 ring-1 ring-white/15 backdrop-blur">
+                                    <p class="text-[11px] font-black uppercase tracking-wide text-blue-100"><?= lang('UI.appointmentTotal') ?></p>
+                                    <p class="mt-1 text-2xl font-black text-white"><?= count($appointmentRows) ?></p>
+                                </div>
+                                <div class="rounded-2xl bg-emerald-400/20 p-3 ring-1 ring-emerald-200/25 backdrop-blur">
+                                    <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= lang('UI.appointmentActive') ?></p>
+                                    <p class="mt-1 text-2xl font-black text-white"><?= $activeCount ?></p>
+                                </div>
+                                <div class="rounded-2xl bg-cyan-400/20 p-3 ring-1 ring-cyan-200/20 backdrop-blur">
+                                    <p class="text-[11px] font-black uppercase tracking-wide text-cyan-100"><?= lang('UI.patientTreatmentStatusCompleted') ?></p>
+                                    <p class="mt-1 text-2xl font-black text-white"><?= $doneCount ?></p>
+                                </div>
+                                <div class="rounded-2xl bg-rose-400/20 p-3 ring-1 ring-rose-200/25 backdrop-blur">
+                                    <p class="text-[11px] font-black uppercase tracking-wide text-rose-100"><?= lang('UI.appointmentStatusCancelled') ?></p>
+                                    <p class="mt-1 text-2xl font-black text-white"><?= $riskCount ?></p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
-                        <?php if (has_permission('appointments', 'create')): ?>
-                            <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25 sm:w-auto">
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-plus me-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('UI.appointmentNew') ?></span>
-                            </a>
-                        <?php endif; ?>
-                        <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-                            <a href="<?= base_url('appointment') ?>" class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25 sm:w-auto">
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-calendar-day mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('UI.appointmentDailyView') ?></span>
-                            </a>
-                        <?php else: ?>
-                            <a href="<?= base_url('appointment') ?>?view=all" class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-emerald-500/25 sm:w-auto">
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-list mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('UI.appointmentViewAll') ?></span>
-                            </a>
-                        <?php endif; ?>
-                        <a href="<?= base_url('appointment/calendar') ?>" class="group relative inline-flex w-full items-center justify-center px-4 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-[1.02] sm:w-auto">
-                            <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i class="fas fa-calendar mr-2 relative z-10"></i>
-                            <span class="relative z-10"><?= lang('UI.appointmentCalendarView') ?></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/70 p-4 shadow-md shadow-blue-500/5 sm:p-5">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-black uppercase tracking-wide text-blue-600"><?= lang('UI.appointmentTotal') ?></p>
-                            <p class="mt-2 text-3xl font-black text-slate-900"><?= count($appointmentRows) ?></p>
+                        <div class="flex flex-col gap-3 xl:min-w-[31rem]">
+                            <div class="rounded-2xl bg-white/14 p-3 ring-1 ring-white/20 backdrop-blur">
+                                <p class="text-[11px] font-black uppercase tracking-[0.18em] text-blue-100"><?= lang('UI.patientNextAppointment') ?></p>
+                                <p class="mt-1 truncate text-lg font-black text-white"><?= esc($nextAppointmentLabel) ?></p>
+                                <?php if ($nextAppointment): ?>
+                                    <?php $nextRow = $nextAppointment['appointment']; ?>
+                                    <div class="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
+                                        <span class="rounded-full bg-white/16 px-2.5 py-1 text-white ring-1 ring-white/18" dir="ltr"><?= esc(formatDate($nextRow['appointment_date'] ?? '')) ?></span>
+                                        <span class="rounded-full bg-white/16 px-2.5 py-1 text-white ring-1 ring-white/18" dir="ltr"><?= esc(formatTime($nextRow['appointment_time'] ?? '')) ?></span>
+                                        <span class="rounded-full bg-white/16 px-2.5 py-1 text-white ring-1 ring-white/18"><?= esc($nextRow['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="flex flex-col gap-2 sm:flex-row">
+                                <?php if (has_permission('appointments', 'create')): ?>
+                                    <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-blue-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50">
+                                        <i class="fas fa-plus"></i>
+                                        <span><?= lang('UI.appointmentNew') ?></span>
+                                    </a>
+                                <?php endif; ?>
+                                <a href="<?= base_url('appointment/calendar') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                                    <i class="fas fa-calendar"></i>
+                                    <span><?= lang('UI.appointmentCalendarView') ?></span>
+                                </a>
+                                <?php if ($viewAllMode): ?>
+                                    <a href="<?= base_url('appointment') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <span><?= lang('UI.appointmentDailyView') ?></span>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= base_url('appointment') ?>?view=all" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                                        <i class="fas fa-list"></i>
+                                        <span><?= lang('UI.appointmentViewAll') ?></span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                            <i class="fas fa-calendar-check"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/70 p-4 shadow-md shadow-emerald-500/5 sm:p-5">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-black uppercase tracking-wide text-emerald-600"><?= lang('UI.appointmentStatusConfirmed') ?></p>
-                            <p class="mt-2 text-3xl font-black text-slate-900"><?= $statusCounts['confirmed'] ?></p>
-                        </div>
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                            <i class="fas fa-check-circle"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/70 p-4 shadow-md shadow-amber-500/5 sm:p-5">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-black uppercase tracking-wide text-amber-600"><?= lang('UI.appointmentStatusScheduled') ?></p>
-                            <p class="mt-2 text-3xl font-black text-slate-900"><?= $statusCounts['scheduled'] ?></p>
-                        </div>
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
-                            <i class="fas fa-clock"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="rounded-2xl border border-purple-100 bg-gradient-to-br from-white to-purple-50/70 p-4 shadow-md shadow-purple-500/5 sm:p-5">
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="min-w-0">
-                            <p class="text-xs font-black uppercase tracking-wide text-purple-600"><?= lang('UI.patientNextAppointment') ?></p>
-                            <?php if ($nextAppointment): ?>
-                                <?php $nextRow = $nextAppointment['appointment']; ?>
-                                <p class="mt-2 truncate text-sm font-black text-slate-900"><?= esc(trim(($nextRow['first_name'] ?? '') . ' ' . ($nextRow['last_name'] ?? ''))) ?></p>
-                                <p class="mt-1 text-xs font-bold text-slate-500" dir="ltr"><?= esc(formatDate($nextRow['appointment_date'] ?? '')) ?> - <?= esc(formatTime($nextRow['appointment_time'] ?? '')) ?></p>
-                            <?php else: ?>
-                                <p class="mt-2 text-sm font-black text-slate-900"><?= lang('UI.dashboardNoUpcomingAppointments') ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-purple-50 text-purple-700">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Flash Messages -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full px-3 sm:px-4 lg:px-5">
             <!-- Success Message -->
             <?php if (session()->getFlashdata('success')): ?> 
                 <noscript><div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm" role="status" aria-live="polite">
@@ -207,12 +185,11 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
             <?php endif; ?>
         </div>
 
+        <div class="w-full px-3 py-4 sm:px-4 lg:px-5">
         <!-- Enhanced Filtering Section with Advanced UI -->
         <?php if (!isset($view_mode) || $view_mode !== 'all'): ?>
-        <div class="mb-6">
-            <div class="group relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative rounded-2xl border border-white/60 bg-white/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl transition-all duration-500">
+        <div class="mb-4">
+            <div class="appointment-panel">
                     <div class="p-5 pb-3 sm:p-6 sm:pb-4">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
@@ -229,7 +206,6 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSelectDate') ?></label>
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all duration-300 font-medium">
                             </div>
                         </div>
@@ -238,7 +214,6 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentFilterByStatus') ?></label>
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <select id="statusFilter" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= ($selected_status ?? '') === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
@@ -253,7 +228,6 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearchPatient') ?></label>
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>" class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 transition-all duration-300 font-medium">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-search text-gray-400"></i>
@@ -278,17 +252,14 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
         <?php endif; ?>
 
         <!-- Search Section for View All Mode -->
         <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-        <div class="mb-6">
-            <div class="group relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative rounded-2xl border border-white/60 bg-white/90 shadow-xl shadow-emerald-500/10 backdrop-blur-xl transition-all duration-500">
+        <div class="mb-4">
+            <div class="appointment-panel">
                     <div class="p-5 pb-3 sm:p-6 sm:pb-4">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
@@ -303,7 +274,6 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearch') ?></label>
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <input type="text" id="searchInput" placeholder="<?= esc(lang('UI.appointmentSearchInputPlaceholder')) ?>" 
                                        value="<?= $search_term ?>" 
                                        class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
@@ -318,7 +288,6 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentStatusLabel') ?></label>
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <select id="statusFilter" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= $selected_status === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
@@ -342,20 +311,20 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
         <?php endif; ?>
 
-        <!-- Enhanced Appointments List with Sophisticated Design -->
-        <div class="mb-8">
-            <div class="group relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-gray-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500">
+        <!-- Appointment schedule list -->
+        <div class="mb-6">
+            <div class="relative">
+                <div class="appointment-panel overflow-hidden">
                     <div class="flex flex-col gap-4 p-6 pb-4 lg:flex-row lg:items-center lg:justify-between">
                         <div class="space-y-2">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 bg-gradient-to-r from-slate-500 to-gray-600 rounded-full animate-pulse"></div>
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-blue-900 text-white shadow-lg shadow-blue-900/20">
+                                    <i class="fas fa-list-check"></i>
+                                </span>
                                 <h3 class="text-2xl font-black text-gray-900">
                                     <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                         <?= lang('UI.appointmentAllAppointments') ?>
@@ -373,14 +342,14 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                             </p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            <div class="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2">
+                                <div class="h-2 w-2 rounded-full bg-blue-600"></div>
                                 <span class="text-blue-700 font-bold text-sm"><?= lang('UI.appointmentCountLabel', ['count' => count($appointments ?? [])]) ?></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-4 p-6 pt-0">
+                    <div class="appointment-records-list space-y-3 p-4 pt-0 sm:p-6 sm:pt-0">
                         <?php if (!empty($appointments)): ?>
                             <?php foreach ($appointments as $index => $appointment): ?>
                                 <?php
@@ -395,7 +364,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                                     $appointmentAvatarColor = 'text-rose-700';
                                 }
                                 ?>
-                                <div class="appointment-record-card group/item relative flex flex-col gap-4 p-4 bg-gradient-to-r from-white/75 to-white/55 backdrop-blur-sm rounded-2xl hover:from-white hover:to-white/80 transition-all duration-300 border border-white/40 shadow-md hover:shadow-xl hover:shadow-blue-500/10 md:p-5 xl:flex-row xl:items-center xl:justify-between <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(workflow_context_url('appointment/' . $appointment['id'])) . '"' : '' ?>>
+                                <div class="appointment-record-card group/item relative flex flex-col gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-white via-slate-50/80 to-blue-50/45 p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/10 md:p-5 xl:flex-row xl:items-center xl:justify-between <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(workflow_context_url('appointment/' . $appointment['id'])) . '"' : '' ?>>
                                     <!-- Patient Information -->
                                     <div class="flex items-start gap-4 md:gap-6 xl:flex-1">
                                         <span class="inline-flex items-center justify-center w-9 h-9 flex-shrink-0">
@@ -427,7 +396,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                                     <div class="text-center space-y-2">
                                         <div class="relative">
                                             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                                            <div class="relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 rounded-xl border border-amber-200">
+                                            <div class="relative bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-3 rounded-xl border border-amber-200 shadow-sm">
                                                 <p class="text-2xl font-black text-amber-900">
                                                     <?= formatTime($appointment['appointment_time']) ?>
                                                 </p>
@@ -447,7 +416,7 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                                     <div class="text-center space-y-2">
                                         <div class="relative">
                                             <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                                            <div class="relative bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 rounded-xl border border-emerald-200">
+                                            <div class="relative bg-gradient-to-r from-emerald-100 to-cyan-100 px-4 py-3 rounded-xl border border-emerald-200 shadow-sm">
                                                 <p class="text-lg font-bold text-emerald-900">
                                                     <?= ucfirst(str_replace('_', ' ', $appointment['appointment_type'])) ?>
                                                 </p>
@@ -465,7 +434,8 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                                             'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'text-blue-900', 'label' => lang('UI.appointmentStatusScheduled')],
                                             'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'text-green-900', 'label' => lang('UI.appointmentStatusConfirmed')],
                                             'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'text-gray-900', 'label' => lang('UI.patientTreatmentStatusCompleted')],
-                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'text-red-900', 'label' => lang('UI.appointmentStatusCancelled')]
+                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'text-red-900', 'label' => lang('UI.appointmentStatusCancelled')],
+                                            'no_show' => ['bg' => 'from-orange-500 to-orange-600', 'text' => 'text-orange-900', 'label' => lang('UI.appointmentStatusNoShow')]
                                         ];
                                         $status = $statusConfig[$appointment['status']] ?? $statusConfig['scheduled'];
                                         ?>
@@ -550,221 +520,6 @@ $periodPercent = static fn(int $value): int => max(6, min(100, (int) round(($val
                                 </div>
                             </div>
                         <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Real-time Status and Quick Actions Section -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 gap-6 items-stretch xl:grid-cols-3">
-                <!-- Real-time Status Indicators -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-gray-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500 hover:scale-[1.02] h-full flex flex-col">
-                        <div class="p-6 pb-4">
-                            <div class="space-y-2">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-gradient-to-r from-slate-500 to-gray-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-xl font-black text-gray-900">
-                                        <?= lang('UI.appointmentSystemStatus') ?>
-                                    </h3>
-                                </div>
-                                <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSystemStatusSubtitle') ?></p>
-                            </div>
-                        </div>
-                        <div class="space-y-4 p-6 pt-0 flex-1">
-                            <!-- Database Status -->
-                            <div class="group/status relative flex items-center space-x-3 p-4 rounded-xl bg-gradient-to-r from-green-50/80 to-emerald-50/80 border border-green-200/50 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover/status:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-database text-white text-sm"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800"><?= lang('UI.appointmentDatabase') ?></p>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-green-600 font-semibold"><?= lang('UI.appointmentOnline') ?></span>
-                                    </div>
-                                    <div class="w-full bg-green-200 rounded-full h-1.5 mt-2">
-                                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full w-4/5 animate-pulse"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Notification System -->
-                            <div class="group/status relative flex items-center space-x-3 p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-cyan-50/80 border border-blue-200/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl blur-lg opacity-75 group-hover/status:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-bell text-white text-sm"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800"><?= lang('UI.appointmentNotificationsLabel') ?></p>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-blue-600 font-semibold"><?= lang('UI.appointmentActive') ?></span>
-                                    </div>
-                                    <div class="w-full bg-blue-200 rounded-full h-1.5 mt-2">
-                                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-1.5 rounded-full w-3/4 animate-pulse"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Calendar Sync -->
-                            <div class="group/status relative flex items-center space-x-3 p-4 rounded-xl bg-gradient-to-r from-purple-50/80 to-pink-50/80 border border-purple-200/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl blur-lg opacity-75 group-hover/status:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-calendar-sync text-white text-sm"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800"><?= lang('UI.appointmentCalendarSyncLabel') ?></p>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-purple-600 font-semibold"><?= lang('UI.appointmentSynced') ?></span>
-                                    </div>
-                                    <div class="w-full bg-purple-200 rounded-full h-1.5 mt-2">
-                                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full w-5/6 animate-pulse"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions Panel -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 hover:scale-[1.02] h-full flex flex-col">
-                        <div class="p-6 pb-4">
-                            <div class="space-y-2">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-xl font-black text-gray-900">
-                                        <?= lang('UI.appointmentQuickActions') ?>
-                                    </h3>
-                                </div>
-                                <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentQuickActionsSubtitle') ?></p>
-                            </div>
-                        </div>
-                        <div class="space-y-3 p-6 pt-0 flex-1">
-                            <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="group/action relative flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-105">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl blur-lg opacity-75 group-hover/action:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover/action:scale-110 group-hover/action:rotate-3 transition-all duration-300">
-                                        <i class="fas fa-plus text-white text-lg"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-blue-900 transition-colors duration-300"><?= lang('UI.appointmentNewActionTitle') ?></p>
-                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentNewActionSubtitle') ?></p>
-                                </div>
-                                <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-blue-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
-                            </a>
-
-                            <a href="<?= base_url('appointment/calendar') ?>" class="group/action relative flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-emerald-50/80 to-cyan-50/80 border border-emerald-200/50 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 hover:scale-105">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl blur-lg opacity-75 group-hover/action:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover/action:scale-110 group-hover/action:rotate-3 transition-all duration-300">
-                                        <i class="fas fa-calendar text-white text-lg"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-emerald-900 transition-colors duration-300"><?= lang('UI.appointmentCalendarActionTitle') ?></p>
-                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentCalendarActionSubtitle') ?></p>
-                                </div>
-                                <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-emerald-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
-                            </a>
-
-                            <a href="<?= base_url('patient') ?>" class="group/action relative flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-amber-50/80 to-orange-50/80 border border-amber-200/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:scale-105">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl blur-lg opacity-75 group-hover/action:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover/action:scale-110 group-hover/action:rotate-3 transition-all duration-300">
-                                        <i class="fas fa-users text-white text-lg"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-amber-900 transition-colors duration-300"><?= lang('UI.appointmentManagePatientsTitle') ?></p>
-                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentManagePatientsSubtitle') ?></p>
-                                </div>
-                                <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-amber-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
-                            </a>
-
-                            <a href="<?= base_url('reports') ?>" class="group/action relative flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-purple-50/80 to-pink-50/80 border border-purple-200/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 hover:scale-105">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl blur-lg opacity-75 group-hover/action:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover/action:scale-110 group-hover/action:rotate-3 transition-all duration-300">
-                                        <i class="fas fa-chart-bar text-white text-lg"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-purple-900 transition-colors duration-300"><?= lang('UI.appointmentReportsTitle') ?></p>
-                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentReportsSubtitle') ?></p>
-                                </div>
-                                <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-purple-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Today's Schedule Summary -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-[1.02] h-full flex flex-col">
-                        <div class="p-6 pb-4">
-                            <div class="space-y-2">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-xl font-black text-gray-900">
-                                        <?= lang('UI.appointmentTodaySchedule') ?>
-                                    </h3>
-                                </div>
-                                <p class="text-gray-600 font-medium text-sm"><?= formatDate(date('Y-m-d')) ?></p>
-                            </div>
-                        </div>
-                        <div class="space-y-4 p-6 pt-0 flex-1">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="text-center p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200">
-                                      <div class="text-3xl font-black text-blue-900"><?= count($appointmentRows) ?></div>
-                                    <div class="text-sm font-bold text-blue-700 uppercase tracking-wider"><?= lang('UI.appointmentTotal') ?></div>
-                                </div>
-                                <div class="text-center p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
-                                      <div class="text-3xl font-black text-green-900"><?= $statusCounts['scheduled'] + $statusCounts['confirmed'] ?></div>
-                                    <div class="text-sm font-bold text-green-700 uppercase tracking-wider"><?= lang('UI.appointmentStatusScheduled') ?></div>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="font-semibold text-gray-700"><?= lang('UI.appointmentMorning') ?></span>
-                                    <span class="font-bold text-amber-900"><?= $periodCounts['morning'] ?> <?= lang('UI.appointmentEntries') ?></span>
-                                </div>
-                                <div class="w-full bg-amber-200 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full" style="width: <?= $periodPercent($periodCounts['morning']) ?>%"></div>
-                                </div>
-                                
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="font-semibold text-gray-700"><?= lang('UI.appointmentAfternoon') ?></span>
-                                    <span class="font-bold text-amber-900"><?= $periodCounts['afternoon'] ?> <?= lang('UI.appointmentEntries') ?></span>
-                                </div>
-                                <div class="w-full bg-amber-200 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full" style="width: <?= $periodPercent($periodCounts['afternoon']) ?>%"></div>
-                                </div>
-                                
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="font-semibold text-gray-700"><?= lang('UI.appointmentEvening') ?></span>
-                                    <span class="font-bold text-amber-900"><?= $periodCounts['evening'] ?> <?= lang('UI.appointmentEntries') ?></span>
-                                </div>
-                                <div class="w-full bg-amber-200 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full" style="width: <?= $periodPercent($periodCounts['evening']) ?>%"></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1213,7 +968,7 @@ function loadMoreAppointments() {
 
 // Append new appointments to the list
 function appendAppointments(appointments) {
-    const appointmentsContainer = document.querySelector('.space-y-4.p-6.pt-0');
+    const appointmentsContainer = document.querySelector('.appointment-records-list');
     
     appointments.forEach(appointment => {
         const appointmentElement = createAppointmentElement(appointment);
