@@ -111,6 +111,7 @@ $formatHumanLabel = static function (?string $value): string {
         display: grid;
         grid-template-columns: repeat(1, minmax(0, 1fr));
         gap: 1rem;
+        align-items: stretch;
     }
 
     @media (min-width: 640px) {
@@ -127,6 +128,8 @@ $formatHumanLabel = static function (?string $value): string {
 
     .dashboard-stat-card {
         position: relative;
+        display: flex;
+        height: 100%;
         overflow: hidden;
         min-height: 8.6rem;
         border-radius: 1.35rem;
@@ -149,6 +152,11 @@ $formatHumanLabel = static function (?string $value): string {
     .dashboard-stat-card > * {
         position: relative;
         z-index: 1;
+        width: 100%;
+    }
+
+    .dashboard-stat-card > .flex {
+        min-height: 100%;
     }
 
     .dashboard-stat-blue {
@@ -192,6 +200,9 @@ $formatHumanLabel = static function (?string $value): string {
 
     .dashboard-panel {
         position: relative;
+        display: flex;
+        height: 100%;
+        flex-direction: column;
         overflow: hidden;
         border-radius: 1.35rem;
         border: 1px solid rgba(255, 255, 255, 0.76);
@@ -257,6 +268,7 @@ $formatHumanLabel = static function (?string $value): string {
 
     .dashboard-list {
         display: flex;
+        flex: 1 1 auto;
         flex-direction: column;
         gap: 0.7rem;
         padding: 0 1.1rem 1.1rem;
@@ -365,6 +377,7 @@ $formatHumanLabel = static function (?string $value): string {
     }
 
     .dashboard-chart-wrap {
+        flex: 1 1 auto;
         height: 17rem;
         padding: 0 1.1rem 1.1rem;
     }
@@ -375,6 +388,32 @@ $formatHumanLabel = static function (?string $value): string {
         border: 1px solid rgba(226, 232, 240, 0.78);
         background: rgba(255, 255, 255, 0.78);
         padding: 0.8rem;
+    }
+
+    .dashboard-content-grid,
+    .dashboard-bottom-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.25rem;
+        align-items: stretch;
+    }
+
+    .dashboard-panel-stack {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.25rem;
+        align-items: stretch;
+    }
+
+    @media (min-width: 1280px) {
+        .dashboard-content-grid,
+        .dashboard-bottom-grid {
+            grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        }
+
+        .dashboard-panel-stack {
+            grid-template-rows: repeat(2, minmax(0, 1fr));
+        }
     }
 </style>
 
@@ -462,8 +501,8 @@ $formatHumanLabel = static function (?string $value): string {
             </a>
         </section>
 
-        <div class="grid grid-cols-1 gap-5 xl:grid-cols-12">
-            <section class="xl:col-span-7 space-y-5">
+        <div class="dashboard-content-grid">
+            <section class="dashboard-panel-stack">
                 <div class="dashboard-panel">
                     <div class="dashboard-panel-header">
                         <div class="dashboard-panel-title">
@@ -549,7 +588,7 @@ $formatHumanLabel = static function (?string $value): string {
                 </div>
             </section>
 
-            <aside class="xl:col-span-5 space-y-5">
+            <aside class="dashboard-panel-stack">
                 <div class="dashboard-panel">
                     <div class="dashboard-panel-header">
                         <div class="dashboard-panel-title">
@@ -606,8 +645,8 @@ $formatHumanLabel = static function (?string $value): string {
             </aside>
         </div>
 
-        <section class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
-            <div class="dashboard-panel xl:col-span-7">
+        <section class="dashboard-bottom-grid mt-5">
+            <div class="dashboard-panel">
                 <div class="dashboard-panel-header">
                     <div class="dashboard-panel-title">
                         <span class="dashboard-panel-icon bg-gradient-to-br from-blue-600 to-indigo-800"><i class="fas fa-user-clock"></i></span>
@@ -649,7 +688,7 @@ $formatHumanLabel = static function (?string $value): string {
                 </div>
             </div>
 
-            <div class="dashboard-panel xl:col-span-5">
+            <div class="dashboard-panel">
                 <div class="dashboard-panel-header">
                     <div class="dashboard-panel-title">
                         <span class="dashboard-panel-icon bg-gradient-to-br from-slate-700 to-slate-950"><i class="fas fa-bolt"></i></span>
