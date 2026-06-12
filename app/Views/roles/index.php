@@ -70,36 +70,110 @@
     .roles-card {
         position: relative;
         overflow: hidden;
-        border-radius: 1.75rem;
-        border: 1px solid rgba(203, 213, 225, 0.72);
-        background:
-            radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.12), transparent 10rem),
-            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.94));
-        box-shadow: 0 24px 62px -48px rgba(15, 23, 42, 0.62);
+        border-radius: 1.35rem;
+        border: 1px solid rgba(148, 163, 184, 0.42);
+        background: #ffffff;
+        box-shadow: 0 22px 58px -42px rgba(15, 23, 42, 0.62);
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        min-height: 18.5rem;
     }
     .roles-card:hover {
         transform: translateY(-2px);
         border-color: rgba(99, 102, 241, 0.28);
         box-shadow: 0 30px 70px -46px rgba(67, 56, 202, 0.58);
     }
-    .roles-card-system {
-        background:
-            radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.16), transparent 10rem),
-            linear-gradient(180deg, #ffffff, #eff6ff);
+    .roles-card-header {
+        position: relative;
+        overflow: hidden;
+        padding: 1rem;
+        color: #fff;
     }
-    .roles-card-clinic {
+    .roles-card-header::after {
+        content: '';
+        position: absolute;
+        inset: 0;
         background:
-            radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.18), transparent 10rem),
-            linear-gradient(180deg, #ffffff, #ecfdf5);
+            linear-gradient(120deg, rgba(255,255,255,0.16), transparent 42%),
+            repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px);
+        pointer-events: none;
+    }
+    .roles-card-header > * {
+        position: relative;
+        z-index: 1;
+    }
+    .roles-card-header-system {
+        background:
+            radial-gradient(circle at 96% 0%, rgba(96, 165, 250, 0.44), transparent 10rem),
+            linear-gradient(135deg, #1e1b4b 0%, #1d4ed8 62%, #0891b2 100%);
+    }
+    .roles-card-header-clinic {
+        background:
+            radial-gradient(circle at 96% 0%, rgba(45, 212, 191, 0.45), transparent 10rem),
+            linear-gradient(135deg, #064e3b 0%, #0f766e 58%, #2563eb 100%);
+    }
+    .roles-card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background:
+            radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.08), transparent 12rem),
+            linear-gradient(180deg, #ffffff, #f8fafc);
+        padding: 1rem;
+    }
+    .roles-status-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-top: 0.7rem;
+    }
+    .roles-status-item {
+        border-radius: 0.95rem;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.20);
+        padding: 0.55rem 0.65rem;
+        min-width: 0;
+    }
+    .roles-status-label {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(219, 234, 254, 0.78);
+    }
+    .roles-status-value {
+        margin-top: 0.18rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        min-width: 0;
+        font-size: 0.78rem;
+        font-weight: 900;
+        color: #fff;
+    }
+    .roles-metric {
+        border-radius: 1rem;
+        border: 1px solid rgba(203, 213, 225, 0.78);
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.96), rgba(241,245,249,0.86));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 32px -28px rgba(15,23,42,0.35);
+        padding: 0.7rem 0.85rem;
+    }
+    .roles-card-description {
+        border-radius: 1rem;
+        background: rgba(255,255,255,0.74);
+        border: 1px solid rgba(226,232,240,0.82);
+        padding: 0.7rem 0.85rem;
     }
     .roles-pill {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
         border-radius: 9999px;
-        padding: 0.35rem 0.65rem;
-        font-size: 0.72rem;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.68rem;
         font-weight: 800;
         line-height: 1;
         white-space: nowrap;
@@ -110,7 +184,7 @@
         justify-content: center;
         gap: 0.4rem;
         border-radius: 0.85rem;
-        padding: 0.55rem 0.8rem;
+        padding: 0.5rem 0.7rem;
         font-size: 0.75rem;
         font-weight: 800;
         transition: all 0.2s ease;
@@ -284,7 +358,7 @@
     </section>
 
     <!-- Roles Grid -->
-    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 2xl:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <?php foreach ($roles as $role): ?>
             <?php
                 $isSystemRole = (int) ($role['is_system'] ?? 0) === 1 || $role['clinic_id'] === null;
@@ -299,48 +373,65 @@
                 }
                 if ($role['slug'] === 'super_admin') $isEditable = false;
             ?>
-            <article class="roles-card <?= $isSystemRole ? 'roles-card-system' : 'roles-card-clinic' ?>">
-                <div class="p-5">
-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div class="flex min-w-0 items-start gap-3">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg <?= $isSystemRole ? 'bg-gradient-to-br from-indigo-700 to-blue-700 shadow-blue-500/20' : 'bg-gradient-to-br from-teal-600 to-emerald-700 shadow-emerald-500/20' ?>">
-                                <i class="fas <?= $isSystemRole ? 'fa-shield-alt' : 'fa-user-tag' ?> text-lg"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h3 class="truncate text-lg font-black text-slate-950"><?= esc($role['name']) ?></h3>
-                                <p class="mt-1 truncate text-xs font-bold text-slate-500" dir="ltr"><?= esc($role['slug']) ?></p>
-                            </div>
+            <article class="roles-card">
+                <div class="roles-card-header <?= $isSystemRole ? 'roles-card-header-system' : 'roles-card-header-clinic' ?>">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/20 text-white shadow-lg shadow-black/10">
+                            <i class="fas <?= $isSystemRole ? 'fa-shield-alt' : 'fa-user-tag' ?> text-lg"></i>
                         </div>
-                        <div class="flex flex-wrap gap-2 sm:justify-end">
-                            <span class="roles-pill <?= $isActiveRole ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' : 'bg-rose-100 text-rose-800 ring-1 ring-rose-200' ?>">
-                                <span class="h-1.5 w-1.5 rounded-full <?= $isActiveRole ? 'bg-emerald-500' : 'bg-rose-500' ?>"></span>
-                                <?= $isActiveRole ? esc($tr('active')) : esc($tr('inactive')) ?>
-                            </span>
-                            <?php if ($isSystemRole): ?>
-                                <span class="roles-pill bg-blue-100 text-blue-800 ring-1 ring-blue-200"><i class="fas fa-shield-alt"></i><?= esc($tr('system')) ?></span>
-                            <?php endif; ?>
-                            <?php if (isset($role['is_medical']) && $role['is_medical']): ?>
-                                <span class="roles-pill bg-teal-100 text-teal-800 ring-1 ring-teal-200"><i class="fas fa-stethoscope"></i><?= esc($tr('medical')) ?></span>
-                            <?php endif; ?>
+                        <div class="min-w-0">
+                            <h3 class="truncate text-lg font-black text-white"><?= esc($role['name']) ?></h3>
+                            <p class="mt-1 truncate text-xs font-bold text-blue-50/80" dir="ltr"><?= esc($role['slug']) ?></p>
                         </div>
                     </div>
+                    <div class="roles-status-strip">
+                        <div class="roles-status-item">
+                            <span class="roles-status-label"><?= esc($tr('active')) ?></span>
+                            <span class="roles-status-value">
+                                <span class="h-2 w-2 rounded-full <?= $isActiveRole ? 'bg-emerald-200' : 'bg-rose-200' ?>"></span>
+                                <?= $isActiveRole ? esc($tr('active')) : esc($tr('inactive')) ?>
+                            </span>
+                        </div>
+                        <div class="roles-status-item">
+                            <span class="roles-status-label"><?= esc($tr('system')) ?></span>
+                            <span class="roles-status-value">
+                                <i class="fas <?= $isSystemRole ? 'fa-shield-alt' : 'fa-user-tag' ?>"></i>
+                                <span class="truncate"><?= $isSystemRole ? esc($tr('system')) : esc($tr('role')) ?></span>
+                            </span>
+                        </div>
+                        <div class="roles-status-item">
+                            <span class="roles-status-label"><?= esc($tr('medical')) ?></span>
+                            <span class="roles-status-value">
+                                <i class="fas <?= (isset($role['is_medical']) && $role['is_medical']) ? 'fa-stethoscope' : 'fa-minus' ?>"></i>
+                                <span class="truncate"><?= (isset($role['is_medical']) && $role['is_medical']) ? esc($tr('medical')) : '-' ?></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-                    <p class="mt-4 min-h-[2.5rem] text-sm font-semibold leading-6 text-slate-600">
+                <div class="roles-card-body">
+                    <p class="roles-card-description min-h-[3.4rem] text-sm font-semibold leading-5 text-slate-700">
                         <?= esc($role['description']) ?>
                     </p>
 
-                    <div class="mt-5 grid grid-cols-2 gap-3">
-                        <div class="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-slate-200/80">
-                            <p class="text-[11px] font-black uppercase tracking-[0.12em] text-slate-500"><?= esc($tr('users')) ?></p>
+                    <div class="mt-3 grid grid-cols-2 gap-2.5">
+                        <div class="roles-metric">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-[11px] font-black uppercase tracking-[0.12em] text-slate-500"><?= esc($tr('users')) ?></p>
+                                <i class="fas fa-users text-blue-500"></i>
+                            </div>
                             <p class="mt-1 text-xl font-black text-slate-950"><?= $roleUserCount ?></p>
                         </div>
-                        <div class="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-slate-200/80">
-                            <p class="text-[11px] font-black uppercase tracking-[0.12em] text-slate-500"><?= esc($tr('permissions')) ?></p>
+                        <div class="roles-metric">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-[11px] font-black uppercase tracking-[0.12em] text-slate-500"><?= esc($tr('permissions')) ?></p>
+                                <i class="fas fa-key text-teal-500"></i>
+                            </div>
                             <p class="mt-1 text-xl font-black text-slate-950"><?= $rolePermissionCount ?></p>
                         </div>
                     </div>
 
-                    <div class="mt-5 flex flex-col gap-3 border-t border-slate-200/80 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="mt-auto flex flex-col gap-2.5 border-t border-slate-200/80 pt-3 sm:flex-row sm:items-center sm:justify-between xl:flex-col xl:items-stretch 2xl:flex-row 2xl:items-center">
                         <div class="flex flex-wrap gap-2">
                             <?php if ($isEditable): ?>
                                 <?php if (has_permission('users', 'edit')): ?>
