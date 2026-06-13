@@ -4,15 +4,15 @@
 <style>
     .control-settings-shell {
         background:
-            radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24rem),
-            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 22rem),
-            linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+            radial-gradient(circle at 8% 0%, rgba(59, 130, 246, 0.12), transparent 30%),
+            radial-gradient(circle at 92% 8%, rgba(16, 185, 129, 0.10), transparent 28%),
+            linear-gradient(135deg, #eef5ff 0%, #f8fafc 48%, #ecfdf5 100%);
     }
     .control-settings-shell-card {
-        background: rgba(255, 255, 255, 0.82);
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.35);
-        backdrop-filter: blur(22px);
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.84);
+        box-shadow: 0 18px 42px -32px rgba(15, 23, 42, 0.34);
+        backdrop-filter: blur(18px);
     }
     .control-settings-shell-breadcrumb {
         background: rgba(255, 255, 255, 0.65);
@@ -24,32 +24,33 @@
         display: flex;
         align-items: center;
         width: 100%;
-        gap: 0.75rem;
-        padding: 0.85rem 0.95rem;
-        border-radius: 0.9rem;
+        gap: 0.8rem;
+        min-height: 5.25rem;
+        padding: 1rem;
+        border-radius: 1.15rem;
         font-size: 0.875rem;
         font-weight: 600;
         color: #334155;
         transition: all 0.2s ease;
         text-align: left;
         border: 1px solid rgba(226, 232, 240, 0.8);
-        background: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 10px 25px -22px rgba(15, 23, 42, 0.3);
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 14px 32px -28px rgba(15, 23, 42, 0.32);
         backdrop-filter: blur(14px);
     }
     .control-settings-menu-btn:hover {
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
         color: #0f172a;
         border-color: rgba(59, 130, 246, 0.28);
-        transform: translateY(-1px);
-        box-shadow: 0 18px 36px -28px rgba(59, 130, 246, 0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px -30px rgba(59, 130, 246, 0.4);
     }
     .control-settings-menu-btn i {
         color: #475569;
         transition: color 0.2s ease;
     }
     .control-settings-menu-btn.is-active {
-        background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
+        background: linear-gradient(135deg, #0f172a, #1d4ed8 54%, #0f766e 100%);
         color: #fff;
         border-color: transparent;
         box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.5);
@@ -58,16 +59,19 @@
         color: #fff;
     }
     .control-settings-card {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 1rem;
-        box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
-        backdrop-filter: blur(24px);
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(226, 232, 240, 0.88);
+        border-radius: 1.5rem;
+        box-shadow: 0 18px 44px -34px rgba(15, 23, 42, 0.36);
+        backdrop-filter: blur(18px);
         overflow: hidden;
     }
     .control-settings-header {
-        background: linear-gradient(to right, #334155, #0f172a);
-        padding: 2rem;
+        background:
+            radial-gradient(circle at 12% 18%, rgba(96, 165, 250, 0.42), transparent 28%),
+            radial-gradient(circle at 86% 18%, rgba(45, 212, 191, 0.28), transparent 24%),
+            linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0f766e 100%);
+        padding: 1.35rem 1.5rem;
     }
     .control-settings-header h3,
     .control-settings-header h4 {
@@ -138,18 +142,18 @@
         color: #0f172a;
     }
     .control-settings-card > .p-8 {
-        padding: 1.5rem !important;
+        padding: 1.35rem !important;
     }
     .control-settings-surface {
         border: 1px solid rgba(226, 232, 240, 0.85);
-        border-radius: 1.25rem;
-        background: rgba(248, 250, 252, 0.75);
+        border-radius: 1.2rem;
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.94), rgba(239, 246, 255, 0.72));
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
     }
     .control-settings-metric {
         border: 1px solid rgba(226, 232, 240, 0.85);
         border-radius: 1.25rem;
-        background: rgba(255, 255, 255, 0.8);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.74));
         box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.22);
     }
     .ui-toggle {
@@ -206,15 +210,6 @@
         margin-left: 0.75rem !important;
     }
     @media (max-width: 1279px) {
-        .control-settings-shell {
-            min-height: auto;
-        }
-        .control-settings-shell > .mx-auto {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            padding-top: 1rem;
-            padding-bottom: 1.5rem;
-        }
         #control-settings-breadcrumb {
             flex-wrap: wrap;
             row-gap: 0.35rem;
@@ -228,7 +223,7 @@
         }
         .control-settings-menu-btn {
             width: auto;
-            min-width: max-content;
+            min-width: 13rem;
             flex: 0 0 auto;
             scroll-snap-align: start;
             white-space: nowrap;
@@ -236,20 +231,51 @@
     }
 </style>
 <div class="control-settings-shell min-h-screen">
-    <div class="mx-auto max-w-6xl px-6 py-8">
-        <div class="mb-5">
-            <div class="flex flex-wrap items-center gap-4">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
-                    <i class="fas fa-cog text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-950">Settings</h1>
-                    <p class="mt-1 text-sm text-slate-600">Platform-wide defaults, governance, and shared communication settings.</p>
+    <div class="w-full space-y-5 px-3 py-3 sm:px-4 lg:px-5">
+        <section class="overflow-hidden rounded-2xl border border-slate-900/10 bg-slate-950 shadow-xl shadow-slate-900/16">
+            <div class="relative p-4 sm:p-5">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_14%_16%,rgba(59,130,246,.54),transparent_30%),radial-gradient(circle_at_86%_12%,rgba(16,185,129,.32),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_54%,#0f766e_100%)]"></div>
+                <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                    <div class="flex min-w-0 items-start gap-4">
+                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
+                            <i class="fas fa-cog text-2xl"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-emerald-200">Global configuration</p>
+                            <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Control Plane Settings</h1>
+                            <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90">Manage platform identity, clinic onboarding defaults, retention governance, and shared communication templates from one controlled workspace.</p>
+                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">
+                                <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25">
+                                    <i class="fas fa-lock me-1"></i>Global Mode
+                                </span>
+                                <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18"><?= esc($settings['platform_name'] ?? 'Platform') ?></span>
+                                <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18"><?= esc($settings['default_timezone'] ?? 'Asia/Jerusalem') ?></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[30rem] lg:grid-cols-4">
+                        <div class="rounded-2xl bg-white/15 p-3 ring-1 ring-white/15 backdrop-blur">
+                            <p class="text-[11px] font-bold text-blue-100">Currency</p>
+                            <p class="mt-1 text-2xl font-bold text-white"><?= esc($settings['default_currency'] ?? 'ILS') ?></p>
+                        </div>
+                        <div class="rounded-2xl bg-emerald-400/20 p-3 ring-1 ring-emerald-200/25 backdrop-blur">
+                            <p class="text-[11px] font-bold text-emerald-100">Slot length</p>
+                            <p class="mt-1 text-2xl font-bold text-white"><?= (int) ($settings['default_appointment_duration'] ?? 30) ?>m</p>
+                        </div>
+                        <div class="rounded-2xl bg-violet-400/20 p-3 ring-1 ring-violet-200/20 backdrop-blur">
+                            <p class="text-[11px] font-bold text-violet-100">Email templates</p>
+                            <p class="mt-1 text-2xl font-bold text-white"><?= number_format($templateStats['total'] ?? 0) ?></p>
+                        </div>
+                        <div class="rounded-2xl bg-amber-400/20 p-3 ring-1 ring-amber-200/25 backdrop-blur">
+                            <p class="text-[11px] font-bold text-amber-100">Export retention</p>
+                            <p class="mt-1 text-2xl font-bold text-white"><?= esc(ucwords(str_replace('_', ' ', (string) ($settings['retention_mode'] ?? 'latest')))) ?></p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-slate-500" id="control-settings-breadcrumb">
+        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center gap-1 rounded-2xl px-4 py-3 text-sm text-slate-500" id="control-settings-breadcrumb">
             <span class="text-gray-700 font-medium">Control Plane</span>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium">Settings</span>
@@ -280,54 +306,54 @@
             </div>
         <?php endif; ?>
 
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-[220px,minmax(0,1fr)] items-start">
-            <div class="xl:sticky xl:top-8">
-                <div class="control-settings-shell-card rounded-[1.75rem] p-4">
-                    <div class="mb-3 px-2">
-                        <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Control Settings</p>
-                    </div>
-                    <nav class="space-y-2 control-settings-sidebar-nav">
-                        <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
-                            <i class="fas fa-id-badge w-5 h-5"></i>
-                            <span>Platform Profile</span>
-                        </button>
-                        <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn">
-                            <i class="fas fa-clinic-medical w-5 h-5"></i>
-                            <span>System Preferences</span>
-                        </button>
-                        <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn">
-                            <i class="fas fa-clock w-5 h-5"></i>
-                            <span>Working Hours</span>
-                        </button>
-                        <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
-                            <i class="fas fa-shield-alt w-5 h-5"></i>
-                            <span>Governance</span>
-                        </button>
-                        <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn">
-                            <i class="fas fa-envelope-open-text w-5 h-5"></i>
-                            <span>Email Templates</span>
-                        </button>
-                        <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn">
-                            <i class="fab fa-whatsapp w-5 h-5"></i>
-                            <span>WhatsApp Templates</span>
-                        </button>
-                    </nav>
+        <section class="control-settings-shell-card rounded-[1.75rem] p-3 sm:p-4">
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-3 px-1 sm:px-2">
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Settings Areas</p>
+                    <p class="mt-1 text-sm font-semibold text-slate-600">Choose the operating surface you need to review or update.</p>
                 </div>
+                <span class="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 ring-1 ring-blue-100">Changes are saved per section</span>
             </div>
+            <nav class="grid gap-3 control-settings-sidebar-nav sm:grid-cols-2 xl:grid-cols-6">
+                <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
+                    <i class="fas fa-id-badge w-5 h-5"></i>
+                    <span>Platform Profile</span>
+                </button>
+                <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn">
+                    <i class="fas fa-clinic-medical w-5 h-5"></i>
+                    <span>System Preferences</span>
+                </button>
+                <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn">
+                    <i class="fas fa-clock w-5 h-5"></i>
+                    <span>Working Hours</span>
+                </button>
+                <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
+                    <i class="fas fa-shield-alt w-5 h-5"></i>
+                    <span>Governance</span>
+                </button>
+                <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn">
+                    <i class="fas fa-envelope-open-text w-5 h-5"></i>
+                    <span>Email Templates</span>
+                </button>
+                <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn">
+                    <i class="fab fa-whatsapp w-5 h-5"></i>
+                    <span>WhatsApp Templates</span>
+                </button>
+            </nav>
+        </section>
 
-            <div class="min-w-0">
-                <?= $this->include('control_plane/settings_partials/platform') ?>
-                <?= $this->include('control_plane/settings_partials/clinic_defaults') ?>
-                <?= $this->include('control_plane/settings_partials/governance') ?>
-                <?= $this->include('control_plane/settings_partials/communications') ?>
-            </div>
-        </div>
+        <section class="min-w-0">
+            <?= $this->include('control_plane/settings_partials/platform') ?>
+            <?= $this->include('control_plane/settings_partials/clinic_defaults') ?>
+            <?= $this->include('control_plane/settings_partials/governance') ?>
+            <?= $this->include('control_plane/settings_partials/communications') ?>
+        </section>
     </div>
 </div>
 
 <div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-        <div class="flex items-start space-x-4 mb-6">
+        <div class="mb-6 flex items-start gap-4">
             <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
             </div>
@@ -336,7 +362,7 @@
                 <p id="confirm-modal-message" class="text-gray-500 text-sm">This action cannot be undone.</p>
             </div>
         </div>
-        <div class="flex justify-end space-x-3">
+        <div class="flex justify-end gap-3">
             <button onclick="closeConfirmModal()"
                     class="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
                 Cancel
@@ -409,13 +435,15 @@ function toastMessage(type, message) {
     if (!container) {
         container = document.createElement('div');
         container.id = 'control-settings-toast';
-        container.className = 'fixed top-5 right-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all';
+        container.className = 'fixed top-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all';
+        container.style.insetInlineEnd = '1.25rem';
         document.body.appendChild(container);
     }
 
-    container.className = `fixed top-5 right-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all ${
+    container.className = `fixed top-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all ${
         type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
     }`;
+    container.style.insetInlineEnd = '1.25rem';
     container.textContent = message;
     clearTimeout(container._hideTimer);
     container._hideTimer = setTimeout(() => {
@@ -427,14 +455,14 @@ function setButtonLoading(button, loading, label = 'Saving...') {
     if (!button) return;
 
     if (loading) {
-        button.dataset.originalText = button.innerHTML;
-        button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${label}`;
+        button.dataset.originalText = button.textContent || '';
+        button.textContent = label;
         button.disabled = true;
         button.classList.add('opacity-75', 'cursor-not-allowed');
         return;
     }
 
-    button.innerHTML = button.dataset.originalText || button.innerHTML;
+    button.textContent = button.dataset.originalText || button.textContent;
     button.disabled = false;
     button.classList.remove('opacity-75', 'cursor-not-allowed');
 }
