@@ -471,7 +471,7 @@ $guidanceText = static function ($item): string {
                             <span class="wa-hero-chip-icon"><i class="fas fa-circle-check"></i></span>
                             <span class="wa-hero-chip-text">
                                 <span class="wa-hero-chip-label">Delivery</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['sent_24h'] ?? 0)) ?> successful</span>
+                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['attempts_24h_sentish'] ?? 0)) ?> successful</span>
                             </span>
                         </div>
                         <div class="wa-hero-chip">
@@ -485,14 +485,14 @@ $guidanceText = static function ($item): string {
                             <span class="wa-hero-chip-icon"><i class="fas fa-list-check"></i></span>
                             <span class="wa-hero-chip-text">
                                 <span class="wa-hero-chip-label">Queue</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['queued'] ?? 0)) ?> waiting</span>
+                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['attempts_24h_total'] ?? 0)) ?> attempts</span>
                             </span>
                         </div>
                         <div class="wa-hero-chip">
                             <span class="wa-hero-chip-icon"><i class="fas fa-code-branch"></i></span>
                             <span class="wa-hero-chip-text">
                                 <span class="wa-hero-chip-label">Webhooks</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['webhook_events_24h'] ?? 0)) ?> events</span>
+                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['events_24h'] ?? 0)) ?> events</span>
                             </span>
                         </div>
                     </div>
@@ -567,12 +567,12 @@ $guidanceText = static function ($item): string {
                     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         <?php
                         $kpis = [
-                            ['label' => 'Total attempts', 'value' => $stats['total_attempts'] ?? 0, 'icon' => 'fa-paper-plane', 'class' => 'wa-panel-emerald', 'accent' => 'text-emerald-700'],
-                            ['label' => 'Delivered', 'value' => $stats['delivered'] ?? 0, 'icon' => 'fa-circle-check', 'class' => 'wa-panel-sky', 'accent' => 'text-sky-700'],
-                            ['label' => 'Failed', 'value' => $stats['failed'] ?? 0, 'icon' => 'fa-circle-xmark', 'class' => 'wa-panel-amber', 'accent' => 'text-rose-700'],
-                            ['label' => 'Inbound events', 'value' => $stats['inbound_events'] ?? 0, 'icon' => 'fa-inbox', 'class' => 'wa-panel-sky', 'accent' => 'text-cyan-700'],
-                            ['label' => 'Opt-outs', 'value' => $stats['optouts'] ?? 0, 'icon' => 'fa-user-slash', 'class' => 'wa-panel-amber', 'accent' => 'text-amber-700'],
-                            ['label' => 'Templates', 'value' => $stats['templates'] ?? 0, 'icon' => 'fa-layer-group', 'class' => 'wa-panel-emerald', 'accent' => 'text-emerald-700'],
+                            ['label' => '24h attempts', 'value' => $stats['attempts_24h_total'] ?? 0, 'icon' => 'fa-paper-plane', 'class' => 'wa-panel-emerald', 'accent' => 'text-emerald-700'],
+                            ['label' => 'Sent / delivered', 'value' => $stats['attempts_24h_sentish'] ?? 0, 'icon' => 'fa-circle-check', 'class' => 'wa-panel-sky', 'accent' => 'text-sky-700'],
+                            ['label' => 'Failed attempts', 'value' => $stats['attempts_24h_failed'] ?? 0, 'icon' => 'fa-circle-xmark', 'class' => 'wa-panel-amber', 'accent' => 'text-rose-700'],
+                            ['label' => 'Read receipts', 'value' => $stats['attempts_24h_read'] ?? 0, 'icon' => 'fa-eye', 'class' => 'wa-panel-sky', 'accent' => 'text-cyan-700'],
+                            ['label' => 'Webhook events', 'value' => $stats['events_24h'] ?? 0, 'icon' => 'fa-code-branch', 'class' => 'wa-panel-amber', 'accent' => 'text-amber-700'],
+                            ['label' => 'Opt-outs', 'value' => $stats['optouts_24h'] ?? 0, 'icon' => 'fa-user-slash', 'class' => 'wa-panel-emerald', 'accent' => 'text-emerald-700'],
                         ];
                         ?>
                         <?php foreach ($kpis as $kpi): ?>
@@ -609,7 +609,15 @@ $guidanceText = static function ($item): string {
                         <?php else: ?>
                             <div class="divide-y divide-slate-100">
                                 <?php foreach (array_slice($recentStream, 0, 8) as $item): ?>
-                                    <?php $type = strtolower((string) ($item['type'] ?? 'event')); ?>
+                                    <?php
+                                    $type = 'attempt';
+                                    $content = is_array($item['content'] ?? null) ? $item['content'] : [];
+                                    $recipient = is_array($item['recipient'] ?? null) ? $item['recipient'] : [];
+                                    $statusMeta = is_array($item['status_meta'] ?? null) ? $item['status_meta'] : [];
+                                    $streamTitle = (string) ($content['title'] ?? 'WhatsApp send attempt');
+                                    $streamSummary = trim((string) ($recipient['label'] ?? '') . ' · ' . (string) ($content['preview'] ?? ''));
+                                    $streamStatus = (string) ($statusMeta['label'] ?? $item['effective_status'] ?? 'pending');
+                                    ?>
                                     <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
                                         <div class="flex items-start gap-3">
                                             <span class="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl <?= $type === 'attempt' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700' ?>">
@@ -617,13 +625,13 @@ $guidanceText = static function ($item): string {
                                             </span>
                                             <div>
                                                 <div class="flex flex-wrap items-center gap-2">
-                                                    <p class="font-black text-slate-950"><?= esc($item['title'] ?? ucfirst($type)) ?></p>
-                                                    <span class="wa-chip <?= esc($statusClass($item['status'] ?? null), 'attr') ?> ring-1"><?= esc($item['status'] ?? 'event') ?></span>
+                                                    <p class="font-black text-slate-950"><?= esc($streamTitle) ?></p>
+                                                    <span class="wa-chip <?= esc($statusClass($item['effective_status'] ?? null), 'attr') ?> ring-1"><?= esc($streamStatus) ?></span>
                                                 </div>
-                                                <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($item['summary'] ?? '-') ?></p>
+                                                <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($streamSummary !== '' ? $streamSummary : '-') ?></p>
                                             </div>
                                         </div>
-                                        <p class="text-xs font-bold text-slate-400 sm:text-end"><?= esc($formatDate($item['created_at'] ?? null)) ?></p>
+                                        <p class="text-xs font-bold text-slate-400 sm:text-end"><?= esc($item['created_label'] ?? $formatDate($item['created_at'] ?? null)) ?></p>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -649,9 +657,18 @@ $guidanceText = static function ($item): string {
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($needsAttention as $warning): ?>
+                                    <?php
+                                    $warningContent = is_array($warning['content'] ?? null) ? $warning['content'] : [];
+                                    $warningRecipient = is_array($warning['recipient'] ?? null) ? $warning['recipient'] : [];
+                                    $warningFailure = is_array($warning['failure'] ?? null) ? $warning['failure'] : [];
+                                    $warningTitle = (string) ($warningContent['title'] ?? 'Message needs attention');
+                                    $warningMessage = (string) ($warningFailure['detail'] ?? $warningFailure['title'] ?? $warning['error_message'] ?? $warning['failure_reason'] ?? '');
+                                    $warningMeta = trim((string) ($warning['clinic_name'] ?? '') . ' · ' . (string) ($warningRecipient['label'] ?? ''));
+                                    ?>
                                     <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-amber-100">
-                                        <p class="font-black text-slate-950"><?= esc($warning['title'] ?? 'Attention needed') ?></p>
-                                        <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($warning['message'] ?? '') ?></p>
+                                        <p class="font-black text-slate-950"><?= esc($warningTitle) ?></p>
+                                        <p class="mt-1 text-xs font-bold uppercase tracking-[0.08em] text-amber-700"><?= esc($warningMeta !== '' ? $warningMeta : 'WhatsApp send attempt') ?></p>
+                                        <p class="mt-2 text-sm font-semibold text-slate-600"><?= esc($warningMessage !== '' ? $warningMessage : 'Review the latest provider response for this message.') ?></p>
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -664,10 +681,10 @@ $guidanceText = static function ($item): string {
                             <?php if (empty($statusBreakdown)): ?>
                                 <p class="rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-500">No status breakdown available yet.</p>
                             <?php else: ?>
-                                <?php foreach ($statusBreakdown as $row): ?>
+                                <?php foreach ($statusBreakdown as $label => $count): ?>
                                     <?php
-                                    $label = (string) ($row['status'] ?? 'unknown');
-                                    $count = (int) ($row['count'] ?? 0);
+                                    $label = (string) $label;
+                                    $count = (int) $count;
                                     ?>
                                     <div>
                                         <div class="flex items-center justify-between text-sm font-black">
@@ -731,10 +748,11 @@ $guidanceText = static function ($item): string {
 
                         <label id="wa-template-source" class="block">
                             <span class="mb-2 block text-sm font-black text-slate-800">Template source</span>
-                            <?php $templateSource = (string) old('template_source', 'manual'); ?>
+                            <?php $templateSource = (string) old('template_source', 'explicit'); ?>
                             <select name="template_source" class="wa-field">
-                                <option value="manual" <?= $templateSource === 'manual' ? 'selected' : '' ?>>Manual template</option>
-                                <option value="trigger" <?= $templateSource === 'trigger' ? 'selected' : '' ?>>Trigger catalog</option>
+                                <option value="explicit" <?= $templateSource === 'explicit' ? 'selected' : '' ?>>Explicit template</option>
+                                <option value="fallback" <?= $templateSource === 'fallback' ? 'selected' : '' ?>>Clinic fallback template</option>
+                                <option value="trigger_template" <?= $templateSource === 'trigger_template' ? 'selected' : '' ?>>Trigger catalog</option>
                             </select>
                         </label>
                     </div>
@@ -862,22 +880,41 @@ $guidanceText = static function ($item): string {
                             </thead>
                             <tbody>
                                 <?php foreach ($recentAttempts as $attempt): ?>
+                                    <?php
+                                    $attemptContent = is_array($attempt['content'] ?? null) ? $attempt['content'] : [];
+                                    $attemptRecipient = is_array($attempt['recipient'] ?? null) ? $attempt['recipient'] : [];
+                                    $attemptDelivery = is_array($attempt['delivery_meta'] ?? null) ? $attempt['delivery_meta'] : [];
+                                    $attemptStatusMeta = is_array($attempt['status_meta'] ?? null) ? $attempt['status_meta'] : [];
+                                    $attemptStatus = (string) ($attempt['effective_status'] ?? 'pending');
+                                    ?>
                                     <tr>
-                                        <td><span class="wa-chip <?= esc($statusClass($attempt['status'] ?? null), 'attr') ?> ring-1"><?= esc($attempt['status'] ?? 'unknown') ?></span></td>
+                                        <td><span class="wa-chip <?= esc($statusClass($attemptStatus), 'attr') ?> ring-1"><?= esc($attemptStatusMeta['label'] ?? $attemptStatus) ?></span></td>
                                         <td>
                                             <p class="font-black text-slate-950"><?= esc($attempt['clinic_name'] ?? 'Unknown clinic') ?></p>
-                                            <p class="mt-1 text-xs font-bold text-slate-400">Attempt #<?= esc((string) ($attempt['id'] ?? '-')) ?></p>
+                                            <p class="mt-1 text-xs font-bold text-slate-400">Attempt #<?= esc((string) ($attempt['attempt_id'] ?? '-')) ?></p>
                                         </td>
-                                        <td><p class="wa-code font-bold text-slate-700"><?= esc($attempt['to_number'] ?? '-') ?></p></td>
                                         <td>
-                                            <p class="max-w-sm text-sm font-semibold text-slate-700"><?= esc($attempt['message_preview'] ?? $attempt['template_name'] ?? '-') ?></p>
-                                            <?php if (!empty($attempt['failure_reason'])): ?>
-                                                <p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 ring-1 ring-rose-100"><?= esc($attempt['failure_reason']) ?></p>
+                                            <p class="font-bold text-slate-800"><?= esc($attemptRecipient['label'] ?? '-') ?></p>
+                                            <p class="wa-code mt-1 font-bold text-slate-500"><?= esc($attemptRecipient['secondary'] ?? '') ?></p>
+                                        </td>
+                                        <td>
+                                            <p class="font-black text-slate-950"><?= esc($attemptContent['title'] ?? '-') ?></p>
+                                            <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($attemptContent['subtitle'] ?? '') ?></p>
+                                            <p class="mt-2 max-w-sm text-sm font-semibold text-slate-700"><?= esc($attemptContent['preview'] ?? '-') ?></p>
+                                            <?php
+                                            $attemptFailure = is_array($attempt['failure'] ?? null) ? $attempt['failure'] : [];
+                                            $attemptFailureText = (string) ($attemptFailure['detail'] ?? $attemptFailure['title'] ?? '');
+                                            ?>
+                                            <?php if ($attemptFailureText !== ''): ?>
+                                                <p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 ring-1 ring-rose-100"><?= esc($attemptFailureText) ?></p>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <p class="text-sm font-black text-slate-950"><?= esc($formatDate($attempt['created_at'] ?? null)) ?></p>
-                                            <p class="mt-1 text-xs font-bold text-slate-400">Notification #<?= esc((string) ($attempt['notification_id'] ?? '-')) ?></p>
+                                            <p class="text-sm font-black text-slate-950"><?= esc($attempt['created_label'] ?? $formatDate($attempt['created_at'] ?? null)) ?></p>
+                                            <p class="mt-1 text-xs font-bold text-slate-400"><?= esc($attemptDelivery['label'] ?? ('Notification #' . (string) ($attempt['notification_id'] ?? '-'))) ?></p>
+                                            <?php if (!empty($attempt['provider_message_id'])): ?>
+                                                <p class="wa-code mt-1 text-xs font-bold text-slate-400"><?= esc($attempt['provider_message_id']) ?></p>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -897,13 +934,30 @@ $guidanceText = static function ($item): string {
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentEvents as $event): ?>
-                        <?php $payload = json_encode($event['payload'] ?? $event, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
+                        <?php
+                        $payload = (string) ($event['payload_pretty'] ?? $event['payload_json'] ?? '{}');
+                        $eventSummary = is_array($event['summary'] ?? null) ? $event['summary'] : [];
+                        $eventTitle = (string) ($eventSummary['title'] ?? $event['event_type'] ?? 'Webhook event');
+                        $eventDetail = (string) ($eventSummary['detail'] ?? '');
+                        $eventSubject = (string) ($eventSummary['subject'] ?? '');
+                        $eventCode = (string) ($eventSummary['code'] ?? '');
+                        ?>
                         <article class="wa-panel rounded-[1.7rem] p-5">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <span class="wa-chip bg-sky-100 text-sky-800 ring-1 ring-sky-200"><?= esc($event['event_type'] ?? 'webhook') ?></span>
-                                    <h3 class="mt-3 text-lg font-black text-slate-950"><?= esc($event['clinic_name'] ?? 'Unknown clinic') ?></h3>
-                                    <p class="mt-1 text-xs font-bold text-slate-400"><?= esc($formatDate($event['created_at'] ?? null)) ?></p>
+                                    <h3 class="mt-3 text-lg font-black text-slate-950"><?= esc($eventTitle) ?></h3>
+                                    <?php if ($eventDetail !== ''): ?>
+                                        <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($eventDetail) ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($eventSubject !== '' || $eventCode !== ''): ?>
+                                        <p class="mt-2 text-xs font-bold text-slate-500">
+                                            <?php if ($eventSubject !== ''): ?><span class="wa-code"><?= esc($eventSubject) ?></span><?php endif; ?>
+                                            <?php if ($eventSubject !== '' && $eventCode !== ''): ?><span class="mx-1">·</span><?php endif; ?>
+                                            <?php if ($eventCode !== ''): ?><span><?= esc('Code ' . $eventCode) ?></span><?php endif; ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <p class="mt-1 text-xs font-bold text-slate-400"><?= esc($event['processed_label'] ?? $formatDate($event['processed_at'] ?? null)) ?></p>
                                 </div>
                                 <button type="button" onclick="copyToClipboard(<?= json_encode((string) $payload) ?>)" class="rounded-xl bg-white px-3 py-2 text-xs font-extrabold text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">
                                     <i class="fas fa-copy me-1"></i>Copy
@@ -942,9 +996,9 @@ $guidanceText = static function ($item): string {
                                 <?php foreach ($recentOptouts as $optout): ?>
                                     <tr>
                                         <td class="font-black text-slate-950"><?= esc($optout['clinic_name'] ?? 'Unknown clinic') ?></td>
-                                        <td class="wa-code font-bold text-slate-700"><?= esc($optout['phone_number'] ?? '-') ?></td>
-                                        <td class="text-sm font-semibold text-slate-600"><?= esc($optout['reason'] ?? '-') ?></td>
-                                        <td class="text-sm font-bold text-slate-500"><?= esc($formatDate($optout['created_at'] ?? null)) ?></td>
+                                        <td class="wa-code font-bold text-slate-700"><?= esc($optout['wa_number'] ?? '-') ?></td>
+                                        <td class="text-sm font-semibold text-slate-600"><?= esc(trim((string) ($optout['bsuid'] ?? '') . ' ' . (string) ($optout['parent_bsuid'] ?? '')) ?: '-') ?></td>
+                                        <td class="text-sm font-bold text-slate-500"><?= esc($optout['created_label'] ?? $formatDate($optout['created_at'] ?? null)) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -1090,8 +1144,8 @@ $guidanceText = static function ($item): string {
         };
 
         function syncTemplateSource() {
-            const source = templateSource ? templateSource.value : 'manual';
-            const useTrigger = source === 'trigger';
+            const source = templateSource ? templateSource.value : 'explicit';
+            const useTrigger = source === 'trigger_template';
             if (manualNameWrap) manualNameWrap.classList.toggle('hidden', useTrigger);
             if (manualLanguageWrap) manualLanguageWrap.classList.toggle('hidden', useTrigger);
             if (triggerWrap) triggerWrap.classList.toggle('hidden', !useTrigger);
