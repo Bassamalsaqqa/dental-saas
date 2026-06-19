@@ -230,13 +230,115 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
 
+        .tenant-sidebar {
+            background:
+                radial-gradient(circle at 18% 0%, rgba(59,130,246,0.26), transparent 34%),
+                radial-gradient(circle at 86% 14%, rgba(45,212,191,0.16), transparent 28%),
+                linear-gradient(180deg, #0f2f68 0%, #102a56 45%, #0f172a 100%);
+            border-inline-end: 1px solid rgba(255,255,255,0.10);
+            box-shadow: 18px 0 42px -38px rgba(15,23,42,0.88);
+        }
+
+        [dir="rtl"] .tenant-sidebar {
+            box-shadow: -18px 0 42px -38px rgba(15,23,42,0.88);
+        }
+
+        .tenant-sidebar-brand {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.10);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .tenant-sidebar-section-label {
+            color: rgba(219,234,254,0.68);
+        }
+
+        .tenant-nav-link {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.72rem;
+            min-height: 2.72rem;
+            border-radius: 0.95rem;
+            padding: 0.64rem 0.78rem;
+            color: rgba(226,232,240,0.82);
+            font-size: 0.875rem;
+            font-weight: 800;
+            transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .tenant-nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.10);
+            transform: translateY(-1px);
+        }
+
+        .tenant-nav-link.is-active {
+            color: #fff;
+            background:
+                radial-gradient(circle at 0% 0%, rgba(255,255,255,0.20), transparent 38%),
+                linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
+            box-shadow: 0 16px 30px -24px rgba(14,165,233,0.92), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+
+        .tenant-nav-icon {
+            display: inline-flex;
+            width: 1.8rem;
+            height: 1.8rem;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 0.68rem;
+            color: rgba(191,219,254,0.92);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .tenant-nav-link.is-active .tenant-nav-icon {
+            color: #fff;
+            background: rgba(255,255,255,0.18);
+        }
+
+        .tenant-sidebar-footer-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.10);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .tenant-app-header {
+            background: rgba(255,255,255,0.92);
+            border-bottom: 1px solid rgba(226,232,240,0.90);
+            box-shadow: 0 12px 34px -30px rgba(15,23,42,0.42);
+        }
+
+        .tenant-header-button {
+            position: relative;
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(226,232,240,0.95);
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92));
+            color: #475569;
+            box-shadow: 0 12px 26px -24px rgba(15,23,42,0.50);
+            transition: transform 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .tenant-header-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(59,130,246,0.38);
+            color: #1d4ed8;
+            box-shadow: 0 16px 30px -25px rgba(37,99,235,0.45);
+        }
+
         /* RTL parity: keep icon/text spacing identical to LTR rhythm in sidebar/menu clusters */
         [dir="rtl"] #sidebar-nav ul li a {
             text-align: right;
         }
         [dir="rtl"] #sidebar-nav ul li a i {
             margin-right: 0 !important;
-            margin-left: 0.75rem !important;
+            margin-left: 0 !important;
         }
         [dir="rtl"] #sidebar .space-x-1 > :not([hidden]) ~ :not([hidden]),
         [dir="rtl"] #sidebar .space-x-2 > :not([hidden]) ~ :not([hidden]),
@@ -503,14 +605,15 @@
                 position: sticky !important;
                 top: 0;
                 min-height: 100vh;
-                height: auto;
+                height: 100vh;
                 inset-inline-start: auto !important;
                 transform: none !important;
-                overflow: visible !important;
+                overflow: hidden !important;
             }
 
             #sidebar-nav {
-                overflow: visible !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
             }
 
             #sidebar-footer {
@@ -526,7 +629,7 @@
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="w-56 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
+        <aside class="tenant-sidebar w-64 overflow-hidden z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {
@@ -539,12 +642,12 @@
             })();
         </script>
         <!-- Enhanced Sidebar Header -->
-        <div class="px-2 pb-2  pt-3 border-b border-white/30" id="sidebar-header">
+        <div class="px-3 pb-3 pt-3 border-b border-white/10" id="sidebar-header">
             <div class="flex items-center justify-between">
-                <a href="<?= base_url('dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
+                <a href="<?= base_url('dashboard') ?>" class="tenant-sidebar-brand flex items-center space-x-3 group cursor-pointer rounded-2xl p-2.5 transition-all duration-200 hover:bg-white/10">
                     <div class="relative group">
-                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
-                            <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl blur-lg opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
+                            <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 transition-all duration-200">
                             <?php if (!empty($clinic['logo_path'])): ?>
                                 <?php 
                                     $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
@@ -558,29 +661,25 @@
                         </div>
                     </div>
                     <div id="sidebar-title" class="min-w-0 flex-shrink-0">
-                        <h1 class="text-lg font-black text-gray-900 whitespace-nowrap"><?= esc($clinic['name']) ?></h1>
+                        <h1 class="text-base font-black text-white whitespace-nowrap"><?= esc($clinic['name']) ?></h1>
                         <div class="flex items-center space-x-1">
-                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <p class="text-xs text-gray-500 font-medium whitespace-nowrap"><?= esc($clinic['tagline']) ?></p>
+                            <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                            <p class="text-xs text-blue-100/75 font-bold whitespace-nowrap"><?= esc($clinic['tagline']) ?></p>
                         </div>
                     </div>
                 </a>
-                <button class="hidden md:inline-flex group relative p-2 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                    <i class="fas fa-bars text-base relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
-                </button>
             </div>
         </div>
 
         <!-- Enhanced Sidebar Navigation -->
         <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar overscroll-contain md:overflow-visible" id="sidebar-nav">
             <!-- Main Menu -->
-            <div class="p-4">
-                <div class="flex items-center space-x-2 mb-4">
-                    <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
+            <div class="p-3">
+                <div class="flex items-center space-x-2 mb-3 px-2">
+                    <div class="w-2 h-2 bg-gradient-to-r from-cyan-300 to-emerald-300 rounded-full animate-pulse"></div>
+                    <h3 class="tenant-sidebar-section-label text-xs font-black uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
                 </div>
-                <ul class="space-y-2">
+                <ul class="space-y-1.5">
                     <?php 
                     // Simple static menu - no authentication required
                     $userMenu = [];
@@ -596,6 +695,7 @@
                                 'url' => 'patients',
                                 'icon' => 'fas fa-users',
                                 'color' => 'emerald',
+                                'active_urls' => ['patients', 'patient'],
                             ],
                             'providers' => [
                                 'title' => lang('UI.menuProviders'),
@@ -609,24 +709,28 @@
                                 'url' => 'examinations',
                                 'icon' => 'fas fa-stethoscope',
                                 'color' => 'orange',
+                                'active_urls' => ['examinations', 'examination'],
                             ],
                             'appointments' => [
                                 'title' => lang('UI.menuAppointments'),
                                 'url' => 'appointments',
                                 'icon' => 'fas fa-calendar-alt',
                                 'color' => 'purple',
+                                'active_urls' => ['appointments', 'appointment'],
                             ],
                             'treatments' => [
                                 'title' => lang('UI.menuTreatments'),
                                 'url' => 'treatments',
                                 'icon' => 'fas fa-tooth',
                                 'color' => 'pink',
+                                'active_urls' => ['treatments', 'treatment'],
                             ],
                             'prescriptions' => [
                                 'title' => lang('UI.menuPrescriptions'),
                                 'url' => 'prescriptions',
                                 'icon' => 'fas fa-prescription-bottle-alt',
                                 'color' => 'indigo',
+                                'active_urls' => ['prescriptions', 'prescription'],
                             ],
                             'finance' => [
                                 'title' => lang('UI.menuFinance'),
@@ -725,27 +829,11 @@
                         } else {
                             $isActive = (strpos(uri_string(), $item['url']) === 0);
                         }
-                        $colorClasses = [
-                            'blue' => ['from-blue-500 to-blue-600', 'shadow-blue-500/25', 'from-blue-50 to-cyan-50', 'text-blue-800', 'shadow-blue-500/10', 'text-blue-600', 'text-blue-700'],
-                            'emerald' => ['from-emerald-500 to-emerald-600', 'shadow-emerald-500/25', 'from-emerald-50 to-green-50', 'text-emerald-800', 'shadow-emerald-500/10', 'text-emerald-600', 'text-emerald-700'],
-                            'orange' => ['from-orange-500 to-orange-600', 'shadow-orange-500/25', 'from-orange-50 to-amber-50', 'text-orange-800', 'shadow-orange-500/10', 'text-orange-600', 'text-orange-700'],
-                            'purple' => ['from-purple-500 to-purple-600', 'shadow-purple-500/25', 'from-purple-50 to-violet-50', 'text-purple-800', 'shadow-purple-500/10', 'text-purple-600', 'text-purple-700'],
-                            'pink' => ['from-pink-500 to-pink-600', 'shadow-pink-500/25', 'from-pink-50 to-rose-50', 'text-pink-800', 'shadow-pink-500/10', 'text-pink-600', 'text-pink-700'],
-                            'indigo' => ['from-indigo-500 to-indigo-600', 'shadow-indigo-500/25', 'from-indigo-50 to-blue-50', 'text-indigo-800', 'shadow-indigo-500/10', 'text-indigo-600', 'text-indigo-700'],
-                            'green' => ['from-green-500 to-green-600', 'shadow-green-500/25', 'from-green-50 to-emerald-50', 'text-green-800', 'shadow-green-500/10', 'text-green-600', 'text-green-700'],
-                            'amber' => ['from-amber-500 to-amber-600', 'shadow-amber-500/25', 'from-amber-50 to-yellow-50', 'text-amber-800', 'shadow-amber-500/10', 'text-amber-600', 'text-amber-700'],
-                            'teal' => ['from-teal-500 to-teal-600', 'shadow-teal-500/25', 'from-teal-50 to-cyan-50', 'text-teal-800', 'shadow-teal-500/10', 'text-teal-600', 'text-teal-700'],
-                            'violet' => ['from-violet-500 to-violet-600', 'shadow-violet-500/25', 'from-violet-50 to-purple-50', 'text-violet-800', 'shadow-violet-500/10', 'text-violet-600', 'text-violet-700'],
-                            'gray' => ['from-gray-500 to-gray-600', 'shadow-gray-500/25', 'from-gray-50 to-slate-50', 'text-gray-800', 'shadow-gray-500/10', 'text-gray-600', 'text-gray-700'],
-                            'cyan' => ['from-cyan-500 to-cyan-600', 'shadow-cyan-500/25', 'from-cyan-50 to-sky-50', 'text-cyan-800', 'shadow-cyan-500/10', 'text-cyan-600', 'text-cyan-700']
-                        ];
-                        $colors = $colorClasses[$item['color']];
                     ?>
                     <li>
-                        <a href="<?= base_url($item['url']) ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= $isActive ? 'bg-gradient-to-r ' . $colors[0] . ' text-white shadow-lg ' . $colors[1] . ' mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:' . $colors[2] . ' hover:' . $colors[3] . ' hover:shadow-md hover:' . $colors[4] . ' mx-1' ?>">
-                            <div class="absolute inset-0 bg-gradient-to-r <?= $colors[5] . ' ' . $colors[6] ?> rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                            <i class="<?= $item['icon'] ?> w-5 h-5 mr-3 relative z-10 <?= $isActive ? 'text-white' : $colors[5] . ' group-hover:' . $colors[6] ?>"></i>
-                            <span class="relative z-10"><?= $item['title'] ?></span>
+                        <a href="<?= base_url($item['url']) ?>" class="tenant-nav-link <?= $isActive ? 'is-active' : '' ?>">
+                            <i class="<?= $item['icon'] ?> tenant-nav-icon"></i>
+                            <span class="relative z-10 truncate"><?= $item['title'] ?></span>
                         </a>
                     </li>
                     <?php endforeach; ?>
@@ -754,18 +842,17 @@
         </nav>
 
         <!-- Enhanced Sidebar Footer -->
-        <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/80" id="sidebar-footer">
-            <a href="<?= base_url('profile') ?>" class="group relative block cursor-pointer rounded-xl p-3 transition-all duration-200 hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+        <div class="p-3 border-t border-white/10" id="sidebar-footer">
+            <a href="<?= base_url('profile') ?>" class="tenant-sidebar-footer-card group relative block cursor-pointer rounded-2xl p-3 transition-all duration-200 hover:bg-white/10">
                 <div class="relative z-10 flex items-start gap-3">
                     <div class="relative mt-0.5 shrink-0">
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full blur-lg opacity-70 group-hover:opacity-95 transition-opacity duration-200"></div>
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
                     </div>
                     <div class="min-w-0 flex-1 space-y-1.5">
-                        <div class="text-sm font-bold leading-5 text-gray-900 break-words">
+                        <div class="text-sm font-black leading-5 text-white break-words">
                             <?php 
                             $user = $user ?? null;
                             $displayName = esc($clinic['name']);
@@ -783,8 +870,8 @@
                             echo $displayName;
                             ?>
                         </div>
-                        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium leading-5 text-gray-500">
-                            <div class="w-1.5 h-1.5 shrink-0 bg-green-500 rounded-full animate-pulse"></div>
+                        <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold leading-5 text-blue-100/75">
+                            <div class="w-1.5 h-1.5 shrink-0 bg-emerald-400 rounded-full animate-pulse"></div>
                             <div class="min-w-0 break-words">
                                 <?php 
                                 if ($user && isset($user_groups) && !empty($user_groups)) {
@@ -797,7 +884,7 @@
                             </div>
                         </div>
                     </div>
-                    <i class="fas fa-external-link-alt mt-1 shrink-0 text-gray-400 text-xs transition-colors duration-200 group-hover:text-gray-600"></i>
+                    <i class="fas fa-external-link-alt mt-1 shrink-0 text-blue-100/45 text-xs transition-colors duration-200 group-hover:text-blue-50"></i>
                 </div>
             </a>
         </div>
@@ -809,24 +896,20 @@
     <div class="flex-1 flex flex-col min-h-screen transition-all duration-300 min-w-0" id="main-content">
         
         <!-- Smart Top Navigation Bar -->
-        <header class="bg-white/90 backdrop-blur-xl border-b border-white/40 shadow-xl shadow-blue-500/10 px-4 sm:px-6 py-3 sm:py-2 transition-all duration-300 relative z-20" id="main-header">
+        <header class="tenant-app-header sticky top-0 px-4 sm:px-5 py-3 transition-all duration-300 relative z-30 backdrop-blur-xl" id="main-header">
             <!-- Animated Background Elements -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div class="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/5 to-purple-600/5 rounded-full blur-2xl animate-pulse"></div>
-                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-emerald-400/5 to-cyan-600/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
-            </div>
+            <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent pointer-events-none"></div>
             
             <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
-                    <button class="md:hidden group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <i class="fas fa-bars text-lg relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
+                    <button class="tenant-header-button" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+                        <i class="fas fa-bars text-lg relative z-10 transition-colors duration-200"></i>
                     </button>
                     
                     <!-- Page Title -->
                     <div class="flex items-center space-x-4 min-w-0">
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
+                        <h2 class="text-lg sm:text-xl font-black text-slate-950 leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
                     </div>
                 </div>
                 
@@ -880,7 +963,7 @@
                     <!-- Clinic Switcher (Moved here) -->
                     <?php if (isset($user_memberships) && count($user_memberships) > 1): ?>
                     <div class="relative group mobile-hide-compact" id="clinic-switcher">
-                        <button onclick="toggleClinicSwitcher()" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-50 to-blue-50 hover:from-indigo-50 hover:to-indigo-100 border border-indigo-200 hover:border-indigo-300 text-indigo-600 hover:text-indigo-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-indigo-500/10">
+                        <button onclick="toggleClinicSwitcher()" class="tenant-header-button">
                             <i class="fas fa-hospital text-sm"></i>
                         </button>
                         
@@ -930,7 +1013,7 @@
                     <div class="lg:flex items-center space-x-2 hidden">
                         <!-- New Patient -->
                         <div class="relative group">
-                            <a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-50 hover:to-blue-100 border border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10">
+                            <a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="tenant-header-button">
                                 <i class="fas fa-user-plus text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -941,7 +1024,7 @@
                         
                         <!-- New Appointment -->
                         <div class="relative group">
-                            <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-50 hover:to-purple-100 border border-purple-200 hover:border-purple-300 text-purple-600 hover:text-purple-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-purple-500/10">
+                            <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="tenant-header-button">
                                 <i class="fas fa-calendar-plus text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -952,7 +1035,7 @@
                         
                         <!-- New Examination -->
                         <div class="relative group">
-                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-emerald-50 to-green-50 hover:from-emerald-50 hover:to-emerald-100 border border-emerald-200 hover:border-emerald-300 text-emerald-600 hover:text-emerald-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-emerald-500/10">
+                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="tenant-header-button">
                                 <i class="fas fa-stethoscope text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -963,7 +1046,7 @@
                         
                         <!-- Notifications -->
                         <div class="relative group">
-                            <button id="notifications-trigger" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-50 hover:to-amber-100 border border-amber-200 hover:border-amber-300 text-amber-600 hover:text-amber-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-amber-500/10" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
+                            <button id="notifications-trigger" class="tenant-header-button" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
                                 <i class="fas fa-bell text-sm"></i>
                                 <span id="notification-count" class="absolute -top-1 <?= !empty($is_rtl) ? '-left-1' : '-right-1' ?> bg-red-500 text-white text-xs rounded-full min-w-[1rem] h-4 px-1 inline-flex items-center justify-center font-bold shadow-sm hidden text-[10px]">0</span>
                             </button>
@@ -977,7 +1060,7 @@
                     
                     <!-- User Profile Dropdown -->
                     <div class="relative group">
-                        <button id="user-menu-trigger" type="button" onclick="toggleUserMenu()" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-slate-500/10" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
+                        <button id="user-menu-trigger" type="button" onclick="toggleUserMenu()" class="tenant-header-button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
                             <i class="fas fa-user text-sm"></i>
                         </button>
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -1055,7 +1138,7 @@
                     
                     <!-- Logout Button -->
                     <div class="relative group mobile-hide-compact">
-                        <a href="<?= base_url('auth/logout') ?>" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-red-50 to-rose-50 hover:from-red-50 hover:to-red-100 border border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-red-500/10">
+                        <a href="<?= base_url('auth/logout') ?>" class="tenant-header-button hover:!text-red-600">
                             <i class="fas fa-sign-out-alt text-sm"></i>
                         </a>
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">

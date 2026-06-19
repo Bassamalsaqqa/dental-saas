@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-19 - Tenant App Sidebar and Header Frame Refresh
+
+- Refined the tenant app `layouts/main_auth` sidebar/header combo into a single app-frame system.
+- Reworked the sidebar as the primary navigation rail with a stronger blue/slate surface, clearer active state, consistent icon treatment, and internal scrolling on desktop.
+- Simplified the app header into a quieter sticky utility bar with one shared button style for quick actions, notifications, clinic switcher, user menu, logout, and sidebar control.
+- Removed the duplicate sidebar collapse control from inside the sidebar; the header menu button is now the single control for desktop collapse and mobile drawer open/close.
+- Preserved route URLs, permission filtering, language switching, clinic switching, quick-create modal triggers, notification behavior, and user menu behavior.
+- Expanded parent-route highlighting so singular/detail pages such as `patient`, `examination`, `appointment`, `treatment`, and `prescription` highlight their canonical sidebar module.
+- Verification: `php -l app\Views\layouts\main_auth.php`, `npm.cmd run build`, `AppApiFoundationTest.php`, and `AppApiPatientsTest.php` passed. Build still reports the existing Browserslist warning.
+
 ## 2026-06-06 - Entity Detail Page Visual Contract
 
 - Refined `/treatment/{id}` into the app's reference entity detail page layout: stable hero identity, operational snapshot strip, primary clinical content column, and contextual patient/billing/timeline sidebar.
