@@ -158,8 +158,7 @@
         .sidebar-collapsed #sidebar-title,
         .sidebar-collapsed #sidebar-nav h3,
         .sidebar-collapsed #sidebar-nav span,
-        .sidebar-collapsed #sidebar-footer .flex-1,
-        .sidebar-collapsed #sidebar-footer i.fa-external-link-alt {
+        .sidebar-collapsed #sidebar-footer .flex-1 {
             display: none !important;
         }
 
@@ -169,33 +168,46 @@
 
         .sidebar-collapsed #sidebar-header,
         .sidebar-collapsed #sidebar-footer {
-            padding-left: 0.75rem !important;
-            padding-right: 0.75rem !important;
+            padding-left: 0.65rem !important;
+            padding-right: 0.65rem !important;
         }
 
-        .sidebar-collapsed #sidebar-nav .p-4,
+        .sidebar-collapsed .tenant-sidebar-brand {
+            width: 3.65rem !important;
+            min-height: 3.65rem !important;
+            justify-content: center !important;
+            padding: 0.5rem !important;
+            margin-inline: auto !important;
+        }
+
+        .sidebar-collapsed #sidebar-nav > div {
+            padding-left: 0.55rem !important;
+            padding-right: 0.55rem !important;
+        }
+
         .sidebar-collapsed #sidebar-nav .px-2 {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
 
         .sidebar-collapsed #sidebar-nav ul li a {
             justify-content: center !important;
             align-items: center !important;
             width: 3.5rem !important;
-            height: 3.5rem !important;
+            min-height: 3.45rem !important;
+            height: 3.45rem !important;
             padding: 0 !important;
             margin-left: auto !important;
             margin-right: auto !important;
-            border-radius: 1rem !important;
+            border-radius: 1.05rem !important;
         }
 
         .sidebar-collapsed #sidebar-nav ul li a i {
             margin-right: 0 !important;
             margin-left: 0 !important;
-            font-size: 1.125rem !important;
-            width: 1.5rem !important;
-            height: 1.5rem !important;
+            font-size: 1rem !important;
+            width: 2rem !important;
+            height: 2rem !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -206,8 +218,8 @@
         }
 
         .sidebar-collapsed #sidebar-footer > a {
-            width: 3.5rem !important;
-            min-height: 3.5rem !important;
+            width: 3.65rem !important;
+            min-height: 3.65rem !important;
             padding: 0.5rem !important;
             margin-left: auto !important;
             margin-right: auto !important;
@@ -224,6 +236,12 @@
 
         .sidebar-collapsed #sidebar-footer .fa-user {
             font-size: 0.95rem !important;
+        }
+
+        .sidebar-collapsed .tenant-sidebar-footer-card .w-10,
+        .sidebar-collapsed .tenant-sidebar-brand .w-10 {
+            width: 2.45rem !important;
+            height: 2.45rem !important;
         }
 
         /* Custom Scrollbar */
@@ -244,6 +262,7 @@
         }
 
         .tenant-sidebar-brand {
+            width: 100%;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.10);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
@@ -629,7 +648,7 @@
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="tenant-sidebar w-64 overflow-hidden z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
+        <aside class="tenant-sidebar w-60 overflow-hidden z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {
@@ -642,9 +661,9 @@
             })();
         </script>
         <!-- Enhanced Sidebar Header -->
-        <div class="px-3 pb-3 pt-3 border-b border-white/10" id="sidebar-header">
-            <div class="flex items-center justify-between">
-                <a href="<?= base_url('dashboard') ?>" class="tenant-sidebar-brand flex items-center space-x-3 group cursor-pointer rounded-2xl p-2.5 transition-all duration-200 hover:bg-white/10">
+        <div class="px-3 pb-2.5 pt-3 border-b border-white/10" id="sidebar-header">
+            <div class="flex items-center">
+                <a href="<?= base_url('dashboard') ?>" class="tenant-sidebar-brand flex items-center space-x-3 group cursor-pointer rounded-2xl p-2 transition-all duration-200 hover:bg-white/10">
                     <div class="relative group">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl blur-lg opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
                             <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 transition-all duration-200">
@@ -674,7 +693,7 @@
         <!-- Enhanced Sidebar Navigation -->
         <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar overscroll-contain md:overflow-visible" id="sidebar-nav">
             <!-- Main Menu -->
-            <div class="p-3">
+            <div class="p-2.5">
                 <div class="flex items-center space-x-2 mb-3 px-2">
                     <div class="w-2 h-2 bg-gradient-to-r from-cyan-300 to-emerald-300 rounded-full animate-pulse"></div>
                     <h3 class="tenant-sidebar-section-label text-xs font-black uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
@@ -842,17 +861,17 @@
         </nav>
 
         <!-- Enhanced Sidebar Footer -->
-        <div class="p-3 border-t border-white/10" id="sidebar-footer">
-            <a href="<?= base_url('profile') ?>" class="tenant-sidebar-footer-card group relative block cursor-pointer rounded-2xl p-3 transition-all duration-200 hover:bg-white/10">
-                <div class="relative z-10 flex items-start gap-3">
-                    <div class="relative mt-0.5 shrink-0">
+        <div class="p-2.5 border-t border-white/10" id="sidebar-footer">
+            <a href="<?= base_url('profile') ?>" class="tenant-sidebar-footer-card group relative block cursor-pointer rounded-2xl p-2.5 transition-all duration-200 hover:bg-white/10">
+                <div class="relative z-10 flex items-center gap-2.5">
+                    <div class="relative shrink-0">
                         <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full blur-lg opacity-70 group-hover:opacity-95 transition-opacity duration-200"></div>
                         <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
                     </div>
-                    <div class="min-w-0 flex-1 space-y-1.5">
-                        <div class="text-sm font-black leading-5 text-white break-words">
+                    <div class="min-w-0 flex-1">
+                        <div class="truncate text-sm font-black leading-5 text-white">
                             <?php 
                             $user = $user ?? null;
                             $displayName = esc($clinic['name']);
@@ -870,21 +889,7 @@
                             echo $displayName;
                             ?>
                         </div>
-                        <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold leading-5 text-blue-100/75">
-                            <div class="w-1.5 h-1.5 shrink-0 bg-emerald-400 rounded-full animate-pulse"></div>
-                            <div class="min-w-0 break-words">
-                                <?php 
-                                if ($user && isset($user_groups) && !empty($user_groups)) {
-                                    $groupNames = array_map(function($group) { return $group->name; }, $user_groups);
-                                    echo esc(ucfirst(implode(', ', $groupNames)));
-                                } else {
-                                    echo 'System Admin';
-                                }
-                                ?>
-                            </div>
-                        </div>
                     </div>
-                    <i class="fas fa-external-link-alt mt-1 shrink-0 text-blue-100/45 text-xs transition-colors duration-200 group-hover:text-blue-50"></i>
                 </div>
             </a>
         </div>
