@@ -351,6 +351,58 @@
             box-shadow: 0 16px 30px -25px rgba(37,99,235,0.45);
         }
 
+        .tenant-language-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.18rem;
+            border-radius: 999px;
+            border: 1px solid rgba(226,232,240,0.95);
+            background:
+                radial-gradient(circle at 14% 18%, rgba(59,130,246,0.16), transparent 28%),
+                linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.94));
+            padding: 0.25rem;
+            box-shadow: 0 14px 30px -25px rgba(15,23,42,0.50), inset 0 1px 0 rgba(255,255,255,0.94);
+        }
+
+        .tenant-language-switcher__icon {
+            display: inline-flex;
+            width: 2rem;
+            height: 2rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #eff6ff, #ecfeff);
+            color: #2563eb;
+            box-shadow: inset 0 0 0 1px rgba(191,219,254,0.72);
+        }
+
+        .tenant-language-option {
+            display: inline-flex;
+            min-height: 2rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0 0.7rem;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0;
+            line-height: 1;
+            transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+        }
+
+        .tenant-language-option:hover {
+            color: #0f172a;
+            background: rgba(239,246,255,0.92);
+            transform: translateY(-1px);
+        }
+
+        .tenant-language-option.is-active {
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #0891b2);
+            box-shadow: 0 12px 22px -16px rgba(37,99,235,0.65);
+        }
+
         .tenant-header-dropdown {
             border-radius: 1.05rem;
             border: 1px solid rgba(226,232,240,0.92);
@@ -987,37 +1039,38 @@
                     <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
                     <?php $returnToUrl = current_url(true)->__toString(); ?>
                     <div class="hidden sm:flex items-center">
-                        <div class="inline-flex items-center rounded-2xl border border-white/50 bg-white/78 p-1 shadow-lg shadow-blue-500/10 backdrop-blur-xl">
-                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-slate-50 to-blue-50 text-blue-600" title="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>">
+                        <nav class="tenant-language-switcher" aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>">
+                            <span class="tenant-language-switcher__icon" title="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>">
                                 <i class="fas fa-language text-[13px]"></i>
                             </span>
-                            <div class="<?= !empty($is_rtl) ? 'mr-1' : 'ml-1' ?> inline-flex items-center gap-1">
-                                <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnToUrl)) ?>"
-                                   lang="en"
-                                   hreflang="en"
-                                   aria-current="<?= $activeLocale === 'en' ? 'true' : 'false' ?>"
-                                   class="inline-flex items-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-600 hover:bg-slate-100 hover:text-gray-900' ?>">
-                                    <span>EN</span>
-                                </a>
-                                <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnToUrl)) ?>"
-                                   lang="ar"
-                                   hreflang="ar"
-                                   aria-current="<?= $activeLocale === 'ar' ? 'true' : 'false' ?>"
-                                   class="inline-flex items-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-600 hover:bg-slate-100 hover:text-gray-900' ?>">
-                                    <span><?= lang('UI.settingsLanguageAr') ?></span>
-                                </a>
-                            </div>
-                        </div>
+                            <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnToUrl)) ?>"
+                               lang="en"
+                               hreflang="en"
+                               aria-current="<?= $activeLocale === 'en' ? 'page' : 'false' ?>"
+                               title="<?= esc(lang('UI.settingsLanguageEn'), 'attr') ?>"
+                               class="tenant-language-option <?= $activeLocale === 'en' ? 'is-active' : '' ?>">
+                                <span>EN</span>
+                            </a>
+                            <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnToUrl)) ?>"
+                               lang="ar"
+                               hreflang="ar"
+                               aria-current="<?= $activeLocale === 'ar' ? 'page' : 'false' ?>"
+                               title="<?= esc(lang('UI.settingsLanguageAr'), 'attr') ?>"
+                               class="tenant-language-option <?= $activeLocale === 'ar' ? 'is-active' : '' ?>">
+                                <span lang="ar" dir="rtl"><?= esc(lang('UI.settingsLanguageAr')) ?></span>
+                            </a>
+                        </nav>
                     </div>
                     <div class="sm:hidden">
                         <a href="<?= base_url('language/switch/' . ($activeLocale === 'ar' ? 'en' : 'ar') . '?return_to=' . urlencode($returnToUrl)) ?>"
                                 lang="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
                                 hreflang="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
-                                class="inline-flex h-10 items-center rounded-2xl border border-white/50 bg-white/78 px-3 text-xs font-bold text-gray-700 shadow-lg shadow-blue-500/10 backdrop-blur-xl transition-all duration-200 hover:bg-white hover:text-gray-900">
-                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/20">
+                                aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>"
+                                class="tenant-language-switcher">
+                            <span class="tenant-language-switcher__icon !h-7 !w-7">
                                 <i class="fas fa-language text-[13px]"></i>
                             </span>
-                            <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= $activeLocale === 'ar' ? 'EN' : lang('UI.settingsLanguageAr') ?></span>
+                            <span class="tenant-language-option !min-h-7 !px-2"><?= $activeLocale === 'ar' ? 'EN' : esc(lang('UI.settingsLanguageAr')) ?></span>
                         </a>
                     </div>
                     <?php if (session()->get('is_impersonating')): ?>

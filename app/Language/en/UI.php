@@ -227,7 +227,7 @@ return [
     'settingsCommunications' => 'Communications',
     'settingsLanguage' => 'Language',
     'settingsLanguageEn' => 'English',
-    'settingsLanguageAr' => 'Arabic',
+    'settingsLanguageAr' => 'العربية',
     'settingsClinicProfileDesc' => 'Manage your clinic details',
     'settingsClinicName' => 'Clinic Name',
     'settingsClinicNameHelp' => 'The name displayed on invoices, reports, and patient communications.',
