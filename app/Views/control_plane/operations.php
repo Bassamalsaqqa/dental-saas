@@ -1,328 +1,642 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-amber-400/20 to-orange-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-indigo-400/10 to-blue-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
+<?php
+$healthChecks = is_array($healthChecks ?? null) ? $healthChecks : [];
+$planAudits = is_array($planAudits ?? null) ? $planAudits : [];
+$clinicDirectory = is_array($clinicDirectory ?? null) ? $clinicDirectory : [];
+$healthyCount = count(array_filter($healthChecks, static fn ($check): bool => !empty($check['status'])));
+$attentionCount = max(0, count($healthChecks) - $healthyCount);
+$environmentLabel = (string) ($environment ?? ENVIRONMENT);
+$phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
+?>
 
-    <div class="container mx-auto relative z-10 px-4 py-6 max-w-6xl">
-        <div class="mb-6">
-            <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-cogs text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Operations Console</h1>
-                            <p class="text-gray-600">Control plane health, tooling, and governance shortcuts</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold border border-emerald-200">
-                            <i class="fas fa-globe mr-1"></i> Global Mode
+<style>
+    .ops-page-shell {
+        background: rgba(248, 250, 252, 0.82);
+    }
+
+    .ops-hero-card {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        border-radius: 26px;
+        color: #fff;
+        background:
+            radial-gradient(circle at 12% 18%, rgba(255,255,255,0.18), transparent 30%),
+            radial-gradient(circle at 88% 20%, rgba(125,211,252,0.20), transparent 26%),
+            linear-gradient(135deg, #0f3f90 0%, #1656c1 58%, #0f766e 100%);
+        border: 1px solid rgba(203,213,225,0.55);
+        box-shadow: 0 28px 70px -44px rgba(15,23,42,0.75);
+    }
+
+    .ops-hero-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+            radial-gradient(circle at 4% 84%, rgba(255,255,255,0.10), transparent 28%),
+            linear-gradient(120deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+    }
+
+    [dir="rtl"] .ops-hero-card {
+        background:
+            radial-gradient(circle at 88% 18%, rgba(255,255,255,0.18), transparent 30%),
+            radial-gradient(circle at 12% 20%, rgba(125,211,252,0.20), transparent 26%),
+            linear-gradient(225deg, #0f3f90 0%, #1656c1 58%, #0f766e 100%);
+    }
+
+    .ops-hero-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ops-hero-avatar {
+        display: inline-flex;
+        width: 4.35rem;
+        height: 4.35rem;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 1.55rem;
+        background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(153,246,228,0.18));
+        border: 1px solid rgba(255,255,255,0.22);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 22px 40px -24px rgba(15,23,42,0.72);
+        color: #fff;
+        font-size: 1.9rem;
+    }
+
+    .ops-hero-chip {
+        display: inline-flex;
+        min-height: 2.42rem;
+        width: 100%;
+        align-items: center;
+        gap: 0.48rem;
+        overflow: hidden;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.16);
+        background: rgba(255,255,255,0.12);
+        padding: 0.46rem 0.72rem;
+        color: #eff6ff;
+        backdrop-filter: blur(12px);
+    }
+
+    .ops-hero-chip-icon {
+        display: inline-flex;
+        width: 1.65rem;
+        height: 1.65rem;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.12);
+        font-size: 0.72rem;
+    }
+
+    .ops-hero-chip-text {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        gap: 0.08rem;
+    }
+
+    .ops-hero-chip-label {
+        color: rgba(219,234,254,0.86);
+        font-size: 0.66rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+
+    .ops-hero-chip-value {
+        overflow: hidden;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 900;
+        line-height: 1.15;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ops-hero-side-card {
+        border-radius: 1.3rem;
+        border: 1px solid rgba(255,255,255,0.24);
+        background:
+            radial-gradient(circle at 18% 0%, rgba(255,255,255,0.22), transparent 38%),
+            linear-gradient(145deg, rgba(255,255,255,0.20), rgba(8,47,73,0.18));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 20px 42px -30px rgba(15,23,42,0.72);
+        backdrop-filter: blur(12px);
+    }
+
+    .ops-health-metric {
+        border-radius: 1rem;
+        border: 1px solid rgba(255,255,255,0.22);
+        padding: 0.9rem;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 14px 26px -24px rgba(15,23,42,0.78);
+    }
+
+    .ops-health-metric-ok {
+        background:
+            radial-gradient(circle at 0% 0%, rgba(255,255,255,0.24), transparent 42%),
+            linear-gradient(145deg, rgba(16,185,129,0.42), rgba(15,118,110,0.20));
+    }
+
+    .ops-health-metric-warn {
+        background:
+            radial-gradient(circle at 0% 0%, rgba(255,255,255,0.24), transparent 42%),
+            linear-gradient(145deg, rgba(245,158,11,0.42), rgba(217,119,6,0.20));
+    }
+
+    .ops-health-metric-value {
+        color: #fff;
+        font-size: 1.75rem;
+        font-weight: 950;
+        line-height: 1;
+        text-shadow: 0 1px 10px rgba(15,23,42,0.22);
+    }
+
+    .ops-health-metric-label {
+        margin-top: 0.42rem;
+        color: rgba(239,246,255,0.92);
+        font-size: 0.72rem;
+        font-weight: 900;
+        line-height: 1.2;
+    }
+
+    .ops-workspace-section {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.42rem;
+        border: 1px solid rgba(255,255,255,0.76);
+        background:
+            radial-gradient(circle at 0% 0%, rgba(37,99,235,0.11), transparent 28%),
+            radial-gradient(circle at 100% 18%, rgba(124,58,237,0.12), transparent 30%),
+            linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
+        box-shadow: 0 24px 58px -42px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.92) inset;
+    }
+
+    .ops-workspace-section::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 9% 0%, rgba(37,99,235,0.14), transparent 29%),
+            radial-gradient(circle at 95% 10%, rgba(5,150,105,0.12), transparent 30%);
+    }
+
+    .ops-workspace-section > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ops-tab-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 999px;
+        padding: 0.62rem 0.9rem;
+        border: 1px solid rgba(226,232,240,0.86);
+        background: rgba(255,255,255,0.86);
+        color: #475569;
+        font-size: 0.82rem;
+        font-weight: 900;
+        white-space: nowrap;
+        transition: all 0.18s ease;
+        box-shadow: 0 12px 30px -24px rgba(15,23,42,0.34);
+    }
+
+    .ops-tab-button:hover {
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
+
+    .ops-tab-button.is-active {
+        color: #fff;
+        border-color: rgba(255,255,255,0.55);
+        background: linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
+        box-shadow: 0 18px 34px -28px rgba(37,99,235,0.72);
+    }
+
+    .ops-section-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.08rem;
+        border: 1px solid rgba(255,255,255,0.82);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.15), transparent 31%),
+            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.92) 46%, rgba(255,255,255,0.98));
+        box-shadow: 0 20px 48px -38px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.92) inset;
+    }
+
+    .ops-section-card-health {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(5,150,105,0.18), transparent 31%),
+            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(209,250,229,0.92) 46%, rgba(255,255,255,0.98));
+    }
+
+    .ops-section-card-tools {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(79,70,229,0.17), transparent 31%),
+            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(238,242,255,0.92) 46%, rgba(255,255,255,0.98));
+    }
+
+    .ops-section-card-maintenance {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(217,119,6,0.18), transparent 31%),
+            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(254,243,199,0.92) 46%, rgba(255,255,255,0.98));
+    }
+
+    .ops-section-header {
+        border-bottom: 1px solid rgba(203,213,225,0.72);
+        background: linear-gradient(90deg, rgba(255,255,255,0.72), rgba(219,234,254,0.88));
+    }
+
+    .ops-section-title-dot {
+        display: inline-flex;
+        width: 2.25rem;
+        height: 2.25rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.85rem;
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #fff;
+        box-shadow: 0 16px 26px -20px rgba(15,23,42,0.78);
+    }
+
+    .ops-link-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+        border-radius: 1rem;
+        border: 1px solid rgba(226,232,240,0.88);
+        background: rgba(255,255,255,0.86);
+        padding: 0.82rem 0.9rem;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+        transition: all 0.18s ease;
+    }
+
+    .ops-link-row:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 32px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+
+    .ops-link-icon {
+        display: inline-flex;
+        width: 2.5rem;
+        height: 2.5rem;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 0.9rem;
+        color: #fff;
+        box-shadow: 0 14px 24px -18px rgba(15,23,42,0.62);
+    }
+
+    .ops-audit-table th {
+        padding: 0.9rem 1rem;
+        color: rgba(239,246,255,0.92);
+        background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+        border-bottom: 1px solid rgba(148,163,184,0.36);
+        font-size: 0.68rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-align: start;
+        text-transform: uppercase;
+    }
+
+    .ops-audit-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(226,232,240,0.86);
+        background: rgba(255,255,255,0.96);
+        vertical-align: top;
+    }
+
+    .ops-audit-table tbody tr:nth-child(even) td {
+        background: rgba(248,250,252,0.98);
+    }
+</style>
+
+<div class="ops-page-shell min-h-screen">
+    <div class="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-5 lg:px-6">
+        <section class="ops-hero-card">
+            <div class="grid gap-4 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
+                <div class="flex flex-col justify-between gap-3">
+                    <div class="flex items-start gap-3.5">
+                        <span class="ops-hero-avatar">
+                            <i class="fas fa-cogs"></i>
                         </span>
-                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200">
-                            <?= esc($environment ?? 'production') ?>
-                        </span>
-                        <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200">
-                            PHP <?= esc($phpVersion ?? '-') ?>
-                        </span>
+                        <div class="min-w-0">
+                            <p class="text-xs font-extrabold uppercase tracking-[0.28em] text-blue-100">Control Plane</p>
+                            <h1 class="mt-1 text-3xl font-black tracking-tight text-white">Operations Console</h1>
+                            <p class="mt-1.5 max-w-3xl text-sm font-semibold leading-5 text-blue-50/90">Runtime health, operational shortcuts, and plan enforcement visibility for the global app.</p>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="mb-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <a href="<?= base_url('controlplane/settings') ?>" class="group rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl px-5 py-4 shadow-sm transition-all hover:shadow-md hover:border-blue-200">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-[11px] font-black uppercase tracking-widest text-blue-600">Configuration</p>
-                            <p class="mt-2 text-sm font-semibold text-slate-900">Back to global settings</p>
-                            <p class="mt-1 text-xs text-slate-500">Review platform profile, clinic defaults, governance, and communications settings.</p>
+                    <div class="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+                        <div class="ops-hero-chip">
+                            <span class="ops-hero-chip-icon"><i class="fas fa-globe"></i></span>
+                            <span class="ops-hero-chip-text">
+                                <span class="ops-hero-chip-label">Mode</span>
+                                <span class="ops-hero-chip-value">Global mode</span>
+                            </span>
                         </div>
-                        <i class="fas fa-arrow-up-right-from-square text-blue-600 group-hover:translate-x-0.5 transition-transform"></i>
-                    </div>
-                </a>
-                <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="group rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-sm transition-all hover:shadow-md hover:border-emerald-300">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-[11px] font-black uppercase tracking-widest text-emerald-600">Communications Settings</p>
-                            <p class="mt-2 text-sm font-semibold text-slate-900">Manage WhatsApp policies and secrets</p>
-                            <p class="mt-1 text-xs text-slate-500">Operational health lives here, but configuration still belongs in the settings shell.</p>
+                        <div class="ops-hero-chip">
+                            <span class="ops-hero-chip-icon"><i class="fas fa-server"></i></span>
+                            <span class="ops-hero-chip-text">
+                                <span class="ops-hero-chip-label">Environment</span>
+                                <span class="ops-hero-chip-value"><?= esc($environmentLabel) ?></span>
+                            </span>
                         </div>
-                        <i class="fas fa-arrow-up-right-from-square text-emerald-600 group-hover:translate-x-0.5 transition-transform"></i>
+                        <div class="ops-hero-chip">
+                            <span class="ops-hero-chip-icon"><i class="fab fa-php"></i></span>
+                            <span class="ops-hero-chip-text">
+                                <span class="ops-hero-chip-label">Runtime</span>
+                                <span class="ops-hero-chip-value">PHP <?= esc($phpVersionLabel) ?></span>
+                            </span>
+                        </div>
+                        <div class="ops-hero-chip">
+                            <span class="ops-hero-chip-icon"><i class="fas fa-shield-halved"></i></span>
+                            <span class="ops-hero-chip-text">
+                                <span class="ops-hero-chip-label">Guardrails</span>
+                                <span class="ops-hero-chip-value"><?= esc((string) count($planAudits)) ?> plan events</span>
+                            </span>
+                        </div>
                     </div>
-                </a>
-            </div>
-            <div class="flex gap-2 p-1.5 bg-white/50 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm inline-flex">
-                <button onclick="showOpsTab('health')" id="ops-btn-health" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
-                    <i class="fas fa-heartbeat mr-2"></i>System Health
-                </button>
-                <button onclick="showOpsTab('audit')" id="ops-btn-audit" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
-                    <i class="fas fa-history mr-2"></i>Plan Audit Trail
-                </button>
-            </div>
-        </div>
+                </div>
 
-        <div id="ops-tab-health">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center text-white shadow-md">
-                            <i class="fas fa-heartbeat text-sm"></i>
-                        </div>
+                <div class="ops-hero-side-card p-4 text-white">
+                    <div class="flex items-start justify-between gap-3">
                         <div>
-                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">System Health</h3>
-                            <p class="text-xs text-gray-500">Runtime checks</p>
+                            <p class="text-xs font-black uppercase tracking-[0.20em] text-blue-100">Health Review</p>
+                            <h2 class="mt-1 text-xl font-black text-white"><?= $attentionCount === 0 ? 'All clear' : 'Needs review' ?></h2>
+                            <p class="mt-1 text-xs font-bold text-blue-50/80">Current runtime checks</p>
                         </div>
-                    </div>
-                </div>
-                <div class="p-6 space-y-4">
-                    <?php foreach ($healthChecks as $check): ?>
-                        <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900"><?= esc($check['label']) ?></p>
-                                <p class="text-xs text-gray-500"><?= esc($check['detail']) ?></p>
-                            </div>
-                            <?php if ($check['status']): ?>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                    <i class="fas fa-check-circle mr-1"></i> OK
-                                </span>
-                            <?php else: ?>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i> Attention
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-md">
-                            <i class="fas fa-clipboard-list text-sm"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Operational Tools</h3>
-                            <p class="text-xs text-gray-500">Operator shortcuts</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-4 space-y-3">
-                    <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-indigo-200 bg-white hover:bg-indigo-50/50 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-bold text-gray-900 group-hover:text-indigo-900 transition-colors">Onboard New Clinic</span>
-                                <span class="text-xs text-gray-500">Create tenant & admin</span>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-indigo-600"></i>
-                    </a>
-                    <a href="<?= base_url('controlplane/clinics') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-emerald-200 bg-white hover:bg-emerald-50/50 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
-                                <i class="fas fa-hospital-user"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-bold text-gray-900 group-hover:text-emerald-900 transition-colors">Review Clinics</span>
-                                <span class="text-xs text-gray-500">Status checks & audits</span>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-emerald-600"></i>
-                    </a>
-                    <a href="<?= base_url('controlplane/plan-requests') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-amber-200 bg-white hover:bg-amber-50/50 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
-                                <i class="fas fa-inbox"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-bold text-gray-900 group-hover:text-amber-900 transition-colors">Process Requests</span>
-                                <span class="text-xs text-gray-500">Subscription changes</span>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-amber-600"></i>
-                    </a>
-                    <a href="<?= base_url('controlplane/activity-log') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-blue-200 bg-white hover:bg-blue-50/50 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-bold text-gray-900 group-hover:text-blue-900 transition-colors">System Activity</span>
-                                <span class="text-xs text-gray-500">Audit logs & events</span>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-blue-600"></i>
-                    </a>
-                    <a href="<?= base_url('rbac/sync') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-slate-200 bg-white hover:bg-slate-50/50 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center group-hover:bg-slate-700 group-hover:text-white transition-colors duration-300">
-                                <i class="fas fa-sync-alt"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-bold text-gray-900 group-hover:text-slate-900 transition-colors">Sync Permissions</span>
-                                <span class="text-xs text-gray-500">RBAC inventory</span>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-slate-600"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-rose-500 to-red-600 rounded-lg flex items-center justify-center text-white shadow-md">
-                        <i class="fas fa-tools text-sm"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Maintenance</h3>
-                        <p class="text-xs text-gray-500">Safeguarded operations</p>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="<?= base_url('rbac/status') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-emerald-200 bg-white hover:bg-emerald-50/50 transition-all hover:shadow-md">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-heartbeat text-emerald-500"></i>
-                        <span class="text-sm font-semibold text-gray-800">RBAC Status</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-emerald-600"></i>
-                </a>
-                <a href="<?= base_url('rbac/init') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-indigo-200 bg-white hover:bg-indigo-50/50 transition-all hover:shadow-md">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-seedling text-indigo-500"></i>
-                        <span class="text-sm font-semibold text-gray-800">Initialize RBAC</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-indigo-600"></i>
-                </a>
-                <a href="<?= base_url('rbac/setup') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-amber-200 bg-white hover:bg-amber-50/50 transition-all hover:shadow-md">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-tools text-amber-500"></i>
-                        <span class="text-sm font-semibold text-gray-800">RBAC Setup</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-amber-600"></i>
-                </a>
-                <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-slate-200 bg-white hover:bg-slate-50/50 transition-all hover:shadow-md">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-sliders-h text-slate-500"></i>
-                        <span class="text-sm font-semibold text-gray-800">Global Settings</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 group-hover:text-slate-600"></i>
-                </a>
-            </div>
-        </div>
-        </div>
-
-        <div id="ops-tab-audit" class="hidden">
-        <div id="planEnforcementTableView" class="bg-white rounded-xl border border-gray-200 shadow-lg mt-8">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-rose-500 rounded-full"></div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Plan Enforcement Violations</h3>
-                            <p class="text-xs text-gray-500">Blocked actions triggered by plan guardrails</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="relative">
-                            <i class="fas fa-search text-gray-400 absolute left-3 top-2.5 text-sm"></i>
-                            <input id="planEnforcementSearch" type="text" placeholder="Search clinic, action, reason..."
-                                   class="pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 w-64 bg-white">
-                        </div>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 border border-rose-200">
-                            <?= count($planAudits ?? []) ?> events
+                        <span class="rounded-xl bg-white/18 p-2.5 text-white ring-1 ring-white/24">
+                            <i class="fas <?= $attentionCount === 0 ? 'fa-circle-check' : 'fa-triangle-exclamation' ?>"></i>
                         </span>
                     </div>
+                    <div class="mt-3 grid grid-cols-2 gap-2.5">
+                        <div class="ops-health-metric ops-health-metric-ok">
+                            <p class="ops-health-metric-value"><?= esc((string) $healthyCount) ?></p>
+                            <p class="ops-health-metric-label">checks passing</p>
+                        </div>
+                        <div class="ops-health-metric ops-health-metric-warn">
+                            <p class="ops-health-metric-value"><?= esc((string) $attentionCount) ?></p>
+                            <p class="ops-health-metric-label">need attention</p>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 grid gap-2">
+                        <a href="<?= base_url('controlplane/settings') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/22 bg-white/16 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white/22">
+                            <i class="fas fa-sliders"></i>
+                            <span>Global settings</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="overflow-x-auto">
-                <table id="planEnforcementTable" class="w-full min-w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Timestamp</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Clinic</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Action Blocked</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Reason</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <?php if (empty($planAudits)): ?>
-                            <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                                    <div class="flex flex-col items-center justify-center">
-                                        <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 border border-emerald-100">
-                                            <i class="fas fa-shield-check text-emerald-500 text-2xl"></i>
+        </section>
+
+        <div class="ops-workspace-section space-y-4 p-3 sm:p-4">
+            <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <nav class="overflow-x-auto rounded-[1.35rem] bg-white/80 p-2 shadow-sm ring-1 ring-white/80 backdrop-blur">
+                    <div class="flex min-w-max gap-2">
+                        <button type="button" onclick="showOpsTab('health')" id="ops-btn-health" class="ops-tab-button">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>System Health</span>
+                        </button>
+                        <button type="button" onclick="showOpsTab('audit')" id="ops-btn-audit" class="ops-tab-button">
+                            <i class="fas fa-history"></i>
+                            <span>Plan Audit Trail</span>
+                        </button>
+                    </div>
+                </nav>
+
+                <div class="grid gap-2 sm:grid-cols-2">
+                    <a href="<?= base_url('controlplane/settings') ?>" class="ops-link-row">
+                        <span class="flex items-center gap-3">
+                            <span class="ops-link-icon bg-gradient-to-br from-blue-600 to-indigo-700"><i class="fas fa-sliders"></i></span>
+                            <span>
+                                <span class="block text-sm font-black text-slate-950">Global settings</span>
+                                <span class="block text-xs font-bold text-slate-500">Platform configuration</span>
+                            </span>
+                        </span>
+                    </a>
+                    <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="ops-link-row">
+                        <span class="flex items-center gap-3">
+                            <span class="ops-link-icon bg-gradient-to-br from-emerald-600 to-teal-700"><i class="fab fa-whatsapp"></i></span>
+                            <span>
+                                <span class="block text-sm font-black text-slate-950">WhatsApp policies</span>
+                                <span class="block text-xs font-bold text-slate-500">Secrets and templates</span>
+                            </span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <div id="ops-tab-health">
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(360px,.82fr)]">
+                    <section class="ops-section-card ops-section-card-health">
+                        <div class="ops-section-header px-4 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <span class="ops-section-title-dot"><i class="fas fa-heartbeat text-sm"></i></span>
+                                <div>
+                                    <h2 class="text-lg font-black text-slate-950">System Health</h2>
+                                    <p class="text-sm font-semibold text-slate-500">Runtime checks required before operator work.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid gap-3 p-4 sm:grid-cols-2">
+                            <?php foreach ($healthChecks as $check): ?>
+                                <?php $isOk = !empty($check['status']); ?>
+                                <div class="rounded-2xl border <?= $isOk ? 'border-emerald-200 bg-emerald-50/80' : 'border-rose-200 bg-rose-50/80' ?> p-3.5 shadow-sm">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-black text-slate-950"><?= esc($check['label'] ?? '-') ?></p>
+                                            <p class="mt-1 text-xs font-bold <?= $isOk ? 'text-emerald-700' : 'text-rose-700' ?>"><?= esc($check['detail'] ?? '-') ?></p>
                                         </div>
-                                        <p class="font-bold text-gray-900 text-sm">All systems compliant</p>
-                                        <p class="text-xs text-gray-500 mt-1">No plan enforcement actions triggered recently.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($planAudits as $audit): ?>
-                                <?php $clinic = $clinicDirectory[$audit['clinic_id']] ?? null; ?>
-                                <tr class="hover:bg-gray-50 transition-colors plan-enforcement-row">
-                                    <td class="px-6 py-4 text-xs text-gray-500 font-mono whitespace-nowrap">
-                                        <?= esc($audit['created_at']) ?>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                                                <i class="fas fa-hospital text-sm"></i>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-semibold text-gray-900">
-                                                    <?= esc($clinic['name'] ?? ('Clinic #' . $audit['clinic_id'])) ?>
-                                                </p>
-                                                <p class="text-xs text-gray-500">
-                                                    <?= $clinic ? esc($clinic['slug'] ?? '') : '' ?>
-                                                    <?= $clinic ? (' • ID ' . esc($audit['clinic_id'])) : ('ID ' . esc($audit['clinic_id'])) ?>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
-                                            <?= esc($audit['action_key']) ?>
+                                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl <?= $isOk ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white' ?>">
+                                            <i class="fas <?= $isOk ? 'fa-check' : 'fa-triangle-exclamation' ?>"></i>
                                         </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-rose-600 font-medium">
-                                        <?= esc($audit['reason_code']) ?>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </div>
+                    </section>
+
+                    <section class="ops-section-card ops-section-card-tools">
+                        <div class="ops-section-header px-4 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <span class="ops-section-title-dot"><i class="fas fa-compass text-sm"></i></span>
+                                <div>
+                                    <h2 class="text-lg font-black text-slate-950">Operational Tools</h2>
+                                    <p class="text-sm font-semibold text-slate-500">High-frequency control-plane actions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5 p-4">
+                            <?php
+                            $toolLinks = [
+                                ['href' => base_url('controlplane/onboarding/clinic/create'), 'icon' => 'fa-plus', 'tone' => 'from-indigo-600 to-blue-700', 'title' => 'Onboard new clinic', 'copy' => 'Create tenant and admin'],
+                                ['href' => base_url('controlplane/clinics'), 'icon' => 'fa-hospital-user', 'tone' => 'from-emerald-600 to-teal-700', 'title' => 'Review clinics', 'copy' => 'Status checks and audits'],
+                                ['href' => base_url('controlplane/plan-requests'), 'icon' => 'fa-inbox', 'tone' => 'from-amber-600 to-orange-700', 'title' => 'Process requests', 'copy' => 'Subscription changes'],
+                                ['href' => base_url('controlplane/activity-log'), 'icon' => 'fa-history', 'tone' => 'from-blue-600 to-sky-700', 'title' => 'System activity', 'copy' => 'Audit logs and events'],
+                                ['href' => base_url('rbac/sync'), 'icon' => 'fa-sync-alt', 'tone' => 'from-slate-700 to-slate-900', 'title' => 'Sync permissions', 'copy' => 'RBAC inventory'],
+                            ];
+                            ?>
+                            <?php foreach ($toolLinks as $tool): ?>
+                                <a href="<?= esc($tool['href'], 'attr') ?>" class="ops-link-row group">
+                                    <span class="flex items-center gap-3">
+                                        <span class="ops-link-icon bg-gradient-to-br <?= esc($tool['tone'], 'attr') ?>"><i class="fas <?= esc($tool['icon'], 'attr') ?>"></i></span>
+                                        <span>
+                                            <span class="block text-sm font-black text-slate-950"><?= esc($tool['title']) ?></span>
+                                            <span class="block text-xs font-bold text-slate-500"><?= esc($tool['copy']) ?></span>
+                                        </span>
+                                    </span>
+                                    <i class="fas fa-chevron-right text-xs text-slate-300 transition group-hover:text-blue-600"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="ops-section-card ops-section-card-maintenance mt-4">
+                    <div class="ops-section-header px-4 py-3.5">
+                        <div class="flex items-center gap-3">
+                            <span class="ops-section-title-dot"><i class="fas fa-tools text-sm"></i></span>
+                            <div>
+                                <h2 class="text-lg font-black text-slate-950">Maintenance</h2>
+                                <p class="text-sm font-semibold text-slate-500">Safeguarded operations and RBAC checks.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
+                        <?php
+                        $maintenanceLinks = [
+                            ['href' => base_url('rbac/status'), 'icon' => 'fa-heartbeat', 'tone' => 'from-emerald-600 to-teal-700', 'title' => 'RBAC Status'],
+                            ['href' => base_url('rbac/init'), 'icon' => 'fa-seedling', 'tone' => 'from-indigo-600 to-violet-700', 'title' => 'Initialize RBAC'],
+                            ['href' => base_url('rbac/setup'), 'icon' => 'fa-tools', 'tone' => 'from-amber-600 to-orange-700', 'title' => 'RBAC Setup'],
+                            ['href' => base_url('controlplane/settings'), 'icon' => 'fa-sliders-h', 'tone' => 'from-slate-700 to-slate-900', 'title' => 'Global Settings'],
+                        ];
+                        ?>
+                        <?php foreach ($maintenanceLinks as $link): ?>
+                            <a href="<?= esc($link['href'], 'attr') ?>" class="ops-link-row group">
+                                <span class="flex items-center gap-3">
+                                    <span class="ops-link-icon bg-gradient-to-br <?= esc($link['tone'], 'attr') ?>"><i class="fas <?= esc($link['icon'], 'attr') ?>"></i></span>
+                                    <span class="text-sm font-black text-slate-950"><?= esc($link['title']) ?></span>
+                                </span>
+                                <i class="fas fa-chevron-right text-xs text-slate-300 transition group-hover:text-blue-600"></i>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
             </div>
-        </div>
+
+            <div id="ops-tab-audit" class="hidden">
+                <section id="planEnforcementTableView" class="ops-section-card">
+                    <div class="ops-section-header px-4 py-3.5">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="ops-section-title-dot"><i class="fas fa-shield-halved text-sm"></i></span>
+                                <div>
+                                    <h2 class="text-lg font-black text-slate-950">Plan Enforcement Violations</h2>
+                                    <p class="text-sm font-semibold text-slate-500">Blocked actions triggered by plan guardrails.</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <label class="relative block">
+                                    <i class="fas fa-search text-slate-400 absolute left-3 top-3 text-sm"></i>
+                                    <input id="planEnforcementSearch" type="text" placeholder="Search clinic, action, reason..."
+                                           class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm font-semibold text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 sm:w-72">
+                                </label>
+                                <span class="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-100 px-3 py-2 text-xs font-black text-rose-700">
+                                    <?= count($planAudits) ?> events
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="planEnforcementTable" class="ops-audit-table w-full min-w-full">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Clinic</th>
+                                    <th>Action Blocked</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($planAudits)): ?>
+                                    <tr>
+                                        <td colspan="4" class="!bg-white px-6 py-12 text-center text-slate-500">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50">
+                                                    <i class="fas fa-shield-check text-2xl text-emerald-500"></i>
+                                                </div>
+                                                <p class="text-sm font-black text-slate-950">All systems compliant</p>
+                                                <p class="mt-1 text-xs font-bold text-slate-500">No plan enforcement actions triggered recently.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($planAudits as $audit): ?>
+                                        <?php $clinic = $clinicDirectory[$audit['clinic_id']] ?? null; ?>
+                                        <tr class="plan-enforcement-row transition-colors hover:bg-blue-50/70">
+                                            <td class="whitespace-nowrap font-mono text-xs font-bold text-slate-500">
+                                                <?= esc($audit['created_at'] ?? '-') ?>
+                                            </td>
+                                            <td>
+                                                <div class="flex items-center gap-3">
+                                                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                                                        <i class="fas fa-hospital text-sm"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-black text-slate-950">
+                                                            <?= esc($clinic['name'] ?? ('Clinic #' . ($audit['clinic_id'] ?? '-'))) ?>
+                                                        </p>
+                                                        <p class="text-xs font-bold text-slate-500">
+                                                            <?= $clinic ? esc($clinic['slug'] ?? '') : '' ?>
+                                                            <?= $clinic ? (' - ID ' . esc((string) ($audit['clinic_id'] ?? ''))) : ('ID ' . esc((string) ($audit['clinic_id'] ?? ''))) ?>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-700">
+                                                    <?= esc($audit['action_key'] ?? '-') ?>
+                                                </span>
+                                            </td>
+                                            <td class="text-sm font-bold text-rose-600">
+                                                <?= esc($audit['reason_code'] ?? '-') ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
 </div>
+
 <script>
     function showOpsTab(name, options = {}) {
         ['health', 'audit'].forEach((tab) => {
             document.getElementById('ops-tab-' + tab)?.classList.toggle('hidden', tab !== name);
             const btn = document.getElementById('ops-btn-' + tab);
             if (btn) {
-                btn.className = 'px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ' +
-                    (tab === name
-                        ? 'bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-lg'
-                        : 'text-slate-600 hover:bg-slate-100');
+                btn.classList.toggle('is-active', tab === name);
             }
         });
         if (options.updateUrl === false) {
