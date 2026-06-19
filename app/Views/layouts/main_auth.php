@@ -351,6 +351,70 @@
             box-shadow: 0 16px 30px -25px rgba(37,99,235,0.45);
         }
 
+        .tenant-header-dropdown {
+            border-radius: 1.05rem;
+            border: 1px solid rgba(226,232,240,0.92);
+            background:
+                radial-gradient(circle at 0% 0%, rgba(37,99,235,0.08), transparent 32%),
+                linear-gradient(135deg, rgba(255,255,255,0.99), rgba(248,250,252,0.97));
+            box-shadow: 0 24px 54px -34px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.96) inset;
+            overflow: hidden;
+        }
+
+        .tenant-header-dropdown__header {
+            border-bottom: 1px solid rgba(226,232,240,0.86);
+            background: linear-gradient(135deg, rgba(248,250,252,0.96), rgba(239,246,255,0.94));
+        }
+
+        .tenant-header-dropdown__footer {
+            border-top: 1px solid rgba(226,232,240,0.86);
+            background: linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
+        }
+
+        .tenant-menu-row {
+            display: flex;
+            align-items: center;
+            gap: 0.72rem;
+            border-radius: 0.85rem;
+            padding: 0.72rem 0.78rem;
+            color: #475569;
+            font-size: 0.875rem;
+            font-weight: 800;
+            transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+        }
+
+        .tenant-menu-row:hover {
+            color: #0f172a;
+            background: rgba(239,246,255,0.92);
+            transform: translateY(-1px);
+        }
+
+        .tenant-menu-row__icon {
+            display: inline-flex;
+            width: 2.1rem;
+            height: 2.1rem;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 0.75rem;
+            color: #2563eb;
+            background: linear-gradient(135deg, rgba(219,234,254,0.92), rgba(224,242,254,0.82));
+        }
+
+        .tenant-menu-row--danger {
+            color: #dc2626;
+        }
+
+        .tenant-menu-row--danger:hover {
+            color: #b91c1c;
+            background: rgba(254,242,242,0.95);
+        }
+
+        .tenant-menu-row--danger .tenant-menu-row__icon {
+            color: #dc2626;
+            background: linear-gradient(135deg, rgba(254,226,226,0.95), rgba(255,241,242,0.90));
+        }
+
         /* RTL parity: keep icon/text spacing identical to LTR rhythm in sidebar/menu clusters */
         [dir="rtl"] #sidebar-nav ul li a {
             text-align: right;
@@ -978,33 +1042,33 @@
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
 
-                        <div id="clinicSwitcherMenu" class="absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden transform transition-all">
-                            <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
+                        <div id="clinicSwitcherMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50 transform transition-all">
+                            <div class="tenant-header-dropdown__header p-4">
+                                <p class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
+                                <p class="mt-1 truncate text-sm font-black text-slate-950"><?= esc($clinic['name']) ?></p>
                             </div>
                             <div class="p-2 max-h-64 overflow-y-auto">
                                 <?php foreach ($user_memberships as $m): ?>
-                                    <a href="<?= base_url('clinic/switch/' . $m['clinic_id']) ?>" class="flex items-center justify-between px-3 py-3 rounded-xl transition-all mb-1 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
-                                        <div class="flex items-center space-x-3 overflow-hidden">
-                                            <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gray-100 text-gray-400' ?>">
+                                    <a href="<?= base_url('clinic/switch/' . $m['clinic_id']) ?>" class="tenant-menu-row justify-between mb-1 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-blue-50 !text-blue-700' : '' ?>">
+                                        <span class="flex min-w-0 items-center gap-3">
+                                            <span class="tenant-menu-row__icon <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-gradient-to-br !from-blue-500 !to-cyan-600 !text-white shadow-sm shadow-blue-500/20' : '' ?>">
                                                 <i class="fas fa-hospital text-sm"></i>
-                                            </div>
-                                            <div class="flex flex-col overflow-hidden">
-                                                <span class="truncate font-bold text-sm"><?= esc($m['clinic_name']) ?></span>
-                                                <span class="text-[10px] opacity-60"><?= esc($m['clinic_slug'] ?? ('ID ' . $m['clinic_id'])) ?></span>
-                                                <span class="text-[10px] opacity-60 block"><?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'Active Now' : 'Click to switch' ?></span>
-                                            </div>
-                                        </div>
+                                            </span>
+                                            <span class="flex min-w-0 flex-col overflow-hidden">
+                                                <span class="truncate text-sm font-black"><?= esc($m['clinic_name']) ?></span>
+                                                <span class="text-[11px] font-bold opacity-65"><?= esc($m['clinic_slug'] ?? ('ID ' . $m['clinic_id'])) ?></span>
+                                            </span>
+                                        </span>
                                         <?php if ($m['clinic_id'] == session()->get('active_clinic_id')): ?>
-                                            <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                                            <span class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                                                 <i class="fas fa-check text-white text-[8px]"></i>
-                                            </div>
+                                            </span>
                                         <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
-                            <div class="p-3 border-t border-gray-50 bg-gray-50/30 text-center">
-                                <a href="<?= base_url('clinic/select') ?>" class="inline-flex items-center space-x-1 text-[11px] text-blue-600 hover:text-blue-700 font-bold uppercase tracking-wider transition-colors">
+                            <div class="tenant-header-dropdown__footer p-3 text-center">
+                                <a href="<?= base_url('clinic/select') ?>" class="inline-flex items-center space-x-1 text-[11px] text-blue-600 hover:text-blue-700 font-black uppercase tracking-wider transition-colors">
                                     <i class="fas fa-th-large text-[10px]"></i>
                                     <span><?= lang('UI.allClinics') ?></span>
                                 </a>
@@ -1074,14 +1138,14 @@
                         </div>
                         
                         <!-- User Menu Dropdown -->
-                        <div id="userMenu" class="absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 hidden z-50">
-                            <div class="p-4 border-b border-gray-100">
+                        <div id="userMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50">
+                            <div class="tenant-header-dropdown__header p-4">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                                         <i class="fas fa-user text-white text-lg"></i>
                                     </div>
-                                    <div>
-                                        <div class="font-semibold text-gray-900">
+                                    <div class="min-w-0">
+                                        <div class="truncate text-sm font-black text-slate-950">
                                             <?php 
                                             $displayName = 'User';
                                             if (isset($user) and $user) {
@@ -1098,44 +1162,44 @@
                                             echo $displayName;
                                             ?>
                                         </div>
-                                        <div class="text-sm text-gray-500">
+                                        <div class="truncate text-xs font-bold text-slate-500">
                                             <?= isset($user) && $user && property_exists($user, 'email') ? htmlspecialchars($user->email) : 'user@example.com' ?>
                                         </div>
-                                        <div class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full inline-block mt-1">
+                                        <div class="mt-2 inline-flex rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-black text-blue-700">
                                             <?= isset($user_groups) && !empty($user_groups) ? $user_groups[0]->name : 'User' ?>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="p-2">
-                                <a href="<?= base_url('profile') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                                    <i class="fas fa-user-cog text-gray-500 w-5"></i>
-                                    <span class="font-medium"><?= lang('UI.profileSettings') ?></span>
+                                <a href="<?= base_url('profile') ?>" class="tenant-menu-row">
+                                    <span class="tenant-menu-row__icon"><i class="fas fa-user-cog text-sm"></i></span>
+                                    <span><?= lang('UI.profileSettings') ?></span>
                                 </a>
-                                <a href="<?= base_url('settings') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                                    <i class="fas fa-cog text-gray-500 w-5"></i>
-                                    <span class="font-medium"><?= lang('UI.systemSettings') ?></span>
+                                <a href="<?= base_url('settings') ?>" class="tenant-menu-row">
+                                    <span class="tenant-menu-row__icon"><i class="fas fa-cog text-sm"></i></span>
+                                    <span><?= lang('UI.systemSettings') ?></span>
                                 </a>
-                                <a href="<?= base_url('clinic/select') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                                    <i class="fas fa-exchange-alt text-gray-500 w-5"></i>
-                                    <span class="font-medium"><?= lang('UI.switchClinic') ?></span>
+                                <a href="<?= base_url('clinic/select') ?>" class="tenant-menu-row">
+                                    <span class="tenant-menu-row__icon"><i class="fas fa-exchange-alt text-sm"></i></span>
+                                    <span><?= lang('UI.switchClinic') ?></span>
                                 </a>
                                 
                                 <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
                                     <div class="border-t border-gray-100 my-2"></div>
                                     <form action="<?= base_url('controlplane/enter') ?>" method="post">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="w-full flex items-center space-x-3 px-3 py-2.5 text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200 text-left">
-                                            <i class="fas fa-rocket text-indigo-500 w-5"></i>
-                                            <span class="font-medium"><?= lang('UI.enterControlPlane') ?></span>
+                                        <button type="submit" class="tenant-menu-row w-full text-start !text-indigo-700 hover:!bg-indigo-50">
+                                            <span class="tenant-menu-row__icon !text-indigo-600 !bg-indigo-50"><i class="fas fa-rocket text-sm"></i></span>
+                                            <span><?= lang('UI.enterControlPlane') ?></span>
                                         </button>
                                     </form>
                                 <?php endif; ?>
 
                                 <div class="border-t border-gray-100 my-2"></div>
-                                <a href="<?= base_url('auth/logout') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
-                                    <i class="fas fa-sign-out-alt text-red-500 w-5"></i>
-                                    <span class="font-medium"><?= lang('UI.signOut') ?></span>
+                                <a href="<?= base_url('auth/logout') ?>" class="tenant-menu-row tenant-menu-row--danger">
+                                    <span class="tenant-menu-row__icon"><i class="fas fa-sign-out-alt text-sm"></i></span>
+                                    <span><?= lang('UI.signOut') ?></span>
                                 </a>
                             </div>
                         </div>
@@ -1210,19 +1274,19 @@
     <?php endif; ?>
 
     <!-- Notifications Dropdown - Outside main content to avoid overflow issues -->
-    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="absolute hidden flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/12 ring-1 ring-slate-900/5" role="dialog" aria-modal="false" aria-labelledby="notifications-title" style="z-index: 2147483647 !important; width: min(18rem, calc(100vw - 1rem)); max-width: calc(100vw - 1rem); height: min(23rem, calc(100vh - 5rem));">
-        <div class="shrink-0 border-b border-slate-200 bg-slate-50 px-4 py-4">
+    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="tenant-header-dropdown absolute hidden flex-col" role="dialog" aria-modal="false" aria-labelledby="notifications-title" style="z-index: 2147483647 !important; width: min(18rem, calc(100vw - 1rem)); max-width: calc(100vw - 1rem); height: min(23rem, calc(100vh - 5rem));">
+        <div class="tenant-header-dropdown__header shrink-0 px-4 py-4">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <h3 id="notifications-title" class="text-sm font-bold text-slate-900"><?= lang('UI.notificationCenterTitle') ?></h3>
-                    <p id="notifications-summary" class="mt-1 text-xs text-slate-500"><?= lang('UI.notificationCenterDesc') ?></p>
+                    <h3 id="notifications-title" class="text-sm font-black text-slate-950"><?= lang('UI.notificationCenterTitle') ?></h3>
+                    <p id="notifications-summary" class="mt-1 text-xs font-bold text-slate-500"><?= lang('UI.notificationCenterDesc') ?></p>
                 </div>
-                <button type="button" onclick="markAllAsRead()" class="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"><?= lang('UI.markAllAsRead') ?></button>
+                <button type="button" onclick="markAllAsRead()" class="shrink-0 rounded-xl border border-blue-200 bg-white px-3 py-1.5 text-xs font-black text-blue-700 shadow-sm transition hover:bg-blue-50"><?= lang('UI.markAllAsRead') ?></button>
             </div>
         </div>
         <div id="notifications-list" class="min-h-0 flex-1 overflow-y-auto px-2 py-2.5" role="list" style="overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"></div>
-        <div class="shrink-0 border-t border-slate-200 bg-slate-50 px-4 py-4">
-            <a href="<?= base_url('notifications') ?>" class="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800"><?= lang('UI.viewAllNotifications') ?></a>
+        <div class="tenant-header-dropdown__footer shrink-0 px-4 py-3">
+            <a href="<?= base_url('notifications') ?>" class="inline-flex items-center text-sm font-black text-blue-600 hover:text-blue-800"><?= lang('UI.viewAllNotifications') ?></a>
         </div>
     </div>
 </div>
@@ -1719,7 +1783,7 @@
         notifications.forEach((notification) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'block w-full rounded-xl border border-slate-100 px-3.5 py-3 text-start transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none';
+            item.className = 'block w-full rounded-xl border border-slate-100 bg-white/80 px-3.5 py-3 text-start shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-50/70 focus:bg-blue-50/70 focus:outline-none';
             item.setAttribute('role', 'listitem');
             item.onclick = async function () {
                 if (!notification.is_read) {
@@ -1749,11 +1813,11 @@
             textWrap.className = 'min-w-0 flex-1';
 
             const title = document.createElement('p');
-            title.className = 'text-[13px] font-semibold leading-5 text-slate-900';
+            title.className = 'text-[13px] font-black leading-5 text-slate-950';
             title.textContent = notification.title || '';
 
             const message = document.createElement('p');
-            message.className = 'mt-1 line-clamp-2 text-[13px] leading-5 text-slate-600';
+            message.className = 'mt-1 line-clamp-2 text-[13px] font-semibold leading-5 text-slate-600';
             message.textContent = notification.message || '';
 
             textWrap.appendChild(title);
@@ -1768,7 +1832,7 @@
             }
 
             const meta = document.createElement('div');
-            meta.className = `mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 ${notificationsUi.isRtl ? 'justify-start' : ''}`;
+            meta.className = `mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-500 ${notificationsUi.isRtl ? 'justify-start' : ''}`;
 
             const time = document.createElement('span');
             time.textContent = formatTime(notification.created_at);
@@ -1782,7 +1846,7 @@
 
             if (notification.type_label) {
                 const badge = document.createElement('span');
-                badge.className = 'inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600';
+                badge.className = 'inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 font-black text-slate-600';
                 badge.textContent = notification.type_label;
                 meta.appendChild(badge);
             }
