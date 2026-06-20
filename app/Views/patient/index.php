@@ -255,248 +255,201 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
         border-radius: 0;
     }
 }
+
+.patients-page .dataTables_wrapper {
+    border-radius: 0 0 1.5rem 1.5rem;
+    overflow: hidden;
+}
+
+.patients-page .dataTables_wrapper > .dt-buttons {
+    display: none;
+}
+
+.patients-page .dataTables_wrapper .dataTables_length,
+.patients-page .dataTables_wrapper .dataTables_filter {
+    margin: 0 !important;
+}
+
+.patients-page .dataTables_wrapper .dataTables_length label,
+.patients-page .dataTables_wrapper .dataTables_filter label {
+    color: #475569 !important;
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+}
+
+.patients-page .dataTables_wrapper .dataTables_filter input,
+.patients-page .dataTables_wrapper .dataTables_length select {
+    border-radius: 0.85rem !important;
+    border-color: #cbd5e1 !important;
+    background: #fff !important;
+    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
+}
+
+.patients-page .dataTables_wrapper .dataTables_filter input:focus,
+.patients-page .dataTables_wrapper .dataTables_length select:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.14) !important;
+}
+
+.patients-page #patientsTable thead th {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+.patients-page #patientsTable tbody tr {
+    transition: background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.patients-page #patientsTable tbody tr:hover {
+    background: linear-gradient(90deg, rgba(236,253,245,0.9), rgba(240,249,255,0.72)) !important;
+}
+
+.patients-page .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(135deg, #059669, #0f766e) !important;
+    border-color: transparent !important;
+}
+
+.patients-page .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #065f46 !important;
+}
 </style>
 
-<!-- Enhanced Patient Management with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
+<div class="patients-page min-h-screen bg-slate-50">
+    <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
+        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-emerald-700 via-teal-700 to-slate-900 text-white shadow-2xl shadow-emerald-900/18">
+            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                <div class="flex min-w-0 items-start gap-4">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
+                        <i class="fas fa-users text-xl"></i>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-black uppercase tracking-[0.22em] text-emerald-100"><?= esc(lang('UI.patientPatientRegistry')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc(lang('UI.patientManagementTitle')) ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-50/88"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
+                    </div>
+                </div>
+                <?php if (has_permission('patients', 'create')): ?>
+                    <a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-emerald-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                        <i class="fas fa-user-plus"></i>
+                        <?= esc(lang('UI.patientNewPatient')) ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </section>
 
-    <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
-        <!-- Simplified Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
-                    <div class="flex items-start sm:items-center space-x-3 sm:space-x-4">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-users text-lg sm:text-xl"></i>
-                            </div>
-                            <div>
-                            <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= esc(lang('UI.patientManagementTitle')) ?></h1>
-                            <p class="text-gray-600"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
+        <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <article class="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 text-white shadow-xl shadow-emerald-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('UI.patientTotalPatients')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="totalPatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-users"></i></span>
+                </div>
+            </article>
+            <article class="rounded-2xl bg-gradient-to-br from-green-600 to-emerald-700 p-4 text-white shadow-xl shadow-green-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-green-100"><?= esc(lang('UI.patientActivePatients')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="activePatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
+                </div>
+            </article>
+            <article class="rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-700 p-4 text-white shadow-xl shadow-blue-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-blue-100"><?= esc(lang('UI.patientNewPatients')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="newPatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-user-plus"></i></span>
+                </div>
+            </article>
+            <article class="rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-700 p-4 text-white shadow-xl shadow-violet-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-violet-100"><?= esc(lang('UI.patientThisMonth')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="monthlyPatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-calendar-day"></i></span>
+                </div>
+            </article>
+        </section>
+
+        <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
+            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/70 px-4 py-4 sm:px-5">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                            <i class="fas fa-list"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-950"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
+                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
                         </div>
                     </div>
-                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
-                        <?php if (has_permission('patients', 'create')): ?>
-                            <a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus me-2"></i>
-                                <?= esc(lang('UI.patientNewPatient')) ?>
-                            </a>
-                        <?php endif; ?>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-100">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </button>
+                        <button onclick="printPatients()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">
+                            <i class="fas fa-print"></i>
+                            <?= esc(lang('UI.patientPrint')) ?>
+                        </button>
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                            <i class="fas fa-file-csv"></i>
+                            CSV
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Enhanced Statistics Cards with Advanced Animations -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
-                <!-- Total Patients Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-users text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1.5 rounded-full border border-emerald-200">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-arrow-up text-emerald-600 text-xs"></i>
-                                <span class="text-emerald-700 font-bold text-xs">+8%</span>
-                            </div>
-                        </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientTotalPatients')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-emerald-900" id="totalPatients">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full overflow-hidden">
-                                    <div class="w-4/5 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('UI.dashboardVsLastMonth')) ?></p>
-                        </div>
-                    </div>
-            </div>
-
-                <!-- Active Patients Card -->
-            <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-check-circle text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                                <span class="text-green-700 font-bold text-sm"><?= esc(lang('UI.patientStatusActive')) ?></span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientActivePatients')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-green-900" id="activePatients">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('UI.patientCurrentlyActive')) ?></p>
-                        </div>
-                        </div>
-                    </div>
-
-                <!-- New Patients Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-user-plus text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-star text-blue-600 text-sm"></i>
-                                <span class="text-blue-700 font-bold text-sm"><?= esc(lang('UI.patientNewPatients')) ?></span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientNewPatients')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-blue-900" id="newPatients">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
-                                    <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('UI.patientThisMonthShort')) ?></p>
-                        </div>
-                                </div>
-                            </div>
-                            
-                <!-- This Month Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-calendar-day text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full border border-purple-200">
-                                <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-calendar text-purple-600 text-sm"></i>
-                                <span class="text-purple-700 font-bold text-sm"><?= esc(lang('UI.patientThisMonth')) ?></span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientThisMonth')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-purple-900" id="monthlyPatients">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full overflow-hidden">
-                                    <div class="w-5/6 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= formatDate(date('Y-m-d')) ?></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Standardized Patients Table -->
-        <div class="mb-8">
-            <!-- Table View -->
-            <div id="tableView" class="bg-white rounded-xl border border-gray-200 shadow-lg">
-                <!-- Table Header -->
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <!-- Export Buttons -->
-                            <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
-                            </button>
-                            <button onclick="printPatients()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-print mr-2 text-gray-600"></i>
-                                <?= esc(lang('UI.patientPrint')) ?>
-                            </button>
-                            <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
-                            </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Enhanced Table with Advanced Styling -->
-                    <div class="overflow-x-auto">
+            <div class="overflow-x-auto">
                         <table id="patientsTable" class="w-full min-w-full">
-                            <thead class="bg-gray-50">
+                            <thead>
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-id-card text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientPatientId')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-user text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientName')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-phone text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientPhone')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-envelope text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientEmail')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-info-circle text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientStatus')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-calendar text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientCreated')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
                                             <i class="fas fa-cogs text-emerald-600"></i>
                                             <span><?= esc(lang('UI.patientActions')) ?></span>
                                         </div>
@@ -507,10 +460,8 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                                 <!-- Data will be loaded via DataTables -->
                             </tbody>
                         </table>
-                    </div>
-                </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
@@ -930,7 +881,7 @@ $(document).ready(function() {
                     };
                     const avatar = avatarMap[gender] || avatarMap.other;
                     return `
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center gap-3">
                             <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
                                 <i class="${avatar.icon} ${avatar.iconColor} text-2xl"></i>
                             </span>
@@ -947,7 +898,7 @@ $(document).ready(function() {
                 name: 'phone',
                 render: function(data, type, row) {
                     return data ? `
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center gap-2">
                             <i class="fas fa-phone text-emerald-600 text-xs"></i>
                             <span class="text-sm text-gray-900">${data}</span>
                         </div>
@@ -959,7 +910,7 @@ $(document).ready(function() {
                 name: 'email',
                 render: function(data, type, row) {
                     return data ? `
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center gap-2">
                             <i class="fas fa-envelope text-emerald-600 text-xs"></i>
                             <span class="text-sm text-gray-900">${data}</span>
                         </div>
@@ -990,8 +941,8 @@ $(document).ready(function() {
                     const label = statusLabels[data] || patientI18n.unknown;
                     
                     return `
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
-                            <i class="${iconClass} mr-1"></i>
+                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${colorClass}">
+                            <i class="${iconClass}"></i>
                             ${label}
                         </span>
                     `;
@@ -1002,7 +953,7 @@ $(document).ready(function() {
                 name: 'created_at',
                 render: function(data, type, row) {
                     return `
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center gap-2">
                             <i class="fas fa-calendar text-emerald-600 text-xs"></i>
                             <span class="text-sm text-gray-900">${data || patientI18n.na}</span>
                         </div>
@@ -1015,13 +966,13 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, row) {
-                    let actions = '<div class="flex items-center space-x-2">';
+                    let actions = '<div class="flex items-center gap-1.5">';
 
                     // View button
                     if (permissions.patients.view) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}"
-                               data-workflow-context="1" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="${patientI18n.viewPatient}">
+                               data-workflow-context="1" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100" title="${patientI18n.viewPatient}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -1030,7 +981,7 @@ $(document).ready(function() {
                     if (permissions.patients.edit) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}/edit"
-                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="${patientI18n.editPatient}">
+                               class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition hover:bg-blue-100" title="${patientI18n.editPatient}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -1038,7 +989,7 @@ $(document).ready(function() {
                     // Odontogram button
                     actions += `
                         <a href="<?= base_url('odontogram') ?>/${data}"
-                           class="p-2 text-purple-600 hover:text-purple-700 rounded-md hover:bg-purple-50 transition-colors duration-200" title="${patientI18n.odontogram}">
+                           class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-700 ring-1 ring-purple-100 transition hover:bg-purple-100" title="${patientI18n.odontogram}">
                             <i class="fas fa-tooth"></i>
                         </a>`;
 
@@ -1054,7 +1005,7 @@ $(document).ready(function() {
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
                                data-context-patient-gender="${escapeHtmlAttribute(row.gender || '')}"
-                               class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="${patientI18n.newExamination}">
+                               class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 transition hover:bg-indigo-100" title="${patientI18n.newExamination}">
                                 <i class="fas fa-stethoscope"></i>
                             </a>`;
                     }
@@ -1068,7 +1019,7 @@ $(document).ready(function() {
                                data-context-patient-id="${data}"
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
-                               class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="${patientI18n.newTreatment}">
+                               class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100 transition hover:bg-cyan-100" title="${patientI18n.newTreatment}">
                                 <i class="fas fa-briefcase-medical"></i>
                             </a>`;
                     }
@@ -1077,7 +1028,7 @@ $(document).ready(function() {
                     if (permissions.patients.delete) {
                         actions += `
                             <button onclick="deletePatient(${data})" 
-                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="${patientI18n.deletePatient}">
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700 ring-1 ring-red-100 transition hover:bg-red-100" title="${patientI18n.deletePatient}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
