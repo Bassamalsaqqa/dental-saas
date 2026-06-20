@@ -12,12 +12,6 @@
     $contextLabel = $global_mode ? lang('UI.cpControlPlane') : lang('UI.menuSettings');
 ?>
 <style>
-    .roles-workspace {
-        background:
-            radial-gradient(circle at 92% 0%, rgba(79, 70, 229, 0.18), transparent 24rem),
-            radial-gradient(circle at 8% 10%, rgba(14, 165, 233, 0.16), transparent 22rem),
-            linear-gradient(135deg, #f8fafc 0%, #eef6ff 46%, #f8fafc 100%);
-    }
     .roles-hero {
         position: relative;
         overflow: hidden;

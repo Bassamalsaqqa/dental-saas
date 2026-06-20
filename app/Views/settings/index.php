@@ -12,12 +12,8 @@
     $languageDisplay = (string) (($settings['ui_language'] ?? 'en') === 'ar' ? 'AR' : 'EN');
 ?>
 <style>
-    .settings-shell {
-        background:
-            radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 25rem),
-            radial-gradient(circle at 12% 20%, rgba(20, 184, 166, 0.16), transparent 21rem),
-            radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.10), transparent 24rem),
-            linear-gradient(135deg, #f8fafc 0%, #eef6ff 45%, #ecfdf5 100%);
+    .settings-page-wrap {
+        width: min(100%, 1500px);
     }
     .settings-hero {
         position: relative;
@@ -54,7 +50,9 @@
         backdrop-filter: blur(14px);
     }
     .settings-shell-card {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.88));
+        background:
+            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.10), transparent 13rem),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.90));
         border: 1px solid rgba(255, 255, 255, 0.75);
         box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.45);
         backdrop-filter: blur(22px);
@@ -70,7 +68,7 @@
         align-items: center;
         width: 100%;
         gap: 0.75rem;
-        padding: 0.85rem 0.95rem;
+        padding: 0.78rem 0.9rem;
         border-radius: 0.9rem;
         border: 1px solid rgba(226, 232, 240, 0.8);
         background: rgba(255, 255, 255, 0.78);
@@ -107,9 +105,11 @@
     }
     .settings-nav-group {
         border-radius: 1.25rem;
-        background: rgba(248, 250, 252, 0.78);
+        background:
+            radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.09), transparent 9rem),
+            rgba(248, 250, 252, 0.82);
         border: 1px solid rgba(226, 232, 240, 0.72);
-        padding: 0.75rem;
+        padding: 0.65rem;
     }
     .settings-nav-kicker {
         color: #64748b;
@@ -132,7 +132,9 @@
         border-radius: 2rem !important;
         border: 1px solid rgba(255,255,255,0.72) !important;
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.92)) !important;
+            radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.12), transparent 16rem),
+            radial-gradient(circle at 0% 35%, rgba(59, 130, 246, 0.10), transparent 15rem),
+            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.93)) !important;
         box-shadow: 0 28px 70px -45px rgba(15, 23, 42, 0.58) !important;
         overflow: hidden;
     }
@@ -149,6 +151,14 @@
     #settings-tabs .settings-tab > div:first-child > div:first-child p {
         opacity: 0.82;
     }
+    #settings-tabs .settings-tab > div:first-child > div:nth-child(2) {
+        padding: 1.5rem !important;
+    }
+    @media (min-width: 768px) {
+        #settings-tabs .settings-tab > div:first-child > div:nth-child(2) {
+            padding: 2rem !important;
+        }
+    }
     #settings-tabs .settings-tab form,
     #settings-tabs .settings-tab section,
     #settings-tabs .settings-tab .rounded-2xl {
@@ -160,7 +170,8 @@
     #settings-tabs .settings-tab div.bg-gray-50,
     #settings-tabs .settings-tab div.bg-slate-50 {
         background:
-            radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.08), transparent 9rem),
+            radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.13), transparent 10rem),
+            radial-gradient(circle at 0% 100%, rgba(20, 184, 166, 0.10), transparent 10rem),
             linear-gradient(180deg, #ffffff, #f8fafc) !important;
         border-color: rgba(203, 213, 225, 0.72) !important;
         box-shadow: 0 18px 45px -36px rgba(15, 23, 42, 0.35);
@@ -187,6 +198,20 @@
     #settings-tabs button[onclick^="save"],
     #settings-tabs button[onclick^="submit"] {
         box-shadow: 0 18px 36px -24px rgba(37, 99, 235, 0.55);
+    }
+    .settings-action-panel {
+        background:
+            radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.15), transparent 10rem),
+            radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.12), transparent 10rem),
+            linear-gradient(135deg, #ffffff, #f8fafc);
+        border: 1px solid rgba(203, 213, 225, 0.76);
+        box-shadow: 0 20px 50px -38px rgba(15, 23, 42, 0.45);
+    }
+    .settings-empty-state {
+        background:
+            radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 10rem),
+            linear-gradient(180deg, #ffffff, #f8fafc);
+        border: 1px dashed rgba(148, 163, 184, 0.65);
     }
     .select2-container--default .select2-selection--single {
         height: 56px !important;
@@ -300,8 +325,8 @@
     }
 </style>
 
-<div class="settings-shell min-h-screen">
-    <div class="mx-auto max-w-6xl px-6 py-8">
+<div>
+    <div class="settings-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <section class="settings-hero mb-5 p-5 sm:p-6 lg:p-7 text-white">
             <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-start gap-4">
@@ -364,7 +389,7 @@
         <?php endif; ?>
 
         <!-- Settings Layout with Sidebar -->
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-[220px,minmax(0,1fr)] items-start">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-[230px,minmax(0,1fr)] items-start">
             <!-- Left Sidebar -->
             <div class="xl:sticky xl:top-8">
                 <div class="settings-shell-card rounded-[1.75rem] p-4">

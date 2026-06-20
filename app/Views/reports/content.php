@@ -22,13 +22,6 @@ $currentMeta = [
 ][$activeReportType] ?? ['headline' => $tm('reportsAnalyticsTitle'), 'summary' => $tm('reportsAnalyticsDesc')];
 ?>
 <style>
-    .report-page-shell {
-        background:
-            radial-gradient(980px 560px at 8% -10%, rgba(37, 99, 235, 0.11), transparent 58%),
-            radial-gradient(820px 520px at 94% 2%, rgba(5, 150, 105, 0.11), transparent 56%),
-            #f8fafc;
-    }
-
     .report-hero {
         position: relative;
         overflow: hidden;

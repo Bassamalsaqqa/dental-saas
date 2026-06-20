@@ -49,10 +49,6 @@ if ($nextAppointment) {
 <style>
     .appointment-page {
         font-family: var(--app-font-sans);
-        background:
-            radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.12), transparent 30%),
-            radial-gradient(circle at 92% 12%, rgba(16, 185, 129, 0.1), transparent 28%),
-            linear-gradient(135deg, #eef5ff 0%, #f8fafc 46%, #ecfdf5 100%);
     }
 
     [dir="rtl"] .appointment-page {

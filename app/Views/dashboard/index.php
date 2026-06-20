@@ -27,10 +27,6 @@ $formatHumanLabel = static function (?string $value): string {
 <style>
     .dashboard-workspace {
         font-family: var(--app-font-sans);
-        background:
-            radial-gradient(900px 520px at 4% -10%, rgba(37, 99, 235, 0.11), transparent 60%),
-            radial-gradient(720px 430px at 94% 0%, rgba(16, 185, 129, 0.1), transparent 58%),
-            #f8fafc;
     }
 
     html[lang^="ar"] .dashboard-workspace {

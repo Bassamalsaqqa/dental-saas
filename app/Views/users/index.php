@@ -8,12 +8,6 @@
     $assignedRoleRows = (int) ($diagnostics['total_user_roles'] ?? 0);
 ?>
 <style>
-    .users-workspace {
-        background:
-            radial-gradient(circle at 92% 0%, rgba(37, 99, 235, 0.16), transparent 24rem),
-            radial-gradient(circle at 6% 8%, rgba(20, 184, 166, 0.14), transparent 22rem),
-            linear-gradient(135deg, #f8fafc 0%, #eef6ff 48%, #f8fafc 100%);
-    }
     .users-hero {
         position: relative;
         overflow: hidden;
