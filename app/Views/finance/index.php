@@ -232,6 +232,96 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
         gap: 8px !important;
     }
 }
+.finance-page-wrap {
+    width: min(100%, 1500px);
+}
+.finance-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.65rem;
+    background:
+        radial-gradient(circle at 12% 12%, rgba(255,255,255,0.24), transparent 30%),
+        radial-gradient(circle at 88% 10%, rgba(20,184,166,0.30), transparent 27%),
+        linear-gradient(135deg, #0f172a 0%, #166534 52%, #0f766e 100%);
+    box-shadow: 0 30px 75px -45px rgba(15, 23, 42, 0.78);
+}
+[dir="rtl"] .finance-hero {
+    background:
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,0.24), transparent 30%),
+        radial-gradient(circle at 12% 10%, rgba(20,184,166,0.30), transparent 27%),
+        linear-gradient(225deg, #0f172a 0%, #166534 52%, #0f766e 100%);
+}
+.finance-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(120deg, rgba(255,255,255,0.17), transparent 40%),
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 20px);
+    pointer-events: none;
+}
+.finance-hero > * {
+    position: relative;
+    z-index: 1;
+}
+.finance-hero-chip {
+    border: 1px solid rgba(255,255,255,0.20);
+    background: rgba(255,255,255,0.14);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+    backdrop-filter: blur(14px);
+}
+.finance-stat-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 9.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 24px 58px -42px rgba(15, 23, 42, 0.62);
+}
+.finance-stat-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -2.5rem -3rem auto;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.15);
+}
+.finance-stat-card > * {
+    position: relative;
+    z-index: 1;
+}
+.finance-table-panel {
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(203, 213, 225, 0.76);
+    background: #fff;
+    box-shadow: 0 24px 60px -44px rgba(15, 23, 42, 0.55);
+}
+.finance-table-header {
+    background:
+        radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.12), transparent 12rem),
+        radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.10), transparent 11rem),
+        linear-gradient(180deg, #ffffff, #f8fafc);
+}
+.finance-export-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.85rem;
+    border: 1px solid rgba(203, 213, 225, 0.9);
+    background: #fff;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: #334155;
+    transition: all 0.2s ease;
+}
+.finance-export-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(37, 99, 235, 0.25);
+    background: #f8fafc;
+}
 .finance-create-modal {
     visibility: hidden;
     pointer-events: none;
@@ -313,70 +403,59 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 }
 </style>
 
-<!-- Enhanced <?= lang('Finance.financeManagement') ?> with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-green-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
-
-    <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
-        <!-- Simplified Page Header -->
-    <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                        <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
-                        <div class="flex items-start gap-3 sm:gap-4 sm:items-center">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-dollar-sign text-xl"></i>
-                                </div>
-                        <div>
-                            <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
-                            <p class="text-gray-600"><?= esc($tr('financeManagementShortHelp')) ?></p>
-                            </div>
-                            </div>
-                    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
+<div>
+    <div class="finance-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <section class="finance-hero mb-6 p-5 text-white sm:p-6 lg:p-7">
+            <div class="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/25 bg-white/15 text-white shadow-xl shadow-black/10">
+                        <i class="fas fa-dollar-sign text-2xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/90"><?= esc($tr('cashBasisShort')) ?></p>
+                        <h1 class="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl"><?= lang('Finance.financeManagement') ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-50/90"><?= esc($tr('financeManagementShortHelp')) ?></p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:justify-end">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold leading-none rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-emerald-800 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:bg-emerald-50 sm:w-auto">
                                 <i class="fas fa-circle-plus mr-2"></i>
                                 <?= esc($tr('addIncome')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold leading-none rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-black text-white shadow-xl shadow-rose-950/15 transition hover:-translate-y-0.5 hover:bg-rose-600 sm:w-auto">
                                 <i class="fas fa-receipt mr-2"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
                         <?php if (!empty($can_access_finance_reports)): ?>
-                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold leading-none rounded-lg hover:bg-gray-200 transition-all duration-200">
+                            <a href="<?= base_url('finance/reports') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
                                 <i class="fas fa-chart-bar mr-2"></i>
                                 <?= esc($tr('reports')) ?>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('finance/transfers') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-emerald-100 text-emerald-700 text-sm font-semibold leading-none rounded-lg hover:bg-emerald-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/transfers') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
                             <i class="fas fa-right-left mr-2"></i>
                             <?= esc($tr('treasuryTransfers')) ?>
                         </a>
-                        <a href="<?= base_url('finance/payables') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-amber-100 text-amber-800 text-sm font-semibold leading-none rounded-lg hover:bg-amber-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/payables') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
                             <i class="fas fa-file-invoice-dollar mr-2"></i>
                             <?= esc($tr('supplierPayablesNav')) ?>
                         </a>
-                        <a href="<?= base_url('finance/payouts') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-indigo-100 text-indigo-700 text-sm font-semibold leading-none rounded-lg hover:bg-indigo-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/payouts') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
                             <i class="fas fa-hand-holding-dollar mr-2"></i>
                             <?= esc($tr('providerPayoutsNav')) ?>
                         </a>
-                        </div>
-                    </div>
-                                        </div>
-                    </div>
+                </div>
+            </div>
+        </section>
                     
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 sm:gap-6 items-stretch">
                 <!-- <?= lang('Finance.grossCollections') ?> Card -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="finance-stat-card bg-gradient-to-br from-emerald-700 via-green-700 to-teal-700 p-5 text-white">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -390,24 +469,23 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.grossCollections') ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.14em] text-emerald-100/85"><?= lang('Finance.grossCollections') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-green-900" id="totalRevenue">
+                                <p class="text-3xl font-black text-white" id="totalRevenue">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
                                     <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('grossCollectionsHelp')) ?></p>
+                            <p class="text-xs font-semibold text-emerald-50/85"><?= esc($tr('grossCollectionsHelp')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- <?= lang('Finance.providerPaidCash') ?> Card -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-yellow-500/10 group-hover:shadow-yellow-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="finance-stat-card bg-gradient-to-br from-amber-600 via-orange-600 to-rose-600 p-5 text-white">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -421,24 +499,23 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.providerPaidCash') ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.14em] text-amber-100/85"><?= lang('Finance.providerPaidCash') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-yellow-900" id="providerPaidCash">
+                                <p class="text-3xl font-black text-white" id="providerPaidCash">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full overflow-hidden">
                                     <div class="w-3/4 h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.providerPaidCashHelp') ?></p>
+                            <p class="text-xs font-semibold text-amber-50/85"><?= lang('Finance.providerPaidCashHelp') ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- <?= lang('Finance.netClinicCash') ?> Card -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="finance-stat-card bg-gradient-to-br from-blue-700 via-indigo-700 to-cyan-700 p-5 text-white">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -452,24 +529,23 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.netClinicCash') ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.14em] text-blue-100/85"><?= lang('Finance.netClinicCash') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-blue-900" id="netClinicCash">
+                                <p class="text-3xl font-black text-white" id="netClinicCash">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
                                     <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.netClinicCashHelp') ?></p>
+                            <p class="text-xs font-semibold text-blue-50/85"><?= lang('Finance.netClinicCashHelp') ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- <?= lang('Finance.outstandingInvoices') ?> Card -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-pink-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 group-hover:shadow-red-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="finance-stat-card bg-gradient-to-br from-rose-700 via-red-700 to-orange-700 p-5 text-white">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -483,16 +559,16 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.openInvoices') ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.14em] text-rose-100/85"><?= lang('Finance.openInvoices') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-red-900" id="outstandingInvoices">
+                                <p class="text-3xl font-black text-white" id="outstandingInvoices">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-red-200 to-pink-200 rounded-full overflow-hidden">
                                     <div class="w-5/6 h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p>
+                            <p class="text-xs font-semibold text-rose-50/85" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -502,29 +578,34 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
         <!-- Standardized Finance Table -->
         <div class="mb-8">
             <!-- Table View -->
-            <div id="tableView" class="bg-white rounded-xl border border-gray-200 shadow-lg">
+            <div id="tableView" class="finance-table-panel">
                 <!-- Table Header -->
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= lang('Finance.financialTransactions') ?></h3>
-                                </div>
-                                <div class="flex items-center space-x-3">
+                <div class="finance-table-header border-b border-slate-200 px-5 py-4 sm:px-6">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-500/20">
+                                <i class="fas fa-table-list"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-950"><?= lang('Finance.financialTransactions') ?></h3>
+                                <p class="mt-0.5 text-xs font-semibold text-slate-500"><?= esc($tr('financeManagementShortHelp')) ?></p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
                             <!-- Export Buttons -->
-                            <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-pdf mr-2 text-red-600"></i>
+                            <button onclick="exportToPDF()" class="finance-export-btn">
+                                <i class="fas fa-file-pdf text-red-600"></i>
                                 <?= esc($tr('exportPdf')) ?>
                             </button>
-                            <button onclick="printTransactions()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-print mr-2 text-gray-600"></i>
+                            <button onclick="printTransactions()" class="finance-export-btn">
+                                <i class="fas fa-print text-gray-600"></i>
                                 <?= esc($tr('print')) ?>
                             </button>
-                            <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-csv mr-2 text-green-600"></i>
+                            <button onclick="exportToCSV()" class="finance-export-btn">
+                                <i class="fas fa-file-csv text-green-600"></i>
                                 <?= esc($tr('exportCsv')) ?>
                             </button>
-                                </div>
+                        </div>
             </div>
         </div>
 
@@ -581,7 +662,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             <tbody id="transactionsTableBody" class="bg-white divide-y divide-gray-200">
                                     <!-- Data will be loaded via DataTables -->
                                     <tr id="loadingRow">
-                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                             <div class="flex items-center justify-center space-x-2">
                                                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
                                                 <span><?= lang('Finance.loadingTransactions') ?></span>
