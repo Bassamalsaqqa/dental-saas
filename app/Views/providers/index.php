@@ -11,22 +11,27 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 <style>
-.providers-page .dataTables_wrapper { position: relative !important; }
+.providers-page .dataTables_wrapper {
+    position: relative !important;
+    border-radius: 0 0 1.5rem 1.5rem;
+    overflow: hidden;
+}
 .providers-page .dataTables_length,
 .providers-page .dataTables_filter,
 .providers-page .dataTables_info,
 .providers-page .dataTables_paginate { display: flex !important; align-items: center !important; }
 .providers-page .dataTables_length label,
-.providers-page .dataTables_filter label { display: flex !important; align-items: center !important; gap: .5rem !important; margin: 0 !important; font-size: .875rem !important; font-weight: 600 !important; color: #475569 !important; }
+.providers-page .dataTables_filter label { display: flex !important; align-items: center !important; gap: .5rem !important; margin: 0 !important; font-size: .8rem !important; font-weight: 800 !important; color: #475569 !important; }
 .providers-page .dataTables_length select,
 .providers-page .dataTables_filter input {
     height: 2.5rem !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: .75rem !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: .85rem !important;
     background: #fff !important;
     color: #334155 !important;
     font-size: .875rem !important;
     outline: none !important;
+    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
 }
 .providers-page .dataTables_length select { padding: .5rem .75rem !important; }
 .providers-page .dataTables_filter input { min-width: 16rem; padding: .5rem .9rem !important; }
@@ -39,7 +44,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     background: #f9fafb !important;
     color: #4b5563 !important;
     font-size: .75rem !important;
-    font-weight: 600 !important;
+    font-weight: 800 !important;
     letter-spacing: .05em !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;
@@ -59,7 +64,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 .providers-page #providersTable tbody td:last-child {
     white-space: nowrap !important;
 }
-.providers-page #providersTable tbody tr:hover { background: #ecfeff !important; }
+.providers-page #providersTable tbody tr:hover { background: linear-gradient(90deg, rgba(236,253,245,0.92), rgba(240,249,255,0.76)) !important; }
 .providers-page .dataTables_paginate .paginate_button {
     margin: 0 .125rem !important;
     padding: .45rem .7rem !important;
@@ -71,32 +76,33 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
     font-weight: 600 !important;
 }
 .providers-page .dataTables_paginate .paginate_button.current {
-    border-color: #10b981 !important;
-    background: #10b981 !important;
+    border-color: transparent !important;
+    background: linear-gradient(135deg, #059669, #0f766e) !important;
     color: #fff !important;
 }
 .providers-page .providers-table-toolbar {
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(90deg, #f8fafc, #fff, rgba(236,253,245,0.7));
     padding: 1rem 1.5rem;
 }
 .providers-page .providers-table-footer {
-    border-top: 1px solid #e5e7eb;
-    background: #f9fafb;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
     padding: 1rem 1.5rem;
 }
 .providers-page .provider-filter {
-    border: 1px solid #d1d5db;
-    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    border-radius: .95rem;
     background: #fff;
     color: #475569;
     font-size: .8125rem;
-    font-weight: 700;
-    padding: .5rem .9rem;
+    font-weight: 900;
+    padding: .55rem .9rem;
     transition: all .2s ease;
+    box-shadow: 0 10px 24px -23px rgba(15,23,42,0.55);
 }
 .providers-page .provider-filter:hover { border-color: #10b981; color: #047857; background: #ecfdf5; }
-.providers-page .provider-filter.active { border-color: transparent; color: #fff; background: linear-gradient(to right, #10b981, #0d9488); }
+.providers-page .provider-filter.active { border-color: transparent; color: #fff; background: linear-gradient(135deg, #059669, #0f766e); box-shadow: 0 14px 28px -20px rgba(5,150,105,0.75); }
 .provider-scale-modal {
     visibility: hidden;
     pointer-events: none;
@@ -145,36 +151,30 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 }
 </style>
 
-<div class="providers-page min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 <?= $isRtl ? '-left-40' : '-right-40' ?> w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 <?= $isRtl ? '-right-40' : '-left-40' ?> w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    </div>
-
-    <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
-                    <div class="flex items-start sm:items-center gap-3 sm:gap-4">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-handshake text-lg sm:text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= esc(lang('Provider.pageTitle')) ?></h1>
-                            <p class="text-gray-600"><?= esc(lang('Provider.pageSubtitle')) ?></p>
-                        </div>
+<div class="providers-page min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
+        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-teal-700 via-emerald-700 to-slate-900 text-white shadow-2xl shadow-emerald-900/18">
+            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                <div class="flex min-w-0 items-start gap-4">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
+                        <i class="fas fa-handshake text-xl"></i>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-black uppercase tracking-[0.22em] text-emerald-100"><?= esc(lang('Provider.tableTitle')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc(lang('Provider.pageTitle')) ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-50/88"><?= esc(lang('Provider.pageSubtitle')) ?></p>
                     </div>
-                    <?php if (has_permission('inventory', 'edit')): ?>
-                        <button type="button" id="addSupplierBtn" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-plus <?= $iconGap ?>"></i>
-                            <?= esc(lang('Provider.addSupplier')) ?>
-                        </button>
-                    <?php endif; ?>
                 </div>
+                <?php if (has_permission('inventory', 'edit')): ?>
+                    <button type="button" id="addSupplierBtn" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-emerald-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                        <i class="fas fa-plus"></i>
+                        <?= esc(lang('Provider.addSupplier')) ?>
+                    </button>
+                <?php endif; ?>
             </div>
-        </div>
+        </section>
 
-        <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
+        <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <?php
             $cards = [
                 ['id' => 'totalCombined', 'label' => lang('Provider.allProviders'), 'icon' => 'fa-handshake', 'tone' => 'from-emerald-500 to-teal-600', 'soft' => 'from-emerald-100 to-teal-100', 'text' => 'text-emerald-700'],
@@ -184,36 +184,31 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
             ];
             ?>
             <?php foreach ($cards as $card): ?>
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br <?= esc($card['tone']) ?> opacity-0 group-hover:opacity-20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4 gap-3">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br <?= esc($card['tone']) ?> rounded-2xl blur-lg opacity-75"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br <?= esc($card['tone']) ?> text-white shadow-xl">
-                                    <i class="fas <?= esc($card['icon']) ?> text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="inline-flex items-center gap-2 bg-gradient-to-r <?= esc($card['soft']) ?> px-3 py-1.5 rounded-full border border-white/60">
-                                <span class="w-2 h-2 rounded-full bg-current <?= esc($card['text']) ?>"></span>
-                                <span class="<?= esc($card['text']) ?> font-bold text-xs"><?= esc($card['label']) ?></span>
-                            </div>
+                <article class="rounded-2xl bg-gradient-to-br <?= esc($card['tone']) ?> p-4 text-white shadow-xl shadow-emerald-700/18">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-wide text-white/78"><?= esc($card['label']) ?></p>
+                            <p class="mt-2 text-3xl font-black" id="<?= esc($card['id']) ?>"><i class="fas fa-spinner fa-spin text-lg text-white/70"></i></p>
                         </div>
-                        <div class="mt-auto">
-                            <p class="text-3xl font-black text-gray-900" id="<?= esc($card['id']) ?>"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></p>
-                            <p class="text-sm text-gray-500 mt-2 font-medium"><?= esc($card['label']) ?></p>
-                        </div>
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20">
+                            <i class="fas <?= esc($card['icon']) ?>"></i>
+                        </span>
                     </div>
-                </div>
+                </article>
             <?php endforeach; ?>
-        </div>
+        </section>
 
-        <div class="mb-8 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <section class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
+            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/70 px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                        <h2 class="text-lg font-semibold text-gray-900"><?= esc(lang('Provider.tableTitle')) ?></h2>
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                            <i class="fas fa-list"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-lg font-black text-slate-950"><?= esc(lang('Provider.tableTitle')) ?></h2>
+                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('Provider.pageSubtitle')) ?></p>
+                        </div>
                     </div>
                     <div class="flex flex-wrap gap-2" id="typeFilters">
                         <button type="button" class="provider-filter active" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
@@ -279,40 +274,45 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                     <tbody></tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
-<div id="quickSupplierModal" class="provider-scale-modal fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-hidden="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="provider-scale-modal__backdrop fixed inset-0 bg-slate-950/45" onclick="closeSupplierModal()"></div>
+<div id="quickSupplierModal" class="provider-scale-modal fixed inset-0 z-[2147483600] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-hidden="true" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="provider-scale-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" onclick="closeSupplierModal()"></div>
     <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeSupplierModal()">
-        <div class="provider-scale-modal__panel w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-                <div>
-                    <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('Provider.quickAddSupplierTitle')) ?></h4>
-                    <p class="mt-1 text-sm text-slate-500"><?= esc(lang('Provider.quickAddSupplierHelp')) ?></p>
+        <div class="provider-scale-modal__panel w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between gap-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/80 px-5 py-4">
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-700/20">
+                        <i class="fas fa-truck"></i>
+                    </span>
+                    <div>
+                        <h4 class="text-base font-black text-slate-950"><?= esc(lang('Provider.quickAddSupplierTitle')) ?></h4>
+                        <p class="mt-1 text-sm font-semibold text-slate-500"><?= esc(lang('Provider.quickAddSupplierHelp')) ?></p>
+                    </div>
                 </div>
                 <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeSupplierModal()">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
-            <div class="space-y-4 p-5">
+            <div class="space-y-4 bg-slate-50/70 p-5">
                 <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierName"><?= esc(lang('Provider.supplierName')) ?> *</label>
+                    <label class="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500" for="quickSupplierName"><?= esc(lang('Provider.supplierName')) ?> *</label>
                     <input type="text" id="quickSupplierName" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" placeholder="<?= esc(lang('Provider.supplierName')) ?>" required>
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierContact"><?= esc(lang('Provider.contactPerson')) ?></label>
+                        <label class="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500" for="quickSupplierContact"><?= esc(lang('Provider.contactPerson')) ?></label>
                         <input type="text" id="quickSupplierContact" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierPhone"><?= esc(lang('Provider.phone')) ?></label>
+                        <label class="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500" for="quickSupplierPhone"><?= esc(lang('Provider.phone')) ?></label>
                         <input type="text" id="quickSupplierPhone" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
                     </div>
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500" for="quickSupplierEmail"><?= esc(lang('Provider.email')) ?></label>
+                    <label class="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500" for="quickSupplierEmail"><?= esc(lang('Provider.email')) ?></label>
                     <input type="email" id="quickSupplierEmail" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
                 </div>
                 <p id="quickSupplierStatus" class="text-xs text-slate-500 hidden"></p>
@@ -322,7 +322,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                     <i class="fas fa-times text-xs"></i>
                     <span><?= esc(lang('Provider.cancel')) ?></span>
                 </button>
-                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-700/20 transition hover:from-emerald-700 hover:to-teal-800">
                     <i class="fas fa-plus text-xs"></i>
                     <span><?= esc(lang('Provider.createSupplier')) ?></span>
                 </button>
@@ -554,9 +554,14 @@ document.addEventListener('keydown', function(e) {
         providersTable.ajax.reload();
     });
 
-    document.getElementById('addSupplierBtn').addEventListener('click', openSupplierModal);
+    const addSupplierBtn = document.getElementById('addSupplierBtn');
+    if (addSupplierBtn) {
+        addSupplierBtn.addEventListener('click', openSupplierModal);
+    }
 
-    document.getElementById('createQuickSupplierBtn').addEventListener('click', function() {
+    const createQuickSupplierBtn = document.getElementById('createQuickSupplierBtn');
+    if (createQuickSupplierBtn) {
+        createQuickSupplierBtn.addEventListener('click', function() {
         const nameInput = document.getElementById('quickSupplierName');
         const name = nameInput.value.trim();
         const statusEl = document.getElementById('quickSupplierStatus');
@@ -610,7 +615,8 @@ document.addEventListener('keydown', function(e) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-plus text-xs"></i><span class="<?= $iconGap ?>"></span>' + i18n.createSupplier;
         });
-    });
+        });
+    }
 
     $(document).ready(function() {
         initDataTable();
