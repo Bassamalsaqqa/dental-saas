@@ -52,8 +52,8 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 }
 
 .dataTables_length select:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14) !important;
 }
 
 .dataTables_length select:hover {
@@ -88,8 +88,8 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 }
 
 .dataTables_filter input:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14) !important;
 }
 
 .dataTables_filter input:hover {
@@ -130,9 +130,9 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 }
 
 .dataTables_paginate .paginate_button.current {
-    background-color: #3b82f6 !important;
+    background-color: #ea580c !important;
     color: white !important;
-    border-color: #3b82f6 !important;
+    border-color: #ea580c !important;
 }
 
 .dataTables_paginate .paginate_button.disabled {
@@ -146,7 +146,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 }
 
 .dataTables_processing {
-    background-color: #3b82f6 !important;
+    background-color: #ea580c !important;
     color: white !important;
     border-radius: 8px !important;
     border: none !important;
@@ -294,258 +294,199 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
         border-radius: 0;
     }
 }
+
+.examinations-page .dataTables_wrapper {
+    border-radius: 0 0 1.5rem 1.5rem;
+    overflow: hidden;
+}
+
+.examinations-page .dataTables_wrapper > .dt-buttons {
+    display: none;
+}
+
+.examinations-page .dataTables_length label,
+.examinations-page .dataTables_filter label {
+    color: #475569 !important;
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+}
+
+.examinations-page .dataTables_filter input,
+.examinations-page .dataTables_length select {
+    border-radius: 0.85rem !important;
+    border-color: #cbd5e1 !important;
+    background: #fff !important;
+    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
+}
+
+.examinations-page .dataTables_filter input:focus,
+.examinations-page .dataTables_length select:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.16) !important;
+}
+
+.examinations-page #examinationsTable thead th {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #334155 !important;
+    text-align: start !important;
+    font-weight: 800 !important;
+}
+
+.examinations-page #examinationsTable tbody tr:hover {
+    background: linear-gradient(90deg, rgba(255,247,237,0.95), rgba(254,249,195,0.48)) !important;
+}
+
+.examinations-page .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(135deg, #ea580c, #d97706) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+}
+
+.examinations-page .dataTables_paginate .paginate_button:hover {
+    background: #fff7ed !important;
+    border-color: #fed7aa !important;
+    color: #9a3412 !important;
+}
 </style>
-<!-- Enhanced Examination Management with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-amber-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-red-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-400/10 to-orange-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
+<div class="examinations-page min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
+        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-orange-700 via-amber-700 to-slate-900 text-white shadow-2xl shadow-orange-900/18">
+            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                <div class="flex min-w-0 items-start gap-4">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
+                        <i class="fas fa-stethoscope text-xl"></i>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-black uppercase tracking-[0.22em] text-amber-100"><?= esc($tr('examinations_registry')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc($tr('examination_management')) ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-amber-50/88"><?= esc($tr('examination_management_subtitle')) ?></p>
+                    </div>
+                </div>
+                <?php if (has_permission('examinations', 'create')): ?>
+                    <a href="<?= base_url('examination/create') ?>" id="newExaminationModalTrigger" data-examination-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-orange-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-orange-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                        <i class="fas fa-plus"></i>
+                        <?= esc($tr('new_examination')) ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </section>
 
-    <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
-        <!-- Simplified Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
-                    <div class="flex items-start sm:items-center space-x-3 sm:space-x-4">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-stethoscope text-lg sm:text-xl"></i>
-                        </div>
+        <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <article class="rounded-2xl bg-gradient-to-br from-orange-600 to-amber-700 p-4 text-white shadow-xl shadow-orange-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-orange-100"><?= esc($tr('card_total_examinations')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="totalExaminations"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-stethoscope"></i></span>
+                </div>
+            </article>
+            <article class="rounded-2xl bg-gradient-to-br from-green-600 to-emerald-700 p-4 text-white shadow-xl shadow-green-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-green-100"><?= esc($tr('card_completed_today')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="completedToday"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
+                </div>
+            </article>
+            <article class="rounded-2xl bg-gradient-to-br from-amber-600 to-yellow-700 p-4 text-white shadow-xl shadow-amber-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-amber-100"><?= esc($tr('card_pending_reviews')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="pendingReviews"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-clock"></i></span>
+                </div>
+            </article>
+            <article class="rounded-2xl bg-gradient-to-br from-red-600 to-rose-700 p-4 text-white shadow-xl shadow-red-700/18">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-red-100"><?= esc($tr('card_emergency_cases')) ?></p>
+                        <p class="mt-2 text-3xl font-black" id="emergencyCases"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                    </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-triangle-exclamation"></i></span>
+                </div>
+            </article>
+        </section>
+
+        <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
+            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-orange-50/80 px-4 py-4 sm:px-5">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-100 text-orange-700 ring-1 ring-orange-200">
+                            <i class="fas fa-list"></i>
+                        </span>
                         <div>
-                            <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= esc($tr('examination_management')) ?></h1>
-                            <p class="text-gray-600"><?= esc($tr('examination_management_subtitle')) ?></p>
+                            <h3 class="text-lg font-black text-slate-950"><?= esc($tr('examinations_registry')) ?></h3>
+                            <p class="text-sm font-semibold text-slate-500"><?= esc($tr('examination_management_subtitle')) ?></p>
                         </div>
                     </div>
-                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
-                        <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create') ?>" id="newExaminationModalTrigger" data-examination-create-modal-open class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus mr-2"></i>
-                                <?= esc($tr('new_examination')) ?>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Enhanced Statistics Cards with Advanced Animations -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
-                <!-- Total Examinations Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-orange-500/10 group-hover:shadow-orange-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-stethoscope text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-orange-100 to-amber-100 px-3 py-1.5 rounded-full border border-orange-200">
-                                <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-arrow-up text-orange-600 text-xs"></i>
-                                <span class="text-orange-700 font-bold text-xs">+12%</span>
-                            </div>
-                        </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_total_examinations')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-orange-900" id="totalExaminations">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-orange-200 to-amber-200 rounded-full overflow-hidden">
-                                    <div class="w-4/5 h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_vs_last_month')) ?></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Completed Today Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-check-circle text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                                <span class="text-green-700 font-bold text-sm"><?= esc($tr('card_completed')) ?></span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_completed_today')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-green-900" id="completedToday">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_today_completed')) ?></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pending Reviews Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-clock text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 rounded-full border border-amber-200">
-                                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-hourglass-half text-amber-600 text-sm"></i>
-                                <span class="text-amber-700 font-bold text-sm"><?= esc($tr('card_pending')) ?></span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_pending_reviews')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-amber-900" id="pendingReviews">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
-                                    <div class="w-2/3 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_awaiting_review')) ?></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emergency Cases Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-pink-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 group-hover:shadow-red-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-exclamation-triangle text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-pink-100 px-4 py-2 rounded-full border border-red-200">
-                                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-bolt text-red-600 text-sm"></i>
-                                <span class="text-red-700 font-bold text-sm"><?= esc($tr('card_emergency')) ?></span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_emergency_cases')) ?></p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-red-900" id="emergencyCases">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-red-200 to-pink-200 rounded-full overflow-hidden">
-                                    <div class="w-5/6 h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_urgent_attention')) ?></p>
-                        </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-100">
+                            <i class="fas fa-file-pdf"></i>
+                            <?= esc($tr('pdf')) ?>
+                        </button>
+                        <button onclick="printExaminations()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">
+                            <i class="fas fa-print"></i>
+                            <?= esc($tr('print')) ?>
+                        </button>
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                            <i class="fas fa-file-csv"></i>
+                            <?= esc($tr('csv')) ?>
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-
-
-        <!-- Standardized Examinations Table -->
-        <div class="mb-8">
-            <!-- Table View -->
-            <div id="tableView" class="bg-white rounded-xl border border-gray-200 shadow-lg">
-                <!-- Table Header -->
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('examinations_registry')) ?></h3>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <!-- Export Buttons -->
-                            <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                <?= esc($tr('pdf')) ?>
-                            </button>
-                            <button onclick="printExaminations()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-print mr-2 text-gray-600"></i>
-                                <?= esc($tr('print')) ?>
-                            </button>
-                            <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                <?= esc($tr('csv')) ?>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            
-                    <!-- Enhanced Table with Advanced Styling -->
-                    <div class="overflow-x-auto">
-                        <div class="dataTables-wrapper">
-                            <table id="examinationsTable" class="w-full min-w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-stethoscope text-orange-600"></i>
-                                            <span><?= esc($tr('column_examination_id')) ?></span>
-                                        </div>
-                                    </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-user text-orange-600"></i>
-                                            <span><?= esc($tr('column_patient')) ?></span>
-                                        </div>
-                                    </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-calendar-alt text-orange-600"></i>
-                                            <span><?= esc($tr('column_date_time')) ?></span>
-                                        </div>
-                                    </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-tag text-orange-600"></i>
-                                            <span><?= esc($tr('column_type')) ?></span>
-                                        </div>
-                                    </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-info-circle text-orange-600"></i>
-                                            <span><?= esc($tr('column_status')) ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-cogs text-orange-600"></i>
-                                            <span><?= esc($tr('column_actions')) ?></span>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                    <!-- Data will be loaded via DataTables -->
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="overflow-x-auto">
+                <table id="examinationsTable" class="w-full min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-stethoscope text-orange-600"></i>
+                                    <span><?= esc($tr('column_examination_id')) ?></span>
                                 </div>
-                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-user text-orange-600"></i>
+                                    <span><?= esc($tr('column_patient')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-orange-600"></i>
+                                    <span><?= esc($tr('column_date_time')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-tag text-orange-600"></i>
+                                    <span><?= esc($tr('column_type')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-info-circle text-orange-600"></i>
+                                    <span><?= esc($tr('column_status')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-cogs text-orange-600"></i>
+                                    <span><?= esc($tr('column_actions')) ?></span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Data will be loaded via DataTables -->
+                    </tbody>
+                </table>
             </div>
-        </div>
+        </section>
 
         <!-- Grid View -->
         <div id="gridView" class="hidden">
@@ -556,13 +497,13 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                             <div class="p-6">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-full flex items-center justify-center">
                                             <i class="fas fa-stethoscope text-white text-sm"></i>
                                         </div>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 
-                                            ($examination['status'] == 'in_progress' ? 'bg-blue-100 text-blue-800' : 
+                                            ($examination['status'] == 'in_progress' ? 'bg-sky-100 text-sky-800' :
                                             ($examination['status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')) ?>">
                                         <?= esc($tr('status_' . $examination['status'])) ?>
                                     </span>
@@ -576,11 +517,11 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                                 
                                 <div class="mb-4">
                                     <div class="flex items-center text-sm text-gray-600 mb-2">
-                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        <i class="fas fa-calendar-alt me-2"></i>
                                         <?= formatDate($examination['examination_date']) ?>
                                     </div>
                                     <div class="flex items-center text-sm text-gray-600 mb-2">
-                                        <i class="fas fa-clock mr-2"></i>
+                                        <i class="fas fa-clock me-2"></i>
                                         <?= formatTime($examination['examination_date']) ?>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -592,10 +533,10 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                                 </div>
                                 
                                 <div class="flex justify-between items-center">
-                                    <div class="flex space-x-2">
+                                    <div class="flex gap-2">
                                         <?php if (has_permission('examinations', 'view')): ?>
                                             <a href="<?= base_url('examination/' . $examination['id']) ?>" 
-                                               class="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="<?= esc($tr('action_view_details')) ?>">
+                                               class="p-2 text-orange-700 hover:text-orange-800 rounded-lg hover:bg-orange-50 transition-colors" title="<?= esc($tr('action_view_details')) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
@@ -630,8 +571,8 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= esc($tr('no_examinations_found')) ?></h3>
                         <p class="text-gray-500 mb-4"><?= esc($tr('start_creating_new_examination')) ?></p>
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
+                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:from-orange-700 hover:to-amber-700 focus:outline-none focus:ring-4 focus:ring-orange-200">
+                                <i class="fas fa-plus me-2"></i><?= esc($tr('new_examination')) ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -645,7 +586,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('calendar_title')) ?></h3>
-                        <div class="flex items-center space-x-4">
+                        <div class="flex items-center gap-4">
                             <button onclick="previousMonth()" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
@@ -746,17 +687,17 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                 
                 <div class="mb-6">
                     <label for="examination_notes" class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('final_notes')) ?></label>
-                    <textarea id="examination_notes" name="examination_notes" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" 
+                    <textarea id="examination_notes" name="examination_notes"
+                              class="w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-100" rows="4"
                               placeholder="<?= esc($tr('final_notes_placeholder')) ?>"></textarea>
                 </div>
-                
-                <div class="flex space-x-4">
-                    <button type="button" onclick="closeCompleteModal()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex-1">
-                        <i class="fas fa-times mr-2"></i><?= esc($tr('cancel')) ?>
+
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeCompleteModal()" class="inline-flex flex-1 items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-slate-200">
+                        <i class="fas fa-times me-2"></i><?= esc($tr('cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-1">
-                        <i class="fas fa-check mr-2"></i><?= esc($tr('complete_examination')) ?>
+                    <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:from-emerald-700 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-emerald-200">
+                        <i class="fas fa-check me-2"></i><?= esc($tr('complete_examination')) ?>
                     </button>
                 </div>
             </form>
@@ -999,44 +940,29 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-// Function to apply DataTables styling
 function applyDataTablesStyling() {
-    console.log('Applying DataTables styling...');
-    
-    // Style the length selector with clean design
-    $('.dataTables_length select').removeClass().addClass('px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500');
-    
-    // Style the search input with clean design
-    $('.dataTables_filter input').removeClass().addClass('px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500');
-    
-    // Style the info text
-    $('.dataTables_info').removeClass().addClass('text-sm text-gray-600 flex items-center');
-    
-    // Style pagination buttons with clean design
-    $('.dataTables_paginate .paginate_button').removeClass().addClass('px-3 py-2 mx-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500');
-    $('.dataTables_paginate .paginate_button.current').addClass('bg-blue-500 text-white border-blue-500');
-    $('.dataTables_paginate .paginate_button.disabled').addClass('opacity-50 cursor-not-allowed hover:bg-white hover:text-gray-700');
-    
-    // Style the processing indicator
-    $('.dataTables_processing').removeClass().addClass('bg-blue-500 text-white rounded-md border-0');
-    
-    // Add custom wrapper styling
+    $('.dataTables_length select').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100');
+    $('.dataTables_filter input').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100');
+    $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold text-slate-600');
+    $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-800 focus:outline-none focus:ring-4 focus:ring-orange-100');
+    $('.dataTables_paginate .paginate_button.current').addClass('!border-orange-600 !bg-orange-600 !text-white');
+    $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!border-slate-200 hover:!bg-white hover:!text-slate-500');
+    $('.dataTables_processing').removeClass().addClass('rounded-xl border-0 bg-orange-600 px-4 py-3 text-sm font-extrabold text-white shadow-xl');
+
     $('.dataTables_wrapper').addClass('relative');
-    $('.dataTables_length').addClass('flex items-center space-x-3 order-1');
-    $('.dataTables_filter').addClass('flex items-center space-x-3 ml-auto order-2');
+    $('.dataTables_length').addClass('order-1 flex items-center gap-3');
+    $('.dataTables_filter').addClass('order-2 ms-auto flex items-center gap-3');
     $('.dataTables_info').addClass('flex items-center order-1');
-    $('.dataTables_paginate').addClass('flex items-center space-x-2 ml-auto order-2');
-    
-    // Force the containers to use flexbox
+    $('.dataTables_paginate').addClass('order-2 ms-auto flex items-center gap-2');
+
     $('.dataTables_wrapper > .row:first-child').addClass('flex items-center justify-between');
     $('.dataTables_wrapper > .row:last-child').addClass('flex items-center justify-between');
-    
-    // Add clean labels with icons
+
     if ($('.dataTables_length label').length === 0) {
-        $('.dataTables_length').prepend(`<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-list-ul mr-2 text-gray-500"></i>${i18n.datatableShow}</label>`);
+        $('.dataTables_length').prepend(`<label class="me-3 flex items-center text-sm font-extrabold text-slate-700"><i class="fas fa-list-ul me-2 text-orange-500"></i>${i18n.datatableShow}</label>`);
     }
     if ($('.dataTables_filter label').length === 0) {
-        $('.dataTables_filter').prepend(`<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-search mr-2 text-gray-500"></i>${i18n.datatableSearch}</label>`);
+        $('.dataTables_filter').prepend(`<label class="me-3 flex items-center text-sm font-extrabold text-slate-700"><i class="fas fa-search me-2 text-orange-500"></i>${i18n.datatableSearch}</label>`);
     }
     
     // Add icons to pagination buttons using safe DOM construction
@@ -1050,8 +976,6 @@ function applyDataTablesStyling() {
     $('.dataTables_paginate .paginate_button.previous').each(function() { this.replaceChildren(createIcon('fas fa-angle-left')); });
     $('.dataTables_paginate .paginate_button.next').each(function() { this.replaceChildren(createIcon('fas fa-angle-right')); });
     $('.dataTables_paginate .paginate_button.last').each(function() { this.replaceChildren(createIcon('fas fa-angle-double-right')); });
-    
-    console.log('DataTables styling applied');
 }
 
 // Load examination statistics
@@ -1075,8 +999,6 @@ function loadExaminationStats() {
 
 // Initialize DataTables
 $(document).ready(function() {
-    console.log('=== DataTable Initialization ===');
-
     if (<?= $shouldOpenExaminationCreateModal ? 'true' : 'false' ?>) {
         openNewExaminationModal(document.getElementById('newExaminationModalTrigger'));
     }
@@ -1138,19 +1060,19 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     const identityHtml = `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-stethoscope text-orange-600 text-sm"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-700">
+                                <i class="fas fa-stethoscope text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${i18n.examinationIdLabel}</div>
+                                <div class="text-sm font-extrabold text-slate-950">${data}</div>
+                                <div class="text-xs font-bold text-slate-500">${i18n.examinationIdLabel}</div>
                             </div>
                         </div>
                     `;
                     if (permissions.examinations.view) {
                         return `
-                            <a href="<?= base_url('examination') ?>/${row.id}" class="block rounded-md hover:bg-orange-50/60 transition-colors duration-200 cursor-pointer">
+                            <a href="<?= base_url('examination') ?>/${row.id}" class="block cursor-pointer rounded-xl transition-colors duration-200 hover:bg-orange-50/70">
                                 ${identityHtml}
                             </a>
                         `;
@@ -1164,13 +1086,13 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const avatar = getPatientAvatar(row.gender);
                     return `
-                        <div class="flex items-center space-x-4">
-                            <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                        <div class="flex items-center gap-4">
+                            <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center">
                                 <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
                             </span>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500 font-medium">${row.patient_number}</div>
+                                <div class="text-sm font-extrabold text-slate-950">${data}</div>
+                                <div class="text-xs font-bold text-slate-500">${row.patient_number}</div>
                             </div>
                         </div>
                     `;
@@ -1182,8 +1104,8 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="text-sm font-bold text-gray-900">${row.examination_date_formatted || data}</div>
-                            <div class="text-xs text-gray-500 font-medium">${row.examination_time_formatted || ''}</div>
+                            <div class="text-sm font-extrabold text-slate-950">${row.examination_date_formatted || data}</div>
+                            <div class="text-xs font-bold text-slate-500">${row.examination_time_formatted || ''}</div>
                         </div>
                     `;
                 }
@@ -1196,7 +1118,7 @@ $(document).ready(function() {
                         'emergency': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'text-red-800', border: 'border-red-200', icon: 'exclamation-triangle' },
                         'initial': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'text-yellow-800', border: 'border-yellow-200', icon: 'play-circle' },
                         'periodic': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'text-green-800', border: 'border-green-200', icon: 'calendar-check' },
-                        'follow_up': { bg: 'bg-gradient-to-r from-gray-100 to-slate-100', text: 'text-gray-800', border: 'border-gray-200', icon: 'arrow-right' }
+                        'follow_up': { bg: 'bg-gradient-to-r from-slate-100 to-gray-100', text: 'text-slate-800', border: 'border-slate-200', icon: 'arrow-right' }
                     };
                     const typeLabelMap = {
                         emergency: i18n.typeEmergency,
@@ -1206,8 +1128,8 @@ $(document).ready(function() {
                     };
                     const config = typeConfig[data] || typeConfig['follow_up'];
                     return `
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${config.bg} ${config.text} border ${config.border}">
-                            <i class="fas fa-${config.icon} mr-2"></i>
+                        <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
+                            <i class="fas fa-${config.icon} me-2"></i>
                             ${typeLabelMap[data] || (typeLabelMap.follow_up)}
                         </span>
                     `;
@@ -1219,7 +1141,7 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const statusConfig = {
                         'completed': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'text-green-800', border: 'border-green-200', icon: 'check-circle' },
-                        'in_progress': { bg: 'bg-gradient-to-r from-blue-100 to-cyan-100', text: 'text-blue-800', border: 'border-blue-200', icon: 'clock' },
+                        'in_progress': { bg: 'bg-gradient-to-r from-sky-100 to-cyan-100', text: 'text-sky-800', border: 'border-sky-200', icon: 'clock' },
                         'pending': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'text-yellow-800', border: 'border-yellow-200', icon: 'hourglass-half' },
                         'cancelled': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'text-red-800', border: 'border-red-200', icon: 'times-circle' }
                     };
@@ -1231,8 +1153,8 @@ $(document).ready(function() {
                     };
                     const config = statusConfig[data] || statusConfig['pending'];
                     return `
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${config.bg} ${config.text} border ${config.border}">
-                            <i class="fas fa-${config.icon} mr-2"></i>
+                        <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
+                            <i class="fas fa-${config.icon} me-2"></i>
                             ${statusLabelMap[data] || statusLabelMap.pending}
                         </span>
                     `;
@@ -1245,13 +1167,13 @@ $(document).ready(function() {
                 searchable: false,
                 render: function(data, type, row) {
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    let actions = '<div class="flex items-center space-x-2">';
+                    let actions = '<div class="flex items-center gap-2">';
                     
                     // View button
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}" 
-                               class="p-2 text-orange-600 hover:text-orange-700 rounded-md hover:bg-orange-50 transition-colors duration-200" title="${i18n.actionViewDetails}">
+                               class="rounded-xl p-2 text-orange-700 transition-all duration-200 hover:scale-105 hover:bg-orange-50 hover:text-orange-800" title="${i18n.actionViewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -1260,8 +1182,8 @@ $(document).ready(function() {
                     if (permissions.examinations.edit) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}/edit" 
-                               class="group/action relative p-2 text-blue-600 hover:text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-110" title="${i18n.actionEditExamination}">
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
+                               class="group/action relative rounded-xl p-2 text-sky-700 transition-all duration-300 hover:scale-110 hover:bg-sky-50 hover:text-sky-800" title="${i18n.actionEditExamination}">
+                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-sky-500/10 to-cyan-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-edit relative z-10"></i>
                             </a>`;
                     }
@@ -1270,8 +1192,8 @@ $(document).ready(function() {
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('odontogram') ?>/${row.patient_id}" 
-                               class="group/action relative p-2 text-purple-600 hover:text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-300 hover:scale-110" title="${i18n.actionViewOdontogram}">
-                                <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
+                               class="group/action relative rounded-xl p-2 text-purple-700 transition-all duration-300 hover:scale-110 hover:bg-purple-50 hover:text-purple-800" title="${i18n.actionViewOdontogram}">
+                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-tooth relative z-10"></i>
                             </a>`;
                     }
@@ -1280,8 +1202,8 @@ $(document).ready(function() {
                     if ((row.status === 'pending' || row.status === 'in_progress') && permissions.examinations.edit) {
                         actions += `
                             <button onclick="completeExamination(${data})" 
-                                    class="group/action relative p-2 text-green-600 hover:text-green-700 rounded-xl hover:bg-green-50 transition-all duration-300 hover:scale-110" title="${i18n.actionCompleteExamination}">
-                                <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
+                                    class="group/action relative rounded-xl p-2 text-emerald-700 transition-all duration-300 hover:scale-110 hover:bg-emerald-50 hover:text-emerald-800" title="${i18n.actionCompleteExamination}">
+                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-check relative z-10"></i>
                             </button>`;
                     }
@@ -1289,33 +1211,33 @@ $(document).ready(function() {
                     // More actions dropdown
                     actions += `
                         <div class="relative">
-                            <button onclick="toggleDropdown(${data})" class="p-2 text-gray-600 hover:text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-110" title="${i18n.actionMoreActions}">
+                            <button onclick="toggleDropdown(${data})" class="rounded-xl p-2 text-slate-600 transition-all duration-300 hover:scale-110 hover:bg-slate-100 hover:text-slate-900" title="${i18n.actionMoreActions}">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <div id="dropdown-${data}" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 z-10 hidden">
+                            <div id="dropdown-${data}" class="absolute end-0 z-10 mt-2 hidden w-48 rounded-xl border border-slate-200 bg-white shadow-2xl">
                                 <div class="py-2">`;
                     
                     // Print button (always available if view permission)
                     if (permissions.examinations.view) {
                         actions += `
-                            <a href="<?= base_url('examination') ?>/${data}/print" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                                        <i class="fas fa-print mr-3 text-gray-500"></i>${i18n.actionPrintReport}
+                            <a href="<?= base_url('examination') ?>/${data}/print" class="flex items-center px-4 py-2 text-sm font-bold text-slate-700 transition-colors duration-200 hover:bg-slate-50 hover:text-slate-950">
+                                        <i class="fas fa-print me-3 text-slate-500"></i>${i18n.actionPrintReport}
                                     </a>`;
                     }
                     
                     // Duplicate button (requires create permission)
                     if (permissions.examinations.create) {
                         actions += `
-                                    <a href="<?= base_url('examination') ?>/${data}/duplicate" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
-                                        <i class="fas fa-copy mr-3 text-blue-600"></i>${i18n.actionDuplicate}
+                                    <a href="<?= base_url('examination') ?>/${data}/duplicate" class="flex items-center px-4 py-2 text-sm font-bold text-slate-700 transition-colors duration-200 hover:bg-orange-50 hover:text-orange-800">
+                                        <i class="fas fa-copy me-3 text-orange-600"></i>${i18n.actionDuplicate}
                                     </a>`;
                     }
                     
                     // Delete button
                     if (permissions.examinations.delete) {
                         actions += `
-                                    <button onclick="deleteExamination(${data})" class="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors duration-200">
-                                        <i class="fas fa-trash mr-3 text-red-600"></i>${i18n.actionDelete}
+                                    <button onclick="deleteExamination(${data})" class="flex w-full items-center px-4 py-2 text-sm font-bold text-red-700 transition-colors duration-200 hover:bg-red-50">
+                                        <i class="fas fa-trash me-3 text-red-600"></i>${i18n.actionDelete}
                                     </button>`;
                     }
                     
@@ -1348,7 +1270,7 @@ $(document).ready(function() {
                 previous: i18n.previous
             }
         },
-        dom: '<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: '<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
         buttons: [
             {
                 extend: 'pdf',
@@ -1381,11 +1303,9 @@ $(document).ready(function() {
             }
         ],
         initComplete: function() {
-            console.log('DataTables initComplete called');
             setTimeout(applyDataTablesStyling, 100);
         },
         drawCallback: function() {
-            console.log('DataTables drawCallback called');
             setTimeout(applyDataTablesStyling, 50);
             if (permissions.examinations.view) {
                 $('#examinationsTable tbody tr').addClass('cursor-pointer hover:bg-orange-50/40 transition-colors duration-150');
@@ -1445,13 +1365,13 @@ function toggleView(view) {
     // Show selected view and update button
     if (view === 'table') {
         document.getElementById('tableView').classList.remove('hidden');
-        document.getElementById('tableViewBtn').className = 'inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md';
+        document.getElementById('tableViewBtn').className = 'inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200';
     } else if (view === 'grid') {
         document.getElementById('gridView').classList.remove('hidden');
-        document.getElementById('gridViewBtn').className = 'inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md';
+        document.getElementById('gridViewBtn').className = 'inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200';
     } else if (view === 'calendar') {
         document.getElementById('calendarView').classList.remove('hidden');
-        document.getElementById('calendarViewBtn').className = 'inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md';
+        document.getElementById('calendarViewBtn').className = 'inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200';
         generateCalendar();
     }
     
