@@ -211,234 +211,214 @@
 }
 </style>
 
-<!-- Enhanced Low Stock Management with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-red-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-red-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-red-400/20 to-orange-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-orange-400/10 to-red-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
+<?php
+$lowStockItems = is_array($items ?? null) ? $items : [];
+$criticalCount = 0;
 
-    <div class="container mx-auto relative z-10 px-4 py-6">
-        <!-- Simplified Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-exclamation-triangle text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('Inventory.lowStockItems') ?></h1>
-                            <p class="text-gray-600"><?= lang('Inventory.lowStockSubtitle') ?></p>
-                        </div>
+foreach ($lowStockItems as $item) {
+    if ((float) ($item['quantity'] ?? 0) <= 0) {
+        $criticalCount++;
+    }
+}
+
+$lowCount = max(0, count($lowStockItems) - $criticalCount);
+$openReorderCount = (int) ($open_reorder_count ?? 0);
+?>
+
+<div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
+    <section class="overflow-hidden rounded-[1.75rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-orange-900/25">
+        <div class="relative isolate">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(251,146,60,0.55),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(239,68,68,0.45),transparent_28%),linear-gradient(135deg,#7c2d12_0%,#b91c1c_43%,#0f172a_100%)]"></div>
+            <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/55 to-transparent"></div>
+            <div class="relative grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:p-7">
+                <div class="max-w-3xl">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-white/14 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-orange-50 ring-1 ring-white/20">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span><?= esc(lang('Inventory.lowStock')) ?></span>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center px-4 py-2 bg-emerald-50 text-emerald-800 text-sm font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-all duration-200">
-                            <i class="fas fa-arrows-rotate mr-2"></i>
-                            <?= lang('Inventory.movements') ?>
-                        </a>
-                        <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200">
-                            <i class="fas fa-cart-shopping mr-2"></i>
-                            <?= lang('Inventory.reorderList') ?>
-                            <span class="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-amber-600 text-white text-xs font-bold"><?= (int) ($open_reorder_count ?? 0) ?></span>
-                        </a>
-                        <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            <?= lang('Inventory.backToInventory') ?>
-                        </a>
-                    </div>
+                    <h1 class="mt-4 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl"><?= esc(lang('Inventory.lowStockItems')) ?></h1>
+                    <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-orange-50/88 sm:text-base"><?= esc(lang('Inventory.lowStockSubtitle')) ?></p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 lg:justify-end">
+                    <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/14 px-4 py-2.5 text-sm font-extrabold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                        <i class="fas fa-arrows-rotate"></i>
+                        <span><?= esc(lang('Inventory.movements')) ?></span>
+                    </a>
+                    <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-extrabold text-orange-800 shadow-lg shadow-orange-950/20 transition hover:-translate-y-0.5">
+                        <i class="fas fa-cart-shopping"></i>
+                        <span><?= esc(lang('Inventory.reorderList')) ?></span>
+                        <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-orange-600 px-2 py-0.5 text-xs font-black text-white"><?= $openReorderCount ?></span>
+                    </a>
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950/45 px-4 py-2.5 text-sm font-extrabold text-white ring-1 ring-white/20 transition hover:bg-slate-950/65">
+                        <i class="fas fa-arrow-left rtl-back-icon"></i>
+                        <span><?= esc(lang('Inventory.backToInventory')) ?></span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative grid gap-3 border-t border-white/10 bg-slate-950/22 p-4 sm:grid-cols-2 lg:grid-cols-4 lg:p-5">
+                <div class="rounded-3xl bg-white/12 p-4 ring-1 ring-white/15">
+                    <p class="text-xs font-black uppercase tracking-wide text-orange-100/80"><?= esc(lang('Inventory.lowStock')) ?></p>
+                    <p class="mt-2 text-3xl font-black text-white"><?= count($lowStockItems) ?></p>
+                </div>
+                <div class="rounded-3xl bg-red-500/22 p-4 ring-1 ring-red-200/20">
+                    <p class="text-xs font-black uppercase tracking-wide text-red-50/80"><?= esc(lang('Inventory.critical')) ?> <?= esc(lang('Inventory.items')) ?></p>
+                    <p class="mt-2 text-3xl font-black text-white"><?= $criticalCount ?></p>
+                </div>
+                <div class="rounded-3xl bg-amber-400/20 p-4 ring-1 ring-amber-100/20">
+                    <p class="text-xs font-black uppercase tracking-wide text-amber-50/80"><?= esc(lang('Inventory.low')) ?> <?= esc(lang('Inventory.items')) ?></p>
+                    <p class="mt-2 text-3xl font-black text-white"><?= $lowCount ?></p>
+                </div>
+                <div class="rounded-3xl bg-emerald-400/18 p-4 ring-1 ring-emerald-100/20">
+                    <p class="text-xs font-black uppercase tracking-wide text-emerald-50/80"><?= esc(lang('Inventory.reorderList')) ?></p>
+                    <p class="mt-2 text-3xl font-black text-white"><?= $openReorderCount ?></p>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Summary Cards -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-orange-500/10 border border-white/30 p-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-exclamation-triangle text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 font-medium"><?= lang('Inventory.lowStock') ?></p>
-                            <p class="text-2xl font-bold text-gray-900"><?= count($items) ?></p>
-                        </div>
-                    </div>
+    <section class="overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-200/60">
+        <div class="flex flex-col gap-4 border-b border-slate-200/80 bg-gradient-to-r from-white via-orange-50/90 to-red-50/80 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-center gap-3">
+                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-600 text-white shadow-lg shadow-orange-500/25">
+                    <i class="fas fa-boxes-stacked"></i>
+                </span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-950"><?= esc(lang('Inventory.lowStockItems')) ?></h2>
+                    <p class="text-sm font-bold text-slate-500"><span class="total-items-count">0</span> <?= esc(lang('Inventory.items')) ?></p>
                 </div>
+            </div>
 
-                <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-red-500/10 border border-white/30 p-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-times-circle text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 font-medium"><?= lang('Inventory.critical') ?> <?= lang('Inventory.items') ?></p>
-                            <p class="text-2xl font-bold text-gray-900">
-                                <?php
-                                $criticalCount = 0;
-                                foreach ($items as $item) {
-                                    if ($item['quantity'] == 0) {
-                                        $criticalCount++;
-                                    }
-                                }
-                                echo $criticalCount;
-                                ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-yellow-500/10 border border-white/30 p-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-clock text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 font-medium"><?= lang('Inventory.low') ?> <?= lang('Inventory.items') ?></p>
-                            <p class="text-2xl font-bold text-gray-900">
-                                <?= count($items) - $criticalCount ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="exportLowStockToPDF()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-3.5 py-2 text-sm font-extrabold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-700">
+                    <i class="fas fa-file-pdf text-red-600"></i>
+                    <span><?= esc(lang('Inventory.exportToPDF')) ?></span>
+                </button>
+                <button type="button" onclick="printLowStockTable()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-3.5 py-2 text-sm font-extrabold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50">
+                    <i class="fas fa-print text-slate-600"></i>
+                    <span><?= esc(lang('Inventory.exportToPrint')) ?></span>
+                </button>
+                <button type="button" onclick="exportLowStockToCSV()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-3.5 py-2 text-sm font-extrabold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-emerald-50 hover:text-emerald-700">
+                    <i class="fas fa-file-csv text-emerald-600"></i>
+                    <span><?= esc(lang('Inventory.exportToCSV')) ?></span>
+                </button>
             </div>
         </div>
 
-        <!-- Enhanced Table Container -->
-        <div class="mb-8">
-            <div class="backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-xl shadow-gray-500/10 overflow-hidden">
-                <!-- Table Header with Export Controls -->
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= lang('Inventory.lowStockItems') ?></h3>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                        <div class="text-sm text-gray-600">
-                                <span class="total-items-count">0</span> <?= lang('Inventory.items') ?>
-                            </div>
-                            <!-- Export Buttons -->
-                            <button onclick="exportLowStockToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                <?= lang('Inventory.exportToPDF') ?>
-                            </button>
-                            <button onclick="printLowStockTable()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-print mr-2 text-gray-600"></i>
-                                <?= lang('Inventory.exportToPrint') ?>
-                            </button>
-                            <button onclick="exportLowStockToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                <?= lang('Inventory.exportToCSV') ?>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Enhanced Table with Advanced Styling -->
-                <div class="overflow-x-auto">
-                    <div class="dataTables-wrapper">
-                        <table id="lowStockTable" class="w-full min-w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-hashtag text-orange-600"></i>
-                                            <span><?= lang('Inventory.id') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-box text-orange-600"></i>
-                                            <span><?= lang('Inventory.itemName') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-tags text-orange-600"></i>
-                                            <span><?= lang('Inventory.category') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-layer-group text-orange-600"></i>
-                                            <span><?= lang('Inventory.quantity') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-exclamation-triangle text-orange-600"></i>
-                                            <span><?= lang('Inventory.minimumQuantityRequired') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-dollar-sign text-orange-600"></i>
-                                            <span><?= lang('Inventory.unitPrice') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-truck text-orange-600"></i>
-                                            <span><?= lang('Inventory.supplier') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-calendar text-orange-600"></i>
-                                            <span><?= lang('Inventory.expiryDate') ?></span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-cogs text-orange-600"></i>
-                                            <span><?= lang('Inventory.actions') ?></span>
-                                        </div>
-                                    </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <!-- Data will be loaded via DataTables -->
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
+        <div class="table-container overflow-x-auto">
+            <div class="dataTables-wrapper">
+                <table id="lowStockTable" class="w-full min-w-full">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-hashtag text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.id')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-box text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.itemName')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-tags text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.category')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-layer-group text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.quantity')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-triangle-exclamation text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.minimumQuantityRequired')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-shekel-sign text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.unitPrice')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-truck text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.supplier')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-calendar text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.expiryDate')) ?></span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-sliders text-orange-600"></i>
+                                    <span><?= esc(lang('Inventory.actions')) ?></span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        <!-- Data will be loaded via DataTables -->
+                    </tbody>
+                </table>
             </div>
         </div>
+    </section>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-            <a href="<?= base_url('inventory/create') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-plus mr-2"></i><?= lang('Inventory.addNewItem') ?>
-            </a>
-            
-            <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-list mr-2"></i><?= lang('Inventory.inventoryItems') ?>
-            </a>
-        </div>
+    <div class="grid gap-3 md:grid-cols-2">
+        <a href="<?= base_url('inventory/create') ?>" class="group flex items-center justify-between gap-4 rounded-[1.35rem] bg-gradient-to-r from-emerald-600 to-teal-700 p-4 text-white shadow-xl shadow-emerald-900/18 transition hover:-translate-y-0.5">
+            <span class="flex items-center gap-3">
+                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/18 ring-1 ring-white/20"><i class="fas fa-plus"></i></span>
+                <span class="text-sm font-black"><?= esc(lang('Inventory.addNewItem')) ?></span>
+            </span>
+            <i class="fas fa-arrow-right rtl-back-icon opacity-80 transition group-hover:translate-x-0.5"></i>
+        </a>
+
+        <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="group flex items-center justify-between gap-4 rounded-[1.35rem] bg-gradient-to-r from-blue-700 to-indigo-800 p-4 text-white shadow-xl shadow-blue-900/18 transition hover:-translate-y-0.5">
+            <span class="flex items-center gap-3">
+                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/18 ring-1 ring-white/20"><i class="fas fa-list"></i></span>
+                <span class="text-sm font-black"><?= esc(lang('Inventory.inventoryItems')) ?></span>
+            </span>
+            <i class="fas fa-arrow-right rtl-back-icon opacity-80 transition group-hover:translate-x-0.5"></i>
+        </a>
     </div>
 </div>
 
-<div id="reorderQtyModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/40" onclick="closeReorderQtyModal()"></div>
-    <div class="relative flex min-h-full items-center justify-center p-4">
-        <div class="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-                <h4 class="text-base font-semibold text-gray-900"><?= esc(lang('Inventory.reorderQtyPromptTitle')) ?></h4>
-                <button type="button" class="text-gray-500 hover:text-gray-700" onclick="closeReorderQtyModal()"><i class="fas fa-times"></i></button>
+<div id="reorderQtyModal" class="fixed inset-0 z-[2147483500] hidden">
+    <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" onclick="closeReorderQtyModal()"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4">
+        <div class="w-full max-w-md overflow-hidden rounded-[1.65rem] border border-slate-200 bg-white shadow-2xl shadow-slate-950/25">
+            <div class="flex items-center justify-between gap-4 border-b border-slate-200 bg-gradient-to-r from-white via-orange-50 to-red-50 px-5 py-4">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-600 text-white shadow-lg shadow-orange-500/25">
+                        <i class="fas fa-cart-plus"></i>
+                    </span>
+                    <h4 class="text-base font-black text-slate-950"><?= esc(lang('Inventory.reorderQtyPromptTitle')) ?></h4>
+                </div>
+                <button type="button" class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-slate-800" onclick="closeReorderQtyModal()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <form id="reorderQtyForm" class="space-y-4 p-5">
                 <input type="hidden" id="reorderInventoryId">
                 <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Inventory.reorderQtyLabel')) ?></label>
-                    <input type="number" min="1" step="1" id="reorderQtyInput" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" required>
-                    <p class="mt-1 text-xs text-gray-500"><?= esc(lang('Inventory.reorderQtyHelp')) ?></p>
+                    <label class="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-600"><?= esc(lang('Inventory.reorderQtyLabel')) ?></label>
+                    <input type="number" min="1" step="1" id="reorderQtyInput" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 shadow-sm focus:border-orange-400 focus:ring-4 focus:ring-orange-100" required>
+                    <p class="mt-2 text-xs font-semibold text-slate-500"><?= esc(lang('Inventory.reorderQtyHelp')) ?></p>
                 </div>
-                <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeReorderQtyModal()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"><?= esc(lang('Inventory.cancel')) ?></button>
-                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"><?= esc(lang('Inventory.saveToReorderList')) ?></button>
+                <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeReorderQtyModal()" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-slate-50"><?= esc(lang('Inventory.cancel')) ?></button>
+                    <button type="submit" class="rounded-xl bg-gradient-to-r from-orange-600 to-red-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5"><?= esc(lang('Inventory.saveToReorderList')) ?></button>
                 </div>
             </form>
         </div>
