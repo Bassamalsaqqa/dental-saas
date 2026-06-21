@@ -31,6 +31,61 @@ $statusClass = static function (string $status): string {
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 <style>
+.finance-payables-wrap {
+    width: min(100%, 1500px);
+}
+
+.finance-payables-hero {
+    border-radius: 1.75rem;
+    background:
+        radial-gradient(circle at 10% 8%, rgba(255, 255, 255, 0.24), transparent 30%),
+        radial-gradient(circle at 90% 0%, rgba(251, 191, 36, 0.30), transparent 34%),
+        linear-gradient(135deg, #b45309 0%, #c2410c 42%, #0f172a 100%);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+[dir="rtl"] .finance-payables-hero {
+    background:
+        radial-gradient(circle at 90% 8%, rgba(255, 255, 255, 0.24), transparent 30%),
+        radial-gradient(circle at 10% 0%, rgba(251, 191, 36, 0.30), transparent 34%),
+        linear-gradient(225deg, #b45309 0%, #c2410c 42%, #0f172a 100%);
+}
+
+.finance-payables-card,
+.finance-payables-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.finance-payables-card {
+    border-radius: 1.5rem;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.finance-payables-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -18% -46% auto;
+    width: 72%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    z-index: -1;
+}
+
+[dir="rtl"] .finance-payables-card::after {
+    inset-inline-start: -18%;
+    inset-inline-end: auto;
+}
+
+.finance-payables-panel {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(226, 232, 240, 0.92);
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
 .dataTables_wrapper {
     position: relative !important;
 }
@@ -66,8 +121,8 @@ $statusClass = static function (string $status): string {
 }
 .dataTables_length select:focus,
 .dataTables_filter input:focus {
-    border-color: #10b981 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14) !important;
 }
 .dataTables_paginate .paginate_button {
     padding: 8px 12px !important;
@@ -82,8 +137,8 @@ $statusClass = static function (string $status): string {
     transition: all 0.2s ease !important;
 }
 .dataTables_paginate .paginate_button.current {
-    background-color: #059669 !important;
-    border-color: #059669 !important;
+    background-color: #d97706 !important;
+    border-color: #d97706 !important;
     color: white !important;
 }
 .dataTables_wrapper > .row:first-child,
@@ -110,100 +165,100 @@ $statusClass = static function (string $status): string {
 }
 </style>
 
-<div class="min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="container mx-auto px-3 py-5 sm:px-4 sm:py-6">
-        <div class="mb-5 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-100 via-orange-100 to-slate-100 p-5 shadow-xl shadow-amber-900/10 sm:p-6">
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div class="flex items-start gap-3">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-600 text-white shadow-lg shadow-amber-700/20">
+<div dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="finance-payables-wrap mx-auto space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <section class="finance-payables-hero overflow-hidden border border-white/20 p-5 text-white sm:p-6 lg:p-7">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg shadow-black/10 ring-1 ring-white/20">
                         <i class="fas fa-file-invoice-dollar text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-bold uppercase tracking-wide text-amber-800"><?= esc($tr('accountsPayableAging')) ?></p>
-                        <h1 class="text-2xl font-black text-slate-950 sm:text-3xl"><?= esc($tr('supplierPayables')) ?></h1>
-                        <p class="mt-1 max-w-3xl text-sm font-medium text-slate-700"><?= esc($tr('supplierPayablesHelp')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide text-amber-100/90"><?= esc($tr('accountsPayableAging')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc($tr('supplierPayables')) ?></h1>
+                        <p class="mt-2 max-w-3xl text-sm font-semibold text-amber-50/90"><?= esc($tr('supplierPayablesHelp')) ?></p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (has_permission('finance', 'create')): ?>
-                        <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-amber-600 hover:to-orange-700">
+                        <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-amber-800 shadow-lg shadow-black/10 transition hover:bg-amber-50">
                             <i class="fas fa-plus"></i>
                             <?= esc($tr('newSupplierExpense')) ?>
                         </a>
                     <?php endif; ?>
                     <?php if (!empty($can_access_finance_reports)): ?>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/80 px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-white">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
                             <i class="fas fa-chart-simple"></i>
                             <?= esc($tr('reports')) ?>
                         </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-slate-800">
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                         <?= esc($tr('financeManagement')) ?>
                     </a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <form method="get" action="<?= base_url('finance/payables') ?>" class="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <form method="get" action="<?= base_url('finance/payables') ?>" class="finance-payables-panel p-5">
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(180px,240px)_auto] sm:items-end">
                 <div>
-                    <label for="asOfDate" class="mb-2 block text-sm font-bold text-slate-700"><?= esc($tr('asOfDate')) ?></label>
+                    <label for="asOfDate" class="mb-2 block text-xs font-black uppercase tracking-wide text-slate-600"><?= esc($tr('asOfDate')) ?></label>
                     <input id="asOfDate" type="date" name="as_of" value="<?= esc($as_of_date ?? date('Y-m-d')) ?>" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15">
                 </div>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-700 px-4 py-3 text-sm font-black text-white shadow-lg shadow-amber-500/20 transition hover:from-amber-600 hover:to-orange-800">
                     <i class="fas fa-filter"></i>
                     <?= esc($tr('filter')) ?>
                 </button>
             </div>
         </form>
 
-        <div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div class="rounded-2xl border border-amber-200 bg-amber-100 p-5 shadow-md shadow-amber-900/10">
-                <p class="text-xs font-bold uppercase tracking-wide text-amber-800"><?= esc($tr('openBalance')) ?></p>
-                <p class="mt-2 text-2xl font-black text-slate-950"><?= $formatMoney($summary['open_balance'] ?? 0) ?></p>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="finance-payables-card bg-gradient-to-br from-amber-500 to-orange-700 p-5 text-white shadow-amber-500/25">
+                <p class="text-xs font-black uppercase tracking-wide text-amber-50/95"><?= esc($tr('openBalance')) ?></p>
+                <p class="mt-3 text-3xl font-black"><?= $formatMoney($summary['open_balance'] ?? 0) ?></p>
             </div>
-            <div class="rounded-2xl border border-sky-200 bg-sky-100 p-5 shadow-md shadow-sky-900/10">
-                <p class="text-xs font-bold uppercase tracking-wide text-sky-800"><?= esc($tr('openBills')) ?></p>
-                <p class="mt-2 text-2xl font-black text-slate-950"><?= number_format((int) ($summary['open_count'] ?? 0)) ?></p>
+            <div class="finance-payables-card bg-gradient-to-br from-sky-600 to-blue-900 p-5 text-white shadow-sky-500/25">
+                <p class="text-xs font-black uppercase tracking-wide text-sky-50/90"><?= esc($tr('openBills')) ?></p>
+                <p class="mt-3 text-3xl font-black"><?= number_format((int) ($summary['open_count'] ?? 0)) ?></p>
             </div>
-            <div class="rounded-2xl border border-rose-200 bg-rose-100 p-5 shadow-md shadow-rose-900/10">
-                <p class="text-xs font-bold uppercase tracking-wide text-rose-800"><?= esc($tr('overdueBills')) ?></p>
-                <p class="mt-2 text-2xl font-black text-slate-950"><?= number_format((int) ($summary['overdue_count'] ?? 0)) ?></p>
+            <div class="finance-payables-card bg-gradient-to-br from-rose-600 to-pink-800 p-5 text-white shadow-rose-500/25">
+                <p class="text-xs font-black uppercase tracking-wide text-rose-50/90"><?= esc($tr('overdueBills')) ?></p>
+                <p class="mt-3 text-3xl font-black"><?= number_format((int) ($summary['overdue_count'] ?? 0)) ?></p>
             </div>
-            <div class="rounded-2xl border border-slate-300 bg-slate-200 p-5 shadow-md shadow-slate-900/10">
-                <p class="text-xs font-bold uppercase tracking-wide text-slate-700"><?= esc($tr('overdueBalance')) ?></p>
-                <p class="mt-2 text-2xl font-black text-slate-950"><?= $formatMoney($summary['overdue_balance'] ?? 0) ?></p>
+            <div class="finance-payables-card bg-gradient-to-br from-slate-700 to-slate-950 p-5 text-white shadow-slate-500/25">
+                <p class="text-xs font-black uppercase tracking-wide text-slate-100/90"><?= esc($tr('overdueBalance')) ?></p>
+                <p class="mt-3 text-3xl font-black"><?= $formatMoney($summary['overdue_balance'] ?? 0) ?></p>
             </div>
         </div>
 
-        <div class="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
             <?php foreach ($bucketCards as $bucket => $card): ?>
-                <div class="rounded-2xl border bg-gradient-to-br p-4 shadow-sm <?= esc($card['class']) ?>">
+                <div class="rounded-2xl border bg-gradient-to-br p-4 shadow-lg shadow-slate-200/60 <?= esc($card['class']) ?>">
                     <p class="text-xs font-black uppercase tracking-wide"><?= esc($card['label']) ?></p>
                     <p class="mt-2 text-lg font-black"><?= $formatMoney($agingSummary[$bucket] ?? 0) ?></p>
                 </div>
             <?php endforeach; ?>
         </div>
 
-        <div class="mb-8">
-            <div id="tableView" class="bg-white rounded-xl border border-gray-200 shadow-lg">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+        <div>
+            <div id="tableView" class="finance-payables-panel">
+                <div class="border-b border-slate-100 bg-gradient-to-r from-slate-800 to-slate-950 px-6 py-5 text-white">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('apAgingDetail')) ?></h3>
+                            <div class="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-lg shadow-amber-300/40"></div>
+                            <h3 class="text-lg font-black"><?= esc($tr('apAgingDetail')) ?></h3>
                         </div>
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-3">
-                            <button onclick="exportPayablesToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            <button onclick="exportPayablesToPDF()" class="inline-flex items-center rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
                                 <i class="fas fa-file-pdf mr-2 text-red-600"></i>
                                 <?= esc($tr('exportPdf')) ?>
                             </button>
-                            <button onclick="printPayables()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-print mr-2 text-gray-600"></i>
+                            <button onclick="printPayables()" class="inline-flex items-center rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                                <i class="fas fa-print mr-2 text-slate-200"></i>
                                 <?= esc($tr('print')) ?>
                             </button>
-                            <button onclick="exportPayablesToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            <button onclick="exportPayablesToCSV()" class="inline-flex items-center rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
                                 <?= esc($tr('exportCsv')) ?>
                             </button>
@@ -214,45 +269,45 @@ $statusClass = static function (string $status): string {
                 <div class="overflow-x-auto">
                     <div class="dataTables-wrapper">
                         <table id="payablesTable" class="w-full min-w-full">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-slate-100/95">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-building text-green-600"></i>
                                         <span><?= esc($tr('supplierOrVendor')) ?></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-receipt text-green-600"></i>
                                         <span><?= esc($tr('transaction')) ?></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-tag text-green-600"></i>
                                         <span><?= esc($tr('expenses')) ?></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-dollar-sign text-green-600"></i>
                                         <span><?= esc($tr('total')) ?></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-info-circle text-green-600"></i>
                                         <span><?= esc($tr('status')) ?></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-calendar text-green-600"></i>
                                         <span><?= esc($tr('dueDate')) ?></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-cogs text-green-600"></i>
                                         <span><?= esc($tr('actions')) ?></span>
