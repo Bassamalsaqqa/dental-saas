@@ -102,12 +102,11 @@ $calendarStatusLegend = [
     ['status' => 'no_show', 'class' => 'bg-yellow-500', 'label' => lang('UI.appointmentStatusNoShow')],
 ];
 ?>
-<div class="appointment-calendar-page min-h-screen">
-<div class="w-full space-y-4 px-3 py-3 sm:px-4 lg:px-5">
-    <section class="overflow-hidden rounded-2xl border border-blue-900/10 bg-slate-950 shadow-xl shadow-blue-900/16">
-        <div class="relative p-4 sm:p-5">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_15%_12%,rgba(59,130,246,.56),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(16,185,129,.36),transparent_26%),linear-gradient(135deg,#0f3f90_0%,#1656c1_52%,#0f7cc1_100%)]"></div>
-            <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.82fr)] xl:items-center">
+<div class="appointment-calendar-page">
+<div class="appointment-calendar-wrap w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
+    <section class="appointment-calendar-hero overflow-hidden rounded-[1.65rem] border border-white/20 text-white shadow-2xl shadow-blue-900/22">
+        <div class="relative p-5 sm:p-6 lg:p-7">
+            <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(30rem,.78fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
                     <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
                         <i class="fas fa-calendar-days text-2xl"></i>
@@ -125,19 +124,19 @@ $calendarStatusLegend = [
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    <div class="rounded-2xl bg-white/15 p-3 ring-1 ring-white/15 backdrop-blur">
+                    <div class="appointment-calendar-hero-stat">
                         <p class="text-[11px] font-black uppercase tracking-wide text-blue-100"><?= esc(lang('UI.appointmentTodaySchedule')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $calendarTodayCount ?></p>
                     </div>
-                    <div class="rounded-2xl bg-emerald-400/20 p-3 ring-1 ring-emerald-200/25 backdrop-blur">
+                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--emerald">
                         <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('UI.appointmentActive')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $calendarUpcomingCount ?></p>
                     </div>
-                    <div class="rounded-2xl bg-cyan-400/20 p-3 ring-1 ring-cyan-200/20 backdrop-blur">
+                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--cyan">
                         <p class="text-[11px] font-black uppercase tracking-wide text-cyan-100"><?= esc(lang('UI.dashboardCompleted')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $calendarCompletedCount ?></p>
                     </div>
-                    <div class="rounded-2xl bg-rose-400/20 p-3 ring-1 ring-rose-200/25 backdrop-blur">
+                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--rose">
                         <p class="text-[11px] font-black uppercase tracking-wide text-rose-100"><?= esc(lang('UI.appointmentStatusCancelled')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $calendarCancelledCount ?></p>
                     </div>
@@ -158,8 +157,8 @@ $calendarStatusLegend = [
         </div>
     </section>
 
-    <section class="appointment-calendar-card overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-xl shadow-blue-900/8">
-        <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-blue-50/65 to-emerald-50/65 p-4 sm:p-5">
+    <section class="appointment-calendar-panel overflow-hidden">
+        <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-blue-50/90 to-cyan-50/80 p-4 sm:p-5 lg:p-6">
             <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div class="min-w-0">
                     <div class="flex items-center gap-3">
@@ -186,7 +185,7 @@ $calendarStatusLegend = [
                 </div>
             </div>
 
-            <div class="mt-5 rounded-2xl border border-slate-200/80 bg-white/90 p-3 shadow-sm">
+            <div class="mt-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-lg shadow-slate-200/55">
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
                     <div>
                         <label for="calendarSearchFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentSearch')) ?></label>
@@ -233,7 +232,7 @@ $calendarStatusLegend = [
             </div>
         </div>
 
-        <div class="p-3 sm:p-4">
+        <div class="bg-slate-50/55 p-3 sm:p-4 lg:p-5">
             <div id="calendar" class="appointment-calendar-shell w-full"></div>
         </div>
     </section>
@@ -329,18 +328,58 @@ $calendarStatusLegend = [
 <style>
     .appointment-calendar-page {
         font-family: var(--app-font-sans);
-        background:
-            radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.12), transparent 30%),
-            radial-gradient(circle at 92% 12%, rgba(16, 185, 129, 0.1), transparent 28%),
-            linear-gradient(135deg, #eef5ff 0%, #f8fafc 46%, #ecfdf5 100%);
+        background: transparent;
     }
 
     [dir="rtl"] .appointment-calendar-page {
         font-family: var(--app-font-ar);
     }
 
-    .appointment-calendar-card {
-        box-shadow: 0 22px 54px -38px rgba(15, 23, 42, 0.46);
+    .appointment-calendar-wrap {
+        max-width: 1520px;
+        margin-inline: auto;
+    }
+
+    .appointment-calendar-hero {
+        background:
+            radial-gradient(circle at 12% 12%, rgba(34, 211, 238, 0.52), transparent 30%),
+            radial-gradient(circle at 82% 4%, rgba(16, 185, 129, 0.38), transparent 27%),
+            linear-gradient(135deg, #123d91 0%, #1757c2 44%, #0f766e 100%);
+    }
+
+    [dir="rtl"] .appointment-calendar-hero {
+        background:
+            radial-gradient(circle at 88% 12%, rgba(34, 211, 238, 0.52), transparent 30%),
+            radial-gradient(circle at 18% 4%, rgba(16, 185, 129, 0.38), transparent 27%),
+            linear-gradient(225deg, #123d91 0%, #1757c2 44%, #0f766e 100%);
+    }
+
+    .appointment-calendar-hero-stat {
+        border-radius: 1.15rem;
+        padding: 0.9rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+    }
+
+    .appointment-calendar-hero-stat--emerald {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.32), rgba(255, 255, 255, 0.1));
+    }
+
+    .appointment-calendar-hero-stat--cyan {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.28), rgba(255, 255, 255, 0.1));
+    }
+
+    .appointment-calendar-hero-stat--rose {
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(255, 255, 255, 0.1));
+    }
+
+    .appointment-calendar-panel {
+        border-radius: 1.5rem;
+        border: 1px solid rgba(203, 213, 225, 0.88);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 24px 62px -42px rgba(15, 23, 42, 0.52);
     }
 
     .appointment-calendar-shell {
@@ -358,6 +397,8 @@ $calendarStatusLegend = [
         border-radius: 1.25rem;
         overflow: hidden;
         background: #fff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 16px 34px -28px rgba(15, 23, 42, 0.45);
     }
 
     .appointment-calendar-shell .fc-toolbar-title {
@@ -369,11 +410,11 @@ $calendarStatusLegend = [
     .appointment-calendar-shell .fc-button {
         border-radius: 0.75rem;
         border-color: #d1d5db;
-        background: #fff;
-        color: #374151;
+        background: #f8fafc;
+        color: #334155;
         font-weight: 800;
         text-transform: none;
-        box-shadow: none;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
     }
 
     .appointment-calendar-shell .fc-button:hover,
