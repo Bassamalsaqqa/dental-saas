@@ -15,7 +15,7 @@ button.dt-button {
     border: none !important;
     box-shadow: none !important;
     text-shadow: none !important;
-    margin-right: 0.5rem !important;
+    margin-inline-end: 0.5rem !important;
 }
 button.dt-button:hover, button.dt-button:active {
     background-image: none !important;
@@ -32,100 +32,98 @@ button.dt-button:hover, button.dt-button:active {
 .text-emerald-600 { color: #059669 !important; }
 /* Hide default buttons */
 .dt-buttons { display: none !important; }
+body.cp-clinics-page {
+    background: #ffffff !important;
+}
+body.cp-clinics-page .cp-content {
+    background: #ffffff !important;
+}
+.cp-clinics {
+    background: #ffffff;
+}
+#clinicsTable.dataTable {
+    margin: 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0;
+}
+#clinicsTable.dataTable thead th {
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+#clinicsTable.dataTable tbody td {
+    padding: 0.7rem 1rem !important;
+    vertical-align: middle;
+}
+#clinicsTable.dataTable tbody tr:hover {
+    background: #f8fafc;
+}
+#clinicsTable_wrapper .dataTables_info {
+    padding: 0.85rem 1rem 1rem !important;
+    color: #64748b !important;
+    font-weight: 600;
+}
+#clinicsTable_wrapper .dataTables_paginate {
+    padding: 0.65rem 1rem 1rem !important;
+}
+#clinicsTable_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 0.75rem !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-inline-start: 0.25rem !important;
+    padding: 0.4rem 0.75rem !important;
+    font-weight: 700;
+}
 </style>
+<script>
+document.body.classList.add('cp-clinics-page');
+</script>
 
 <div class="cp-clinics">
-    <div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-        <section class="overflow-hidden rounded-[1.75rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-emerald-950/25">
-            <div class="relative p-5 sm:p-6 lg:p-7">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_14%_10%,rgba(45,212,191,.46),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(59,130,246,.34),transparent_26%),linear-gradient(135deg,#0f172a_0%,#047857_46%,#1d4ed8_100%)]"></div>
-                <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/55 to-transparent"></div>
-                <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
-                    <div class="flex min-w-0 items-start gap-4">
-                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-3xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
-                            <i class="fas fa-hospital-user text-2xl"></i>
-                        </div>
+    <div class="w-full space-y-3 px-2 py-3 sm:px-4 lg:px-5">
+        <section class="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
+            <div class="bg-gradient-to-r from-slate-950 via-emerald-800 to-teal-700 px-5 py-4 text-white sm:px-6">
+                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="flex min-w-0 items-center gap-4">
+                        <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20">
+                            <i class="fas fa-hospital-user text-xl"></i>
+                        </span>
                         <div class="min-w-0">
-                            <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-white/20">
-                                <i class="fas fa-database"></i>
-                                <span>Tenant registry</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h1 class="text-2xl font-black tracking-tight text-white/95 sm:text-3xl">Clinic Registry</h1>
+                                <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-emerald-200/25">Global Mode</span>
                             </div>
-                            <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">Clinic Registry</h1>
-                            <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-emerald-50/90 sm:text-base">Review clinic lifecycle, subscription state, active access, revenue signal, and operator actions from one control-plane workspace.</p>
-                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">
-                                <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25">
-                                    <i class="fas fa-shield-alt me-1"></i>Global Mode
-                                </span>
-                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20"><?= number_format($stats['active'] ?? 0) ?> active clinics</span>
-                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20"><?= number_format($stats['filtered'] ?? 0) ?> in current view</span>
-                            </div>
+                            <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-emerald-50/90">Manage tenant clinics, lifecycle status, plan assignment, admin access, and operator actions.</p>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-3 sm:flex-row xl:flex-col xl:items-stretch">
-                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-emerald-800 shadow-xl shadow-slate-950/20 transition hover:-translate-y-0.5 hover:bg-emerald-50">
+                    <div class="grid grid-cols-3 gap-2 sm:min-w-[24rem]">
+                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
+                            <p class="text-[11px] font-bold text-emerald-100">Total</p>
+                            <p class="text-2xl font-black text-white"><?= number_format($stats['total'] ?? 0) ?></p>
+                        </div>
+                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
+                            <p class="text-[11px] font-bold text-emerald-100">Active</p>
+                            <p class="text-2xl font-black text-white"><?= number_format($stats['active'] ?? 0) ?></p>
+                        </div>
+                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
+                            <p class="text-[11px] font-bold text-emerald-100">View</p>
+                            <p class="text-2xl font-black text-white"><?= number_format($stats['filtered'] ?? 0) ?></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-emerald-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-50">
                             <i class="fas fa-plus"></i>
                             <span>Onboard Clinic</span>
                         </a>
-                        <a href="<?= base_url('controlplane/plans') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/15 px-5 py-3 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                        <a href="<?= base_url('controlplane/plans') ?>" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white/15 px-4 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
                             <i class="fas fa-layer-group"></i>
-                            <span>Manage Plans</span>
+                            <span>Plans</span>
                         </a>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <section class="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br from-emerald-800 via-teal-700 to-cyan-700 p-4 text-white shadow-xl shadow-emerald-900/20">
-                <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-white/75">Total clinics</p>
-                        <p class="mt-2 text-3xl font-black"><?= number_format($stats['total'] ?? 0) ?></p>
-                        <p class="mt-1 text-xs font-bold text-white/75">Registered tenant clinics</p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20"><i class="fas fa-hospital"></i></span>
-                </div>
-            </article>
-            <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br from-blue-800 via-sky-700 to-cyan-700 p-4 text-white shadow-xl shadow-blue-900/20">
-                <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-white/75">Active clinics</p>
-                        <p class="mt-2 text-3xl font-black"><?= number_format($stats['active'] ?? 0) ?></p>
-                        <p class="mt-1 text-xs font-bold text-white/75">Currently enabled tenants</p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
-                </div>
-            </article>
-            <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br from-violet-800 via-indigo-700 to-slate-950 p-4 text-white shadow-xl shadow-indigo-900/20">
-                <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-white/75">Current view</p>
-                        <p class="mt-2 text-3xl font-black"><?= number_format($stats['filtered'] ?? 0) ?></p>
-                        <p class="mt-1 text-xs font-bold text-white/75">After search and filters</p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20"><i class="fas fa-filter"></i></span>
-                </div>
-            </article>
-        </section>
-
-        <section class="overflow-hidden rounded-[1.4rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-900/10">
-            <div class="border-b border-slate-200 bg-gradient-to-r from-white via-emerald-50/50 to-blue-50/60 p-4 sm:p-5">
-                <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                    <div>
-                        <div class="flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-700 to-teal-600 text-white shadow-lg">
-                                <i class="fas fa-list-check"></i>
-                            </span>
-                            <div>
-                                <h2 class="text-xl font-black text-slate-950">Clinic Registry</h2>
-                                <p class="mt-1 text-sm font-semibold text-slate-500">Search, filter, export, and open clinic operations.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(16rem,1fr)_12rem_14rem_auto] xl:min-w-[52rem]">
+            <div class="border-b border-slate-200 bg-slate-50/80 p-3 sm:p-4">
+                <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,1fr)_12rem_14rem_auto]">
                         <div class="relative">
                             <i class="fas fa-search pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ltr:left-3 rtl:right-3"></i>
                             <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="Search clinics or admin email" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 ltr:pl-10 rtl:pr-10">
@@ -148,7 +146,7 @@ button.dt-button:hover, button.dt-button:active {
                             </button>
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap justify-start gap-2 xl:justify-end">
                         <button onclick="exportToPDF()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-rose-50 hover:text-rose-700">
                             <i class="fas fa-file-pdf text-rose-600"></i>PDF
                         </button>
@@ -166,37 +164,37 @@ button.dt-button:hover, button.dt-button:active {
                 <table id="clinicsTable" class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-hospital text-emerald-600"></i>
                                     <span>Clinic Name</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-info-circle text-emerald-600"></i>
                                     <span>Status</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-layer-group text-emerald-600"></i>
                                     <span>Plan</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-user-shield text-emerald-600"></i>
                                     <span>Admin Email</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-dollar-sign text-emerald-600"></i>
                                     <span>MRR</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-end text-xs font-black uppercase tracking-wide text-slate-600">
+                            <th class="text-end text-xs font-black uppercase tracking-wide text-slate-600">
                                 <div class="flex items-center justify-end gap-2">
                                     <i class="fas fa-cogs text-emerald-600"></i>
                                     <span>Actions</span>
