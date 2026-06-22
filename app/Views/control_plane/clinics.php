@@ -34,203 +34,180 @@ button.dt-button:hover, button.dt-button:active {
 .dt-buttons { display: none !important; }
 </style>
 
-<!-- Enhanced Clinic Management with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
-
-    <div class="container mx-auto relative z-10 px-4 py-6">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-hospital-user text-xl"></i>
+<div class="cp-clinics">
+    <div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
+        <section class="overflow-hidden rounded-[1.75rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-emerald-950/25">
+            <div class="relative p-5 sm:p-6 lg:p-7">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_14%_10%,rgba(45,212,191,.46),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(59,130,246,.34),transparent_26%),linear-gradient(135deg,#0f172a_0%,#047857_46%,#1d4ed8_100%)]"></div>
+                <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/55 to-transparent"></div>
+                <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+                    <div class="flex min-w-0 items-start gap-4">
+                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-3xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
+                            <i class="fas fa-hospital-user text-2xl"></i>
                         </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Clinic Registry</h1>
-                            <p class="text-gray-600">Manage clinics, subscriptions, and lifecycle</p>
+                        <div class="min-w-0">
+                            <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-white/20">
+                                <i class="fas fa-database"></i>
+                                <span>Tenant registry</span>
+                            </div>
+                            <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">Clinic Registry</h1>
+                            <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-emerald-50/90 sm:text-base">Review clinic lifecycle, subscription state, active access, revenue signal, and operator actions from one control-plane workspace.</p>
+                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">
+                                <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25">
+                                    <i class="fas fa-shield-alt me-1"></i>Global Mode
+                                </span>
+                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20"><?= number_format($stats['active'] ?? 0) ?> active clinics</span>
+                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20"><?= number_format($stats['filtered'] ?? 0) ?> in current view</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-plus mr-2"></i>
-                            Onboard Clinic
+                    <div class="flex flex-col gap-3 sm:flex-row xl:flex-col xl:items-stretch">
+                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-emerald-800 shadow-xl shadow-slate-950/20 transition hover:-translate-y-0.5 hover:bg-emerald-50">
+                            <i class="fas fa-plus"></i>
+                            <span>Onboard Clinic</span>
+                        </a>
+                        <a href="<?= base_url('controlplane/plans') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/15 px-5 py-3 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Manage Plans</span>
                         </a>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Enhanced Statistics Cards -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-                <!-- Total Clinics Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-hospital text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1.5 rounded-full border border-emerald-200">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                <span class="text-emerald-700 font-bold text-xs">All Time</span>
-                            </div>
-                        </div>
-                        <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Clinics</p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-emerald-900"><?= number_format($stats['total'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium">Registered Clinics</p>
-                        </div>
+        <section class="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br from-emerald-800 via-teal-700 to-cyan-700 p-4 text-white shadow-xl shadow-emerald-900/20">
+                <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-white/75">Total clinics</p>
+                        <p class="mt-2 text-3xl font-black"><?= number_format($stats['total'] ?? 0) ?></p>
+                        <p class="mt-1 text-xs font-bold text-white/75">Registered tenant clinics</p>
                     </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20"><i class="fas fa-hospital"></i></span>
                 </div>
-
-                <!-- Active Clinics Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-check-circle text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span class="text-green-700 font-bold text-xs">Active</span>
-                            </div>
-                        </div>
-                        <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Clinics</p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently Active</p>
-                        </div>
+            </article>
+            <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br from-blue-800 via-sky-700 to-cyan-700 p-4 text-white shadow-xl shadow-blue-900/20">
+                <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-white/75">Active clinics</p>
+                        <p class="mt-2 text-3xl font-black"><?= number_format($stats['active'] ?? 0) ?></p>
+                        <p class="mt-1 text-xs font-bold text-white/75">Currently enabled tenants</p>
                     </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
                 </div>
-
-                <!-- Plan Coverage Card -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-layer-group text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-3 py-1.5 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-blue-700 font-bold text-xs">Filtered</span>
-                            </div>
-                        </div>
-                        <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">In View</p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-blue-900"><?= number_format($stats['filtered'] ?? 0) ?></p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
-                                    <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium">Filtered Results</p>
-                        </div>
+            </article>
+            <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br from-violet-800 via-indigo-700 to-slate-950 p-4 text-white shadow-xl shadow-indigo-900/20">
+                <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-white/75">Current view</p>
+                        <p class="mt-2 text-3xl font-black"><?= number_format($stats['filtered'] ?? 0) ?></p>
+                        <p class="mt-1 text-xs font-bold text-white/75">After search and filters</p>
                     </div>
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20"><i class="fas fa-filter"></i></span>
                 </div>
-            </div>
-        </div>
+            </article>
+        </section>
 
-    <!-- Table Section -->
-    <div class="mb-8">
-        <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900">Clinic Registry</h3>
+        <section class="overflow-hidden rounded-[1.4rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-900/10">
+            <div class="border-b border-slate-200 bg-gradient-to-r from-white via-emerald-50/50 to-blue-50/60 p-4 sm:p-5">
+                <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-700 to-teal-600 text-white shadow-lg">
+                                <i class="fas fa-list-check"></i>
+                            </span>
+                            <div>
+                                <h2 class="text-xl font-black text-slate-950">Clinic Registry</h2>
+                                <p class="mt-1 text-sm font-semibold text-slate-500">Search, filter, export, and open clinic operations.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                            PDF
+                    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(16rem,1fr)_12rem_14rem_auto] xl:min-w-[52rem]">
+                        <div class="relative">
+                            <i class="fas fa-search pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ltr:left-3 rtl:right-3"></i>
+                            <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="Search clinics or admin email" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 ltr:pl-10 rtl:pr-10">
+                        </div>
+                        <select id="clinicStatus" class="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
+                            <option value="">All statuses</option>
+                            <option value="active" <?= ($filters['status'] ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
+                            <option value="suspended" <?= ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                            <option value="inactive" <?= ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                        </select>
+                        <select id="clinicPlan" class="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
+                            <option value="0">All plans</option>
+                            <?php foreach (($plans ?? []) as $plan): ?>
+                                <option value="<?= (int) ($plan['id'] ?? 0) ?>" <?= (int) ($filters['plan_id'] ?? 0) === (int) ($plan['id'] ?? 0) ? 'selected' : '' ?>><?= esc($plan['name'] ?? 'Plan') ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="flex gap-2">
+                            <button id="resetClinicFilters" type="button" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-200">
+                                <i class="fas fa-times me-2"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportToPDF()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-rose-50 hover:text-rose-700">
+                            <i class="fas fa-file-pdf text-rose-600"></i>PDF
                         </button>
-                        <button onclick="printTable()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <i class="fas fa-print mr-2 text-gray-600"></i>
-                            Print
+                        <button onclick="printTable()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50">
+                            <i class="fas fa-print text-slate-600"></i>Print
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                            CSV
+                        <button onclick="exportToCSV()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-emerald-50 hover:text-emerald-700">
+                            <i class="fas fa-file-csv text-emerald-600"></i>CSV
                         </button>
                     </div>
                 </div>
             </div>
-            
+
             <div class="overflow-x-auto">
-                <table id="clinicsTable" class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table id="clinicsTable" class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
                                     <i class="fas fa-hospital text-emerald-600"></i>
                                     <span>Clinic Name</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
                                     <i class="fas fa-info-circle text-emerald-600"></i>
                                     <span>Status</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
                                     <i class="fas fa-layer-group text-emerald-600"></i>
                                     <span>Plan</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
                                     <i class="fas fa-user-shield text-emerald-600"></i>
                                     <span>Admin Email</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center gap-2">
                                     <i class="fas fa-dollar-sign text-emerald-600"></i>
                                     <span>MRR</span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <div class="flex items-center space-x-2">
+                            <th class="px-6 py-4 text-end text-xs font-black uppercase tracking-wide text-slate-600">
+                                <div class="flex items-center justify-end gap-2">
                                     <i class="fas fa-cogs text-emerald-600"></i>
                                     <span>Actions</span>
                                 </div>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                    <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
@@ -503,15 +480,15 @@ $(document).ready(function() {
                     const avatarColor = getAvatarColor(initials || (Array.from(nameRaw)[0] || 'C'));
                     const detailUrl = `${baseUrl}controlplane/clinics/${id}`;
                     return `
-                        <a href="${detailUrl}" class="block rounded-md hover:bg-emerald-50/70 transition-colors duration-200 cursor-pointer">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-slate-900"
+                        <a href="${detailUrl}" class="block rounded-2xl px-2 py-1.5 transition-colors duration-200 hover:bg-emerald-50/70">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-black text-slate-900"
                                      style="background: ${avatarColor}; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);">
                                     ${initials}
                                 </div>
-                                <div>
-                                    <div class="text-sm font-medium text-slate-900">${name}</div>
-                                    <div class="text-xs text-slate-500">ID ${id} · ${slug}</div>
+                                <div class="min-w-0">
+                                    <div class="truncate text-sm font-black text-slate-950">${name}</div>
+                                    <div class="truncate text-xs font-bold text-slate-500">ID ${id} - ${slug}</div>
                                 </div>
                             </div>
                         </a>
@@ -539,8 +516,8 @@ $(document).ready(function() {
                     const label = status.charAt(0).toUpperCase() + status.slice(1);
 
                     return `
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
-                            <i class="${iconClass} mr-1"></i>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-black ${colorClass}">
+                            <i class="${iconClass} me-1"></i>
                             ${label}
                         </span>
                     `;
@@ -550,21 +527,21 @@ $(document).ready(function() {
                 data: 'plan_name',
                 name: 'plan_name',
                 render: function(data) {
-                    return `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">${escapeHtml(data || 'Unassigned')}</span>`;
+                    return `<span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700 ring-1 ring-indigo-100">${escapeHtml(data || 'Unassigned')}</span>`;
                 }
             },
             {
                 data: 'admin_email',
                 name: 'admin_email',
                 render: function(data) {
-                    return `<span class="text-sm text-slate-600">${escapeHtml(data || 'Unknown')}</span>`;
+                    return `<span class="text-sm font-semibold text-slate-600">${escapeHtml(data || 'Unknown')}</span>`;
                 }
             },
             {
                 data: 'mrr',
                 name: 'mrr',
                 render: function(data) {
-                    return `<span class="text-sm font-semibold text-slate-800">${formatCurrency(data)}</span>`;
+                    return `<span class="text-sm font-black text-slate-900">${formatCurrency(data)}</span>`;
                 }
             },
             {
@@ -576,12 +553,12 @@ $(document).ready(function() {
                     const id = escapeHtml(data || '');
                     const status = (row.status || 'inactive').toLowerCase();
                     const encodedName = encodeURIComponent(row.name || 'Clinic');
-                    let actions = '<div class="flex items-center justify-end space-x-2">';
+                    let actions = '<div class="flex items-center justify-end gap-2">';
 
                     // View Details
                     actions += `
                         <a href="${baseUrl}controlplane/clinics/${id}"
-                           class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200"
+                           class="rounded-xl p-2 text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700"
                            title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>`;
@@ -589,12 +566,12 @@ $(document).ready(function() {
                     // Suspend / Reactivate
                     if (status === 'active') {
                         actions += `
-                            <button onclick="toggleClinicStatus('${id}', 'suspend')" class="p-2 text-amber-600 hover:text-amber-700 rounded-md hover:bg-amber-50 transition-colors duration-200" title="Suspend">
+                            <button onclick="toggleClinicStatus('${id}', 'suspend')" class="rounded-xl p-2 text-amber-600 transition-colors duration-200 hover:bg-amber-50 hover:text-amber-700" title="Suspend">
                                 <i class="fas fa-pause"></i>
                             </button>`;
                     } else {
                         actions += `
-                            <button onclick="toggleClinicStatus('${id}', 'reactivate')" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="Reactivate">
+                            <button onclick="toggleClinicStatus('${id}', 'reactivate')" class="rounded-xl p-2 text-green-600 transition-colors duration-200 hover:bg-green-50 hover:text-green-700" title="Reactivate">
                                 <i class="fas fa-play"></i>
                             </button>`;
                     }
@@ -604,21 +581,21 @@ $(document).ready(function() {
                         <form action="${baseUrl}controlplane/impersonate" method="post" class="inline">
                             ${renderCsrfField()}
                             <input type="hidden" name="clinic_id" value="${id}">
-                            <button type="submit" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="Login As">
+                            <button type="submit" class="rounded-xl p-2 text-indigo-600 transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-700" title="Login As">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
                         </form>`;
 
                     // Terminate
                     actions += `
-                        <button type="button" class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200"
+                        <button type="button" class="rounded-xl p-2 text-rose-600 transition-colors duration-200 hover:bg-rose-50 hover:text-rose-700"
                                 onclick="openTerminateModal('${id}', '${encodedName}')" title="Terminate">
                             <i class="fas fa-ban"></i>
                         </button>`;
 
                     // Delete
                     actions += `
-                        <button type="button" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200"
+                        <button type="button" class="rounded-xl p-2 text-red-600 transition-colors duration-200 hover:bg-red-50 hover:text-red-700"
                                 onclick="openDeleteModal('${id}', '${encodedName}')" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>`;
@@ -672,9 +649,24 @@ $(document).ready(function() {
         drawCallback: function() { refreshCsrfToken(); },
     });
 
-    // Event binding moved to initComplete
-    // $('#applyClinicFilters').on('click', function() { clinicsTable.draw(); });
-    // $('#resetClinicFilters').on('click', function() { ... });
+    let clinicFilterTimer;
+    $('#clinicSearch').on('input', function() {
+        window.clearTimeout(clinicFilterTimer);
+        clinicFilterTimer = window.setTimeout(function() {
+            clinicsTable.draw();
+        }, 250);
+    });
+
+    $('#clinicStatus, #clinicPlan').on('change', function() {
+        clinicsTable.draw();
+    });
+
+    $('#resetClinicFilters').on('click', function() {
+        $('#clinicSearch').val('');
+        $('#clinicStatus').val('');
+        $('#clinicPlan').val('0');
+        clinicsTable.draw();
+    });
 
     const termModal = document.getElementById('terminateModal');
     if (termModal) termModal.addEventListener('click', function(event) { if (event.target === termModal) closeTerminateModal(); });
@@ -738,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn._originalChildren = Array.from(btn.childNodes).map(node => node.cloneNode(true));
         }
         const icon = document.createElement('i');
-        icon.className = 'fas fa-spinner fa-spin mr-2';
+        icon.className = 'fas fa-spinner fa-spin me-2';
         btn.replaceChildren(icon, document.createTextNode(label));
     }
 
