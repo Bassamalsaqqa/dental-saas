@@ -6,23 +6,23 @@
 
 <style>
 .finance-payouts-wrap {
-    width: min(100%, 1500px);
+    width: 100%;
 }
 
 .finance-payouts-hero {
     border-radius: 1.75rem;
     background:
-        radial-gradient(circle at 10% 8%, rgba(255, 255, 255, 0.22), transparent 30%),
-        radial-gradient(circle at 90% 0%, rgba(99, 102, 241, 0.35), transparent 34%),
-        linear-gradient(135deg, #4338ca 0%, #1d4ed8 42%, #0f172a 100%);
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+        radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.2), transparent 29%),
+        radial-gradient(circle at 82% 6%, rgba(45, 212, 191, 0.28), transparent 32%),
+        linear-gradient(135deg, #0f766e 0%, #075985 48%, #0f172a 100%);
+    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.22);
 }
 
 [dir="rtl"] .finance-payouts-hero {
     background:
-        radial-gradient(circle at 90% 8%, rgba(255, 255, 255, 0.22), transparent 30%),
-        radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.35), transparent 34%),
-        linear-gradient(225deg, #4338ca 0%, #1d4ed8 42%, #0f172a 100%);
+        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.2), transparent 29%),
+        radial-gradient(circle at 18% 6%, rgba(45, 212, 191, 0.28), transparent 32%),
+        linear-gradient(225deg, #0f766e 0%, #075985 48%, #0f172a 100%);
 }
 
 .finance-payouts-card,
@@ -34,7 +34,7 @@
 
 .finance-payouts-card {
     border-radius: 1.5rem;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 20px 52px rgba(15, 23, 42, 0.13);
 }
 
 .finance-payouts-card::after {
@@ -44,7 +44,7 @@
     width: 72%;
     aspect-ratio: 1;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.18);
     z-index: -1;
 }
 
@@ -57,7 +57,7 @@
     border-radius: 1.5rem;
     border: 1px solid rgba(226, 232, 240, 0.92);
     background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.09);
 }
 
 .finance-payouts-input {
@@ -71,6 +71,11 @@
     padding: 0.7rem 0.85rem;
     width: 100%;
     transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.finance-payouts-table-shell .dataTables_wrapper .dataTables_info,
+.finance-payouts-table-shell .dataTables_wrapper .dataTables_paginate {
+    padding-block: 0.35rem;
 }
 
 .finance-payouts-input:focus {
@@ -139,35 +144,39 @@
 </style>
 
 <div dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="finance-payouts-wrap mx-auto space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div class="finance-payouts-wrap space-y-5 px-3 py-4 sm:px-5 lg:px-6">
         <section class="finance-payouts-hero overflow-hidden border border-white/20 p-5 text-white sm:p-6 lg:p-7">
-            <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg shadow-black/10 ring-1 ring-white/20">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-white/15 text-white shadow-lg shadow-black/10 ring-1 ring-white/20">
                         <i class="fas fa-hand-holding-dollar text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black tracking-tight text-white sm:text-3xl"><?= lang('Finance.providerPayouts') ?></h1>
-                        <p class="mt-2 max-w-3xl text-sm font-semibold text-indigo-50/90"><?= lang('Finance.providerPayoutsHelp') ?></p>
+                        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-50 ring-1 ring-white/20">
+                            <i class="fas fa-user-doctor"></i>
+                            <span><?= lang('Finance.providerPayouts') ?></span>
+                        </div>
+                        <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl"><?= lang('Finance.providerPayouts') ?></h1>
+                        <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-cyan-50/90 sm:text-base"><?= lang('Finance.providerPayoutsHelp') ?></p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (!empty($can_access_finance_reports)): ?>
-                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center rounded-2xl bg-white/15 px-4 py-2.5 text-sm font-extrabold text-white ring-1 ring-white/20 transition hover:bg-white/20">
                         <i class="fas fa-chart-bar <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.reports') ?>
                     </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2.5 text-sm font-extrabold text-teal-800 shadow-lg shadow-slate-950/20 transition hover:-translate-y-0.5">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?>"></i><?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
             </div>
         </section>
 
-        <section class="finance-payouts-panel border-amber-100 bg-gradient-to-br from-white via-amber-50/90 to-white px-5 py-4">
-            <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+        <section class="finance-payouts-panel border-teal-100 bg-gradient-to-r from-teal-50 via-white to-sky-50 px-5 py-4">
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex items-start gap-3">
-                    <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                    <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
                         <i class="fas fa-circle-info text-sm"></i>
                     </div>
                     <div>
@@ -179,7 +188,7 @@
         </section>
 
         <section class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="finance-payouts-card bg-gradient-to-br from-indigo-600 to-blue-900 p-5 text-white shadow-indigo-500/25">
+            <div class="finance-payouts-card bg-gradient-to-br from-blue-700 via-indigo-700 to-slate-950 p-5 text-white shadow-blue-900/25">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-indigo-50/90"><?= lang('Finance.providerShareTotal') ?></p>
@@ -192,7 +201,7 @@
                 </div>
             </div>
 
-            <div class="finance-payouts-card bg-gradient-to-br from-rose-600 to-pink-800 p-5 text-white shadow-rose-500/25">
+            <div class="finance-payouts-card bg-gradient-to-br from-rose-700 via-red-700 to-slate-950 p-5 text-white shadow-rose-900/25">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
@@ -205,7 +214,7 @@
                 </div>
             </div>
 
-            <div class="finance-payouts-card bg-gradient-to-br from-emerald-600 to-teal-800 p-5 text-white shadow-emerald-500/25">
+            <div class="finance-payouts-card bg-gradient-to-br from-emerald-700 via-teal-700 to-slate-950 p-5 text-white shadow-emerald-900/25">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.clinicShareTotal') ?></p>
@@ -219,12 +228,17 @@
             </div>
         </section>
 
-        <section class="finance-payouts-panel">
-            <div class="border-b border-slate-100 bg-gradient-to-r from-slate-800 to-slate-950 px-6 py-5 text-white">
+        <section class="finance-payouts-panel finance-payouts-table-shell">
+            <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-teal-50/80 to-sky-50/80 px-5 py-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="h-2.5 w-2.5 rounded-full bg-indigo-400 shadow-lg shadow-indigo-300/40"></div>
-                        <h3 class="text-lg font-black"><?= lang('Finance.payoutLedger') ?></h3>
+                        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-700 text-white shadow-lg shadow-teal-700/20">
+                            <i class="fas fa-list-check"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-950"><?= lang('Finance.payoutLedger') ?></h3>
+                            <p class="text-sm font-semibold text-slate-500"><?= lang('Finance.searchProviderPatientTxn') ?></p>
+                        </div>
                     </div>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <select id="statusFilter" class="finance-payouts-input sm:w-48">
@@ -243,40 +257,46 @@
             </div>
             <div class="overflow-x-auto">
                 <table id="providerPayoutsTable" class="w-full min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                    <thead class="bg-slate-100/95 border-b border-gray-200">
+                    <thead class="border-b border-slate-200 bg-slate-50/95">
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-receipt text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-user text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-user-doctor text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-wallet text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-info-circle text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-calendar text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><i class="fas fa-cogs text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-receipt text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-user text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-user-doctor text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-wallet text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-info-circle text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-calendar text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-cogs text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
                         </tr>
                     </thead>
-                    <tbody id="providerPayoutsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                    <tbody id="providerPayoutsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
                 </table>
             </div>
         </section>
     </div>
 </div>
 
-<div id="recordPayoutModal" class="fixed inset-0 z-50 hidden">
+<div id="recordPayoutModal" class="fixed inset-0 z-[2147483500] hidden">
     <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" onclick="closePayoutModal()"></div>
     <div class="relative min-h-full flex items-center justify-center p-4">
-        <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl border border-gray-200">
-            <div class="flex items-center justify-between bg-gradient-to-r from-slate-900 to-indigo-900 px-5 py-4 text-white">
-                <h4 class="text-base font-black"><?= lang('Finance.recordProviderPayout') ?></h4>
+        <div class="w-full max-w-lg overflow-hidden rounded-[1.65rem] bg-white shadow-2xl shadow-slate-950/25 border border-slate-200">
+            <div class="flex items-center justify-between gap-4 bg-gradient-to-r from-teal-700 via-sky-800 to-slate-950 px-5 py-4 text-white">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </span>
+                    <h4 class="text-base font-black"><?= lang('Finance.recordProviderPayout') ?></h4>
+                </div>
                 <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20" onclick="closePayoutModal()"><i class="fas fa-times"></i></button>
             </div>
             <form id="recordPayoutForm" class="p-5 space-y-4">
                 <input type="hidden" id="payoutIdInput">
-                <div>
+                <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
                     <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.amount') ?></label>
                     <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="finance-payouts-input" required>
-                    <p id="payoutAmountHelp" class="mt-1 text-xs text-gray-500"></p>
+                    <p id="payoutAmountHelp" class="mt-2 text-xs font-semibold text-slate-500"></p>
                 </div>
+                <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paymentMethod') ?></label>
                     <select id="payoutMethodInput" class="finance-payouts-input">
@@ -287,25 +307,26 @@
                         <option value="other"><?= lang('Finance.other') ?></option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
+                    <input type="date" id="payoutDateInput" class="finance-payouts-input" required>
+                </div>
+                </div>
                 <div id="payoutLiquidityAccountField" class="hidden">
                     <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paidFromAccount') ?></label>
                     <select id="payoutLiquidityAccountInput" class="finance-payouts-input">
                         <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                         <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                     </select>
-                    <p class="mt-1 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
-                </div>
-                <div>
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
-                    <input type="date" id="payoutDateInput" class="finance-payouts-input" required>
+                    <p class="mt-2 text-xs font-semibold text-slate-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
                 </div>
                 <div>
                     <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.notes') ?></label>
                     <textarea id="payoutNotesInput" rows="2" class="finance-payouts-input" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closePayoutModal()" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"><?= lang('Finance.cancel') ?></button>
-                    <button type="submit" class="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-800 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-700 hover:to-blue-900"><?= lang('Finance.recordPayment') ?></button>
+                    <button type="button" onclick="closePayoutModal()" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-slate-50"><?= lang('Finance.cancel') ?></button>
+                    <button type="submit" class="rounded-xl bg-gradient-to-r from-teal-700 to-sky-800 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-teal-700/20 transition hover:-translate-y-0.5"><?= lang('Finance.recordPayment') ?></button>
                 </div>
             </form>
         </div>
@@ -376,7 +397,7 @@ function statusBadge(status) {
     };
     const config = map[normalized] || { cls: 'bg-gray-100 text-gray-700', icon: 'fas fa-circle-question' };
     const label = payoutStatusLabels[normalized] || payoutStatusLabels.unknown;
-    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${config.cls}"><i class="${config.icon} mr-1"></i>${label}</span>`;
+    return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black ${config.cls}"><i class="${config.icon} me-1"></i>${label}</span>`;
 }
 
 function closePayoutModal() {
@@ -386,6 +407,7 @@ function closePayoutModal() {
 
 function openPayoutModal(id, maxAmount) {
     payoutModalMaxAmount = Number(maxAmount || 0);
+    document.getElementById('recordPayoutForm').reset();
     document.getElementById('payoutIdInput').value = String(id);
     document.getElementById('payoutAmountInput').value = payoutModalMaxAmount > 0 ? payoutModalMaxAmount.toFixed(2) : '';
     document.getElementById('payoutDateInput').value = new Date().toISOString().split('T')[0];
@@ -428,14 +450,14 @@ $(document).ready(function () {
                 render: function (data, type, row) {
                     const typeMeta = getTransactionTypeMeta(row.transaction_type);
                     return `
-                        <a href="<?= base_url('finance') ?>/${row.finance_id}" class="block rounded-md hover:bg-indigo-50/70 transition-colors duration-200 p-1 -m-1">
+                        <a href="<?= base_url('finance') ?>/${row.finance_id}" class="block rounded-2xl p-2 transition-colors duration-200 hover:bg-teal-50/80">
                             <div class="flex items-center gap-3">
-                                <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
-                                    <i class="${typeMeta.icon} ${typeMeta.iconColor} text-xl"></i>
+                                <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100">
+                                    <i class="${typeMeta.icon} ${typeMeta.iconColor} text-lg"></i>
                                 </span>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">${data || '-'}</div>
-                                    <div class="text-xs text-gray-500"><?= lang('Finance.financeTransaction') ?></div>
+                                    <div class="text-sm font-black text-slate-950">${data || '-'}</div>
+                                    <div class="text-xs font-semibold text-slate-500"><?= lang('Finance.financeTransaction') ?></div>
                                 </div>
                             </div>
                         </a>`;
@@ -447,12 +469,12 @@ $(document).ready(function () {
                     const avatar = getPatientAvatar(row.patient_gender);
                     const patient = data && data.trim() !== '' ? data : '<?= esc(lang('Finance.notAvailable')) ?>';
                     return `<div class="flex items-center gap-3">
-                        <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                        <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100">
                             <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
                         </span>
                         <div class="min-w-0">
-                            <div class="text-sm font-medium text-gray-900 truncate">${patient}</div>
-                            <div class="text-xs text-gray-500"><?= esc(lang('Finance.patient')) ?></div>
+                            <div class="text-sm font-black text-slate-950 truncate">${patient}</div>
+                            <div class="text-xs font-semibold text-slate-500"><?= esc(lang('Finance.patient')) ?></div>
                         </div>
                     </div>`;
                 }
@@ -465,12 +487,12 @@ $(document).ready(function () {
                     const subtitle = isGuest ? '<?= esc(lang('Finance.guestProvider')) ?>' : '<?= esc(lang('Finance.clinicUser')) ?>';
                     return `
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 ${isGuest ? 'bg-amber-100' : 'bg-indigo-100'} rounded-lg flex items-center justify-center">
+                            <div class="w-10 h-10 ${isGuest ? 'bg-amber-100' : 'bg-teal-100'} rounded-2xl flex items-center justify-center">
                                 <i class="${iconClass} text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data || '<?= lang('Finance.provider') ?>'}</div>
-                                <div class="text-xs text-gray-500">${subtitle}</div>
+                                <div class="text-sm font-black text-slate-950">${data || '<?= lang('Finance.provider') ?>'}</div>
+                                <div class="text-xs font-semibold text-slate-500">${subtitle}</div>
                             </div>
                         </div>`;
                 }
@@ -480,11 +502,11 @@ $(document).ready(function () {
                 render: function (value, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="flex items-center gap-2 text-sm font-medium text-indigo-700">
+                            <div class="flex items-center gap-2 text-sm font-black text-blue-800">
                                 <i class="fas fa-arrow-down text-rose-500 text-xs"></i>
                                 <span>${formatCurrency(value)}</span>
                             </div>
-                            <div class="text-xs text-gray-500"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0)}</div>
+                            <div class="text-xs font-semibold text-slate-500"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0)}</div>
                         </div>`;
                 }
             },
@@ -493,11 +515,11 @@ $(document).ready(function () {
                 render: function (value, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="flex items-center gap-2 text-sm font-medium text-emerald-700">
+                            <div class="flex items-center gap-2 text-sm font-black text-emerald-700">
                                 <i class="fas fa-arrow-up text-emerald-500 text-xs"></i>
                                 <span>${formatCurrency(value)}</span>
                             </div>
-                            <div class="text-xs ${Number(row.provider_balance_due || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}">
+                            <div class="text-xs font-bold ${Number(row.provider_balance_due || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}">
                                 <?= lang('Finance.balance') ?>: ${formatCurrency(row.provider_balance_due || 0)}
                             </div>
                         </div>`;
@@ -514,8 +536,8 @@ $(document).ready(function () {
                 render: function (value) {
                     return `
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-calendar text-indigo-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${value || '-'}</span>
+                            <i class="fas fa-calendar text-teal-700 text-xs"></i>
+                            <span class="text-sm font-bold text-slate-700">${value || '-'}</span>
                         </div>`;
                 }
             },
@@ -526,10 +548,10 @@ $(document).ready(function () {
                 render: function (id, type, row) {
                     const canSettle = row.status !== 'paid' && row.status !== 'void';
                     let actions = '<div class="flex items-center gap-2">';
-                    actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
+                    actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition hover:bg-blue-100" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
                     if (canSettle) {
-                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
-                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
+                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
+                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 ring-1 ring-teal-100 transition hover:bg-teal-100" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
                     }
                     actions += '</div>';
                     return actions;
@@ -553,7 +575,7 @@ $(document).ready(function () {
             }
         },
         createdRow: function (row) {
-            $(row).addClass('hover:bg-indigo-50/30 transition-colors duration-150');
+            $(row).addClass('hover:bg-teal-50/35 transition-colors duration-150');
         }
     });
 
