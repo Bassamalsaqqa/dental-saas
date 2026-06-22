@@ -35,11 +35,20 @@ button.dt-button:hover, button.dt-button:active {
 body.cp-clinics-page {
     background: #ffffff !important;
 }
+body.cp-clinics-page main {
+    background: #ffffff !important;
+}
+body.cp-clinics-page main > .pointer-events-none.absolute.inset-0 {
+    display: none !important;
+}
 body.cp-clinics-page .cp-content {
     background: #ffffff !important;
 }
 .cp-clinics {
     background: #ffffff;
+}
+.cp-clinics .cp-clinics-title {
+    color: rgba(255, 255, 255, 0.96) !important;
 }
 #clinicsTable.dataTable {
     margin: 0 !important;
@@ -88,7 +97,7 @@ document.body.classList.add('cp-clinics-page');
                         </span>
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h1 class="text-2xl font-black tracking-tight text-white/95 sm:text-3xl">Clinic Registry</h1>
+                                <h1 class="cp-clinics-title text-2xl font-black tracking-tight sm:text-3xl">Clinic Registry</h1>
                                 <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-emerald-200/25">Global Mode</span>
                             </div>
                             <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-emerald-50/90">Manage tenant clinics, lifecycle status, plan assignment, admin access, and operator actions.</p>
