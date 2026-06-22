@@ -17,8 +17,8 @@
             'detail' => 'Active: ' . number_format($stats['active_clinics'] ?? 0) . ' (' . $activeClinicRatio . '%)',
             'icon' => 'fas fa-hospital-user',
             'tone' => 'from-blue-700 to-cyan-600',
-            'fill' => 'from-blue-700/16 to-cyan-500/10',
-            'text' => 'text-blue-950',
+            'fill' => 'from-blue-800 via-sky-700 to-cyan-700',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Active subscriptions',
@@ -26,8 +26,8 @@
             'detail' => 'Renewal watch: ' . number_format($stats['expiring_subscriptions'] ?? 0),
             'icon' => 'fas fa-receipt',
             'tone' => 'from-emerald-700 to-teal-600',
-            'fill' => 'from-emerald-700/16 to-teal-500/10',
-            'text' => 'text-emerald-950',
+            'fill' => 'from-emerald-800 via-teal-700 to-cyan-700',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Estimated MRR',
@@ -35,8 +35,8 @@
             'detail' => 'Normalized active plan revenue',
             'icon' => 'fas fa-chart-line',
             'tone' => 'from-violet-700 to-fuchsia-600',
-            'fill' => 'from-violet-700/16 to-fuchsia-500/10',
-            'text' => 'text-violet-950',
+            'fill' => 'from-violet-800 via-fuchsia-700 to-rose-700',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Pending requests',
@@ -44,8 +44,8 @@
             'detail' => 'Plan changes awaiting review',
             'icon' => 'fas fa-inbox',
             'tone' => 'from-amber-600 to-orange-600',
-            'fill' => 'from-amber-600/18 to-orange-500/10',
-            'text' => 'text-amber-950',
+            'fill' => 'from-amber-600 via-orange-700 to-rose-700',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Active plans',
@@ -53,8 +53,8 @@
             'detail' => 'Published service catalog',
             'icon' => 'fas fa-layer-group',
             'tone' => 'from-indigo-700 to-blue-600',
-            'fill' => 'from-indigo-700/16 to-blue-500/10',
-            'text' => 'text-indigo-950',
+            'fill' => 'from-indigo-800 via-blue-700 to-slate-950',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Active users',
@@ -62,8 +62,8 @@
             'detail' => 'Enabled accounts across platform',
             'icon' => 'fas fa-user-shield',
             'tone' => 'from-slate-800 to-slate-600',
-            'fill' => 'from-slate-700/14 to-slate-500/8',
-            'text' => 'text-slate-950',
+            'fill' => 'from-slate-800 via-slate-700 to-slate-950',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Storage used',
@@ -71,17 +71,17 @@
             'detail' => 'Attachments and generated files',
             'icon' => 'fas fa-hdd',
             'tone' => 'from-teal-700 to-emerald-600',
-            'fill' => 'from-teal-700/16 to-emerald-500/10',
-            'text' => 'text-teal-950',
+            'fill' => 'from-teal-800 via-emerald-700 to-slate-950',
+            'text' => 'text-white',
         ],
         [
             'label' => 'Audit events',
             'value' => number_format($stats['events_7d'] ?? 0),
-            'detail' => 'Last 7 days · ' . number_format($stats['events_30d'] ?? 0) . ' in 30 days',
+            'detail' => 'Last 7 days - ' . number_format($stats['events_30d'] ?? 0) . ' in 30 days',
             'icon' => 'fas fa-wave-square',
             'tone' => 'from-rose-700 to-red-600',
-            'fill' => 'from-rose-700/14 to-red-500/8',
-            'text' => 'text-rose-950',
+            'fill' => 'from-rose-800 via-red-700 to-slate-950',
+            'text' => 'text-white',
         ],
     ];
 
@@ -93,45 +93,49 @@
     ];
 ?>
 
-<div class="cp-dashboard min-h-screen bg-[radial-gradient(circle_at_8%_0%,rgba(59,130,246,.12),transparent_30%),radial-gradient(circle_at_92%_8%,rgba(16,185,129,.10),transparent_28%),linear-gradient(135deg,#eef5ff_0%,#f8fafc_48%,#ecfdf5_100%)]">
-    <div class="w-full space-y-5 px-3 py-3 sm:px-4 lg:px-5">
-        <section class="overflow-hidden rounded-2xl border border-slate-900/10 bg-slate-950 shadow-xl shadow-slate-900/16">
-            <div class="relative p-4 sm:p-5">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,rgba(59,130,246,.54),transparent_30%),radial-gradient(circle_at_84%_10%,rgba(16,185,129,.32),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_52%,#0f766e_100%)]"></div>
-                <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+<div class="cp-dashboard">
+    <div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
+        <section class="overflow-hidden rounded-[1.75rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-blue-950/25">
+            <div class="relative p-5 sm:p-6 lg:p-7">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,rgba(56,189,248,.50),transparent_30%),radial-gradient(circle_at_84%_10%,rgba(16,185,129,.36),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_48%,#0f766e_100%)]"></div>
+                <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/50 to-transparent"></div>
+                <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
                     <div class="flex min-w-0 items-start gap-4">
-                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
+                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-3xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
                             <i class="fas fa-tachometer-alt text-2xl"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-xs font-bold text-emerald-200">Global operations</p>
-                            <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Control Plane</h1>
-                            <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90">Monitor clinics, subscriptions, revenue, platform activity, and operator queues from one admin workspace.</p>
+                            <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-white/20">
+                                <i class="fas fa-globe"></i>
+                                <span>Global operations</span>
+                            </div>
+                            <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">Control Plane</h1>
+                            <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90 sm:text-base">Monitor clinics, subscriptions, revenue, platform activity, and operator queues from one admin workspace.</p>
                             <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">
                                 <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25">
                                     <i class="fas fa-globe me-1"></i>Global Mode
                                 </span>
-                                <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18">Last event: <?= esc($lastEventLabel) ?></span>
-                                <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18">v2.0.0</span>
+                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20">Last event: <?= esc($lastEventLabel) ?></span>
+                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20">v2.0.0</span>
                             </div>
                         </div>
                     </div>
-                    <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[28rem] lg:grid-cols-4">
-                        <div class="rounded-2xl bg-white/15 p-3 ring-1 ring-white/15 backdrop-blur">
+                    <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[30rem] lg:grid-cols-4">
+                        <div class="rounded-3xl bg-white/15 p-4 ring-1 ring-white/15 backdrop-blur">
                             <p class="text-[11px] font-bold text-blue-100">Clinics</p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= number_format($stats['total_clinics'] ?? 0) ?></p>
+                            <p class="mt-1 text-3xl font-black text-white"><?= number_format($stats['total_clinics'] ?? 0) ?></p>
                         </div>
-                        <div class="rounded-2xl bg-emerald-400/20 p-3 ring-1 ring-emerald-200/25 backdrop-blur">
+                        <div class="rounded-3xl bg-emerald-400/20 p-4 ring-1 ring-emerald-200/25 backdrop-blur">
                             <p class="text-[11px] font-bold text-emerald-100">Subscriptions</p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= number_format($stats['active_subscriptions'] ?? 0) ?></p>
+                            <p class="mt-1 text-3xl font-black text-white"><?= number_format($stats['active_subscriptions'] ?? 0) ?></p>
                         </div>
-                        <div class="rounded-2xl bg-violet-400/20 p-3 ring-1 ring-violet-200/20 backdrop-blur">
+                        <div class="rounded-3xl bg-violet-400/20 p-4 ring-1 ring-violet-200/20 backdrop-blur">
                             <p class="text-[11px] font-bold text-violet-100">MRR</p>
-                            <p class="mt-1 text-2xl font-bold text-white">$<?= number_format((float) ($stats['mrr'] ?? 0), 0) ?></p>
+                            <p class="mt-1 text-3xl font-black text-white">$<?= number_format((float) ($stats['mrr'] ?? 0), 0) ?></p>
                         </div>
-                        <div class="rounded-2xl bg-amber-400/20 p-3 ring-1 ring-amber-200/25 backdrop-blur">
+                        <div class="rounded-3xl bg-amber-400/20 p-4 ring-1 ring-amber-200/25 backdrop-blur">
                             <p class="text-[11px] font-bold text-amber-100">Queue</p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= number_format($stats['pending_requests'] ?? 0) ?></p>
+                            <p class="mt-1 text-3xl font-black text-white"><?= number_format($stats['pending_requests'] ?? 0) ?></p>
                         </div>
                     </div>
                 </div>
@@ -140,14 +144,15 @@
 
         <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <?php foreach ($kpis as $kpi): ?>
-                <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br <?= esc($kpi['fill']) ?> p-4 shadow-lg shadow-slate-900/5">
+                <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br <?= esc($kpi['fill']) ?> p-4 text-white shadow-xl shadow-slate-900/20">
+                    <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
                     <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0">
-                            <p class="text-xs font-semibold text-slate-600"><?= esc($kpi['label']) ?></p>
+                            <p class="text-xs font-black uppercase tracking-wide text-white/75"><?= esc($kpi['label']) ?></p>
                             <p class="mt-2 truncate text-2xl font-bold <?= esc($kpi['text']) ?>"><?= esc($kpi['value']) ?></p>
-                            <p class="mt-1 text-xs font-medium text-slate-500"><?= esc($kpi['detail']) ?></p>
+                            <p class="mt-1 text-xs font-bold text-white/75"><?= esc($kpi['detail']) ?></p>
                         </div>
-                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br <?= esc($kpi['tone']) ?> text-white shadow-lg">
+                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20">
                             <i class="<?= esc($kpi['icon']) ?>"></i>
                         </span>
                     </div>
@@ -156,7 +161,7 @@
         </section>
 
         <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)]">
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-blue-900/8 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-blue-900/10 sm:p-5">
                 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-slate-950">Revenue and subscription trend</h2>
@@ -171,7 +176,7 @@
                 </div>
             </article>
 
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-blue-900/8 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-blue-900/10 sm:p-5">
                 <div class="mb-4 flex items-start justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold text-slate-950">Audit activity</h2>
@@ -186,21 +191,21 @@
         </section>
 
         <section class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/6 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-950">Plan mix</h2>
                 <p class="mt-1 text-sm font-medium text-slate-500">Active subscriptions by plan.</p>
                 <div class="mt-4 h-64 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50/70 p-3">
                     <canvas id="planDistributionChart"></canvas>
                 </div>
             </article>
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/6 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-950">Clinic growth</h2>
                 <p class="mt-1 text-sm font-medium text-slate-500">New clinics created over the last 6 months.</p>
                 <div class="mt-4 h-64 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50/70 p-3">
                     <canvas id="clinicGrowthChart"></canvas>
                 </div>
             </article>
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/6 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-bold text-slate-950">Operator shortcuts</h2>
@@ -222,7 +227,7 @@
         </section>
 
         <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,.9fr)]">
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/6 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-bold text-slate-950">Recent clinics</h2>
@@ -255,7 +260,7 @@
                 </div>
             </article>
 
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/6 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-bold text-slate-950">Plan requests</h2>
@@ -285,7 +290,7 @@
                 </div>
             </article>
 
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/6 sm:p-5">
+            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-950">Platform pulse</h2>
                 <p class="mt-1 text-sm font-medium text-slate-500">Storage and audit indicators.</p>
                 <div class="mt-4 space-y-3">
