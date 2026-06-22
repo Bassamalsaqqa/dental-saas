@@ -5,9 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= esc($title) ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="theme-color" content="#0284c7">
+    <style>
+        :root {
+            --app-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif;
+            --app-font-ar: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif;
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: var(--app-font-sans);
+        }
+
+        html[lang^="ar"] body,
+        html[lang^="ar"] button,
+        html[lang^="ar"] input,
+        html[lang^="ar"] select,
+        html[lang^="ar"] textarea {
+            font-family: var(--app-font-ar);
+        }
+    </style>
 </head>
 <body class="h-screen relative flex flex-col overflow-hidden text-slate-900 antialiased font-sans">
     

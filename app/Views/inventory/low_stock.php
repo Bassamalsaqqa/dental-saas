@@ -948,7 +948,7 @@ function printLowStockTableContent() {
     // Add styles
     const style = doc.createElement('style');
     style.textContent = `
-        body { font-family: Arial, sans-serif; margin: 20px; }
+        body { font-family: "Inter", "Noto Sans Arabic", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif; margin: 20px; }
         h1 { color: #333; text-align: center; margin-bottom: 30px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }

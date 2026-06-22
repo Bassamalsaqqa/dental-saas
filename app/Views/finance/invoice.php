@@ -407,7 +407,7 @@
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
-        font-family: 'Times New Roman', 'Georgia', serif !important;
+        font-family: "Inter", "Noto Sans Arabic", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif !important;
         font-size: 11pt !important;
         line-height: 1.4 !important;
         color: #000 !important;
