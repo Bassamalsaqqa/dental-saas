@@ -1,12 +1,16 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <?php $isRtl = !empty($is_rtl); ?>
 
 <style>
 .finance-payouts-wrap {
     width: 100%;
+    font-family: var(--app-font-sans);
+}
+
+[dir="rtl"] .finance-payouts-wrap {
+    font-family: var(--app-font-ar);
 }
 
 .finance-payouts-hero {
@@ -70,7 +74,18 @@
     outline: none;
     padding: 0.7rem 0.85rem;
     width: 100%;
+    font-family: inherit;
     transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.finance-payouts-wrap .dataTables_wrapper,
+.finance-payouts-wrap .dataTables_wrapper *,
+.finance-payouts-wrap table,
+.finance-payouts-wrap button,
+.finance-payouts-wrap input,
+.finance-payouts-wrap select,
+.finance-payouts-wrap textarea {
+    font-family: inherit !important;
 }
 
 .finance-payouts-table-shell .dataTables_wrapper .dataTables_info,
@@ -333,7 +348,6 @@
     </div>
 </div>
 
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script>
 let payoutsTable = null;
 let payoutModalMaxAmount = 0;

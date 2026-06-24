@@ -121,6 +121,17 @@
             font-family: var(--app-font-sans);
         }
 
+        #main-content,
+        #main-content *,
+        .dataTables_wrapper,
+        .dataTables_wrapper *,
+        .select2-container,
+        .select2-container *,
+        .select2-dropdown,
+        .select2-dropdown * {
+            font-family: inherit !important;
+        }
+
         html[lang^="ar"] body,
         html[lang^="ar"] button,
         html[lang^="ar"] input,
