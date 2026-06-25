@@ -412,7 +412,7 @@ $statusTone = match ($statusKey) {
                                     <div class="flex items-center gap-2"><i class="fas fa-clock text-cyan-700"></i><span><?= esc($tr('frequency')) ?></span></div>
                                 </th>
                                 <th>
-                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-range text-cyan-700"></i><span><?= esc($tr('duration')) ?></span></div>
+                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-days text-cyan-700"></i><span><?= esc($tr('duration')) ?></span></div>
                                 </th>
                             </tr>
                         </thead>

@@ -580,7 +580,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                                         <td colspan="4" class="!bg-white px-6 py-12 text-center text-slate-500">
                                             <div class="flex flex-col items-center justify-center">
                                                 <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50">
-                                                    <i class="fas fa-shield-check text-2xl text-emerald-500"></i>
+                                                    <i class="fas fa-shield-alt text-2xl text-emerald-500"></i>
                                                 </div>
                                                 <p class="text-sm font-black text-slate-950">All systems compliant</p>
                                                 <p class="mt-1 text-xs font-bold text-slate-500">No plan enforcement actions triggered recently.</p>

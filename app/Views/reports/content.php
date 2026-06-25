@@ -257,7 +257,7 @@ $currentMeta = [
                     </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[28rem]">
                         <span class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/20">
-                            <i class="fas fa-calendar-range"></i>
+                            <i class="fas fa-calendar-days"></i>
                             <span><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?></span>
                         </span>
                         <div class="grid grid-cols-3 gap-3">

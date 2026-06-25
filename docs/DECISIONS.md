@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-06-25 - Font Awesome Is Vendored and Validated App-Wide
+
+- **Decision:** DentaCare loads Font Awesome from the local vendored package under `public/assets/vendor/fontawesome`, not from CDN links in individual views or layouts.
+- **Rationale:** CDN-only icon loading caused inconsistent icon failures across login, header, control-plane, clinic-selection, kiosk, and other standalone pages. Some failures were also caused by unsupported Font Awesome class names and broad app typography rules overriding icon pseudo-elements.
+- **Impact:** New UI work must reuse the local Font Awesome asset, must not add `cdnjs.cloudflare.com/ajax/libs/font-awesome` links, and must use icon classes present in the vendored Font Awesome Free 6.4.0 CSS. Layout-level icon font guards must include both the icon element and `::before` pseudo-element so app font rules cannot break glyph rendering.
+
 ## 2026-05-19 - Clinical Finance Traceability Requires Charge Capture Layer
 
 - **Decision:** DentaCare will treat clinical-to-finance traceability as a charge-capture architecture problem. Clinical records, treatments, contracts, inventory usage, invoices, payments, provider payouts, and reports must be linked through canonical billable charge lines and later invoice/payment allocation rows, rather than guessing financial impact from document-level invoice totals.

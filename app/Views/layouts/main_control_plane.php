@@ -71,17 +71,21 @@
         }
 
         .fa,
-        .fas {
+        .fas,
+        .fa::before,
+        .fas::before {
             font-family: "Font Awesome 6 Free" !important;
             font-weight: 900 !important;
         }
 
-        .far {
+        .far,
+        .far::before {
             font-family: "Font Awesome 6 Free" !important;
             font-weight: 400 !important;
         }
 
-        .fab {
+        .fab,
+        .fab::before {
             font-family: "Font Awesome 6 Brands" !important;
             font-weight: 400 !important;
         }

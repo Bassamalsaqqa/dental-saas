@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-06-25 - App-Wide Icon Font Hardening
+
+- Fixed the app-wide icon rendering issue after the first Font Awesome vendoring pass proved incomplete.
+- Root causes:
+  - Several standalone entry pages still loaded Font Awesome from CDN instead of the local vendored asset.
+  - Some views used Font Awesome class names that are not present in the vendored Font Awesome Free 6.4.0 map, so those glyphs rendered blank even when the font loaded.
+  - App font inheritance rules needed to protect Font Awesome pseudo-elements because the glyph is rendered through `::before`.
+- Final contract:
+  - All CodeIgniter entry views must load Font Awesome from `public/assets/vendor/fontawesome/css/all.min.css`.
+  - Do not add CDN Font Awesome links.
+  - Do not use icon names unless they exist in the vendored CSS map.
+  - Layout-level icon font guards must include `.fa::before`, `.fas::before`, `.far::before`, and `.fab::before` so app typography rules cannot override glyph rendering.
+- Corrected unsupported icon names:
+  - `fa-calendar-edit` -> `fa-calendar-alt`
+  - `fa-calendar-range` -> `fa-calendar-days`
+  - `fa-timer` -> `fa-clock`
+  - `fa-shield-check` -> `fa-shield-alt`
+- Verification:
+  - No remaining `cdnjs.cloudflare.com/ajax/libs/font-awesome` references in `app/Views` or `public/assets`.
+  - App-wide Font Awesome class scan found no unsupported icon classes.
+  - PHP syntax checks passed for touched views/layouts.
+  - `php spark routes` passed.
+  - `AppApiFoundationTest.php` passed.
+  - `AppApiPatientsTest.php` passed.
+
 ## 2026-06-19 - Tenant App Sidebar and Header Frame Refresh
 
 - Refined the tenant app `layouts/main_auth` sidebar/header combo into a single app-frame system.

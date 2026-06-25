@@ -119,7 +119,7 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                     </div>
                     <div class="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
                         <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-semibold text-white/85 backdrop-blur-sm">
-                            <i class="fas fa-timer text-[11px]"></i>
+                            <i class="fas fa-clock text-[11px]"></i>
                             <?= esc($privacyNote) ?>
                         </span>
                     </div>
