@@ -425,9 +425,6 @@ $formatHumanLabel = static function (?string $value): string {
                     <h1 class="mt-4 text-2xl font-black leading-tight text-white sm:text-3xl lg:text-4xl">
                         <?= esc(lang('UI.menuDashboard')) ?>
                     </h1>
-                    <p class="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-blue-100/90">
-                        <?= esc($clinicName) ?> - <?= esc(lang('UI.dashboardQuickActionsDesc')) ?>
-                    </p>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[28rem]">

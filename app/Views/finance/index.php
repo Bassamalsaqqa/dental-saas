@@ -414,7 +414,6 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                     <div class="min-w-0">
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/90"><?= esc($tr('cashBasisShort')) ?></p>
                         <h1 class="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl"><?= lang('Finance.financeManagement') ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-50/90"><?= esc($tr('financeManagementShortHelp')) ?></p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:justify-end">

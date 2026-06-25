@@ -274,7 +274,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 <div class="inventory-page min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
         <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-teal-700 via-blue-700 to-slate-950 text-white shadow-2xl shadow-teal-900/18">
-            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+            <div class="space-y-5 p-5 sm:p-6">
                 <div class="flex min-w-0 items-start gap-4">
                     <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
                         <i class="fas fa-box text-xl"></i>
@@ -282,10 +282,9 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                     <div class="min-w-0">
                         <p class="text-xs font-black uppercase tracking-[0.22em] text-teal-100"><?= esc($tr('inventoryItems')) ?></p>
                         <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc($tr('inventoryManagement')) ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-teal-50/88"><?= esc($tr('inventoryManagementSubtitle')) ?></p>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 xl:justify-end">
+                <div class="flex flex-wrap items-center gap-2">
                     <?php if (has_permission('inventory', 'create')): ?>
                         <a href="<?= base_url('inventory/create') ?>" data-inventory-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-black text-teal-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-teal-50 focus:outline-none focus:ring-4 focus:ring-white/25">
                             <i class="fas fa-plus"></i>

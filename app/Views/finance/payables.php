@@ -176,7 +176,6 @@ $statusClass = static function (string $status): string {
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-amber-100/90"><?= esc($tr('accountsPayableAging')) ?></p>
                         <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc($tr('supplierPayables')) ?></h1>
-                        <p class="mt-2 max-w-3xl text-sm font-semibold text-amber-50/90"><?= esc($tr('supplierPayablesHelp')) ?></p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">

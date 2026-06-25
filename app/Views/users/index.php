@@ -118,7 +118,6 @@
                     <div class="min-w-0">
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/90"><?= lang('UI.menuSettings') ?></p>
                         <h1 class="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl"><?= lang('UserRole.userManagement') ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-blue-50/90"><?= lang('UserRole.manageUsersAccessLevels') ?></p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:min-w-[31rem]">

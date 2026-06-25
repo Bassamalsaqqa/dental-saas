@@ -78,7 +78,6 @@ if ($nextAppointment) {
                                 <div class="min-w-0">
                                     <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-200"><?= $viewAllMode ? lang('UI.appointmentAllAppointments') : lang('UI.appointmentTodaySchedule') ?></p>
                                     <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= lang('UI.appointmentManagement') ?></h1>
-                                    <p class="mt-1 max-w-2xl text-sm font-semibold leading-6 text-blue-50/90"><?= lang('UI.appointmentManagementSubtitle') ?></p>
                                 </div>
                             </div>
 

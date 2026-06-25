@@ -172,7 +172,6 @@
                             <span><?= lang('Finance.providerPayouts') ?></span>
                         </div>
                         <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl"><?= lang('Finance.providerPayouts') ?></h1>
-                        <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-cyan-50/90 sm:text-base"><?= lang('Finance.providerPayoutsHelp') ?></p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">

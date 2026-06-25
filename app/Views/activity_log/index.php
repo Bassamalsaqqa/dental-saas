@@ -222,7 +222,6 @@ $initialActionCount = count($filters['actions'] ?? []);
                                 <span><?= esc($tr('activities')) ?></span>
                             </div>
                             <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($tr('title')) ?></h1>
-                            <p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90"><?= esc($tr('subtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-col gap-2 sm:flex-row xl:flex-col xl:w-[13rem]">
