@@ -132,6 +132,22 @@
             font-family: inherit !important;
         }
 
+        .fa,
+        .fas {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+
+        .far {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 400 !important;
+        }
+
+        .fab {
+            font-family: "Font Awesome 6 Brands" !important;
+            font-weight: 400 !important;
+        }
+
         html[lang^="ar"] body,
         html[lang^="ar"] button,
         html[lang^="ar"] input,
