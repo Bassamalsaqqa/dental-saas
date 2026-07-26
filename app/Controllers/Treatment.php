@@ -234,6 +234,10 @@ class Treatment extends BaseController
 
         $examinationId = $this->request->getGet('examination_id');
         $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        $selectedToothNumber = trim((string) $this->request->getGet('tooth_number'));
+        if ($selectedToothNumber !== '' && !preg_match('/^[A-Za-z0-9-]{1,10}$/', $selectedToothNumber)) {
+            $selectedToothNumber = '';
+        }
         $selectedPatient = null;
         if ($examinationId) {
             $exam = (new \App\Models\ExaminationModel())->where('clinic_id', $clinicId)->find($examinationId);
@@ -275,6 +279,7 @@ class Treatment extends BaseController
             'validation' => null, // Initialize validation as null
             'loadSelect2' => true,
             'selected_examination_id' => $examinationId,
+            'selected_tooth_number' => $selectedToothNumber,
             'inventory_items' => $inventoryItems,
             'clinic_providers' => $this->getClinicProviders((int) $clinicId),
             'return_to' => $returnTo

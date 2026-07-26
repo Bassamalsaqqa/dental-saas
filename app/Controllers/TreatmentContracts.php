@@ -81,7 +81,10 @@ class TreatmentContracts extends BaseController
             'contract' => null,
             'patient' => $patient,
             'examination_id' => $exam['id'] ?? null,
-            'odontogram' => $this->getContractSeedOdontogram((int) $patientId),
+            'odontogram' => $this->getContractSeedOdontogram(
+                (int) $patientId,
+                isset($exam['id']) ? (int) $exam['id'] : null
+            ),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'items' => [],
             'snapshot' => null,
@@ -253,7 +256,10 @@ class TreatmentContracts extends BaseController
             'mode' => 'edit',
             'contract' => $contract,
             'patient' => $patient,
-            'odontogram' => $this->getContractSeedOdontogram((int) $contract['patient_id']),
+            'odontogram' => $this->getContractSeedOdontogram(
+                (int) $contract['patient_id'],
+                isset($exam['id']) ? (int) $exam['id'] : null
+            ),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'items' => $items,
             'snapshot' => $snapshot,
@@ -280,8 +286,12 @@ class TreatmentContracts extends BaseController
         return $exam;
     }
 
-    private function getContractSeedOdontogram(int $patientId): array
+    private function getContractSeedOdontogram(int $patientId, ?int $examinationId = null): array
     {
+        if ($examinationId) {
+            return $this->odontogramModel->getEffectiveOdontogramForExamination($patientId, $examinationId);
+        }
+
         return $this->odontogramModel->getOdontogramByPatient($patientId);
     }
 

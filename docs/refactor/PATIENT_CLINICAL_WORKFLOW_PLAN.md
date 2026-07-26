@@ -80,6 +80,33 @@ Implemented in this slice:
 - Visit-chart statistics use the effective layered chart.
 - The odontogram identifies patient-baseline versus visit context.
 - Examination detail exposes Open visit chart as a primary action.
+- Examination reports use the same effective visit chart shown during the examination.
+- Treatment contracts launched from an examination are seeded from that effective visit chart, not from a stale patient baseline.
+- A selected tooth can hand patient, examination, tooth, and return context to canonical Treatment creation.
+
+### Odontogram Relationship Contract
+
+The odontogram is a clinical visual index, not the owner of every downstream workflow.
+
+| Relationship | Contract |
+|---|---|
+| Patient | Owns the current baseline dental state and historical chart snapshots. |
+| Examination | Owns visit findings. Its effective chart layers visit overrides over the baseline. |
+| Treatment | Owns the canonical procedure, provider, dates, status, inventory usage, and optional charge capture. |
+| Treatment contract | Owns the presented/accepted plan and freezes the relevant chart at creation time. |
+| Appointment | Owns scheduling; it may point to examination/treatment context but does not define clinical truth. |
+| Finance | Owns invoices, payments, allocations, payouts, and all money calculations. |
+| Attachments/imaging | Owns private clinical files; future work may link them to teeth and procedures. |
+
+Fast doctor workflow:
+
+1. Open the patient or examination chart.
+2. Select a tooth and record the finding.
+3. Use **Add Treatment** when a real procedure is proposed or performed; patient, visit, and tooth are prefilled.
+4. Use **Create treatment plan** when the work must be presented or accepted; the correct visit chart is frozen with it.
+5. Complete treatment in the Treatment module. Only explicit charge capture creates a financial obligation.
+
+The chart must never infer a diagnosis, procedure, provider, fee, completion, or invoice from a tooth color or follow-up status. The existing `treatment_notes` and `treatment_status` columns are tooth follow-up metadata, not canonical procedure records.
 
 ## Simple Doctor Experience
 

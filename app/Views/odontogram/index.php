@@ -85,6 +85,21 @@ function getStatusText($status) {
 $isExaminationChart = !empty($examination_id);
 $chartTitle = $isExaminationChart ? lang('Examination.visit_chart') : lang('Examination.patient_chart');
 $chartHelp = $isExaminationChart ? lang('Examination.visit_chart_help') : lang('Examination.patient_chart_help');
+$chartReturnTo = $return_to ?? ($isExaminationChart ? 'examination/' . (int) $examination_id : 'patient/' . (int) $patient['id']);
+$treatmentCreateQuery = [
+    'patient_id' => (int) $patient['id'],
+    'return_to' => $chartReturnTo,
+];
+if ($isExaminationChart) {
+    $treatmentCreateQuery['examination_id'] = (int) $examination_id;
+}
+$treatmentCreateUrl = base_url('treatment/create?' . http_build_query($treatmentCreateQuery, '', '&', PHP_QUERY_RFC3986));
+$contractCreateUrl = $isExaminationChart
+    ? workflow_context_url(
+        'contracts/create/' . (int) $patient['id'] . '?examination_id=' . (int) $examination_id,
+        $chartReturnTo
+    )
+    : workflow_context_url('contracts/create/' . (int) $patient['id'], $chartReturnTo);
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
     <!-- Enhanced Page Header with Glassmorphism -->
@@ -115,6 +130,16 @@ $chartHelp = $isExaminationChart ? lang('Examination.visit_chart_help') : lang('
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
+                    <?php if (has_permission('treatments', 'create')): ?>
+                        <a href="<?= esc($treatmentCreateUrl, 'attr') ?>" class="group relative inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-200">
+                            <i class="fas fa-plus me-2"></i><?= esc(lang('Examination.add_treatment')) ?>
+                        </a>
+                    <?php endif; ?>
+                    <?php if (has_permission('patients', 'edit')): ?>
+                        <a href="<?= esc($contractCreateUrl, 'attr') ?>" class="group relative inline-flex items-center px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-200">
+                            <i class="fas fa-file-signature me-2"></i><?= esc(lang('Examination.create_treatment_plan')) ?>
+                        </a>
+                    <?php endif; ?>
                     <button onclick="printOdontogram()" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
                         <i class="fas fa-print mr-2 group-hover:animate-pulse"></i>Print
                     </button>
@@ -652,12 +677,12 @@ $chartHelp = $isExaminationChart ? lang('Examination.visit_chart_help') : lang('
                     </div>
 
                     <div>
-                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
-                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional treatment notes..."></textarea>
+                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Examination.follow_up_note')) ?></label>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="<?= esc(lang('Examination.follow_up_note_placeholder')) ?>"></textarea>
                     </div>
 
                     <div>
-                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
+                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Examination.tooth_attention_status')) ?></label>
                         <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -666,7 +691,11 @@ $chartHelp = $isExaminationChart ? lang('Examination.visit_chart_help') : lang('
                         </select>
                     </div>
 
-                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
+                    <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs font-semibold text-blue-900">
+                        <?= esc(lang('Examination.odontogram_record_boundary')) ?>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-200">
                         <div class="flex items-center gap-3">
                             <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
                                 Cancel
@@ -674,6 +703,11 @@ $chartHelp = $isExaminationChart ? lang('Examination.visit_chart_help') : lang('
                             <button type="button" onclick="resetTooth()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
                                 Remove Status
                             </button>
+                            <?php if (has_permission('treatments', 'create')): ?>
+                                <a id="createTreatmentForToothLink" href="<?= esc($treatmentCreateUrl, 'attr') ?>" class="inline-flex h-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 px-3 text-sm font-bold text-emerald-800 hover:bg-emerald-100">
+                                    <i class="fas fa-plus me-2"></i><?= esc(lang('Examination.add_treatment')) ?>
+                                </a>
+                            <?php endif; ?>
                         </div>
                         <button type="submit" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
                             <i class="fas fa-save mr-2"></i>Apply Changes
@@ -1354,6 +1388,7 @@ function openToothModal(toothNumber) {
     const descriptionEl = document.getElementById('condition_description');
     const notesEl = document.getElementById('treatment_notes');
     const statusEl = document.getElementById('treatment_status');
+    const treatmentLink = document.getElementById('createTreatmentForToothLink');
 
     if (!modal || !modalContent) {
         return;
@@ -1363,6 +1398,11 @@ function openToothModal(toothNumber) {
     const toothInput = document.getElementById('toothNumber');
     modalNumber.textContent = toothNumber;
     toothInput.value = toothNumber;
+    if (treatmentLink) {
+        const treatmentUrl = new URL(treatmentLink.getAttribute('href'), window.location.origin);
+        treatmentUrl.searchParams.set('tooth_number', String(toothNumber));
+        treatmentLink.setAttribute('href', treatmentUrl.toString());
+    }
 
     const existingTooth = odontogramData.find(t => parseInt(t.tooth_number, 10) === parseInt(toothNumber, 10));
 

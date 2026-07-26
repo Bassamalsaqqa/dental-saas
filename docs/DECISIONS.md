@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-07-26 - Odontogram Is a Clinical Index, Not a Procedure or Ledger
+
+- **Decision:** Tooth findings remain in the odontogram. Canonical procedures remain in Treatment, presented or accepted plans remain in Treatment Contracts, and financial truth remains in Finance.
+- **Rationale:** Leading dental workflows distinguish conditions, planned work, referred work, completed procedures, and financial posting. Combining them makes the chart fast initially but unsafe and difficult to trace later.
+- **Impact:** Examination-linked reports and contracts use the effective visit chart. Contextual handoffs may prefill patient, examination, and tooth, but must not infer treatment, completion, provider, fee, or billing. A first-class procedure-status lifecycle requires a separate schema, permission, audit, and migration slice.
+
 ## 2026-07-26 - Patient Baseline and Visit Odontograms Are Layered
 
 - **Decision:** The patient baseline odontogram remains the current known chart. Examination odontograms store visit-specific overrides and display them layered over the baseline. Examination workflows must pass `examination_id`; patient-context charting must not.

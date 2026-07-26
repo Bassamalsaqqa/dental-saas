@@ -2,6 +2,7 @@
 $validation = $validation ?? null;
 $contextual = !empty($contextual);
 $selectedPatient = $selected_patient ?? (!empty($patients[0]) ? $patients[0] : null);
+$selectedToothNumber = old('tooth_number', $selected_tooth_number ?? '');
 $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
 $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('usage_items'));
 ?>
@@ -29,7 +30,7 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
         </div>
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.tooth_number')) ?></label>
-            <input type="text" name="tooth_number" value="<?= esc(old('tooth_number')) ?>" maxlength="10" class="<?= esc($inputClass) ?>" placeholder="<?= esc(lang('Treatment.tooth_number_placeholder')) ?>">
+            <input type="text" name="tooth_number" value="<?= esc($selectedToothNumber) ?>" maxlength="10" class="<?= esc($inputClass) ?>" placeholder="<?= esc(lang('Treatment.tooth_number_placeholder')) ?>">
         </div>
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.start_date_required')) ?></label>

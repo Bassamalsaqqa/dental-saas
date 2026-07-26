@@ -8,6 +8,8 @@
 - Treatment workflows can create a clinical charge line when charge capture is explicitly enabled; conditions, appointments, and unsigned plans do not bill automatically.
 - Patient odontogram snapshots provide historical read-only points, but the app still lacks a first-class procedure-status timeline.
 - Remaining major gaps are signed/locked clinical notes and addenda, procedure statuses, perio charting, mixed dentition, referrals, controlled baseline promotion, and a formal consent/refusal lifecycle.
+- Examination reports and examination-linked treatment contracts consume the effective visit chart. A selected tooth can hand off patient, examination, tooth, and return context to canonical Treatment creation.
+- Odontogram `treatment_notes` and `treatment_status` remain legacy tooth follow-up metadata. They are not canonical procedures, accepted plans, completed work, or billable events.
 
 Last updated: 2026-05-02
 

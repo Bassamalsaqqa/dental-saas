@@ -848,7 +848,9 @@ class Examination extends BaseController
             'title' => 'Examination Report - ' . ($examination['examination_id'] ?? $examination['id']),
             'examination' => $examination,
             'latest_contract' => $latestContract,
-            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
+            'odontogram' => $this->odontogramModel
+                ->where('clinic_id', $clinicId)
+                ->getEffectiveOdontogramForExamination((int) $examination['patient_id'], (int) $examination['id']),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'clinic' => settings()->getClinicInfo()
         ];

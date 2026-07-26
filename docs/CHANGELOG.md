@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-26 - Odontogram workflow relationships
+
+- Kept the odontogram as the fast visual clinical index while preserving canonical ownership in examinations, treatments, contracts, appointments, attachments, and finance.
+- Examination print and examination-linked treatment contracts now use the effective visit chart (baseline plus visit overrides).
+- Added context-preserving odontogram actions for treatment creation and treatment-plan creation.
+- Treatment creation can prefill a validated tooth number from chart context.
+- Clarified legacy odontogram treatment note/status fields as tooth follow-up metadata, not procedures or billable events.
+- Expanded `docs/refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md` with the durable relationship contract and fast doctor workflow.
+
 ## 2026-07-26 - Patient clinical workflow and visit-chart integrity
 
 - Added the active patient clinical workflow contract covering preparation, examination, visit charting, treatment, completion, checkout, exceptions, and deferred capabilities.
