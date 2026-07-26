@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-26 - Finance Workflow Simplification Phase 1
+
+- Added the active finance and clinical workflow simplification plan at `docs/refactor/FINANCE_WORKFLOW_SIMPLIFICATION_PLAN.md`, grounded in the current charge-line, ledger, treasury, payable, payout, and contextual-workspace architecture.
+- Replaced the generic Finance `Add Income` entry point with explicit `Record Payment` and `Create Invoice` actions that reuse the existing canonical modal and preselect the correct transaction type.
+- Kept `New Expense` as the clinic spending action and moved supplier bills, provider payments, and money moves into a secondary finance-area navigation strip.
+- Reduced repeated summary-card explanations and decorative status clutter while preserving all values, routes, permissions, forms, backend calculations, and audit behavior.
+- Finance quick-create modals now start fresh on normal action clicks while preserving submitted values when reopened after server validation errors.
+
 ## 2026-06-25 - App-Wide Icon Font Hardening
 
 - Fixed the app-wide icon rendering issue after the first Font Awesome vendoring pass proved incomplete.

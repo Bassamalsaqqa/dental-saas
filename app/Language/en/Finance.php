@@ -230,6 +230,8 @@ return [
     'reasonOptionalPrompt' => 'Reason for closing this balance (optional):',
     'recordExpense' => 'Record Expense',
     'recordPayment' => 'Record Payment',
+    'createInvoice' => 'Create Invoice',
+    'financeAreas' => 'More finance',
     'recordProviderPayout' => 'Pay Provider',
     'recordTransfer' => 'Move Money',
     'reference' => 'Reference',

@@ -230,6 +230,8 @@ return [
     'reasonOptionalPrompt' => 'سبب إغلاق هذا الرصيد (اختياري):',
     'recordExpense' => 'تسجيل مصروف',
     'recordPayment' => 'تسجيل دفعة',
+    'createInvoice' => 'إنشاء فاتورة',
+    'financeAreas' => 'المزيد من المالية',
     'recordProviderPayout' => 'دفع لمقدم الخدمة',
     'recordTransfer' => 'تحريك الأموال',
     'reference' => 'المرجع',

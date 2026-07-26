@@ -36,6 +36,7 @@ Last updated: 2026-05-05
 ## App-Wide UX Pattern
 
 - Entity-centered command workspaces are now an app feature pattern, not a one-off patient tweak.
+- Finance and clinical-money UX simplification follows `docs/refactor/FINANCE_WORKFLOW_SIMPLIFICATION_PLAN.md`: daily clinic actions stay simple, while allocations, treasury, payables, payouts, and reporting remain available in specialist finance layers.
 - The current PHP Patient Profile is the reference first slice: contextual drawers can start related work while canonical modules still own validation, writes, redirects, permissions, tenant checks, audit logging, and finance math.
 - When applying the pattern to another entity page, reuse the rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`.
 - Do not copy patient actions blindly to provider, user, supplier, finance, inventory, or appointment pages; each entity gets actions that match its domain.

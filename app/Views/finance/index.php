@@ -273,7 +273,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 .finance-stat-card {
     position: relative;
     overflow: hidden;
-    min-height: 9.5rem;
+    min-height: 8.5rem;
     border-radius: 1.5rem;
     box-shadow: 0 24px 58px -42px rgba(15, 23, 42, 0.62);
 }
@@ -418,36 +418,46 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:justify-end">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-emerald-800 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:bg-emerald-50 sm:w-auto">
-                                <i class="fas fa-circle-plus mr-2"></i>
-                                <?= esc($tr('addIncome')) ?>
+                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="payment" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-emerald-800 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:bg-emerald-50 sm:w-auto">
+                                <i class="fas fa-hand-holding-dollar"></i>
+                                <?= esc($tr('recordPayment')) ?>
+                            </a>
+                            <a href="<?= base_url('finance/income/create') ?>" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="invoice" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-2.5 text-sm font-black text-white shadow-xl shadow-teal-950/15 transition hover:-translate-y-0.5 hover:bg-teal-600 sm:w-auto">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <?= esc($tr('createInvoice')) ?>
                             </a>
                             <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-black text-white shadow-xl shadow-rose-950/15 transition hover:-translate-y-0.5 hover:bg-rose-600 sm:w-auto">
-                                <i class="fas fa-receipt mr-2"></i>
+                                <i class="fas fa-receipt"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
                         <?php if (!empty($can_access_finance_reports)): ?>
                             <a href="<?= base_url('finance/reports') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
-                                <i class="fas fa-chart-bar mr-2"></i>
+                                <i class="fas fa-chart-bar"></i>
                                 <?= esc($tr('reports')) ?>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('finance/transfers') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
-                            <i class="fas fa-right-left mr-2"></i>
-                            <?= esc($tr('treasuryTransfers')) ?>
-                        </a>
-                        <a href="<?= base_url('finance/payables') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
-                            <i class="fas fa-file-invoice-dollar mr-2"></i>
-                            <?= esc($tr('supplierPayablesNav')) ?>
-                        </a>
-                        <a href="<?= base_url('finance/payouts') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/20 sm:w-auto">
-                            <i class="fas fa-hand-holding-dollar mr-2"></i>
-                            <?= esc($tr('providerPayoutsNav')) ?>
-                        </a>
                 </div>
             </div>
         </section>
+
+        <nav class="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center" aria-label="<?= esc($tr('financeAreas')) ?>">
+            <span class="shrink-0 text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('financeAreas')) ?></span>
+            <div class="flex flex-wrap gap-2">
+                <a href="<?= base_url('finance/payables') ?>" class="inline-flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800 transition hover:bg-amber-100">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <?= esc($tr('supplierPayablesNav')) ?>
+                </a>
+                <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-bold text-sky-800 transition hover:bg-sky-100">
+                    <i class="fas fa-user-doctor"></i>
+                    <?= esc($tr('providerPayoutsNav')) ?>
+                </a>
+                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-200">
+                    <i class="fas fa-right-left"></i>
+                    <?= esc($tr('treasuryTransfers')) ?>
+                </a>
+            </div>
+        </nav>
                     
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
@@ -455,29 +465,21 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 <!-- <?= lang('Finance.grossCollections') ?> Card -->
                 <div class="group relative">
                     <div class="finance-stat-card bg-gradient-to-br from-emerald-700 via-green-700 to-teal-700 p-5 text-white">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-3 flex items-center justify-between">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                     <i class="fas fa-dollar-sign text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <span class="text-green-700 font-bold text-xs"><?= lang('Finance.cashBasisShort') ?></span>
-                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-2">
                             <p class="text-xs font-black uppercase tracking-[0.14em] text-emerald-100/85"><?= lang('Finance.grossCollections') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-white" id="totalRevenue">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
-                                    <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
-                                </div>
                             </div>
-                            <p class="text-xs font-semibold text-emerald-50/85"><?= esc($tr('grossCollectionsHelp')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -485,29 +487,21 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 <!-- <?= lang('Finance.providerPaidCash') ?> Card -->
                 <div class="group relative">
                     <div class="finance-stat-card bg-gradient-to-br from-amber-600 via-orange-600 to-rose-600 p-5 text-white">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-3 flex items-center justify-between">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                     <i class="fas fa-clock text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full border border-yellow-200">
-                                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                                <span class="text-yellow-700 font-bold text-sm"><?= lang('Finance.cashOutShort') ?></span>
-                            </div>
                         </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
+                        <div class="space-y-2">
                             <p class="text-xs font-black uppercase tracking-[0.14em] text-amber-100/85"><?= lang('Finance.providerPaidCash') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-white" id="providerPaidCash">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
-                                </div>
                             </div>
-                            <p class="text-xs font-semibold text-amber-50/85"><?= lang('Finance.providerPaidCashHelp') ?></p>
                         </div>
                     </div>
                 </div>
@@ -515,29 +509,21 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 <!-- <?= lang('Finance.netClinicCash') ?> Card -->
                 <div class="group relative">
                     <div class="finance-stat-card bg-gradient-to-br from-blue-700 via-indigo-700 to-cyan-700 p-5 text-white">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-3 flex items-center justify-between">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                     <i class="fas fa-calendar-day text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                <span class="text-blue-700 font-bold text-sm"><?= lang('Finance.snapshotShort') ?></span>
-                            </div>
                         </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
+                        <div class="space-y-2">
                             <p class="text-xs font-black uppercase tracking-[0.14em] text-blue-100/85"><?= lang('Finance.netClinicCash') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-white" id="netClinicCash">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
-                                    <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
-                                </div>
                             </div>
-                            <p class="text-xs font-semibold text-blue-50/85"><?= lang('Finance.netClinicCashHelp') ?></p>
                         </div>
                     </div>
                 </div>
@@ -545,29 +531,22 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 <!-- <?= lang('Finance.outstandingInvoices') ?> Card -->
                 <div class="group relative">
                     <div class="finance-stat-card bg-gradient-to-br from-rose-700 via-red-700 to-orange-700 p-5 text-white">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-3 flex items-center justify-between">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative p-3 rounded-xl bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                     <i class="fas fa-file-invoice text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-pink-100 px-4 py-2 rounded-full border border-red-200">
-                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                                <span class="text-red-700 font-bold text-sm"><?= lang('Finance.currentShort') ?></span>
-                            </div>
                         </div>
-                        <div class="space-y-3 flex-1 flex flex-col justify-end">
+                        <div class="space-y-2">
                             <p class="text-xs font-black uppercase tracking-[0.14em] text-rose-100/85"><?= lang('Finance.openInvoices') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-white" id="outstandingInvoices">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-red-200 to-pink-200 rounded-full overflow-hidden">
-                                    <div class="w-5/6 h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
-                                </div>
                             </div>
-                            <p class="text-xs font-semibold text-rose-50/85" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p>
+                            <p class="sr-only" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -587,7 +566,6 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             </div>
                             <div>
                                 <h3 class="text-lg font-black text-slate-950"><?= lang('Finance.financialTransactions') ?></h3>
-                                <p class="mt-0.5 text-xs font-semibold text-slate-500"><?= esc($tr('financeManagementShortHelp')) ?></p>
                             </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
@@ -955,10 +933,30 @@ function resetFinanceCreateModal(modal) {
     }
 }
 
-function openFinanceCreateModal(modalId, trigger) {
+function applyFinanceTransactionPreset(modal, trigger) {
+    const transactionType = trigger?.getAttribute('data-finance-transaction-type') || '';
+    if (!transactionType) {
+        return;
+    }
+    const transactionSelect = modal.querySelector('select[name="transaction_type"]');
+    if (!transactionSelect) {
+        return;
+    }
+    transactionSelect.value = transactionType;
+    transactionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    if (window.jQuery) {
+        window.jQuery(transactionSelect).val(transactionType).trigger('change');
+    }
+}
+
+function openFinanceCreateModal(modalId, trigger, preserveValues) {
     const modal = mountFinanceCreateModal(modalId);
     if (!modal) {
         return;
+    }
+    if (!preserveValues) {
+        resetFinanceCreateModal(modal);
+        applyFinanceTransactionPreset(modal, trigger);
     }
     financeCreateModalTrigger = trigger || document.activeElement;
     if (financeCreateModalCloseTimer) {
@@ -1030,9 +1028,9 @@ document.addEventListener('keydown', function (event) {
 
 document.addEventListener('DOMContentLoaded', function () {
     if (<?= $shouldOpenIncomeModal ? 'true' : 'false' ?>) {
-        openFinanceCreateModal('financeIncomeModal', document.getElementById('addIncomeModalTrigger'));
+        openFinanceCreateModal('financeIncomeModal', document.getElementById('addIncomeModalTrigger'), true);
     } else if (<?= $shouldOpenExpenseModal ? 'true' : 'false' ?>) {
-        openFinanceCreateModal('financeExpenseModal', document.getElementById('newExpenseModalTrigger'));
+        openFinanceCreateModal('financeExpenseModal', document.getElementById('newExpenseModalTrigger'), true);
     }
 });
 </script>
