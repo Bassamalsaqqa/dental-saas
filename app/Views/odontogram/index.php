@@ -81,6 +81,11 @@ function getStatusText($status) {
 ?>
 
 <?= $this->section('content') ?>
+<?php
+$isExaminationChart = !empty($examination_id);
+$chartTitle = $isExaminationChart ? lang('Examination.visit_chart') : lang('Examination.patient_chart');
+$chartHelp = $isExaminationChart ? lang('Examination.visit_chart_help') : lang('Examination.patient_chart_help');
+?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
     <!-- Enhanced Page Header with Glassmorphism -->
     <div class="backdrop-blur-md bg-white/80 border-b border-white/20 shadow-sm">
@@ -92,7 +97,7 @@ function getStatusText($status) {
                     </div>
                     <div>
                         <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                            Interactive Odontogram
+                            <?= esc($chartTitle) ?>
                         </h1>
                         <p class="text-gray-600 mt-1 flex items-center">
                             <i class="fas fa-user-circle mr-2 text-blue-500"></i>
@@ -100,6 +105,12 @@ function getStatusText($status) {
                             <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
                                 <?= $patient['patient_id'] ?>
                             </span>
+                        </p>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold text-slate-600">
+                            <?= esc($chartHelp) ?>
+                            <?php if ($isExaminationChart): ?>
+                                <span class="ms-1 font-black text-blue-700" dir="ltr"><?= esc($examination['examination_id'] ?? ('EX-' . $examination_id)) ?></span>
+                            <?php endif; ?>
                         </p>
                     </div>
                 </div>

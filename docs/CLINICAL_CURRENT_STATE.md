@@ -1,5 +1,14 @@
 # Clinical Workflows Current State
 
+## 2026-07-26 Workflow Update
+
+- The active encounter contract is `docs/refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md`.
+- Patient baseline charting and examination charting are layered: visit-specific tooth rows override baseline rows for that examination without mutating the baseline.
+- Examination create/edit save-and-chart behavior and examination chart links retain `examination_id`.
+- Treatment workflows can create a clinical charge line when charge capture is explicitly enabled; conditions, appointments, and unsigned plans do not bill automatically.
+- Patient odontogram snapshots provide historical read-only points, but the app still lacks a first-class procedure-status timeline.
+- Remaining major gaps are signed/locked clinical notes and addenda, procedure statuses, perio charting, mixed dentition, referrals, controlled baseline promotion, and a formal consent/refusal lifecycle.
+
 Last updated: 2026-05-02
 
 ## Core Modules

@@ -547,7 +547,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('examinations', 'view')): ?>
-                                            <a href="<?= base_url('odontogram/' . $examination['patient_id']) ?>" 
+                                            <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], 'examination/' . (int) $examination['id']) ?>"
                                                class="text-purple-600 hover:text-purple-700 p-2 rounded-lg hover:bg-purple-50 transition-colors" title="<?= esc($tr('action_view_odontogram')) ?>">
                                                 <i class="fas fa-tooth"></i>
                                             </a>

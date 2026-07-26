@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-07-26 - Patient Baseline and Visit Odontograms Are Layered
+
+- **Decision:** The patient baseline odontogram remains the current known chart. Examination odontograms store visit-specific overrides and display them layered over the baseline. Examination workflows must pass `examination_id`; patient-context charting must not.
+- **Rationale:** Doctors need the existing chart visible during an encounter, but visit findings must not silently overwrite the baseline or produce a blank disconnected chart.
+- **Impact:** Visit chart reads merge baseline rows with examination overrides in memory. Writes remain examination-scoped. Resetting a visit override exposes the baseline and must not delete it. Contract snapshots remain frozen. Baseline promotion, signed notes, procedure statuses, perio charting, and referrals require separate reviewed contracts.
+
 ## 2026-06-25 - Font Awesome Is Vendored and Validated App-Wide
 
 - **Decision:** DentaCare loads Font Awesome from the local vendored package under `public/assets/vendor/fontawesome`, not from CDN links in individual views or layouts.

@@ -89,6 +89,45 @@ class OdontogramModel extends TenantAwareModel
             ->findAll();
     }
 
+    /**
+     * Show the patient baseline during a visit while allowing visit-specific
+     * rows to override individual teeth without mutating the baseline.
+     */
+    public function getEffectiveOdontogramForExamination(int $patientId, int $examinationId): array
+    {
+        $effective = [];
+
+        foreach ($this->getOdontogramByPatient($patientId) as $row) {
+            $row['inherited_from_baseline'] = true;
+            $effective[(int) $row['tooth_number']] = $row;
+        }
+
+        foreach ($this->getOdontogramByExamination($examinationId) as $row) {
+            $row['inherited_from_baseline'] = false;
+            $effective[(int) $row['tooth_number']] = $row;
+        }
+
+        ksort($effective, SORT_NUMERIC);
+
+        return array_values($effective);
+    }
+
+    public function getEffectiveToothCondition(int $patientId, int $toothNumber, int $examinationId): ?array
+    {
+        $condition = $this->getToothCondition($patientId, $toothNumber, $examinationId);
+        if ($condition) {
+            $condition['inherited_from_baseline'] = false;
+            return $condition;
+        }
+
+        $condition = $this->getToothCondition($patientId, $toothNumber);
+        if ($condition) {
+            $condition['inherited_from_baseline'] = true;
+        }
+
+        return $condition;
+    }
+
     public function updateToothCondition($patientId, $toothNumber, $conditionData)
     {
         $examinationId = $conditionData['examination_id'] ?? null;
@@ -158,6 +197,12 @@ class OdontogramModel extends TenantAwareModel
 
     public function getOdontogramStats($patientId, $examinationId = null)
     {
+        if (!empty($examinationId)) {
+            return $this->buildStatsFromRows(
+                $this->getEffectiveOdontogramForExamination((int) $patientId, (int) $examinationId)
+            );
+        }
+
         $totalTeeth = 32;
         $problematicTeeth = $this->countByCondition($patientId, ['healthy'], true, $examinationId);
 
@@ -172,6 +217,31 @@ class OdontogramModel extends TenantAwareModel
             'crowns' => $this->countByCondition($patientId, ['crown'], false, $examinationId),
             'extracted' => $this->countByCondition($patientId, ['extracted'], false, $examinationId),
             'root_canals' => $this->countByCondition($patientId, ['root_canal'], false, $examinationId)
+        ];
+    }
+
+    private function buildStatsFromRows(array $rows): array
+    {
+        $counts = array_count_values(array_map(
+            static fn(array $row): string => (string) ($row['condition_type'] ?? 'healthy'),
+            $rows
+        ));
+        $problematic = count(array_filter(
+            $rows,
+            static fn(array $row): bool => (string) ($row['condition_type'] ?? 'healthy') !== 'healthy'
+        ));
+
+        return [
+            'total_conditions' => count($rows),
+            'total_teeth' => 32,
+            'healthy_count' => max(0, 32 - $problematic),
+            'treated_count' => array_sum(array_intersect_key($counts, array_flip(['filling', 'crown', 'bridge', 'implant']))),
+            'needs_treatment_count' => array_sum(array_intersect_key($counts, array_flip(['cavity', 'extracted']))),
+            'cavities' => (int) ($counts['cavity'] ?? 0),
+            'fillings' => (int) ($counts['filling'] ?? 0),
+            'crowns' => (int) ($counts['crown'] ?? 0),
+            'extracted' => (int) ($counts['extracted'] ?? 0),
+            'root_canals' => (int) ($counts['root_canal'] ?? 0),
         ];
     }
 

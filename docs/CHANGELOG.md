@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-26 - Patient clinical workflow and visit-chart integrity
+
+- Added the active patient clinical workflow contract covering preparation, examination, visit charting, treatment, completion, checkout, exceptions, and deferred capabilities.
+- Fixed examination create/edit save-and-chart redirects and examination list/detail chart actions so they retain `examination_id`.
+- Visit odontograms now show patient baseline conditions with examination tooth overrides layered on top, without copying or mutating baseline rows.
+- Added clear patient-chart versus visit-chart context labels in English and Arabic.
+- Added Open visit chart as a primary examination action.
+- Added a database-backed regression test proving visit overrides win while untouched baseline rows remain intact.
+
 ## 2026-07-26 - Finance workflow simplification
 
 - Simplified the daily finance workspace around three clinic jobs: Record payment, Create invoice, and New expense.

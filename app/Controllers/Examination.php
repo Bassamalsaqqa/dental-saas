@@ -193,7 +193,7 @@ class Examination extends BaseController
             
             if ($this->request->getPost('after_save') === 'odontogram') {
                 return $this->redirectAfterWorkflow(
-                    'odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $examinationId,
+                    'odontogram/' . (int) $examinationData['patient_id'] . '?examination_id=' . $examinationId . '&return_to=examination/' . $examinationId,
                     ['patient', 'patients', 'examination', 'examinations'],
                     null,
                     false
@@ -290,8 +290,8 @@ class Examination extends BaseController
             'examination_finance_currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
             'examination_finance_liquidity_options' => $liquidityOptions,
             'signature_enabled' => $signatureEnabled,
-            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
-            'odontogram_stats' => $this->odontogramModel->getOdontogramStats((int) $examination['patient_id']),
+            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getEffectiveOdontogramForExamination((int) $examination['patient_id'], (int) $examination['id']),
+            'odontogram_stats' => $this->odontogramModel->getOdontogramStats((int) $examination['patient_id'], (int) $examination['id']),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
@@ -469,7 +469,7 @@ class Examination extends BaseController
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
             if ($this->request->getPost('after_save') === 'odontogram') {
                 return $this->redirectAfterWorkflow(
-                    'odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $id,
+                    'odontogram/' . (int) $examinationData['patient_id'] . '?examination_id=' . $id . '&return_to=examination/' . $id,
                     ['patient', 'patients', 'examination', 'examinations'],
                     null,
                     false

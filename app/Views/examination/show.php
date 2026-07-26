@@ -712,7 +712,7 @@ $healthFlags = array_values(array_filter([
                                 <p class="text-sm font-semibold text-gray-800"><?= esc($tr('dental_chart_odontogram')) ?></p>
                                 <p class="text-xs text-gray-500 mt-0.5"><?= $odontogramConditionCount > 0 ? esc($tr('odontogram_conditions_recorded', ['count' => $odontogramConditionCount])) : esc($tr('no_odontogram_data_recorded')) ?></p>
                             </div>
-                            <a href="<?= base_url('odontogram/' . $examination['patient_id'] . '') ?>" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-sky-700 border border-gray-200 hover:bg-sky-50 hover:border-sky-200 transition-all shadow-sm">
+                            <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], $returnToContext) ?>" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-sky-700 border border-gray-200 hover:bg-sky-50 hover:border-sky-200 transition-all shadow-sm">
                                 <i class="fas fa-tooth"></i><span><?= esc($odontogramConditionCount > 0 ? $tr('view_full_odontogram') : $tr('create_odontogram')) ?></span>
                             </a>
                         </div>
@@ -799,6 +799,10 @@ $healthFlags = array_values(array_filter([
                     <span><?= esc($tr('workflow_heading')) ?></span>
                 </div>
                 <div class="exam-card-body exam-workflow-stack">
+                    <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], $returnToContext) ?>" class="exam-action-primary" style="background:#2563eb;color:#fff;">
+                        <i class="fas fa-tooth text-sm"></i>
+                        <?= esc($tr('open_visit_chart')) ?>
+                    </a>
                     <?php if ($statusKey !== 'completed'): ?>
                     <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>">
                         <?= csrf_field() ?>

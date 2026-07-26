@@ -143,12 +143,13 @@ class Odontogram extends BaseController
             'title' => 'Odontogram - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
             'odontogram' => $examinationId
-                ? $this->odontogramModel->getOdontogramByExamination($examinationId)
+                ? $this->odontogramModel->getEffectiveOdontogramForExamination((int) $patientId, $examinationId)
                 : $this->odontogramModel->getOdontogramByPatient($patientId),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
             'stats' => $this->odontogramModel->getOdontogramStats($patientId, $examinationId),
             'examination_id' => $examinationId,
+            'examination' => $examinationId ? $exam : null,
             'return_to' => $this->sanitizeInternalReturnTo(
                 $this->request->getGet('return_to'),
                 ['patient', 'patients', 'examination', 'odontogram']
@@ -232,7 +233,9 @@ class Odontogram extends BaseController
             }
         }
 
-        $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber, $examinationId);
+        $condition = $examinationId
+            ? $this->odontogramModel->getEffectiveToothCondition((int) $patientId, (int) $toothNumber, $examinationId)
+            : $this->odontogramModel->getToothCondition($patientId, $toothNumber);
         
         return $this->response->setJSON($condition);
     }
