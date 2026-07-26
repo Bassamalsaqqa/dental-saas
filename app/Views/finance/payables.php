@@ -231,14 +231,23 @@ $statusClass = static function (string $status): string {
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <?php foreach ($bucketCards as $bucket => $card): ?>
-                <div class="rounded-2xl border bg-gradient-to-br p-4 shadow-lg shadow-slate-200/60 <?= esc($card['class']) ?>">
-                    <p class="text-xs font-black uppercase tracking-wide"><?= esc($card['label']) ?></p>
-                    <p class="mt-2 text-lg font-black"><?= $formatMoney($agingSummary[$bucket] ?? 0) ?></p>
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <details class="finance-payables-panel group">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-black text-slate-800">
+                <span class="inline-flex items-center gap-2">
+                    <i class="fas fa-clock-rotate-left text-amber-600"></i>
+                    <?= esc($tr('accountsPayableAging')) ?>
+                </span>
+                <i class="fas fa-chevron-down text-xs text-slate-500 transition group-open:rotate-180"></i>
+            </summary>
+            <div class="grid grid-cols-2 gap-3 border-t border-slate-100 p-4 md:grid-cols-5">
+                <?php foreach ($bucketCards as $bucket => $card): ?>
+                    <div class="rounded-2xl border bg-gradient-to-br p-4 shadow-lg shadow-slate-200/60 <?= esc($card['class']) ?>">
+                        <p class="text-xs font-black uppercase tracking-wide"><?= esc($card['label']) ?></p>
+                        <p class="mt-2 text-lg font-black"><?= $formatMoney($agingSummary[$bucket] ?? 0) ?></p>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </details>
 
         <div>
             <div id="tableView" class="finance-payables-panel">

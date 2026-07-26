@@ -232,6 +232,7 @@ return [
     'recordPayment' => 'Record Payment',
     'createInvoice' => 'Create Invoice',
     'financeAreas' => 'More finance',
+    'optionalDetails' => 'Optional details',
     'recordProviderPayout' => 'Pay Provider',
     'recordTransfer' => 'Move Money',
     'reference' => 'Reference',

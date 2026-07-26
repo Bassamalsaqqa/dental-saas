@@ -94,7 +94,7 @@ Users may move downward into detail, but specialist concepts should not be force
 
 ### Phase 1 - Finance Home Simplification
 
-Status: in progress.
+Status: completed in `2a56475`.
 
 - Replace generic Add Income with Record Payment and Create Invoice entry points.
 - Keep New Expense as a distinct action.
@@ -105,22 +105,29 @@ Status: in progress.
 
 ### Phase 2 - Transaction Form Progressive Disclosure
 
+Status: completed for shared quick-create forms.
+
 - Keep patient, transaction type, amount, payment method, date, and service as the visible core.
 - Show exchange rate only for non-base currency.
 - Show check upload only for check payments.
 - Show due date only for invoices or unpaid expenses.
 - Show paid date only for payments/settled records.
-- Keep discounts, tax, and provider share available in a consistent optional section.
+- Keep discounts, tax, total, and provider share visible because they change stored financial meaning and were intentionally retained in the established clinic workflow.
+- Move linked records, attachments, descriptions, references, and notes into one consistent optional section.
 - Preserve all submitted field names and validation rules.
 
 ### Phase 3 - Patient Finance Simplification
 
-- Lead with Balance due, Open invoices, Recent payments, and Unbilled clinical work.
-- Use one readable account timeline rather than multiple competing summaries.
-- Keep direct actions contextual: Create invoice, Record payment, Open transaction.
+Status: completed for the current patient finance tab.
+
+- Lead with balance due, total billed, total paid, and refunds.
+- Use one readable ledger plus a collapsed money-trail drill-down.
+- Keep direct actions contextual: Create invoice, Record payment, and Open transaction.
 - Move provider payout and treasury detail out of the patient-facing layer.
 
 ### Phase 4 - Clinical Billing Handoff
+
+Status: completed for the existing treatment, examination, and appointment billing drawers.
 
 - On treatment and examination pages, show one billing state: Not captured, Ready to invoice, Invoiced, Partially paid, or Paid.
 - Keep one primary next action based on state.
@@ -129,6 +136,8 @@ Status: in progress.
 
 ### Phase 5 - Specialist Finance Pages
 
+Status: completed for reports previously simplified, plus payables, payouts, and treasury transfers.
+
 - Simplify reports into owner questions before accounting breakdowns.
 - Keep payables focused on vendor, due date, amount due, and payment action.
 - Keep payouts focused on provider, earned, paid, remaining, and payment action.
@@ -136,10 +145,16 @@ Status: in progress.
 
 ### Phase 6 - Terminology and Explanation Audit
 
+Status: completed for the touched daily and specialist finance surfaces; continue opportunistically when related pages change.
+
 - Audit English and Arabic together.
 - Remove repeated subtitles and instructional prose.
 - Keep help text only for consequences, uncommon terms, validation constraints, and irreversible actions.
 - Ensure Arabic uses familiar clinic language and natural RTL layout.
+
+## Deferred Cleanup
+
+The legacy full-page `finance/create.php`, `finance/expense_create.php`, and edit variants still contain older form markup alongside the newer shared quick-create partials. They are intentionally not consolidated in this program because they include established validation rendering and page-specific behavior. Converting them should be a separate compatibility slice with side-by-side POST testing for create, edit, validation failure, currency, payment method, liquidity account, and provider-share behavior.
 
 ## Guardrails
 

@@ -9,7 +9,6 @@ $isRtl = !empty($is_rtl);
         <div class="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-sm font-bold text-slate-900"><?= esc(lang('Finance.billClinicalWork')) ?></p>
-                <p class="text-xs font-medium text-slate-500"><?= esc(lang('Finance.billClinicalWorkHelp')) ?></p>
             </div>
             <span class="text-xs font-bold text-sky-700" data-clinical-charge-total>0.00</span>
         </div>

@@ -232,6 +232,7 @@ return [
     'recordPayment' => 'تسجيل دفعة',
     'createInvoice' => 'إنشاء فاتورة',
     'financeAreas' => 'المزيد من المالية',
+    'optionalDetails' => 'تفاصيل اختيارية',
     'recordProviderPayout' => 'دفع لمقدم الخدمة',
     'recordTransfer' => 'تحريك الأموال',
     'reference' => 'المرجع',

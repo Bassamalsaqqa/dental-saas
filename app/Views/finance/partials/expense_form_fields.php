@@ -6,6 +6,10 @@ $fieldId = static function (string $id) use ($idPrefix): string {
 };
 $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-rose-500 focus:outline-none focus:ring-4 focus:ring-rose-500/15';
 $selectClass = $inputClass . ' finance-leading-input';
+$showOptionalDetails = old('supplier_id') !== null
+    || trim((string) old('description', '')) !== ''
+    || trim((string) old('service_details', '')) !== ''
+    || trim((string) old('notes', '')) !== '';
 ?>
 <div class="space-y-5">
     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -17,7 +21,6 @@ $selectClass = $inputClass . ' finance-leading-input';
                     <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id', $selected_supplier_id ?? '') === (string) $supplier['id'] ? 'selected' : '' ?>><?= esc($supplier['name']) ?></option>
                 <?php endforeach; ?>
             </select>
-            <p class="mt-2 text-xs text-slate-500"><?= esc(lang('Finance.linkedSupplierHelp')) ?></p>
         </div>
 
         <div>
@@ -56,12 +59,11 @@ $selectClass = $inputClass . ' finance-leading-input';
         <div id="<?= esc($fieldId('exchangeRateField')) ?>" data-exchange-rate-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.exchangeRateRequired') ?></label>
             <input type="number" id="<?= esc($fieldId('exchangeRate')) ?>" name="exchange_rate" value="<?= esc(old('exchange_rate', 1)) ?>" step="0.0001" min="0" class="<?= esc($inputClass) ?>" placeholder="1.0000">
-            <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.exchangeRateHelp') ?> (<?= esc($baseCurrency) ?>).</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <div>
+        <div data-finance-converted-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.convertedAmount') ?> (<?= esc($baseCurrency) ?>)</label>
             <input type="text" id="<?= esc($fieldId('amountConverted')) ?>" data-finance-converted readonly class="<?= esc($inputClass) ?> bg-slate-100" value="0.00">
         </div>
@@ -97,7 +99,6 @@ $selectClass = $inputClass . ' finance-leading-input';
                     <option value="<?= esc($key) ?>" <?= old('liquidity_account') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
                 <?php endforeach; ?>
             </select>
-            <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.paidFromAccountHelp') ?></p>
         </div>
 
         <div>
@@ -115,11 +116,11 @@ $selectClass = $inputClass . ' finance-leading-input';
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.transactionDate') ?></label>
             <input type="text" name="transaction_date" data-clinic-date="1" value="<?= esc(old('transaction_date', date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?>">
         </div>
-        <div>
+        <div data-finance-paid-date-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.paidDate') ?></label>
             <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(old('paid_date', date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?>">
         </div>
-        <div>
+        <div data-finance-due-date-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.dueDate') ?></label>
             <input type="text" name="due_date" data-clinic-date="1" value="<?= esc(old('due_date')) ?>" class="<?= esc($inputClass) ?>">
         </div>
@@ -129,9 +130,8 @@ $selectClass = $inputClass . ' finance-leading-input';
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.amountPaidNow') ?></label>
             <input type="number" name="amount_paid" data-expense-amount-paid value="<?= esc(old('amount_paid', 0)) ?>" step="0.01" min="0" class="<?= esc($inputClass) ?>">
-            <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.amountPaidNowHelp') ?></p>
         </div>
-        <div>
+        <div class="<?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.attachmentOptional') ?></label>
             <label class="inline-flex w-full cursor-pointer items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100">
                 <i class="fas fa-upload me-2"></i><?= lang('Finance.uploadAttachment') ?>
@@ -141,7 +141,15 @@ $selectClass = $inputClass . ' finance-leading-input';
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+    <button type="button" data-finance-optional-toggle aria-expanded="<?= $showOptionalDetails ? 'true' : 'false' ?>" class="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-start text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+        <span class="inline-flex items-center gap-2">
+            <i class="fas fa-sliders text-slate-500"></i>
+            <?= esc(lang('Finance.optionalDetails')) ?>
+        </span>
+        <i class="fas fa-chevron-down text-xs transition-transform" data-finance-optional-chevron></i>
+    </button>
+
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 <?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.description') ?></label>
             <textarea name="description" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Finance.expenseDescriptionPlaceholder')) ?>"><?= esc(old('description')) ?></textarea>
@@ -152,7 +160,7 @@ $selectClass = $inputClass . ' finance-leading-input';
         </div>
     </div>
 
-    <div>
+    <div class="<?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.notes') ?></label>
         <textarea name="notes" rows="3" class="<?= esc($inputClass) ?> resize-y"><?= esc(old('notes')) ?></textarea>
     </div>

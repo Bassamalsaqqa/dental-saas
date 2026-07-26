@@ -17,6 +17,10 @@ $fieldId = static function (string $id) use ($idPrefix): string {
 $leadingFieldPadding = 'finance-leading-input';
 $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
 $selectClass = $inputClass . ' ' . $leadingFieldPadding;
+$showOptionalDetails = old('examination_id') !== null
+    || trim((string) old('service_details', '')) !== ''
+    || trim((string) old('description', '')) !== ''
+    || trim((string) old('notes', '')) !== '';
 ?>
 <div data-finance-calc data-provider-split data-base-currency="<?= esc($baseCurrency) ?>">
     <?php if ($contextual && !empty($selectedPatient['id'])): ?>
@@ -73,7 +77,7 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
             <input type="number" name="exchange_rate" id="<?= esc($fieldId('exchangeRate')) ?>" value="<?= old('exchange_rate', 1) ?>" step="0.0001" min="0" class="<?= esc($inputClass) ?>" placeholder="1.0000">
             <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.exchangeRateHelp') ?> (<?= esc($baseCurrency) ?>).</p>
         </div>
-        <div>
+        <div data-finance-converted-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.convertedAmount') ?> (<?= esc($baseCurrency) ?>)</label>
             <input type="text" id="<?= esc($fieldId('amountConverted')) ?>" data-finance-converted readonly class="<?= esc($inputClass) ?> bg-slate-100" value="0.00">
         </div>
@@ -96,6 +100,16 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
     </div>
 
     <div class="mt-5">
+        <button type="button" data-finance-optional-toggle aria-expanded="<?= $showOptionalDetails ? 'true' : 'false' ?>" class="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-start text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+            <span class="inline-flex items-center gap-2">
+                <i class="fas fa-sliders text-slate-500"></i>
+                <?= esc(lang('Finance.optionalDetails')) ?>
+            </span>
+            <i class="fas fa-chevron-down text-xs transition-transform" data-finance-optional-chevron></i>
+        </button>
+    </div>
+
+    <div class="mt-5 <?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.examination') ?></label>
         <select name="examination_id" id="<?= esc($fieldId('examinationSelect')) ?>" class="<?= esc($selectClass) ?>" data-searchable-select data-minimum-input-length="0" data-limit="5" data-depends-on="<?= esc($fieldId('patientSelect')) ?>" data-depends-param="patient_id" data-require-dependency="<?= $contextual ? 'false' : 'true' ?>" data-extra-params="<?= $contextual && !empty($selectedPatient['id']) ? esc(json_encode(['patient_id' => (int) $selectedPatient['id']])) : '' ?>" data-status="all" data-search-url="<?= base_url('api/v1/search/examinations') ?>" data-placeholder="<?= esc(lang('Finance.searchExaminationsPlaceholder')) ?>">
             <option value=""><?= lang('Finance.selectExaminationOptional') ?></option>
@@ -107,11 +121,11 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.transactionDate') ?></label>
             <input type="text" name="transaction_date" data-clinic-date="1" value="<?= esc(old('transaction_date', date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?>">
         </div>
-        <div>
+        <div data-finance-paid-date-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.paymentDate') ?></label>
             <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(old('paid_date', date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?>">
         </div>
-        <div>
+        <div data-finance-due-date-field>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.dueDate') ?></label>
             <input type="text" name="due_date" data-clinic-date="1" value="<?= esc(old('due_date')) ?>" class="<?= esc($inputClass) ?>">
         </div>
@@ -124,7 +138,7 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
             <?php foreach (['consultation', 'treatment', 'medication', 'procedure', 'other'] as $type): ?><option value="<?= esc($type) ?>" <?= old('service_type') === $type ? 'selected' : '' ?>><?= lang('Finance.' . $type) ?></option><?php endforeach; ?>
         </select>
     </div>
-    <div class="mt-5">
+    <div class="mt-5 <?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.serviceDetails') ?></label>
         <textarea name="service_details" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Finance.serviceDetailsPlaceholder')) ?>"><?= old('service_details') ?></textarea>
     </div>
@@ -150,7 +164,6 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
                 <div>
                     <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.total') ?> (<?= esc($baseCurrency) ?>)</label>
                     <input type="text" id="<?= esc($fieldId('totalAmountLive')) ?>" data-finance-total readonly class="<?= esc($inputClass) ?> border-emerald-200 bg-emerald-50 font-bold text-emerald-700" value="0.00">
-                    <p class="mt-2 text-xs text-slate-500"><?= lang('Finance.totalFormulaHelp') ?></p>
                 </div>
             </div>
             <?= view('finance/partials/provider_split_section', [
@@ -177,11 +190,11 @@ $selectClass = $inputClass . ' ' . $leadingFieldPadding;
         </details>
     <?php endif; ?>
 
-    <div class="mt-5">
+    <div class="mt-5 <?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.description') ?></label>
         <textarea name="description" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Finance.transactionDescriptionPlaceholder')) ?>"><?= old('description') ?></textarea>
     </div>
-    <div class="mt-5">
+    <div class="mt-5 <?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.notes') ?></label>
         <textarea name="notes" rows="3" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('Finance.additionalNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
     </div>

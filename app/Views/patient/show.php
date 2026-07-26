@@ -2830,10 +2830,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
                             <section class="patient-finance-workspace relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-emerald-50/65 to-amber-50/55 p-4 shadow-xl shadow-slate-200/60 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-emerald-400/20 blur-3xl"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-amber-300/20 blur-3xl"></div></div><div class="relative space-y-5">
                                 <div class="flex flex-wrap items-center justify-end gap-2">
-                                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white/90 px-4 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm transition hover:bg-emerald-50">
-                                        <i class="fas fa-chart-line"></i><?= esc(lang('TenantMisc.openFinanceReports')) ?>
-                                    </a>
                                     <?php if (has_permission('finance', 'create')): ?>
+                                        <button type="button" data-app-drawer-open="patientPaymentDrawer" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white/90 px-4 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm transition hover:bg-emerald-50">
+                                            <i class="fas fa-hand-holding-dollar"></i><?= esc(lang('UI.recordPayment')) ?>
+                                        </button>
                                         <button type="button" data-app-drawer-open="patientChargeDrawer" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-700 hover:to-teal-800">
                                             <i class="fas fa-plus"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                         </button>

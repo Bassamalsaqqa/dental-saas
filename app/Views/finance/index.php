@@ -918,6 +918,15 @@ function resetFinanceCreateModal(modal) {
     form.querySelectorAll('[data-check-scan-name], [data-expense-attachment-name]').forEach(function (label) {
         label.textContent = '';
     });
+    form.querySelectorAll('[data-finance-optional]').forEach(function (section) {
+        section.classList.add('hidden');
+    });
+    form.querySelectorAll('[data-finance-optional-toggle]').forEach(function (toggle) {
+        toggle.setAttribute('aria-expanded', 'false');
+    });
+    form.querySelectorAll('[data-finance-optional-chevron]').forEach(function (chevron) {
+        chevron.classList.remove('rotate-180');
+    });
     form.querySelectorAll('select').forEach(function (select) {
         select.dispatchEvent(new Event('change', { bubbles: true }));
         if (window.jQuery) {

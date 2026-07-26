@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-07-26 - Finance workflow simplification
+
+- Simplified the daily finance workspace around three clinic jobs: Record payment, Create invoice, and New expense.
+- Kept payables, provider payouts, treasury transfers, and reports available as secondary specialist finance areas.
+- Added progressive disclosure to the shared income and expense quick-create forms without changing field names, routes, validation, calculations, permissions, or POST behavior.
+- Exchange-rate and converted-amount fields now appear only for non-base currency; paid and due dates follow transaction state; linked records and narrative fields live under one optional-details control.
+- Simplified patient finance actions to Record payment and Create invoice while retaining one ledger and a collapsed money-trail drill-down.
+- Reduced repeated guidance on payables, payouts, transfers, clinical charge selection, provider share, and treatment billing handoffs.
+- Preserved backend ownership of balances, taxes, discounts, allocations, provider compensation, treasury custody, inventory COGS, tenant scope, and audit history.
+- Deferred consolidation of legacy full-page finance forms into shared partials to a dedicated compatibility-tested cleanup slice.
+
 ## 2026-07-26 - Finance Workflow Simplification Phase 1
 
 - Added the active finance and clinical workflow simplification plan at `docs/refactor/FINANCE_WORKFLOW_SIMPLIFICATION_PLAN.md`, grounded in the current charge-line, ledger, treasury, payable, payout, and contextual-workspace architecture.

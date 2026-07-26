@@ -111,8 +111,6 @@ foreach (($clinic_providers ?? []) as $provider) {
                 <i class="fas fa-hand-holding-dollar text-indigo-600"></i>
                 <?= lang('Finance.providerSplit') ?>
             </h4>
-            <p class="text-xs text-indigo-700/80"><?= lang('Finance.providerSplitHelp') ?></p>
-            <p class="mt-1 text-xs text-indigo-700/80"><?= lang('Finance.providerSplitMultiHelp') ?></p>
         </div>
         <label class="inline-flex items-center cursor-pointer">
             <input type="checkbox" id="<?= esc($fieldId('providerSplitEnabled')) ?>" name="provider_split_enabled" value="1" class="sr-only" <?= $splitEnabled ? 'checked' : '' ?>>

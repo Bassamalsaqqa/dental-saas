@@ -22,6 +22,12 @@
     const chargePicker = field('[data-clinical-charge-picker]');
     const chargeTotal = field('[data-clinical-charge-total]');
     const chargeCheckboxes = Array.from(form.querySelectorAll('[data-clinical-charge-line]'));
+    const optionalToggle = field('[data-finance-optional-toggle]');
+    const optionalSections = Array.from(form.querySelectorAll('[data-finance-optional]'));
+    const optionalChevron = field('[data-finance-optional-chevron]');
+    const paidDateField = field('[data-finance-paid-date-field]');
+    const dueDateField = field('[data-finance-due-date-field]');
+    const expenseStatusSelect = field('[data-expense-payment-status]');
 
     const baseCurrency = form.getAttribute('data-base-currency') || 'ILS';
 
@@ -68,8 +74,12 @@
       const currency = currencySelect?.value || baseCurrency;
       const requiresRate = currency !== baseCurrency;
       const rateField = field('[data-exchange-rate-field], #exchangeRateField');
+      const convertedField = field('[data-finance-converted-field]');
       if (rateField) {
         rateField.style.display = requiresRate ? 'block' : 'none';
+      }
+      if (convertedField) {
+        convertedField.style.display = requiresRate ? 'block' : 'none';
       }
       if (rateInput) {
         rateInput.required = requiresRate;
@@ -85,6 +95,32 @@
       el.addEventListener('change', fn);
       el.addEventListener('keyup', fn);
       el.addEventListener('blur', fn);
+    };
+
+    const toggleTransactionDates = () => {
+      const transactionType = transactionTypeSelect?.value || form.querySelector('[name="transaction_type"][type="hidden"]')?.value || '';
+      const expenseStatus = expenseStatusSelect?.value || '';
+      const showPaidDate = expenseStatus
+        ? ['paid', 'partial'].includes(expenseStatus)
+        : ['payment', 'refund', 'adjustment'].includes(transactionType);
+      const showDueDate = expenseStatus
+        ? ['pending', 'partial'].includes(expenseStatus)
+        : transactionType === 'invoice';
+      const setFieldState = (container, visible) => {
+        if (!container) return;
+        container.classList.toggle('hidden', !visible);
+        container.querySelectorAll('input, select, textarea').forEach((input) => {
+          input.disabled = !visible;
+        });
+      };
+      setFieldState(paidDateField, showPaidDate);
+      setFieldState(dueDateField, showDueDate);
+    };
+
+    const setOptionalDetails = (expanded) => {
+      optionalSections.forEach((section) => section.classList.toggle('hidden', !expanded));
+      optionalToggle?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      optionalChevron?.classList.toggle('rotate-180', expanded);
     };
 
     const selectedChargeLines = () => chargeCheckboxes.filter((checkbox) => checkbox.checked);
@@ -149,7 +185,11 @@
     });
 
     methodSelect?.addEventListener('change', toggleCheck);
-    transactionTypeSelect?.addEventListener('change', syncClinicalChargePicker);
+    transactionTypeSelect?.addEventListener('change', () => {
+      syncClinicalChargePicker();
+      toggleTransactionDates();
+    });
+    expenseStatusSelect?.addEventListener('change', toggleTransactionDates);
     chargeCheckboxes.forEach((checkbox) => checkbox.addEventListener('change', syncClinicalChargePicker));
 
     if (window.jQuery) {
@@ -163,9 +203,19 @@
         window.jQuery(methodSelect).on('select2:select select2:clear change', toggleCheck);
       }
       if (transactionTypeSelect) {
-        window.jQuery(transactionTypeSelect).on('select2:select select2:clear change', syncClinicalChargePicker);
+        window.jQuery(transactionTypeSelect).on('select2:select select2:clear change', () => {
+          syncClinicalChargePicker();
+          toggleTransactionDates();
+        });
+      }
+      if (expenseStatusSelect) {
+        window.jQuery(expenseStatusSelect).on('select2:select select2:clear change', toggleTransactionDates);
       }
     }
+
+    optionalToggle?.addEventListener('click', () => {
+      setOptionalDetails(optionalToggle.getAttribute('aria-expanded') !== 'true');
+    });
 
     checkInput?.addEventListener('change', () => {
       if (checkName) {
@@ -176,8 +226,12 @@
     const recomputeAll = () => {
       toggleCurrencyFields();
       syncClinicalChargePicker();
+      toggleTransactionDates();
       updateConverted();
       toggleCheck();
+      if (optionalToggle) {
+        setOptionalDetails(optionalToggle.getAttribute('aria-expanded') === 'true');
+      }
     };
 
     recomputeAll();

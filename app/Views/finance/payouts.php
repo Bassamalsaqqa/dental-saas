@@ -187,27 +187,12 @@
             </div>
         </section>
 
-        <section class="finance-payouts-panel border-teal-100 bg-gradient-to-r from-teal-50 via-white to-sky-50 px-5 py-4">
-            <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-start gap-3">
-                    <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
-                        <i class="fas fa-circle-info text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-black text-slate-950"><?= lang('Finance.providerPayouts') ?></p>
-                        <p class="mt-1 text-sm font-semibold text-slate-600"><?= lang('Finance.providerPayoutsGuidance') ?></p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section class="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="finance-payouts-card bg-gradient-to-br from-blue-700 via-indigo-700 to-slate-950 p-5 text-white shadow-blue-900/25">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-indigo-50/90"><?= lang('Finance.providerShareTotal') ?></p>
                         <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_provider_share'] ?? 0) ?></p>
-                        <p class="mt-2 text-xs font-bold text-indigo-50/80"><?= lang('Finance.accruedProviderEntitlement') ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
                         <i class="fas fa-percent text-lg"></i>
@@ -220,7 +205,6 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
                         <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_provider_balance'] ?? 0) ?></p>
-                        <p class="mt-2 text-xs font-bold text-rose-50/80"><?= lang('Finance.pendingProviderPayouts') ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
                         <i class="fas fa-triangle-exclamation text-lg"></i>
@@ -233,7 +217,6 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.clinicShareTotal') ?></p>
                         <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_clinic_share'] ?? 0) ?></p>
-                        <p class="mt-2 text-xs font-bold text-emerald-50/80"><?= lang('Finance.retainedByClinic') ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
                         <i class="fas fa-building text-lg"></i>
@@ -251,7 +234,6 @@
                         </span>
                         <div>
                             <h3 class="text-lg font-black text-slate-950"><?= lang('Finance.payoutLedger') ?></h3>
-                            <p class="text-sm font-semibold text-slate-500"><?= lang('Finance.searchProviderPatientTxn') ?></p>
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

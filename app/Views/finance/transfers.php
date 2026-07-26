@@ -88,7 +88,6 @@ $transferTotal = array_sum(array_map(static fn($row) => (float) ($row['amount'] 
                     </div>
                     <div>
                         <h1 class="text-2xl font-black tracking-tight"><?= lang('Finance.treasuryTransfers') ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold text-emerald-50/90"><?= lang('Finance.treasuryTransfersHelp') ?></p>
                     </div>
                 </div>
                 <?php if (!empty($can_access_finance_reports)): ?>
@@ -100,53 +99,14 @@ $transferTotal = array_sum(array_map(static fn($row) => (float) ($row['amount'] 
             </div>
         </section>
 
-        <section class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <section class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div class="finance-transfers-card bg-gradient-to-br from-emerald-600 to-teal-800 p-5 text-white shadow-emerald-500/25">
                 <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.recentTransfers') ?></p>
                 <p class="mt-3 text-3xl font-black"><?= number_format($transferCount) ?></p>
-                <p class="mt-2 text-xs font-bold text-emerald-50/80"><?= lang('Finance.treasuryTransfersHelp') ?></p>
             </div>
             <div class="finance-transfers-card bg-gradient-to-br from-slate-700 to-slate-950 p-5 text-white shadow-slate-500/25">
                 <p class="text-xs font-black uppercase tracking-wide text-slate-100/90"><?= lang('Finance.total') ?></p>
                 <p class="mt-3 text-3xl font-black"><?= $formatMoney($transferTotal) ?></p>
-                <p class="mt-2 text-xs font-bold text-slate-200"><?= lang('Finance.periodMovement') ?></p>
-            </div>
-            <div class="finance-transfers-card bg-gradient-to-br from-amber-500 to-orange-700 p-5 text-white shadow-amber-500/25">
-                <p class="text-xs font-black uppercase tracking-wide text-amber-50/95"><?= lang('Finance.transferType') ?></p>
-                <div class="mt-3 space-y-1 text-sm font-black text-white">
-                    <p><?= esc(lang('Finance.cashDepositToBank')) ?></p>
-                    <p><?= esc(lang('Finance.bankWithdrawalToSafe')) ?></p>
-                    <p><?= esc(lang('Finance.checkDepositToBank')) ?></p>
-                </div>
-            </div>
-        </section>
-
-        <section class="finance-transfers-panel">
-            <div class="border-b border-emerald-100 bg-gradient-to-r from-emerald-700 to-teal-900 px-6 py-5 text-white">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
-                        <i class="fas fa-circle-info text-sm"></i>
-                    </span>
-                    <h2 class="text-lg font-black"><?= lang('Finance.treasuryOperatorGuide') ?></h2>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/90 to-white p-4 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-wide text-emerald-700"><?= lang('Finance.cashDepositToBank') ?></p>
-                    <p class="mt-2 text-sm font-semibold text-slate-600"><?= lang('Finance.cashDepositToBankHelp') ?></p>
-                </div>
-                <div class="rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/90 to-white p-4 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-wide text-blue-700"><?= lang('Finance.bankWithdrawalToSafe') ?></p>
-                    <p class="mt-2 text-sm font-semibold text-slate-600"><?= lang('Finance.bankWithdrawalToSafeHelp') ?></p>
-                </div>
-                <div class="rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50/90 to-white p-4 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-wide text-amber-700"><?= lang('Finance.checkDepositToBank') ?></p>
-                    <p class="mt-2 text-sm font-semibold text-slate-600"><?= lang('Finance.checkDepositToBankHelp') ?></p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white p-4 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-700"><?= lang('Finance.internalTransfer') ?></p>
-                    <p class="mt-2 text-sm font-semibold text-slate-600"><?= lang('Finance.internalTransferHelp') ?></p>
-                </div>
             </div>
         </section>
 
@@ -208,7 +168,6 @@ $transferTotal = array_sum(array_map(static fn($row) => (float) ($row['amount'] 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 class="text-lg font-black"><?= lang('Finance.recentTransfers') ?></h2>
-                    <p class="mt-1 text-sm font-semibold text-slate-200"><?= lang('Finance.treasuryMovementHelp') ?></p>
                 </div>
                 <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= number_format($transferCount) ?> <?= lang('Finance.eventsLabel') ?></span>
             </div>
