@@ -13,6 +13,9 @@ use App\Services\ClinicalChargeLineService;
 use App\Services\InventoryUsageService;
 use App\Services\MoneyTrailService;
 use App\Services\StorageService;
+use App\Services\TreatmentProcedureIntegrationService;
+use RuntimeException;
+use Throwable;
 
 class Treatment extends BaseController
 {
@@ -23,6 +26,7 @@ class Treatment extends BaseController
     protected $db;
     protected $storageService;
     protected $chargeLineService;
+    protected $treatmentProcedureService;
 
     public function __construct()
     {
@@ -33,6 +37,7 @@ class Treatment extends BaseController
         $this->db = \Config\Database::connect();
         $this->storageService = new StorageService();
         $this->chargeLineService = new ClinicalChargeLineService();
+        $this->treatmentProcedureService = new TreatmentProcedureIntegrationService($this->db);
     }
 
     public function index()
@@ -302,7 +307,8 @@ class Treatment extends BaseController
             'description' => 'required|min_length[10]',
             'start_date' => 'required|valid_date',
             'estimated_duration' => 'required|integer|greater_than[0]',
-            'examination_id' => 'permit_empty|integer'
+            'examination_id' => 'permit_empty|integer',
+            'procedure_intent' => 'permit_empty|in_list[planned,start_now]',
         ];
         $rules = array_merge($rules, $this->chargeLineValidationRules());
 
@@ -365,6 +371,9 @@ class Treatment extends BaseController
 
         $currentUser = $this->getCurrentUser();
         $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+        if (!$currentUserId) {
+            return redirect()->back()->withInput()->with('error', 'Authenticated user context is required.');
+        }
 
         $treatmentData = [
             'clinic_id' => $clinicId,
@@ -382,28 +391,22 @@ class Treatment extends BaseController
             'created_by' => $currentUserId,
         ];
 
-        if ($this->treatmentModel->insert($treatmentData)) {
-            $treatmentId = $this->treatmentModel->getInsertID();
-            
-            // Get patient name for the activity log (scoped)
-            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatmentData['patient_id']);
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-            
-            // Log the treatment creation activity
-            $this->activityLogger->logTreatmentActivity(
-                'create',
-                $treatmentId,
-                "New {$treatmentData['treatment_type']} treatment created for {$patientName}"
-            );
-            
-            $usageResult = $this->recordInventoryUsage($clinicId, $treatmentId);
-            if ($usageResult && !$usageResult['success']) {
-                return redirect()
-                    ->to(base_url('treatment/' . $treatmentId . '/edit'))
-                    ->with('error', $usageResult['message']);
+        $this->db->transBegin();
+        try {
+            if (!$this->treatmentModel->insert($treatmentData)) {
+                throw new RuntimeException('Failed to create treatment. Please check your input and try again.');
             }
 
-            $treatmentForCharge = array_merge($treatmentData, ['id' => $treatmentId]);
+            $treatmentId = $this->treatmentModel->getInsertID();
+            $usageResult = $this->recordInventoryUsage($clinicId, $treatmentId);
+            if ($usageResult && !$usageResult['success']) {
+                throw new RuntimeException((string) $usageResult['message']);
+            }
+
+            $treatmentForCharge = array_merge($treatmentData, [
+                'id' => $treatmentId,
+                'clinic_id' => (int) $clinicId,
+            ]);
             $chargeResult = $this->chargeLineService->syncTreatmentChargeLine(
                 (int) $clinicId,
                 $treatmentForCharge,
@@ -411,31 +414,61 @@ class Treatment extends BaseController
                 $currentUserId
             );
             if (!$chargeResult['success']) {
-                return redirect()
-                    ->to(base_url('treatment/' . $treatmentId . '/edit'))
-                    ->withInput()
-                    ->with('error', $chargeResult['message']);
+                throw new RuntimeException((string) $chargeResult['message']);
             }
 
-            $returnTo = $this->resolveCreateReturnTo(
-                (int) $treatmentData['patient_id'],
-                $examinationId,
-                $this->request->getPost('return_to')
+            $this->treatmentProcedureService->createForTreatment(
+                (int) $clinicId,
+                $treatmentForCharge,
+                (string) ($this->request->getPost('procedure_intent') ?: 'planned'),
+                $currentUserId,
+                $chargeResult['line'] ?? null
             );
-            if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
-                    ->with('success', 'Treatment has been created successfully!');
-            }
 
-            if ($examinationId) {
-                return $this->redirectAfterWorkflow('examination/' . $examinationId, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
-                    ->with('success', 'Treatment has been created successfully!');
+            if (!$this->db->transStatus()) {
+                throw new RuntimeException('Treatment workflow could not be completed.');
             }
-            return $this->redirectAfterWorkflow('treatment', ['patient', 'patients', 'examination', 'treatment', 'treatments'])
-                ->with('success', 'Treatment has been created successfully!');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to create treatment. Please check your input and try again.');
+            $this->db->transCommit();
+        } catch (Throwable $e) {
+            $this->db->transRollback();
+            log_message('error', 'Treatment workflow creation failed: ' . $e->getMessage());
+
+            $fallback = $this->request->getPost('source_modal') === 'treatment_quick_create'
+                ? ($this->sanitizeInternalReturnTo(
+                    $this->request->getPost('return_to'),
+                    ['patient', 'patients', 'examination', 'treatment', 'treatments']
+                ) ?: 'treatment')
+                : 'treatment/create';
+
+            return redirect()->to(base_url($fallback))
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatmentData['patient_id']);
+        $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
+        $this->activityLogger->logTreatmentActivity(
+            'create',
+            $treatmentId,
+            "New {$treatmentData['treatment_type']} treatment created for {$patientName}"
+        );
+
+        $returnTo = $this->resolveCreateReturnTo(
+            (int) $treatmentData['patient_id'],
+            $examinationId,
+            $this->request->getPost('return_to')
+        );
+        if ($returnTo) {
+            return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                ->with('success', 'Treatment has been created successfully!');
+        }
+
+        if ($examinationId) {
+            return $this->redirectAfterWorkflow('examination/' . $examinationId, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                ->with('success', 'Treatment has been created successfully!');
+        }
+        return $this->redirectAfterWorkflow('treatment', ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+            ->with('success', 'Treatment has been created successfully!');
     }
 
     public function show($id)
@@ -468,6 +501,7 @@ class Treatment extends BaseController
             'usage_records' => $usageRecords,
             'usage_total_cost' => $totalUsageCost,
             'charge_line' => $this->chargeLineService->getActiveForTreatment((int) $clinicId, (int) $id),
+            'procedure_lifecycle' => $this->treatmentProcedureService->getForTreatment((int) $clinicId, (int) $id),
             'money_trail' => (new MoneyTrailService())->forTreatment((int) $clinicId, (int) $id),
             'clinic_providers' => $this->getClinicProviders((int) $clinicId),
             'treatment_finance_base_currency' => settings()->get('currency', 'ILS'),
@@ -601,29 +635,24 @@ class Treatment extends BaseController
             // Don't set updated_at - it's auto-generated by the database
         ];
 
-        if ($this->treatmentModel->update($id, $treatmentData)) {
-            // Get patient name for the activity log (scoped)
-            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatmentData['patient_id']);
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-            
-            // Log the treatment update activity
-            $this->activityLogger->logTreatmentActivity(
-                'update',
-                $id,
-                "Treatment updated for {$patientName} - {$treatmentData['treatment_type']}"
-            );
-            
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (int) session()->get('user_id');
+        if ($currentUserId <= 0) {
+            return redirect()->back()->withInput()->with('error', 'Authenticated user context is required.');
+        }
+
+        $this->db->transBegin();
+        try {
+            if (!$this->treatmentModel->update($id, $treatmentData)) {
+                throw new RuntimeException('Failed to update treatment. Please check your input and try again.');
+            }
+
             $usageResult = $this->recordInventoryUsage($clinicId, $id);
             if ($usageResult && !$usageResult['success']) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->with('error', $usageResult['message']);
+                throw new RuntimeException((string) $usageResult['message']);
             }
 
             $treatmentForCharge = array_merge($treatment, $treatmentData, ['id' => (int) $id, 'clinic_id' => (int) $clinicId]);
-            $currentUser = $this->getCurrentUser();
-            $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
             $chargeResult = $this->chargeLineService->syncTreatmentChargeLine(
                 (int) $clinicId,
                 $treatmentForCharge,
@@ -631,23 +660,47 @@ class Treatment extends BaseController
                 $currentUserId
             );
             if (!$chargeResult['success']) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->with('error', $chargeResult['message']);
+                throw new RuntimeException((string) $chargeResult['message']);
             }
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']);
-            if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
-                    ->with('success', 'Treatment has been updated successfully!');
-            }
+            $this->treatmentProcedureService->syncTreatment(
+                (int) $clinicId,
+                $treatmentForCharge,
+                $currentUserId
+            );
+            $this->treatmentProcedureService->linkChargeLine(
+                (int) $clinicId,
+                (int) $id,
+                $chargeResult['line'] ?? null,
+                $currentUserId
+            );
 
-            return $this->redirectAfterWorkflow('treatment', ['patient', 'patients', 'examination', 'treatment', 'treatments'])
-                ->with('success', 'Treatment has been updated successfully!');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update treatment. Please check your input and try again.');
+            if (!$this->db->transStatus()) {
+                throw new RuntimeException('Treatment workflow could not be updated.');
+            }
+            $this->db->transCommit();
+        } catch (Throwable $e) {
+            $this->db->transRollback();
+            log_message('error', 'Treatment workflow update failed: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatmentData['patient_id']);
+        $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
+        $this->activityLogger->logTreatmentActivity(
+            'update',
+            $id,
+            "Treatment updated for {$patientName} - {$treatmentData['treatment_type']}"
+        );
+
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']);
+        if ($returnTo) {
+            return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                ->with('success', 'Treatment has been updated successfully!');
+        }
+
+        return $this->redirectAfterWorkflow('treatment', ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+            ->with('success', 'Treatment has been updated successfully!');
     }
 
     public function delete($id)
@@ -668,6 +721,14 @@ class Treatment extends BaseController
             } else {
                 return redirect()->back()->with('error', 'Treatment not found');
             }
+        }
+
+        if ($this->treatmentProcedureService->getForTreatment((int) $clinicId, (int) $id)) {
+            $message = 'This treatment has a clinical procedure history and cannot be deleted. A reasoned cancellation workflow is required.';
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => $message]);
+            }
+            return redirect()->back()->with('error', $message);
         }
 
         if ($this->treatmentModel->delete($id)) {
@@ -723,22 +784,34 @@ class Treatment extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        if ($this->treatmentModel->update($id, $updateData)) {
-            // Get patient name for the activity log (scoped)
-            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatment['patient_id']);
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-            
-            // Log the treatment completion activity
-            $this->activityLogger->logTreatmentActivity(
-                'complete',
-                $id,
-                "Treatment completed for {$patientName} - {$treatment['treatment_type']}"
-            );
-            
-            return $this->response->setJSON(['success' => true, 'message' => 'Treatment marked as completed']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to complete treatment']);
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (int) session()->get('user_id');
+        if ($currentUserId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Authenticated user context is required.']);
         }
+
+        $this->db->transBegin();
+        try {
+            $this->treatmentProcedureService->completeForTreatment((int) $clinicId, (int) $id, $currentUserId);
+            if (!$this->treatmentModel->update($id, $updateData) || !$this->db->transStatus()) {
+                throw new RuntimeException('Failed to complete treatment');
+            }
+            $this->db->transCommit();
+        } catch (Throwable $e) {
+            $this->db->transRollback();
+            log_message('error', 'Treatment completion workflow failed: ' . $e->getMessage());
+            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatment['patient_id']);
+        $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
+        $this->activityLogger->logTreatmentActivity(
+            'complete',
+            $id,
+            "Treatment completed for {$patientName} - {$treatment['treatment_type']}"
+        );
+
+        return $this->response->setJSON(['success' => true, 'message' => 'Treatment marked as completed']);
     }
 
     public function getTreatmentStats()

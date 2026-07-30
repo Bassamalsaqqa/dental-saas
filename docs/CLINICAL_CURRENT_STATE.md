@@ -1,5 +1,16 @@
 # Clinical Workflows Current State
 
+## 2026-07-30 Treatment Procedure Integration
+
+- New canonical Treatments now map one-to-one to `clinical_procedures`; existing Treatments remain intentionally unbackfilled.
+- Treatment creation requires explicit workflow intent: `planned` creates a proposed procedure, while `start_now` records accepted and in-progress milestones.
+- Treatment, optional inventory usage, optional clinical charge capture, procedure creation, and initial lifecycle transitions commit as one database unit.
+- Clinical status and financial status remain separate: a charge can be linked without changing procedure status, and a procedure transition never creates an invoice or payment.
+- Treatment edits synchronize the linked procedure name, tooth, examination, and optional charge link while preventing cross-patient reassignment.
+- Completing a Treatment advances its linked procedure through the lifecycle service. Legacy Treatments with no procedure keep existing completion behavior.
+- Lifecycle-linked Treatments cannot use the legacy hard-delete action because clinical history must not be orphaned.
+- Treatment detail exposes lifecycle status read-only. Broad procedure editing, legacy backfill, patient-list lifecycle badges, correction/reopen, reasoned cancellation, and contract/appointment integration remain later slices.
+
 ## 2026-07-30 Procedure Lifecycle Foundation
 
 - Added first-class `clinical_procedures` and append-only `clinical_procedure_status_history` tables.
@@ -8,7 +19,7 @@
 - Rejection, referral, and cancellation require a reason. Terminal procedures cannot be reopened implicitly.
 - Existing Treatments, Treatment Contracts, appointments, odontogram rows, and clinical charge lines remain canonical for their own facts and are not mutated by procedure transitions.
 - No legacy backfill was attempted because existing Treatment `active` rows do not unambiguously distinguish proposed, accepted, scheduled, or started work.
-- Phase 2B must connect new clinical workflows through explicit mappings and real workflow tests; it must not infer lifecycle state from tooth colors or financial status.
+- Phase 2B now connects newly created Treatments through explicit intent and tested mappings; it does not infer lifecycle state from tooth colors or financial status.
 
 ## 2026-07-26 Workflow Update
 
@@ -17,7 +28,7 @@
 - Examination create/edit save-and-chart behavior and examination chart links retain `examination_id`.
 - Treatment workflows can create a clinical charge line when charge capture is explicitly enabled; conditions, appointments, and unsigned plans do not bill automatically.
 - Patient odontogram snapshots provide historical read-only points; the first-class procedure-status foundation now exists but is not yet exposed in clinical UI.
-- Remaining major gaps are clinical integration of the procedure lifecycle, signed/locked clinical notes and addenda, perio charting, mixed dentition, referral workflow UI, controlled baseline promotion, and a formal consent/refusal lifecycle.
+- Remaining major gaps are procedure integration with plans/contracts and scheduling, reasoned cancellation/correction UI, signed/locked clinical notes and addenda, perio charting, mixed dentition, referral workflow UI, controlled baseline promotion, and a formal consent/refusal lifecycle.
 - Examination reports and examination-linked treatment contracts consume the effective visit chart. A selected tooth can hand off patient, examination, tooth, and return context to canonical Treatment creation.
 - Odontogram `treatment_notes` and `treatment_status` remain legacy tooth follow-up metadata. They are not canonical procedures, accepted plans, completed work, or billable events.
 

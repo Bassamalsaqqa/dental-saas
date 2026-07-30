@@ -43,6 +43,20 @@ $billingStateTone = $chargeLineId <= 0
 $invoiceBalance = (float) ($moneySummary['balance_due'] ?? 0);
 $providerRemaining = (float) ($moneySummary['provider_remaining'] ?? 0);
 $inventoryCost = (float) ($moneySummary['inventory_cost'] ?? 0);
+$procedureLifecycle = $procedure_lifecycle ?? null;
+$procedureStatus = strtolower((string) ($procedureLifecycle['status'] ?? ''));
+$procedureStatusLabel = $procedureStatus !== '' ? $tr('procedure_status_' . $procedureStatus) : '';
+if ($procedureStatus !== '' && $procedureStatusLabel === 'Treatment.procedure_status_' . $procedureStatus) {
+    $procedureStatusLabel = ucfirst(str_replace('_', ' ', $procedureStatus));
+}
+$procedureStatusClass = match ($procedureStatus) {
+    'completed' => 'bg-emerald-100 text-emerald-800 ring-emerald-200',
+    'in_progress' => 'bg-blue-100 text-blue-800 ring-blue-200',
+    'accepted', 'scheduled' => 'bg-cyan-100 text-cyan-800 ring-cyan-200',
+    'rejected', 'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200',
+    'referred' => 'bg-violet-100 text-violet-800 ring-violet-200',
+    default => 'bg-amber-100 text-amber-800 ring-amber-200',
+};
 $statusTone = match ($statusRaw) {
     'active' => ['bg' => 'rgba(59,130,246,0.22)', 'border' => 'rgba(147,197,253,0.4)'],
     'completed' => ['bg' => 'rgba(16,185,129,0.22)', 'border' => 'rgba(167,243,208,0.4)'],
@@ -1049,6 +1063,26 @@ $statusTone = match ($statusRaw) {
                     <h2><?= esc($tr('treatment_overview')) ?></h2>
                 </div>
             </div>
+
+            <?php if ($procedureStatus !== ''): ?>
+            <div class="treatment-card treatment-card--clinical">
+                <div class="treatment-card-header">
+                    <i class="fas fa-route text-blue-600"></i><span><?= esc($tr('procedure_lifecycle')) ?></span>
+                </div>
+                <div class="treatment-card-body">
+                    <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 p-4 ring-1 ring-blue-100">
+                        <div>
+                            <p class="text-sm font-extrabold text-slate-900"><?= esc($tr('procedure_lifecycle')) ?></p>
+                            <p class="mt-1 text-xs font-semibold text-slate-600"><?= esc($tr('procedure_lifecycle_help')) ?></p>
+                        </div>
+                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-extrabold ring-1 <?= esc($procedureStatusClass) ?>">
+                            <i class="fas fa-circle-check"></i>
+                            <?= esc($procedureStatusLabel) ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Treatment Description -->
             <div class="treatment-card treatment-card--clinical">

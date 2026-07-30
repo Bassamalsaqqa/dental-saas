@@ -315,16 +315,23 @@ Deferred production evidence:
 - Phase 1 clinic-day QA on `denta.palsync.net` is still pending manual testing.
 - Phase 2A is backend foundation only and has no production UI surface to test yet.
 
-#### Phase 2B Recommended Integration Slice
+#### Phase 2B Treatment Integration - Completed 2026-07-30
 
 Connect newly created Treatment work to the procedure foundation through one explicit mapping path:
 
-1. Add an explicit lifecycle intent to new Treatment creation rather than guessing from legacy `active`.
-2. Create/link one procedure transactionally after canonical Treatment validation succeeds.
-3. Keep charge capture optional and separate; link a charge line only when explicitly captured.
-4. Mirror a Treatment completion into its linked procedure only through the lifecycle service.
-5. Surface the linked lifecycle read-only on Treatment and Patient views before adding broad edit actions.
-6. Do not backfill existing Treatments unless an unambiguous mapping rule is approved and tested.
+1. New Treatment creation exposes `Plan for later` and `Start now`; legacy `active` is never interpreted.
+2. Treatment, optional inventory usage, optional charge, procedure, and lifecycle history commit atomically.
+3. Each new Treatment owns one procedure link; optional charge capture links financially without changing clinical status.
+4. Treatment completion advances the linked procedure only through the lifecycle service.
+5. Treatment detail shows read-only lifecycle status before any broad procedure edit surface is introduced.
+6. Existing Treatments remain unbackfilled and continue to complete under the legacy-compatible path.
+7. Linked Treatment hard-delete is blocked to prevent orphaning append-only clinical history.
+
+Deferred Phase 2B evidence:
+
+- Production/local authenticated UI QA is still pending for full-page and modal Treatment creation in English and Arabic.
+- Verify planned/start-now intent, optional charge and inventory capture, completion, status display, return context, and delete protection.
+- Patient-profile lifecycle badges were deliberately deferred because the legacy patient view requires a separate encoding-safe cleanup.
 
 ### Phase 3 - Fast Checkout
 
@@ -380,14 +387,6 @@ These may be valuable, but they should not interrupt the seven operating loops.
 
 ## Next Recommended Slice
 
-Phase 1B production QA remains deferred. Phase 2A is implemented and independently tested.
+Phase 1B production QA and Phase 2B authenticated UI QA remain deferred. Phase 2A and the Treatment-focused Phase 2B integration are independently tested.
 
-The next implementation slice is **Phase 2B: explicit Treatment-to-procedure integration**.
-
-Before integration:
-
-1. Keep the production Phase 1 clinic-day QA reminder active.
-2. Define how the user identifies proposed versus immediately started Treatment work.
-3. Use the lifecycle service for all procedure creation/transitions.
-4. Preserve existing Treatment endpoints and charge-capture behavior.
-5. Add integration tests proving tenant/patient integrity and rollback behavior.
+The next implementation slice is **Phase 3: fast checkout contract planning**, beginning with a read-only review of completed work and captured charges. Do not auto-bill, auto-complete clinical work, or add finance calculations to views.

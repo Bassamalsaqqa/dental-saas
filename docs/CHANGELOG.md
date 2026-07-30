@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-07-30 - Treatment procedure lifecycle integration
+
+- Completed Product Workflow Roadmap Phase 2B for newly created Treatments.
+- Added an explicit create-time choice between planning work for later and starting it now; no status is inferred from financial data, odontogram color, or legacy Treatment `active` rows.
+- Every new Treatment now creates exactly one tenant- and patient-validated clinical procedure in the same database transaction as optional inventory usage and optional clinical charge capture.
+- `Plan for later` creates a proposed procedure. `Start now` records proposed, accepted, and in-progress milestones in append-only history.
+- Optional clinical charge lines link to the same procedure while billing status remains independent from clinical status.
+- Treatment edits synchronize safe descriptive fields and reject moving a linked procedure to another patient or clinic.
+- Marking a linked Treatment complete advances its procedure through valid lifecycle milestones and commits both updates atomically. Legacy Treatments without a procedure remain compatible.
+- Linked Treatments can no longer use the legacy hard-delete action because that would orphan clinical history; a future reasoned correction/cancellation contract remains required.
+- Added a read-only procedure status to Treatment detail and English/Arabic create/status copy.
+- Added `TreatmentProcedureIntegrationServiceTest`: 4 tests and 17 assertions covering planned, start-now, delayed charge linkage, patient integrity, completion history, and legacy compatibility.
+- Focused lifecycle, finance bridge, odontogram, visit-stage, and App API suites pass. The full suite still has three unrelated pre-existing harness errors: two example database tests report a migration-sequence gap and `HealthTest` reads an uninitialized test `baseURL`.
+- Tailwind build and route inspection pass; the Bash SaaS guardrail script cannot run on this workstation because WSL has no installed distribution.
+- Deployment still requires the Phase 2A migration: `php spark migrate`.
+- Deferred manual QA: create planned and start-now Treatments from full-page and quick-create surfaces, test optional charge/inventory capture, complete a linked Treatment, and verify English/Arabic status presentation.
+
 ## 2026-07-30 - Clinical procedure lifecycle foundation
 
 - Recorded production Phase 1 clinic-day QA as deferred manual testing on `denta.palsync.net`.

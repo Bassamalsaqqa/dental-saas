@@ -5,6 +5,7 @@ $selectedPatient = $selected_patient ?? (!empty($patients[0]) ? $patients[0] : n
 $selectedToothNumber = old('tooth_number', $selected_tooth_number ?? '');
 $inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
 $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('usage_items'));
+$procedureIntent = (string) old('procedure_intent', 'planned');
 ?>
 <div data-contextual-treatment-form>
     <input type="hidden" name="examination_id" value="<?= esc($selected_examination_id ?? '') ?>">
@@ -20,7 +21,27 @@ $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('u
             </select>
         </div>
     <?php endif; ?>
-    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+    <fieldset class="mt-5 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4 shadow-sm">
+        <legend class="px-1 text-sm font-extrabold text-slate-900"><?= esc(lang('Treatment.procedure_intent')) ?></legend>
+        <p class="mb-3 text-xs font-semibold text-slate-600"><?= esc(lang('Treatment.procedure_intent_help')) ?></p>
+        <div class="grid gap-3 sm:grid-cols-2">
+            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-300">
+                <input type="radio" name="procedure_intent" value="planned" class="mt-1 h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-500" <?= $procedureIntent !== 'start_now' ? 'checked' : '' ?>>
+                <span>
+                    <span class="block text-sm font-extrabold text-slate-900"><?= esc(lang('Treatment.procedure_intent_planned')) ?></span>
+                    <span class="mt-1 block text-xs font-medium leading-5 text-slate-600"><?= esc(lang('Treatment.procedure_intent_planned_hint')) ?></span>
+                </span>
+            </label>
+            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-emerald-300">
+                <input type="radio" name="procedure_intent" value="start_now" class="mt-1 h-4 w-4 border-slate-300 text-emerald-600 focus:ring-emerald-500" <?= $procedureIntent === 'start_now' ? 'checked' : '' ?>>
+                <span>
+                    <span class="block text-sm font-extrabold text-slate-900"><?= esc(lang('Treatment.procedure_intent_start_now')) ?></span>
+                    <span class="mt-1 block text-xs font-medium leading-5 text-slate-600"><?= esc(lang('Treatment.procedure_intent_start_now_hint')) ?></span>
+                </span>
+            </label>
+        </div>
+    </fieldset>
+    <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Treatment.treatment_type_required')) ?></label>
             <select name="treatment_type" id="treatment_type" class="<?= esc($inputClass) ?>" data-searchable-select data-minimum-input-length="0" data-limit="5" data-search-url="<?= base_url('api/v1/search/treatment-types') ?>" data-placeholder="<?= esc(lang('Treatment.search_treatment_types_placeholder')) ?>" required>
