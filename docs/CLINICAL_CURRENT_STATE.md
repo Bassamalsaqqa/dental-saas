@@ -1,5 +1,15 @@
 # Clinical Workflows Current State
 
+## 2026-07-30 Appointment Checkout Review
+
+- Appointment detail now has a backend-owned checkout review that keeps three decisions visible: clinical work, captured charges, and payment state.
+- The read model combines tenant-scoped Appointment context with same-visit examinations and Treatments, explicit procedure links where available, and the canonical Money Trail.
+- Existing modules retain ownership: checkout starts or opens clinical/finance work but does not duplicate their writes, validation, calculations, or lifecycle rules.
+- Open charges can use the existing invoice drawer only when they share one currency. Mixed currencies are flagged for separate finance review.
+- Legacy examination/Treatment association is currently patient plus visit date and is visibly labeled as contextual, not authoritative.
+- Phase 3B must propagate explicit `appointment_id` into newly created procedure and charge relationships before any automated checkout orchestration is considered.
+- Manual authenticated QA remains deferred for English/Arabic, permissions, no-work, open-charge, invoiced, balance-due, settled, and mixed-currency scenarios.
+
 ## 2026-07-30 Treatment Procedure Integration
 
 - New canonical Treatments now map one-to-one to `clinical_procedures`; existing Treatments remain intentionally unbackfilled.

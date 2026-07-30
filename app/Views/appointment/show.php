@@ -7,19 +7,41 @@ $returnToContext = (string) ($return_to_context ?? ('appointment/' . (int) ($app
 $contextPatient = $appointment_context_patient ?? null;
 $linkedExaminations = is_array($appointment_linked_examinations ?? null) ? $appointment_linked_examinations : [];
 $linkedTreatments = is_array($appointment_linked_treatments ?? null) ? $appointment_linked_treatments : [];
+$checkout = is_array($appointment_checkout ?? null) ? $appointment_checkout : [];
 $moneySummary = is_array($appointment_money_summary ?? null) ? $appointment_money_summary : [];
 $invoiceableChargeLines = is_array($appointment_invoiceable_charge_lines ?? null) ? $appointment_invoiceable_charge_lines : [];
-$invoiceableChargeLineIds = array_values(array_filter(array_map(
-    static fn(array $row): int => (int) ($row['id'] ?? 0),
-    $invoiceableChargeLines
-)));
-$invoiceableChargeTotal = array_reduce(
-    $invoiceableChargeLines,
-    static fn(float $carry, array $row): float => $carry + max(0, (float) ($row['net_production_amount'] ?? 0)),
-    0.0
-);
+$invoiceableChargeLineIds = is_array($checkout['invoiceable_charge_line_ids'] ?? null)
+    ? $checkout['invoiceable_charge_line_ids']
+    : [];
+$invoiceableChargeTotal = (float) ($moneySummary['open_charge_amount'] ?? 0);
+$hasMixedInvoiceableCurrencies = !empty($checkout['has_mixed_invoiceable_currencies']);
+$checkoutClinicalState = (string) ($checkout['clinical_state'] ?? 'not_recorded');
+$checkoutBillingState = (string) ($checkout['billing_state'] ?? 'not_captured');
+$checkoutSettlementState = (string) ($checkout['settlement_state'] ?? 'no_invoice');
+$checkoutStatePresentation = [
+    'clinical' => [
+        'not_recorded' => ['label' => lang('UI.checkoutClinicalNotRecorded'), 'class' => 'bg-slate-100 text-slate-700 ring-slate-200', 'icon' => 'fas fa-circle-minus'],
+        'needs_review' => ['label' => lang('UI.checkoutClinicalNeedsReview'), 'class' => 'bg-amber-100 text-amber-800 ring-amber-200', 'icon' => 'fas fa-triangle-exclamation'],
+        'reviewed' => ['label' => lang('UI.checkoutClinicalReviewed'), 'class' => 'bg-emerald-100 text-emerald-800 ring-emerald-200', 'icon' => 'fas fa-circle-check'],
+    ],
+    'billing' => [
+        'not_captured' => ['label' => lang('UI.checkoutBillingNotCaptured'), 'class' => 'bg-slate-100 text-slate-700 ring-slate-200', 'icon' => 'fas fa-circle-minus'],
+        'ready_to_invoice' => ['label' => lang('UI.checkoutBillingReady'), 'class' => 'bg-amber-100 text-amber-800 ring-amber-200', 'icon' => 'fas fa-file-invoice-dollar'],
+        'invoiced' => ['label' => lang('UI.checkoutBillingInvoiced'), 'class' => 'bg-emerald-100 text-emerald-800 ring-emerald-200', 'icon' => 'fas fa-circle-check'],
+    ],
+    'settlement' => [
+        'no_invoice' => ['label' => lang('UI.checkoutSettlementNoInvoice'), 'class' => 'bg-slate-100 text-slate-700 ring-slate-200', 'icon' => 'fas fa-circle-minus'],
+        'balance_due' => ['label' => lang('UI.checkoutSettlementBalanceDue'), 'class' => 'bg-rose-100 text-rose-800 ring-rose-200', 'icon' => 'fas fa-wallet'],
+        'settled' => ['label' => lang('UI.checkoutSettlementSettled'), 'class' => 'bg-emerald-100 text-emerald-800 ring-emerald-200', 'icon' => 'fas fa-circle-check'],
+    ],
+];
+$clinicalPresentation = $checkoutStatePresentation['clinical'][$checkoutClinicalState]
+    ?? $checkoutStatePresentation['clinical']['not_recorded'];
+$billingPresentation = $checkoutStatePresentation['billing'][$checkoutBillingState]
+    ?? $checkoutStatePresentation['billing']['not_captured'];
+$settlementPresentation = $checkoutStatePresentation['settlement'][$checkoutSettlementState]
+    ?? $checkoutStatePresentation['settlement']['no_invoice'];
 $primaryLinkedExamination = $linkedExaminations[0] ?? null;
-$traceDateLabel = !empty($appointment['appointment_date']) ? formatDate($appointment['appointment_date']) : '';
 $currentVisitStage = (string) ($appointment['status'] ?? 'scheduled');
 $visitStageOrder = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair', 'checkout', 'completed'];
 $allowedVisitStages = is_array($appointment_allowed_visit_stages ?? null) ? $appointment_allowed_visit_stages : [];
@@ -284,10 +306,10 @@ $visitStageLabels = [
                     <div class="mt-8 rounded-3xl border border-white/40 bg-white/80 p-5 shadow-xl shadow-blue-500/10 backdrop-blur md:p-6">
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div class="max-w-2xl">
-                                <p class="text-xs font-black uppercase tracking-[0.18em] text-blue-700"><?= esc(lang('UI.appointmentClinicalBillingTrace')) ?></p>
-                                <h4 class="mt-1 text-xl font-black text-slate-950"><?= esc(lang('UI.appointmentClinicalBillingTitle')) ?></h4>
+                                <p class="text-xs font-black uppercase tracking-[0.18em] text-blue-700"><?= esc(lang('UI.checkoutEyebrow')) ?></p>
+                                <h4 class="mt-1 text-xl font-black text-slate-950"><?= esc(lang('UI.checkoutTitle')) ?></h4>
                                 <p class="mt-2 text-sm font-medium leading-6 text-slate-600">
-                                    <?= esc(lang('UI.appointmentClinicalBillingHelp', ['date' => $traceDateLabel])) ?>
+                                    <?= esc(lang('UI.checkoutHelp')) ?>
                                 </p>
                             </div>
                             <div class="flex flex-wrap gap-2">
@@ -307,14 +329,51 @@ $visitStageLabels = [
                                         <i class="fas fa-tooth me-2"></i><?= esc(lang('UI.appointmentAddTreatment')) ?>
                                     </a>
                                 <?php endif; ?>
-                                <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+                                <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds) && !$hasMixedInvoiceableCurrencies): ?>
                                     <button type="button" data-app-drawer-open="appointmentInvoiceDrawer" class="inline-flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-900 transition hover:bg-amber-100">
                                         <i class="fas fa-file-invoice-dollar me-2"></i><?= esc(lang('UI.appointmentCreateInvoiceFromWork')) ?>
                                         <span class="ms-2 rounded-lg bg-white/80 px-2 py-0.5 text-xs" dir="ltr"><?= esc(formatCurrency($invoiceableChargeTotal)) ?></span>
                                     </button>
                                 <?php endif; ?>
+                                <?php if (has_permission('finance', 'view') && (float) ($moneySummary['balance_due'] ?? 0) > 0.009): ?>
+                                    <a href="<?= esc(workflow_context_url('patient/' . (int) ($appointment['patient_id'] ?? 0) . '?tab=finances', $returnToContext)) ?>" class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-emerald-700">
+                                        <i class="fas fa-money-bill-wave me-2"></i><?= esc(lang('UI.checkoutRecordPayment')) ?>
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </div>
+
+                        <div class="mt-5 grid gap-3 md:grid-cols-3">
+                            <div class="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 p-4 ring-1 ring-blue-100">
+                                <p class="text-xs font-black uppercase tracking-wide text-blue-700"><?= esc(lang('UI.checkoutClinicalReview')) ?></p>
+                                <span class="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-extrabold ring-1 <?= esc($clinicalPresentation['class']) ?>">
+                                    <i class="<?= esc($clinicalPresentation['icon']) ?>"></i><?= esc($clinicalPresentation['label']) ?>
+                                </span>
+                            </div>
+                            <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 ring-1 ring-amber-100">
+                                <p class="text-xs font-black uppercase tracking-wide text-amber-700"><?= esc(lang('UI.checkoutBillingReview')) ?></p>
+                                <span class="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-extrabold ring-1 <?= esc($billingPresentation['class']) ?>">
+                                    <i class="<?= esc($billingPresentation['icon']) ?>"></i><?= esc($billingPresentation['label']) ?>
+                                </span>
+                            </div>
+                            <div class="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 p-4 ring-1 ring-emerald-100">
+                                <p class="text-xs font-black uppercase tracking-wide text-emerald-700"><?= esc(lang('UI.checkoutPaymentReview')) ?></p>
+                                <span class="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-extrabold ring-1 <?= esc($settlementPresentation['class']) ?>">
+                                    <i class="<?= esc($settlementPresentation['icon']) ?>"></i><?= esc($settlementPresentation['label']) ?>
+                                </span>
+                            </div>
+                        </div>
+
+                        <?php if ($hasMixedInvoiceableCurrencies): ?>
+                            <div class="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-900 ring-1 ring-amber-200">
+                                <i class="fas fa-triangle-exclamation me-2"></i><?= esc(lang('UI.checkoutMixedCurrencies')) ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (($checkout['link_basis'] ?? '') === 'patient_date_context' && ($linkedExaminations !== [] || $linkedTreatments !== [])): ?>
+                            <div class="mt-4 rounded-2xl bg-blue-50 p-4 text-sm font-semibold text-blue-900 ring-1 ring-blue-200">
+                                <i class="fas fa-circle-info me-2"></i><?= esc(lang('UI.checkoutContextualLinkNote')) ?>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-3">
                             <div class="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 shadow-sm">
@@ -412,7 +471,7 @@ $visitStageLabels = [
         'selected_examination_id' => (int) $primaryLinkedExamination['id'],
     ]) ?>
 <?php endif; ?>
-<?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
+<?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds) && !$hasMixedInvoiceableCurrencies): ?>
     <?php
     $appointmentInvoiceDrawerId = 'appointmentInvoiceDrawer';
     $appointmentInvoiceFormId = 'appointmentInvoiceDrawerForm';

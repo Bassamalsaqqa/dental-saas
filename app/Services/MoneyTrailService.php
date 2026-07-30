@@ -90,6 +90,34 @@ class MoneyTrailService
         );
     }
 
+    public function forChargeLines(int $clinicId, array $chargeLineIds, string $context = 'clinical_context'): array
+    {
+        $chargeLineIds = array_values(array_unique(array_filter(array_map('intval', $chargeLineIds))));
+        if ($clinicId <= 0 || $chargeLineIds === []) {
+            return $this->buildTrail([], [], [], [], [], $context);
+        }
+
+        $chargeLineRows = $this->chargeLineRowsByIds($clinicId, $chargeLineIds);
+        $financeIds = array_values(array_unique(array_filter(array_map(
+            static fn(array $row): int => (int) ($row['finance_id'] ?? 0),
+            $chargeLineRows
+        ))));
+        $treatmentIds = array_values(array_unique(array_filter(array_map(
+            static fn(array $row): int => (int) ($row['treatment_id'] ?? 0),
+            $chargeLineRows
+        ))));
+        $financeRows = $this->financeRowsByIds($clinicId, $financeIds);
+
+        return $this->buildTrail(
+            $chargeLineRows,
+            $financeRows,
+            $this->paymentRows($clinicId, $financeIds),
+            $this->providerPayoutRows($clinicId, [], $financeIds),
+            $this->inventoryUsageRowsForTreatments($clinicId, $treatmentIds),
+            $context
+        );
+    }
+
     private function financeRows(int $clinicId, array $where): array
     {
         $builder = $this->db->table('finances f')
@@ -147,6 +175,26 @@ class MoneyTrailService
         }
 
         return $builder
+            ->orderBy('ccl.charge_date', 'DESC')
+            ->orderBy('ccl.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function chargeLineRowsByIds(int $clinicId, array $chargeLineIds): array
+    {
+        if (!$this->db->tableExists('clinical_charge_lines') || $chargeLineIds === []) {
+            return [];
+        }
+
+        return $this->db->table('clinical_charge_lines ccl')
+            ->select('ccl.*, p.patient_id AS patient_number, p.first_name, p.last_name, e.examination_id AS examination_number, t.treatment_id AS treatment_number, t.treatment_name, f.transaction_id')
+            ->join('patients p', 'p.id = ccl.patient_id AND p.clinic_id = ccl.clinic_id', 'left')
+            ->join('examinations e', 'e.id = ccl.examination_id AND e.clinic_id = ccl.clinic_id', 'left')
+            ->join('treatments t', 't.id = ccl.treatment_id AND t.clinic_id = ccl.clinic_id', 'left')
+            ->join('finances f', 'f.id = ccl.finance_id AND f.clinic_id = ccl.clinic_id', 'left')
+            ->where('ccl.clinic_id', $clinicId)
+            ->whereIn('ccl.id', $chargeLineIds)
             ->orderBy('ccl.charge_date', 'DESC')
             ->orderBy('ccl.id', 'DESC')
             ->get()
@@ -234,11 +282,29 @@ class MoneyTrailService
             ->getResultArray();
     }
 
+    private function inventoryUsageRowsForTreatments(int $clinicId, array $treatmentIds): array
+    {
+        if ($treatmentIds === []) {
+            return [];
+        }
+
+        return $this->db->table('inventory_usage iu')
+            ->select('iu.*, t.treatment_id AS treatment_number, t.treatment_name, t.examination_id')
+            ->join('treatments t', 't.id = iu.treatment_id AND t.clinic_id = iu.clinic_id', 'inner')
+            ->where('iu.clinic_id', $clinicId)
+            ->whereIn('iu.treatment_id', $treatmentIds)
+            ->orderBy('iu.usage_date', 'DESC')
+            ->orderBy('iu.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
     private function buildTrail(array $chargeLineRows, array $financeRows, array $paymentRows, array $payoutRows, array $inventoryUsageRows, string $context): array
     {
         $summary = [
             'captured_charges' => 0.0,
             'open_charge_lines' => 0,
+            'open_charge_amount' => 0.0,
             'charged' => 0.0,
             'paid' => 0.0,
             'refunded' => 0.0,
@@ -256,6 +322,7 @@ class MoneyTrailService
             }
             if (!in_array($status, ['invoiced', 'voided'], true)) {
                 $summary['open_charge_lines']++;
+                $summary['open_charge_amount'] += max(0, (float) ($row['net_production_amount'] ?? 0));
             }
         }
 

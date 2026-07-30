@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-07-30 - Appointment checkout review workspace
+
+- Implemented Product Workflow Roadmap Phase 3A as a backend-owned, read-only checkout review on Appointment detail.
+- Checkout now presents three simple decisions before the patient leaves: clinical work review, captured-charge review, and payment state.
+- Added `AppointmentCheckoutService` to aggregate the active-clinic appointment, same-visit examinations and Treatments, explicitly linked procedures, charge lines, invoices, payments, provider obligations, and inventory usage without calculating finance truth in the view.
+- Added charge-line-scoped Money Trail aggregation and an explicit open-charge amount so invoice actions reuse canonical finance contracts.
+- Existing canonical actions remain authoritative: Examination/Treatment own clinical records, the existing invoice drawer owns invoice creation, Patient Finance owns payment handling, and the appointment transition service owns visit completion.
+- Mixed-currency open charges are detected and cannot be submitted as one invoice from checkout.
+- Legacy clinical records matched only by patient and visit date are clearly identified for user review; no ambiguous legacy relationship was silently promoted to an explicit appointment link.
+- Added `AppointmentCheckoutServiceTest`: 3 tests and 17 assertions covering tenant concealment, same-visit aggregation, open-charge totals, checkout states, and mixed-currency detection.
+- No route, schema, automatic billing, automatic clinical completion, payment form, or frontend-owned finance calculation was added.
+- Deferred manual QA: exercise Appointment detail checkout in English/Arabic with no clinical work, open charges, mixed currencies, invoiced balances, settled invoices, and view-only permissions.
+- Next slice: Phase 3B explicit appointment linkage for newly created clinical work before any checkout write orchestration.
+
 ## 2026-07-30 - Treatment procedure lifecycle integration
 
 - Completed Product Workflow Roadmap Phase 2B for newly created Treatments.
