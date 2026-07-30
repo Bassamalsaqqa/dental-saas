@@ -201,6 +201,28 @@ class AppointmentModel extends TenantAwareModel
             ->findAll();
     }
 
+    public function getFutureAppointmentsByClinic($clinicId, $limit = 5)
+    {
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
+            ->join('patients', 'patients.id = appointments.patient_id')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId)
+            ->where('appointments.appointment_date >', date('Y-m-d'))
+            ->whereIn('appointments.status', ['scheduled', 'confirmed'])
+            ->orderBy('appointments.appointment_date', 'ASC')
+            ->orderBy('appointments.appointment_time', 'ASC')
+            ->limit($limit)
+            ->findAll();
+    }
+
+    public function countFutureAppointmentsByClinic($clinicId): int
+    {
+        return $this->where('clinic_id', $clinicId)
+            ->where('appointment_date >', date('Y-m-d'))
+            ->whereIn('status', ['scheduled', 'confirmed'])
+            ->countAllResults();
+    }
+
     public function getCalendarAppointmentsByClinic($clinicId, $startDate, $endDate)
     {
         return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email, users.first_name as creator_first_name, users.last_name as creator_last_name')

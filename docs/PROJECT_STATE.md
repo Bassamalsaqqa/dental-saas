@@ -40,6 +40,7 @@ Last updated: 2026-07-30
 - Patient encounter and odontogram behavior follows `docs/refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md`: baseline charting, visit overrides, treatment, checkout, and deferred clinical capabilities remain explicitly separated.
 - Cross-module optimization follows `docs/refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`: close the Visit, Care Plan, Checkout, Recall, Supply, Communication, and Governance loops before adding broad new modules.
 - Visit workflow Phase 1A is implemented: appointment stages now follow a server-owned transition contract from scheduled through checkout/completion, with tenant-scoped writes, activity logging, no-show dispatch, localized UI, and compatibility wrappers for existing appointment actions.
+- Visit workflow Phase 1B is implemented on the tenant dashboard: today’s appointments are grouped into Expected, Waiting, Chairside, Checkout, and Needs attention, with permission-aware primary handoffs, late-arrival signals, completed counts, and future-only upcoming appointments.
 - The current PHP Patient Profile is the reference first slice: contextual drawers can start related work while canonical modules still own validation, writes, redirects, permissions, tenant checks, audit logging, and finance math.
 - When applying the pattern to another entity page, reuse the rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`.
 - Do not copy patient actions blindly to provider, user, supplier, finance, inventory, or appointment pages; each entity gets actions that match its domain.

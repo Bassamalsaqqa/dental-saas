@@ -7,6 +7,7 @@ use App\Models\ExaminationModel;
 use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
 use App\Models\TreatmentModel;
+use App\Services\TodayRoutingService;
 
 class Dashboard extends BaseController
 {
@@ -15,6 +16,7 @@ class Dashboard extends BaseController
     protected $appointmentModel;
     protected $financeModel;
     protected $treatmentModel;
+    protected TodayRoutingService $todayRoutingService;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class Dashboard extends BaseController
         $this->appointmentModel = new AppointmentModel();
         $this->financeModel = new FinanceModel();
         $this->treatmentModel = new TreatmentModel();
+        $this->todayRoutingService = new TodayRoutingService();
     }
 
     public function index()
@@ -33,12 +36,19 @@ class Dashboard extends BaseController
         }
         
         try {
+            $canViewAppointments = has_permission('appointments', 'view');
+            $todayAppointments = $canViewAppointments
+                ? $this->appointmentModel->getAppointmentsByDateByClinic($clinicId, date('Y-m-d'))
+                : [];
+
             $data = [
                 'title' => 'Dental Management Dashboard',
                 'pageTitle' => 'Dashboard',
                 'stats' => $this->getDashboardStatsByClinic($clinicId),
                 'recent_patients' => $this->getRecentPatientsByClinic($clinicId),
-                'upcoming_appointments' => $this->getUpcomingAppointmentsByClinic($clinicId),
+                'upcoming_appointments' => $canViewAppointments ? $this->getUpcomingAppointmentsByClinic($clinicId) : [],
+                'today_routing' => $this->todayRoutingService->build($todayAppointments),
+                'can_route_appointments' => $canViewAppointments,
                 'recent_examinations' => $this->getRecentExaminationsByClinic($clinicId),
                 'monthly_revenue' => $this->getMonthlyRevenueByClinic($clinicId)
             ];
@@ -53,6 +63,8 @@ class Dashboard extends BaseController
                 'stats' => $this->getBasicStats(),
                 'recent_patients' => [],
                 'upcoming_appointments' => [],
+                'today_routing' => $this->todayRoutingService->build([]),
+                'can_route_appointments' => false,
                 'recent_examinations' => [],
                 'monthly_revenue' => []
             ];
@@ -75,7 +87,7 @@ class Dashboard extends BaseController
             'today_examinations' => $examinationStats['today_examinations'] ?? 0,
             'total_appointments' => $appointmentStats['total_appointments'] ?? 0,
             'today_appointments' => $appointmentStats['today_appointments'] ?? 0,
-            'upcoming_appointments' => $appointmentStats['upcoming_appointments'] ?? 0,
+            'upcoming_appointments' => $this->appointmentModel->countFutureAppointmentsByClinic($clinicId),
             'total_revenue' => $financeStats['total_revenue'] ?? 0,
             'pending_payments' => $financeStats['pending_payments'] ?? 0,
             'overdue_payments' => $financeStats['overdue_payments'] ?? 0,
@@ -204,7 +216,7 @@ class Dashboard extends BaseController
     private function getUpcomingAppointmentsByClinic($clinicId)
     {
         try {
-            return $this->appointmentModel->getUpcomingAppointmentsByClinic($clinicId, 5);
+            return $this->appointmentModel->getFutureAppointmentsByClinic($clinicId, 5);
         } catch (\Exception $e) {
             log_message('error', 'Upcoming appointments error: ' . $e->getMessage());
             return [];

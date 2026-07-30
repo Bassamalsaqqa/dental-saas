@@ -17,6 +17,28 @@ $recentPatientCount = count($recent_patients ?? []);
 $recentExamCount = count($recent_examinations ?? []);
 $clinicName = trim((string) (session('active_clinic_name') ?? session('clinic_name') ?? ''));
 $clinicName = $clinicName !== '' ? $clinicName : lang('UI.menuDashboard');
+$todayRouting = is_array($today_routing ?? null) ? $today_routing : ['groups' => [], 'counts' => [], 'completed_count' => 0, 'open_count' => 0];
+$routingGroups = is_array($todayRouting['groups'] ?? null) ? $todayRouting['groups'] : [];
+$canRouteAppointments = !empty($can_route_appointments);
+$canEditAppointments = has_permission('appointments', 'edit');
+$routingStageLabels = [
+    'scheduled' => lang('UI.appointmentStageScheduled'),
+    'confirmed' => lang('UI.appointmentStageConfirmed'),
+    'arrived' => lang('UI.appointmentStageArrived'),
+    'ready' => lang('UI.appointmentStageReady'),
+    'in_chair' => lang('UI.appointmentStageInChair'),
+    'checkout' => lang('UI.appointmentStageCheckout'),
+    'completed' => lang('UI.appointmentStageCompleted'),
+    'cancelled' => lang('UI.appointmentStageCancelled'),
+    'no_show' => lang('UI.appointmentStageNoShow'),
+];
+$routingGroupConfig = [
+    'expected' => ['label' => lang('UI.dashboardRoutingExpected'), 'icon' => 'fa-calendar-check', 'tone' => 'blue'],
+    'waiting' => ['label' => lang('UI.dashboardRoutingWaiting'), 'icon' => 'fa-user-clock', 'tone' => 'amber'],
+    'chairside' => ['label' => lang('UI.dashboardRoutingChairside'), 'icon' => 'fa-tooth', 'tone' => 'indigo'],
+    'checkout' => ['label' => lang('UI.dashboardRoutingCheckout'), 'icon' => 'fa-receipt', 'tone' => 'emerald'],
+    'exceptions' => ['label' => lang('UI.dashboardRoutingExceptions'), 'icon' => 'fa-triangle-exclamation', 'tone' => 'rose'],
+];
 
 $formatHumanLabel = static function (?string $value): string {
     $value = trim((string) $value);
@@ -108,6 +130,76 @@ $formatHumanLabel = static function (?string $value): string {
         grid-template-columns: repeat(1, minmax(0, 1fr));
         gap: 1rem;
         align-items: stretch;
+    }
+
+    .dashboard-routing {
+        overflow: hidden;
+        border: 1px solid rgba(191, 219, 254, 0.8);
+        border-radius: 1.45rem;
+        background:
+            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.13), transparent 30%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.99), rgba(241, 245, 249, 0.97));
+        box-shadow: 0 24px 58px -42px rgba(15, 23, 42, 0.48);
+    }
+
+    .dashboard-routing-board {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(16.5rem, 1fr);
+        gap: 0.85rem;
+        overflow-x: auto;
+        padding: 0 1rem 1rem;
+        scroll-snap-type: inline proximity;
+    }
+
+    @media (min-width: 1536px) {
+        .dashboard-routing-board {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-auto-flow: row;
+            grid-auto-columns: auto;
+            overflow-x: visible;
+        }
+    }
+
+    .dashboard-routing-column {
+        min-height: 12rem;
+        scroll-snap-align: start;
+        border-radius: 1.1rem;
+        padding: 0.75rem;
+    }
+
+    .dashboard-routing-column-blue { background: linear-gradient(180deg, #dbeafe, #eff6ff); }
+    .dashboard-routing-column-amber { background: linear-gradient(180deg, #fef3c7, #fffbeb); }
+    .dashboard-routing-column-indigo { background: linear-gradient(180deg, #e0e7ff, #eef2ff); }
+    .dashboard-routing-column-emerald { background: linear-gradient(180deg, #d1fae5, #ecfdf5); }
+    .dashboard-routing-column-rose { background: linear-gradient(180deg, #ffe4e6, #fff1f2); }
+
+    .dashboard-routing-card {
+        border: 1px solid rgba(255, 255, 255, 0.92);
+        border-radius: 0.95rem;
+        background: rgba(255, 255, 255, 0.94);
+        padding: 0.75rem;
+        box-shadow: 0 14px 28px -24px rgba(15, 23, 42, 0.68);
+    }
+
+    .dashboard-routing-primary {
+        display: inline-flex;
+        min-height: 2.35rem;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background: #1d4ed8;
+        padding: 0.5rem 0.7rem;
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 900;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .dashboard-routing-primary:hover {
+        background: #1e40af;
+        transform: translateY(-1px);
     }
 
     @media (min-width: 640px) {
@@ -448,6 +540,113 @@ $formatHumanLabel = static function (?string $value): string {
             </div>
         </section>
 
+        <?php if ($canRouteAppointments): ?>
+            <section class="dashboard-routing mb-5" aria-labelledby="today-routing-title">
+                <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white shadow-lg shadow-blue-500/20">
+                            <i class="fas fa-route"></i>
+                        </span>
+                        <div>
+                            <h2 id="today-routing-title" class="text-lg font-black text-slate-950 sm:text-xl"><?= esc(lang('UI.dashboardRoutingTitle')) ?></h2>
+                            <p class="mt-0.5 text-sm font-semibold text-slate-600"><?= esc(lang('UI.dashboardRoutingSubtitle')) ?></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="rounded-full bg-blue-100 px-3 py-1.5 text-xs font-black text-blue-800">
+                            <?= esc(lang('UI.dashboardRoutingOpenCount', ['count' => (int) ($todayRouting['open_count'] ?? 0)])) ?>
+                        </span>
+                        <span class="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-800">
+                            <?= esc(lang('UI.dashboardRoutingCompletedCount', ['count' => (int) ($todayRouting['completed_count'] ?? 0)])) ?>
+                        </span>
+                        <a href="<?= base_url('appointment/calendar') ?>" class="dashboard-view-link">
+                            <span><?= esc(lang('UI.dashboardRoutingOpenCalendar')) ?></span>
+                            <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dashboard-routing-board">
+                    <?php foreach ($routingGroupConfig as $groupKey => $groupConfig): ?>
+                        <?php $groupRows = is_array($routingGroups[$groupKey] ?? null) ? $routingGroups[$groupKey] : []; ?>
+                        <section class="dashboard-routing-column dashboard-routing-column-<?= esc($groupConfig['tone'], 'attr') ?>">
+                            <header class="mb-3 flex items-center justify-between gap-2">
+                                <span class="flex items-center gap-2 text-sm font-black text-slate-900">
+                                    <i class="fas <?= esc($groupConfig['icon'], 'attr') ?>"></i>
+                                    <span><?= esc($groupConfig['label']) ?></span>
+                                </span>
+                                <span class="flex h-7 min-w-7 items-center justify-center rounded-full bg-white px-2 text-xs font-black text-slate-700 shadow-sm" dir="ltr"><?= count($groupRows) ?></span>
+                            </header>
+
+                            <div class="space-y-2">
+                                <?php foreach ($groupRows as $visit): ?>
+                                    <?php
+                                    $visitId = (int) ($visit['id'] ?? 0);
+                                    $patientId = (int) ($visit['patient_id'] ?? 0);
+                                    $patientName = trim((string) (($visit['first_name'] ?? '') . ' ' . ($visit['last_name'] ?? '')));
+                                    $patientName = $patientName !== '' ? $patientName : lang('UI.patientUnknown');
+                                    $stage = (string) ($visit['status'] ?? 'scheduled');
+                                    $nextStage = (string) ($visit['primary_next_stage'] ?? '');
+                                    ?>
+                                    <article class="dashboard-routing-card">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <a href="<?= esc(workflow_context_url('appointment/' . $visitId, 'dashboard')) ?>" class="min-w-0 flex-1">
+                                                <span class="block truncate text-sm font-black text-slate-950"><?= esc($patientName) ?></span>
+                                                <span class="mt-1 block truncate text-xs font-bold text-slate-500">
+                                                    <?= esc($formatHumanLabel($visit['appointment_type'] ?? '')) ?>
+                                                    <?php if (!empty($visit['chair_name'])): ?>
+                                                        <span aria-hidden="true"> · </span><?= esc($visit['chair_name']) ?>
+                                                    <?php endif; ?>
+                                                </span>
+                                            </a>
+                                            <span class="shrink-0 text-end">
+                                                <span class="block text-sm font-black text-slate-950" dir="ltr"><?= esc(formatTime($visit['appointment_time'] ?? '')) ?></span>
+                                                <span class="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-black text-slate-700"><?= esc($routingStageLabels[$stage] ?? $formatHumanLabel($stage)) ?></span>
+                                            </span>
+                                        </div>
+
+                                        <?php if (!empty($visit['is_late'])): ?>
+                                            <p class="mt-2 text-xs font-black text-rose-700">
+                                                <i class="fas fa-clock me-1"></i><?= esc(lang('UI.dashboardRoutingLate', ['minutes' => (int) ($visit['late_minutes'] ?? 0)])) ?>
+                                            </p>
+                                        <?php endif; ?>
+
+                                        <div class="mt-3 flex items-center gap-2">
+                                            <?php if ($patientId > 0): ?>
+                                                <a href="<?= esc(workflow_context_url('patient/' . $patientId, 'dashboard')) ?>" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition hover:bg-slate-200" title="<?= esc(lang('UI.patientProfile'), 'attr') ?>">
+                                                    <i class="fas fa-user"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <?php if ($canEditAppointments && $nextStage !== ''): ?>
+                                                <form method="post" action="<?= base_url('appointment/' . $visitId . '/transition') ?>" class="min-w-0 flex-1">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="status" value="<?= esc($nextStage, 'attr') ?>">
+                                                    <input type="hidden" name="return_to" value="dashboard">
+                                                    <button type="submit" class="dashboard-routing-primary">
+                                                        <?= esc(lang('UI.appointmentMoveToStage', ['stage' => $routingStageLabels[$nextStage] ?? $formatHumanLabel($nextStage)])) ?>
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <a href="<?= esc(workflow_context_url('appointment/' . $visitId, 'dashboard')) ?>" class="dashboard-routing-primary">
+                                                    <?= esc(lang('UI.appointmentViewAction')) ?>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </article>
+                                <?php endforeach; ?>
+
+                                <?php if (!$groupRows): ?>
+                                    <div class="rounded-xl border border-dashed border-white bg-white/55 px-3 py-5 text-center text-xs font-bold text-slate-500">
+                                        <?= esc(lang('UI.dashboardRoutingEmpty')) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </section>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
         <section class="dashboard-stat-grid mb-5">
             <a href="<?= base_url('patient') ?>" class="dashboard-stat-card dashboard-stat-blue">
                 <div class="flex items-start justify-between gap-3">
@@ -502,7 +701,7 @@ $formatHumanLabel = static function (?string $value): string {
                             <span class="dashboard-panel-icon bg-gradient-to-br from-amber-500 to-orange-600"><i class="fas fa-calendar-check"></i></span>
                             <div>
                                 <h2><?= esc(lang('UI.dashboardUpcomingAppointments')) ?></h2>
-                                <p class="mt-0.5 text-xs font-bold text-slate-500"><?= esc(lang('UI.dashboardTodayScheduledAppointments')) ?></p>
+                                <p class="mt-0.5 text-xs font-bold text-slate-500"><?= esc(lang('UI.dashboardFutureAppointmentsSubtitle')) ?></p>
                             </div>
                         </div>
                         <a href="<?= base_url('appointment') ?>" class="dashboard-view-link">

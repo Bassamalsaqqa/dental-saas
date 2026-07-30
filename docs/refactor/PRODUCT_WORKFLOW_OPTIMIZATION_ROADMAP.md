@@ -190,7 +190,7 @@ Also resolve existing guardrail debt before expanding high-risk workflows:
 ### Phase 1 - Visit Status and Chairside Workspace
 
 - **Phase 1A completed 2026-07-30:** expanded appointment visit stages safely and made transitions server-owned.
-- Add one role-aware Today/routing workspace in Phase 1B.
+- **Phase 1B completed 2026-07-30:** added one permission-aware Today routing workspace to the existing dashboard.
 - Preserve patient, appointment, examination, and return context.
 - No new clinical or finance calculations.
 
@@ -237,6 +237,46 @@ Acceptance scenarios covered by the transition contract:
 - Emergency/walk-in: scheduled directly to arrived, then through chairside stages.
 - Cancellation/no-show: allowed only before chairside work has started.
 - Incomplete checkout: remains explicitly in checkout rather than being silently completed.
+
+#### Phase 1B Today Routing Contract
+
+The existing tenant dashboard is the Today workspace. No second dashboard or routing route was created.
+
+| Group | Appointment stages | Normal job |
+| --- | --- | --- |
+| Expected | scheduled, confirmed | Bring the patient into the clinic flow |
+| Waiting | arrived, ready | Prepare and hand off to the provider |
+| Chairside | in_chair | Continue canonical clinical work |
+| Checkout | checkout | Finish through canonical finance and scheduling records |
+| Needs attention | cancelled, no_show | Review the exception from appointment context |
+
+Primary handoff mapping:
+
+- scheduled/confirmed -> arrived
+- arrived -> ready
+- ready -> in-chair
+- in-chair -> checkout
+- checkout -> completed
+
+Safety and simplicity rules:
+
+- The board reads only appointments from the active clinic and current clinic date.
+- Appointment detail remains the canonical visit context; patient, clinical, and finance modules keep ownership of their records.
+- Users with `appointments:view` can see the board and open its records.
+- Only users with `appointments:edit` see the primary transition action.
+- Terminal exceptions do not expose a fake recovery action; they open the appointment for review.
+- Late flags apply only to expected patients whose scheduled time has passed.
+- Completed visits are counted, not repeated as a long card list.
+- Upcoming appointments now mean future appointments after today, preventing duplicate Today rows.
+- The board does not calculate balances, infer clinical completion, create examinations, auto-bill, or replace the calendar.
+
+Manual clinic-day scenarios:
+
+1. Scheduled or confirmed patient moves through waiting, chairside, checkout, and completion.
+2. A late scheduled/confirmed patient shows elapsed minutes; an arrived patient is no longer flagged late.
+3. Cancellation/no-show appears under Needs attention with no invalid next-stage button.
+4. A view-only user can inspect records but cannot transition visits.
+5. Arabic uses the same logical column/card behavior and transition meaning.
 
 ### Phase 2 - Procedure Lifecycle Foundation
 
@@ -298,9 +338,9 @@ These may be valuable, but they should not interrupt the seven operating loops.
 
 ## Next Recommended Slice
 
-Implement **Phase 1B: Today routing workspace** using the Phase 1A contract.
+Phase 1B is implemented. Run the **Phase 1 operational clinic-day QA** before starting another schema slice.
 
-The next slice should:
+Verify the completed workflow:
 
 1. Show today’s appointments grouped by operational stage.
 2. Expose only the next valid stage action for front desk, assistant, or provider permissions.
@@ -308,4 +348,4 @@ The next slice should:
 4. Surface exceptions such as late arrivals, no-shows, and visits waiting in checkout.
 5. Avoid duplicating the patient chart, calendar, clinical forms, or finance calculations.
 
-Do not begin the procedure-lifecycle schema until Phase 1B has been manually exercised in a real clinic-day workflow.
+After this QA is clean, plan the Phase 2 procedure lifecycle schema. Do not simulate it by adding more status fields to appointments, treatments, odontogram rows, contracts, or invoices.

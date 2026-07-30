@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-07-30 - Today patient-routing workspace
+
+- Completed Product Workflow Roadmap Phase 1B on the existing tenant dashboard rather than creating a competing page.
+- Added a tenant-scoped Today read model grouping appointments into Expected, Waiting, Chairside, Checkout, and Needs attention.
+- Added one primary server-validated handoff per active stage; appointment-view permission controls visibility and appointment-edit permission controls transitions.
+- Added late-arrival signals only for scheduled/confirmed visits, completed/open counts, compact exception review, patient/appointment context links, and English/Arabic copy.
+- Kept terminal exceptions, clinical work, finance work, and scheduling details in their canonical modules.
+- Changed the existing Upcoming panel and count to future appointments after today, removing duplicate Today/upcoming presentation.
+- Added `TodayRoutingServiceTest`: 3 tests covering grouping, handoffs, sorting, late behavior, completed counts, exceptions, and unknown legacy states.
+- No route, database table, clinical inference, financial calculation, auto-billing behavior, or public/App API contract was added.
+- Next gate: manually exercise a full clinic day in English/Arabic and with view-only/edit permissions before Phase 2 procedure-lifecycle work.
+
 ## 2026-07-30 - Appointment visit-stage workflow foundation
 
 - Added the active cross-module roadmap at `docs/refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`, covering Visit, Care Plan, Checkout, Recall, Supply, Communication, and Governance loops.
