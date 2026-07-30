@@ -221,30 +221,9 @@
                             </div>
                         </div>
 
-                        <!-- Status Selection -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-info-circle text-cyan-600"></i>
-                                <span><?= esc(lang('UI.appointmentStatusRequired')) ?></span>
-                            </label>
-                            <div class="relative">
-                                <select name="status" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl" required>
-                                    <option value="scheduled" <?= (old('status', $appointment['status']) == 'scheduled') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusScheduled')) ?></option>
-                                    <option value="confirmed" <?= (old('status', $appointment['status']) == 'confirmed') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusConfirmed')) ?></option>
-                                    <option value="completed" <?= (old('status', $appointment['status']) == 'completed') ? 'selected' : '' ?>><?= esc(lang('UI.dashboardCompleted')) ?></option>
-                                    <option value="cancelled" <?= (old('status', $appointment['status']) == 'cancelled') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusCancelled')) ?></option>
-                                    <option value="no_show" <?= (old('status', $appointment['status']) == 'no_show') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusNoShow')) ?></option>
-                                </select>
-                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                </div>
-                            </div>
-                            <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('status')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span><?= session()->getFlashdata('validation')->getError('status') ?></span>
-                                </p>
-                            <?php endif; ?>
+                        <div class="rounded-xl border border-cyan-100 bg-cyan-50/70 p-4">
+                            <p class="text-sm font-bold text-cyan-950"><?= esc(lang('UI.appointmentVisitStage')) ?></p>
+                            <p class="mt-1 text-sm font-semibold text-cyan-800"><?= esc(lang('UI.appointmentVisitStageEditHint')) ?></p>
                         </div>
 
                         <!-- Notes Section -->

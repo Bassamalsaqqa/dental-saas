@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-07-30 - Appointment visit-stage workflow foundation
+
+- Added the active cross-module roadmap at `docs/refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`, covering Visit, Care Plan, Checkout, Recall, Supply, Communication, and Governance loops.
+- Implemented Phase 1A as a server-owned appointment visit-stage contract:
+  `scheduled -> confirmed -> arrived -> ready -> in_chair -> checkout -> completed`.
+- Added controlled cancellation/no-show branches and terminal-state protection; invalid stage skips return a structured 422 response.
+- Kept appointment edit focused on schedule details so it cannot bypass the transition contract.
+- Preserved existing confirm, complete, and cancel routes as wrappers around the unified transition service.
+- Added tenant- and permission-filtered singular/plural transition routes, activity logging, and governed no-show follow-up dispatch.
+- Updated appointment detail, list, calendar, print, filters, and English/Arabic labels for the expanded stages.
+- Applied migration `2026-07-30-120000_ExpandAppointmentVisitStages` locally and regenerated the canonical Hostinger SQL dump.
+- Added `AppointmentVisitStageServiceTest`: 5 tests and 21 assertions covering normal, consultation-only, walk-in-compatible, cancellation/no-show, invalid-skip, and terminal-stage behavior.
+- Deferred the role-aware Today routing workspace to Phase 1B; this slice does not duplicate clinical records, perform finance calculations, auto-bill, or auto-complete visits.
+
 ## 2026-07-26 - Odontogram workflow relationships
 
 - Kept the odontogram as the fast visual clinical index while preserving canonical ownership in examinations, treatments, contracts, appointments, attachments, and finance.

@@ -17,6 +17,10 @@ $appointmentRows = array_values($appointments ?? []);
 $statusCounts = [
     'scheduled' => 0,
     'confirmed' => 0,
+    'arrived' => 0,
+    'ready' => 0,
+    'in_chair' => 0,
+    'checkout' => 0,
     'completed' => 0,
     'cancelled' => 0,
     'no_show' => 0,
@@ -37,7 +41,8 @@ foreach ($appointmentRows as $row) {
     }
 }
 $viewAllMode = isset($view_mode) && $view_mode === 'all';
-$activeCount = $statusCounts['scheduled'] + $statusCounts['confirmed'];
+$activeCount = $statusCounts['scheduled'] + $statusCounts['confirmed'] + $statusCounts['arrived']
+    + $statusCounts['ready'] + $statusCounts['in_chair'] + $statusCounts['checkout'];
 $doneCount = $statusCounts['completed'];
 $riskCount = $statusCounts['cancelled'] + $statusCounts['no_show'];
 $nextAppointmentLabel = lang('UI.dashboardNoUpcomingAppointments');
@@ -213,6 +218,10 @@ if ($nextAppointment) {
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= ($selected_status ?? '') === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
                                     <option value="confirmed" <?= ($selected_status ?? '') === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
+                                    <option value="arrived" <?= ($selected_status ?? '') === 'arrived' ? 'selected' : '' ?>><?= lang('UI.appointmentStageArrived') ?></option>
+                                    <option value="ready" <?= ($selected_status ?? '') === 'ready' ? 'selected' : '' ?>><?= lang('UI.appointmentStageReady') ?></option>
+                                    <option value="in_chair" <?= ($selected_status ?? '') === 'in_chair' ? 'selected' : '' ?>><?= lang('UI.appointmentStageInChair') ?></option>
+                                    <option value="checkout" <?= ($selected_status ?? '') === 'checkout' ? 'selected' : '' ?>><?= lang('UI.appointmentStageCheckout') ?></option>
                                     <option value="completed" <?= ($selected_status ?? '') === 'completed' ? 'selected' : '' ?>><?= lang('UI.patientTreatmentStatusCompleted') ?></option>
                                     <option value="cancelled" <?= ($selected_status ?? '') === 'cancelled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusCancelled') ?></option>
                                 </select>
@@ -287,6 +296,10 @@ if ($nextAppointment) {
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= $selected_status === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
                                     <option value="confirmed" <?= $selected_status === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
+                                    <option value="arrived" <?= $selected_status === 'arrived' ? 'selected' : '' ?>><?= lang('UI.appointmentStageArrived') ?></option>
+                                    <option value="ready" <?= $selected_status === 'ready' ? 'selected' : '' ?>><?= lang('UI.appointmentStageReady') ?></option>
+                                    <option value="in_chair" <?= $selected_status === 'in_chair' ? 'selected' : '' ?>><?= lang('UI.appointmentStageInChair') ?></option>
+                                    <option value="checkout" <?= $selected_status === 'checkout' ? 'selected' : '' ?>><?= lang('UI.appointmentStageCheckout') ?></option>
                                     <option value="completed" <?= $selected_status === 'completed' ? 'selected' : '' ?>><?= lang('UI.patientTreatmentStatusCompleted') ?></option>
                                     <option value="cancelled" <?= $selected_status === 'cancelled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusCancelled') ?></option>
                                     <option value="no_show" <?= $selected_status === 'no_show' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusNoShow') ?></option>
@@ -428,6 +441,10 @@ if ($nextAppointment) {
                                         $statusConfig = [
                                             'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'text-blue-900', 'label' => lang('UI.appointmentStatusScheduled')],
                                             'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'text-green-900', 'label' => lang('UI.appointmentStatusConfirmed')],
+                                            'arrived' => ['bg' => 'from-cyan-500 to-cyan-600', 'text' => 'text-cyan-900', 'label' => lang('UI.appointmentStageArrived')],
+                                            'ready' => ['bg' => 'from-teal-500 to-teal-600', 'text' => 'text-teal-900', 'label' => lang('UI.appointmentStageReady')],
+                                            'in_chair' => ['bg' => 'from-indigo-500 to-indigo-600', 'text' => 'text-indigo-900', 'label' => lang('UI.appointmentStageInChair')],
+                                            'checkout' => ['bg' => 'from-violet-500 to-violet-600', 'text' => 'text-violet-900', 'label' => lang('UI.appointmentStageCheckout')],
                                             'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'text-gray-900', 'label' => lang('UI.patientTreatmentStatusCompleted')],
                                             'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'text-red-900', 'label' => lang('UI.appointmentStatusCancelled')],
                                             'no_show' => ['bg' => 'from-orange-500 to-orange-600', 'text' => 'text-orange-900', 'label' => lang('UI.appointmentStatusNoShow')]
@@ -462,13 +479,7 @@ if ($nextAppointment) {
                                                 <i class="fas fa-check text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <?php if (in_array($appointment['status'], ['scheduled', 'confirmed']) && has_permission('appointments', 'edit')): ?>
-                                            <button type="button" onclick="completeAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
-                                                <i class="fas fa-check-circle text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
-                                            </button>
-                                        <?php endif; ?>
-                                        <?php if (has_permission('appointments', 'edit')): ?>
+                                        <?php if (in_array($appointment['status'], ['scheduled', 'confirmed', 'arrived', 'ready'], true) && has_permission('appointments', 'edit')): ?>
                                             <button type="button" onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-times text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
@@ -552,6 +563,10 @@ const appointmentI18n = {
     loadError: <?= json_encode(lang('UI.appointmentLoadError')) ?>,
     statusScheduled: <?= json_encode(lang('UI.appointmentStatusScheduled')) ?>,
     statusConfirmed: <?= json_encode(lang('UI.appointmentStatusConfirmed')) ?>,
+    statusArrived: <?= json_encode(lang('UI.appointmentStageArrived')) ?>,
+    statusReady: <?= json_encode(lang('UI.appointmentStageReady')) ?>,
+    statusInChair: <?= json_encode(lang('UI.appointmentStageInChair')) ?>,
+    statusCheckout: <?= json_encode(lang('UI.appointmentStageCheckout')) ?>,
     statusCompleted: <?= json_encode(lang('UI.patientTreatmentStatusCompleted')) ?>,
     statusCancelled: <?= json_encode(lang('UI.appointmentStatusCancelled')) ?>,
     statusNoShow: <?= json_encode(lang('UI.appointmentStatusNoShow')) ?>,
@@ -1027,6 +1042,10 @@ function createAppointmentElement(appointment) {
     const statusConfig = {
         'scheduled': { bg: 'from-blue-500 to-blue-600', text: 'text-blue-900', label: appointmentI18n.statusScheduled },
         'confirmed': { bg: 'from-green-500 to-green-600', text: 'text-green-900', label: appointmentI18n.statusConfirmed },
+        'arrived': { bg: 'from-cyan-500 to-cyan-600', text: 'text-cyan-900', label: appointmentI18n.statusArrived },
+        'ready': { bg: 'from-teal-500 to-teal-600', text: 'text-teal-900', label: appointmentI18n.statusReady },
+        'in_chair': { bg: 'from-indigo-500 to-indigo-600', text: 'text-indigo-900', label: appointmentI18n.statusInChair },
+        'checkout': { bg: 'from-violet-500 to-violet-600', text: 'text-violet-900', label: appointmentI18n.statusCheckout },
         'completed': { bg: 'from-emerald-500 to-emerald-600', text: 'text-emerald-900', label: appointmentI18n.statusCompleted },
         'cancelled': { bg: 'from-red-500 to-red-600', text: 'text-red-900', label: appointmentI18n.statusCancelled },
         'no_show': { bg: 'from-orange-500 to-orange-600', text: 'text-orange-900', label: appointmentI18n.statusNoShow }

@@ -20,7 +20,18 @@ class Reports extends BaseController
     private const ALLOWED_FINANCE_TRANSACTION_TYPES = ['payment', 'refund', 'expense', 'void', 'provider_payout'];
     private const ALLOWED_FINANCE_PAYMENT_METHODS = ['cash', 'card', 'bank_transfer', 'check', 'insurance', 'other'];
     private const ALLOWED_FINANCE_PAYMENT_STATUSES = ['paid', 'pending', 'partial', 'overdue', 'cancelled'];
-    private const ALLOWED_APPOINTMENT_STATUSES = ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show', 'pending'];
+    private const ALLOWED_APPOINTMENT_STATUSES = [
+        'scheduled',
+        'confirmed',
+        'arrived',
+        'ready',
+        'in_chair',
+        'checkout',
+        'completed',
+        'cancelled',
+        'no_show',
+        'pending',
+    ];
     private const ALLOWED_TREATMENT_STATUSES = ['planned', 'in_progress', 'completed', 'cancelled', 'on_hold'];
 
     protected $patientModel;

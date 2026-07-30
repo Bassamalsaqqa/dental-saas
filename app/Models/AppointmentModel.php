@@ -40,7 +40,7 @@ class AppointmentModel extends TenantAwareModel
         'duration' => 'required|integer|greater_than[0]',
         'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
         'chair_name' => 'required|max_length[100]',
-        'status' => 'required|in_list[scheduled,confirmed,completed,cancelled,no_show]'
+        'status' => 'required|in_list[scheduled,confirmed,arrived,ready,in_chair,checkout,completed,cancelled,no_show]'
     ];
 
     protected $validationMessages = [

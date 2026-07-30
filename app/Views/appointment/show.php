@@ -20,6 +20,21 @@ $invoiceableChargeTotal = array_reduce(
 );
 $primaryLinkedExamination = $linkedExaminations[0] ?? null;
 $traceDateLabel = !empty($appointment['appointment_date']) ? formatDate($appointment['appointment_date']) : '';
+$currentVisitStage = (string) ($appointment['status'] ?? 'scheduled');
+$visitStageOrder = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair', 'checkout', 'completed'];
+$allowedVisitStages = is_array($appointment_allowed_visit_stages ?? null) ? $appointment_allowed_visit_stages : [];
+$visitIsClosed = !empty($appointment_visit_is_closed);
+$visitStageLabels = [
+    'scheduled' => lang('UI.appointmentStageScheduled'),
+    'confirmed' => lang('UI.appointmentStageConfirmed'),
+    'arrived' => lang('UI.appointmentStageArrived'),
+    'ready' => lang('UI.appointmentStageReady'),
+    'in_chair' => lang('UI.appointmentStageInChair'),
+    'checkout' => lang('UI.appointmentStageCheckout'),
+    'completed' => lang('UI.appointmentStageCompleted'),
+    'cancelled' => lang('UI.appointmentStageCancelled'),
+    'no_show' => lang('UI.appointmentStageNoShow'),
+];
 ?>
 <!-- Enhanced Appointment Details with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
@@ -155,6 +170,18 @@ $traceDateLabel = !empty($appointment['appointment_date']) ? formatDate($appoint
                                                     case 'confirmed':
                                                         echo 'bg-green-100 text-green-800';
                                                         break;
+                                                    case 'arrived':
+                                                        echo 'bg-cyan-100 text-cyan-800';
+                                                        break;
+                                                    case 'ready':
+                                                        echo 'bg-teal-100 text-teal-800';
+                                                        break;
+                                                    case 'in_chair':
+                                                        echo 'bg-indigo-100 text-indigo-800';
+                                                        break;
+                                                    case 'checkout':
+                                                        echo 'bg-violet-100 text-violet-800';
+                                                        break;
                                                     case 'completed':
                                                         echo 'bg-emerald-100 text-emerald-800';
                                                         break;
@@ -168,7 +195,7 @@ $traceDateLabel = !empty($appointment['appointment_date']) ? formatDate($appoint
                                                         echo 'bg-gray-100 text-gray-800';
                                                 }
                                             ?>">
-                                                <?= ucfirst(str_replace('_', ' ', $appointment['status'])) ?>
+                                                <?= esc($visitStageLabels[$currentVisitStage] ?? ucfirst(str_replace('_', ' ', $currentVisitStage))) ?>
                                             </span>
                                         </div>
                                         <div class="flex justify-between items-center">
@@ -200,40 +227,56 @@ $traceDateLabel = !empty($appointment['appointment_date']) ? formatDate($appoint
                                 </div>
                             </div>
 
-                            <!-- Quick Actions -->
-                            <div class="group/card relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-600/5 rounded-2xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative bg-white/60 border border-white/30 rounded-2xl p-6 shadow-lg group-hover/card:shadow-xl transition-all duration-300">
-                                    <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                                        <i class="fas fa-bolt text-amber-600"></i>
-                                        <span><?= esc(lang('UI.appointmentQuickActions')) ?></span>
-                                    </h4>
-                                    <div class="space-y-3">
-                                        <?php if ($appointment['status'] == 'scheduled'): ?>
-                                            <button onclick="confirmAppointment(<?= $appointment['id'] ?>)" class="w-full group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                                <i class="fas fa-check mr-2 relative z-10"></i>
-                                                <span class="relative z-10"><?= esc(lang('UI.appointmentConfirmAction')) ?></span>
-                                            </button>
-                                        <?php endif; ?>
-                                        
-                                        <?php if (in_array($appointment['status'], ['scheduled', 'confirmed'])): ?>
-                                            <button onclick="completeAppointment(<?= $appointment['id'] ?>)" class="w-full group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                                <i class="fas fa-check-circle mr-2 relative z-10"></i>
-                                                <span class="relative z-10"><?= esc(lang('UI.appointmentCompleteAction')) ?></span>
-                                            </button>
-                                        <?php endif; ?>
-                                        
-                                        <?php if (in_array($appointment['status'], ['scheduled', 'confirmed'])): ?>
-                                            <button onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="w-full group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-bold rounded-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 hover:scale-105">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                                <i class="fas fa-times mr-2 relative z-10"></i>
-                                                <span class="relative z-10"><?= esc(lang('UI.appointmentCancelAction')) ?></span>
-                                            </button>
-                                        <?php endif; ?>
+                            <div class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-5 shadow-lg">
+                                <div class="flex items-start gap-3">
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md">
+                                        <i class="fas fa-route"></i>
+                                    </span>
+                                    <div>
+                                        <h4 class="text-lg font-black text-slate-950"><?= esc(lang('UI.appointmentVisitProgress')) ?></h4>
+                                        <p class="mt-1 text-sm font-semibold leading-6 text-slate-600"><?= esc(lang('UI.appointmentVisitProgressHint')) ?></p>
                                     </div>
                                 </div>
+
+                                <ol class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                    <?php foreach ($visitStageOrder as $stageIndex => $stage): ?>
+                                        <?php
+                                        $currentIndex = array_search($currentVisitStage, $visitStageOrder, true);
+                                        $isReached = $currentIndex !== false && $stageIndex <= $currentIndex;
+                                        $isCurrent = $stage === $currentVisitStage;
+                                        ?>
+                                        <li class="rounded-xl px-3 py-2.5 <?= $isCurrent ? 'bg-indigo-600 text-white shadow-md' : ($isReached ? 'bg-emerald-100 text-emerald-900' : 'bg-white text-slate-500 ring-1 ring-slate-200') ?>">
+                                            <span class="block text-[11px] font-black" dir="ltr"><?= str_pad((string) ($stageIndex + 1), 2, '0', STR_PAD_LEFT) ?></span>
+                                            <span class="mt-0.5 block text-sm font-extrabold"><?= esc($visitStageLabels[$stage]) ?></span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ol>
+
+                                <?php if (has_permission('appointments', 'edit')): ?>
+                                    <div class="mt-5 flex flex-wrap gap-2">
+                                        <?php foreach ($allowedVisitStages as $targetStage): ?>
+                                            <?php
+                                            $isTerminalAction = in_array($targetStage, ['cancelled', 'no_show'], true);
+                                            $buttonClass = $isTerminalAction
+                                                ? 'border border-rose-200 bg-white text-rose-700 hover:bg-rose-50'
+                                                : 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700';
+                                            ?>
+                                            <form method="post" action="<?= base_url('appointment/' . (int) $appointment['id'] . '/transition') ?>">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="status" value="<?= esc($targetStage, 'attr') ?>">
+                                                <input type="hidden" name="return_to" value="<?= esc($returnToContext, 'attr') ?>">
+                                                <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-extrabold transition <?= $buttonClass ?>">
+                                                    <?= esc(lang('UI.appointmentMoveToStage', ['stage' => $visitStageLabels[$targetStage] ?? $targetStage])) ?>
+                                                </button>
+                                            </form>
+                                        <?php endforeach; ?>
+                                        <?php if ($visitIsClosed): ?>
+                                            <p class="w-full rounded-xl bg-white/80 px-4 py-3 text-sm font-bold text-slate-600 ring-1 ring-slate-200">
+                                                <i class="fas fa-lock me-2 text-slate-400"></i><?= esc(lang('UI.appointmentVisitClosed')) ?>
+                                            </p>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

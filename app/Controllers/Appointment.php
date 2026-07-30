@@ -10,6 +10,7 @@ use App\Models\PatientModel;
 use App\Models\TreatmentModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\AppointmentVisitStageService;
 use App\Services\MoneyTrailService;
 use App\Services\WhatsAppWorkflowService;
 
@@ -20,6 +21,7 @@ class Appointment extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
+    protected AppointmentVisitStageService $visitStageService;
 
     public function __construct() 
     {
@@ -28,6 +30,7 @@ class Appointment extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
+        $this->visitStageService = new AppointmentVisitStageService();
     }
 
     public function index()
@@ -514,6 +517,8 @@ class Appointment extends BaseController
             'clinic_providers' => (new ClinicUserModel())->getActiveUserDirectoryByClinic((int) $clinicId),
             'selected_examination_id' => $linkedExaminationIds[0] ?? null,
             'appointment_chair_options' => $this->getChairOptions(),
+            'appointment_allowed_visit_stages' => $this->visitStageService->allowedNext((string) ($appointment['status'] ?? 'scheduled')),
+            'appointment_visit_is_closed' => $this->visitStageService->isTerminal((string) ($appointment['status'] ?? 'scheduled')),
             'return_to_context' => $returnToContext,
             'return_to' => $returnTo
         ];
@@ -591,7 +596,7 @@ class Appointment extends BaseController
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),
             'chair_name' => trim((string) $this->request->getPost('chair_name')),
-            'status' => $this->request->getPost('status'),
+            'status' => (string) ($existingAppointment['status'] ?? 'scheduled'),
             'notes' => $this->request->getPost('notes')
         ];
 
@@ -641,12 +646,6 @@ class Appointment extends BaseController
             try {
                 $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
                 $this->whatsAppWorkflowService->queueAppointmentConfirmation((int) $clinicId, (int) $id, $actorUserId);
-                if (
-                    (string) ($existingAppointment['status'] ?? '') !== 'no_show'
-                    && (string) ($appointmentData['status'] ?? '') === 'no_show'
-                ) {
-                    $this->whatsAppWorkflowService->queueNoShowFollowUp((int) $clinicId, (int) $id, $actorUserId);
-                }
             } catch (\Throwable $e) {
                 log_message('warning', 'WhatsApp appointment workflow enqueue failed for appointment_id={appointment_id}: {message}', [
                     'appointment_id' => $id,
@@ -720,49 +719,25 @@ class Appointment extends BaseController
 
     public function confirm($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
-        }
-
-        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
-        
-        if (!$appointment) {
-            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
-        }
-
-        $updateData = ['status' => 'confirmed'];
-
-        if ($this->appointmentModel->update($id, $updateData)) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Appointment confirmed']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to confirm appointment']);
-        }
+        return $this->transitionAppointment($id, 'confirmed');
     }
 
     public function complete($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
-        }
-
-        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
-        
-        if (!$appointment) {
-            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
-        }
-
-        $updateData = ['status' => 'completed'];
-
-        if ($this->appointmentModel->update($id, $updateData)) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Appointment completed']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to complete appointment']);
-        }
+        return $this->transitionAppointment($id, 'completed');
     }
 
     public function cancel($id)
+    {
+        return $this->transitionAppointment($id, 'cancelled');
+    }
+
+    public function transition($id)
+    {
+        return $this->transitionAppointment($id, (string) $this->request->getPost('status'));
+    }
+
+    private function transitionAppointment($id, string $targetStage)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -775,13 +750,61 @@ class Appointment extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
         }
 
-        $updateData = ['status' => 'cancelled'];
-
-        if ($this->appointmentModel->update($id, $updateData)) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Appointment cancelled']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to cancel appointment']);
+        $currentStage = (string) ($appointment['status'] ?? 'scheduled');
+        if (!$this->visitStageService->canTransition($currentStage, $targetStage)) {
+            if (!$this->request->isAJAX()) {
+                return redirect()->back()->with('error', 'This visit stage change is not allowed.');
+            }
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => 'This visit stage change is not allowed.',
+                'current_status' => $currentStage,
+                'allowed_statuses' => $this->visitStageService->allowedNext($currentStage),
+            ]);
         }
+
+        if (!$this->appointmentModel->update($id, ['status' => $targetStage])) {
+            if (!$this->request->isAJAX()) {
+                return redirect()->back()->with('error', 'Failed to update visit stage');
+            }
+            return $this->response->setStatusCode(500)
+                ->setJSON(['success' => false, 'message' => 'Failed to update visit stage']);
+        }
+
+        $this->activityLogger->logAppointmentActivity(
+            'status',
+            (int) $id,
+            "Appointment visit stage changed from {$currentStage} to {$targetStage}"
+        );
+
+        if ($targetStage === 'no_show') {
+            try {
+                $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+                $this->whatsAppWorkflowService->queueNoShowFollowUp((int) $clinicId, (int) $id, $actorUserId);
+            } catch (\Throwable $e) {
+                log_message('warning', 'WhatsApp no-show follow-up enqueue failed for appointment_id={appointment_id}: {message}', [
+                    'appointment_id' => $id,
+                    'message' => substr($e->getMessage(), 0, 255),
+                ]);
+            }
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Visit stage updated',
+                'status' => $targetStage,
+            ]);
+        }
+
+        $returnTo = $this->sanitizeInternalReturnTo(
+            (string) $this->request->getPost('return_to'),
+            ['patient', 'patients', 'examination', 'appointment', 'appointments']
+        );
+
+        return redirect()
+            ->to(base_url($returnTo ?: 'appointment/' . (int) $id))
+            ->with('success', 'Visit stage updated');
     }
 
     public function getAvailableTimeSlots()

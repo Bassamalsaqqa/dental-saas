@@ -100,6 +100,10 @@ $calendarStatusLegend = [
     ['status' => 'completed', 'class' => 'bg-gray-500', 'label' => lang('UI.dashboardCompleted')],
     ['status' => 'cancelled', 'class' => 'bg-red-500', 'label' => lang('UI.appointmentStatusCancelled')],
     ['status' => 'no_show', 'class' => 'bg-yellow-500', 'label' => lang('UI.appointmentStatusNoShow')],
+    ['status' => 'arrived', 'class' => 'bg-cyan-500', 'label' => lang('UI.appointmentStageArrived')],
+    ['status' => 'ready', 'class' => 'bg-teal-500', 'label' => lang('UI.appointmentStageReady')],
+    ['status' => 'in_chair', 'class' => 'bg-indigo-500', 'label' => lang('UI.appointmentStageInChair')],
+    ['status' => 'checkout', 'class' => 'bg-violet-500', 'label' => lang('UI.appointmentStageCheckout')],
 ];
 ?>
 <div class="appointment-calendar-page">
@@ -209,6 +213,10 @@ $calendarStatusLegend = [
                             <option value="completed"><?= esc(lang('UI.dashboardCompleted')) ?></option>
                             <option value="cancelled"><?= esc(lang('UI.appointmentStatusCancelled')) ?></option>
                             <option value="no_show"><?= esc(lang('UI.appointmentStatusNoShow')) ?></option>
+                            <option value="arrived"><?= esc(lang('UI.appointmentStageArrived')) ?></option>
+                            <option value="ready"><?= esc(lang('UI.appointmentStageReady')) ?></option>
+                            <option value="in_chair"><?= esc(lang('UI.appointmentStageInChair')) ?></option>
+                            <option value="checkout"><?= esc(lang('UI.appointmentStageCheckout')) ?></option>
                         </select>
                     </div>
                     <div>
@@ -617,7 +625,11 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmed: '<?= esc(lang('UI.appointmentStatusConfirmed'), 'js') ?>',
             completed: '<?= esc(lang('UI.dashboardCompleted'), 'js') ?>',
             cancelled: '<?= esc(lang('UI.appointmentStatusCancelled'), 'js') ?>',
-            no_show: '<?= esc(lang('UI.appointmentStatusNoShow'), 'js') ?>'
+            no_show: '<?= esc(lang('UI.appointmentStatusNoShow'), 'js') ?>',
+            arrived: '<?= esc(lang('UI.appointmentStageArrived'), 'js') ?>',
+            ready: '<?= esc(lang('UI.appointmentStageReady'), 'js') ?>',
+            in_chair: '<?= esc(lang('UI.appointmentStageInChair'), 'js') ?>',
+            checkout: '<?= esc(lang('UI.appointmentStageCheckout'), 'js') ?>'
         },
         types: {
             consultation: '<?= esc(lang('UI.appointmentTypeConsultation'), 'js') ?>',
@@ -851,7 +863,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'confirmed': '#10b981',
             'completed': '#6b7280',
             'cancelled': '#ef4444',
-            'no_show': '#f59e0b'
+            'no_show': '#f59e0b',
+            'arrived': '#06b6d4',
+            'ready': '#14b8a6',
+            'in_chair': '#6366f1',
+            'checkout': '#8b5cf6'
         };
         return colors[status] || '#6b7280';
     }
@@ -862,7 +878,11 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmed: 'bg-green-100 text-green-800',
             completed: 'bg-emerald-100 text-emerald-800',
             cancelled: 'bg-red-100 text-red-800',
-            no_show: 'bg-amber-100 text-amber-800'
+            no_show: 'bg-amber-100 text-amber-800',
+            arrived: 'bg-cyan-100 text-cyan-800',
+            ready: 'bg-teal-100 text-teal-800',
+            in_chair: 'bg-indigo-100 text-indigo-800',
+            checkout: 'bg-violet-100 text-violet-800'
         };
         return classes[status] || 'bg-slate-100 text-slate-800';
     }

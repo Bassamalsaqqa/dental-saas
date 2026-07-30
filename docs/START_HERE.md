@@ -19,6 +19,7 @@ This is the active documentation surface for the project. Everything else is arc
 | `docs/refactor/APPOINTMENT_CALENDAR_WORKSPACE_PLAN.md` | Current PHP appointment calendar workspace improvement plan |
 | `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` | Clinical-to-finance charge capture, ledger, provider payout, and traceability plan |
 | `docs/refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md` | Patient encounter, odontogram context, treatment, checkout, and deferred clinical capability contract |
+| `docs/refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md` | Cross-module roadmap for visit, care-plan, checkout, recall, supply, communication, and governance loops |
 | `docs/refactor/LOVABLE_STRATEGY_CODEX.md` | Codex frontend rebuild strategy for Lovable/React |
 | `docs/refactor/LOVABLE_STRATEGY_GEMINI.md` | Gemini frontend rebuild strategy for Lovable/React |
 | `docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md` | Codex Laravel backend migration assessment |
