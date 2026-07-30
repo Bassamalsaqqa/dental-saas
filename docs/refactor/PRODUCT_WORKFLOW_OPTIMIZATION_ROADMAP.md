@@ -79,7 +79,7 @@ Target:
 
 `Condition -> Proposed procedure -> Presented plan -> Accepted/rejected -> Ready to schedule -> Scheduled -> Completed/referred`
 
-The app currently has odontogram findings, treatments, contracts, appointments, and charge lines, but no first-class procedure lifecycle connecting all stages.
+The app now has a Phase 2A first-class procedure lifecycle foundation. Phase 2B still needs to connect new Treatment, plan, schedule, completion, and charge workflows explicitly.
 
 Recommended durable entity:
 
@@ -280,9 +280,51 @@ Manual clinic-day scenarios:
 
 ### Phase 2 - Procedure Lifecycle Foundation
 
-- Define first-class procedure record and status transitions.
-- Link condition, tooth, examination, plan/contract item, appointment, treatment, charge line, and provider.
-- Backfill only where mapping is unambiguous; preserve legacy records otherwise.
+- **Phase 2A completed 2026-07-30:** defined the first-class procedure record, append-only status history, and server-owned transition contract.
+- The schema can link condition, tooth/surfaces, examination, plan/contract item, appointment, treatment, charge line, and provider without taking ownership from those modules.
+- Procedure creation validates supplied links against the active clinic and selected patient.
+- No legacy rows were backfilled because current Treatment `active` status is not enough to distinguish proposed, accepted, scheduled, or in-progress work.
+
+#### Phase 2A Procedure Contract
+
+Normal lifecycle:
+
+`proposed -> presented -> accepted -> scheduled -> in_progress -> completed`
+
+Supported shortcuts and exceptions:
+
+- A proposal may be accepted directly when presentation is not separately recorded.
+- Accepted work may start immediately without a separate appointment.
+- Proposed or presented work may be rejected or referred.
+- Accepted, scheduled, or in-progress work may be referred or cancelled with a required reason.
+- Completed, rejected, referred, and cancelled records are terminal; reopening requires a future explicit correction contract.
+
+Ownership and safety:
+
+- Odontogram rows remain findings/current tooth state.
+- Treatment remains the canonical delivery record until a later integration slice deliberately maps it.
+- Treatment Contracts remain presentation/consent artifacts.
+- Appointments remain schedule/visit operations.
+- Clinical charge lines remain billable production records.
+- Procedure transitions do not mutate any of those records and never create an invoice or payment.
+- Current state stores milestone timestamps and actor attribution; history stores every initial/transition event.
+- Source links are tenant and patient validated before creation.
+
+Deferred production evidence:
+
+- Phase 1 clinic-day QA on `denta.palsync.net` is still pending manual testing.
+- Phase 2A is backend foundation only and has no production UI surface to test yet.
+
+#### Phase 2B Recommended Integration Slice
+
+Connect newly created Treatment work to the procedure foundation through one explicit mapping path:
+
+1. Add an explicit lifecycle intent to new Treatment creation rather than guessing from legacy `active`.
+2. Create/link one procedure transactionally after canonical Treatment validation succeeds.
+3. Keep charge capture optional and separate; link a charge line only when explicitly captured.
+4. Mirror a Treatment completion into its linked procedure only through the lifecycle service.
+5. Surface the linked lifecycle read-only on Treatment and Patient views before adding broad edit actions.
+6. Do not backfill existing Treatments unless an unambiguous mapping rule is approved and tested.
 
 ### Phase 3 - Fast Checkout
 
@@ -338,14 +380,14 @@ These may be valuable, but they should not interrupt the seven operating loops.
 
 ## Next Recommended Slice
 
-Phase 1B is implemented. Run the **Phase 1 operational clinic-day QA** before starting another schema slice.
+Phase 1B production QA remains deferred. Phase 2A is implemented and independently tested.
 
-Verify the completed workflow:
+The next implementation slice is **Phase 2B: explicit Treatment-to-procedure integration**.
 
-1. Show today’s appointments grouped by operational stage.
-2. Expose only the next valid stage action for front desk, assistant, or provider permissions.
-3. Preserve links to patient, appointment, examination, treatment, and finance records.
-4. Surface exceptions such as late arrivals, no-shows, and visits waiting in checkout.
-5. Avoid duplicating the patient chart, calendar, clinical forms, or finance calculations.
+Before integration:
 
-After this QA is clean, plan the Phase 2 procedure lifecycle schema. Do not simulate it by adding more status fields to appointments, treatments, odontogram rows, contracts, or invoices.
+1. Keep the production Phase 1 clinic-day QA reminder active.
+2. Define how the user identifies proposed versus immediately started Treatment work.
+3. Use the lifecycle service for all procedure creation/transitions.
+4. Preserve existing Treatment endpoints and charge-capture behavior.
+5. Add integration tests proving tenant/patient integrity and rollback behavior.

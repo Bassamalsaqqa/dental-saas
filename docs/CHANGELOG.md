@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-07-30 - Clinical procedure lifecycle foundation
+
+- Recorded production Phase 1 clinic-day QA as deferred manual testing on `denta.palsync.net`.
+- Implemented Product Workflow Roadmap Phase 2A with tenant-scoped `clinical_procedures` and append-only `clinical_procedure_status_history`.
+- Added a canonical procedure lifecycle: proposed, presented, accepted/rejected, scheduled, in progress, completed, referred, and cancelled.
+- Added transactional, concurrency-checked transitions with actor/time attribution and mandatory reasons for rejection, referral, or cancellation.
+- Added a fail-closed creation service that validates patient, examination, odontogram condition, treatment, appointment, contract/item, charge-line, and provider relationships against the active clinic.
+- Added unique source-link safeguards for Treatment, Treatment Contract item, and clinical charge line mappings.
+- Deliberately did not backfill ambiguous legacy records or add UI/routes, billing, appointment, contract, Treatment, or odontogram side effects.
+- Added `ClinicalProcedureLifecycleServiceTest`: 7 tests covering the normal lifecycle, invalid skips, terminal behavior, initial history, transition history, tenant isolation, patient-link integrity, and exception reasons.
+- Deployment requires `php spark migrate`.
+- Next slice: Phase 2B explicit clinical integration, beginning with mapping newly created canonical Treatment work without interpreting legacy `active` records.
+
 ## 2026-07-30 - Today patient-routing workspace
 
 - Completed Product Workflow Roadmap Phase 1B on the existing tenant dashboard rather than creating a competing page.

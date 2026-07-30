@@ -2,6 +2,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-07-30 - Procedures Have a First-Class Audited Lifecycle
+
+- **Decision:** DentaCare procedures use a dedicated tenant-scoped `clinical_procedures` record and append-only `clinical_procedure_status_history`. The lifecycle is proposed, presented, accepted or rejected, scheduled, in progress, and completed, with referred/cancelled exception outcomes.
+- **Rationale:** Odontogram findings, Treatments, Treatment Contracts, Appointments, and clinical charge lines each own a different fact. Reusing any one of their status fields as the full care-plan lifecycle would blur diagnosis, consent, scheduling, performed work, and billing.
+- **Impact:** Procedure creation validates every supplied relationship against the active clinic and selected patient. Status changes are forward-only, actor/timestamp attributed, concurrency-checked, and reason-required for rejection, referral, or cancellation. Existing records are not automatically backfilled because their intent is ambiguous. No procedure transition automatically changes an odontogram, treatment, appointment, contract, charge, invoice, or payment.
+
 ## 2026-07-26 - Odontogram Is a Clinical Index, Not a Procedure or Ledger
 
 - **Decision:** Tooth findings remain in the odontogram. Canonical procedures remain in Treatment, presented or accepted plans remain in Treatment Contracts, and financial truth remains in Finance.

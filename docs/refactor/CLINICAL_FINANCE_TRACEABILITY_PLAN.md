@@ -501,7 +501,7 @@ Deliverables:
 - `clinical_charge_lines` - implemented
 - indexes on clinic, patient, examination, treatment, provider, status, service/charge date - implemented
 - model for validating/querying charge lines - implemented
-- service for creating charge lines from clinical sources - pending Phase 3
+- service for creating charge lines from Treatment sources - implemented
 - no automatic invoice generation yet
 - tests for tenant isolation and source ownership
 

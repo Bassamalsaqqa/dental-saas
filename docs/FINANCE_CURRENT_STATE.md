@@ -77,13 +77,13 @@ Reporting follows business/settlement dates, not entry timestamps.
 
 ## Clinical-Finance Traceability Status
 
-The app has useful clinical and finance links and now has a canonical clinical charge-line foundation. Existing clinical workflows do not yet create charge lines automatically.
+The app has useful clinical and finance links, a canonical clinical charge-line foundation, and explicit Treatment charge capture. The new procedure lifecycle does not create charges automatically.
 
 - Current finance invoices/payments can link to patients and examinations.
 - Inventory usage can auto-post COGS expenses and link back through source entity fields.
 - Treatment contracts have itemized planned procedure rows and totals.
 - Provider payouts are currently derived from finance rows.
-- Missing: automatic charge-line creation from clinical sources, invoice line items linked to treatments/contract items/procedures, payment allocation by line/provider, provider production vs collections reports, and insurance/write-off workflows.
+- Missing: explicit procedure-to-charge integration, invoice line items linked to contract items/procedures, payment allocation by line/provider, provider production vs collections reports, and insurance/write-off workflows.
 
 See `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` for the active plan.
 
