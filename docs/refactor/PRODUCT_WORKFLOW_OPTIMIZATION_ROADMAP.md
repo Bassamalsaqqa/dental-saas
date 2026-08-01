@@ -363,11 +363,18 @@ Deferred Phase 3B evidence:
 - Authenticated English/Arabic workflow QA from Appointment -> Examination -> Treatment -> optional charge -> Appointment checkout.
 - Confirm modal and full-page paths preserve context and cross-patient/cross-clinic IDs fail closed.
 
-#### Phase 3C Checkout Completion Contract - Next
+#### Phase 3C Checkout Completion Contract - Completed 2026-08-01
 
-- Define the minimum server-owned conditions for moving `checkout -> completed` without creating a second billing or clinical engine.
-- Completion must report unresolved clinical work, open charges, and balance state without forcing payment or auto-invoicing.
-- Keep an explicit override path permissioned and audited for valid unpaid or intentionally deferred checkout scenarios.
+- The existing appointment transition endpoint owns completion assessment for both `checkout -> completed` and direct consultation-style `in_chair -> completed` transitions.
+- Clean visits complete normally. Unresolved clinical work, uninvoiced charges, mixed currencies, balance due, or contextual legacy links require explicit acknowledgement.
+- The override uses the existing `appointments:edit` permission and requires a 10-500 character operator reason.
+- Appointment activity records stable issue codes and the reason whenever completion intentionally leaves items open.
+- No route, schema, permission system, clinical mutation, invoice creation, payment enforcement, or frontend financial calculation was added.
+
+Deferred Phase 3C evidence:
+
+- Authenticated English/Arabic and view-only/edit-permission QA.
+- Verify clean completion, blocked completion, valid acknowledged completion, activity evidence, normal POST redirects, and AJAX 422 responses.
 
 ### Phase 4 - Signed Clinical Notes
 
@@ -417,6 +424,6 @@ These may be valuable, but they should not interrupt the seven operating loops.
 
 ## Next Recommended Slice
 
-Phase 1B production QA, Phase 2B authenticated UI QA, and Phase 3A checkout UI QA remain deferred. Phase 2A, the Treatment-focused Phase 2B integration, and the Phase 3A checkout read model are independently tested.
+Phase 1B production QA, Phase 2B authenticated UI QA, and Phase 3A-3C checkout UI QA remain deferred. Phase 2A, the Treatment-focused Phase 2B integration, and the Phase 3 checkout contracts are independently tested.
 
-The next implementation slice is **Phase 3C: checkout completion contract**. Do not auto-bill, auto-complete clinical work, force payment, infer links for legacy records, or add finance calculations to views.
+The next implementation slice is **Phase 4: signed clinical-note contract planning**. Define provider attribution, signatures, immutable locks, corrections, addenda, and missing-note queues before changing runtime behavior.

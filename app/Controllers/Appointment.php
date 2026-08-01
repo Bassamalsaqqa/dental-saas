@@ -9,6 +9,7 @@ use App\Models\PatientModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\AppointmentCheckoutService;
+use App\Services\AppointmentCheckoutCompletionService;
 use App\Services\AppointmentVisitStageService;
 use App\Services\WhatsAppWorkflowService;
 
@@ -21,6 +22,7 @@ class Appointment extends BaseController
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
     protected AppointmentVisitStageService $visitStageService;
     protected AppointmentCheckoutService $checkoutService;
+    protected AppointmentCheckoutCompletionService $checkoutCompletionService;
 
     public function __construct() 
     {
@@ -31,6 +33,7 @@ class Appointment extends BaseController
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
         $this->visitStageService = new AppointmentVisitStageService();
         $this->checkoutService = new AppointmentCheckoutService();
+        $this->checkoutCompletionService = new AppointmentCheckoutCompletionService($this->checkoutService);
     }
 
     public function index()
@@ -424,6 +427,7 @@ class Appointment extends BaseController
         ];
 
         $checkout = $this->checkoutService->review((int) $clinicId, (int) $appointment['id']);
+        $checkoutCompletion = $this->checkoutCompletionService->assessReview($checkout);
         $linkedExaminations = $checkout['examinations'];
         $linkedTreatments = $checkout['treatments'];
         $linkedExaminationIds = array_values(array_filter(array_map(
@@ -456,6 +460,7 @@ class Appointment extends BaseController
             'appointment_linked_examinations' => $linkedExaminations,
             'appointment_linked_treatments' => $linkedTreatments,
             'appointment_checkout' => $checkout,
+            'appointment_checkout_completion' => $checkoutCompletion,
             'appointment_money_summary' => $checkout['summary'],
             'appointment_invoiceable_charge_lines' => $checkout['invoiceable_charge_lines'],
             'appointment_finance_base_currency' => settings()->get('currency', 'ILS'),
@@ -712,6 +717,31 @@ class Appointment extends BaseController
             ]);
         }
 
+        $completionDecision = null;
+        if ($targetStage === 'completed') {
+            $assessment = $this->checkoutCompletionService->assess((int) $clinicId, (int) $id);
+            try {
+                $completionDecision = $this->checkoutCompletionService->authorize(
+                    $assessment,
+                    in_array($this->request->getPost('checkout_override'), ['1', 1, true, 'on'], true),
+                    $this->request->getPost('checkout_override_reason')
+                );
+            } catch (\DomainException $e) {
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('checkout_completion_issues', $assessment['issue_codes'])
+                        ->with('error', $e->getMessage());
+                }
+                return $this->response->setStatusCode(422)->setJSON([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'checkout_issues' => $assessment['issue_codes'],
+                    'requires_override' => true,
+                ]);
+            }
+        }
+
         if (!$this->appointmentModel->update($id, ['status' => $targetStage])) {
             if (!$this->request->isAJAX()) {
                 return redirect()->back()->with('error', 'Failed to update visit stage');
@@ -720,10 +750,16 @@ class Appointment extends BaseController
                 ->setJSON(['success' => false, 'message' => 'Failed to update visit stage']);
         }
 
+        $activityDescription = "Appointment visit stage changed from {$currentStage} to {$targetStage}";
+        if (!empty($completionDecision['override'])) {
+            $activityDescription .= '; checkout acknowledged ['
+                . implode(', ', $completionDecision['issue_codes'])
+                . ']; reason: ' . $completionDecision['reason'];
+        }
         $this->activityLogger->logAppointmentActivity(
             'status',
             (int) $id,
-            "Appointment visit stage changed from {$currentStage} to {$targetStage}"
+            $activityDescription
         );
 
         if ($targetStage === 'no_show') {

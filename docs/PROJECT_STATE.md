@@ -49,7 +49,9 @@ Last updated: 2026-08-01
 - Deferred Phase 3A manual QA: test Appointment checkout in English/Arabic and under view-only/edit permissions across no-work, open-charge, mixed-currency, invoiced, balance-due, and settled scenarios.
 - Checkout Phase 3B is implemented: appointment-context Examinations persist an explicit visit link, and new Treatments propagate the validated appointment to procedure and optional charge records. Legacy rows remain unbackfilled.
 - Phase 3B deployment requires `php spark migrate`. Manual English/Arabic workflow QA remains deferred.
-- Next workflow slice: Phase 3C checkout completion contract; do not automate billing, clinical completion, or payment.
+- Checkout Phase 3C is implemented at the canonical appointment transition boundary: clean visits complete normally, while unresolved clinical work, open/mixed-currency charges, balances, and contextual legacy links require an acknowledged reason that is retained in appointment activity.
+- Phase 3C does not auto-complete clinical work, create invoices, force payment, infer legacy links, or add a new permission/route. Authenticated English/Arabic, permission, normal POST, and AJAX manual QA remains deferred.
+- Next workflow slice: Phase 4 signed clinical-note contract planning; do not implement signing or locking before its legal-record and addendum rules are explicit.
 - The current PHP Patient Profile is the reference first slice: contextual drawers can start related work while canonical modules still own validation, writes, redirects, permissions, tenant checks, audit logging, and finance math.
 - When applying the pattern to another entity page, reuse the rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`.
 - Do not copy patient actions blindly to provider, user, supplier, finance, inventory, or appointment pages; each entity gets actions that match its domain.

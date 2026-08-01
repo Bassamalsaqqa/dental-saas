@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-01 - Appointment checkout completion contract
+
+- Completed Product Workflow Roadmap Phase 3C at the existing appointment transition boundary; no competing checkout route or write workflow was added.
+- Clean consultation-only visits can complete normally when no clinical or financial follow-up is present.
+- Completion now reports unresolved clinical work, uninvoiced charges, mixed-currency charges, outstanding balances, and contextual legacy links before the visit can close.
+- Users with the existing `appointments:edit` permission may intentionally complete with open items only after an explicit acknowledgement and a 10-500 character reason.
+- Completion exceptions are written to the appointment activity trail with the issue codes and operator reason.
+- Direct `in_chair -> completed` and normal `checkout -> completed` transitions use the same server-owned assessment, preventing the compatibility path from bypassing checkout review.
+- Existing Examination, Treatment, Finance, payment, and appointment-stage services remain authoritative. Nothing is auto-completed, auto-invoiced, or auto-paid.
+- Added `AppointmentCheckoutCompletionServiceTest`: 6 tests and 11 assertions covering clean completion, issue classification, mixed currencies, acknowledgement, and reason validation.
+- Deferred manual QA: verify clean and exception completion in English/Arabic, AJAX and normal POST behavior, view-only permissions, activity evidence, and all five checkout states on local/deployed authenticated sessions.
+
 ## 2026-08-01 - Explicit appointment-to-clinical linkage
 
 - Completed Product Workflow Roadmap Phase 3B for newly created appointment-context clinical work.

@@ -8,6 +8,7 @@ $contextPatient = $appointment_context_patient ?? null;
 $linkedExaminations = is_array($appointment_linked_examinations ?? null) ? $appointment_linked_examinations : [];
 $linkedTreatments = is_array($appointment_linked_treatments ?? null) ? $appointment_linked_treatments : [];
 $checkout = is_array($appointment_checkout ?? null) ? $appointment_checkout : [];
+$checkoutCompletion = is_array($appointment_checkout_completion ?? null) ? $appointment_checkout_completion : [];
 $moneySummary = is_array($appointment_money_summary ?? null) ? $appointment_money_summary : [];
 $invoiceableChargeLines = is_array($appointment_invoiceable_charge_lines ?? null) ? $appointment_invoiceable_charge_lines : [];
 $invoiceableChargeLineIds = is_array($checkout['invoiceable_charge_line_ids'] ?? null)
@@ -41,6 +42,16 @@ $billingPresentation = $checkoutStatePresentation['billing'][$checkoutBillingSta
     ?? $checkoutStatePresentation['billing']['not_captured'];
 $settlementPresentation = $checkoutStatePresentation['settlement'][$checkoutSettlementState]
     ?? $checkoutStatePresentation['settlement']['no_invoice'];
+$checkoutCompletionIssueLabels = [
+    'clinical_work_unresolved' => lang('UI.checkoutIssueClinicalWork'),
+    'charges_uninvoiced' => lang('UI.checkoutIssueUninvoicedCharges'),
+    'mixed_currency_charges' => lang('UI.checkoutIssueMixedCurrencies'),
+    'balance_due' => lang('UI.checkoutIssueBalanceDue'),
+    'contextual_link_review' => lang('UI.checkoutIssueContextualLink'),
+];
+$checkoutCompletionIssueCodes = is_array($checkoutCompletion['issue_codes'] ?? null)
+    ? $checkoutCompletion['issue_codes']
+    : [];
 $primaryLinkedExamination = $linkedExaminations[0] ?? null;
 $currentVisitStage = (string) ($appointment['status'] ?? 'scheduled');
 $visitStageOrder = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair', 'checkout', 'completed'];
@@ -283,11 +294,30 @@ $visitStageLabels = [
                                                 ? 'border border-rose-200 bg-white text-rose-700 hover:bg-rose-50'
                                                 : 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700';
                                             ?>
-                                            <form method="post" action="<?= base_url('appointment/' . (int) $appointment['id'] . '/transition') ?>">
+                                            <?php $needsCheckoutAcknowledgement = $targetStage === 'completed' && !empty($checkoutCompletion['requires_override']); ?>
+                                            <form method="post" action="<?= base_url('appointment/' . (int) $appointment['id'] . '/transition') ?>" class="<?= $needsCheckoutAcknowledgement ? 'w-full rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200' : '' ?>">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="status" value="<?= esc($targetStage, 'attr') ?>">
                                                 <input type="hidden" name="return_to" value="<?= esc($returnToContext, 'attr') ?>">
-                                                <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-extrabold transition <?= $buttonClass ?>">
+                                                <?php if ($needsCheckoutAcknowledgement): ?>
+                                                    <div class="mb-4">
+                                                        <p class="text-sm font-extrabold text-amber-950"><?= esc(lang('UI.checkoutCompletionNeedsReview')) ?></p>
+                                                        <ul class="mt-2 grid gap-1.5 text-sm font-semibold text-amber-900 sm:grid-cols-2">
+                                                            <?php foreach ($checkoutCompletionIssueCodes as $issueCode): ?>
+                                                                <li class="flex items-start gap-2"><i class="fas fa-circle-exclamation mt-1 text-xs"></i><span><?= esc($checkoutCompletionIssueLabels[$issueCode] ?? $issueCode) ?></span></li>
+                                                            <?php endforeach; ?>
+                                                        </ul>
+                                                    </div>
+                                                    <label class="flex items-start gap-3 rounded-xl bg-white/80 p-3 text-sm font-bold text-slate-800 ring-1 ring-amber-200">
+                                                        <input type="checkbox" name="checkout_override" value="1" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500" required <?= old('checkout_override') ? 'checked' : '' ?>>
+                                                        <span><?= esc(lang('UI.checkoutCompletionAcknowledge')) ?></span>
+                                                    </label>
+                                                    <label class="mt-3 block text-sm font-bold text-slate-800">
+                                                        <span><?= esc(lang('UI.checkoutCompletionReason')) ?></span>
+                                                        <textarea name="checkout_override_reason" minlength="10" maxlength="500" rows="2" required class="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15"><?= esc(old('checkout_override_reason')) ?></textarea>
+                                                    </label>
+                                                <?php endif; ?>
+                                                <button type="submit" class="<?= $needsCheckoutAcknowledgement ? 'mt-3 ' : '' ?>inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-extrabold transition <?= $buttonClass ?>">
                                                     <?= esc(lang('UI.appointmentMoveToStage', ['stage' => $visitStageLabels[$targetStage] ?? $targetStage])) ?>
                                                 </button>
                                             </form>

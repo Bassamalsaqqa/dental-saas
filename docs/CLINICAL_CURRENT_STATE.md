@@ -1,5 +1,15 @@
 # Clinical Workflows Current State
 
+## 2026-08-01 Checkout Completion Contract
+
+- Appointment completion is enforced at the existing server-owned stage transition endpoint for both `checkout -> completed` and direct consultation-style `in_chair -> completed` paths.
+- A visit with no unresolved clinical or financial work completes normally.
+- Open clinical work, uninvoiced charges, mixed currencies, outstanding balance, or date-context-only clinical links require explicit acknowledgement and a meaningful operator reason.
+- The existing `appointments:edit` permission remains the authorization boundary; no frontend permission engine or new route was introduced.
+- Acknowledged exceptions are retained in the appointment activity trail with stable issue codes and the supplied reason.
+- Completion does not mutate clinical records, create invoices, collect money, reconcile balances, or infer authoritative links for legacy records.
+- Authenticated English/Arabic and permission QA remains deferred, including verification of clean completion, blocked completion, acknowledged completion, activity evidence, and AJAX 422 responses.
+
 ## 2026-08-01 Explicit Appointment Linkage
 
 - Examinations created from Appointment context now store a nullable, tenant- and patient-validated `appointment_id`.
@@ -16,7 +26,7 @@
 - Existing modules retain ownership: checkout starts or opens clinical/finance work but does not duplicate their writes, validation, calculations, or lifecycle rules.
 - Open charges can use the existing invoice drawer only when they share one currency. Mixed currencies are flagged for separate finance review.
 - Legacy examination/Treatment association is currently patient plus visit date and is visibly labeled as contextual, not authoritative.
-- Phase 3B now propagates explicit `appointment_id` into newly created examination, procedure, and charge relationships. Automated checkout orchestration remains deferred.
+- Phase 3B propagates explicit `appointment_id` into newly created examination, procedure, and charge relationships. Phase 3C now guards completion without automating checkout work.
 - Manual authenticated QA remains deferred for English/Arabic, permissions, no-work, open-charge, invoiced, balance-due, settled, and mixed-currency scenarios.
 
 ## 2026-07-30 Treatment Procedure Integration
