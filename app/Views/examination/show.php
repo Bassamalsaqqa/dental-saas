@@ -884,6 +884,7 @@ $healthFlags = array_values(array_filter([
     'clinic_providers' => $clinic_providers ?? [],
     'validation' => session()->getFlashdata('validation'),
     'selected_examination_id' => $selected_examination_id ?? ($examination['id'] ?? null),
+    'selected_appointment_id' => $examination['appointment_id'] ?? null,
 ]) ?>
 <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds)): ?>
     <?php

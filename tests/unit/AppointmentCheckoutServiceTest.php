@@ -74,6 +74,18 @@ final class AppointmentCheckoutServiceTest extends CIUnitTestCase
         $this->assertCount(2, $review['invoiceable_charge_line_ids']);
     }
 
+    public function testExplicitAppointmentExaminationOverridesDateOnlyAssociationLabel(): void
+    {
+        [$clinicId, $patientId, $appointmentId] = $this->createVisitFixture();
+        $examinationId = $this->createExamination($clinicId, $patientId, $appointmentId);
+        $this->createExamination($clinicId, $patientId);
+
+        $review = (new AppointmentCheckoutService($this->db))->review($clinicId, $appointmentId);
+
+        $this->assertSame('explicit', $review['link_basis']);
+        $this->assertSame([$examinationId], array_map('intval', array_column($review['examinations'], 'id')));
+    }
+
     public function testReviewRejectsAppointmentOutsideActiveClinic(): void
     {
         [$clinicId, , $appointmentId] = $this->createVisitFixture();
@@ -135,12 +147,13 @@ final class AppointmentCheckoutServiceTest extends CIUnitTestCase
         return [$clinicId, $patientId, $appointmentId];
     }
 
-    private function createExamination(int $clinicId, int $patientId): int
+    private function createExamination(int $clinicId, int $patientId, ?int $appointmentId = null): int
     {
         $token = $this->token();
         $this->db->table('examinations')->insert([
             'clinic_id' => $clinicId,
             'patient_id' => $patientId,
+            'appointment_id' => $appointmentId,
             'examination_id' => 'EXC' . substr($token, -8),
             'examination_date' => '2026-07-30 09:05:00',
             'examination_type' => 'follow_up',

@@ -32,7 +32,8 @@ final class TreatmentProcedureIntegrationService
         array $treatment,
         string $intent,
         int $actorId,
-        ?array $chargeLine = null
+        ?array $chargeLine = null,
+        ?int $appointmentId = null
     ): array {
         $this->assertTreatmentContext($clinicId, $treatment, $actorId);
         if (!in_array($intent, ['planned', 'start_now'], true)) {
@@ -47,6 +48,7 @@ final class TreatmentProcedureIntegrationService
         $providerType = (string) ($chargeLine['provider_type'] ?? 'none');
         $procedure = $this->lifecycle->create($clinicId, [
             'patient_id' => (int) ($treatment['patient_id'] ?? 0),
+            'appointment_id' => $appointmentId,
             'examination_id' => !empty($treatment['examination_id']) ? (int) $treatment['examination_id'] : null,
             'treatment_id' => (int) ($treatment['id'] ?? 0),
             'clinical_charge_line_id' => !empty($chargeLine['id']) ? (int) $chargeLine['id'] : null,

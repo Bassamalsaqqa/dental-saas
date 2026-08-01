@@ -72,6 +72,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                 <div class="p-8">
                     <form action="<?= base_url('examination/store') ?>" method="POST" class="space-y-6">
                         <?= csrf_field() ?>
+                        <input type="hidden" name="appointment_id" value="<?= esc($selected_appointment_id ?? '') ?>">
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>

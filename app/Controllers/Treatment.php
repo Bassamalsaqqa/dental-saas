@@ -10,12 +10,14 @@ use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\ClinicalChargeLineService;
+use App\Services\ClinicalAppointmentContextService;
 use App\Services\InventoryUsageService;
 use App\Services\MoneyTrailService;
 use App\Services\StorageService;
 use App\Services\TreatmentProcedureIntegrationService;
 use RuntimeException;
 use Throwable;
+use DomainException;
 
 class Treatment extends BaseController
 {
@@ -27,6 +29,7 @@ class Treatment extends BaseController
     protected $storageService;
     protected $chargeLineService;
     protected $treatmentProcedureService;
+    protected ClinicalAppointmentContextService $appointmentContextService;
 
     public function __construct()
     {
@@ -38,6 +41,7 @@ class Treatment extends BaseController
         $this->storageService = new StorageService();
         $this->chargeLineService = new ClinicalChargeLineService();
         $this->treatmentProcedureService = new TreatmentProcedureIntegrationService($this->db);
+        $this->appointmentContextService = new ClinicalAppointmentContextService($this->db);
     }
 
     public function index()
@@ -239,6 +243,7 @@ class Treatment extends BaseController
 
         $examinationId = $this->request->getGet('examination_id');
         $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        $exam = null;
         $selectedToothNumber = trim((string) $this->request->getGet('tooth_number'));
         if ($selectedToothNumber !== '' && !preg_match('/^[A-Za-z0-9-]{1,10}$/', $selectedToothNumber)) {
             $selectedToothNumber = '';
@@ -260,6 +265,18 @@ class Treatment extends BaseController
                     throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
                 }
             }
+        }
+
+        $appointmentIdRaw = $this->request->getGet('appointment_id');
+        if (($appointmentIdRaw === null || $appointmentIdRaw === '') && !empty($exam['appointment_id'])) {
+            $appointmentIdRaw = $exam['appointment_id'];
+        }
+        try {
+            $appointmentContext = $selectedPatient
+                ? $this->appointmentContextService->resolve((int) $clinicId, (int) $selectedPatient['id'], $appointmentIdRaw)
+                : null;
+        } catch (DomainException $e) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException($e->getMessage());
         }
 
         $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments']);
@@ -284,6 +301,7 @@ class Treatment extends BaseController
             'validation' => null, // Initialize validation as null
             'loadSelect2' => true,
             'selected_examination_id' => $examinationId,
+            'selected_appointment_id' => $appointmentContext['id'] ?? null,
             'selected_tooth_number' => $selectedToothNumber,
             'inventory_items' => $inventoryItems,
             'clinic_providers' => $this->getClinicProviders((int) $clinicId),
@@ -309,6 +327,7 @@ class Treatment extends BaseController
             'estimated_duration' => 'required|integer|greater_than[0]',
             'examination_id' => 'permit_empty|integer',
             'procedure_intent' => 'permit_empty|in_list[planned,start_now]',
+            'appointment_id' => 'permit_empty|integer',
         ];
         $rules = array_merge($rules, $this->chargeLineValidationRules());
 
@@ -353,6 +372,7 @@ class Treatment extends BaseController
                 'validation' => $this->validator,
                 'loadSelect2' => true,
                 'selected_examination_id' => $examId,
+                'selected_appointment_id' => is_numeric($this->request->getPost('appointment_id')) ? (int) $this->request->getPost('appointment_id') : null,
                 'inventory_items' => $inventoryItems,
                 'clinic_providers' => $this->getClinicProviders((int) $clinicId),
                 'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments'])
@@ -367,6 +387,20 @@ class Treatment extends BaseController
             if (!$exam || (int)$exam['patient_id'] !== (int)$this->request->getPost('patient_id')) {
                 return redirect()->back()->withInput()->with('error', 'Invalid examination selection.');
             }
+        }
+
+        try {
+            $appointmentContext = $this->appointmentContextService->resolve(
+                (int) $clinicId,
+                (int) $this->request->getPost('patient_id'),
+                $this->request->getPost('appointment_id')
+            );
+        } catch (DomainException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+
+        if ($examinationId && !empty($exam['appointment_id']) && (int) $exam['appointment_id'] !== (int) ($appointmentContext['id'] ?? 0)) {
+            return redirect()->back()->withInput()->with('error', 'Appointment context does not match the selected examination.');
         }
 
         $currentUser = $this->getCurrentUser();
@@ -422,7 +456,8 @@ class Treatment extends BaseController
                 $treatmentForCharge,
                 (string) ($this->request->getPost('procedure_intent') ?: 'planned'),
                 $currentUserId,
-                $chargeResult['line'] ?? null
+                $chargeResult['line'] ?? null,
+                isset($appointmentContext['id']) ? (int) $appointmentContext['id'] : null
             );
 
             if (!$this->db->transStatus()) {

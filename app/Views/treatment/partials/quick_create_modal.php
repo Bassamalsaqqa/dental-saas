@@ -2,6 +2,7 @@
 $modalReturnTo = (string) ($return_to ?? 'treatment');
 $modalSelectedPatient = $selected_patient ?? (!empty($patients[0]) ? $patients[0] : null);
 $modalSelectedExaminationId = $selected_examination_id ?? null;
+$modalSelectedAppointmentId = $selected_appointment_id ?? null;
 $modalContextual = !empty($contextual);
 $modalShouldOpen = old('source_modal') === 'treatment_quick_create';
 $modalFullPageQuery = ['return_to' => $modalReturnTo];
@@ -10,6 +11,9 @@ if (!empty($modalSelectedExaminationId)) {
 }
 if (!empty($modalSelectedPatient['id'])) {
     $modalFullPageQuery['patient_id'] = $modalSelectedPatient['id'];
+}
+if (!empty($modalSelectedAppointmentId)) {
+    $modalFullPageQuery['appointment_id'] = (int) $modalSelectedAppointmentId;
 }
 $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullPageQuery));
 ?>
@@ -79,6 +83,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
             <form id="newTreatmentQuickCreateForm" action="<?= base_url('treatment/store') ?>" method="POST" class="treatment-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
+                <input type="hidden" name="appointment_id" value="<?= esc($modalSelectedAppointmentId ?? '') ?>">
                 <input type="hidden" name="source_modal" value="treatment_quick_create">
 
                 <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">

@@ -102,6 +102,7 @@
                     <form action="<?= base_url('treatment/store') ?>" method="POST" class="space-y-8" data-contextual-treatment-form>
                         <?= csrf_field() ?>
                         <input type="hidden" name="examination_id" value="<?= esc($selected_examination_id ?? '') ?>">
+                        <input type="hidden" name="appointment_id" value="<?= esc($selected_appointment_id ?? '') ?>">
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>

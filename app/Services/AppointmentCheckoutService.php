@@ -37,17 +37,19 @@ final class AppointmentCheckoutService
             throw new DomainException('Appointment patient and date are required for checkout review.');
         }
 
-        $examinations = $this->db->table('examinations e')
+        $examinationCandidates = $this->db->table('examinations e')
             ->select('e.*, u.first_name AS doctor_first_name, u.last_name AS doctor_last_name')
             ->join('users u', 'u.id = e.created_by', 'left')
             ->where('e.clinic_id', $clinicId)
             ->where('e.patient_id', $patientId)
-            ->where('DATE(e.examination_date)', $appointmentDate)
+            ->groupStart()
+            ->where('e.appointment_id', $appointmentId)
+            ->orWhere('DATE(e.examination_date)', $appointmentDate)
+            ->groupEnd()
             ->orderBy('e.examination_date', 'DESC')
             ->orderBy('e.id', 'DESC')
             ->get()
             ->getResultArray();
-        $examinationIds = $this->ids($examinations);
 
         $hasProcedureTable = $this->db->tableExists('clinical_procedures');
         $explicitProcedures = $hasProcedureTable
@@ -59,6 +61,22 @@ final class AppointmentCheckoutService
                 ->get()
                 ->getResultArray()
             : [];
+        $explicitProcedureExaminationIds = array_values(array_unique(array_filter(array_map(
+            static fn(array $row): int => (int) ($row['examination_id'] ?? 0),
+            $explicitProcedures
+        ))));
+        $hasExplicitLink = $explicitProcedures !== [] || array_filter(
+            $examinationCandidates,
+            static fn(array $row): bool => (int) ($row['appointment_id'] ?? 0) === $appointmentId
+        ) !== [];
+        $examinations = $hasExplicitLink
+            ? array_values(array_filter(
+                $examinationCandidates,
+                static fn(array $row): bool => (int) ($row['appointment_id'] ?? 0) === $appointmentId
+                    || in_array((int) ($row['id'] ?? 0), $explicitProcedureExaminationIds, true)
+            ))
+            : $examinationCandidates;
+        $examinationIds = $this->ids($examinations);
         $explicitTreatmentIds = array_values(array_unique(array_filter(array_map(
             static fn(array $row): int => (int) ($row['treatment_id'] ?? 0),
             $explicitProcedures
@@ -151,7 +169,7 @@ final class AppointmentCheckoutService
 
         return [
             'appointment' => $appointment,
-            'link_basis' => $explicitProcedures !== [] ? 'explicit' : 'patient_date_context',
+            'link_basis' => $hasExplicitLink ? 'explicit' : 'patient_date_context',
             'examinations' => $examinations,
             'treatments' => $treatments,
             'procedures' => $procedures,

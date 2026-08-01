@@ -1,5 +1,14 @@
 # Clinical Workflows Current State
 
+## 2026-08-01 Explicit Appointment Linkage
+
+- Examinations created from Appointment context now store a nullable, tenant- and patient-validated `appointment_id`.
+- The shared Examination and Treatment create surfaces preserve this context through full-page and modal workflows.
+- New appointment-context Treatments write the same appointment link to their canonical procedure and optional clinical charge line.
+- Appointment checkout prefers explicit links and uses patient/date matching only as a labeled legacy fallback.
+- Existing records remain unchanged; no historical appointment relationship is inferred or backfilled.
+- This linkage does not complete clinical work, invoice charges, collect payments, or advance the appointment.
+
 ## 2026-07-30 Appointment Checkout Review
 
 - Appointment detail now has a backend-owned checkout review that keeps three decisions visible: clinical work, captured charges, and payment state.
@@ -7,7 +16,7 @@
 - Existing modules retain ownership: checkout starts or opens clinical/finance work but does not duplicate their writes, validation, calculations, or lifecycle rules.
 - Open charges can use the existing invoice drawer only when they share one currency. Mixed currencies are flagged for separate finance review.
 - Legacy examination/Treatment association is currently patient plus visit date and is visibly labeled as contextual, not authoritative.
-- Phase 3B must propagate explicit `appointment_id` into newly created procedure and charge relationships before any automated checkout orchestration is considered.
+- Phase 3B now propagates explicit `appointment_id` into newly created examination, procedure, and charge relationships. Automated checkout orchestration remains deferred.
 - Manual authenticated QA remains deferred for English/Arabic, permissions, no-work, open-charge, invoiced, balance-due, settled, and mixed-currency scenarios.
 
 ## 2026-07-30 Treatment Procedure Integration

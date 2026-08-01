@@ -11,10 +11,12 @@ use App\Models\InventoryModel;
 use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\ClinicalAppointmentContextService;
 use App\Services\MoneyTrailService;
 use App\Services\OdontogramSnapshotService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
+use DomainException;
 
 class Examination extends BaseController
 {
@@ -28,6 +30,7 @@ class Examination extends BaseController
     protected $db;
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
     protected OdontogramSnapshotService $odontogramSnapshotService;
+    protected ClinicalAppointmentContextService $appointmentContextService;
 
     public function __construct()
     {
@@ -41,6 +44,7 @@ class Examination extends BaseController
         $this->db = \Config\Database::connect();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
         $this->odontogramSnapshotService = new OdontogramSnapshotService();
+        $this->appointmentContextService = new ClinicalAppointmentContextService($this->db);
     }
 
     public function index()
@@ -74,6 +78,14 @@ class Examination extends BaseController
             }
         }
 
+        try {
+            $appointmentContext = $selectedPatient
+                ? $this->appointmentContextService->resolve((int) $clinicId, (int) $selectedPatient['id'], $this->request->getGet('appointment_id'))
+                : null;
+        } catch (DomainException $e) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException($e->getMessage());
+        }
+
         $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations']);
         if (!$returnTo && !empty($selectedPatient['id'])) {
             $returnTo = 'patient/' . (int) $selectedPatient['id'];
@@ -84,6 +96,7 @@ class Examination extends BaseController
             'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'selected_patient_id' => $patientId,
             'selected_patient' => $selectedPatient,
+            'selected_appointment_id' => $appointmentContext['id'] ?? null,
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'return_to' => $returnTo
@@ -98,11 +111,17 @@ class Examination extends BaseController
 
     public function store()
     {
+        $clinicId = (int) session()->get('active_clinic_id');
+        if ($clinicId <= 0) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
         $rules = [
             'patient_id' => 'required|integer',
             'examination_date' => 'required|valid_date',
             'examination_type' => 'required|in_list[initial,periodic,emergency,follow_up]',
-            'chief_complaint' => 'required|min_length[10]|max_length[500]'
+            'chief_complaint' => 'required|min_length[10]|max_length[500]',
+            'appointment_id' => 'permit_empty|integer',
         ];
 
         if (!$this->validate($rules)) {
@@ -114,6 +133,16 @@ class Examination extends BaseController
 
         $currentUser = $this->getCurrentUser();
         $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
+        try {
+            $appointmentContext = $this->appointmentContextService->resolve(
+                $clinicId,
+                (int) $this->request->getPost('patient_id'),
+                $this->request->getPost('appointment_id')
+            );
+        } catch (DomainException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
 
         $boolField = static function ($value): int {
             return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true) ? 1 : 0;
@@ -155,6 +184,7 @@ class Examination extends BaseController
 
         $examinationData = [
             'patient_id' => $this->request->getPost('patient_id'),
+            'appointment_id' => $appointmentContext['id'] ?? null,
             'examination_date' => $examinationDate,
             'examination_type' => $this->request->getPost('examination_type'),
             'chief_complaint' => $this->request->getPost('chief_complaint'),

@@ -171,9 +171,23 @@ class ClinicalChargeLineService
             $status = ((string) ($treatment['status'] ?? '') === 'completed') ? 'completed' : 'planned';
         }
 
+        $appointmentId = array_key_exists('appointment_id', $payload)
+            ? (!empty($payload['appointment_id']) ? (int) $payload['appointment_id'] : null)
+            : (!empty($existing['appointment_id']) ? (int) $existing['appointment_id'] : null);
+        try {
+            (new ClinicalAppointmentContextService())->resolve(
+                $clinicId,
+                (int) ($treatment['patient_id'] ?? 0),
+                $appointmentId
+            );
+        } catch (\DomainException $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+
         $data = [
             'clinic_id' => $clinicId,
             'patient_id' => (int) ($treatment['patient_id'] ?? 0),
+            'appointment_id' => $appointmentId,
             'examination_id' => !empty($treatment['examination_id']) ? (int) $treatment['examination_id'] : null,
             'treatment_id' => $treatmentId,
             'source_entity_type' => 'treatment',

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-01 - Explicit appointment-to-clinical linkage
+
+- Completed Product Workflow Roadmap Phase 3B for newly created appointment-context clinical work.
+- Added a nullable, indexed `examinations.appointment_id` so an Examination started from Appointment detail retains durable visit identity after redirects and later handoffs.
+- Shared Examination and Treatment full-page/modal forms now carry the same appointment context; no duplicate create surface was added.
+- Added a fail-closed appointment context service that accepts only an appointment in the active clinic belonging to the selected patient.
+- New Treatments started in appointment context propagate the validated appointment to both the canonical clinical procedure and optional clinical charge line.
+- Appointment checkout now prefers explicit examination/procedure links while retaining clearly labeled patient/date matching for legacy records.
+- Existing Treatments and examinations were not backfilled because their historical appointment intent is ambiguous.
+- Added `ClinicalAppointmentContextServiceTest` and expanded checkout/procedure integration coverage. Focused verification passes with 17 tests and 124 assertions.
+- Deployment requires `php spark migrate`; the canonical Hostinger SQL dump was regenerated.
+- Deferred manual QA: create an Examination from Appointment detail, continue into Treatment with and without charge capture, return to the Appointment, and confirm checkout shows explicit linkage in English and Arabic.
+- No automatic billing, clinical completion, appointment transition, or legacy inference was introduced.
+
 ## 2026-07-30 - Appointment checkout review workspace
 
 - Implemented Product Workflow Roadmap Phase 3A as a backend-owned, read-only checkout review on Appointment detail.

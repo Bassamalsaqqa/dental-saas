@@ -350,12 +350,24 @@ Deferred Phase 3A evidence:
 - Authenticated English/Arabic and permission QA on the deployed app.
 - Scenarios: no clinical work, unfinished work, ready-to-invoice charge, mixed currencies, invoiced balance, settled invoice, and view-only access.
 
-#### Phase 3B Explicit Visit Linkage - Next
+#### Phase 3B Explicit Visit Linkage - Completed 2026-08-01
 
-- Propagate an explicit, tenant-validated `appointment_id` when new examination/Treatment/procedure/charge work starts from appointment context.
-- Preserve canonical module endpoints and context-aware return behavior.
-- Do not backfill ambiguous legacy records automatically.
-- Only after explicit linkage is stable should a later slice consider a server-owned checkout completion command.
+- New Examinations started from Appointment detail persist a nullable, indexed `appointment_id` after active-clinic and patient validation.
+- Shared full-page/modal Treatment creation propagates that appointment to the canonical procedure and optional charge line.
+- Canonical module endpoints and context-aware return behavior remain unchanged.
+- Appointment checkout prefers explicit examination/procedure links and keeps patient/date matching only as a visibly contextual legacy fallback.
+- No ambiguous legacy records were backfilled.
+
+Deferred Phase 3B evidence:
+
+- Authenticated English/Arabic workflow QA from Appointment -> Examination -> Treatment -> optional charge -> Appointment checkout.
+- Confirm modal and full-page paths preserve context and cross-patient/cross-clinic IDs fail closed.
+
+#### Phase 3C Checkout Completion Contract - Next
+
+- Define the minimum server-owned conditions for moving `checkout -> completed` without creating a second billing or clinical engine.
+- Completion must report unresolved clinical work, open charges, and balance state without forcing payment or auto-invoicing.
+- Keep an explicit override path permissioned and audited for valid unpaid or intentionally deferred checkout scenarios.
 
 ### Phase 4 - Signed Clinical Notes
 
@@ -407,4 +419,4 @@ These may be valuable, but they should not interrupt the seven operating loops.
 
 Phase 1B production QA, Phase 2B authenticated UI QA, and Phase 3A checkout UI QA remain deferred. Phase 2A, the Treatment-focused Phase 2B integration, and the Phase 3A checkout read model are independently tested.
 
-The next implementation slice is **Phase 3B: explicit visit linkage** for newly created clinical work. Do not auto-bill, auto-complete clinical work, infer links for legacy records, or add finance calculations to views.
+The next implementation slice is **Phase 3C: checkout completion contract**. Do not auto-bill, auto-complete clinical work, force payment, infer links for legacy records, or add finance calculations to views.

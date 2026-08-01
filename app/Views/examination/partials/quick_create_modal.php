@@ -3,11 +3,15 @@ $tr = static fn(string $key, array $params = []) => lang('Examination.' . $key, 
 $isRtl = !empty($is_rtl);
 $modalReturnTo = (string) ($return_to ?? 'examination');
 $modalSelectedPatient = $selected_patient ?? null;
+$modalSelectedAppointmentId = $selected_appointment_id ?? null;
 $modalContextual = !empty($contextual);
 $shouldOpenExaminationCreateModal = old('source_modal') === 'examination_quick_create';
 $modalFullPageQuery = ['return_to' => $modalReturnTo];
 if (!empty($modalSelectedPatient['id'])) {
     $modalFullPageQuery['patient_id'] = (int) $modalSelectedPatient['id'];
+}
+if (!empty($modalSelectedAppointmentId)) {
+    $modalFullPageQuery['appointment_id'] = (int) $modalSelectedAppointmentId;
 }
 ?>
 <?php if (has_permission('examinations', 'create')): ?>
@@ -77,6 +81,7 @@ if (!empty($modalSelectedPatient['id'])) {
             <form id="newExaminationQuickCreateForm" action="<?= base_url('examination/store') ?>" method="POST" class="examination-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-examination-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
+                <input type="hidden" name="appointment_id" value="<?= esc($modalSelectedAppointmentId ?? '') ?>">
                 <input type="hidden" name="source_modal" value="examination_quick_create">
 
                 <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">

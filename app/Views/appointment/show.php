@@ -319,13 +319,13 @@ $visitStageLabels = [
                                             <i class="fas fa-stethoscope me-2"></i><?= esc(lang('UI.appointmentOpenExamination')) ?>
                                         </a>
                                     <?php else: ?>
-                                        <a href="<?= esc(base_url('examination/create?' . http_build_query(['patient_id' => (int) ($appointment['patient_id'] ?? 0), 'return_to' => $returnToContext])), 'attr') ?>" data-examination-create-modal-open class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-700">
+                                        <a href="<?= esc(base_url('examination/create?' . http_build_query(['patient_id' => (int) ($appointment['patient_id'] ?? 0), 'appointment_id' => (int) $appointment['id'], 'return_to' => $returnToContext])), 'attr') ?>" data-examination-create-modal-open class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-700">
                                             <i class="fas fa-stethoscope me-2"></i><?= esc(lang('UI.appointmentStartExamination')) ?>
                                         </a>
                                     <?php endif; ?>
                                 <?php endif; ?>
                                 <?php if (has_permission('treatments', 'create') && !empty($primaryLinkedExamination['id'])): ?>
-                                    <a href="<?= esc(base_url('treatment/create?' . http_build_query(['examination_id' => (int) $primaryLinkedExamination['id'], 'return_to' => $returnToContext])), 'attr') ?>" data-treatment-create-modal-open class="inline-flex items-center justify-center rounded-xl border border-pink-200 bg-pink-50 px-4 py-2.5 text-sm font-bold text-pink-800 transition hover:bg-pink-100">
+                                    <a href="<?= esc(base_url('treatment/create?' . http_build_query(['examination_id' => (int) $primaryLinkedExamination['id'], 'appointment_id' => (int) $appointment['id'], 'return_to' => $returnToContext])), 'attr') ?>" data-treatment-create-modal-open class="inline-flex items-center justify-center rounded-xl border border-pink-200 bg-pink-50 px-4 py-2.5 text-sm font-bold text-pink-800 transition hover:bg-pink-100">
                                         <i class="fas fa-tooth me-2"></i><?= esc(lang('UI.appointmentAddTreatment')) ?>
                                     </a>
                                 <?php endif; ?>
@@ -369,7 +369,7 @@ $visitStageLabels = [
                                 <i class="fas fa-triangle-exclamation me-2"></i><?= esc(lang('UI.checkoutMixedCurrencies')) ?>
                             </div>
                         <?php endif; ?>
-                        <?php if (($checkout['link_basis'] ?? '') === 'patient_date_context' && ($linkedExaminations !== [] || $linkedTreatments !== [])): ?>
+                        <?php if (($checkout['link_basis'] ?? '') !== 'explicit' && ($linkedExaminations !== [] || $linkedTreatments !== [])): ?>
                             <div class="mt-4 rounded-2xl bg-blue-50 p-4 text-sm font-semibold text-blue-900 ring-1 ring-blue-200">
                                 <i class="fas fa-circle-info me-2"></i><?= esc(lang('UI.checkoutContextualLinkNote')) ?>
                             </div>
@@ -456,6 +456,7 @@ $visitStageLabels = [
     'return_to' => $returnToContext,
     'contextual' => true,
     'selected_patient' => $contextPatient,
+    'selected_appointment_id' => (int) $appointment['id'],
 ]) ?>
 <?php if (!empty($primaryLinkedExamination['id'])): ?>
     <?= view('treatment/partials/quick_create_modal', [
@@ -469,6 +470,7 @@ $visitStageLabels = [
         'clinic_providers' => $clinic_providers ?? [],
         'validation' => session()->getFlashdata('validation'),
         'selected_examination_id' => (int) $primaryLinkedExamination['id'],
+        'selected_appointment_id' => (int) $appointment['id'],
     ]) ?>
 <?php endif; ?>
 <?php if (has_permission('finance', 'create') && !empty($invoiceableChargeLineIds) && !$hasMixedInvoiceableCurrencies): ?>

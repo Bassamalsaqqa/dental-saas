@@ -15,6 +15,7 @@ class ExaminationModel extends TenantAwareModel
     protected $allowedFields = [
         'clinic_id',
         'patient_id',
+        'appointment_id',
         'examination_id',
         'examination_date',
         'examination_type',
@@ -46,6 +47,7 @@ class ExaminationModel extends TenantAwareModel
 
     protected $validationRules = [
         'patient_id' => 'required|integer',
+        'appointment_id' => 'permit_empty|integer',
         'examination_date' => 'required|valid_date',
         'examination_type' => 'required|in_list[initial,periodic,emergency,follow_up]',
         'chief_complaint' => 'required|min_length[10]|max_length[500]'

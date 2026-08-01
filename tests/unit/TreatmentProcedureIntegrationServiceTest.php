@@ -15,6 +15,7 @@ final class TreatmentProcedureIntegrationServiceTest extends CIUnitTestCase
     private array $treatmentIds = [];
     private array $chargeLineIds = [];
     private array $procedureIds = [];
+    private array $appointmentIds = [];
 
     protected function setUp(): void
     {
@@ -29,6 +30,7 @@ final class TreatmentProcedureIntegrationServiceTest extends CIUnitTestCase
             $this->deleteRows('clinical_procedures', 'id', $this->procedureIds);
             $this->deleteRows('clinical_charge_lines', 'id', $this->chargeLineIds);
             $this->deleteRows('treatments', 'id', $this->treatmentIds);
+            $this->deleteRows('appointments', 'id', $this->appointmentIds);
             $this->deleteRows('patients', 'id', $this->patientIds);
             $this->deleteRows('clinics', 'id', $this->clinicIds);
         }
@@ -109,6 +111,29 @@ final class TreatmentProcedureIntegrationServiceTest extends CIUnitTestCase
 
         [, , $legacyTreatment] = $this->createTreatmentFixture($clinicId);
         $this->assertNull($service->completeForTreatment($clinicId, (int) $legacyTreatment['id'], 904));
+    }
+
+    public function testAppointmentContextPropagatesToProcedureAndChargeLine(): void
+    {
+        [$clinicId, $patientId, $treatment] = $this->createTreatmentFixture();
+        $appointmentId = $this->createAppointment($clinicId, $patientId);
+        $chargeLine = $this->createChargeLine($clinicId, $patientId, (int) $treatment['id']);
+        $this->db->table('clinical_charge_lines')->where('id', $chargeLine['id'])->update(['appointment_id' => $appointmentId]);
+        $chargeLine['appointment_id'] = $appointmentId;
+
+        $procedure = (new TreatmentProcedureIntegrationService($this->db))->createForTreatment(
+            $clinicId,
+            $treatment,
+            'planned',
+            905,
+            $chargeLine,
+            $appointmentId
+        );
+        $this->procedureIds[] = (int) $procedure['id'];
+
+        $this->assertSame($appointmentId, (int) $procedure['appointment_id']);
+        $storedCharge = $this->db->table('clinical_charge_lines')->where('id', $chargeLine['id'])->get()->getRowArray();
+        $this->assertSame($appointmentId, (int) $storedCharge['appointment_id']);
     }
 
     private function createTreatmentFixture(?int $clinicId = null): array
@@ -197,6 +222,27 @@ final class TreatmentProcedureIntegrationServiceTest extends CIUnitTestCase
         $this->chargeLineIds[] = $id;
 
         return $this->db->table('clinical_charge_lines')->where('id', $id)->get()->getRowArray();
+    }
+
+    private function createAppointment(int $clinicId, int $patientId): int
+    {
+        $token = $this->token();
+        $this->db->table('appointments')->insert([
+            'clinic_id' => $clinicId,
+            'patient_id' => $patientId,
+            'appointment_id' => 'ATP' . substr($token, -8),
+            'appointment_date' => '2026-08-01',
+            'appointment_time' => '09:00:00',
+            'duration' => 30,
+            'appointment_type' => 'treatment',
+            'chair_name' => 'Chair 1',
+            'status' => 'in_chair',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        $id = (int) $this->db->insertID();
+        $this->appointmentIds[] = $id;
+        return $id;
     }
 
     private function history(int $procedureId): array
