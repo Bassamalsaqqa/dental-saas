@@ -142,12 +142,15 @@ class ExaminationModel extends TenantAwareModel
             ->findAll();
     }
 
-    public function getExaminationsByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'examinations.id', $orderDir = 'desc')
+    public function getExaminationsByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'examinations.id', $orderDir = 'desc', string $documentationFilter = '')
     {
-        $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number')
+        $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, examination_note_signatures.id as note_signature_id')
             ->join('patients', 'patients.id = examinations.patient_id')
+            ->join('examination_note_signatures', 'examination_note_signatures.examination_id = examinations.id AND examination_note_signatures.clinic_id = examinations.clinic_id', 'left')
             ->where('examinations.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId); // Join guard
+
+        $this->applyDocumentationFilter($builder, $documentationFilter);
 
         if (!empty($search)) {
             $builder->groupStart()
@@ -166,12 +169,15 @@ class ExaminationModel extends TenantAwareModel
             ->findAll();
     }
 
-    public function countExaminationsByClinic($clinicId, $search = '')
+    public function countExaminationsByClinic($clinicId, $search = '', string $documentationFilter = '')
     {
         $builder = $this->select('COUNT(*) as total')
             ->join('patients', 'patients.id = examinations.patient_id')
+            ->join('examination_note_signatures', 'examination_note_signatures.examination_id = examinations.id AND examination_note_signatures.clinic_id = examinations.clinic_id', 'left')
             ->where('examinations.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId); // Join guard
+
+        $this->applyDocumentationFilter($builder, $documentationFilter);
 
         if (!empty($search)) {
             $builder->groupStart()
@@ -187,6 +193,19 @@ class ExaminationModel extends TenantAwareModel
 
         $result = $builder->get()->getRow();
         return $result ? $result->total : 0;
+    }
+
+    private function applyDocumentationFilter($builder, string $documentationFilter): void
+    {
+        if ($documentationFilter === 'ready_to_sign') {
+            $builder->where('examinations.status', 'completed')
+                ->where('examination_note_signatures.id IS NULL', null, false);
+        } elseif ($documentationFilter === 'overdue_draft') {
+            $builder->whereIn('examinations.status', ['pending', 'in_progress'])
+                ->where('examinations.examination_date <', date('Y-m-d'));
+        } elseif ($documentationFilter === 'signed') {
+            $builder->where('examination_note_signatures.id IS NOT NULL', null, false);
+        }
     }
 
     public function getExaminationStatsByClinic($clinicId)

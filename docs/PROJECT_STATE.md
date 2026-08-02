@@ -20,6 +20,7 @@ Last updated: 2026-08-02
 - Patient/entity contextual drawers reuse canonical forms and endpoints; modules still own validation and writes.
 - Clinical-to-finance traceability uses charge lines and Money Trail views without frontend finance calculations.
 - Completed Examination notes can be signed once, become immutable, and receive attributed append-only addenda; print output carries the signature evidence.
+- Dashboard and Examination registry expose tenant-scoped ready-to-sign and overdue-draft documentation queues without bulk signing or clinical-content inference.
 
 ## Deferred Manual QA
 
@@ -30,10 +31,11 @@ Last updated: 2026-08-02
 - Clean, blocked, and acknowledged checkout completion, including AJAX 422 and activity evidence.
 - Full clinical-finance chain: treatment -> invoice -> payment -> patient/treatment/finance trace -> provider payout.
 - Signed-note workflow in English and Arabic: sign, blocked edit/delete/re-complete, addendum, and print evidence.
+- Documentation queue counts and registry filters in English/Arabic against real clinic data.
 
 ## Current Next Slice
 
-Phase 4 signed clinical-note foundation is implemented and code-verified. The next bounded slice is the unsigned/missing-note management queue; broader clinical-document signing remains deferred.
+Phase 4 signed clinical-note foundation and documentation attention queue are implemented and code-verified. The next bounded product slice is accepted-but-unscheduled treatment recovery; broader clinical-document signing remains deferred.
 
 ## App API / React State
 

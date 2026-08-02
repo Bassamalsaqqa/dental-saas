@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-02 - Clinical documentation attention queue
+
+- Added one tenant-scoped clinical documentation read model shared by Dashboard and Examination registry views.
+- Completed unsigned Examinations appear as `Ready to sign`; unfinished Examinations dated before today appear as `Overdue drafts`.
+- The queue does not infer deficient care from optional diagnosis, treatment, or narrative fields and does not permit bulk signing.
+- Examination registry filters use the same server-owned classification and expose signed notes separately.
+- Added 3 tests and 9 assertions for classification, signed-record exclusion, registry consistency, and tenant isolation.
+- Deferred manual QA: verify Dashboard counts, all three registry filters, Arabic labels/RTL, and record links against real clinic data.
+
 ## 2026-08-02 - Signed Examination clinical-note foundation
 
 - Added one-time provider attestation for completed Examination notes with an immutable canonical JSON snapshot and SHA-256 fingerprint.

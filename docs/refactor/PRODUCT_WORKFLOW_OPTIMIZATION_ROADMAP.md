@@ -51,7 +51,7 @@ Implementation contract:
 - Addenda are hash-chained to the signature and preceding addendum.
 - Existing Examination permissions govern signing and addenda; tenant scope, CSRF, and activity logging remain authoritative.
 - Signing does not sign treatments, odontogram findings, prescriptions, contracts, attachments, or financial records.
-- Missing-note and unsigned-note management queues remain a follow-up slice after the record contract is proven.
+- Dashboard and Examination registry now expose completed unsigned notes and older unfinished drafts through one tenant-scoped read model. Bulk signing and inferred content deficiencies remain forbidden.
 
 ### Phase 5 - Recall and Unscheduled Work
 

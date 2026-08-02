@@ -21,6 +21,9 @@ $todayRouting = is_array($today_routing ?? null) ? $today_routing : ['groups' =>
 $routingGroups = is_array($todayRouting['groups'] ?? null) ? $todayRouting['groups'] : [];
 $canRouteAppointments = !empty($can_route_appointments);
 $canEditAppointments = has_permission('appointments', 'edit');
+$documentationQueue = is_array($clinical_documentation_queue ?? null) ? $clinical_documentation_queue : [];
+$readyToSignCount = (int) ($documentationQueue['ready_to_sign_count'] ?? 0);
+$overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
 $routingStageLabels = [
     'scheduled' => lang('UI.appointmentStageScheduled'),
     'confirmed' => lang('UI.appointmentStageConfirmed'),
@@ -781,6 +784,32 @@ $formatHumanLabel = static function (?string $value): string {
             </section>
 
             <aside class="dashboard-panel-stack">
+                <?php if (has_permission('examinations', 'view')): ?>
+                <div class="dashboard-panel overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-700 via-blue-700 to-cyan-700 px-5 py-4 text-white">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <span class="dashboard-panel-icon bg-white/15 ring-1 ring-white/20"><i class="fas fa-file-signature"></i></span>
+                                <div>
+                                    <h2 class="text-base font-black"><?= esc(lang('Examination.documentation_queue')) ?></h2>
+                                    <p class="mt-1 text-xs font-bold text-blue-100"><?= esc(lang('Examination.documentation_queue_help')) ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                        <a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="rounded-2xl bg-indigo-50 p-4 ring-1 ring-indigo-100 transition hover:bg-indigo-100">
+                            <p class="text-xs font-black text-indigo-700"><?= esc(lang('Examination.documentation_ready_to_sign')) ?></p>
+                            <p class="mt-2 text-2xl font-black text-indigo-950" dir="ltr"><?= $readyToSignCount ?></p>
+                        </a>
+                        <a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100 transition hover:bg-amber-100">
+                            <p class="text-xs font-black text-amber-800"><?= esc(lang('Examination.documentation_overdue_draft')) ?></p>
+                            <p class="mt-2 text-2xl font-black text-amber-950" dir="ltr"><?= $overdueDraftCount ?></p>
+                        </a>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <div class="dashboard-panel">
                     <div class="dashboard-panel-header">
                         <div class="dashboard-panel-title">

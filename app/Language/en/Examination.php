@@ -271,5 +271,13 @@ return [
     'addendum_success' => 'Clinical note addendum appended.',
     'signed_note_edit_blocked' => 'This examination has a signed clinical note. Add an addendum instead of editing the original record.',
     'signed_note_delete_blocked' => 'An examination with a signed clinical note cannot be deleted.',
+    'documentation_queue' => 'Clinical documentation',
+    'documentation_queue_help' => 'Finish older drafts and review completed notes before signing.',
+    'documentation_all' => 'All records',
+    'documentation_ready_to_sign' => 'Ready to sign',
+    'documentation_overdue_draft' => 'Overdue drafts',
+    'documentation_signed' => 'Signed notes',
+    'documentation_open_record' => 'Open record',
+    'documentation_empty' => 'No clinical documentation needs attention.',
 ];
 

@@ -8,6 +8,7 @@ use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
 use App\Models\TreatmentModel;
 use App\Services\TodayRoutingService;
+use App\Services\ClinicalDocumentationQueueService;
 
 class Dashboard extends BaseController
 {
@@ -50,7 +51,10 @@ class Dashboard extends BaseController
                 'today_routing' => $this->todayRoutingService->build($todayAppointments),
                 'can_route_appointments' => $canViewAppointments,
                 'recent_examinations' => $this->getRecentExaminationsByClinic($clinicId),
-                'monthly_revenue' => $this->getMonthlyRevenueByClinic($clinicId)
+                'monthly_revenue' => $this->getMonthlyRevenueByClinic($clinicId),
+                'clinical_documentation_queue' => has_permission('examinations', 'view')
+                    ? (new ClinicalDocumentationQueueService())->summary((int) $clinicId, 4)
+                    : ['ready_to_sign_count' => 0, 'overdue_draft_count' => 0, 'ready_to_sign' => [], 'overdue_drafts' => []],
             ];
 
             return $this->view('dashboard/index', $data);
@@ -66,7 +70,8 @@ class Dashboard extends BaseController
                 'today_routing' => $this->todayRoutingService->build([]),
                 'can_route_appointments' => false,
                 'recent_examinations' => [],
-                'monthly_revenue' => []
+                'monthly_revenue' => [],
+                'clinical_documentation_queue' => ['ready_to_sign_count' => 0, 'overdue_draft_count' => 0, 'ready_to_sign' => [], 'overdue_drafts' => []],
             ];
 
             return $this->view('dashboard/index', $data);

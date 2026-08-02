@@ -23,6 +23,7 @@ The odontogram is a clinical index. Tooth color/status must not infer diagnosis,
 6. Appointment checkout reviews clinical state, open charges, invoice/payment state, and legacy contextual links.
 7. Clean checkout completes normally; unresolved items require an acknowledged reason retained in appointment activity.
 8. A completed Examination can be signed once. Its clinical narrative is snapshotted and locked; later corrections are attributed append-only addenda and appear in printed records.
+9. Dashboard and Examination registry identify completed unsigned notes and older unfinished drafts for follow-up without bulk signing.
 
 New appointment-context Examinations, procedures, and charge lines preserve explicit appointment identity. Ambiguous historical records are not backfilled.
 
@@ -36,10 +37,10 @@ New appointment-context Examinations, procedures, and charge lines preserve expl
 
 ## Remaining Clinical Work
 
-1. Add unsigned/missing-note operational queues; broader clinical-document signature coverage remains separately scoped.
-2. Reasoned procedure correction/reopen/cancellation UI.
-3. Recall and unscheduled-treatment queues.
-4. Perio charting, mixed dentition, referral tracking, and controlled baseline promotion.
-5. Imaging linked to teeth/procedures and richer longitudinal clinical reporting.
+1. Reasoned procedure correction/reopen/cancellation UI.
+2. Recall and accepted-unscheduled treatment queues.
+3. Perio charting, mixed dentition, referral tracking, and controlled baseline promotion.
+4. Imaging linked to teeth/procedures and richer longitudinal clinical reporting.
+5. Broader clinical-document signature coverage beyond Examinations.
 
 Contracts and scenarios are in `refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md` and `refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`.

@@ -12,6 +12,7 @@ use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\ClinicalAppointmentContextService;
+use App\Services\ClinicalDocumentationQueueService;
 use App\Services\ExaminationNoteGovernanceService;
 use App\Services\MoneyTrailService;
 use App\Services\OdontogramSnapshotService;
@@ -52,9 +53,18 @@ class Examination extends BaseController
 
     public function index()
     {
+        $clinicId = (int) session()->get('active_clinic_id');
+        $documentationFilter = (string) $this->request->getGet('documentation');
+        if (!in_array($documentationFilter, ['', 'ready_to_sign', 'overdue_draft', 'signed'], true)) {
+            $documentationFilter = '';
+        }
         $data = [
             'title' => 'Examination Management',
             'loadSelect2' => true,
+            'documentation_filter' => $documentationFilter,
+            'documentation_queue' => $clinicId > 0
+                ? (new ClinicalDocumentationQueueService($this->db))->summary($clinicId)
+                : ['ready_to_sign_count' => 0, 'overdue_draft_count' => 0],
         ];
 
         // Ensure user data is included
@@ -736,6 +746,10 @@ class Examination extends BaseController
             $draw = intval($request->getPost('draw') ?? 1);
             $start = intval($request->getPost('start') ?? 0);
             $length = intval($request->getPost('length') ?? 10);
+            $documentationFilter = (string) ($request->getPost('documentation_filter') ?? '');
+            if (!in_array($documentationFilter, ['', 'ready_to_sign', 'overdue_draft', 'signed'], true)) {
+                $documentationFilter = '';
+            }
             
             // Handle search parameter
             $searchParam = $request->getPost('search');
@@ -778,10 +792,10 @@ class Examination extends BaseController
             }
             
             // Get filtered count
-            $filteredRecords = $this->examinationModel->countExaminationsByClinic($clinicId, $searchValue);
+            $filteredRecords = $this->examinationModel->countExaminationsByClinic($clinicId, $searchValue, $documentationFilter);
             
             // Get data (scoped)
-            $examinations = $this->examinationModel->getExaminationsByClinic($clinicId, $length, $start, $searchValue, $orderColumnName, $orderDir);
+            $examinations = $this->examinationModel->getExaminationsByClinic($clinicId, $length, $start, $searchValue, $orderColumnName, $orderDir, $documentationFilter);
             
             // Format data
             $data = [];
@@ -798,7 +812,12 @@ class Examination extends BaseController
                     'status' => $examination['status'] ?? '',
                     'chief_complaint' => $examination['chief_complaint'] ?? '',
                     'id' => intval($examination['id'] ?? 0),
-                    'patient_id' => intval($examination['patient_id'] ?? 0)
+                    'patient_id' => intval($examination['patient_id'] ?? 0),
+                    'documentation_state' => !empty($examination['note_signature_id'])
+                        ? 'signed'
+                        : (($examination['status'] ?? '') === 'completed'
+                            ? 'ready_to_sign'
+                            : ((in_array(($examination['status'] ?? ''), ['pending', 'in_progress'], true) && ($examination['examination_date'] ?? '') < date('Y-m-d')) ? 'overdue_draft' : 'draft')),
                 ];
             }
             

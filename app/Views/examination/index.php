@@ -12,6 +12,10 @@ if ($currentQuery !== '') {
 $returnToContextEncoded = urlencode($returnToContext);
 $shouldOpenExaminationCreateModal = old('source_modal') === 'examination_quick_create';
 $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
+$documentationFilter = (string) ($documentation_filter ?? '');
+$documentationQueue = is_array($documentation_queue ?? null) ? $documentation_queue : [];
+$readyToSignCount = (int) ($documentationQueue['ready_to_sign_count'] ?? 0);
+$overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
 ?>
 
 <!-- DataTables CSS -->
@@ -411,6 +415,30 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             </article>
         </section>
 
+        <section class="mb-5 rounded-[1.55rem] bg-gradient-to-r from-indigo-700 via-blue-700 to-cyan-700 p-4 text-white shadow-xl shadow-blue-900/15 sm:p-5">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20"><i class="fas fa-file-signature"></i></span>
+                    <div>
+                        <h2 class="text-lg font-black"><?= esc($tr('documentation_queue')) ?></h2>
+                        <p class="mt-1 text-sm font-semibold text-blue-100"><?= esc($tr('documentation_queue_help')) ?></p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div class="flex gap-2">
+                        <a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="rounded-xl bg-white/15 px-3 py-2 text-sm font-black ring-1 ring-white/20 hover:bg-white/20"><span dir="ltr"><?= $readyToSignCount ?></span> <?= esc($tr('documentation_ready_to_sign')) ?></a>
+                        <a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="rounded-xl bg-amber-400 px-3 py-2 text-sm font-black text-amber-950 shadow-sm hover:bg-amber-300"><span dir="ltr"><?= $overdueDraftCount ?></span> <?= esc($tr('documentation_overdue_draft')) ?></a>
+                    </div>
+                    <select id="documentationFilter" class="min-w-[12rem] rounded-xl border border-white/25 bg-white px-3 py-2.5 text-sm font-black text-slate-800 shadow-sm outline-none focus:ring-4 focus:ring-white/20">
+                        <option value="" <?= $documentationFilter === '' ? 'selected' : '' ?>><?= esc($tr('documentation_all')) ?></option>
+                        <option value="ready_to_sign" <?= $documentationFilter === 'ready_to_sign' ? 'selected' : '' ?>><?= esc($tr('documentation_ready_to_sign')) ?></option>
+                        <option value="overdue_draft" <?= $documentationFilter === 'overdue_draft' ? 'selected' : '' ?>><?= esc($tr('documentation_overdue_draft')) ?></option>
+                        <option value="signed" <?= $documentationFilter === 'signed' ? 'selected' : '' ?>><?= esc($tr('documentation_signed')) ?></option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
         <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
             <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-orange-50/80 px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -765,6 +793,9 @@ const i18n = {
     statusInProgress: '<?= esc($tr('status_in_progress'), 'js') ?>',
     statusCompleted: '<?= esc($tr('status_completed'), 'js') ?>',
     statusCancelled: '<?= esc($tr('status_cancelled'), 'js') ?>',
+    documentationReadyToSign: '<?= esc($tr('documentation_ready_to_sign'), 'js') ?>',
+    documentationOverdueDraft: '<?= esc($tr('documentation_overdue_draft'), 'js') ?>',
+    documentationSigned: '<?= esc($tr('documentation_signed'), 'js') ?>',
     calendarDays: [
         '<?= esc($tr('calendar_day_sun'), 'js') ?>',
         '<?= esc($tr('calendar_day_mon'), 'js') ?>',
@@ -1018,7 +1049,7 @@ $(document).ready(function() {
             },
             data: function(d) {
                 d[window.csrfConfig.name] = window.getCsrfToken();
-                // Add any additional filters here if needed
+                d.documentation_filter = document.getElementById('documentationFilter')?.value || '';
                 return d;
             },
             complete: function(xhr) {
@@ -1152,11 +1183,19 @@ $(document).ready(function() {
                         cancelled: i18n.statusCancelled,
                     };
                     const config = statusConfig[data] || statusConfig['pending'];
+                    const documentationBadge = row.documentation_state === 'signed'
+                        ? `<span class="mt-1 inline-flex rounded-lg bg-emerald-100 px-2 py-1 text-[11px] font-black text-emerald-800">${i18n.documentationSigned}</span>`
+                        : (row.documentation_state === 'ready_to_sign'
+                            ? `<span class="mt-1 inline-flex rounded-lg bg-indigo-100 px-2 py-1 text-[11px] font-black text-indigo-800">${i18n.documentationReadyToSign}</span>`
+                            : (row.documentation_state === 'overdue_draft'
+                                ? `<span class="mt-1 inline-flex rounded-lg bg-amber-100 px-2 py-1 text-[11px] font-black text-amber-900">${i18n.documentationOverdueDraft}</span>`
+                                : ''));
                     return `
                         <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
                             <i class="fas fa-${config.icon} me-2"></i>
                             ${statusLabelMap[data] || statusLabelMap.pending}
                         </span>
+                        ${documentationBadge}
                     `;
                 }
             },
@@ -1311,6 +1350,14 @@ $(document).ready(function() {
                 $('#examinationsTable tbody tr').addClass('cursor-pointer hover:bg-orange-50/40 transition-colors duration-150');
             }
         }
+    });
+
+    document.getElementById('documentationFilter')?.addEventListener('change', function() {
+        const url = new URL(window.location.href);
+        if (this.value) url.searchParams.set('documentation', this.value);
+        else url.searchParams.delete('documentation');
+        window.history.replaceState({}, '', url);
+        examinationsTable.ajax.reload();
     });
 
     if (permissions.examinations.view) {

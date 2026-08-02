@@ -271,4 +271,12 @@ return [
     'addendum_success' => 'تمت إضافة التوضيح إلى الملاحظة السريرية.',
     'signed_note_edit_blocked' => 'لهذا الفحص ملاحظة سريرية موقعة. أضف توضيحًا بدل تعديل السجل الأصلي.',
     'signed_note_delete_blocked' => 'لا يمكن حذف فحص له ملاحظة سريرية موقعة.',
+    'documentation_queue' => 'توثيق السجلات السريرية',
+    'documentation_queue_help' => 'أكمل المسودات القديمة وراجع السجلات المكتملة قبل توقيعها.',
+    'documentation_all' => 'جميع السجلات',
+    'documentation_ready_to_sign' => 'جاهزة للتوقيع',
+    'documentation_overdue_draft' => 'مسودات متأخرة',
+    'documentation_signed' => 'سجلات موقعة',
+    'documentation_open_record' => 'فتح السجل',
+    'documentation_empty' => 'لا توجد سجلات سريرية تحتاج إلى متابعة.',
 ];
