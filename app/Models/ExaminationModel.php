@@ -77,13 +77,38 @@ class ExaminationModel extends TenantAwareModel
     protected $cleanValidationRules = true;
 
     protected $beforeInsert = ['generateExaminationId', 'setClinicId'];
-    protected $beforeUpdate = [];
+    protected $beforeUpdate = ['enforceTenantScope', 'preventSignedClinicalNoteMutation'];
+    protected $beforeDelete = ['enforceTenantScope', 'preventSignedClinicalNoteMutation'];
 
     protected function generateExaminationId(array $data)
     {
         if (!isset($data['data']['examination_id'])) {
             $data['data']['examination_id'] = 'EXM' . date('Ymd') . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
         }
+        return $data;
+    }
+
+    protected function preventSignedClinicalNoteMutation(array $data): array
+    {
+        if (!$this->db->tableExists('examination_note_signatures')) {
+            return $data;
+        }
+
+        $ids = $data['id'] ?? [];
+        $ids = is_array($ids) ? $ids : [$ids];
+        $ids = array_values(array_filter(array_map('intval', $ids)));
+        if ($ids === []) {
+            return $data;
+        }
+
+        $signed = $this->db->table('examination_note_signatures')
+            ->whereIn('examination_id', $ids)
+            ->countAllResults() > 0;
+
+        if ($signed) {
+            throw new \DomainException('Signed clinical notes are immutable. Append an addendum instead.');
+        }
+
         return $data;
     }
 

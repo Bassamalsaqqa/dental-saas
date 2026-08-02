@@ -24,6 +24,10 @@ $invoiceableChargeTotal = array_reduce(
 );
 $odontogramConditionCount = (int)($odontogram_stats['total_conditions'] ?? (is_array($odontogram ?? null) ? count($odontogram) : 0));
 $returnToContext = 'examination/' . (int) ($examination['id'] ?? 0);
+$clinicalNoteState = is_array($clinical_note_state ?? null) ? $clinical_note_state : ['signed' => false, 'signature' => null, 'addenda' => []];
+$clinicalNoteSigned = !empty($clinicalNoteState['signed']);
+$clinicalNoteSignature = $clinicalNoteState['signature'] ?? null;
+$clinicalNoteAddenda = $clinicalNoteState['addenda'] ?? [];
 
 $statusTone = match ($statusKey) {
     'completed'  => ['bg' => 'rgba(16,185,129,0.22)', 'border' => 'rgba(167,243,208,0.4)'],
@@ -597,7 +601,9 @@ $healthFlags = array_values(array_filter([
                 </div>
                 <div class="w-full space-y-2 xl:w-[21rem]">
                     <div class="grid gap-2 sm:grid-cols-2">
+                        <?php if (!$clinicalNoteSigned): ?>
                         <a href="<?= workflow_context_url('examination/' . $examination['id'] . '/edit', $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-pen"></i><span><?= esc($tr('edit_examination')) ?></span></a>
+                        <?php endif; ?>
                         <?php if (!empty($examination['patient_id'])): ?>
                         <a href="<?= workflow_context_url('patient/' . $examination['patient_id'], $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft"><i class="fas fa-user"></i><span><?= esc(lang('UI.patientProfile')) ?></span></a>
                         <?php endif; ?>
@@ -616,6 +622,7 @@ $healthFlags = array_values(array_filter([
                     <?php endif; ?>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -780,6 +787,13 @@ $healthFlags = array_values(array_filter([
                     <?php endif; ?>
                 </div>
             </div>
+            <?= view('examination/partials/clinical_note_governance', [
+                'examination' => $examination,
+                'status_key' => $statusKey,
+                'clinical_note_signed' => $clinicalNoteSigned,
+                'clinical_note_signature' => $clinicalNoteSignature,
+                'clinical_note_addenda' => $clinicalNoteAddenda,
+            ]) ?>
         </div>
 
         <!-- RIGHT COLUMN -->

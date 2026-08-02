@@ -22,6 +22,7 @@ The odontogram is a clinical index. Tooth color/status must not infer diagnosis,
 5. Optional charge and inventory capture commit with the Treatment transaction.
 6. Appointment checkout reviews clinical state, open charges, invoice/payment state, and legacy contextual links.
 7. Clean checkout completes normally; unresolved items require an acknowledged reason retained in appointment activity.
+8. A completed Examination can be signed once. Its clinical narrative is snapshotted and locked; later corrections are attributed append-only addenda and appear in printed records.
 
 New appointment-context Examinations, procedures, and charge lines preserve explicit appointment identity. Ambiguous historical records are not backfilled.
 
@@ -30,12 +31,12 @@ New appointment-context Examinations, procedures, and charge lines preserve expl
 - No automatic diagnosis, treatment recommendation, clinical completion, billing, or payment.
 - Conditions and accepted plans are not revenue.
 - Visit overrides never silently replace patient baseline state.
-- Signed/locked records require explicit legal-record rules.
+- Signed Examination notes are immutable; correction happens only through an attributed addendum.
 - Tenant scope, CSRF, permissions, PlanGuard, audit logging, and private storage remain authoritative.
 
 ## Remaining Clinical Work
 
-1. Signed/locked notes, addenda, provider attribution, and missing-note queue.
+1. Add unsigned/missing-note operational queues; broader clinical-document signature coverage remains separately scoped.
 2. Reasoned procedure correction/reopen/cancellation UI.
 3. Recall and unscheduled-treatment queues.
 4. Perio charting, mixed dentition, referral tracking, and controlled baseline promotion.

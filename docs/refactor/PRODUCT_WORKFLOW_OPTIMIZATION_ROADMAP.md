@@ -43,14 +43,15 @@ Make DentaCare a fast clinic operating system: preserve patient/visit context, s
 
 ### Phase 4 - Signed Clinical Notes
 
-Define before implementation:
+Implementation contract:
 
-- note ownership and provider attribution;
-- signature meaning and timestamp;
-- immutable lock boundary;
-- corrections through addenda, never silent overwrite;
-- missing-note and unsigned-note queues;
-- permissions and audit evidence.
+- A completed Examination owns one immutable signed clinical-note snapshot.
+- Signing is an explicit provider attestation with actor, timestamp, snapshot, and SHA-256 evidence.
+- Signed Examinations cannot be edited or deleted; corrections are append-only, reasoned, actor-attributed addenda.
+- Addenda are hash-chained to the signature and preceding addendum.
+- Existing Examination permissions govern signing and addenda; tenant scope, CSRF, and activity logging remain authoritative.
+- Signing does not sign treatments, odontogram findings, prescriptions, contracts, attachments, or financial records.
+- Missing-note and unsigned-note management queues remain a follow-up slice after the record contract is proven.
 
 ### Phase 5 - Recall and Unscheduled Work
 
@@ -70,6 +71,24 @@ Define before implementation:
 - Provider production versus collections from allocations.
 - Chair utilization, checkout completion, recall recovery, unsigned notes, and stock-order performance.
 - Doctor-facing summaries remain short; specialist evidence remains in modules.
+
+### Phase 8 - Patient Access and Front Office
+
+- Digital intake and medical-history updates.
+- Patient portal for appointments, plans, documents, statements, and payments.
+- Online booking, self-check-in, waitlist, and governed two-way communication.
+
+### Phase 9 - Dental Depth and Interoperability
+
+- Perio charting, mixed dentition, referral closure, and tooth/procedure-linked imaging.
+- Evaluate licensed CDT/SNODENT terminology and country-specific insurance/claims requirements.
+- Define FHIR/CDA dental exchange and safe data export before adding integrations.
+
+### Phase 10 - Release Assurance
+
+- MFA, login/API throttling, backup restoration drills, incident response, monitoring, and external security assessment.
+- Repair the full test harness and add browser coverage for English/Arabic, permissions, clinic-day workflows, and accessibility.
+- Run observed role-based usability pilots and measure task completion, errors, and training time before claiming ease of use.
 
 ## Product Rules
 

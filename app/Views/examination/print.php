@@ -168,6 +168,43 @@ $statusLabels = [
         </div>
         <?php endif; ?>
 
+        <?php
+        $clinicalNoteState = is_array($clinical_note_state ?? null) ? $clinical_note_state : [];
+        $noteSignature = is_array($clinicalNoteState['signature'] ?? null) ? $clinicalNoteState['signature'] : null;
+        $noteAddenda = is_array($clinicalNoteState['addenda'] ?? null) ? $clinicalNoteState['addenda'] : [];
+        ?>
+        <?php if ($noteSignature): ?>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2"><?= esc(lang('Examination.clinical_note_governance')) ?></h2>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-900"><?= esc(lang('Examination.note_signed_locked')) ?></p>
+                <p class="mt-2 text-sm text-gray-700">
+                    <?= esc(lang('Examination.signed_by')) ?>: <?= esc($noteSignature['signed_by_name'] ?? '') ?>
+                    &middot;
+                    <?= esc(lang('Examination.signed_at')) ?>: <?= esc(formatDateTime($noteSignature['signed_at'] ?? '')) ?>
+                </p>
+                <p class="mt-2 text-xs text-gray-600">SHA-256: <?= esc($noteSignature['content_hash'] ?? '') ?></p>
+            </div>
+
+            <?php if ($noteAddenda): ?>
+                <h3 class="mt-5 mb-3 text-lg font-bold text-gray-900"><?= esc(lang('Examination.note_addenda')) ?></h3>
+                <div class="space-y-4">
+                    <?php foreach ($noteAddenda as $addendum): ?>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p class="font-semibold text-gray-900"><?= esc($addendum['reason'] ?? '') ?></p>
+                            <p class="mt-2 text-gray-800 leading-relaxed"><?= nl2br(esc($addendum['body'] ?? '')) ?></p>
+                            <p class="mt-2 text-sm text-gray-600">
+                                <?= esc($addendum['created_by_name'] ?? '') ?>
+                                &middot;
+                                <?= esc(formatDateTime($addendum['created_at'] ?? '')) ?>
+                            </p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
         <!-- Treatments -->
         <?php if (!empty($treatments)): ?>
         <div class="mb-8">

@@ -12,6 +12,7 @@ use App\Models\ClinicUserModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\ClinicalAppointmentContextService;
+use App\Services\ExaminationNoteGovernanceService;
 use App\Services\MoneyTrailService;
 use App\Services\OdontogramSnapshotService;
 use App\Services\PlanGuard;
@@ -31,6 +32,7 @@ class Examination extends BaseController
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
     protected OdontogramSnapshotService $odontogramSnapshotService;
     protected ClinicalAppointmentContextService $appointmentContextService;
+    protected ExaminationNoteGovernanceService $noteGovernanceService;
 
     public function __construct()
     {
@@ -45,6 +47,7 @@ class Examination extends BaseController
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
         $this->odontogramSnapshotService = new OdontogramSnapshotService();
         $this->appointmentContextService = new ClinicalAppointmentContextService($this->db);
+        $this->noteGovernanceService = new ExaminationNoteGovernanceService($this->db);
     }
 
     public function index()
@@ -334,7 +337,8 @@ class Examination extends BaseController
             'selected_appointment_patient' => $selectedTreatmentPatient,
             'appointment_chair_options' => service('settings')->getBookingChairNames(),
             'appointment_type_prefill' => 'follow_up',
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations']),
+            'clinical_note_state' => $this->noteGovernanceService->state((int) $clinicId, (int) $id),
         ];
 
         return $this->view('examination/show', $data);
@@ -372,6 +376,11 @@ class Examination extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
+        if ($this->noteGovernanceService->isSigned((int) $clinicId, (int) $id)) {
+            return redirect()->to(base_url('examination/' . (int) $id))
+                ->with('error', lang('Examination.signed_note_edit_blocked'));
+        }
+
         $previousStatus = (string) ($examination['status'] ?? '');
 
         // Only load the specific patient for this examination (scoped)
@@ -402,6 +411,11 @@ class Examination extends BaseController
         
         if (!$examination) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
+        }
+
+        if ($this->noteGovernanceService->isSigned((int) $clinicId, (int) $id)) {
+            return redirect()->to(base_url('examination/' . (int) $id))
+                ->with('error', lang('Examination.signed_note_edit_blocked'));
         }
 
         $rules = [
@@ -614,6 +628,18 @@ class Examination extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
+        if ($this->noteGovernanceService->isSigned((int) $clinicId, (int) $id)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(409)->setJSON([
+                    'success' => false,
+                    'message' => lang('Examination.signed_note_edit_blocked'),
+                ]);
+            }
+
+            return redirect()->to(base_url('examination/' . (int) $id))
+                ->with('error', lang('Examination.signed_note_edit_blocked'));
+        }
+
         $updateData = [ 
             'status' => 'completed',
             'examination_notes' => $this->request->getPost('examination_notes')
@@ -645,6 +671,54 @@ class Examination extends BaseController
             }
 
             return redirect()->back()->with('error', 'Failed to complete examination');
+        }
+    }
+
+    public function signClinicalNote($id)
+    {
+        $clinicId = (int) session()->get('active_clinic_id');
+        $actor = $this->getCurrentUser();
+        $actorId = $actor ? (int) $actor->id : 0;
+        if ($clinicId <= 0 || $actorId <= 0) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Clinical note context not found.');
+        }
+        if ($this->request->getPost('attest') !== '1') {
+            return redirect()->back()->with('error', lang('Examination.sign_attestation_required'));
+        }
+
+        try {
+            $actorName = trim((string) ($actor->first_name ?? '') . ' ' . (string) ($actor->last_name ?? ''));
+            $this->noteGovernanceService->sign($clinicId, (int) $id, $actorId, $actorName ?: ('User #' . $actorId));
+            $this->activityLogger->logExaminationActivity('sign_note', (int) $id, 'Clinical note signed and locked.');
+            return redirect()->to(base_url('examination/' . (int) $id))->with('success', lang('Examination.sign_success'));
+        } catch (DomainException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function addClinicalNoteAddendum($id)
+    {
+        $clinicId = (int) session()->get('active_clinic_id');
+        $actor = $this->getCurrentUser();
+        $actorId = $actor ? (int) $actor->id : 0;
+        if ($clinicId <= 0 || $actorId <= 0) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Clinical note context not found.');
+        }
+
+        try {
+            $actorName = trim((string) ($actor->first_name ?? '') . ' ' . (string) ($actor->last_name ?? ''));
+            $this->noteGovernanceService->addAddendum(
+                $clinicId,
+                (int) $id,
+                $actorId,
+                $actorName ?: ('User #' . $actorId),
+                (string) $this->request->getPost('reason'),
+                (string) $this->request->getPost('body')
+            );
+            $this->activityLogger->logExaminationActivity('add_note_addendum', (int) $id, 'Addendum appended to signed clinical note.');
+            return redirect()->to(base_url('examination/' . (int) $id))->with('success', lang('Examination.addendum_success'));
+        } catch (DomainException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -882,7 +956,8 @@ class Examination extends BaseController
                 ->where('clinic_id', $clinicId)
                 ->getEffectiveOdontogramForExamination((int) $examination['patient_id'], (int) $examination['id']),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
-            'clinic' => settings()->getClinicInfo()
+            'clinic' => settings()->getClinicInfo(),
+            'clinical_note_state' => $this->noteGovernanceService->state((int) $clinicId, (int) $id),
         ];
 
         $html = view('examination/print', $data);
@@ -948,6 +1023,13 @@ class Examination extends BaseController
             $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
             if (!$examination) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Examination not found']);
+            }
+
+            if ($this->noteGovernanceService->isSigned((int) $clinicId, (int) $id)) {
+                return $this->response->setStatusCode(409)->setJSON([
+                    'success' => false,
+                    'message' => lang('Examination.signed_note_delete_blocked'),
+                ]);
             }
             
             if ($this->examinationModel->delete($id)) {

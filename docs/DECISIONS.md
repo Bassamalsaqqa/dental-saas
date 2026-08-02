@@ -8,6 +8,12 @@
 
 Append-only. Do not edit previous entries.
 
+## 2026-08-02 - Signed Clinical Notes Are Immutable and Corrected by Addendum
+
+- **Decision:** A completed Examination may be signed once by an authenticated clinic user with the existing `examinations:edit` permission. Signing stores a canonical snapshot and SHA-256 fingerprint. The Examination then becomes immutable; later clarification or correction is an attributed, reasoned, append-only addendum linked by a hash chain.
+- **Rationale:** A clinical record must preserve what the clinician attested to at a point in time. Editing the original after signing weakens patient safety, auditability, and legal-record integrity, while deletion or replacement would obscure the correction history.
+- **Impact:** Normal edit, repeat-completion, and delete paths reject signed Examinations, including model-level callers. Odontogram findings, procedures, finance records, and attachments retain their own lifecycle and are not silently frozen or inferred by signing an Examination note. Print output includes signature and addendum evidence. Broader document signing and operational completion queues remain separate future slices.
+
 ## 2026-07-30 - Procedures Have a First-Class Audited Lifecycle
 
 - **Decision:** DentaCare procedures use a dedicated tenant-scoped `clinical_procedures` record and append-only `clinical_procedure_status_history`. The lifecycle is proposed, presented, accepted or rejected, scheduled, in progress, and completed, with referred/cancelled exception outcomes.

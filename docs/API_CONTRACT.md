@@ -94,6 +94,7 @@ Status mapping:
 - 422: `tenant_context_missing` / `tenant_context_invalid`
 - 403: `tenant_context_forbidden` / `subscription_inactive` / `forbidden` / `feature_disabled`
 - 429: `plan_quota_exceeded` (and `rate_limited` reserved)
+- 409: `signed_clinical_note_immutable` when a signed Examination is targeted by update/delete
 
 Error JSON shape:
 ```json

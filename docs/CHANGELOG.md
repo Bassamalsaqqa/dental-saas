@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-02 - Signed Examination clinical-note foundation
+
+- Added one-time provider attestation for completed Examination notes with an immutable canonical JSON snapshot and SHA-256 fingerprint.
+- Signed Examinations cannot be edited, completed again, or deleted through normal controller/model paths; corrections are append-only addenda with actor, reason, timestamp, and a tamper-evident hash chain.
+- Examination detail and print views now expose signature state and addendum history in English and Arabic.
+- Tenant scope, existing `examinations:edit` permission, CSRF, canonical Examination routes, and activity logging remain authoritative; no new permission system or parallel clinical-note module was introduced.
+- Added focused governance coverage: 5 tests and 18 assertions, plus passing adjacent clinical, appointment, finance-bridge, and App API suites.
+- Deployment requires `php spark migrate`; the canonical Hostinger SQL dump was regenerated.
+- Deferred manual QA: sign a completed Examination in English and Arabic, confirm edit/delete/complete are blocked, append a correction, and verify the printed record shows signer and addenda.
+
 ## 2026-08-02 - Active documentation consolidation
 
 - Reduced the active documentation surface to current contracts, current state, recent continuation history, and operational instructions.
