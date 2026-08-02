@@ -75,7 +75,7 @@ Only `.env` and database import are manual host-specific items.
 ## Documentation QA
 
 ```powershell
-$active = git ls-files README.md AGENTS.md gemini.md docs | Where-Object { $_ -notmatch '^docs/_archive/' }
+$active = git ls-files README.md AGENTS.md gemini.md docs
 $active.Count
 rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" $active
 $active | ForEach-Object {

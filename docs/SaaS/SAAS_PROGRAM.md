@@ -56,7 +56,7 @@
 _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instantiate Task IDs per phase._
 - **Phase 0 — SaaS Scaffold & Guardrails**
   - DoD: CI guards defined (ban DOM sinks; ban raw tenant queries in controllers; ban group-based auth); SaaS docs imported; repo split/freeze rules documented.
-  - Verification: Verification evidence is archived under `docs/_archive/2026-05-02-docs-consolidation/`; new current summaries go in `docs/CHANGELOG.md` and decisions in `docs/DECISIONS.md`.
+  - Verification: current summaries go in `docs/CHANGELOG.md`; durable decisions go in `docs/DECISIONS.md`; detailed command evidence belongs in CI/job output rather than permanent documentation.
 - **Phase 1 — RBAC Consolidation**
   - DoD: `AdminFilter` removed; `ControlPlaneFilter` added; routes regrouped; no `in_group`/`is_admin` checks remain.
   - Verification: grep proof for removed group checks; permission denial behavior validated.
@@ -91,8 +91,7 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ## 10. Documentation & Verification Requirements
 - Active decisions: `docs/DECISIONS.md` (append-only).
 - Active changelog: `docs/CHANGELOG.md`.
-- Historical verification evidence is archived under `docs/_archive/2026-05-02-docs-consolidation/`.
-- Historical logs and plans are archived in the same archive root.
+- Historical verification, logs, and plans are removed from the working tree after conclusions are captured; Git history remains available.
 - Documentation entrypoint: `docs/START_HERE.md`.
 - Supporting active references: `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`, `docs/API_CONTRACT.md`, `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md`.
 
@@ -101,7 +100,7 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - This file is the single source of truth; changes are append-noted or amended with explicit dated sections if needed.
 
 ## 12. References
-- Historical SaaS plans/checklists: archived in `docs/_archive/2026-05-02-docs-consolidation/plans/`
+- Historical SaaS plans/checklists: Git history only.
 - Active: `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`
 - Active: `docs/API_CONTRACT.md`
 - Active: `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md`
@@ -109,4 +108,4 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 
 ## 13. Historical Program Record
 
-Completed task-by-task corrections and closure evidence are preserved in docs/_archive/2026-08-02-docs-slimdown/SAAS_PROGRAM_HISTORY.md. Current rules above are authoritative.
+Completed task-by-task corrections and closure evidence remain in Git history. Current rules above are authoritative.

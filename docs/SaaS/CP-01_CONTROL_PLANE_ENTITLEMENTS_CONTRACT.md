@@ -6,7 +6,7 @@ Authority: This contract binds implementation. If code or other docs diverge, co
 
 Sources (evidence-backed):
 - docs/API_CONTRACT.md
-- docs/_archive/2026-05-02-docs-consolidation/legacy-api/README.md
+- superseded API notes in Git history (non-authoritative)
 - docs/SaaS/SAAS_PROGRAM.md
 - app/Services/PlanGuard.php
 - app/Filters/ApiV1AuthFilter.php

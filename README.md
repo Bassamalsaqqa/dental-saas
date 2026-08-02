@@ -24,12 +24,13 @@ Binding contracts are indexed in [docs/START_HERE.md](docs/START_HERE.md).
 
 ## Local Setup
 
-Requirements: PHP 8.2+, Composer, Node/npm, MySQL/MariaDB, and Apache/XAMPP on Windows.
+Requirements: PHP 8.2+ (`intl`, `mbstring`, `json`, `mysqli`, `xml`, `curl`, `gd`), Composer, Node/npm, MySQL/MariaDB, and Apache/XAMPP on Windows.
 
 ```powershell
 composer install
 npm.cmd install
 Copy-Item env .env
+php spark key:generate
 php spark migrate
 npm.cmd run build
 ```
@@ -42,7 +43,9 @@ Local defaults:
 - User: `root`, blank password
 - Session cookie: `ci_session_saas`
 
-Use `.env` as the authoritative connection configuration. See [docs/DEPLOYMENT_LOCAL_SETUP.md](docs/DEPLOYMENT_LOCAL_SETUP.md) for Apache, React asset, and deployment details.
+Use `.env` as the authoritative connection configuration. Tailwind builds `src/input.css` to `public/assets/css/tailwind.css`; reviewed React assets build under `/app` to `public/app`.
+
+Prefer an Apache/Nginx document root at `public/`. If the repository root is served, web-server rules must block dotfiles, `app`, `system`, `tests`, `writable`, `scripts`, `docs`, `vendor`, `node_modules`, source/config files, dumps, logs, and browser-accessible maintenance scripts.
 
 ## Common Verification
 
@@ -71,6 +74,6 @@ Operational commands and the canonical dump command are in [docs/OPERATIONS_RUNB
 - Current implementation: `docs/PROJECT_STATE.md` plus module current-state files.
 - Durable decisions: `docs/DECISIONS.md`.
 - Recent changes: `docs/CHANGELOG.md`.
-- Historical evidence: `docs/_archive/`.
+- Removed historical material: Git history.
 
-Do not treat archived plans or audits as current requirements.
+Do not treat removed historical plans from Git history as current requirements.

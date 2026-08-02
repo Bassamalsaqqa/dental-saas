@@ -12,7 +12,7 @@
 I am the **Implementer**. My job is to implement only what the Planner/Reviewer (Codex) assigns, and to maintain an audit-grade trail of what changed and how it was verified.
 
 ### Current Program of Record (Single Source of Truth)
-1) **Navigation:** `docs/START_HERE.md` (active docs map + archive policy)
+1) **Navigation:** `docs/START_HERE.md` (active docs map + retention policy)
 2) **SaaS Program:** `docs/SaaS/SAAS_PROGRAM.md` (governs scope, priority, DoD for SaaS)
 3) **Tenant Context Contract:** `docs/SaaS/TENANT_CONTEXT_CONTRACT.md`
 4) **API Contract:** `docs/API_CONTRACT.md` (authoritative behavior for `/api/v1/*`)
@@ -55,7 +55,7 @@ Key structural invariants:
 
 ## D. Recent Accomplishments
 
-See `docs/CHANGELOG.md` for recent implementation history. Historical SaaS transition accomplishments (Jan 2026) are archived in `docs/_archive/`.
+See `docs/CHANGELOG.md` for recent implementation history. Older history remains available through Git.
 
 ---
 

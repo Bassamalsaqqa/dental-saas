@@ -5,7 +5,7 @@
 - Secondary mission: leave an audit-grade trail (commands, diffs, tests) and enforce tenant isolation.
 
 ## B) Source of Truth
-1) `docs/START_HERE.md` — navigation hub and archive policy
+1) `docs/START_HERE.md` — active documentation map and retention policy
 2) `docs/SaaS/SAAS_PROGRAM.md` governs SaaS scope, priority, and DoD.
 3) `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` governs tenant context mechanics.
 4) `docs/API_CONTRACT.md` governs `/api/v1/*` semantics.
@@ -14,7 +14,7 @@
 7) `docs/FINANCE_CURRENT_STATE.md` — finance current state.
 8) `docs/PROJECT_STATE.md` — current-state dashboard.
 
-Historical docs live in `docs/_archive/`. Archived docs are evidence, not source of truth.
+Removed historical documents remain available through Git history, not the working tree.
 
 ## C) Non-Negotiables
 - Fail-closed doctrine always.

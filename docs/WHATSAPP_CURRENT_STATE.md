@@ -36,4 +36,4 @@ Run queueing before dispatch. Current tenant defaults are 50/day, 1000/month, 3/
 - Controlled pilot evidence and failure review.
 - Broader workflow coverage only through reviewed template-first contracts.
 
-Provider facts and prior phase evidence are archived under `_archive/2026-05-02-docs-consolidation/whatsapp-evidence/`.
+Prior provider research and phase evidence remain available through Git history.

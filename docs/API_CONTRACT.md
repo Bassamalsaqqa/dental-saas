@@ -6,7 +6,7 @@ Authority: This contract is the source of truth for v1 behavior.
 
 Hard rule: `/api/v1/*` MUST NOT return redirects or HTML and MUST NOT use 404 concealment for auth/tenant/entitlement failures.
 
-Legacy API contract is archived and frozen in `docs/_archive/2026-05-02-docs-consolidation/legacy-api/`.
+Superseded API contracts remain available through Git history. This file is authoritative.
 
 ---
 
