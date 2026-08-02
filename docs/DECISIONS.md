@@ -1,5 +1,11 @@
 # Architectural Decision Log
 
+## 2026-08-02 - Active Documentation Is Contract-First and History Is Archived
+
+- **Decision:** Active documentation contains only binding contracts, current state, current roadmaps, recent continuation history, and operations. Completed studies, prompt libraries, detailed verification evidence, and old logs move to dated archive roots.
+- **Rationale:** Repeated plans and historical status made stale material look authoritative and increased the reading burden for every task.
+- **Impact:** `docs/START_HERE.md` is the only active map. Contracts retain necessary detail, `PROJECT_STATE.md` states current truth, `CHANGELOG.md` retains recent context, and archived evidence must be confirmed against active docs before use.
+
 Append-only. Do not edit previous entries.
 
 ## 2026-07-30 - Procedures Have a First-Class Audited Lifecycle

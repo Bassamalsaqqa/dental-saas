@@ -1,169 +1,87 @@
 # Operations Runbook
 
-## Common Commands
+## Database
 
-### Database
+```powershell
+php spark migrate
+php spark migrate:rollback
+```
 
-```bash
-php spark migrate                    # Run migrations
-php spark migrate:rollback           # Rollback last migration
+Canonical UTF-8 dump without `CREATE DATABASE`:
 
-# Regenerate SQL dump (XAMPP MySQL)
+```powershell
 cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas --ignore-table=democa_dental_saas.control_plane_invoices --ignore-table=democa_dental_saas.control_plane_invoice_payments > democa_dental_saas_schema_superadmin.sql"
-
-# Import SQL dump
-mysql -u root democa_dental_saas < democa_dental_saas_schema_superadmin.sql
 ```
 
-### Cache & Assets
+The dump must stay untracked. Regenerate after schema/bootstrap-data changes.
 
-```bash
-php spark cache:clear                # Clear application cache
-npm run build                        # Rebuild Tailwind CSS
-npm run release:hostinger            # Rebuild Tailwind + deployment reminder
+## Build and Verification
+
+```powershell
+php spark routes
+vendor\bin\phpunit --no-coverage --no-logging --do-not-cache-result
+npm.cmd run build
+bash scripts/ci/saas_guardrails.sh
 ```
 
-### Guardrails
+Targeted safety scans:
 
-```bash
-bash scripts/ci/saas_guardrails.sh   # Run SaaS guardrail checks
-rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views  # DOM sink scan
-php spark routes | findstr /I "controlplane api/v1 api/search"       # Route sanity
+```powershell
+rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views
+php spark routes | findstr /I "controlplane app-api api/v1 api/search"
 ```
 
-### WhatsApp
+## WhatsApp
 
-```bash
-php spark whatsapp:ops-check                     # Phase 6 readiness monitor
-php spark whatsapp:queue-product-flows           # Queue product-flow reminders
-php spark notifications:dispatch --channel whatsapp  # Dispatch WhatsApp notifications
-php spark whatsapp:seed-local-test               # Seed local test data
+```powershell
+php spark whatsapp:ops-check
+php spark whatsapp:queue-product-flows
+php spark notifications:dispatch --channel whatsapp
 ```
 
-### Tenant Jobs
+Queue product workflows before dispatch.
 
-```bash
-php spark tenant:run-job SendEmailNotificationsJob --clinic-id <ID>
-```
-
-## Troubleshooting
-
-### Migration fails with namespace error
-Ensure migration files are saved as UTF-8 without BOM.
-
-### 404 on tenant routes
-- Confirm `.htaccess` is active and `RewriteBase` matches host root.
-- Check `app.baseURL` in `.env`.
-
-### Plan gate blocks features
-Verify clinic plan and feature toggles in the control plane.
-
-### SQL import errors ("Unexpected character at position 1")
-The dump file was UTF-16. Regenerate using `cmd` redirection (not PowerShell).
-
-### /auth/login 404 on Hostinger
-Check `RewriteBase` — on Hostinger it should be `/` (not `/dental-saas/`).
-
-## Hostinger Deployment
-
-1. Upload codebase
-2. Upload `.env`
-3. Import SQL dump (`democa_dental_saas_schema_superadmin.sql`) — use UTF-8, no CREATE DATABASE
-4. Ensure `.htaccess` `RewriteBase /` (not `/dental-saas/`)
-5. Run `npm run release:hostinger` locally before deploying UI/Tailwind changes
-6. Only manual items after deploy: `.env` + latest SQL dump
-
-## Local Environment
+## Local Runtime
 
 - Path: `C:\xampp\htdocs\dental-saas`
-- DB: `democa_dental_saas` on XAMPP MySQL (127.0.0.1:3306, root, no password)
-- Docker MySQL container: `mysql8-dental` (port 3307, password: root) — optional, for dump export
+- Database: `democa_dental_saas` at `127.0.0.1:3306`, user `root`, blank password
 - Session cookie: `ci_session_saas`
 - Tenant login: `https://localhost/dental-saas/auth/login`
 - Control plane: `https://localhost/dental-saas/controlplane`
 
-## Docs QA
+Use `.env` as runtime truth.
 
-### Active docs count (expect 19)
+## Hostinger Deployment
 
-Bash:
-```bash
-git ls-files docs | grep -v "^docs/_archive/" | grep -v "^docs/SaaS/guardrails/" | wc -l
-```
+1. Pull reviewed commits.
+2. Configure production `.env`.
+3. Run migrations when required.
+4. Deploy reviewed generated assets; run `npm run release:hostinger` locally for Tailwind changes.
+5. Use `RewriteBase /`, not `/dental-saas/`.
+6. Import only a UTF-8 dump without `CREATE DATABASE` when database import is required.
 
-PowerShell:
-```powershell
-$activeDocs = git ls-files docs | Where-Object { $_ -notmatch '^docs/_archive/' -and $_ -notmatch '^docs/SaaS/guardrails/' }
-$activeDocs.Count
-```
+Only `.env` and database import are manual host-specific items.
 
-### Stale reference scan (expect no output)
+## Troubleshooting
 
-Scans only normal active docs (excludes START_HERE.md and this file, which may mention old paths as policy examples).
+- Migration namespace/parse failures: verify UTF-8 without BOM.
+- SQL “Unexpected character at position 1”: dump was UTF-16; regenerate with `cmd` redirection.
+- Tenant 404: confirm session has valid `active_clinic_id`, `global_mode` is false, plan is active, and route permissions match.
+- Control-plane 404: confirm `global_mode=true`, no active tenant, and superadmin authorization.
+- Hostinger `/auth/login` 404: verify Apache rewrite support and `RewriteBase /`.
+- Missing styles: rebuild Tailwind and deploy `public/assets/css/tailwind.css`.
+- Bash `E_ACCESSDENIED` on Windows: run guardrails in CI or a working WSL/Bash environment; do not report it as a passing check.
 
-Bash:
-```bash
-rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" \
-  README.md AGENTS.md gemini.md \
-  docs/PROJECT_STATE.md docs/CHANGELOG.md docs/DECISIONS.md \
-  docs/API_CONTRACT.md docs/APP_API_CONTRACT.md \
-  docs/refactor/APP_API_ROUTE_INVENTORY.md \
-  docs/refactor/LOVABLE_STRATEGY_CODEX.md \
-  docs/refactor/LOVABLE_STRATEGY_GEMINI.md \
-  docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md \
-  docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md \
-  docs/FINANCE_CURRENT_STATE.md \
-  docs/WHATSAPP_CURRENT_STATE.md docs/CLINICAL_CURRENT_STATE.md \
-  docs/SaaS/TENANT_CONTEXT_CONTRACT.md \
-  docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md
-```
+## Documentation QA
 
-PowerShell:
-```powershell
-$docsToScan = @(
-  'README.md', 'AGENTS.md', 'gemini.md',
-  'docs/PROJECT_STATE.md', 'docs/CHANGELOG.md', 'docs/DECISIONS.md',
-  'docs/API_CONTRACT.md', 'docs/APP_API_CONTRACT.md',
-  'docs/refactor/APP_API_ROUTE_INVENTORY.md',
-  'docs/refactor/LOVABLE_STRATEGY_CODEX.md',
-  'docs/refactor/LOVABLE_STRATEGY_GEMINI.md',
-  'docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md',
-  'docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md',
-  'docs/FINANCE_CURRENT_STATE.md',
-  'docs/WHATSAPP_CURRENT_STATE.md', 'docs/CLINICAL_CURRENT_STATE.md',
-  'docs/SaaS/TENANT_CONTEXT_CONTRACT.md',
-  'docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md'
-)
-rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" $docsToScan
-```
-
-### SAAS_PROGRAM.md historical check
-
-Matches after `## Append-Only Corrections & Decisions` are acceptable. Matches before that heading are bugs.
-
-```bash
-rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs" docs/SaaS/SAAS_PROGRAM.md
-```
-
-### DOM sink scan (expect empty)
-
-```bash
-rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views
-```
-
-### Replacement-character scan (expect no output)
-
-PowerShell:
 ```powershell
 $active = git ls-files README.md AGENTS.md gemini.md docs | Where-Object { $_ -notmatch '^docs/_archive/' }
+$active.Count
+rg -n "docs/SaaS/verification|docs/verification|docs/SaaS/logs|docs/DECISION_LOG|docs/IMPLEMENTATION_LOG" $active
 $active | ForEach-Object {
   $text = [System.IO.File]::ReadAllText((Resolve-Path $_), [System.Text.Encoding]::UTF8)
   if ($text.Contains([char]0xFFFD)) { $_ }
 }
 ```
 
-### Guardrails
-
-```bash
-bash scripts/ci/saas_guardrails.sh
-```
+Expected: no stale-path or replacement-character output. Active count is informational; `START_HERE.md` is the authoritative map.

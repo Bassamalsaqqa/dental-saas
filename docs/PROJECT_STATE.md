@@ -1,97 +1,66 @@
 # Project State
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
-## Current Status
+## Status
 
-- **Current Phase:** App API + React/Lovable migration foundation alongside WhatsApp Phase 6 pilot rollout and operations hardening
-- **Stability:** Pre-Alpha (Do Not Deploy to production)
-- **Active Tracks:** App API contract, imported React/Lovable shell stabilization, finance treasury/custody, provider payouts, supplier payables, inventory COGS, WhatsApp workflows
+- Stage: pre-alpha; production release readiness is not approved.
+- Backend: CodeIgniter 4 + MySQL tenant/control-plane application remains live.
+- React: separate Lovable repository remains mock-first; `/app-api/v1/*` wiring is not started beyond foundation and Patients contracts.
+- Active product track: cross-module clinic workflow optimization.
 
-## Major Modules
+## Implemented Workflow Milestones
 
-- **Patient Management:** profiles, appointments, examinations, odontograms, patient-centered command workspace quick actions
-- **Clinical:** treatments, prescriptions, treatment contracts, signatures
-- **Finance:** invoices, payments, expenses, provider payouts, supplier payables, treasury custody, reports
-- **Inventory:** stock management, supplier directory, COGS auto-posting, movements ledger
-- **WhatsApp:** template-first notification dispatch, webhook ingestion, Phase 6 rollout
-- **SaaS Control Plane:** clinics, plans, plan requests, operations console, impersonation
-- **RBAC:** permission-based authorization, IonAuth authentication only, no group-based checks
-- **App API:** first-party `/app-api/v1/*` session API foundation plus Patients read/write slices
+- Visit stages are server-owned from scheduled through checkout/completed.
+- Dashboard groups today’s appointments into operational queues.
+- Clinical procedures have a first-class audited lifecycle for newly created Treatments; ambiguous legacy rows are not backfilled.
+- Appointment-context Examinations and new Treatments preserve explicit appointment linkage.
+- Appointment checkout reviews clinical work, captured charges, invoice/payment state, and mixed currencies using canonical services.
+- Checkout completion permits clean visits and requires an audited reason for unresolved clinical, billing, balance, or legacy-link concerns.
+- Patient/entity contextual drawers reuse canonical forms and endpoints; modules still own validation and writes.
+- Clinical-to-finance traceability uses charge lines and Money Trail views without frontend finance calculations.
 
-## App API / React Migration State
+## Deferred Manual QA
 
-- `/api/v1/*` remains public/stateless and requires Bearer auth plus `X-Clinic-Id`.
-- `/app-api/v1/*` is the first-party React App API using CI4/IonAuth session auth, CSRF, JSON-only responses, and server-controlled `active_clinic_id`.
-- `/controlplane-app-api/v1/*` is reserved for future React control-plane APIs.
-- Implemented foundation routes: CSRF, login, logout, bootstrap, clinic switch.
-- Implemented Patients Slice 1/2 routes: list, detail, create, update.
-- Not implemented yet: patient delete, patient workspace, patient summary, timeline, attachments, finance/clinical/odontogram/WhatsApp patient sections.
-- Lovable Session 1 React shell is imported under `frontend/` and builds to `public/app/` with Vite base `/app/`.
-- Ongoing Lovable UI/UX work continues in the separate `Bassamalsaqqa/dentacare-shell` repo; `frontend/` is a reviewed snapshot only.
-- The imported shell still uses mock data; real App API wiring and Patients UI integration are later work.
-- Current next frontend track: stabilize `/app` static serving and then wire real App API calls in small module slices.
-- Lovable must not create Supabase, auth systems, backend business logic, finance calculations, tenant isolation, or production API truth.
+- Full clinic-day workflow on local and `denta.palsync.net` in English and Arabic.
+- View-only versus edit permissions across appointment checkout.
+- Treatment full-page/modal creation with lifecycle intent, optional inventory, and optional charge capture.
+- Appointment -> Examination -> Treatment -> charge -> checkout explicit-link workflow.
+- Clean, blocked, and acknowledged checkout completion, including AJAX 422 and activity evidence.
+- Full clinical-finance chain: treatment -> invoice -> payment -> patient/treatment/finance trace -> provider payout.
 
-## App-Wide UX Pattern
+## Current Next Slice
 
-- Entity-centered command workspaces are now an app feature pattern, not a one-off patient tweak.
-- Finance and clinical-money UX simplification follows `docs/refactor/FINANCE_WORKFLOW_SIMPLIFICATION_PLAN.md`: daily clinic actions stay simple, while allocations, treasury, payables, payouts, and reporting remain available in specialist finance layers.
-- Patient encounter and odontogram behavior follows `docs/refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md`: baseline charting, visit overrides, treatment, checkout, and deferred clinical capabilities remain explicitly separated.
-- Cross-module optimization follows `docs/refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`: close the Visit, Care Plan, Checkout, Recall, Supply, Communication, and Governance loops before adding broad new modules.
-- Visit workflow Phase 1A is implemented: appointment stages now follow a server-owned transition contract from scheduled through checkout/completion, with tenant-scoped writes, activity logging, no-show dispatch, localized UI, and compatibility wrappers for existing appointment actions.
-- Visit workflow Phase 1B is implemented on the tenant dashboard: today’s appointments are grouped into Expected, Waiting, Chairside, Checkout, and Needs attention, with permission-aware primary handoffs, late-arrival signals, completed counts, and future-only upcoming appointments.
-- Phase 1 production clinic-day QA on `denta.palsync.net` is intentionally deferred for later manual testing; it remains a release-readiness check rather than an architecture blocker.
-- Procedure lifecycle Phase 2A is implemented as a backend foundation: tenant-scoped procedure state, append-only status history, validated patient/clinical relationships, explicit forward transitions, actor/timestamp attribution, and no automatic legacy backfill or downstream side effects.
-- Procedure lifecycle Phase 2B is implemented for new Treatments: explicit plan/start intent, one-to-one procedure mapping, atomic inventory/charge/procedure creation, safe edit synchronization, completion mirroring, read-only Treatment status, and legacy compatibility without ambiguous backfill.
-- Deferred Phase 2B manual QA: test full-page and quick-create Treatment flows in English/Arabic with planned/start-now intent, optional charge/inventory capture, completion, and linked-treatment delete protection.
-- Checkout Phase 3A is implemented on Appointment detail as a read-only, tenant-scoped review of clinical work, captured charges, and payment state. It reuses canonical clinical/finance actions, blocks mixed-currency combined invoicing, and labels legacy patient/date matching as contextual.
-- Deferred Phase 3A manual QA: test Appointment checkout in English/Arabic and under view-only/edit permissions across no-work, open-charge, mixed-currency, invoiced, balance-due, and settled scenarios.
-- Checkout Phase 3B is implemented: appointment-context Examinations persist an explicit visit link, and new Treatments propagate the validated appointment to procedure and optional charge records. Legacy rows remain unbackfilled.
-- Phase 3B deployment requires `php spark migrate`. Manual English/Arabic workflow QA remains deferred.
-- Checkout Phase 3C is implemented at the canonical appointment transition boundary: clean visits complete normally, while unresolved clinical work, open/mixed-currency charges, balances, and contextual legacy links require an acknowledged reason that is retained in appointment activity.
-- Phase 3C does not auto-complete clinical work, create invoices, force payment, infer legacy links, or add a new permission/route. Authenticated English/Arabic, permission, normal POST, and AJAX manual QA remains deferred.
-- Next workflow slice: Phase 4 signed clinical-note contract planning; do not implement signing or locking before its legal-record and addendum rules are explicit.
-- The current PHP Patient Profile is the reference first slice: contextual drawers can start related work while canonical modules still own validation, writes, redirects, permissions, tenant checks, audit logging, and finance math.
-- When applying the pattern to another entity page, reuse the rules in `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md`.
-- Do not copy patient actions blindly to provider, user, supplier, finance, inventory, or appointment pages; each entity gets actions that match its domain.
-- Deferred manual QA reminder: when testing time is available, run the full clinical-finance chain end to end: treatment -> invoice -> patient payment -> patient profile trace -> treatment trace -> finance trace -> provider payout payment -> provider/user payout ledger.
+Phase 4 signed clinical-note contract planning: define provider attribution, signatures, immutable locks, corrections, addenda, and missing-note queues before runtime implementation.
 
-## Local Environment
+## App API / React State
 
-- **Path:** `C:\xampp\htdocs\dental-saas`
-- **DB:** `democa_dental_saas` on XAMPP MySQL (127.0.0.1:3306, root, no password)
-- **Docker:** `mysql8-dental` container available for dump export (port 3307)
-- **Session cookie:** `ci_session_saas`
+- `/api/v1/*`: public/stateless Bearer + `X-Clinic-Id`; unchanged.
+- `/app-api/v1/*`: same-origin session/CSRF JSON API.
+- Implemented App API: CSRF, login/logout, bootstrap, clinic switch, Patients list/detail/create/update.
+- Not implemented: patient workspace/timeline/attachments and clinical, finance, odontogram, or WhatsApp React slices.
+- Lovable must not own auth, tenant isolation, permissions, finance math, clinical truth, file access, or messaging dispatch.
 
-## Invariants (Do Not Regress)
+## Non-Negotiables
 
-- CSRF + secure headers globally enforced
-- API requests fail-closed with JSON 401/403/422/429; no redirects or HTML errors
-- `/api/v1/*` stays public/stateless; do not use it as the logged-in React app API
-- `/app-api/v1/*` stays JSON-only and same-origin/session based
-- No DOM-string rendering for dynamic content (no innerHTML/outerHTML/insertAdjacentHTML/.html())
-- No browser-accessible installers/repair/debug/test scripts
-- No secrets or database dumps tracked in git
-- Tenant isolation via `clinic_id` on all tenant tables; `TenantAwareModel` fail-closed
+- Fail closed; server controls clinic scope.
+- Tenant/control-plane airlock remains enforced.
+- APIs return JSON errors, never HTML redirects.
+- No public tenant files.
+- No DOM string sinks outside explicit guardrail allowances.
+- No secrets or database dumps tracked in Git.
+- Canonical modules own business rules; views display backend-owned results.
 
-## Session Start Checklist
+## Known Verification Baseline
 
-1. `git status -sb` (expect clean)
-2. `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views` (expect empty)
-3. `bash scripts/ci/saas_guardrails.sh`
-4. `php spark routes | findstr /I "controlplane api/v1 api/search"`
-5. `php spark routes | findstr /I "app-api api/v1 patients"`
+- Full PHPUnit currently has three unrelated baseline errors: two sample migration-sequence errors near `2026-03-25-160000` and `HealthTest` accessing an uninitialized `Config\App::$baseURL`.
+- On this Windows environment, the Bash guardrail may fail to start through WSL with `E_ACCESSDENIED`; run it in CI or a working Bash environment.
 
-## Where to Look Next
+## References
 
-- For SaaS governance: `docs/SaaS/SAAS_PROGRAM.md`
-- For API behavior: `docs/API_CONTRACT.md`
-- For App API behavior: `docs/APP_API_CONTRACT.md`
-- For App API route status: `docs/refactor/APP_API_ROUTE_INVENTORY.md`
-- For React/Lovable scope: `docs/refactor/LOVABLE_STRATEGY_CODEX.md`
-- For finance details: `docs/FINANCE_CURRENT_STATE.md`
-- For WhatsApp status: `docs/WHATSAPP_CURRENT_STATE.md`
-- For operations: `docs/OPERATIONS_RUNBOOK.md`
-- For decisions: `docs/DECISIONS.md`
-- For recent changes: `docs/CHANGELOG.md`
+- Documentation map: `START_HERE.md`
+- Product workflow: `refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`
+- Clinical: `CLINICAL_CURRENT_STATE.md`
+- Finance: `FINANCE_CURRENT_STATE.md`
+- WhatsApp: `WHATSAPP_CURRENT_STATE.md`
+- Recent changes: `CHANGELOG.md`

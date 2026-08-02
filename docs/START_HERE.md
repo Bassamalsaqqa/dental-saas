@@ -1,61 +1,48 @@
-# DentaCare SaaS — Documentation Start
+# Documentation Start
 
-This is the active documentation surface for the project. Everything else is archived historical evidence.
+This is the authoritative map. Read only the documents relevant to the task; archived material is evidence, not current direction.
 
-## Active Docs Map
+## Start Here
 
-| File | Purpose |
-|------|---------|
-| `README.md` | Project overview, tech stack, quick-setup |
-| `AGENTS.md` | Operating guide for AI assistants (Codex) |
-| `gemini.md` | Operating guide for AI assistants (Gemini) |
-| `docs/START_HERE.md` | This file — navigation and doc policy |
-| `docs/PROJECT_STATE.md` | Current-state dashboard: active phase, modules, known workflows |
-| `docs/DECISIONS.md` | Append-only architectural and business decisions |
-| `docs/CHANGELOG.md` | Recent implementation history for work continuation |
-| `docs/API_CONTRACT.md` | Canonical `/api/v1/*` contract |
-| `docs/APP_API_CONTRACT.md` | Proposed first-party `/app-api/v1/*` React app API contract |
-| `docs/refactor/APP_API_ROUTE_INVENTORY.md` | Proposed app API route inventory and migration sequencing |
-| `docs/refactor/APPOINTMENT_CALENDAR_WORKSPACE_PLAN.md` | Current PHP appointment calendar workspace improvement plan |
-| `docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` | Clinical-to-finance charge capture, ledger, provider payout, and traceability plan |
-| `docs/refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md` | Patient encounter, odontogram context, treatment, checkout, and deferred clinical capability contract |
-| `docs/refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md` | Cross-module roadmap for visit, care-plan, checkout, recall, supply, communication, and governance loops |
-| `docs/refactor/LOVABLE_STRATEGY_CODEX.md` | Codex frontend rebuild strategy for Lovable/React |
-| `docs/refactor/LOVABLE_STRATEGY_GEMINI.md` | Gemini frontend rebuild strategy for Lovable/React |
-| `docs/refactor/LARAVEL_MIGRATION_STUDY_CODEX.md` | Codex Laravel backend migration assessment |
-| `docs/refactor/LARAVEL_MIGRATION_STUDY_GEMINI.md` | Gemini Laravel backend migration assessment |
-| `docs/refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` | App-wide entity workspace + contextual quick-create drawer pattern |
-| `docs/SaaS/SAAS_PROGRAM.md` | SaaS governance source of truth |
-| `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` | Tenant context mechanics |
-| `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` | Control plane entitlements contract |
-| `docs/FINANCE_CURRENT_STATE.md` | Finance feature current state |
-| `docs/WHATSAPP_CURRENT_STATE.md` | WhatsApp feature current state |
-| `docs/CLINICAL_CURRENT_STATE.md` | Clinical workflows current state |
-| `docs/OPERATIONS_RUNBOOK.md` | Operational commands, guardrails, deployment |
-| `docs/DEPLOYMENT_LOCAL_SETUP.md` | Local development and deployment setup |
+| Need | Source |
+|---|---|
+| Current implementation and next work | `PROJECT_STATE.md` |
+| Recent implementation history | `CHANGELOG.md` |
+| Durable architecture/product decisions | `DECISIONS.md` |
+| Local/deployment operations | `OPERATIONS_RUNBOOK.md`, `DEPLOYMENT_LOCAL_SETUP.md` |
+| SaaS governance and tenant isolation | `SaaS/SAAS_PROGRAM.md`, `SaaS/TENANT_CONTEXT_CONTRACT.md` |
+| Public API | `API_CONTRACT.md` |
+| First-party React App API | `APP_API_CONTRACT.md`, `refactor/APP_API_ROUTE_INVENTORY.md` |
 
-### Config (not "docs count")
+## Module State
 
-- `docs/SaaS/guardrails/dom-sinks.allowlist`
-- `docs/SaaS/guardrails/group-auth.allowlist`
-- `docs/SaaS/guardrails/raw-tenant-queries.allowlist`
+| Domain | Source |
+|---|---|
+| Clinical and odontogram | `CLINICAL_CURRENT_STATE.md`, `refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md` |
+| Clinical/finance traceability | `FINANCE_CURRENT_STATE.md`, `refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md` |
+| Cross-module workflow roadmap | `refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md` |
+| WhatsApp | `WHATSAPP_CURRENT_STATE.md` |
+| Entity workspaces/drawers | `refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` |
+| React/Lovable strategy | `refactor/LOVABLE_STRATEGY_CODEX.md` |
+| Control-plane entitlements | `SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` |
 
-## Archive Policy
+## Assistant Guides
 
-`docs/_archive/` contains historical evidence only: old audits, verification artifacts, dated plans, generated HTML, and copied code bundles. Archived docs are NOT source of truth. If you need historical context, browse the archive — but always confirm against the active docs above before making decisions.
+- `../AGENTS.md`: Codex operating rules.
+- `../gemini.md`: Gemini operating rules.
 
-## Documentation Maintenance Rules
+## Documentation Rules
 
-1. **Active docs map is authoritative.** New docs must be added to the map above or they do not count as active.
-2. **Detailed verification evidence goes under `docs/_archive/`.** Do not create new `docs/verification/` or `docs/SaaS/verification/` directories.
-3. **Current implementation summaries go in `docs/CHANGELOG.md`.** Write a brief entry after each meaningful change.
-4. **Durable architectural/product decisions go in `docs/DECISIONS.md`.** Append-only; add a dated entry.
-5. **Do not create new dated root-level plan/audit files** (e.g., `docs/WHATSAPP_PLAN_V6_2026-05-15.md`) unless they are immediately archived after summarizing into the active docs.
-6. **Guardrail allowlists** (`docs/SaaS/guardrails/*`) must stay in place — the CI guardrail script hard-codes those paths.
-7. **`docs/START_HERE.md` and `docs/OPERATIONS_RUNBOOK.md`** may mention old path patterns (`docs/SaaS/verification`, `docs/SaaS/logs`, etc.) only as policy rules, anti-pattern examples, or QA test strings. These are not stale references.
+1. Contracts keep necessary detail; summaries link to them instead of repeating them.
+2. `PROJECT_STATE.md` states current truth. Do not turn it into a chronological log.
+3. `CHANGELOG.md` retains recent continuation context only. Move older entries to a dated archive.
+4. `DECISIONS.md` is append-only for durable decisions.
+5. Completed studies, audits, prompts, and verification evidence belong under `_archive/`.
+6. New active documents must be added to this map.
+7. Guardrail allowlists under `SaaS/guardrails/` are configuration and must remain in place.
 
-## Archive Roots
+## Archive
 
-Current: `docs/_archive/2026-05-02-docs-consolidation/`
-
-Legacy archive: `docs/_archive/security-hardening-preSaaS/`
+- `_archive/2026-08-02-docs-slimdown/`: completed plans and history removed from the active reading path.
+- `_archive/2026-05-02-docs-consolidation/`: earlier project evidence.
+- `_archive/security-hardening-preSaaS/`: pre-SaaS security history.
