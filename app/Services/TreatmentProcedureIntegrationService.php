@@ -172,6 +172,71 @@ final class TreatmentProcedureIntegrationService
         return $this->lifecycle->transition($clinicId, (int) $procedure['id'], 'completed', $actorId);
     }
 
+    public function acceptForTreatment(int $clinicId, int $treatmentId, int $actorId): array
+    {
+        $procedure = $this->getForTreatment($clinicId, $treatmentId);
+        if (!$procedure) {
+            throw new DomainException('Treatment procedure was not found in the active clinic.');
+        }
+
+        $status = (string) ($procedure['status'] ?? '');
+        if ($status === 'accepted') {
+            return $procedure;
+        }
+        if (!in_array($status, ['proposed', 'presented'], true)) {
+            throw new DomainException('Only proposed or presented treatment work can be accepted.');
+        }
+
+        return $this->lifecycle->transition($clinicId, (int) $procedure['id'], 'accepted', $actorId);
+    }
+
+    public function scheduleAcceptedProcedure(
+        int $clinicId,
+        int $procedureId,
+        int $appointmentId,
+        int $patientId,
+        int $actorId
+    ): array {
+        $procedure = $this->db->table('clinical_procedures')
+            ->where('clinic_id', $clinicId)
+            ->where('id', $procedureId)
+            ->where('patient_id', $patientId)
+            ->get()
+            ->getRowArray();
+        if (!$procedure || (string) ($procedure['status'] ?? '') !== 'accepted') {
+            throw new DomainException('Accepted treatment work was not found for this patient.');
+        }
+        if (!empty($procedure['scheduled_appointment_id'])) {
+            throw new DomainException('This treatment work already has a scheduled appointment.');
+        }
+
+        $appointment = $this->db->table('appointments')
+            ->where('clinic_id', $clinicId)
+            ->where('id', $appointmentId)
+            ->where('patient_id', $patientId)
+            ->get()
+            ->getRowArray();
+        if (!$appointment) {
+            throw new DomainException('Scheduled appointment was not found for this patient.');
+        }
+
+        $this->db->table('clinical_procedures')
+            ->where('clinic_id', $clinicId)
+            ->where('id', $procedureId)
+            ->where('status', 'accepted')
+            ->where('scheduled_appointment_id', null)
+            ->update([
+                'scheduled_appointment_id' => $appointmentId,
+                'updated_by' => $actorId,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        if ($this->db->affectedRows() !== 1) {
+            throw new RuntimeException('Treatment scheduling context changed; reload and try again.');
+        }
+
+        return $this->lifecycle->transition($clinicId, $procedureId, 'scheduled', $actorId);
+    }
+
     private function assertTreatmentContext(int $clinicId, array $treatment, int $actorId): void
     {
         if ($clinicId <= 0

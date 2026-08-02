@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Services\TreatmentProcedureIntegrationService;
+
 use App\Models\AppointmentModel;
 use App\Models\ClinicUserModel;
 use App\Models\InventoryModel;
@@ -23,10 +25,12 @@ class Appointment extends BaseController
     protected AppointmentVisitStageService $visitStageService;
     protected AppointmentCheckoutService $checkoutService;
     protected AppointmentCheckoutCompletionService $checkoutCompletionService;
+    protected $db;
 
     public function __construct() 
     {
         $this->appointmentModel = new AppointmentModel();
+        $this->db = \Config\Database::connect();
         $this->patientModel = new PatientModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
@@ -209,6 +213,8 @@ class Appointment extends BaseController
 
         $examinationId = $this->request->getGet('examination_id');
         $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        $clinicalProcedureId = $this->request->getGet('clinical_procedure_id');
+        $clinicalProcedureId = is_numeric($clinicalProcedureId) ? (int) $clinicalProcedureId : null;
 
         $appointmentType = $this->request->getGet('appointment_type');
         $allowedTypes = ['consultation', 'treatment', 'follow_up', 'emergency', 'cleaning', 'checkup'];
@@ -218,7 +224,7 @@ class Appointment extends BaseController
 
         $requestedDate = $this->normalizeDateOnly((string) $this->request->getGet('date'));
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments']);
         if (!$returnTo) {
             if ($examinationId) {
                 $returnTo = 'examination/' . $examinationId;
@@ -234,6 +240,7 @@ class Appointment extends BaseController
             'loadSelect2' => true,
             'selected_patient' => $selectedPatient,
             'examination_id' => $examinationId,
+            'clinical_procedure_id' => $clinicalProcedureId,
             'appointment_type_prefill' => $appointmentType,
             'chair_options' => $this->getChairOptions(),
             'requested_date' => $requestedDate,
@@ -261,13 +268,14 @@ class Appointment extends BaseController
             'duration' => 'required|integer|greater_than[0]',
             'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
             'chair_name' => 'required|max_length[100]',
+            'clinical_procedure_id' => 'permit_empty|integer',
         ];
 
         if (!$this->validate($rules)) {
             if ($this->request->getPost('source_modal') === 'appointment_quick_create') {
                 $modalReturnTo = $this->sanitizeInternalReturnTo(
                     $this->request->getPost('return_to'),
-                    ['patient', 'patients', 'examination', 'appointment', 'appointments']
+                    ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments']
                 ) ?: 'appointment';
                 return redirect()->to(base_url($modalReturnTo))
                     ->withInput()
@@ -325,8 +333,25 @@ class Appointment extends BaseController
             return redirect()->back()->withInput()->with('error', 'The selected doctor is not available for this time slot');
         }
 
+        $clinicalProcedureId = (int) ($this->request->getPost('clinical_procedure_id') ?? 0);
+        $this->db->transBegin();
         if ($this->appointmentModel->insert($appointmentData)) {
             $appointmentId = $this->appointmentModel->getInsertID();
+            try {
+                if ($clinicalProcedureId > 0) {
+                    (new TreatmentProcedureIntegrationService($this->db))->scheduleAcceptedProcedure(
+                        (int) $clinicId,
+                        $clinicalProcedureId,
+                        (int) $appointmentId,
+                        (int) $appointmentData['patient_id'],
+                        (int) $currentUserId
+                    );
+                }
+                $this->db->transCommit();
+            } catch (\Throwable $e) {
+                $this->db->transRollback();
+                return redirect()->back()->withInput()->with('error', $e->getMessage());
+            }
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the appointment creation activity
@@ -347,7 +372,7 @@ class Appointment extends BaseController
             
             $returnTo = $this->resolveCreateReturnTo((int) $appointmentData['patient_id'], $this->request->getPost('examination_id'), $this->request->getPost('return_to'));
             if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments'])
                     ->with('success', 'Appointment created successfully');
             }
 
@@ -360,18 +385,23 @@ class Appointment extends BaseController
             return $this->redirectAfterWorkflow('appointment', ['patient', 'patients', 'examination', 'appointment', 'appointments'])
                 ->with('success', 'Appointment created successfully');
         } else {
+            $this->db->transRollback();
             return redirect()->back()->withInput()->with('error', 'Failed to create appointment');
         }
     }
 
     private function resolveCreateReturnTo(int $patientId, $examinationIdRaw, $returnToRaw): ?string
     {
-        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'appointment', 'appointments']);
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments']);
         if (!$returnTo) {
             return null;
         }
 
-        if (preg_match('#^(patients|appointment|appointments)(\\?|$)#', $returnTo)) {
+        if (preg_match('#^(patients|appointment|appointments|treatment|treatments)(\\?|$)#', $returnTo)) {
+            return $returnTo;
+        }
+
+        if (preg_match('#^treatments?/(\\d+)$#', $returnTo)) {
             return $returnTo;
         }
 

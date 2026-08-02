@@ -1080,6 +1080,31 @@ $statusTone = match ($statusRaw) {
                             <?= esc($procedureStatusLabel) ?>
                         </span>
                     </div>
+                    <?php if (in_array($procedureStatus, ['proposed', 'presented'], true) && has_permission('treatments', 'edit')): ?>
+                        <form action="<?= base_url('treatment/' . (int) $treatment['id'] . '/accept') ?>" method="POST" class="mt-4">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="return_to" value="treatment/<?= (int) $treatment['id'] ?>">
+                            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5">
+                                <i class="fas fa-circle-check"></i>
+                                <span><?= esc($tr('accept_for_scheduling')) ?></span>
+                            </button>
+                        </form>
+                    <?php elseif ($procedureStatus === 'accepted' && has_permission('appointments', 'create')): ?>
+                        <a href="<?= base_url('appointment/create?' . http_build_query([
+                            'patient_id' => (int) $treatment['patient_id'],
+                            'clinical_procedure_id' => (int) $procedureLifecycle['id'],
+                            'appointment_type' => 'treatment',
+                            'return_to' => 'treatment/' . (int) $treatment['id'],
+                        ])) ?>"
+                           data-appointment-create-modal-open
+                           data-patient-id="<?= (int) $treatment['patient_id'] ?>"
+                           data-clinical-procedure-id="<?= (int) $procedureLifecycle['id'] ?>"
+                           data-appointment-type="treatment"
+                           class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span><?= esc($tr('schedule_accepted_treatment')) ?></span>
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endif; ?>

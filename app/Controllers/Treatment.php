@@ -15,6 +15,7 @@ use App\Services\InventoryUsageService;
 use App\Services\MoneyTrailService;
 use App\Services\StorageService;
 use App\Services\TreatmentProcedureIntegrationService;
+use App\Services\AcceptedTreatmentQueueService;
 use RuntimeException;
 use Throwable;
 use DomainException;
@@ -108,6 +109,7 @@ class Treatment extends BaseController
                 'inventory_items' => $inventoryItems,
                 'clinic_providers' => $this->getClinicProviders((int) $clinicId),
                 'validation' => session()->getFlashdata('validation'),
+                'accepted_treatment_queue' => (new AcceptedTreatmentQueueService($this->db))->summary((int) $clinicId, 8),
             ];
 
             return $this->view('treatment/index', $data);
@@ -550,6 +552,26 @@ class Treatment extends BaseController
         ];
 
         return $this->view('treatment/show', $data);
+    }
+
+    public function accept($id)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        $currentUser = $this->getCurrentUser();
+        $actorId = $currentUser ? (int) $currentUser->id : (int) (session()->get('user_id') ?? 0);
+        $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find((int) $id);
+        if (!$treatment) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Treatment not found');
+        }
+
+        try {
+            $this->treatmentProcedureService->acceptForTreatment($clinicId, (int) $id, $actorId);
+            $this->activityLogger->logTreatmentActivity('accept', (int) $id, 'Treatment work accepted for scheduling');
+            return $this->redirectAfterWorkflow('treatment/' . (int) $id, ['patient', 'patients', 'examination', 'treatment', 'treatments'])
+                ->with('success', lang('Treatment.accepted_for_scheduling'));
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     private function resolveCreateReturnTo(int $patientId, ?int $examinationId, $returnToRaw): ?string

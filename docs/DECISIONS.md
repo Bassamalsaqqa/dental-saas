@@ -1,5 +1,11 @@
 # Architectural Decision Log
 
+## 2026-08-02 - Original Encounter and Scheduled Treatment Visit Are Separate Facts
+
+- **Decision:** `clinical_procedures.appointment_id` retains the original clinical encounter context; `scheduled_appointment_id` records the future visit booked for accepted treatment work.
+- **Rationale:** Overwriting the source encounter would break clinical traceability. A proposed/presented procedure becomes accepted only through an explicit user action and becomes scheduled only when the canonical Appointment create succeeds.
+- **Impact:** Recovery queues classify only `accepted` procedures without `scheduled_appointment_id`. Scheduling remains tenant-scoped, permission-gated, CSRF-protected, and atomic; no provider, chair, time, billing, or clinical state is inferred.
+
 ## 2026-08-02 - Active Documentation Is Contract-First and History Is Archived
 
 - **Decision:** Active documentation contains only binding contracts, current state, current roadmaps, recent continuation history, and operations. Completed studies, prompt libraries, detailed verification evidence, and old logs are removed from the working tree after their current conclusions are captured.

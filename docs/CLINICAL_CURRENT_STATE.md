@@ -24,6 +24,8 @@ The odontogram is a clinical index. Tooth color/status must not infer diagnosis,
 7. Clean checkout completes normally; unresolved items require an acknowledged reason retained in appointment activity.
 8. A completed Examination can be signed once. Its clinical narrative is snapshotted and locked; later corrections are attributed append-only addenda and appear in printed records.
 9. Dashboard and Examination registry identify completed unsigned notes and older unfinished drafts for follow-up without bulk signing.
+10. Proposed/presented Treatment work can be explicitly accepted; accepted work without a scheduled visit appears in Dashboard and Treatments recovery queues.
+11. Scheduling from that queue reuses the canonical Appointment workflow, preserves the original encounter link, records the future scheduled appointment separately, and advances the procedure to `scheduled` only after the appointment succeeds.
 
 New appointment-context Examinations, procedures, and charge lines preserve explicit appointment identity. Ambiguous historical records are not backfilled.
 
@@ -38,7 +40,7 @@ New appointment-context Examinations, procedures, and charge lines preserve expl
 ## Remaining Clinical Work
 
 1. Reasoned procedure correction/reopen/cancellation UI.
-2. Recall and accepted-unscheduled treatment queues.
+2. Recall and no-show/cancellation recovery queues.
 3. Perio charting, mixed dentition, referral tracking, and controlled baseline promotion.
 4. Imaging linked to teeth/procedures and richer longitudinal clinical reporting.
 5. Broader clinical-document signature coverage beyond Examinations.

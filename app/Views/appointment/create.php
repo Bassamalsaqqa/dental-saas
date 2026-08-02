@@ -57,6 +57,9 @@
                         <?php if (!empty($examination_id)): ?>
                             <input type="hidden" name="examination_id" value="<?= (int)$examination_id ?>">
                         <?php endif; ?>
+                        <?php if (!empty($clinical_procedure_id)): ?>
+                            <input type="hidden" name="clinical_procedure_id" value="<?= (int) $clinical_procedure_id ?>">
+                        <?php endif; ?>
                         <!-- Patient Selection -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="group/field relative">

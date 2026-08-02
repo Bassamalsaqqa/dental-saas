@@ -136,6 +136,34 @@ final class TreatmentProcedureIntegrationServiceTest extends CIUnitTestCase
         $this->assertSame($appointmentId, (int) $storedCharge['appointment_id']);
     }
 
+    public function testAcceptedTreatmentLinksDedicatedScheduledAppointment(): void
+    {
+        [$clinicId, $patientId, $treatment] = $this->createTreatmentFixture();
+        $service = new TreatmentProcedureIntegrationService($this->db);
+        $procedure = $service->createForTreatment($clinicId, $treatment, 'planned', 906);
+        $this->procedureIds[] = (int) $procedure['id'];
+
+        $accepted = $service->acceptForTreatment($clinicId, (int) $treatment['id'], 906);
+        $this->assertSame('accepted', $accepted['status']);
+
+        $appointmentId = $this->createAppointment($clinicId, $patientId);
+        $scheduled = $service->scheduleAcceptedProcedure(
+            $clinicId,
+            (int) $procedure['id'],
+            $appointmentId,
+            $patientId,
+            906
+        );
+
+        $this->assertSame('scheduled', $scheduled['status']);
+        $this->assertSame($appointmentId, (int) $scheduled['scheduled_appointment_id']);
+        $this->assertNull($scheduled['appointment_id']);
+        $this->assertSame(
+            ['proposed', 'accepted', 'scheduled'],
+            array_column($this->history((int) $procedure['id']), 'to_status')
+        );
+    }
+
     private function createTreatmentFixture(?int $clinicId = null): array
     {
         if ($clinicId === null) {

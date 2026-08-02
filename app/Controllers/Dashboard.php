@@ -9,6 +9,7 @@ use App\Models\FinanceModel;
 use App\Models\TreatmentModel;
 use App\Services\TodayRoutingService;
 use App\Services\ClinicalDocumentationQueueService;
+use App\Services\AcceptedTreatmentQueueService;
 
 class Dashboard extends BaseController
 {
@@ -55,6 +56,9 @@ class Dashboard extends BaseController
                 'clinical_documentation_queue' => has_permission('examinations', 'view')
                     ? (new ClinicalDocumentationQueueService())->summary((int) $clinicId, 4)
                     : ['ready_to_sign_count' => 0, 'overdue_draft_count' => 0, 'ready_to_sign' => [], 'overdue_drafts' => []],
+                'accepted_treatment_queue' => has_permission('treatments', 'view')
+                    ? (new AcceptedTreatmentQueueService())->summary((int) $clinicId, 4)
+                    : ['count' => 0, 'items' => []],
             ];
 
             return $this->view('dashboard/index', $data);
@@ -72,6 +76,7 @@ class Dashboard extends BaseController
                 'recent_examinations' => [],
                 'monthly_revenue' => [],
                 'clinical_documentation_queue' => ['ready_to_sign_count' => 0, 'overdue_draft_count' => 0, 'ready_to_sign' => [], 'overdue_drafts' => []],
+                'accepted_treatment_queue' => ['count' => 0, 'items' => []],
             ];
 
             return $this->view('dashboard/index', $data);

@@ -306,6 +306,44 @@
             </article>
         </section>
 
+        <?php $acceptedQueue = is_array($accepted_treatment_queue ?? null) ? $accepted_treatment_queue : ['count' => 0, 'items' => []]; ?>
+        <?php if ((int) ($acceptedQueue['count'] ?? 0) > 0): ?>
+            <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 p-1 shadow-xl shadow-indigo-700/15">
+                <div class="rounded-[1.35rem] bg-white p-4 sm:p-5">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="flex items-start gap-3">
+                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700"><i class="fas fa-calendar-plus"></i></span>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h2 class="text-lg font-black text-slate-950"><?= esc(lang('Treatment.unscheduled_queue')) ?></h2>
+                                    <span class="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-black text-indigo-800"><?= (int) ($acceptedQueue['count'] ?? 0) ?></span>
+                                </div>
+                                <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc(lang('Treatment.unscheduled_queue_help')) ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <?php foreach (($acceptedQueue['items'] ?? []) as $item): ?>
+                            <?php $patientName = trim((string) ($item['first_name'] ?? '') . ' ' . (string) ($item['last_name'] ?? '')); ?>
+                            <article class="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+                                <a href="<?= esc(workflow_context_url('treatment/' . (int) $item['treatment_id'], 'treatment')) ?>" class="min-w-0">
+                                    <p class="truncate text-sm font-black text-slate-950"><?= esc($item['procedure_name'] ?? '') ?></p>
+                                    <p class="mt-1 truncate text-xs font-bold text-slate-500"><?= esc($patientName) ?></p>
+                                </a>
+                                <?php if (has_permission('appointments', 'create')): ?>
+                                    <a href="<?= base_url('appointment/create?' . http_build_query(['patient_id' => (int) $item['patient_id'], 'clinical_procedure_id' => (int) $item['procedure_id'], 'appointment_type' => 'treatment', 'return_to' => 'treatment'])) ?>"
+                                       data-appointment-create-modal-open data-patient-id="<?= (int) $item['patient_id'] ?>" data-clinical-procedure-id="<?= (int) $item['procedure_id'] ?>" data-appointment-type="treatment"
+                                       class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-700" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
         <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
             <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-pink-50/80 px-4 py-4 sm:px-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

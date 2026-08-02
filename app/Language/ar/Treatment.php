@@ -189,6 +189,13 @@ return [
     'procedure_status_completed' => 'مكتمل',
     'procedure_status_referred' => 'محول',
     'procedure_status_cancelled' => 'ملغى',
+    'accept_for_scheduling' => 'اعتماد العلاج',
+    'accepted_for_scheduling' => 'تم اعتماد العلاج وأصبح جاهزاً للجدولة.',
+    'schedule_accepted_treatment' => 'جدولة العلاج',
+    'unscheduled_queue' => 'علاجات معتمدة بانتظار الجدولة',
+    'unscheduled_queue_help' => 'علاجات وافق عليها المريض ولم يُحجز لها موعد بعد.',
+    'no_unscheduled_treatments' => 'لا توجد علاجات معتمدة بانتظار الجدولة.',
+    'accepted_on' => 'تاريخ الاعتماد',
     'status_values' => [
         'active' => 'نشط',
         'completed' => 'مكتمل',

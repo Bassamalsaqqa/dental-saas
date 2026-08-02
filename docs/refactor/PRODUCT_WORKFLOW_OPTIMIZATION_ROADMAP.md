@@ -56,7 +56,7 @@ Implementation contract:
 ### Phase 5 - Recall and Unscheduled Work
 
 - Recare rules and due dates.
-- Accepted-unscheduled treatment queue.
+- Accepted-unscheduled treatment queue is implemented: explicit acceptance, tenant-scoped recovery lists, canonical appointment popup handoff, and atomic `accepted -> scheduled` linkage.
 - No-show/cancellation recovery and contact attempts.
 - Scheduling handoff; WhatsApp only through governed dispatch contracts.
 
@@ -102,6 +102,7 @@ Implementation contract:
 
 - Production clinic-day workflow in English/Arabic and view-only/edit roles.
 - Treatment intent with optional inventory/charge capture and completion.
+- Accepted Treatment -> schedule popup -> linked Appointment -> queue removal in English and Arabic.
 - Appointment -> Examination -> Treatment -> invoice/payment -> checkout trace.
 - Clean, blocked, and acknowledged checkout completion, including AJAX and activity evidence.
 

@@ -189,6 +189,13 @@ return [
     'procedure_status_completed' => 'Completed',
     'procedure_status_referred' => 'Referred',
     'procedure_status_cancelled' => 'Cancelled',
+    'accept_for_scheduling' => 'Accept treatment',
+    'accepted_for_scheduling' => 'Treatment accepted and ready to schedule.',
+    'schedule_accepted_treatment' => 'Schedule treatment',
+    'unscheduled_queue' => 'Accepted treatments to schedule',
+    'unscheduled_queue_help' => 'Accepted care that does not yet have an appointment.',
+    'no_unscheduled_treatments' => 'No accepted treatments are waiting for scheduling.',
+    'accepted_on' => 'Accepted',
     'status_values' => [
         'active' => 'Active',
         'completed' => 'Completed',

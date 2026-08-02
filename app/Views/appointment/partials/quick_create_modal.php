@@ -2,6 +2,7 @@
 $modalReturnTo = (string) ($return_to ?? 'appointment');
 $modalSelectedPatient = $selected_patient ?? null;
 $modalSelectedExaminationId = $examination_id ?? null;
+$modalClinicalProcedureId = $clinical_procedure_id ?? null;
 $modalContextual = !empty($contextual);
 $modalShouldOpen = old('source_modal') === 'appointment_quick_create';
 $modalFullPageQuery = ['return_to' => $modalReturnTo];
@@ -10,6 +11,9 @@ if (!empty($modalSelectedPatient['id'])) {
 }
 if (!empty($modalSelectedExaminationId)) {
     $modalFullPageQuery['examination_id'] = (int) $modalSelectedExaminationId;
+}
+if (!empty($modalClinicalProcedureId)) {
+    $modalFullPageQuery['clinical_procedure_id'] = (int) $modalClinicalProcedureId;
 }
 if (!empty($appointment_type_prefill)) {
     $modalFullPageQuery['appointment_type'] = (string) $appointment_type_prefill;
@@ -83,6 +87,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
                 <input type="hidden" name="source_modal" value="appointment_quick_create">
+                <input type="hidden" name="clinical_procedure_id" value="<?= !empty($modalClinicalProcedureId) ? (int) $modalClinicalProcedureId : '' ?>">
                 <?php if (!empty($modalSelectedExaminationId)): ?>
                     <input type="hidden" name="examination_id" value="<?= (int) $modalSelectedExaminationId ?>">
                 <?php endif; ?>
@@ -238,6 +243,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 chair: trigger.dataset.appointmentChair || params.get('chair_name'),
                 type: trigger.dataset.appointmentType || params.get('appointment_type'),
                 patientId: trigger.dataset.patientId || params.get('patient_id'),
+                clinicalProcedureId: trigger.dataset.clinicalProcedureId || params.get('clinical_procedure_id'),
             };
         }
 
@@ -254,6 +260,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             setFieldValue(form, '[name="chair_name"]', defaults.chair);
             setFieldValue(form, '[name="appointment_type"]', defaults.type);
             setFieldValue(form, '[name="patient_id"]', defaults.patientId);
+            setFieldValue(form, '[name="clinical_procedure_id"]', defaults.clinicalProcedureId);
 
             if (defaults.time) {
                 wrap.dataset.prefillAppointmentTime = defaults.time;
@@ -282,6 +289,9 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 }
                 if (defaults.patientId) {
                     fullPageUrl.searchParams.set('patient_id', defaults.patientId);
+                }
+                if (defaults.clinicalProcedureId) {
+                    fullPageUrl.searchParams.set('clinical_procedure_id', defaults.clinicalProcedureId);
                 }
                 fullPageLink.href = fullPageUrl.toString();
             }

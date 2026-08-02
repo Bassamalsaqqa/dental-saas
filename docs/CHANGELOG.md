@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-02 - Accepted treatment scheduling recovery
+
+- Added one tenant-scoped queue for accepted Treatment procedures that do not yet have a scheduled appointment, shown compactly on Dashboard and Treatments.
+- Treatment detail now provides an explicit `Accept treatment` action for proposed/presented work and reuses the canonical appointment popup for scheduling.
+- Successful appointment creation atomically links `scheduled_appointment_id` and advances the procedure from `accepted` to `scheduled`; failed linkage rolls back the appointment.
+- Original `appointment_id` encounter context is preserved and is not overwritten by the future scheduled visit.
+- Patient, provider/chair, date/time, billing, and clinical completion remain explicit; the queue performs no inference or automatic scheduling.
+- Verification passed: PHP syntax, routes, Tailwind build, queue test `1/4`, procedure integration `6/24`, lifecycle `7/29`, App API foundation `19/66`, and Patients `25/111`.
+- Full PHPUnit reached `151` tests / `702` assertions with only the three documented unrelated harness errors. Local WSL guardrails remain unavailable with `E_ACCESSDENIED`; direct DOM-sink and secret scans returned no hits.
+- Deployment requires `php spark migrate`; the canonical local SQL dump was regenerated.
+- Deferred manual QA: accept a planned Treatment, verify both queues, schedule it from the shared popup in English/Arabic, confirm return context, and confirm the queue item disappears.
+
 ## 2026-08-02 - Clinical documentation attention queue
 
 - Added one tenant-scoped clinical documentation read model shared by Dashboard and Examination registry views.

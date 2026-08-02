@@ -24,6 +24,7 @@ $canEditAppointments = has_permission('appointments', 'edit');
 $documentationQueue = is_array($clinical_documentation_queue ?? null) ? $clinical_documentation_queue : [];
 $readyToSignCount = (int) ($documentationQueue['ready_to_sign_count'] ?? 0);
 $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
+$acceptedTreatmentQueue = is_array($accepted_treatment_queue ?? null) ? $accepted_treatment_queue : ['count' => 0, 'items' => []];
 $routingStageLabels = [
     'scheduled' => lang('UI.appointmentStageScheduled'),
     'confirmed' => lang('UI.appointmentStageConfirmed'),
@@ -808,6 +809,43 @@ $formatHumanLabel = static function (?string $value): string {
                         </a>
                     </div>
                 </div>
+                <?php endif; ?>
+
+                <?php if ((int) ($acceptedTreatmentQueue['count'] ?? 0) > 0): ?>
+                    <div class="dashboard-panel overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 px-5 py-4 text-white">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="dashboard-panel-icon bg-white/15 ring-1 ring-white/20"><i class="fas fa-calendar-plus"></i></span>
+                                    <div>
+                                        <h2 class="text-base font-black"><?= esc(lang('Treatment.unscheduled_queue')) ?></h2>
+                                        <p class="mt-1 text-xs font-bold text-indigo-100"><?= esc(lang('Treatment.unscheduled_queue_help')) ?></p>
+                                    </div>
+                                </div>
+                                <span class="rounded-full bg-white/15 px-3 py-1 text-sm font-black ring-1 ring-white/20"><?= (int) ($acceptedTreatmentQueue['count'] ?? 0) ?></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-list">
+                            <?php foreach (($acceptedTreatmentQueue['items'] ?? []) as $item): ?>
+                                <?php $queuePatientName = trim((string) ($item['first_name'] ?? '') . ' ' . (string) ($item['last_name'] ?? '')); ?>
+                                <div class="dashboard-row">
+                                    <span class="dashboard-row-icon bg-gradient-to-br from-indigo-600 to-violet-700"><i class="fas fa-tooth"></i></span>
+                                    <a href="<?= esc(workflow_context_url('treatment/' . (int) $item['treatment_id'], 'dashboard')) ?>" class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-black text-slate-950"><?= esc($item['procedure_name'] ?? '') ?></span>
+                                        <span class="mt-0.5 block truncate text-xs font-bold text-slate-500"><?= esc($queuePatientName) ?></span>
+                                    </a>
+                                    <?php if (has_permission('appointments', 'create')): ?>
+                                        <a href="<?= base_url('appointment/create?' . http_build_query(['patient_id' => (int) $item['patient_id'], 'clinical_procedure_id' => (int) $item['procedure_id'], 'appointment_type' => 'treatment', 'return_to' => 'dashboard'])) ?>"
+                                           data-appointment-create-modal-open data-patient-id="<?= (int) $item['patient_id'] ?>" data-clinical-procedure-id="<?= (int) $item['procedure_id'] ?>" data-appointment-type="treatment"
+                                           class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white transition hover:bg-indigo-700" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">
+                                            <i class="fas fa-calendar-plus"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                            <a href="<?= base_url('treatment') ?>" class="dashboard-view-link m-4 mt-2"><span><?= esc(lang('UI.dashboardViewAll')) ?></span></a>
+                        </div>
+                    </div>
                 <?php endif; ?>
 
                 <div class="dashboard-panel">
