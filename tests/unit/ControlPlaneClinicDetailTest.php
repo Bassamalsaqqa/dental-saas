@@ -476,5 +476,41 @@ final class ControlPlaneClinicDetailTest extends CIUnitTestCase
         $this->assertSame('active', $m['status']);
         $this->assertSame($adminRoleId, (int) $m['role_id']);
     }
+
+    /**
+     * Regression test for production incident:
+     * When control_plane_invoices query fails or throws (e.g. missing table or query failure),
+     * Clinics::show() must not crash with HTTP 500, but render successfully with empty invoices fallback.
+     */
+    public function testShowRecoversGracefullyFromInvoiceQueryFailure(): void
+    {
+        $clinic = $this->createClinic('Clinic Graceful Invoice Fail');
+
+        $sessionData = $this->getControlPlaneSession();
+        $_SESSION = $sessionData;
+        session()->set($sessionData);
+
+        $controller = new \App\Controllers\ControlPlane\Clinics();
+        $request = \Config\Services::request();
+        $response = \Config\Services::response();
+        $logger = \Config\Services::logger();
+        $controller->initController($request, $response, $logger);
+
+        // Inject an invoice model that simulates the exact production failure:
+        // Missing table causes query to return false, throwing "Call to a member function getResult() on bool"
+        $failingInvoiceModel = new class extends \App\Models\ControlPlaneInvoiceModel {
+            public function where($key, $value = null, ?bool $escape = null)
+            {
+                throw new \Error('Call to a member function getResult() on bool');
+            }
+        };
+        $controller->setInvoiceModel($failingInvoiceModel);
+
+        $output = $controller->show((int) $clinic['id']);
+        $this->assertIsString($output);
+        $this->assertStringContainsString($clinic['name'], $output);
+        $this->assertStringContainsString('No invoices found.', $output);
+        $this->assertStringContainsString(lang('UI.clinicAdminTitle'), $output);
+    }
 }
 

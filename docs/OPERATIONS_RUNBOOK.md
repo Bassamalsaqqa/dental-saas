@@ -10,7 +10,7 @@ php spark migrate:rollback
 Canonical UTF-8 dump without `CREATE DATABASE`:
 
 ```powershell
-cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas --ignore-table=democa_dental_saas.control_plane_invoices --ignore-table=democa_dental_saas.control_plane_invoice_payments > democa_dental_saas_schema_superadmin.sql"
+cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas > democa_dental_saas_schema_superadmin.sql"
 ```
 
 The dump must stay untracked. Regenerate after schema/bootstrap-data changes.
@@ -53,14 +53,41 @@ Use `.env` as runtime truth.
 
 ## Hostinger Deployment
 
-1. Pull reviewed commits.
-2. Configure production `.env`.
-3. Run migrations when required.
-4. Deploy reviewed generated assets; run `npm run release:hostinger` locally for Tailwind changes.
-5. Use `RewriteBase /`, not `/dental-saas/`.
-6. Import only a UTF-8 dump without `CREATE DATABASE` when database import is required.
+### Connection & Environment
+- **SSH Endpoint**: `ssh -p 65002 u556956644@89.116.192.222` (or via configured SSH alias `hostinger-dalel`)
+- **Remote Repository Path**: `~/domains/palsync.net/public_html/denta`
+- **Branch**: `main`
+- **Framework**: CodeIgniter 4 (use `php spark`, **never** `php artisan`)
+- **Credentials Policy**: Never store passwords, private keys, or API secrets in repository files, logs, or commits.
 
-Only `.env` and database import are manual host-specific items.
+### Standard Deployment Workflow
+1. Verify clean working tree on production:
+   ```bash
+   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && git status -sb"
+   ```
+2. Fast-forward pull reviewed commits from origin:
+   ```bash
+   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && git pull --ff-only"
+   ```
+3. Run pending migrations:
+   ```bash
+   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && php spark migrate"
+   ```
+4. Verify migration status:
+   ```bash
+   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && php spark migrate:status"
+   ```
+5. Deploy reviewed assets if UI changed: deploy `public/assets/css/tailwind.css` (or run `npm run release:hostinger` locally).
+6. Verify Apache rewrite: `RewriteBase /` is required on Hostinger (not `/dental-saas/`).
+7. Post-deploy verification & log inspection:
+   - Check `writable/logs/log-YYYY-MM-DD.log` for any errors.
+   - Smoke test key routes (`/controlplane/clinics/19`, `/controlplane/clinics/21`, `/auth/login`).
+
+### Rollback Guidance
+- Identify the previous stable commit: `git log --oneline -5`.
+- If rollback is needed, create a revert commit locally, test it, push, and `git pull --ff-only` on production.
+- If migrations need rollback: `php spark migrate:rollback` (targets last batch).
+- Do not use destructive git operations (`git reset --hard`, force-push) on production.
 
 ## Troubleshooting
 

@@ -31,6 +31,13 @@
   - Fixture ID false-positive repair: `getOrCreateSuperAdmin()` in both `ClinicAdminLifecycleComprehensiveTest` and `ControlPlaneClinicDetailTest` now uses checked insert + `insertID()` instead of `(int) $db->table('roles')->insert(...)`. `testPlanGuardFailClosedBehavior()` plan ID fixture corrected the same way.
   - Documentation: consolidated two overlapping 2026-09-14 entries in `docs/DECISIONS.md` into a single comprehensive durable decision; service error responses accurately described as sanitized generic strings (not localized).
   - Verification: 44 tests, 191 assertions pass cleanly across all three lifecycle suites. Manual browser QA and production verification remain deferred.
+- Control Plane Clinic Detail Production Incident Resolution:
+  - Root cause: `GET /controlplane/clinics/{id}` threw `Error: Call to a member function getResult() on bool in system/Model.php:287` because `control_plane_invoices` was omitted from the production database schema (due to historical `--ignore-table` in mysqldump commands while `migrations` recorded batch 24 as run).
+  - Schema hardening: added idempotent migration `2026-09-14-200000_EnsureControlPlaneInvoicesTables` to guarantee `control_plane_invoices` and `control_plane_invoice_payments` exist across all environments without manual SQL intervention.
+  - Controller resilience: wrapped invoice query in `Clinics::show()` in a fail-safe try/catch block with graceful fallback to empty list and zero statistics; optional invoice loading failures will never crash the clinic detail page.
+  - Logging infrastructure: initialized `writable/logs` on production Hostinger host to enable CI4 file logging.
+  - Test coverage: added regression test `testShowRecoversGracefullyFromInvoiceQueryFailure()` in `ControlPlaneClinicDetailTest` simulating the exact production failure condition.
+  - Documentation: updated `AGENTS.md`, `CLAUDE.md`, and `docs/OPERATIONS_RUNBOOK.md` to remove `--ignore-table` flags and added comprehensive Hostinger deployment runbook.
 
 ## 2026-08-02 - Accepted treatment scheduling recovery
 

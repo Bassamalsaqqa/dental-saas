@@ -21,11 +21,17 @@ class Clinics extends BaseController
 {
     protected $auditService;
     protected $ionAuth;
+    protected ?ControlPlaneInvoiceModel $invoiceModel = null;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
         $this->ionAuth = new IonAuth();
+    }
+
+    public function setInvoiceModel(ControlPlaneInvoiceModel $invoiceModel): void
+    {
+        $this->invoiceModel = $invoiceModel;
     }
 
 
@@ -270,31 +276,37 @@ class Clinics extends BaseController
             }
         }
 
-        $invoiceModel = new ControlPlaneInvoiceModel();
-        $invoices = $invoiceModel->where('clinic_id', $id)
-            ->orderBy('issue_date', 'DESC')
-            ->findAll();
-
+        $invoices = [];
         $invoiceStats = [
             'outstanding' => 0,
             'revenue_month' => 0,
             'overdue' => 0,
         ];
-        $currentMonth = date('Y-m');
-        foreach ($invoices as $invoiceRow) {
-            $totalAmount = (float) ($invoiceRow['total_amount'] ?? 0);
-            if (($invoiceRow['status'] ?? '') !== 'paid') {
-                $invoiceStats['outstanding'] += $totalAmount;
+
+        try {
+            $invoiceModel = $this->invoiceModel ?? new ControlPlaneInvoiceModel();
+            $invoices = $invoiceModel->where('clinic_id', $id)
+                ->orderBy('issue_date', 'DESC')
+                ->findAll() ?: [];
+
+            $currentMonth = date('Y-m');
+            foreach ($invoices as $invoiceRow) {
+                $totalAmount = (float) ($invoiceRow['total_amount'] ?? 0);
+                if (($invoiceRow['status'] ?? '') !== 'paid') {
+                    $invoiceStats['outstanding'] += $totalAmount;
+                }
+                if (($invoiceRow['status'] ?? '') === 'overdue') {
+                    $invoiceStats['overdue'] += 1;
+                }
+                if (!empty($invoiceRow['issue_date']) && str_starts_with($invoiceRow['issue_date'], $currentMonth) && ($invoiceRow['status'] ?? '') === 'paid') {
+                    $invoiceStats['revenue_month'] += $totalAmount;
+                }
             }
-            if (($invoiceRow['status'] ?? '') === 'overdue') {
-                $invoiceStats['overdue'] += 1;
-            }
-            if (!empty($invoiceRow['issue_date']) && str_starts_with($invoiceRow['issue_date'], $currentMonth) && ($invoiceRow['status'] ?? '') === 'paid') {
-                $invoiceStats['revenue_month'] += $totalAmount;
-            }
+            $invoiceStats['outstanding'] = round($invoiceStats['outstanding'], 2);
+            $invoiceStats['revenue_month'] = round($invoiceStats['revenue_month'], 2);
+        } catch (\Throwable $e) {
+            log_message('error', 'ControlPlane Clinics::show failed to load invoices for clinic ' . $id . ': ' . $e->getMessage());
         }
-        $invoiceStats['outstanding'] = round($invoiceStats['outstanding'], 2);
-        $invoiceStats['revenue_month'] = round($invoiceStats['revenue_month'], 2);
 
         $settingsModel = new SettingsModel();
         $clinicSettingsRows = $settingsModel->withoutTenantScope()
