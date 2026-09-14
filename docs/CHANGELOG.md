@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-09-14 - Control Plane Clinic Administrator Lifecycle & Hardening
+
+- Resolved 500 error on `GET /controlplane/clinics/{id}`:
+  - Fixed `IonAuthModel::user()` null query builder state when called with empty argument or uninitialized session.
+  - Hardened `PlanGuard::isFeatureEnabled()` to strictly fail closed (`return false;`) on exceptions and corrupt plan JSON without leaking internals.
+- Implemented authoritative `ClinicAdminLifecycleService`:
+  - Detects 5 canonical administrator states: `healthy`, `disabled_user`, `inactive_membership`, `missing_authority`, and `unassigned`.
+  - Stored primary clinic administrator designation in `settings` table (`setting_key = 'designated_admin_user_id'`) without requiring schema modifications.
+  - Safe fallback logic: resolves oldest active user holding `practice_manager` or `clinic_admin` role when explicit designation is unset; non-manager memberships are never inferred as administrators (clinic state remains unassigned).
+  - Global account activation decoupled from clinic restore: restoring clinic authority requires the account to already be active, returning `account_disabled` otherwise. Global activation must be done explicitly in User Management.
+  - Clinic membership boundary enforced: `getEligibleUsersForClinic`, `assignAdministrator`, and `replaceAdministrator` strictly operate on active members of the target clinic, rejecting non-members with `cross_clinic_forbidden`.
+  - Concurrency protection: `replaceAdministrator` supports `expectedCurrentAdminUserId` to detect concurrent modifications and reject stale requests with `stale_state`.
+  - Role resolution: resolves roles strictly by slug (`practice_manager`, `clinic_admin`, `read_only`, `receptionist`) without magic numeric IDs.
+  - Enforced strict airlock: Super Admins (IonAuth group 1) cannot be assigned as clinic administrators.
+  - Enforced active user requirement: deactivated users cannot be assigned as clinic administrators.
+  - Session revocation: deactivated user sessions are immediately invalidated by `AuthFilter` upon account disablement.
+  - Fail-closed audit logging: all mutations pass explicit `$actorUserId`, record target, previous admin, and clinic IDs, and roll back transaction if audit cannot be persisted.
+  - Internal error masking: catch blocks log detailed exceptions internally and return sanitized generic error strings to the operator.
+- Control Plane Clinic Administrator Lifecycle & Hardening (Second Audit Corrections):
+  - Explicit designation authoritative (Finding 1): `getClinicAdministrator()` treats `designated_admin_user_id` as authoritative. Missing or inactive clinic membership reports degraded state (`inactive_membership`) on the designated user without falling back to another manager. Legacy oldest-manager fallback runs only when no explicit designation exists at all.
+  - Revoked/inactive membership protection (Finding 2): `getEligibleUsersForClinic()` filters strictly on `clinic_users.status = 'active'`. `assignAdministrator()` and `replaceAdministrator()` reject inactive candidates with `inactive_membership_forbidden` and do not reactivate inactive memberships.
+  - Assign separated from replace (Finding 3): `assignAdministrator()` is strictly for unassigned clinics; returns `already_assigned` if an administrator is already active or designated. Concurrency is serialized via InnoDB row-locking (`SELECT id FROM clinics WHERE id = ? FOR UPDATE`) on the clinic record.
+  - Restore restricted to designated administrator (Finding 4): `restoreAdministrator()` requires the target user to match the explicit designated administrator (rejects mismatches with `target_mismatch`), requires designated admin setting to exist (rejects with `no_designated_admin`), and verifies `expectedDesignatedAdminUserId` against stale modifications (`stale_state`).
+  - Replacement choice semantics (Finding 5): Replaced lone checkbox with explicit radio choices for `previous_admin_action` (`demote_to_staff` vs `keep_role`). Controller enforces a strict allowlist (`demote_to_staff`, `keep_role`, `deactivate_membership`).
+  - Test & report accuracy (Finding 6): Eliminated hardcoded actor user ID assumptions by introducing a deterministic `getOrCreateSuperAdmin()` fixture helper across test suites. Added extensive zero-mutation assertions across all rejected execution paths.
+- Control Plane Clinic Administrator Lifecycle & Hardening (Final Audit Corrections):
+  - Fail-closed write verification: every `ClinicUserModel` and `SettingsModel` `insert()`/`update()` return value in `assignAdministrator`, `replaceAdministrator`, `restoreAdministrator`, and `setDesignatedAdminUserId` is checked; `false` throws `\RuntimeException` to roll back the surrounding transaction before any audit or success response is emitted.
+  - Per-membership row locking: target and previous membership rows are locked and re-read inside the transaction (`SELECT * FROM clinic_users WHERE clinic_id = ? AND user_id = ? FOR UPDATE`) and revalidated for active status before mutation, preventing silent races from concurrent Control Plane Users workflows.
+  - Fixture ID false-positive repair: `getOrCreateSuperAdmin()` in both `ClinicAdminLifecycleComprehensiveTest` and `ControlPlaneClinicDetailTest` now uses checked insert + `insertID()` instead of `(int) $db->table('roles')->insert(...)`. `testPlanGuardFailClosedBehavior()` plan ID fixture corrected the same way.
+  - Documentation: consolidated two overlapping 2026-09-14 entries in `docs/DECISIONS.md` into a single comprehensive durable decision; service error responses accurately described as sanitized generic strings (not localized).
+  - Verification: 44 tests, 191 assertions pass cleanly across all three lifecycle suites. Manual browser QA and production verification remain deferred.
+
 ## 2026-08-02 - Accepted treatment scheduling recovery
 
 - Added one tenant-scoped queue for accepted Treatment procedures that do not yet have a scheduled appointment, shown compactly on Dashboard and Treatments.

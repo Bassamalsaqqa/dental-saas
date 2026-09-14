@@ -61,6 +61,30 @@ class AuthFilter implements FilterInterface
             return redirect()->to('/auth/login');
         }
 
+        $userId = $ionAuth->getUserId();
+        if ($userId) {
+            $user = (new \App\Models\UserModel())->find($userId);
+            if (!$user || (int) ($user['active'] ?? 0) !== 1) {
+                $session->destroy();
+                $path = $request->getUri()->getPath();
+                $isApi = strpos($path, '/api/') !== false
+                    || str_starts_with($path, 'api/')
+                    || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
+
+                if ($isApi) {
+                    return service('response')->setStatusCode(401)
+                                    ->setJSON([
+                                        'error' => [
+                                            'code' => 'account_disabled',
+                                            'message' => 'User account is disabled.'
+                                        ]
+                                    ]);
+                }
+
+                return redirect()->to('/auth/login')->with('error', 'Your account has been deactivated.');
+            }
+        }
+
         $path = trim($request->getUri()->getPath(), '/');
         $isApi = strpos($path, 'api/') === 0
             || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));

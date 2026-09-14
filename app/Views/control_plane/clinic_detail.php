@@ -198,23 +198,144 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                             </div>
                         </div>
 
-                        <!-- Admin Info -->
+                        <!-- Clinic Administrator Card -->
                         <div class="pt-4 border-t border-gray-100">
                             <div class="flex items-center justify-between mb-3">
-                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Primary Admin</h4>
-                                <button onclick="openPasswordResetModal()" class="text-xs font-semibold text-indigo-200 hover:text-white transition-colors">
-                                    Reset Password
-                                </button>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fas fa-user-shield text-indigo-600"></i>
+                                    <span><?= esc(lang('UI.clinicAdminTitle')) ?></span>
+                                </h4>
+                                <?php
+                                $statusClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                                $statusIcon = 'fa-question-circle';
+                                $statusText = lang('UI.clinicAdminUnassigned');
+                                if (($admin_info['status'] ?? '') === 'healthy') {
+                                    $statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                                    $statusIcon = 'fa-check-circle';
+                                    $statusText = lang('UI.clinicAdminHealthy');
+                                } elseif (($admin_info['status'] ?? '') === 'disabled_user') {
+                                    $statusClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                                    $statusIcon = 'fa-user-slash';
+                                    $statusText = lang('UI.clinicAdminDisabledUser');
+                                } elseif (($admin_info['status'] ?? '') === 'inactive_membership') {
+                                    $statusClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                                    $statusIcon = 'fa-id-badge';
+                                    $statusText = lang('UI.clinicAdminInactiveMembership');
+                                } elseif (($admin_info['status'] ?? '') === 'missing_authority') {
+                                    $statusClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                                    $statusIcon = 'fa-key';
+                                    $statusText = lang('UI.clinicAdminMissingAuthority');
+                                }
+                                ?>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border <?= $statusClass ?>">
+                                    <i class="fas <?= $statusIcon ?> me-1 text-[10px]"></i>
+                                    <?= esc($statusText) ?>
+                                </span>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-user-shield text-orange-600 text-sm"></i>
+
+                            <?php if (!empty($admin_info['issues'])): ?>
+                                <div class="mb-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                                    <div class="font-semibold flex items-center gap-1 mb-1">
+                                        <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                        <span><?= esc($statusText) ?></span>
+                                    </div>
+                                    <ul class="list-disc list-inside space-y-0.5 text-amber-700 text-[11px]">
+                                        <?php foreach ($admin_info['issues'] as $issue): ?>
+                                            <li><?= esc($issue) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900 truncate"><?= esc($clinic['admin_name'] ?? 'Unknown') ?></p>
-                                    <p class="text-xs text-emerald-100 truncate"><?= esc($clinic['admin_email'] ?? 'Unknown') ?></p>
+                            <?php endif; ?>
+
+                            <?php if (!empty($admin_info['admin_user'])): ?>
+                                <?php $u = $admin_info['admin_user']; ?>
+                                <div class="space-y-2 bg-gray-50/70 p-3 rounded-xl border border-gray-100">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-bold text-gray-900 truncate">
+                                                <?= esc(trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? '')) ?: ($u['username'] ?? 'User #' . $u['id'])) ?>
+                                            </p>
+                                            <p class="text-xs text-gray-600 truncate flex items-center gap-1">
+                                                <i class="fas fa-envelope text-gray-400 text-[10px]"></i>
+                                                <span><?= esc($u['email'] ?? '--') ?></span>
+                                            </p>
+                                            <?php if (!empty($u['phone'])): ?>
+                                                <p class="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5">
+                                                    <i class="fas fa-phone text-gray-400 text-[10px]"></i>
+                                                    <span><?= esc($u['phone']) ?></span>
+                                                </p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Badges Grid -->
+                                    <div class="pt-2 border-t border-gray-200/60 grid grid-cols-3 gap-1.5 text-center">
+                                        <div class="p-1 rounded bg-white border border-gray-200">
+                                            <div class="text-[10px] text-gray-500 font-medium"><?= esc(lang('UI.clinicAdminAccountActive')) ?></div>
+                                            <div class="mt-0.5 text-xs font-bold <?= ($admin_info['account_active'] ?? false) ? 'text-emerald-600' : 'text-rose-600' ?>">
+                                                <i class="fas <?= ($admin_info['account_active'] ?? false) ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
+                                                <span><?= ($admin_info['account_active'] ?? false) ? 'Active' : 'Disabled' ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="p-1 rounded bg-white border border-gray-200">
+                                            <div class="text-[10px] text-gray-500 font-medium"><?= esc(lang('UI.clinicAdminMembershipActive')) ?></div>
+                                            <div class="mt-0.5 text-xs font-bold <?= ($admin_info['membership_active'] ?? false) ? 'text-emerald-600' : 'text-rose-600' ?>">
+                                                <i class="fas <?= ($admin_info['membership_active'] ?? false) ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
+                                                <span><?= ($admin_info['membership_active'] ?? false) ? 'Active' : 'Inactive' ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="p-1 rounded bg-white border border-gray-200">
+                                            <div class="text-[10px] text-gray-500 font-medium"><?= esc(lang('UI.clinicAdminAuthorityActive')) ?></div>
+                                            <div class="mt-0.5 text-xs font-bold <?= ($admin_info['has_admin_authority'] ?? false) ? 'text-emerald-600' : 'text-amber-600' ?>">
+                                                <i class="fas <?= ($admin_info['has_admin_authority'] ?? false) ? 'fa-check-circle' : 'fa-exclamation-circle' ?>"></i>
+                                                <span><?= ($admin_info['has_admin_authority'] ?? false) ? 'Manager' : 'Missing' ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Metadata footer -->
+                                    <div class="pt-1.5 flex items-center justify-between text-[11px] text-gray-500">
+                                        <span>
+                                            <?= esc(lang('UI.clinicAdminAssignedSince')) ?>:
+                                            <strong><?= !empty($admin_info['assigned_since']) ? date('M j, Y', strtotime($admin_info['assigned_since'])) : '--' ?></strong>
+                                        </span>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium <?= ($admin_info['designation_source'] ?? '') === 'designated' ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-600' ?>">
+                                            <?= ($admin_info['designation_source'] ?? '') === 'designated' ? esc(lang('UI.clinicAdminSourceDesignated')) : esc(lang('UI.clinicAdminSourceDerived')) ?>
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+
+                                <!-- Action Buttons -->
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <?php if (!($admin_info['is_healthy'] ?? false)): ?>
+                                        <button type="button" onclick="openRestoreAdminModal()" class="flex-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1">
+                                            <i class="fas fa-wrench text-[10px]"></i>
+                                            <span><?= esc(lang('UI.clinicAdminRestoreBtn')) ?></span>
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <button type="button" onclick="openReplaceAdminModal()" class="flex-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition-colors flex items-center justify-center gap-1">
+                                        <i class="fas fa-exchange-alt text-[10px]"></i>
+                                        <span><?= esc(lang('UI.clinicAdminReplaceBtn')) ?></span>
+                                    </button>
+
+                                    <button type="button" onclick="openPasswordResetModal()" class="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg border border-gray-200 transition-colors flex items-center justify-center gap-1" title="<?= esc(lang('UI.clinicAdminResetPassword')) ?>">
+                                        <i class="fas fa-key text-[10px]"></i>
+                                    </button>
+                                </div>
+                            <?php else: ?>
+                                <!-- Unassigned Empty State -->
+                                <div class="text-center py-4 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                    <div class="w-10 h-10 mx-auto rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mb-2">
+                                        <i class="fas fa-user-slash text-base"></i>
+                                    </div>
+                                    <p class="text-xs font-semibold text-gray-800 mb-1"><?= esc(lang('UI.clinicAdminWarningUnassigned')) ?></p>
+                                    <button type="button" onclick="openAssignAdminModal()" class="mt-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors inline-flex items-center gap-1">
+                                        <i class="fas fa-user-plus text-[10px]"></i>
+                                        <span><?= esc(lang('UI.clinicAdminAssignBtn')) ?></span>
+                                    </button>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -533,21 +654,21 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
 </div>
 
 <!-- Terminate Modal -->
-<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+<div id="terminateModal" role="dialog" aria-modal="true" aria-labelledby="terminateModalTitle" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
         <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-red-800">Confirm Termination</h3>
-            <button onclick="closeTerminateModal()" class="text-gray-400 hover:text-gray-600">
+            <h3 id="terminateModalTitle" class="text-lg font-bold text-red-800">Confirm Termination</h3>
+            <button onclick="closeTerminateModal()" class="text-gray-400 hover:text-gray-600" aria-label="Close dialog">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="p-6">
             <p class="text-gray-600 mb-4">
-                This will disable access and cancel the subscription for <strong class="text-gray-900"><?= esc($clinic['name']) ?></strong>. 
+                This will disable access and cancel the subscription for <strong class="text-gray-900"><?= esc($clinic['name']) ?></strong>.
                 <br>Please type the clinic name below to confirm.
             </p>
             <input type="text" id="terminateConfirmInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-4" placeholder="<?= esc($clinic['name']) ?>" oninput="checkTerminateInput()">
-            
+
             <form id="terminateForm" action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/terminate') ?>" method="post">
                 <?= csrf_field() ?>
                 <div class="flex justify-end space-x-3">
@@ -560,11 +681,11 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
 </div>
 
 <!-- Password Reset Modal -->
-<div id="passwordResetModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+<div id="passwordResetModal" role="dialog" aria-modal="true" aria-labelledby="passwordResetModalTitle" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
         <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-indigo-800">Reset Admin Password</h3>
-            <button onclick="closePasswordResetModal()" class="text-gray-400 hover:text-gray-600">
+            <h3 id="passwordResetModalTitle" class="text-lg font-bold text-indigo-800">Reset Admin Password</h3>
+            <button onclick="closePasswordResetModal()" class="text-gray-400 hover:text-gray-600" aria-label="Close dialog">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -587,25 +708,185 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
     </div>
 </div>
 
+<!-- Assign Administrator Modal -->
+<div id="assignAdminModal" role="dialog" aria-modal="true" aria-labelledby="assignAdminModalTitle" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
+        <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex items-center justify-between">
+            <h3 id="assignAdminModalTitle" class="text-lg font-bold text-indigo-900 flex items-center gap-2">
+                <i class="fas fa-user-plus text-indigo-600"></i>
+                <span><?= esc(lang('UI.clinicAdminModalAssignTitle')) ?></span>
+            </h3>
+            <button onclick="closeAssignAdminModal()" class="text-gray-400 hover:text-gray-600" aria-label="Close dialog">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/admin/assign') ?>" method="post" class="p-6">
+            <?= csrf_field() ?>
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1"><?= esc(lang('UI.clinicAdminSelectUser')) ?></label>
+                <?php if (!empty($eligible_admin_users)): ?>
+                    <select name="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                        <option value=""><?= esc(lang('UI.clinicAdminSelectUserPlaceholder')) ?></option>
+                        <?php foreach ($eligible_admin_users as $eu): ?>
+                            <option value="<?= (int) $eu['id'] ?>">
+                                <?= esc(!empty($eu['name']) ? $eu['name'] : (!empty($eu['email']) ? $eu['email'] : 'User #' . $eu['id'])) ?>
+                                (<?= esc($eu['email'] ?? '') ?>)
+                                [<?= esc($eu['clinic_role_title'] ?? 'Staff') ?>]
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php else: ?>
+                    <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg">
+                        <?= esc(lang('UI.clinicAdminNoEligibleUsers')) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+                <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 text-sm" onclick="closeAssignAdminModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 text-sm" <?= empty($eligible_admin_users) ? 'disabled' : '' ?>>
+                    <?= esc(lang('UI.clinicAdminConfirmAssign')) ?>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Replace Administrator Modal -->
+<div id="replaceAdminModal" role="dialog" aria-modal="true" aria-labelledby="replaceAdminModalTitle" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
+        <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex items-center justify-between">
+            <h3 id="replaceAdminModalTitle" class="text-lg font-bold text-indigo-900 flex items-center gap-2">
+                <i class="fas fa-exchange-alt text-indigo-600"></i>
+                <span><?= esc(lang('UI.clinicAdminModalReplaceTitle')) ?></span>
+            </h3>
+            <button onclick="closeReplaceAdminModal()" class="text-gray-400 hover:text-gray-600" aria-label="Close dialog">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/admin/replace') ?>" method="post" class="p-6">
+            <?= csrf_field() ?>
+            <input type="hidden" name="expected_admin_id" value="<?= (int) ($admin_info['admin_user']['id'] ?? 0) ?>">
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1"><?= esc(lang('UI.clinicAdminSelectUser')) ?></label>
+                <?php
+                $currentAdminId = (int) ($admin_info['admin_user']['id'] ?? 0);
+                $replacementCandidates = array_filter($eligible_admin_users ?? [], function($eu) use ($currentAdminId) {
+                    return (int) $eu['id'] !== $currentAdminId;
+                });
+                ?>
+                <?php if (!empty($replacementCandidates)): ?>
+                    <select name="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                        <option value=""><?= esc(lang('UI.clinicAdminSelectUserPlaceholder')) ?></option>
+                        <?php foreach ($replacementCandidates as $eu): ?>
+                            <option value="<?= (int) $eu['id'] ?>">
+                                <?= esc(!empty($eu['name']) ? $eu['name'] : (!empty($eu['email']) ? $eu['email'] : 'User #' . $eu['id'])) ?>
+                                (<?= esc($eu['email'] ?? '') ?>)
+                                [<?= esc($eu['clinic_role_title'] ?? 'Staff') ?>]
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php else: ?>
+                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-lg">
+                        <?= esc(lang('UI.clinicAdminNoEligibleUsers')) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-5 space-y-2">
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1"><?= esc(lang('UI.clinicAdminPreviousActionLabel')) ?></label>
+                <div class="space-y-2 border border-gray-200 rounded-lg p-3 bg-gray-50/50">
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input type="radio" name="previous_admin_action" value="demote_to_staff" checked class="mt-0.5 w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="text-xs text-gray-700"><?= esc(lang('UI.clinicAdminDemotePrevious')) ?></span>
+                    </label>
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input type="radio" name="previous_admin_action" value="keep_role" class="mt-0.5 w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="text-xs text-gray-700"><?= esc(lang('UI.clinicAdminKeepRolePrevious')) ?></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+                <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 text-sm" onclick="closeReplaceAdminModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 text-sm" <?= empty($replacementCandidates) ? 'disabled' : '' ?>>
+                    <?= esc(lang('UI.clinicAdminConfirmReplace')) ?>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Restore Administrator Modal -->
+<div id="restoreAdminModal" role="dialog" aria-modal="true" aria-labelledby="restoreAdminModalTitle" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
+        <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center justify-between">
+            <h3 id="restoreAdminModalTitle" class="text-lg font-bold text-emerald-900 flex items-center gap-2">
+                <i class="fas fa-wrench text-emerald-600"></i>
+                <span><?= esc(lang('UI.clinicAdminModalRestoreTitle')) ?></span>
+            </h3>
+            <button onclick="closeRestoreAdminModal()" class="text-gray-400 hover:text-gray-600" aria-label="Close dialog">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/admin/restore') ?>" method="post" class="p-6">
+            <?= csrf_field() ?>
+            <input type="hidden" name="user_id" value="<?= (int) ($admin_info['admin_user']['id'] ?? 0) ?>">
+            <input type="hidden" name="expected_designated_admin_id" value="<?= (int) ($admin_info['admin_user']['id'] ?? 0) ?>">
+
+            <p class="text-sm text-gray-600 mb-4">
+                <?= esc(lang('UI.clinicAdminRestoreHelp')) ?>
+            </p>
+
+            <?php if (!($admin_info['account_active'] ?? true)): ?>
+                <div class="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs">
+                    <div class="font-bold flex items-center gap-1 mb-1">
+                        <i class="fas fa-exclamation-circle text-rose-600"></i>
+                        <span><?= esc(lang('UI.clinicAdminAccountDeactivatedTitle')) ?></span>
+                    </div>
+                    <p class="mb-2"><?= esc(lang('UI.clinicAdminAccountDeactivatedHelp')) ?></p>
+                    <a href="<?= base_url('controlplane/users') ?>" class="inline-flex items-center gap-1 font-bold text-rose-700 hover:text-rose-900 underline text-xs">
+                        <i class="fas fa-external-link-alt text-[10px]"></i>
+                        <span><?= esc(lang('UI.clinicAdminGoToUsers')) ?></span>
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($admin_info['admin_user'])): ?>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs mb-4">
+                    <strong><?= esc(!empty($admin_info['admin_name']) ? $admin_info['admin_name'] : (!empty($admin_info['admin_user']['email']) ? $admin_info['admin_user']['email'] : 'Administrator')) ?></strong>
+                    <div class="text-gray-500"><?= esc($admin_info['admin_user']['email'] ?? '') ?></div>
+                </div>
+            <?php endif; ?>
+
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+                <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 text-sm" onclick="closeRestoreAdminModal()">Cancel</button>
+                <button type="submit" <?= !($admin_info['account_active'] ?? true) ? 'disabled title="' . esc(lang('UI.clinicAdminReactivateAccountFirst')) . '" class="px-4 py-2 bg-gray-300 text-gray-500 font-bold rounded-lg cursor-not-allowed text-sm"' : 'class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 text-sm"' ?>>
+                    <?= esc(lang('UI.clinicAdminConfirmRestore')) ?>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const clinicName = "<?= esc($clinic['name']) ?>";
-    
+
     function openTerminateModal() {
         document.getElementById('terminateModal').classList.remove('hidden');
         document.getElementById('terminateModal').classList.add('flex');
     }
-    
+
     function closeTerminateModal() {
         document.getElementById('terminateModal').classList.add('hidden');
         document.getElementById('terminateModal').classList.remove('flex');
         document.getElementById('terminateConfirmInput').value = '';
         checkTerminateInput();
     }
-    
+
     function checkTerminateInput() {
         const input = document.getElementById('terminateConfirmInput').value;
         const btn = document.getElementById('terminateBtn');
-        
+
         if (input === clinicName) {
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -624,5 +905,56 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
         document.getElementById('passwordResetModal').classList.add('hidden');
         document.getElementById('passwordResetModal').classList.remove('flex');
     }
+
+    function openAssignAdminModal() {
+        const m = document.getElementById('assignAdminModal');
+        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+    }
+    function closeAssignAdminModal() {
+        const m = document.getElementById('assignAdminModal');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    function openReplaceAdminModal() {
+        const m = document.getElementById('replaceAdminModal');
+        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+    }
+    function closeReplaceAdminModal() {
+        const m = document.getElementById('replaceAdminModal');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    function openRestoreAdminModal() {
+        const m = document.getElementById('restoreAdminModal');
+        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+    }
+    function closeRestoreAdminModal() {
+        const m = document.getElementById('restoreAdminModal');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+
+    // Keyboard and Backdrop handlers for accessible dialogs
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeTerminateModal();
+            closePasswordResetModal();
+            closeAssignAdminModal();
+            closeReplaceAdminModal();
+            closeRestoreAdminModal();
+        }
+    });
+
+    ['terminateModal', 'passwordResetModal', 'assignAdminModal', 'replaceAdminModal', 'restoreAdminModal'].forEach(function (id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    if (id === 'terminateModal') closeTerminateModal();
+                    else if (id === 'passwordResetModal') closePasswordResetModal();
+                    else if (id === 'assignAdminModal') closeAssignAdminModal();
+                    else if (id === 'replaceAdminModal') closeReplaceAdminModal();
+                    else if (id === 'restoreAdminModal') closeRestoreAdminModal();
+                }
+            });
+        }
+    });
 </script>
 <?= $this->endSection() ?>

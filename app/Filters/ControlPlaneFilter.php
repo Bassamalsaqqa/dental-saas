@@ -51,6 +51,13 @@ class ControlPlaneFilter implements FilterInterface
         }
 
         $userId = $ionAuth->getUserId();
+        if ($userId) {
+            $user = (new \App\Models\UserModel())->find($userId);
+            if (!$user || (int) ($user['active'] ?? 0) !== 1) {
+                $session->destroy();
+                return redirect()->to('/auth/login');
+            }
+        }
 
         // 2. Super Admin Check (Moved up)
         $permissionService = service('permission');

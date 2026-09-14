@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-08-02
+Last updated: 2026-09-14
 
 ## Status
 
@@ -22,9 +22,11 @@ Last updated: 2026-08-02
 - Completed Examination notes can be signed once, become immutable, and receive attributed append-only addenda; print output carries the signature evidence.
 - Dashboard and Examination registry expose tenant-scoped ready-to-sign and overdue-draft documentation queues without bulk signing or clinical-content inference.
 - Accepted Treatment procedures without a scheduled visit appear in tenant-scoped Dashboard/Treatments queues; explicit appointment creation links the future visit separately and advances the lifecycle atomically.
+- Control Plane clinic administrator lifecycle: state detection (healthy, disabled user, inactive membership, missing authority, unassigned), explicit designation in settings, replacement with optional demotion, restoration decoupled from global account activation, membership-bounded selection, concurrency protection, and fail-closed audit logging.
 
 ## Deferred Manual QA
 
+- Control Plane clinic administrator lifecycle: browser modal verification (assign, replace, restore, reset password) in English and Arabic RTL, Escape/backdrop dismissal, and production root-cause reproduction for clinic 21 under live session data.
 - Full clinic-day workflow on local and `denta.palsync.net` in English and Arabic.
 - View-only versus edit permissions across appointment checkout.
 - Treatment full-page/modal creation with lifecycle intent, optional inventory, and optional charge capture.

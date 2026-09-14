@@ -14,6 +14,7 @@ use App\Services\ControlPlaneAuditService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppTemplateRegistryService;
 use App\Services\WhatsAppTriggerCatalog;
+use App\Services\ClinicAdminLifecycleService;
 use App\Libraries\IonAuth;
 
 class Clinics extends BaseController
@@ -251,13 +252,12 @@ class Clinics extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
-        // Fetch Admin Info
-        $adminUser = $clinicUserModel->select('users.email, users.first_name, users.last_name')
-            ->join('users', 'users.id = clinic_users.user_id')
-            ->where('clinic_users.clinic_id', $id)
-            ->orderBy('clinic_users.created_at', 'ASC')
-            ->first();
-            
+        // Fetch Admin Info via Lifecycle Service
+        $adminLifecycleService = new ClinicAdminLifecycleService();
+        $adminInfo = $adminLifecycleService->getClinicAdministrator($id);
+        $eligibleAdminUsers = $adminLifecycleService->getEligibleUsersForClinic($id);
+
+        $adminUser = $adminInfo['admin_user'];
         $clinic['admin_email'] = $adminUser ? $adminUser['email'] : 'Unknown';
         $clinic['admin_name'] = $adminUser ? trim(($adminUser['first_name'] ?? '') . ' ' . ($adminUser['last_name'] ?? '')) : 'Unknown';
 
@@ -330,6 +330,8 @@ class Clinics extends BaseController
         return view('control_plane/clinic_detail', [
             'title' => 'Clinic Overview',
             'clinic' => $clinic,
+            'admin_info' => $adminInfo,
+            'eligible_admin_users' => $eligibleAdminUsers,
             'subscription' => $subscription,
             'plan_name' => $planName,
             'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
@@ -667,18 +669,15 @@ class Clinics extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
-        $password = $this->request->getPost('password');
+        $password = (string) $this->request->getPost('password');
         if (strlen($password) < 8) {
             return redirect()->back()->with('error', 'Password must be at least 8 characters long.');
         }
 
-        // Find Admin User
-        $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
-        $adminUser = $clinicUserModel->select('users.id, users.email')
-            ->join('users', 'users.id = clinic_users.user_id')
-            ->where('clinic_users.clinic_id', $id)
-            ->orderBy('clinic_users.created_at', 'ASC')
-            ->first();
+        // Find Admin User via Lifecycle Service
+        $lifecycleService = new ClinicAdminLifecycleService();
+        $adminInfo = $lifecycleService->getClinicAdministrator($id);
+        $adminUser = $adminInfo['admin_user'];
 
         if (!$adminUser) {
             return redirect()->back()->with('error', 'No admin user found for this clinic.');
@@ -699,6 +698,137 @@ class Clinics extends BaseController
         } else {
             return redirect()->back()->with('error', 'Failed to reset password.');
         }
+    }
+
+    /**
+     * POST /controlplane/clinics/{id}/admin/assign
+     */
+    public function assignAdmin(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $userId = (int) $this->request->getPost('user_id');
+        if ($userId <= 0) {
+            return redirect()->back()->with('error', 'Please select a valid user to assign as administrator.');
+        }
+
+        $operatorId = (int) (session()->get('user_id') ?? 0);
+        if ($operatorId <= 0) {
+            return redirect()->back()->with('error', 'Authenticated operator identity required.');
+        }
+
+        $lifecycleService = new ClinicAdminLifecycleService();
+        $result = $lifecycleService->assignAdministrator($id, $userId, $operatorId, reason: 'Assigned via control plane UI');
+
+        if ($result['success']) {
+            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $result['message']);
+        }
+
+        return redirect()->back()->with('error', $result['message']);
+    }
+
+    /**
+     * POST /controlplane/clinics/{id}/admin/replace
+     */
+    public function replaceAdmin(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $newUserId = (int) $this->request->getPost('user_id');
+        if ($newUserId <= 0) {
+            return redirect()->back()->with('error', 'Please select a valid user to replace current administrator.');
+        }
+
+        // Strict allowlist for previous admin action (Finding 5)
+        $previousAdminAction = $this->request->getPost('previous_admin_action');
+        if (!in_array($previousAdminAction, ['demote_to_staff', 'keep_role', 'deactivate_membership'], true)) {
+            $rawDemote = $this->request->getPost('demote_previous');
+            if ($rawDemote === '0' || $rawDemote === false || $rawDemote === 'false') {
+                $previousAdminAction = 'keep_role';
+            } else {
+                $previousAdminAction = 'demote_to_staff';
+            }
+        }
+
+        $operatorId = (int) (session()->get('user_id') ?? 0);
+        if ($operatorId <= 0) {
+            return redirect()->back()->with('error', 'Authenticated operator identity required.');
+        }
+
+        $expectedAdminId = $this->request->getPost('expected_admin_id');
+        $expectedAdminUserId = ($expectedAdminId !== null && is_numeric($expectedAdminId)) ? (int) $expectedAdminId : null;
+
+        $lifecycleService = new ClinicAdminLifecycleService();
+        $result = $lifecycleService->replaceAdministrator(
+            $id,
+            $newUserId,
+            $operatorId,
+            $previousAdminAction,
+            reason: 'Replaced via control plane UI',
+            expectedCurrentAdminUserId: $expectedAdminUserId
+        );
+
+        if ($result['success']) {
+            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $result['message']);
+        }
+
+        return redirect()->back()->with('error', $result['message']);
+    }
+
+    /**
+     * POST /controlplane/clinics/{id}/admin/restore
+     */
+    public function restoreAdmin(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $userId = (int) $this->request->getPost('user_id');
+        $lifecycleService = new ClinicAdminLifecycleService();
+
+        if ($userId <= 0) {
+            $currentAdmin = $lifecycleService->getClinicAdministrator($id);
+            $userId = (int) ($currentAdmin['admin_user']['id'] ?? 0);
+        }
+
+        if ($userId <= 0) {
+            return redirect()->back()->with('error', 'No administrator found to restore.');
+        }
+
+        $operatorId = (int) (session()->get('user_id') ?? 0);
+        if ($operatorId <= 0) {
+            return redirect()->back()->with('error', 'Authenticated operator identity required.');
+        }
+
+        $expectedDesignatedId = $this->request->getPost('expected_designated_admin_id');
+        $expectedDesignatedAdminUserId = ($expectedDesignatedId !== null && is_numeric($expectedDesignatedId))
+            ? (int) $expectedDesignatedId
+            : null;
+
+        $result = $lifecycleService->restoreAdministrator(
+            $id,
+            $userId,
+            $operatorId,
+            reason: 'Restored via control plane UI',
+            expectedDesignatedAdminUserId: $expectedDesignatedAdminUserId
+        );
+
+        if ($result['success']) {
+            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $result['message']);
+        }
+
+        return redirect()->back()->with('error', $result['message']);
     }
 
     private function resolveEndAt(string $duration, string $startAt): ?string

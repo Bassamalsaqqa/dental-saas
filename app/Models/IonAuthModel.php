@@ -1329,7 +1329,7 @@ class IonAuthModel
 	{
 		$this->triggerEvents('row');
 
-		$row = $this->response->getRow();
+		$row = $this->response ? $this->response->getRow() : null;
 
 		return $row;
 	}
@@ -1345,7 +1345,7 @@ class IonAuthModel
 	{
 		$this->triggerEvents(['row', 'row_array']);
 
-		$row = $this->response->getRowArray();
+		$row = $this->response ? $this->response->getRowArray() : null;
 
 		return $row;
 	}
@@ -1359,7 +1359,7 @@ class IonAuthModel
 	{
 		$this->triggerEvents('result');
 
-		return $this->response->getResult();
+		return $this->response ? $this->response->getResult() : [];
 	}
 
 	/**
@@ -1371,9 +1371,7 @@ class IonAuthModel
 	{
 		$this->triggerEvents(['result', 'result_array']);
 
-		$result = $this->response->getResultArray();
-
-		return $result;
+		return $this->response ? $this->response->getResultArray() : [];
 	}
 
 	/**
@@ -1541,6 +1539,7 @@ class IonAuthModel
 		// If still no id, return empty result
 		if (!$id) {
 			$this->where('1', '0');
+			$this->users();
 			return $this;
 		}
 

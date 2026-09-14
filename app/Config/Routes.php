@@ -30,6 +30,9 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('clinics/(:num)/terminate', 'ControlPlane\Clinics::terminate/$1');
         $routes->post('clinics/(:num)/delete', 'ControlPlane\Clinics::delete/$1'); // CP-GLASS-09
         $routes->post('clinics/(:num)/reset-admin-password', 'ControlPlane\Clinics::resetAdminPassword/$1');
+        $routes->post('clinics/(:num)/admin/assign', 'ControlPlane\Clinics::assignAdmin/$1');
+        $routes->post('clinics/(:num)/admin/replace', 'ControlPlane\Clinics::replaceAdmin/$1');
+        $routes->post('clinics/(:num)/admin/restore', 'ControlPlane\Clinics::restoreAdmin/$1');
         $routes->post('clinics/(:num)/suspend', 'ControlPlane\Clinics::suspend/$1');
         $routes->post('clinics/(:num)/reactivate', 'ControlPlane\Clinics::reactivate/$1');
         $routes->get('plans', 'ControlPlane\Plans::index'); // CP-UX-22

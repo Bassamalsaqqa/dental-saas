@@ -333,13 +333,27 @@ class PlanGuard
      */
     public function isFeatureEnabled(int $clinicId, string $featureKey, bool $default = false): bool
     {
-        $plan = $this->getClinicPlan($clinicId);
-        $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
+        try {
+            $plan = $this->getClinicPlan($clinicId);
+        } catch (\Throwable $e) {
+            log_message('error', "PlanGuard::isFeatureEnabled storage/context failure for clinic {$clinicId}: {message}", ['message' => $e->getMessage()]);
+            return false;
+        }
+
+        if (!is_array($plan)) {
+            return false;
+        }
+
+        $features = json_decode($plan['features_json'] ?? '{}', true);
+        if (!is_array($features)) {
+            log_message('error', "PlanGuard::isFeatureEnabled malformed features JSON for clinic {$clinicId}");
+            return false;
+        }
 
         $keys = explode('.', $featureKey);
         $current = $features;
         foreach ($keys as $k) {
-            if (!isset($current[$k])) {
+            if (!is_array($current) || !array_key_exists($k, $current)) {
                 return $default;
             }
             $current = $current[$k];

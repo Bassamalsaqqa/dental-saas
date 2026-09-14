@@ -14,13 +14,13 @@ class ControlPlaneAuditService
         $this->auditModel = new ControlPlaneAuditModel();
     }
 
-    public function logEvent(string $eventType, array $context = []): void
+    public function logEvent(string $eventType, array $context = [], bool $failClosed = false): bool
     {
         try {
             $request = service('request');
             $ionAuth = new IonAuth();
 
-            $actorUserId = $ionAuth->loggedIn() ? $ionAuth->getUserId() : null;
+            $actorUserId = $context['actor_user_id'] ?? ($ionAuth->loggedIn() ? $ionAuth->getUserId() : null);
             $route = $context['route'] ?? $this->resolveRoute($request ? $request->getPath() : '');
             $method = $context['method'] ?? ($request ? $request->getMethod() : null);
             $metadata = $context['metadata'] ?? null;
@@ -35,9 +35,18 @@ class ControlPlaneAuditService
                 'metadata_json' => $metadata ? json_encode($metadata, JSON_UNESCAPED_SLASHES) : null,
             ];
 
-            $this->auditModel->insert($data);
+            $inserted = $this->auditModel->insert($data);
+            if (!$inserted && $failClosed) {
+                throw new \RuntimeException('Failed to insert control plane audit record.');
+            }
+
+            return true;
         } catch (\Throwable $e) {
             log_message('error', 'ControlPlaneAuditService failure: {message}', ['message' => $e->getMessage()]);
+            if ($failClosed) {
+                throw $e;
+            }
+            return false;
         }
     }
 
