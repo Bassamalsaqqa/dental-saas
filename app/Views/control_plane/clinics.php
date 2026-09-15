@@ -1,4 +1,4 @@
-﻿<?= $this->extend('layouts/main_control_plane') ?>
+<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <?php $disableDataTables = false; ?>
@@ -540,8 +540,38 @@ $(document).ready(function() {
             {
                 data: 'admin_email',
                 name: 'admin_email',
-                render: function(data) {
-                    return `<span class="text-sm font-semibold text-slate-600">${escapeHtml(data || 'Unknown')}</span>`;
+                render: function(data, type, row) {
+                    const email = escapeHtml(data || 'None');
+                    if (email === 'None' || email === 'Unknown' || row.admin_state === 'unassigned') {
+                        return `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">${escapeHtml(row.admin_state_label || 'Unassigned')}</span>`;
+                    }
+                    if (row.admin_is_fallback) {
+                        return `
+                            <div>
+                                <div class="text-sm font-semibold text-slate-700">${email}</div>
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 mt-0.5">
+                                    <i class="fas fa-clock text-[9px] me-1"></i><?= esc(lang('UI.legacyAdminCandidate'), 'js') ?>
+                                </span>
+                            </div>
+                        `;
+                    }
+                    if (row.admin_is_healthy) {
+                        return `<span class="text-sm font-semibold text-slate-700">${email}</span>`;
+                    }
+                    let badgeClass = 'bg-amber-100 text-amber-800';
+                    if (row.admin_state === 'disabled_user') {
+                        badgeClass = 'bg-rose-100 text-rose-800';
+                    } else if (row.admin_state === 'inactive_membership') {
+                        badgeClass = 'bg-orange-100 text-orange-800';
+                    }
+                    return `
+                        <div>
+                            <div class="text-sm font-semibold text-slate-700">${email}</div>
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${badgeClass} mt-0.5">
+                                ${escapeHtml(row.admin_state_label || 'Degraded')}
+                            </span>
+                        </div>
+                    `;
                 }
             },
             {

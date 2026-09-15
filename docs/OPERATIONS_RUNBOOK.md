@@ -85,8 +85,8 @@ Use `.env` as runtime truth.
 
 ### Rollback Guidance
 - Identify the previous stable commit: `git log --oneline -5`.
-- If rollback is needed, create a revert commit locally, test it, push, and `git pull --ff-only` on production.
-- If migrations need rollback: `php spark migrate:rollback` (targets last batch).
+- Application fixes should use code commit reversion (`git revert`) and standard deployment.
+- **Do not run generic `php spark migrate:rollback` on production.** Reconciliation migrations and financial tables are non-destructive and cannot be safely rolled back automatically. Schema rollback requires a reviewed, migration-specific rollback plan and an explicit pre-rollback database backup.
 - Do not use destructive git operations (`git reset --hard`, force-push) on production.
 
 ## Troubleshooting

@@ -28,6 +28,7 @@ class ClinicAdminLifecycleService
     protected SettingsModel $settingsModel;
     protected ControlPlaneAuditService $auditService;
     protected PermissionService $permissionService;
+    protected array $roleCache = [];
 
     public function __construct()
     {
@@ -38,6 +39,24 @@ class ClinicAdminLifecycleService
         $this->settingsModel = (new SettingsModel())->withoutTenantScope();
         $this->auditService = new ControlPlaneAuditService();
         $this->permissionService = new PermissionService();
+    }
+
+    /**
+     * Map machine result codes to localized UI messages.
+     * Preserves stable machine codes and supports variable substitution (Delta Finding 3).
+     */
+    public function formatLocalizedMessage(array $result, array $params = []): string
+    {
+        $code = (string) ($result['code'] ?? '');
+        if ($code !== '') {
+            $key = 'UI.clinicAdminCode_' . $code;
+            $localized = lang($key, $params);
+            if ($localized !== $key && $localized !== '') {
+                return $localized;
+            }
+        }
+
+        return (string) ($result['message'] ?? '');
     }
 
     /**
@@ -59,14 +78,23 @@ class ClinicAdminLifecycleService
 
     /**
      * Check if a given role ID has administrative / management capabilities for a clinic.
+     * Supports preloaded roles map and memoization to eliminate N+1 queries (Delta Finding 5).
      */
-    public function isManagerRole(int $roleId): bool
+    public function isManagerRole(int $roleId, ?array $preloadedRolesMap = null): bool
     {
         if ($roleId <= 0) {
             return false;
         }
 
-        $role = $this->roleModel->find($roleId);
+        if ($preloadedRolesMap !== null && isset($preloadedRolesMap[$roleId])) {
+            $role = $preloadedRolesMap[$roleId];
+        } else {
+            if (!isset($this->roleCache[$roleId])) {
+                $this->roleCache[$roleId] = $this->roleModel->find($roleId);
+            }
+            $role = $this->roleCache[$roleId];
+        }
+
         if (!$role) {
             return false;
         }
@@ -92,6 +120,332 @@ class ClinicAdminLifecycleService
     }
 
     /**
+     * Resolve administrator information for multiple clinics in bulk.
+     * Guarantees identical resolution logic to getClinicAdministrator without per-row N+1 queries.
+     *
+     * @param int[] $clinicIds
+     * @return array<int, array>
+     */
+    public function getClinicAdministrators(array $clinicIds): array
+    {
+        $cleanIds = array_values(array_unique(array_filter(array_map('intval', $clinicIds), static fn($id) => $id > 0)));
+        if (empty($cleanIds)) {
+            return [];
+        }
+
+        // 1. Fetch explicit designations in bulk from settings
+        $settingsRows = $this->settingsModel
+            ->whereIn('clinic_id', $cleanIds)
+            ->where('setting_key', self::SETTING_KEY_DESIGNATED_ADMIN)
+            ->findAll();
+
+        $designatedMap = [];
+        foreach ($settingsRows as $s) {
+            $val = (int) ($s['setting_value'] ?? 0);
+            if ($val > 0) {
+                $designatedMap[(int) $s['clinic_id']] = $val;
+            }
+        }
+
+        // 2. Separate clinics with explicit designation from those needing legacy fallback
+        $clinicsWithDesignation = [];
+        $clinicsNeedingFallback = [];
+        foreach ($cleanIds as $cid) {
+            if (isset($designatedMap[$cid])) {
+                $clinicsWithDesignation[$cid] = $designatedMap[$cid];
+            } else {
+                $clinicsNeedingFallback[] = $cid;
+            }
+        }
+
+        // 3. For designated clinics, fetch the candidate membership for (clinic_id, user_id)
+        $membershipsByClinic = [];
+        $designatedMemberships = [];
+        if (!empty($clinicsWithDesignation)) {
+            $designatedMemberships = $this->clinicUserModel
+                ->whereIn('clinic_id', array_keys($clinicsWithDesignation))
+                ->whereIn('user_id', array_values($clinicsWithDesignation))
+                ->findAll();
+            foreach ($designatedMemberships as $dm) {
+                $cid = (int) $dm['clinic_id'];
+                $uid = (int) $dm['user_id'];
+                if (($clinicsWithDesignation[$cid] ?? 0) === $uid) {
+                    $membershipsByClinic[$cid] = $dm;
+                }
+            }
+        }
+
+        // 4. For fallback clinics, fetch memberships ordered by created_at ASC with deterministic id ASC tie-breaker (Delta Finding 5)
+        $fallbackMembershipsByClinic = [];
+        $rawFallback = [];
+        if (!empty($clinicsNeedingFallback)) {
+            $rawFallback = $this->clinicUserModel
+                ->select('clinic_users.*, users.active as user_active')
+                ->join('users', 'users.id = clinic_users.user_id')
+                ->whereIn('clinic_users.clinic_id', $clinicsNeedingFallback)
+                ->orderBy('clinic_users.created_at', 'ASC')
+                ->orderBy('clinic_users.id', 'ASC')
+                ->findAll();
+        }
+
+        // Preload ALL role IDs required across both designated and fallback memberships in ONE batch query (Delta Finding 5)
+        $preloadedRoleIds = [];
+        foreach ($designatedMemberships as $dm) {
+            if (!empty($dm['role_id'])) {
+                $preloadedRoleIds[] = (int) $dm['role_id'];
+            }
+        }
+        foreach ($rawFallback as $rf) {
+            if (!empty($rf['role_id'])) {
+                $preloadedRoleIds[] = (int) $rf['role_id'];
+            }
+        }
+        $preloadedRoleIds = array_values(array_unique(array_filter($preloadedRoleIds)));
+
+        $rolesMap = [];
+        if (!empty($preloadedRoleIds)) {
+            $roleRows = $this->roleModel->whereIn('id', $preloadedRoleIds)->findAll();
+            foreach ($roleRows as $r) {
+                $rId = (int) $r['id'];
+                $rolesMap[$rId] = $r;
+                $this->roleCache[$rId] = $r;
+            }
+        }
+
+        if (!empty($rawFallback)) {
+            $groupedFallback = [];
+            foreach ($rawFallback as $rf) {
+                $groupedFallback[(int) $rf['clinic_id']][] = $rf;
+            }
+
+            foreach ($clinicsNeedingFallback as $cid) {
+                $members = $groupedFallback[$cid] ?? [];
+                $chosen = null;
+                // Priority 1: Active user, Active membership, Manager role (evaluated in memory via $rolesMap)
+                foreach ($members as $m) {
+                    if ((int) $m['user_active'] === 1 && ($m['status'] ?? '') === 'active' && $this->isManagerRole((int) $m['role_id'], $rolesMap)) {
+                        $chosen = $m;
+                        break;
+                    }
+                }
+                // Priority 2: Any Manager role (evaluated in memory via $rolesMap)
+                if (!$chosen) {
+                    foreach ($members as $m) {
+                        if ($this->isManagerRole((int) $m['role_id'], $rolesMap)) {
+                            $chosen = $m;
+                            break;
+                        }
+                    }
+                }
+                if ($chosen) {
+                    $fallbackMembershipsByClinic[$cid] = $chosen;
+                }
+            }
+        }
+
+        // 5. Gather all user IDs that need loading (roles already preloaded in $rolesMap)
+        $userIdsToLoad = [];
+        foreach ($cleanIds as $cid) {
+            if (isset($clinicsWithDesignation[$cid])) {
+                $userIdsToLoad[] = $clinicsWithDesignation[$cid];
+            } elseif (isset($fallbackMembershipsByClinic[$cid])) {
+                $userIdsToLoad[] = (int) $fallbackMembershipsByClinic[$cid]['user_id'];
+            }
+        }
+
+        $usersMap = [];
+        if (!empty($userIdsToLoad)) {
+            $userRows = $this->userModel->whereIn('id', array_values(array_unique($userIdsToLoad)))->findAll();
+            foreach ($userRows as $u) {
+                $usersMap[(int) $u['id']] = $u;
+            }
+        }
+
+        // 6. Assemble the payload for each clinic
+        $results = [];
+        foreach ($cleanIds as $cid) {
+            $designatedUserId = $clinicsWithDesignation[$cid] ?? 0;
+            $candidateMembership = null;
+            $designationSource = 'none';
+
+            if ($designatedUserId > 0) {
+                $candidateMembership = $membershipsByClinic[$cid] ?? null;
+                $designationSource = 'designated';
+            } elseif (isset($fallbackMembershipsByClinic[$cid])) {
+                $candidateMembership = $fallbackMembershipsByClinic[$cid];
+                $designationSource = 'fallback';
+                $designatedUserId = (int) $candidateMembership['user_id'];
+            }
+
+            $isDesignated = ($designationSource === 'designated');
+            $isFallback = ($designationSource === 'fallback');
+
+            if (!$candidateMembership && $designatedUserId <= 0) {
+                $results[$cid] = [
+                    'has_admin' => false,
+                    'has_explicit_admin' => false,
+                    'is_designated' => false,
+                    'is_fallback' => false,
+                    'status' => self::STATE_UNASSIGNED,
+                    'state' => self::STATE_UNASSIGNED,
+                    'state_label' => 'Unassigned',
+                    'source_label' => 'Unassigned',
+                    'is_healthy' => false,
+                    'account_active' => false,
+                    'membership_active' => false,
+                    'has_admin_authority' => false,
+                    'designation_source' => 'none',
+                    'assigned_since' => null,
+                    'issues' => ['No administrator is currently assigned to this clinic.'],
+                    'issue_codes' => ['clinicAdminIssueNoAdmin'],
+                    'admin_user' => null,
+                    'user' => null,
+                    'membership' => null,
+                    'role' => null,
+                    'admin_name' => 'None',
+                    'admin_email' => 'None',
+                    'action_required' => 'assign',
+                ];
+                continue;
+            }
+
+            $userId = $candidateMembership ? (int) $candidateMembership['user_id'] : $designatedUserId;
+            $user = $usersMap[$userId] ?? null;
+
+            if (!$user) {
+                $results[$cid] = [
+                    'has_admin' => false,
+                    'has_explicit_admin' => $isDesignated,
+                    'is_designated' => $isDesignated,
+                    'is_fallback' => $isFallback,
+                    'status' => self::STATE_UNASSIGNED,
+                    'state' => self::STATE_UNASSIGNED,
+                    'state_label' => 'User Missing',
+                    'source_label' => $isDesignated ? 'Explicitly Designated' : 'Legacy Candidate',
+                    'is_healthy' => false,
+                    'account_active' => false,
+                    'membership_active' => false,
+                    'has_admin_authority' => false,
+                    'designation_source' => $designationSource,
+                    'assigned_since' => null,
+                    'issues' => ['The designated user record no longer exists in the database.'],
+                    'issue_codes' => ['clinicAdminIssueUserMissing'],
+                    'admin_user' => null,
+                    'user' => null,
+                    'membership' => $candidateMembership,
+                    'role' => null,
+                    'admin_name' => 'Unknown',
+                    'admin_email' => 'Unknown',
+                    'action_required' => 'assign',
+                ];
+                continue;
+            }
+
+            $roleId = $candidateMembership ? (int) ($candidateMembership['role_id'] ?? 0) : 0;
+            $role = $rolesMap[$roleId] ?? null;
+            $isManager = $role && in_array($role['slug'] ?? '', ['practice_manager', 'clinic_admin'], true);
+
+            $userActive = (int) ($user['active'] ?? 0) === 1;
+            $membershipActive = $candidateMembership && ($candidateMembership['status'] ?? '') === 'active';
+
+            $issues = [];
+            $issueCodes = [];
+            if (!$userActive) {
+                $issues[] = 'User account is deactivated in the system.';
+                $issueCodes[] = 'clinicAdminIssueDeactivated';
+            }
+            if (!$candidateMembership) {
+                $issues[] = 'Designated administrator membership in this clinic is missing or revoked.';
+                $issueCodes[] = 'clinicAdminIssueMembershipMissing';
+            } elseif (!$membershipActive) {
+                $issues[] = 'User membership in this clinic is inactive or revoked.';
+                $issueCodes[] = 'clinicAdminIssueMembershipInactive';
+            }
+            if (!$isManager) {
+                $issues[] = 'User does not possess the Practice Manager role in this clinic.';
+                $issueCodes[] = 'clinicAdminIssueNotManager';
+            }
+
+            // Determine State
+            if (!$userActive) {
+                $state = self::STATE_DISABLED_USER;
+                $stateLabel = 'Account Disabled Globally';
+                $actionRequired = 'restore_or_replace';
+            } elseif (!$membershipActive) {
+                $state = self::STATE_INACTIVE_MEMBERSHIP;
+                $stateLabel = 'Membership Inactive';
+                $actionRequired = 'restore_or_replace';
+            } elseif (!$isManager) {
+                $state = self::STATE_MISSING_AUTHORITY;
+                $stateLabel = 'Missing Admin Authority';
+                $actionRequired = 'grant_authority_or_replace';
+            } else {
+                $state = self::STATE_HEALTHY;
+                $stateLabel = 'Healthy';
+                $actionRequired = null;
+            }
+
+            $fullName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+            if ($fullName === '') {
+                $fullName = $user['username'] ?? $user['email'];
+            }
+
+            $userData = [
+                'id' => (int) $user['id'],
+                'email' => $user['email'] ?? '',
+                'username' => $user['username'] ?? '',
+                'first_name' => $user['first_name'] ?? '',
+                'last_name' => $user['last_name'] ?? '',
+                'phone' => $user['phone'] ?? '',
+                'name' => $fullName,
+                'active' => (int) ($user['active'] ?? 0),
+                'is_active' => $userActive,
+            ];
+
+            $results[$cid] = [
+                'has_admin' => true,
+                'has_explicit_admin' => $isDesignated,
+                'is_designated' => $isDesignated,
+                'is_fallback' => $isFallback,
+                'status' => $state,
+                'state' => $state,
+                'state_label' => $stateLabel,
+                'source_label' => $isDesignated ? 'Explicitly Designated' : 'Legacy Candidate',
+                'is_healthy' => $state === self::STATE_HEALTHY,
+                'account_active' => $userActive,
+                'membership_active' => $membershipActive,
+                'has_admin_authority' => $isManager,
+                'designation_source' => $designationSource,
+                'assigned_since' => $candidateMembership['created_at'] ?? null,
+                'issues' => $issues,
+                'issue_codes' => $issueCodes,
+                'admin_user' => $userData,
+                'user' => $userData,
+                'membership' => $candidateMembership ? [
+                    'id' => (int) $candidateMembership['id'],
+                    'clinic_id' => (int) $candidateMembership['clinic_id'],
+                    'user_id' => (int) $candidateMembership['user_id'],
+                    'role_id' => (int) $candidateMembership['role_id'],
+                    'status' => $candidateMembership['status'] ?? 'inactive',
+                    'is_active' => $membershipActive,
+                    'created_at' => $candidateMembership['created_at'] ?? null,
+                ] : null,
+                'role' => $role ? [
+                    'id' => (int) $role['id'],
+                    'name' => $role['name'] ?? '',
+                    'slug' => $role['slug'] ?? '',
+                    'is_manager' => $isManager,
+                ] : null,
+                'admin_name' => $fullName,
+                'admin_email' => $user['email'] ?? '',
+                'action_required' => $actionRequired,
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
      * Get the complete administrator status and state for a clinic.
      * Explicit designation is authoritative and NEVER silently replaced with legacy fallback (Finding 1).
      */
@@ -102,169 +456,14 @@ class ClinicAdminLifecycleService
             throw new \CodeIgniter\Exceptions\PageNotFoundException("Clinic not found: {$clinicId}");
         }
 
-        $designatedUserId = $this->getDesignatedAdminUserId($clinicId);
-        $candidateMembership = null;
-        $designationSource = 'none';
-
-        if ($designatedUserId > 0) {
-            $candidateMembership = $this->clinicUserModel
-                ->where('clinic_id', $clinicId)
-                ->where('user_id', $designatedUserId)
-                ->first();
-            $designationSource = 'designated';
-        } else {
-            // Legacy oldest-manager fallback ONLY when NO explicit designation exists at all (Finding 1)
-            $candidateMembership = $this->findEffectivePrimaryMembership($clinicId);
-            if ($candidateMembership) {
-                $designationSource = 'oldest_manager';
-                $designatedUserId = (int) $candidateMembership['user_id'];
-            }
-        }
-
-        if (!$candidateMembership && $designatedUserId <= 0) {
-            return [
-                'has_admin' => false,
-                'status' => self::STATE_UNASSIGNED,
-                'state' => self::STATE_UNASSIGNED,
-                'state_label' => 'Unassigned',
-                'is_healthy' => false,
-                'account_active' => false,
-                'membership_active' => false,
-                'has_admin_authority' => false,
-                'designation_source' => 'none',
-                'assigned_since' => null,
-                'issues' => ['No administrator is currently assigned to this clinic.'],
-                'admin_user' => null,
-                'user' => null,
-                'membership' => null,
-                'role' => null,
-                'admin_name' => 'None',
-                'admin_email' => 'None',
-                'action_required' => 'assign',
-            ];
-        }
-
-        $userId = $candidateMembership ? (int) $candidateMembership['user_id'] : $designatedUserId;
-        $user = $this->userModel->find($userId);
-
-        if (!$user) {
-            return [
-                'has_admin' => false,
-                'status' => self::STATE_UNASSIGNED,
-                'state' => self::STATE_UNASSIGNED,
-                'state_label' => 'User Missing',
-                'is_healthy' => false,
-                'account_active' => false,
-                'membership_active' => false,
-                'has_admin_authority' => false,
-                'designation_source' => $designationSource,
-                'assigned_since' => null,
-                'issues' => ['The designated user record no longer exists in the database.'],
-                'admin_user' => null,
-                'user' => null,
-                'membership' => $candidateMembership,
-                'role' => null,
-                'admin_name' => 'Unknown',
-                'admin_email' => 'Unknown',
-                'action_required' => 'assign',
-            ];
-        }
-
-        $roleId = $candidateMembership ? (int) ($candidateMembership['role_id'] ?? 0) : 0;
-        $role = $roleId > 0 ? $this->roleModel->find($roleId) : null;
-        $isManager = $roleId > 0 && $this->isManagerRole($roleId);
-
-        $userActive = (int) ($user['active'] ?? 0) === 1;
-        $membershipActive = $candidateMembership && ($candidateMembership['status'] ?? '') === 'active';
-
-        $issues = [];
-        if (!$userActive) {
-            $issues[] = 'User account is deactivated in the system.';
-        }
-        if (!$candidateMembership) {
-            $issues[] = 'Designated administrator membership in this clinic is missing or revoked.';
-        } elseif (!$membershipActive) {
-            $issues[] = 'User membership in this clinic is inactive or revoked.';
-        }
-        if (!$isManager) {
-            $issues[] = 'User does not possess the Practice Manager role in this clinic.';
-        }
-
-        // Determine State
-        if (!$userActive) {
-            $state = self::STATE_DISABLED_USER;
-            $stateLabel = 'Account Disabled Globally';
-            $actionRequired = 'restore_or_replace';
-        } elseif (!$membershipActive) {
-            $state = self::STATE_INACTIVE_MEMBERSHIP;
-            $stateLabel = 'Membership Inactive';
-            $actionRequired = 'restore_or_replace';
-        } elseif (!$isManager) {
-            $state = self::STATE_MISSING_AUTHORITY;
-            $stateLabel = 'Missing Admin Authority';
-            $actionRequired = 'grant_authority_or_replace';
-        } else {
-            $state = self::STATE_HEALTHY;
-            $stateLabel = 'Healthy';
-            $actionRequired = null;
-        }
-
-        $fullName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
-        if ($fullName === '') {
-            $fullName = $user['username'] ?? $user['email'];
-        }
-
-        $userData = [
-            'id' => (int) $user['id'],
-            'email' => $user['email'] ?? '',
-            'username' => $user['username'] ?? '',
-            'first_name' => $user['first_name'] ?? '',
-            'last_name' => $user['last_name'] ?? '',
-            'phone' => $user['phone'] ?? '',
-            'name' => $fullName,
-            'active' => (int) ($user['active'] ?? 0),
-            'is_active' => $userActive,
-        ];
-
-        return [
-            'has_admin' => true,
-            'status' => $state,
-            'state' => $state,
-            'state_label' => $stateLabel,
-            'is_healthy' => $state === self::STATE_HEALTHY,
-            'account_active' => $userActive,
-            'membership_active' => $membershipActive,
-            'has_admin_authority' => $isManager,
-            'designation_source' => $designationSource,
-            'assigned_since' => $candidateMembership['created_at'] ?? null,
-            'issues' => $issues,
-            'admin_user' => $userData,
-            'user' => $userData,
-            'membership' => $candidateMembership ? [
-                'id' => (int) $candidateMembership['id'],
-                'clinic_id' => (int) $candidateMembership['clinic_id'],
-                'user_id' => (int) $candidateMembership['user_id'],
-                'role_id' => (int) $candidateMembership['role_id'],
-                'status' => $candidateMembership['status'] ?? 'inactive',
-                'is_active' => $membershipActive,
-                'created_at' => $candidateMembership['created_at'] ?? null,
-            ] : null,
-            'role' => $role ? [
-                'id' => (int) $role['id'],
-                'name' => $role['name'] ?? '',
-                'slug' => $role['slug'] ?? '',
-                'is_manager' => $isManager,
-            ] : null,
-            'admin_name' => $fullName,
-            'admin_email' => $user['email'] ?? '',
-            'action_required' => $actionRequired,
-        ];
+        $all = $this->getClinicAdministrators([$clinicId]);
+        return $all[$clinicId];
     }
 
     /**
      * Get designated admin user ID from settings table.
      */
-    private function getDesignatedAdminUserId(int $clinicId): int
+    public function getDesignatedAdminUserId(int $clinicId): int
     {
         $setting = $this->settingsModel
             ->where('clinic_id', $clinicId)
@@ -322,6 +521,7 @@ class ClinicAdminLifecycleService
             ->join('users', 'users.id = clinic_users.user_id')
             ->where('clinic_users.clinic_id', $clinicId)
             ->orderBy('clinic_users.created_at', 'ASC')
+            ->orderBy('clinic_users.id', 'ASC')
             ->findAll();
 
         if (empty($allMemberships)) {
@@ -391,15 +591,32 @@ class ClinicAdminLifecycleService
                 self::SETTING_KEY_DESIGNATED_ADMIN,
             ]);
 
-            // Assign is strictly for an unassigned clinic only (Finding 3: Assign must not double as Replace)
-            $currentAdmin = $this->getClinicAdministrator($clinicId);
-            if ($currentAdmin['has_admin']) {
+            // Check if an explicit primary administrator is already assigned to this clinic
+            $designatedAdminId = $this->getDesignatedAdminUserId($clinicId);
+            if ($designatedAdminId > 0) {
                 $db->transRollback();
                 return [
                     'success' => false,
                     'code' => 'already_assigned',
                     'message' => 'An administrator is already assigned to this clinic. Use the Replace Administrator action to change administrators.',
                 ];
+            }
+
+            // If no explicit designation exists, check for an unpersisted legacy fallback candidate
+            $currentAdmin = $this->getClinicAdministrator($clinicId);
+            if ($currentAdmin['has_admin'] && !empty($currentAdmin['admin_user']['id'])) {
+                $fallbackUserId = (int) $currentAdmin['admin_user']['id'];
+                if ($userId !== $fallbackUserId) {
+                    // A different user is being assigned while an unconfirmed legacy fallback exists.
+                    // Must use Replace Administrator to specify previous manager handling.
+                    $db->transRollback();
+                    return [
+                        'success' => false,
+                        'code' => 'fallback_conflict',
+                        'message' => 'A legacy manager currently acts as fallback administrator for this clinic. Use Replace Administrator to specify previous manager handling.',
+                    ];
+                }
+                // When $userId === $fallbackUserId, this explicitly confirms the fallback candidate as primary administrator!
             }
 
             // Lock and re-read target membership row inside transaction (Fix 3)
@@ -459,6 +676,7 @@ class ClinicAdminLifecycleService
 
             return [
                 'success' => true,
+                'code' => 'admin_assigned',
                 'message' => "Administrator successfully assigned to {$clinic['name']}.",
             ];
         } catch (\Throwable $e) {
@@ -489,13 +707,27 @@ class ClinicAdminLifecycleService
             throw new \InvalidArgumentException('A valid authenticated actor user ID is required.');
         }
 
-        if (is_bool($previousAdminAction)) {
-            $previousAdminAction = $previousAdminAction ? 'demote_to_staff' : 'keep_role';
-        }
-
         $clinic = $this->clinicModel->find($clinicId);
         if (!$clinic) {
             return ['success' => false, 'code' => 'clinic_not_found', 'message' => 'Clinic not found.'];
+        }
+
+        // Concurrency protection: expectedCurrentAdminUserId is strictly required (Round 2 Finding 2)
+        if ($expectedCurrentAdminUserId === null || (int) $expectedCurrentAdminUserId <= 0) {
+            return [
+                'success' => false,
+                'code' => 'missing_expected_admin',
+                'message' => 'Expected current administrator ID is required for concurrency protection.',
+            ];
+        }
+
+        // Strict validation of previousAdminAction: no silent defaulting (Round 2 Finding 2)
+        if (!in_array($previousAdminAction, ['demote_to_staff', 'keep_role', 'deactivate_membership'], true)) {
+            return [
+                'success' => false,
+                'code' => 'invalid_previous_admin_action',
+                'message' => 'A valid action for the previous administrator must be specified.',
+            ];
         }
 
         $newUser = $this->userModel->find($newUserId);
@@ -592,12 +824,11 @@ class ClinicAdminLifecycleService
                             throw new \RuntimeException('Failed to deactivate previous admin membership: ' . json_encode($errors));
                         }
                     } elseif ($previousAdminAction === 'keep_role') {
-                        // Keep current role and membership
-                    } else {
-                        // Default: demote to staff role, keep membership active
+                        // Keep current role and preserve existing membership status
+                    } elseif ($previousAdminAction === 'demote_to_staff') {
+                        // Demote to staff role while preserving existing membership status (Delta Finding 2)
                         $updatedPrev = $this->clinicUserModel->update($prevMembership['id'], [
                             'role_id' => $staffRole['id'],
-                            'status' => 'active',
                         ]);
                         if ($updatedPrev === false) {
                             $errors = $this->clinicUserModel->errors();
@@ -639,6 +870,7 @@ class ClinicAdminLifecycleService
 
             return [
                 'success' => true,
+                'code' => 'admin_replaced',
                 'message' => "Administrator successfully replaced for {$clinic['name']}.",
             ];
         } catch (\Throwable $e) {
@@ -673,6 +905,15 @@ class ClinicAdminLifecycleService
         $clinic = $this->clinicModel->find($clinicId);
         if (!$clinic) {
             return ['success' => false, 'code' => 'clinic_not_found', 'message' => 'Clinic not found.'];
+        }
+
+        // Concurrency protection: expectedDesignatedAdminUserId is strictly required (Round 2 Finding 2)
+        if ($expectedDesignatedAdminUserId === null || (int) $expectedDesignatedAdminUserId <= 0) {
+            return [
+                'success' => false,
+                'code' => 'missing_expected_admin',
+                'message' => 'Expected designated administrator ID is required for concurrency protection.',
+            ];
         }
 
         $adminRole = $this->resolveAdminRole();
@@ -792,6 +1033,7 @@ class ClinicAdminLifecycleService
 
             return [
                 'success' => true,
+                'code' => 'admin_restored',
                 'message' => "Administrator successfully restored for {$clinic['name']}.",
             ];
         } catch (\Throwable $e) {

@@ -322,7 +322,9 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
 
         $this->assertTrue($admin['has_admin']);
         $this->assertSame((int) $user1['id'], (int) $admin['admin_user']['id']);
-        $this->assertSame('oldest_manager', $admin['designation_source']);
+        $this->assertSame('fallback', $admin['designation_source']);
+        $this->assertTrue($admin['is_fallback']);
+        $this->assertFalse($admin['is_designated']);
     }
 
     /**
@@ -372,7 +374,12 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
         $this->addMembership($clinicB['id'], $userB['id'], $staffRoleId, 'active');
 
         // Attempt replacing Clinic A's admin with User B
-        $result = $this->service->replaceAdministrator($clinicA['id'], $userB['id'], actorUserId: (int) $actor['id']);
+        $result = $this->service->replaceAdministrator(
+            $clinicA['id'],
+            $userB['id'],
+            actorUserId: (int) $actor['id'],
+            expectedCurrentAdminUserId: (int) $userA['id']
+        );
 
         $this->assertFalse($result['success']);
         $this->assertSame('cross_clinic_forbidden', $result['code']);
@@ -519,7 +526,12 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
         $this->addMembership($clinic['id'], $user['id'], $adminRoleId, 'active');
         $this->setDesignatedAdmin($clinic['id'], $user['id']);
 
-        $result = $this->service->replaceAdministrator($clinic['id'], $user['id'], actorUserId: (int) $actor['id']);
+        $result = $this->service->replaceAdministrator(
+            $clinic['id'],
+            $user['id'],
+            actorUserId: (int) $actor['id'],
+            expectedCurrentAdminUserId: (int) $user['id']
+        );
 
         $this->assertFalse($result['success']);
         $this->assertSame('already_admin', $result['code']);
@@ -573,7 +585,12 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
         $this->setDesignatedAdmin($clinic['id'], $user['id']);
 
         // Attempting to restore while account is deactivated must FAIL CLOSED
-        $result = $this->service->restoreAdministrator($clinic['id'], $user['id'], actorUserId: (int) $actor['id']);
+        $result = $this->service->restoreAdministrator(
+            $clinic['id'],
+            $user['id'],
+            actorUserId: (int) $actor['id'],
+            expectedDesignatedAdminUserId: (int) $user['id']
+        );
 
         $this->assertFalse($result['success']);
         $this->assertSame('account_disabled', $result['code']);
@@ -597,7 +614,12 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
         $this->addMembership($clinic['id'], $user['id'], $staffRoleId, 'inactive');
         $this->setDesignatedAdmin($clinic['id'], $user['id']);
 
-        $result = $this->service->restoreAdministrator($clinic['id'], $user['id'], actorUserId: (int) $actor['id']);
+        $result = $this->service->restoreAdministrator(
+            $clinic['id'],
+            $user['id'],
+            actorUserId: (int) $actor['id'],
+            expectedDesignatedAdminUserId: (int) $user['id']
+        );
 
         $this->assertTrue($result['success']);
 
@@ -934,7 +956,12 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
 
         $mId = $this->addMembership($clinic['id'], $user['id'], $staffRoleId, 'active');
 
-        $result = $this->service->restoreAdministrator($clinic['id'], $user['id'], (int) $actor['id']);
+        $result = $this->service->restoreAdministrator(
+            $clinic['id'],
+            $user['id'],
+            (int) $actor['id'],
+            expectedDesignatedAdminUserId: (int) $user['id']
+        );
 
         $this->assertFalse($result['success']);
         $this->assertSame('no_designated_admin', $result['code']);
@@ -970,7 +997,12 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
         $m2Id = $this->addMembership($clinic['id'], $user2['id'], $staffRoleId, 'active');
 
         // Operator attempts to restore User 2 on a clinic designated for User 1
-        $result = $this->service->restoreAdministrator($clinic['id'], $user2['id'], (int) $actor['id']);
+        $result = $this->service->restoreAdministrator(
+            $clinic['id'],
+            $user2['id'],
+            (int) $actor['id'],
+            expectedDesignatedAdminUserId: (int) $user1['id']
+        );
 
         $this->assertFalse($result['success']);
         $this->assertSame('target_mismatch', $result['code']);
@@ -1037,7 +1069,8 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
             clinicId: $clinic['id'],
             newUserId: $user2['id'],
             actorUserId: (int) $actor['id'],
-            previousAdminAction: 'deactivate_membership'
+            previousAdminAction: 'deactivate_membership',
+            expectedCurrentAdminUserId: (int) $user1['id']
         );
         $this->assertTrue($res['success']);
 
@@ -1057,7 +1090,8 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
             clinicId: $clinic2['id'],
             newUserId: $uB['id'],
             actorUserId: (int) $actor['id'],
-            previousAdminAction: 'keep_role'
+            previousAdminAction: 'keep_role',
+            expectedCurrentAdminUserId: (int) $uA['id']
         );
         $this->assertTrue($res2['success']);
 
@@ -1091,10 +1125,247 @@ final class ClinicAdminLifecycleComprehensiveTest extends CIUnitTestCase
         $user = $this->createUser('orphan_user', 1);
         $actor = $this->getOrCreateSuperAdmin();
 
-        $result = $this->service->replaceAdministrator(999999, $user['id'], (int) $actor['id']);
+        $result = $this->service->replaceAdministrator(999999, $user['id'], (int) $actor['id'], expectedCurrentAdminUserId: 123);
 
         $this->assertFalse($result['success']);
         $this->assertSame('clinic_not_found', $result['code']);
+    }
+
+    /**
+     * Delta Finding 2: Replace administrator with demote_to_staff updates role to staff but preserves inactive membership status.
+     */
+    public function testReplaceAdminDemoteToStaffPreservesInactiveMembershipStatus(): void
+    {
+        $clinic = $this->createClinic('Demote Inactive Unit Clinic');
+        $prevAdmin = $this->createUser('prev_inact_u', 1);
+        $newAdmin = $this->createUser('new_act_u', 1);
+        $actor = $this->getOrCreateSuperAdmin();
+        $adminRoleId = $this->getAdminRoleId();
+        $staffRoleId = $this->getStaffRoleId();
+
+        $prevMId = $this->addMembership($clinic['id'], $prevAdmin['id'], $adminRoleId, 'inactive');
+        $newMId = $this->addMembership($clinic['id'], $newAdmin['id'], $staffRoleId, 'active');
+
+        $this->db->table('settings')->insert([
+            'clinic_id' => $clinic['id'],
+            'setting_key' => ClinicAdminLifecycleService::SETTING_KEY_DESIGNATED_ADMIN,
+            'setting_value' => (string) $prevAdmin['id'],
+            'setting_type' => 'number',
+        ]);
+
+        $result = $this->service->replaceAdministrator(
+            $clinic['id'],
+            $newAdmin['id'],
+            (int) $actor['id'],
+            'demote_to_staff',
+            reason: 'Testing inactive status preservation during demotion',
+            expectedCurrentAdminUserId: $prevAdmin['id']
+        );
+
+        $this->assertTrue($result['success'], 'Replacement must succeed');
+        $this->assertSame('admin_replaced', $result['code']);
+
+        // Assert previous admin role is demoted to staff, BUT status remains inactive
+        $prevM = $this->clinicUserModel->find($prevMId);
+        $this->assertSame($staffRoleId, (int) $prevM['role_id'], 'Previous admin role must change to staff');
+        $this->assertSame('inactive', $prevM['status'], 'Previous admin membership status MUST remain inactive');
+
+        // Assert new admin is promoted to admin role and has active status
+        $newM = $this->clinicUserModel->find($newMId);
+        $this->assertSame($adminRoleId, (int) $newM['role_id'], 'New admin role must be admin');
+        $this->assertSame('active', $newM['status'], 'New admin membership must be active');
+
+        // Assert designation updated
+        $designatedId = $this->service->getDesignatedAdminUserId($clinic['id']);
+        $this->assertSame((int) $newAdmin['id'], $designatedId);
+    }
+
+    /**
+     * Delta Finding 2: Replace administrator with keep_role preserves status for both active and inactive previous admins.
+     */
+    public function testReplaceAdminKeepRolePreservesStatusForInactiveAndActiveAdmins(): void
+    {
+        $actor = $this->getOrCreateSuperAdmin();
+        $adminRoleId = $this->getAdminRoleId();
+        $staffRoleId = $this->getStaffRoleId();
+
+        // 1. Inactive previous admin with keep_role
+        $clinic1 = $this->createClinic('Keep Role Inactive Clinic');
+        $prev1 = $this->createUser('prev_keep_inact', 1);
+        $new1 = $this->createUser('new_keep_inact', 1);
+        $prev1MId = $this->addMembership($clinic1['id'], $prev1['id'], $adminRoleId, 'inactive');
+        $this->addMembership($clinic1['id'], $new1['id'], $staffRoleId, 'active');
+
+        $this->db->table('settings')->insert([
+            'clinic_id' => $clinic1['id'],
+            'setting_key' => ClinicAdminLifecycleService::SETTING_KEY_DESIGNATED_ADMIN,
+            'setting_value' => (string) $prev1['id'],
+            'setting_type' => 'number',
+        ]);
+
+        $res1 = $this->service->replaceAdministrator(
+            $clinic1['id'],
+            $new1['id'],
+            (int) $actor['id'],
+            'keep_role',
+            expectedCurrentAdminUserId: $prev1['id']
+        );
+        $this->assertTrue($res1['success']);
+        $prev1M = $this->clinicUserModel->find($prev1MId);
+        $this->assertSame($adminRoleId, (int) $prev1M['role_id'], 'Role must remain admin role');
+        $this->assertSame('inactive', $prev1M['status'], 'Status must remain inactive');
+
+        // 2. Active previous admin with keep_role
+        $clinic2 = $this->createClinic('Keep Role Active Clinic');
+        $prev2 = $this->createUser('prev_keep_act', 1);
+        $new2 = $this->createUser('new_keep_act', 1);
+        $prev2MId = $this->addMembership($clinic2['id'], $prev2['id'], $adminRoleId, 'active');
+        $this->addMembership($clinic2['id'], $new2['id'], $staffRoleId, 'active');
+
+        $this->db->table('settings')->insert([
+            'clinic_id' => $clinic2['id'],
+            'setting_key' => ClinicAdminLifecycleService::SETTING_KEY_DESIGNATED_ADMIN,
+            'setting_value' => (string) $prev2['id'],
+            'setting_type' => 'number',
+        ]);
+
+        $res2 = $this->service->replaceAdministrator(
+            $clinic2['id'],
+            $new2['id'],
+            (int) $actor['id'],
+            'keep_role',
+            expectedCurrentAdminUserId: $prev2['id']
+        );
+        $this->assertTrue($res2['success']);
+        $prev2M = $this->clinicUserModel->find($prev2MId);
+        $this->assertSame($adminRoleId, (int) $prev2M['role_id'], 'Role must remain admin role');
+        $this->assertSame('active', $prev2M['status'], 'Status must remain active');
+    }
+
+    /**
+     * Delta Finding 2: Replace administrator with deactivate_membership sets previous admin status to inactive.
+     */
+    public function testReplaceAdminDeactivateMembershipSetsInactive(): void
+    {
+        $clinic = $this->createClinic('Deactivate Prev Clinic');
+        $prevAdmin = $this->createUser('prev_deact', 1);
+        $newAdmin = $this->createUser('new_deact', 1);
+        $actor = $this->getOrCreateSuperAdmin();
+        $adminRoleId = $this->getAdminRoleId();
+        $staffRoleId = $this->getStaffRoleId();
+
+        $prevMId = $this->addMembership($clinic['id'], $prevAdmin['id'], $adminRoleId, 'active');
+        $this->addMembership($clinic['id'], $newAdmin['id'], $staffRoleId, 'active');
+
+        $this->db->table('settings')->insert([
+            'clinic_id' => $clinic['id'],
+            'setting_key' => ClinicAdminLifecycleService::SETTING_KEY_DESIGNATED_ADMIN,
+            'setting_value' => (string) $prevAdmin['id'],
+            'setting_type' => 'number',
+        ]);
+
+        $result = $this->service->replaceAdministrator(
+            $clinic['id'],
+            $newAdmin['id'],
+            (int) $actor['id'],
+            'deactivate_membership',
+            expectedCurrentAdminUserId: $prevAdmin['id']
+        );
+
+        $this->assertTrue($result['success']);
+        $prevM = $this->clinicUserModel->find($prevMId);
+        $this->assertSame('inactive', $prevM['status'], 'Previous admin membership must be deactivated to inactive');
+    }
+
+    /**
+     * Delta Finding 5: Bulk resolver getClinicAdministrators has bounded query count across multiple clinics and memberships.
+     */
+    public function testBulkResolverHasBoundedQueryCount(): void
+    {
+        $adminRoleId = $this->getAdminRoleId();
+        $staffRoleId = $this->getStaffRoleId();
+
+        // Create 4 clinics, each with 3 candidate memberships (12 members total, all needing fallback resolution)
+        $clinicIds = [];
+        for ($c = 1; $c <= 4; $c++) {
+            $clinic = $this->createClinic("Bulk Clinic {$c}");
+            $clinicIds[] = (int) $clinic['id'];
+
+            // 1 active manager
+            $userA = $this->createUser("c{$c}_mgr", 1);
+            $this->addMembership($clinic['id'], $userA['id'], $adminRoleId, 'active');
+
+            // 2 staff members
+            $userB = $this->createUser("c{$c}_stf1", 1);
+            $this->addMembership($clinic['id'], $userB['id'], $staffRoleId, 'active');
+            $userC = $this->createUser("c{$c}_stf2", 1);
+            $this->addMembership($clinic['id'], $userC['id'], $staffRoleId, 'active');
+        }
+
+        // Measure query count during bulk resolution using CI4 DBQuery event listener
+        $executedQueries = 0;
+        $listener = static function () use (&$executedQueries) {
+            $executedQueries++;
+        };
+        \CodeIgniter\Events\Events::on('DBQuery', $listener);
+
+        $results = $this->service->getClinicAdministrators($clinicIds);
+
+        // Bounded verification: 4 clinics with 12 members should execute <= 5 batch queries total
+        // (1 settings query, 1 fallback clinic_users query with join, 1 batch roles query, 1 batch users query)
+        // Definitely NOT an N+1 query loop per candidate member.
+        $this->assertCount(4, $results);
+        $this->assertLessThanOrEqual(5, $executedQueries, "Bulk query count ({$executedQueries}) must be strictly bounded");
+
+        foreach ($clinicIds as $cid) {
+            $this->assertTrue($results[$cid]['has_admin']);
+            $this->assertTrue($results[$cid]['is_fallback']);
+            $this->assertNotEmpty($results[$cid]['admin_user']);
+        }
+    }
+
+    /**
+     * Delta Finding 5: Deterministic tie-breaking by clinic_users.id ASC when created_at timestamps are identical.
+     */
+    public function testBulkResolverDeterministicTieBreakingById(): void
+    {
+        $clinic = $this->createClinic('Tie Breaker Clinic');
+        $adminRoleId = $this->getAdminRoleId();
+        $sameTimestamp = '2026-01-01 10:00:00';
+
+        // Candidate 1: inserted first (lower id)
+        $user1 = $this->createUser('candidate_one', 1);
+        $this->db->table('clinic_users')->insert([
+            'clinic_id' => $clinic['id'],
+            'user_id' => $user1['id'],
+            'role_id' => $adminRoleId,
+            'status' => 'active',
+            'created_at' => $sameTimestamp,
+        ]);
+        $cand1Id = (int) $this->db->insertID();
+
+        // Candidate 2: inserted second (higher id)
+        $user2 = $this->createUser('candidate_two', 1);
+        $this->db->table('clinic_users')->insert([
+            'clinic_id' => $clinic['id'],
+            'user_id' => $user2['id'],
+            'role_id' => $adminRoleId,
+            'status' => 'active',
+            'created_at' => $sameTimestamp,
+        ]);
+        $cand2Id = (int) $this->db->insertID();
+
+        $this->assertLessThan($cand2Id, $cand1Id, 'Candidate 1 must have lower membership ID');
+
+        // 1. Test getClinicAdministrators (bulk resolver)
+        $bulkResults = $this->service->getClinicAdministrators([$clinic['id']]);
+        $this->assertTrue($bulkResults[$clinic['id']]['has_admin']);
+        $this->assertSame((int) $user1['id'], (int) $bulkResults[$clinic['id']]['admin_user']['id'], 'Bulk resolver must choose lower membership ID');
+
+        // 2. Test getClinicAdministrator (single resolver using findEffectivePrimaryMembership)
+        $singleResult = $this->service->getClinicAdministrator($clinic['id']);
+        $this->assertTrue($singleResult['has_admin']);
+        $this->assertSame((int) $user1['id'], (int) $singleResult['admin_user']['id'], 'Single resolver must choose lower membership ID');
     }
 }
 

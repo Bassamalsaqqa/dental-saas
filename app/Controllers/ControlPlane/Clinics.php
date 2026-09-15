@@ -160,6 +160,10 @@ class Clinics extends BaseController
         $clinics = $clinicQuery->findAll();
         $rows = [];
 
+        $clinicIds = array_map(static fn($c) => (int) $c['id'], $clinics);
+        $adminLifecycleService = new ClinicAdminLifecycleService();
+        $adminsMap = $adminLifecycleService->getClinicAdministrators($clinicIds);
+
         foreach ($clinics as $clinic) {
             $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
             $planName = 'Unassigned';
@@ -183,13 +187,11 @@ class Clinics extends BaseController
                 continue;
             }
 
-            // Fetch Admin Email (First user added to clinic)
-            $adminUser = $clinicUserModel->select('users.email')
-                ->join('users', 'users.id = clinic_users.user_id')
-                ->where('clinic_users.clinic_id', $clinic['id'])
-                ->orderBy('clinic_users.created_at', 'ASC')
-                ->first();
-            $adminEmail = $adminUser ? $adminUser['email'] : 'Unknown';
+            $adminInfo = $adminsMap[(int) $clinic['id']] ?? null;
+            $adminEmail = $adminInfo && !empty($adminInfo['admin_email']) ? $adminInfo['admin_email'] : 'None';
+            $adminState = $adminInfo['state'] ?? ClinicAdminLifecycleService::STATE_UNASSIGNED;
+            $adminStateLabel = $adminInfo['state_label'] ?? 'Unassigned';
+            $adminIsHealthy = (bool) ($adminInfo['is_healthy'] ?? false);
 
             $rows[] = [
                 'id' => $clinic['id'],
@@ -199,6 +201,14 @@ class Clinics extends BaseController
                 'plan_name' => $planName,
                 'mrr' => $mrr,
                 'admin_email' => $adminEmail,
+                'admin_name' => $adminInfo['admin_name'] ?? 'None',
+                'admin_state' => $adminState,
+                'admin_state_label' => $adminStateLabel,
+                'admin_is_healthy' => $adminIsHealthy,
+                'admin_is_designated' => (bool) ($adminInfo['is_designated'] ?? false),
+                'admin_is_fallback' => (bool) ($adminInfo['is_fallback'] ?? false),
+                'admin_source_label' => $adminInfo['source_label'] ?? 'Unassigned',
+                'admin_designation_source' => $adminInfo['designation_source'] ?? 'none',
             ];
         }
 
@@ -282,6 +292,7 @@ class Clinics extends BaseController
             'revenue_month' => 0,
             'overdue' => 0,
         ];
+        $invoiceDataAvailable = true;
 
         try {
             $invoiceModel = $this->invoiceModel ?? new ControlPlaneInvoiceModel();
@@ -305,7 +316,8 @@ class Clinics extends BaseController
             $invoiceStats['outstanding'] = round($invoiceStats['outstanding'], 2);
             $invoiceStats['revenue_month'] = round($invoiceStats['revenue_month'], 2);
         } catch (\Throwable $e) {
-            log_message('error', 'ControlPlane Clinics::show failed to load invoices for clinic ' . $id . ': ' . $e->getMessage());
+            $invoiceDataAvailable = false;
+            log_message('error', sprintf('ControlPlane Clinics::show failed to load invoices for clinic %d [%s]: %s', $id, get_class($e), $e->getMessage()));
         }
 
         $settingsModel = new SettingsModel();
@@ -349,6 +361,7 @@ class Clinics extends BaseController
             'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
             'invoices' => $invoices,
             'invoiceStats' => $invoiceStats,
+            'invoice_data_available' => $invoiceDataAvailable,
             'clinic_settings_snapshot' => $clinicSettings,
             'wa_policy' => $waPolicy,
             'wa_policy_toggles' => $waPolicyToggles,
@@ -725,22 +738,23 @@ class Clinics extends BaseController
 
         $userId = (int) $this->request->getPost('user_id');
         if ($userId <= 0) {
-            return redirect()->back()->with('error', 'Please select a valid user to assign as administrator.');
+            return redirect()->back()->with('error', lang('UI.clinicAdminSelectUser'));
         }
 
         $operatorId = (int) (session()->get('user_id') ?? 0);
         if ($operatorId <= 0) {
-            return redirect()->back()->with('error', 'Authenticated operator identity required.');
+            return redirect()->back()->with('error', lang('UI.operatorIdentityRequired'));
         }
 
         $lifecycleService = new ClinicAdminLifecycleService();
         $result = $lifecycleService->assignAdministrator($id, $userId, $operatorId, reason: 'Assigned via control plane UI');
 
+        $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinic['name'] ?? '']);
         if ($result['success']) {
-            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $result['message']);
+            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $msg);
         }
 
-        return redirect()->back()->with('error', $result['message']);
+        return redirect()->back()->with('error', $msg);
     }
 
     /**
@@ -756,27 +770,25 @@ class Clinics extends BaseController
 
         $newUserId = (int) $this->request->getPost('user_id');
         if ($newUserId <= 0) {
-            return redirect()->back()->with('error', 'Please select a valid user to replace current administrator.');
+            return redirect()->back()->with('error', lang('UI.clinicAdminSelectUser'));
         }
 
-        // Strict allowlist for previous admin action (Finding 5)
-        $previousAdminAction = $this->request->getPost('previous_admin_action');
+        $expectedAdminIdRaw = $this->request->getPost('expected_admin_id');
+        if ($expectedAdminIdRaw === null || !is_numeric($expectedAdminIdRaw) || (int) $expectedAdminIdRaw <= 0) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminErrorExpectedAdminRequired'));
+        }
+        $expectedAdminUserId = (int) $expectedAdminIdRaw;
+
+        // Strict allowlist for previous admin action: no silent defaulting (Round 2 Finding 2)
+        $previousAdminAction = (string) $this->request->getPost('previous_admin_action');
         if (!in_array($previousAdminAction, ['demote_to_staff', 'keep_role', 'deactivate_membership'], true)) {
-            $rawDemote = $this->request->getPost('demote_previous');
-            if ($rawDemote === '0' || $rawDemote === false || $rawDemote === 'false') {
-                $previousAdminAction = 'keep_role';
-            } else {
-                $previousAdminAction = 'demote_to_staff';
-            }
+            return redirect()->back()->with('error', lang('UI.clinicAdminErrorInvalidPreviousAdminAction'));
         }
 
         $operatorId = (int) (session()->get('user_id') ?? 0);
         if ($operatorId <= 0) {
-            return redirect()->back()->with('error', 'Authenticated operator identity required.');
+            return redirect()->back()->with('error', lang('UI.operatorIdentityRequired'));
         }
-
-        $expectedAdminId = $this->request->getPost('expected_admin_id');
-        $expectedAdminUserId = ($expectedAdminId !== null && is_numeric($expectedAdminId)) ? (int) $expectedAdminId : null;
 
         $lifecycleService = new ClinicAdminLifecycleService();
         $result = $lifecycleService->replaceAdministrator(
@@ -788,11 +800,12 @@ class Clinics extends BaseController
             expectedCurrentAdminUserId: $expectedAdminUserId
         );
 
+        $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinic['name'] ?? '']);
         if ($result['success']) {
-            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $result['message']);
+            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $msg);
         }
 
-        return redirect()->back()->with('error', $result['message']);
+        return redirect()->back()->with('error', $msg);
     }
 
     /**
@@ -815,18 +828,19 @@ class Clinics extends BaseController
         }
 
         if ($userId <= 0) {
-            return redirect()->back()->with('error', 'No administrator found to restore.');
+            return redirect()->back()->with('error', lang('UI.clinicAdminErrorTargetMismatch'));
         }
 
         $operatorId = (int) (session()->get('user_id') ?? 0);
         if ($operatorId <= 0) {
-            return redirect()->back()->with('error', 'Authenticated operator identity required.');
+            return redirect()->back()->with('error', lang('UI.operatorIdentityRequired'));
         }
 
-        $expectedDesignatedId = $this->request->getPost('expected_designated_admin_id');
-        $expectedDesignatedAdminUserId = ($expectedDesignatedId !== null && is_numeric($expectedDesignatedId))
-            ? (int) $expectedDesignatedId
-            : null;
+        $expectedDesignatedIdRaw = $this->request->getPost('expected_designated_admin_id');
+        if ($expectedDesignatedIdRaw === null || !is_numeric($expectedDesignatedIdRaw) || (int) $expectedDesignatedIdRaw <= 0) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminErrorExpectedAdminRequired'));
+        }
+        $expectedDesignatedAdminUserId = (int) $expectedDesignatedIdRaw;
 
         $result = $lifecycleService->restoreAdministrator(
             $id,
@@ -836,11 +850,12 @@ class Clinics extends BaseController
             expectedDesignatedAdminUserId: $expectedDesignatedAdminUserId
         );
 
+        $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinic['name'] ?? '']);
         if ($result['success']) {
-            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $result['message']);
+            return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $msg);
         }
 
-        return redirect()->back()->with('error', $result['message']);
+        return redirect()->back()->with('error', $msg);
     }
 
     private function resolveEndAt(string $duration, string $startAt): ?string

@@ -8,6 +8,7 @@ use App\Models\RoleModel;
 use App\Models\ClinicUserModel;
 use App\Models\ClinicModel;
 use App\Services\ControlPlaneAuditService;
+use App\Services\ClinicAdminLifecycleService;
 use App\Libraries\IonAuth;
 
 class Users extends BaseController
@@ -244,12 +245,26 @@ class Users extends BaseController
             }
         }
 
-        // Attach role labels for membership table.
+        $clinicAdminService = new ClinicAdminLifecycleService();
+        $userClinicIds = array_map(static fn($m) => (int) ($m['clinic_id'] ?? 0), $memberships);
+        $clinicAdmins = $clinicAdminService->getClinicAdministrators($userClinicIds);
+
+        // Attach role labels and administrator status for membership table.
         foreach ($memberships as &$membership) {
             $clinicId = (int) ($membership['clinic_id'] ?? 0);
             $currentRole = $this->roleModel->find((int) ($membership['role_id'] ?? 0));
             $membership['role_name'] = $currentRole['name'] ?? 'Unknown';
             $membership['role_slug'] = $currentRole['slug'] ?? null;
+
+            $adminInfo = $clinicAdmins[$clinicId] ?? null;
+            $isDesignatedAdmin = $adminInfo && ($adminInfo['designation_source'] ?? '') === 'designated' && (int) ($adminInfo['admin_user']['id'] ?? 0) === $id;
+            $isFallbackCandidate = $adminInfo && in_array(($adminInfo['designation_source'] ?? ''), ['fallback', 'oldest_manager'], true) && (int) ($adminInfo['admin_user']['id'] ?? 0) === $id;
+
+            $membership['admin_info'] = $adminInfo;
+            $membership['is_designated_admin'] = $isDesignatedAdmin;
+            $membership['is_fallback_candidate'] = $isFallbackCandidate;
+            $membership['admin_state'] = $adminInfo['state'] ?? 'unassigned';
+            $membership['admin_is_healthy'] = (bool) ($adminInfo['is_healthy'] ?? false);
         }
         unset($membership);
 
@@ -271,6 +286,168 @@ class Users extends BaseController
             'assignableClinics' => $assignableClinics,
             'rolesByClinic' => $rolesByClinic,
         ]);
+    }
+
+    /**
+     * POST /controlplane/users/{id}/admin/designate
+     * Designates this user as primary administrator for a clinic where they are already a member.
+     */
+    public function designateClinicAdmin(int $id)
+    {
+        $userModel = new UserModel();
+        $user = $userModel->find($id);
+        if (!$user) {
+            return redirect()->back()->with('error', lang('UI.userNotFound'));
+        }
+
+        // Account must be globally active
+        if ((int) ($user['active'] ?? 0) !== 1) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminAccountDeactivatedHelp'));
+        }
+
+        $clinicId = (int) $this->request->getPost('clinic_id');
+        if ($clinicId <= 0) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminSelectClinic'));
+        }
+
+        $clinic = (new ClinicModel())->find($clinicId);
+        if (!$clinic) {
+            return redirect()->back()->with('error', lang('UI.clinicNotFound'));
+        }
+
+        // Must be an existing member of this clinic (no implicit cross-clinic membership)
+        $clinicUserModel = $this->clinicUserModel();
+        $membership = $clinicUserModel
+            ->where('clinic_id', $clinicId)
+            ->where('user_id', $id)
+            ->first();
+
+        if (!$membership) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminCrossClinicForbidden'));
+        }
+
+        $operatorId = (int) (session()->get('user_id') ?? 0);
+        if ($operatorId <= 0) {
+            return redirect()->back()->with('error', lang('UI.operatorIdentityRequired'));
+        }
+
+        $reason = trim((string) $this->request->getPost('reason'));
+        $reason = $reason !== '' ? $reason : 'Designated via user profile UI';
+
+        $lifecycleService = new ClinicAdminLifecycleService();
+        $currentAdmin = $lifecycleService->getClinicAdministrator($clinicId);
+
+        // Case 1: User is already explicitly designated for this clinic
+        if (!empty($currentAdmin['is_designated']) && (int) ($currentAdmin['admin_user']['id'] ?? 0) === $id) {
+            if (!$currentAdmin['is_healthy']) {
+                // Explicit restore intent is strictly required (Delta Finding 1)
+                return redirect()->to(base_url('controlplane/users/' . $id))
+                    ->with('error', lang('UI.clinicAdminAlreadyDesignatedDegraded'));
+            }
+            return redirect()->to(base_url('controlplane/users/' . $id))->with('info', lang('UI.userAlreadyPrimaryAdmin'));
+        }
+
+        // Case 2: User is the unconfirmed legacy fallback candidate -> explicitly assign without replacing
+        if (!empty($currentAdmin['is_fallback']) && (int) ($currentAdmin['admin_user']['id'] ?? 0) === $id) {
+            $result = $lifecycleService->assignAdministrator($clinicId, $id, $operatorId, reason: $reason);
+            $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinic['name'] ?? '']);
+            if ($result['success']) {
+                return redirect()->to(base_url('controlplane/users/' . $id))->with('success', $msg);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        // Case 3: Clinic currently has another administrator (designated or fallback candidate) -> invoke replacement
+        if ($currentAdmin['has_admin'] && !empty($currentAdmin['admin_user']['id'])) {
+            $expectedAdminIdRaw = $this->request->getPost('expected_admin_id');
+            if ($expectedAdminIdRaw === null || !is_numeric($expectedAdminIdRaw) || (int) $expectedAdminIdRaw <= 0) {
+                return redirect()->back()->with('error', lang('UI.clinicAdminErrorExpectedAdminRequired'));
+            }
+            $expectedAdminUserId = (int) $expectedAdminIdRaw;
+
+            $previousAdminAction = (string) $this->request->getPost('previous_admin_action');
+            if (!in_array($previousAdminAction, ['demote_to_staff', 'keep_role', 'deactivate_membership'], true)) {
+                return redirect()->back()->with('error', lang('UI.clinicAdminErrorInvalidPreviousAdminAction'));
+            }
+
+            $result = $lifecycleService->replaceAdministrator(
+                $clinicId,
+                $id,
+                $operatorId,
+                $previousAdminAction,
+                reason: $reason,
+                expectedCurrentAdminUserId: $expectedAdminUserId
+            );
+
+            $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinic['name'] ?? '']);
+            if ($result['success']) {
+                return redirect()->to(base_url('controlplane/users/' . $id))->with('success', $msg);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        // Case 4: Clinic is truly unassigned -> assign administrator
+        $result = $lifecycleService->assignAdministrator($clinicId, $id, $operatorId, reason: $reason);
+        $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinic['name'] ?? '']);
+        if ($result['success']) {
+            return redirect()->to(base_url('controlplane/users/' . $id))->with('success', $msg);
+        }
+        return redirect()->back()->with('error', $msg);
+    }
+
+    /**
+     * POST /controlplane/users/{id}/admin/restore
+     * Restores clinic administrator authority for this user in a clinic where they are designated.
+     */
+    public function restoreClinicAdmin(int $id)
+    {
+        $userModel = new UserModel();
+        $user = $userModel->find($id);
+        if (!$user) {
+            return redirect()->back()->with('error', lang('UI.userNotFound'));
+        }
+
+        if ((int) ($user['active'] ?? 0) !== 1) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminAccountDeactivatedHelp'));
+        }
+
+        $clinicId = (int) $this->request->getPost('clinic_id');
+        if ($clinicId <= 0) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminSelectClinic'));
+        }
+
+        $operatorId = (int) (session()->get('user_id') ?? 0);
+        if ($operatorId <= 0) {
+            return redirect()->back()->with('error', lang('UI.operatorIdentityRequired'));
+        }
+
+        $expectedDesignatedId = $this->request->getPost('expected_designated_admin_id');
+        if ($expectedDesignatedId === null || !is_numeric($expectedDesignatedId) || (int) $expectedDesignatedId <= 0) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminErrorExpectedAdminRequired'));
+        }
+        $expectedDesignatedAdminUserId = (int) $expectedDesignatedId;
+        if ($expectedDesignatedAdminUserId !== $id) {
+            return redirect()->back()->with('error', lang('UI.clinicAdminErrorTargetMismatch'));
+        }
+
+        $reason = trim((string) $this->request->getPost('reason'));
+        $reason = $reason !== '' ? $reason : 'Restored via user profile UI';
+
+        $lifecycleService = new ClinicAdminLifecycleService();
+        $result = $lifecycleService->restoreAdministrator(
+            $clinicId,
+            $id,
+            $operatorId,
+            reason: $reason,
+            expectedDesignatedAdminUserId: $expectedDesignatedAdminUserId
+        );
+
+        $msg = $lifecycleService->formatLocalizedMessage($result, ['clinic' => $clinicId]);
+        if ($result['success']) {
+            return redirect()->to(base_url('controlplane/users/' . $id))->with('success', $msg);
+        }
+
+        return redirect()->back()->with('error', $msg);
     }
 
     /**

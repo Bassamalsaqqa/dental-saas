@@ -162,7 +162,8 @@ class EnsureControlPlaneInvoicesTables extends Migration
 
     public function down()
     {
-        $this->forge->dropTable('control_plane_invoice_payments', true);
-        $this->forge->dropTable('control_plane_invoices', true);
+        // Irreversible reconciliation migration:
+        // Table ownership predates this migration; up() may have adopted tables created by earlier migrations.
+        // Automatic rollback cannot safely distinguish adopted from newly created tables and must not drop financial tables or data.
     }
 }

@@ -68,6 +68,8 @@ $routes->group('controlplane', function ($routes) {
             $routes->post('(:num)/reset-password', 'ControlPlane\Users::resetPassword/$1');
             $routes->post('(:num)/toggle-status', 'ControlPlane\Users::toggleStatus/$1');
             $routes->post('(:num)/delete', 'ControlPlane\Users::delete/$1');
+            $routes->post('(:num)/admin/designate', 'ControlPlane\Users::designateClinicAdmin/$1');
+            $routes->post('(:num)/admin/restore', 'ControlPlane\Users::restoreClinicAdmin/$1');
         });
         
         // Activity Log (New)

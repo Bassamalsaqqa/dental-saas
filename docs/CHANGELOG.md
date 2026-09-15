@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-15 - Control Plane Clinic Administrator Final Audit Corrections
+
+- Delta Audit Corrections (5 Findings Resolved):
+  - **Finding 1 (High - Explicit Restore Required in Designation Endpoint)**: In `ControlPlane\Users::designateClinicAdmin`, removed automatic restoration for already designated degraded users. Posting to `/admin/designate` for an already designated user with degraded authority now fails closed with `UI.clinicAdminAlreadyDesignatedDegraded` and directs the operator to the explicit restore action. No concurrency tokens are manufactured from server state; restoration requires an explicit restore request with `expected_designated_admin_id`.
+  - **Finding 2 (High - Demotion Preserves Inactive Membership Status)**: In `ClinicAdminLifecycleService::replaceAdministrator`, demoting a replaced administrator (`demote_to_staff`) updates only `role_id` to staff and strictly preserves the previous membership's `status`. Locked/suspended memberships remain inactive and are never silently reactivated during demotion.
+  - **Finding 3 (Medium - Localized Service Outcome Messages)**: Added stable machine result codes (`admin_assigned`, `admin_replaced`, `admin_restored`) to service success returns, and implemented `formatLocalizedMessage()` across both `Clinics` and `Users` controllers. Added complete English and Arabic translations for all service outcomes and errors in `app/Language/en/UI.php` and `app/Language/ar/UI.php` without altering internal machine codes.
+  - **Finding 4 (Medium - Modal Focus Trapping & Accessibility)**: Implemented complete keyboard focus containment (`Tab` and `Shift+Tab` cycling) for active administrator dialogs in both `app/Views/control_plane/users/show.php` and `app/Views/control_plane/clinic_detail.php`. Guarded initial focus timeouts with `clearTimeout` and active modal visibility checks, protected against hidden modals consuming saved triggers, and ensured form reset and focus return on dialog closure. Authenticated browser QA remains explicitly deferred.
+  - **Finding 5 (Medium - Bulk Resolver N+1 Query Elimination & Deterministic Tie-Breaking)**: In `ClinicAdminLifecycleService::getClinicAdministrators()`, preloaded all required role IDs across designated and fallback candidate memberships in a single batch query before evaluation, memoized roles in `$this->roleCache`, and passed the preloaded map to `isManagerRole()`. Added deterministic tie-breaking by `clinic_users.id ASC` after `clinic_users.created_at ASC` in both bulk and single resolvers. Verified bounded query count (4 clinics with 12 members execute <= 5 batch queries).
+
 ## 2026-09-14 - Control Plane Clinic Administrator Lifecycle & Hardening
 
 - Resolved 500 error on `GET /controlplane/clinics/{id}`:
@@ -33,11 +42,19 @@
   - Verification: 44 tests, 191 assertions pass cleanly across all three lifecycle suites. Manual browser QA and production verification remain deferred.
 - Control Plane Clinic Detail Production Incident Resolution:
   - Root cause: `GET /controlplane/clinics/{id}` threw `Error: Call to a member function getResult() on bool in system/Model.php:287` because `control_plane_invoices` was omitted from the production database schema (due to historical `--ignore-table` in mysqldump commands while `migrations` recorded batch 24 as run).
-  - Schema hardening: added idempotent migration `2026-09-14-200000_EnsureControlPlaneInvoicesTables` to guarantee `control_plane_invoices` and `control_plane_invoice_payments` exist across all environments without manual SQL intervention.
-  - Controller resilience: wrapped invoice query in `Clinics::show()` in a fail-safe try/catch block with graceful fallback to empty list and zero statistics; optional invoice loading failures will never crash the clinic detail page.
-  - Logging infrastructure: initialized `writable/logs` on production Hostinger host to enable CI4 file logging.
-  - Test coverage: added regression test `testShowRecoversGracefullyFromInvoiceQueryFailure()` in `ControlPlaneClinicDetailTest` simulating the exact production failure condition.
-  - Documentation: updated `AGENTS.md`, `CLAUDE.md`, and `docs/OPERATIONS_RUNBOOK.md` to remove `--ignore-table` flags and added comprehensive Hostinger deployment runbook.
+  - Schema repair: added reconciliation migration `2026-09-14-200000_EnsureControlPlaneInvoicesTables` to repair entirely missing control-plane invoice tables when migrations run. It does not reconcile malformed or partially drifted existing tables.
+  - Controller resilience: wrapped invoice query in `Clinics::show()` in a fail-safe try/catch block; invoice-query failures handled by this path no longer crash clinic detail and are surfaced as unavailable (`invoice_data_available = false`) with an operator warning and dashed statistics. Genuinely empty invoice sets preserve normal empty ledger rendering.
+  - Logging infrastructure & diagnostics: initialized `writable/logs` on production Hostinger host to enable CI4 file logging. Diagnostic CLI script invocations previously logged errors due to unavailable CLI exec environments and are recorded as diagnostic noise.
+  - Test coverage: added regression tests in `ControlPlaneClinicDetailTest` covering missing-table migration non-destructive rollback, query failure unavailable state, genuinely empty state, and registry/detail parity.
+  - Documentation: updated `AGENTS.md`, `CLAUDE.md`, and `docs/OPERATIONS_RUNBOOK.md` to remove `--ignore-table` flags, prohibit generic production `php spark migrate:rollback`, and require reviewed migration-specific rollback plans.
+  - Authenticated browser QA remains deferred.
+- Control Plane Clinic Administrator Lifecycle & Registry Parity (Final Corrections):
+  - Irreversible reconciliation migration: modified `2026-09-14-200000_EnsureControlPlaneInvoicesTables::down()` to be a non-destructive no-op because automatic rollback cannot safely distinguish adopted from newly created tables and must never drop financial tables or data.
+  - Billing unavailable contract: `Clinics::show()` passes `'invoice_data_available' => false` on catch and logs exception class, clinic ID, and message. `clinic_detail.php` renders `--` for stats cards and a compact localized warning alert (`lang('UI.billingDataUnavailable')`), suppressing false zero ledgers.
+  - Registry & detail parity: `/controlplane/clinics` and `/controlplane/clinics/{id}` now both resolve administrator identity and degraded state through `ClinicAdminLifecycleService::getClinicAdministrators()` and `getClinicAdministrator()`. Eliminates registry discrepancy where the oldest member was previously displayed.
+  - Registry degraded-state indicators: DataTable renders explicit degraded-state badges (`Account Disabled`, `Inactive Membership`, `Missing Authority`, `Unassigned`) alongside designated administrator emails.
+  - User profile in-context administrator actions: `/controlplane/users/{id}` annotates existing clinic memberships with primary administrator status and provides contextual "Make Primary Administrator" and "Restore Authority" actions with accessible modal dialogues (Cancel, X, Escape, backdrop dismissal), single-primary-admin explainer, previous-admin action choices (`demote_to_staff`, `keep_role`, `deactivate_membership`), and concurrency protection (`expected_admin_id`).
+  - Strict product invariant: exactly one primary administrator per clinic. Management-role users can exist as managers without designated administrator status. Suspension/reactivation never silently alters `designated_admin_user_id`.
 
 ## 2026-08-02 - Accepted treatment scheduling recovery
 

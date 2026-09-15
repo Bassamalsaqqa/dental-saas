@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-14
+Last updated: 2026-09-15
 
 ## Status
 
@@ -22,11 +22,11 @@ Last updated: 2026-09-14
 - Completed Examination notes can be signed once, become immutable, and receive attributed append-only addenda; print output carries the signature evidence.
 - Dashboard and Examination registry expose tenant-scoped ready-to-sign and overdue-draft documentation queues without bulk signing or clinical-content inference.
 - Accepted Treatment procedures without a scheduled visit appear in tenant-scoped Dashboard/Treatments queues; explicit appointment creation links the future visit separately and advances the lifecycle atomically.
-- Control Plane clinic administrator lifecycle: state detection (healthy, disabled user, inactive membership, missing authority, unassigned), explicit designation in settings, replacement with optional demotion, restoration decoupled from global account activation, membership-bounded selection, concurrency protection, fail-closed audit logging, and resilient invoice panel handling against schema drift.
+- Control Plane clinic administrator lifecycle: state detection (healthy, disabled user, inactive membership, missing authority, unassigned), explicit designation in settings, replacement with optional demotion (preserving inactive status without silent reactivation), restoration decoupled from global account activation with explicit operator intent required on designation, membership-bounded selection, concurrency protection, fail-closed audit logging, localized service outcomes in English/Arabic with stable machine codes, bounded bulk query resolution with deterministic ID tie-breaking, canonical registry/detail administrator parity, accessible modal focus containment with guarded timers and trigger restoration, in-context user profile admin management actions, non-destructive reconciliation migrations, and resilient invoice panel handling against schema drift.
 
 ## Deferred Manual QA
 
-- Control Plane clinic administrator lifecycle: browser modal verification (assign, replace, restore, reset password) in English and Arabic RTL, and Escape/backdrop dismissal.
+- Control Plane clinic administrator lifecycle: browser modal verification (focus trapping on Tab/Shift+Tab, assign, replace, restore, reset password, make administrator) in English and Arabic RTL, and Escape/backdrop dismissal on clinics and users detail surfaces.
 - Full clinic-day workflow on local and `denta.palsync.net` in English and Arabic.
 - View-only versus edit permissions across appointment checkout.
 - Treatment full-page/modal creation with lifecycle intent, optional inventory, and optional charge capture.
