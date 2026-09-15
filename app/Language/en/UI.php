@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'onboardingCreated' => 'Clinic created successfully (ID: {0}).',
+    'onboardingInvalidPlan' => 'Select an active plan and try again.',
+    'onboardingSuperadminForbidden' => 'Super Admin accounts cannot be clinic administrators.',
+    'onboardingUserInactive' => 'Activate this user account before assigning it to a clinic.',
+    'onboardingInvalidDetails' => 'Review the onboarding details and try again.',
+    'onboardingFailed' => 'Clinic onboarding could not be completed. Please try again later.',
     'mainMenu' => 'Main Menu',
     'menuDashboard' => 'Dashboard',
     'menuPatients' => 'Patients',

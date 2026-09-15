@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-15 - Control Plane Onboarding Transaction Fix
+
+- Fixed onboarding in global mode without a tenant session by containing explicit tenant-scope bypasses in the control-plane workflow and supplying clinic IDs on writes.
+- Added a control-plane email-check endpoint; onboarding no longer calls the tenant-plane users endpoint. Invalid email returns 422; query failure returns sanitized JSON with 503.
+- Onboarding requires the authenticated active Super Admin actor, owns one checked transaction, rejects nested calls without touching the caller transaction, checks required writes, and persists both plan and control-plane success audits before commit.
+- Removed implicit creation/permission expansion of shared manager roles. Missing required role/authentication bootstrap fails closed. Existing users keep their profile/password; inactive and Super Admin targets are rejected.
+- Initial primary administrator designation and clinic defaults are persisted atomically. Added localized English/Arabic outcomes and behavioral tests for committed creation, a real create POST, reuse, access denial, rollback on required-write/SQL failures, and rendered JavaScript parsing.
+- Production onboarding creation and interactive browser QA remain unexecuted to avoid creating business records during deployment verification.
+- Validation: seven focused/adjacent suites passed (121 tests, 597 assertions), touched PHP lint and whitespace checks passed, and the modified onboarding view has no DOM sinks. Repository-wide guardrails still report pre-existing violations in unrelated finance, reports, inventory, and other views.
+
 ## 2026-09-15 - Control Plane Clinic Administrator Final Audit Corrections
 
 - Delta Audit Corrections (5 Findings Resolved):

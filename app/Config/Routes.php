@@ -106,6 +106,9 @@ $routes->group('controlplane', function ($routes) {
     $routes->group('onboarding', function($routes) {
         $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic');
         $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic');
+        // Control-plane scoped email-availability check (airlock-safe, global mode)
+        $routes->get('check-email', 'ControlPlane\Onboarding::checkEmail');
+        $routes->post('check-email', 'ControlPlane\Onboarding::checkEmail');
     });
 });
 

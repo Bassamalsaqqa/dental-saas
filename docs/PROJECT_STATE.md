@@ -11,6 +11,7 @@ Last updated: 2026-09-15
 
 ## Implemented Workflow Milestones
 
+- Control Plane onboarding works without tenant session context, uses its own authorized email-check route, atomically persists clinic/admin/subscription/defaults/designation and required audits, and rejects nested transactions and ineligible administrator accounts. Local behavioral creation/rollback, route authorization, English/Arabic errors, and rendered JavaScript parsing are verified; no production clinic is created for smoke testing.
 - Visit stages are server-owned from scheduled through checkout/completed.
 - Dashboard groups today’s appointments into operational queues.
 - Clinical procedures have a first-class audited lifecycle for newly created Treatments; ambiguous legacy rows are not backfilled.

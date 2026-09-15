@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'onboardingCreated' => 'تم إنشاء العيادة بنجاح (المعرف: {0}).',
+    'onboardingInvalidPlan' => 'اختر خطة نشطة وحاول مرة أخرى.',
+    'onboardingSuperadminForbidden' => 'لا يمكن تعيين حساب مسؤول النظام كمسؤول عيادة.',
+    'onboardingUserInactive' => 'فعّل حساب المستخدم قبل تعيينه للعيادة.',
+    'onboardingInvalidDetails' => 'راجع بيانات إنشاء العيادة وحاول مرة أخرى.',
+    'onboardingFailed' => 'تعذر إكمال إنشاء العيادة. يرجى المحاولة لاحقاً.',
     'mainMenu' => 'القائمة الرئيسية',
     'menuDashboard' => 'لوحة التحكم',
     'menuPatients' => 'المرضى',
