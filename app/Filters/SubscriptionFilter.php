@@ -36,25 +36,9 @@ class SubscriptionFilter implements FilterInterface
             $sub = $subModel->markExpiredIfNeeded($sub);
         }
 
-        $isValid = false;
-        $reason = 'no_valid_subscription';
-
-        if ($sub) {
-            $now = time();
-            if ($sub['status'] === 'active') {
-                $startOk = empty($sub['start_at']) || strtotime($sub['start_at']) <= $now;
-                $endOk = empty($sub['end_at']) || strtotime($sub['end_at']) > $now;
-                if (!$startOk) {
-                    $reason = 'NOT_STARTED';
-                } elseif (!$endOk) {
-                    $reason = 'EXPIRED';
-                } else {
-                    $isValid = true;
-                }
-            } else {
-                $reason = strtoupper($sub['status']);
-            }
-        }
+        $standing = ClinicSubscriptionModel::evaluateStanding($sub);
+        $isValid = $standing['is_valid'];
+        $reason = $standing['reason'];
 
         if (!$isValid) {
             log_message('error', "SUBSCRIPTION_STATE_BLOCK: clinic_id={$clinicId} user_id={$userId} status=" . ($sub['status'] ?? 'none') . " start_at=" . ($sub['start_at'] ?? 'null') . " end_at=" . ($sub['end_at'] ?? 'null') . " reason={$reason}");

@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-15 - Subscription Timezone Contract & Tenant Dashboard Entry
+
+- Established canonical UTC persistence (`ClinicSubscriptionModel::nowUtc`) for all subscription lifecycle timestamps across `OnboardingService`, `ControlPlane\Clinics`, and `ControlPlane\PlanRequests`.
+- Centralized subscription timestamp parsing and standing evaluation in `ClinicSubscriptionModel::parseUtcTimestamp()` and `ClinicSubscriptionModel::evaluateStanding()`, eliminating the 3-hour mismatch between controller local timezone (`Asia/Jerusalem`, UTC+3) and bootstrap filter UTC reader.
+- Subscriptions fail closed on malformed/corrupt dates, block future starts (`NOT_STARTED`), and block expired periods (`EXPIRED`) without grace periods or unconditional allowances.
+- Delta Audit Corrections (Round 1 & Round 2 Final Delta):
+  - Pre-validation and zero-mutation before destructive state change: in `ControlPlane\Clinics::startSubscription` and `ControlPlane\PlanRequests::approve`, plan existence, duration, and `resolveEndAt()` are validated before any database mutation or transaction begin, preventing invalid inputs from canceling active subscriptions.
+  - Concurrency serialization & checked writes: `startSubscription`, `extendSubscription`, `cancelSubscription`, `updateSubscriptionDates`, and `approve` serialize operations with InnoDB `SELECT ... FOR UPDATE` row locks, enforce checked updates/inserts, and ensure fail-closed audit logging (`$failClosed = true`) atomically within the same transaction.
+  - Full transaction rollback on late write failure: verified by behavioral test that audit or secondary write failure rolls back intermediate cancellations and inserts cleanly to baseline.
+  - AuthFilter generalization: removed test-driven hardcoded `dental-saas/` path from `app/Filters/AuthFilter.php`; standardized on `$request->getUri()->getRoutePath()` for universal support across root and arbitrary subfolder deployments.
+  - Local datetime normalization & DST policy: `Clinics::normalizeDateTime` fails closed on invalid timezone names (returns `null`), resets minute-only seconds deterministically to `:00`, rejects DST spring-forward gaps, and rejects ambiguous DST fall-back folds (`isAmbiguousDstFold`) unless an explicit ISO offset is supplied.
+  - Bounded parser & display hardening: constrained `ClinicSubscriptionModel::parseUtcTimestamp` offset regex to valid real-world bounds (`+14:00` to `-12:00`), rejecting `+14:01`, `-12:01`, and `-14:00`; wrapped `ClinicSubscriptionModel::formatDisplay` with safe UTC fallback on invalid timezone names to prevent display exceptions.
+  - Historical repair procedure in `docs/SaaS/DATETIME_CONTRACT.md` updated with accurate production snapshot evidence (`updated_at = '2026-09-15 19:40:16'`), application CLI command specification, MySQL DDL implicit-commit explanation, unique checked backup tables, full concurrency predicates, `ROW_COUNT() = 1` assertions, explicit operator ID, and prominent unexecuted designation.
+  - Behavioral test suite `TenantDashboardSubscriptionTimezoneTest` expanded to 12 tests (245 assertions) covering strict grammar, valid/invalid offset extremes, DST gaps and folds, finite extension bounds, actual registered login/select/impersonation routes, zero-mutation on invalid start/approve, and late-write transaction rollback.
+- Subscription Transaction & Concurrency Hardening Corrections:
+  - Extracted unified `ControlPlaneSubscriptionService` governing `startSubscription`, `extendSubscription`, `cancelSubscription`, `updateSubscriptionDates`, and `approvePlanRequest`.
+  - Owned transaction contract: rejects nested caller transactions (`$db->transDepth !== 0`), checks `transBegin()`, verifies `$db->transStatus() === false || !$db->transCommit()`, rolls back cleanly only when depth remains, and returns structured result codes instead of leaking raw exceptions.
+  - Mandatory concurrency contract: `extendSubscription` requires `expected_end_at` and `expected_updated_at`; `cancelSubscription` requires `expected_updated_at`; `updateSubscriptionDates` requires `expected_start_at`, `expected_end_at`, and `expected_updated_at`; `approvePlanRequest` requires `expected_requested_plan_id` and `expected_requested_duration`. Missing, empty, or malformed tokens fail closed with localized machine code `missing_concurrency_token`, zero mutation, and zero audit rows before opening transactions.
+  - Explicit NULL token sentinel: genuine SQL `NULL` timestamps (e.g. lifetime subscription with `NULL end_at`) are explicitly represented by `__NULL__`, distinguishing valid null state from missing tokens via `matchesNullableToken()`.
+  - UI wiring: updated `app/Views/control_plane/clinic_detail.php` and `plan_requests.php` with mandatory hidden concurrency fields for extension, cancellation, date-update, and approval forms.
+  - Regression suite `TenantDashboardSubscriptionTimezoneTest` expanded to 24 tests (504 assertions) covering registered controller routes for missing, empty, stale, and explicit `__NULL__` tokens across all operations.
+- Validation: all 8 test suites passed in a single invocation (145 tests, 1101 assertions), touched PHP lint passed, `git diff --check` clean, DOM sink scan clean.
+
 ## 2026-09-15 - Control Plane Onboarding Transaction Fix
 
 - Fixed onboarding in global mode without a tenant session by containing explicit tenant-scope bypasses in the control-plane workflow and supplying clinic IDs on writes.

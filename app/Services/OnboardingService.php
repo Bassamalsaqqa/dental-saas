@@ -210,7 +210,9 @@ class OnboardingService
                 'clinic_id' => $clinicId,
                 'plan_id'   => $plan['id'],
                 'status'    => 'active',
-                'start_at'  => date('Y-m-d H:i:s'),
+                // Subscription start_at must be UTC so SubscriptionFilter's strtotime()
+                // (runs before BaseController::applyRuntimeTimezone) compares the correct instant.
+                'start_at'  => gmdate('Y-m-d H:i:s'),
             ]);
             if (!$subId) {
                 throw new \RuntimeException('SUBSCRIPTION_CREATE_FAILED: ' . json_encode($this->subscriptionModel->errors()));

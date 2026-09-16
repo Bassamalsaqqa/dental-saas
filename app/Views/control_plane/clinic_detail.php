@@ -386,11 +386,11 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                             <div class="flex space-x-4 text-sm">
                                 <div>
                                     <span class="text-gray-400">Start:</span>
-                                    <span class="font-medium text-gray-900"><?= !empty($subscription['start_at']) ? date('M j, Y', strtotime($subscription['start_at'])) : '--' ?></span>
+                                    <span class="font-medium text-gray-900"><?= \App\Models\ClinicSubscriptionModel::formatDisplay($subscription['start_at'] ?? null) ?></span>
                                 </div>
                                 <div>
                                     <span class="text-gray-400">End:</span>
-                                    <span class="font-medium text-gray-900"><?= !empty($subscription['end_at']) ? date('M j, Y', strtotime($subscription['end_at'])) : '--' ?></span>
+                                    <span class="font-medium text-gray-900"><?= \App\Models\ClinicSubscriptionModel::formatDisplay($subscription['end_at'] ?? null) ?></span>
                                 </div>
                             </div>
                         </div>
@@ -421,6 +421,8 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                             <!-- Extend Subscription -->
                             <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/extend') ?>" method="post" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                 <?= csrf_field() ?>
+                                <input type="hidden" name="expected_end_at" value="<?= ($subscription && $subscription['end_at'] !== null) ? esc($subscription['end_at']) : '__NULL__' ?>">
+                                <input type="hidden" name="expected_updated_at" value="<?= ($subscription && $subscription['updated_at'] !== null) ? esc($subscription['updated_at']) : '__NULL__' ?>">
                                 <label class="block text-xs font-medium text-gray-600 mb-2">Extend Duration</label>
                                 <div class="flex gap-2">
                                     <select name="duration" class="flex-1 rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
@@ -431,6 +433,39 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                                         Extend
                                     </button>
                                 </div>
+                            </form>
+
+                            <!-- Cancel Subscription -->
+                            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/cancel') ?>" method="post" class="bg-gray-50 p-4 rounded-lg border border-gray-200" onsubmit="return confirm('Are you sure you want to cancel this subscription?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="expected_updated_at" value="<?= ($subscription && $subscription['updated_at'] !== null) ? esc($subscription['updated_at']) : '__NULL__' ?>">
+                                <input type="hidden" name="canceled_reason" value="manual_cancel">
+                                <label class="block text-xs font-medium text-gray-600 mb-2">Cancel Subscription</label>
+                                <button type="submit" class="w-full px-3 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700 transition-colors" <?= (!$subscription || !in_array($subscription['status'] ?? '', ['active', 'paused'], true)) ? 'disabled' : '' ?>>
+                                    Cancel Active Subscription
+                                </button>
+                            </form>
+
+                            <!-- Update Subscription Dates -->
+                            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/update-dates') ?>" method="post" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="expected_start_at" value="<?= ($subscription && $subscription['start_at'] !== null) ? esc($subscription['start_at']) : '__NULL__' ?>">
+                                <input type="hidden" name="expected_end_at" value="<?= ($subscription && $subscription['end_at'] !== null) ? esc($subscription['end_at']) : '__NULL__' ?>">
+                                <input type="hidden" name="expected_updated_at" value="<?= ($subscription && $subscription['updated_at'] !== null) ? esc($subscription['updated_at']) : '__NULL__' ?>">
+                                <label class="block text-xs font-medium text-gray-600 mb-2">Update Dates (UTC)</label>
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <div>
+                                        <label class="block text-[10px] text-gray-500 mb-1">Start Date</label>
+                                        <input type="text" name="start_at" value="<?= esc($subscription['start_at'] ?? '') ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="w-full rounded-lg border-gray-300 text-xs focus:ring-amber-500 focus:border-amber-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] text-gray-500 mb-1">End Date</label>
+                                        <input type="text" name="end_at" value="<?= esc($subscription['end_at'] ?? '') ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="w-full rounded-lg border-gray-300 text-xs focus:ring-amber-500 focus:border-amber-500">
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full px-3 py-2 bg-amber-600 text-white text-xs font-bold rounded-lg hover:bg-amber-700 transition-colors" <?= (!$subscription || !in_array($subscription['status'] ?? '', ['active', 'paused'], true)) ? 'disabled' : '' ?>>
+                                    Update Dates
+                                </button>
                             </form>
                         </div>
                     </div>

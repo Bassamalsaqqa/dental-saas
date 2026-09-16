@@ -22,13 +22,8 @@ class AppApiSubscription implements FilterInterface
             $subscription = $subscriptionModel->withoutTenantScope()->markExpiredIfNeeded($subscription);
         }
 
-        $valid = false;
-        if ($subscription && ($subscription['status'] ?? '') === 'active') {
-            $now = time();
-            $startOk = empty($subscription['start_at']) || strtotime($subscription['start_at']) <= $now;
-            $endOk = empty($subscription['end_at']) || strtotime($subscription['end_at']) > $now;
-            $valid = $startOk && $endOk;
-        }
+        $standing = ClinicSubscriptionModel::evaluateStanding($subscription);
+        $valid = $standing['is_valid'];
 
         if (! $valid) {
             return $this->error('subscription_inactive', 'Subscription required or expired.', 403);

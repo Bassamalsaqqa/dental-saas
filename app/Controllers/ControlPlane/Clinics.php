@@ -15,18 +15,32 @@ use App\Services\PlanGuard;
 use App\Services\WhatsAppTemplateRegistryService;
 use App\Services\WhatsAppTriggerCatalog;
 use App\Services\ClinicAdminLifecycleService;
+use App\Services\ControlPlaneSubscriptionService;
 use App\Libraries\IonAuth;
 
 class Clinics extends BaseController
 {
     protected $auditService;
     protected $ionAuth;
+    protected $subscriptionService;
     protected ?ControlPlaneInvoiceModel $invoiceModel = null;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
         $this->ionAuth = new IonAuth();
+        $this->subscriptionService = new ControlPlaneSubscriptionService();
+    }
+
+    public function setSubscriptionService(ControlPlaneSubscriptionService $subscriptionService): void
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
+    public function setAuditService(ControlPlaneAuditService $auditService): void
+    {
+        $this->auditService = $auditService;
+        $this->subscriptionService = new ControlPlaneSubscriptionService(auditService: $auditService);
     }
 
     public function setInvoiceModel(ControlPlaneInvoiceModel $invoiceModel): void
@@ -382,44 +396,23 @@ class Clinics extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $planModel = new PlanModel();
         $planId = (int) $this->request->getPost('plan_id');
-        $duration = $this->request->getPost('duration') ?? 'monthly';
+        $duration = (string) ($this->request->getPost('duration') ?? 'monthly');
+        $actorUserId = (int) (session()->get('user_id') ?? 0);
 
-        if (!$planId || !$planModel->find($planId)) {
-            return redirect()->back()->with('error', 'Select a valid plan.');
+        $result = $this->subscriptionService->startSubscription(
+            $id,
+            $planId,
+            $duration,
+            $actorUserId,
+            '/controlplane/clinics/' . $id . '/subscription/start'
+        );
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $this->formatLocalizedMessage($result['code'], 'Failed to start subscription.'));
         }
 
-        $current = $subscriptionModel->getNormalizedSubscription($id);
-        if ($current && in_array($current['status'] ?? '', ['active', 'paused'], true)) {
-            $now = date('Y-m-d H:i:s');
-            $subscriptionModel->update($current['id'], [
-                'status' => 'canceled',
-                'canceled_at' => $now,
-                'end_at' => $now,
-                'canceled_reason' => 'superseded_by_new_subscription',
-            ]);
-        }
-
-        $startAt = date('Y-m-d H:i:s');
-        $endAt = $this->resolveEndAt($duration, $startAt);
-
-        $subscriptionModel->insert([
-            'clinic_id' => $id,
-            'plan_id' => $planId,
-            'status' => 'active',
-            'start_at' => $startAt,
-            'end_at' => $endAt,
-        ]);
-
-        $this->auditService->logEvent('subscription_start', [
-            'route' => '/controlplane/clinics/' . $id . '/subscription/start',
-            'method' => 'POST',
-            'metadata' => ['clinic_id' => $id, 'plan_id' => $planId, 'duration' => $duration],
-        ]);
-
-        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Subscription started.');
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $this->formatLocalizedMessage('started', 'Subscription started.'));
     }
 
     /**
@@ -427,27 +420,25 @@ class Clinics extends BaseController
      */
     public function extendSubscription(int $id)
     {
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getNormalizedSubscription($id);
-        if (!$subscription || ($subscription['status'] ?? '') !== 'active') {
-            return redirect()->back()->with('error', 'No active subscription to extend.');
+        $duration = (string) ($this->request->getPost('duration') ?? 'monthly');
+        $expectedEndAt = $this->request->getPost('expected_end_at');
+        $expectedUpdatedAt = $this->request->getPost('expected_updated_at');
+        $actorUserId = (int) (session()->get('user_id') ?? 0);
+
+        $result = $this->subscriptionService->extendSubscription(
+            $id,
+            $duration,
+            $actorUserId,
+            $expectedEndAt !== null ? (string) $expectedEndAt : null,
+            $expectedUpdatedAt !== null ? (string) $expectedUpdatedAt : null,
+            '/controlplane/clinics/' . $id . '/subscription/extend'
+        );
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $this->formatLocalizedMessage($result['code'], 'Failed to extend subscription.'));
         }
 
-        $duration = $this->request->getPost('duration') ?? 'monthly';
-        $base = $subscription['end_at'] ?? date('Y-m-d H:i:s');
-        $endAt = $this->resolveEndAt($duration, $base);
-
-        $subscriptionModel->update($subscription['id'], [
-            'end_at' => $endAt,
-        ]);
-
-        $this->auditService->logEvent('subscription_extend', [
-            'route' => '/controlplane/clinics/' . $id . '/subscription/extend',
-            'method' => 'POST',
-            'metadata' => ['clinic_id' => $id, 'subscription_id' => $subscription['id'], 'duration' => $duration],
-        ]);
-
-        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Subscription extended.');
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $this->formatLocalizedMessage('extended', 'Subscription extended.'));
     }
 
     /**
@@ -455,27 +446,23 @@ class Clinics extends BaseController
      */
     public function cancelSubscription(int $id)
     {
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getNormalizedSubscription($id);
-        if (!$subscription || !in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
-            return redirect()->back()->with('error', 'No active or paused subscription to cancel.');
+        $reason = $this->request->getPost('canceled_reason') ?: 'manual_cancel';
+        $expectedUpdatedAt = $this->request->getPost('expected_updated_at');
+        $actorUserId = (int) (session()->get('user_id') ?? 0);
+
+        $result = $this->subscriptionService->cancelSubscription(
+            $id,
+            $actorUserId,
+            (string) $reason,
+            $expectedUpdatedAt !== null ? (string) $expectedUpdatedAt : null,
+            '/controlplane/clinics/' . $id . '/subscription/cancel'
+        );
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $this->formatLocalizedMessage($result['code'], 'Failed to cancel subscription.'));
         }
 
-        $now = date('Y-m-d H:i:s');
-        $subscriptionModel->update($subscription['id'], [
-            'status' => 'canceled',
-            'canceled_at' => $now,
-            'end_at' => $now,
-            'canceled_reason' => 'manual_cancel',
-        ]);
-
-        $this->auditService->logEvent('subscription_cancel', [
-            'route' => '/controlplane/clinics/' . $id . '/subscription/cancel',
-            'method' => 'POST',
-            'metadata' => ['clinic_id' => $id, 'subscription_id' => $subscription['id'], 'reason' => 'manual_cancel'],
-        ]);
-
-        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Subscription canceled.');
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $this->formatLocalizedMessage('canceled', 'Subscription canceled.'));
     }
 
     /**
@@ -483,42 +470,47 @@ class Clinics extends BaseController
      */
     public function updateSubscriptionDates(int $id)
     {
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getNormalizedSubscription($id);
-        if (!$subscription || !in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
-            return redirect()->back()->with('error', 'No active or paused subscription to update.');
-        }
-
         $startInput = trim((string) $this->request->getPost('start_at'));
         $endInput = trim((string) $this->request->getPost('end_at'));
+        $expectedStartAt = $this->request->getPost('expected_start_at');
+        $expectedEndAt = $this->request->getPost('expected_end_at');
+        $expectedUpdatedAt = $this->request->getPost('expected_updated_at');
+        $actorUserId = (int) (session()->get('user_id') ?? 0);
 
-        $startAt = $startInput !== '' ? $this->normalizeDateTime($startInput) : ($subscription['start_at'] ?? null);
-        $endAt = $endInput !== '' ? $this->normalizeDateTime($endInput) : ($subscription['end_at'] ?? null);
+        $startAt = $startInput !== '' ? $this->normalizeDateTime($startInput) : null;
+        $endAt = $endInput !== '' ? $this->normalizeDateTime($endInput) : null;
 
-        if ($startInput !== '' && !$startAt) {
-            return redirect()->back()->with('error', 'Invalid start date.');
+        if ($startInput !== '' && $startAt === null) {
+            return redirect()->back()->with('error', $this->formatLocalizedMessage('invalid_dates', 'Invalid start date.'));
+        }
+        if ($endInput !== '' && $endAt === null) {
+            return redirect()->back()->with('error', $this->formatLocalizedMessage('invalid_dates', 'Invalid end date.'));
         }
 
-        if ($endInput !== '' && !$endAt) {
-            return redirect()->back()->with('error', 'Invalid end date.');
+        $result = $this->subscriptionService->updateSubscriptionDates(
+            $id,
+            $startAt,
+            $endAt,
+            $actorUserId,
+            $expectedStartAt !== null ? (string) $expectedStartAt : null,
+            $expectedEndAt !== null ? (string) $expectedEndAt : null,
+            $expectedUpdatedAt !== null ? (string) $expectedUpdatedAt : null,
+            '/controlplane/clinics/' . $id . '/subscription/update-dates'
+        );
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $this->formatLocalizedMessage($result['code'], 'Failed to update subscription dates.'));
         }
 
-        if ($startAt && $endAt && strtotime($endAt) <= strtotime($startAt)) {
-            return redirect()->back()->with('error', 'End date must be after start date.');
-        }
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', $this->formatLocalizedMessage('dates_updated', 'Subscription dates updated.'));
+    }
 
-        $subscriptionModel->update($subscription['id'], [
-            'start_at' => $startAt,
-            'end_at' => $endAt,
-        ]);
-
-        $this->auditService->logEvent('subscription_dates_update', [
-            'route' => '/controlplane/clinics/' . $id . '/subscription/update-dates',
-            'method' => 'POST',
-            'metadata' => ['clinic_id' => $id, 'subscription_id' => $subscription['id']],
-        ]);
-
-        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Subscription dates updated.');
+    private function formatLocalizedMessage(string $code, string $defaultFallback): string
+    {
+        $langKey = 'UI.subscriptionCode_' . $code;
+        $locale = $this->request ? $this->request->getLocale() : (service('request') ? service('request')->getLocale() : null);
+        $translated = lang($langKey, [], $locale);
+        return ($translated !== $langKey && !empty($translated)) ? $translated : $defaultFallback;
     }
 
     /**
@@ -858,37 +850,13 @@ class Clinics extends BaseController
         return redirect()->back()->with('error', $msg);
     }
 
-    private function resolveEndAt(string $duration, string $startAt): ?string
+    private function resolveEndAt(string $duration, ?string $startAt): string|false|null
     {
-        if ($duration === 'lifetime') {
-            return null;
-        }
-
-        $time = strtotime($startAt);
-        if ($duration === 'yearly') {
-            return date('Y-m-d H:i:s', strtotime('+1 year', $time));
-        }
-
-        return date('Y-m-d H:i:s', strtotime('+1 month', $time));
+        return ClinicSubscriptionModel::resolveEndAt($duration, $startAt);
     }
 
-    private function normalizeDateTime(string $input): ?string
+    private function normalizeDateTime(?string $input, ?string $displayTimezone = null): ?string
     {
-        $input = trim($input);
-        if ($input === '') {
-            return null;
-        }
-
-        $dt = \DateTime::createFromFormat('Y-m-d\\TH:i', $input);
-        if ($dt instanceof \DateTime) {
-            return $dt->format('Y-m-d H:i:s');
-        }
-
-        $ts = strtotime($input);
-        if ($ts === false) {
-            return null;
-        }
-
-        return date('Y-m-d H:i:s', $ts);
+        return $this->subscriptionService->normalizeDateTime($input, $displayTimezone);
     }
 }

@@ -78,25 +78,9 @@ class PlanGuard
             $sub = $subModel->markExpiredIfNeeded($sub);
         }
 
-        $isValid = false;
-        $reason = 'no_valid_subscription';
-
-        if ($sub) {
-            $now = time();
-            if ($sub['status'] === 'active') {
-                $startOk = empty($sub['start_at']) || strtotime($sub['start_at']) <= $now;
-                $endOk = empty($sub['end_at']) || strtotime($sub['end_at']) > $now;
-                if (!$startOk) {
-                    $reason = 'NOT_STARTED';
-                } elseif (!$endOk) {
-                    $reason = 'EXPIRED';
-                } else {
-                    $isValid = true;
-                }
-            } else {
-                $reason = strtoupper($sub['status']);
-            }
-        }
+        $standing = ClinicSubscriptionModel::evaluateStanding($sub);
+        $isValid = $standing['is_valid'];
+        $reason = $standing['reason'];
 
         if (!$isValid) {
             $this->audit($clinicId, 'subscription_check', self::PLAN_SUBSCRIPTION_INACTIVE, ['status' => ($sub['status'] ?? 'none'), 'reason' => $reason]);

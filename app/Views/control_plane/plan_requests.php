@@ -286,6 +286,8 @@
                                             <?php if ($status === 'pending'): ?>
                                                 <form action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/approve') ?>" method="post" data-approve-form class="inline">
                                                     <?= csrf_field() ?>
+                                                    <input type="hidden" name="expected_requested_plan_id" value="<?= esc($request['requested_plan_id']) ?>">
+                                                    <input type="hidden" name="expected_requested_duration" value="<?= esc($request['requested_duration'] ?? 'monthly') ?>">
                                                     <button type="button" data-approve-button class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="Approve Request">
                                                         <i class="fas fa-check"></i>
                                                     </button>

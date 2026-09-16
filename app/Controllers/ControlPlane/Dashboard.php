@@ -41,7 +41,8 @@ class Dashboard extends BaseController
         $totalClinics = $clinicModel->countAllResults();
         $activeClinics = $clinicModel->where('status', 'active')->countAllResults();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $now = date('Y-m-d H:i:s');
+        $nowUtc = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $now = $nowUtc->format('Y-m-d H:i:s');
         $activeSubscriptions = (new ClinicSubscriptionModel())
             ->withoutTenantScope()
             ->where('status', 'active')
@@ -70,6 +71,7 @@ class Dashboard extends BaseController
         $activePlans = $planModel->where('status', 'active')->countAllResults();
         $userModel = new UserModel();
         $activeUsers = $userModel->where('active', 1)->countAllResults();
+        $thirtyDaysThreshold = $nowUtc->modify('+30 days')->format('Y-m-d H:i:s');
         $expiringCount = (new ClinicSubscriptionModel())
             ->withoutTenantScope()
             ->where('status', 'active')
@@ -78,7 +80,7 @@ class Dashboard extends BaseController
                 ->orWhere('start_at <=', $now)
             ->groupEnd()
             ->where('end_at >=', $now)
-            ->where('end_at <=', date('Y-m-d H:i:s', strtotime('+30 days')))
+            ->where('end_at <=', $thirtyDaysThreshold)
             ->countAllResults();
 
         $mrr = 0.0;
@@ -155,9 +157,11 @@ class Dashboard extends BaseController
 
         $planMrrCache = [];
         $mrrHistory = [];
+        $currentMonthStart = $nowUtc->modify('first day of this month 00:00:00');
         for ($i = 5; $i >= 0; $i--) {
-            $monthStart = date('Y-m-01 00:00:00', strtotime('-' . $i . ' months'));
-            $monthEnd = date('Y-m-t 23:59:59', strtotime('-' . $i . ' months'));
+            $monthAnchor = $currentMonthStart->modify('-' . $i . ' months');
+            $monthStart = $monthAnchor->format('Y-m-01 00:00:00');
+            $monthEnd = $monthAnchor->format('Y-m-t 23:59:59');
 
             $monthlySubscriptions = (new ClinicSubscriptionModel())
                 ->withoutTenantScope()
@@ -196,7 +200,7 @@ class Dashboard extends BaseController
             }
 
             $mrrHistory[] = [
-                'label' => date('M', strtotime('-' . $i . ' months')),
+                'label' => $monthAnchor->format('M'),
                 'value' => round($monthlyTotal, 2),
             ];
         }

@@ -191,15 +191,7 @@ class Foundation extends Controller
         if ($subscription) {
             $subscription = $this->subscriptionModel->withoutTenantScope()->markExpiredIfNeeded($subscription);
         }
-        if (! $subscription || ($subscription['status'] ?? '') !== 'active') {
-            return false;
-        }
-
-        $now = time();
-        $startOk = empty($subscription['start_at']) || strtotime($subscription['start_at']) <= $now;
-        $endOk = empty($subscription['end_at']) || strtotime($subscription['end_at']) > $now;
-
-        return $startOk && $endOk;
+        return ClinicSubscriptionModel::evaluateStanding($subscription)['is_valid'];
     }
 
     private function permissionSummary(int $userId, bool $globalMode, string $appState): array

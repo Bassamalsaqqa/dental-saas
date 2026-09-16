@@ -8,14 +8,28 @@ use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
 use App\Models\PlanRequestModel;
 use App\Services\ControlPlaneAuditService;
+use App\Services\ControlPlaneSubscriptionService;
 
 class PlanRequests extends BaseController
 {
     protected $auditService;
+    protected $subscriptionService;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
+        $this->subscriptionService = new ControlPlaneSubscriptionService();
+    }
+
+    public function setSubscriptionService(ControlPlaneSubscriptionService $subscriptionService): void
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
+    public function setAuditService(ControlPlaneAuditService $auditService): void
+    {
+        $this->auditService = $auditService;
+        $this->subscriptionService = new ControlPlaneSubscriptionService(auditService: $auditService);
     }
 
     /**
@@ -117,49 +131,35 @@ class PlanRequests extends BaseController
      */
     public function approve(int $id)
     {
-        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
-        $request = $planRequestModel->find($id);
-        if (!$request || ($request['status'] ?? '') !== 'pending') {
-            return redirect()->to(base_url('controlplane/plans'))->with('error', 'Request not found or already handled.');
+        $expectedPlanId = $this->request->getPost('expected_requested_plan_id') !== null && $this->request->getPost('expected_requested_plan_id') !== ''
+            ? (int) $this->request->getPost('expected_requested_plan_id')
+            : null;
+        $expectedDuration = $this->request->getPost('expected_requested_duration') !== null && $this->request->getPost('expected_requested_duration') !== ''
+            ? (string) $this->request->getPost('expected_requested_duration')
+            : null;
+        $actorUserId = (int) (session()->get('user_id') ?? 0);
+
+        $result = $this->subscriptionService->approvePlanRequest(
+            $id,
+            $actorUserId,
+            $expectedPlanId,
+            $expectedDuration,
+            '/controlplane/plan-requests/' . $id . '/approve'
+        );
+
+        if (!$result['success']) {
+            return redirect()->to(base_url('controlplane/plans'))->with('error', $this->formatLocalizedMessage($result['code'], 'Failed to approve plan request.'));
         }
 
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $current = $subscriptionModel->getNormalizedSubscription((int) $request['clinic_id']);
-        if ($current && in_array(($current['status'] ?? ''), ['active', 'paused'], true)) {
-            $now = date('Y-m-d H:i:s');
-            $subscriptionModel->update($current['id'], [
-                'status' => 'canceled',
-                'canceled_at' => $now,
-                'end_at' => $now,
-                'canceled_reason' => 'plan_change',
-            ]);
-        }
+        return redirect()->to(base_url('controlplane/plans'))->with('success', $this->formatLocalizedMessage('plan_request_approved', 'Plan request approved.'));
+    }
 
-        $duration = $request['requested_duration'] ?? 'monthly';
-        $startAt = date('Y-m-d H:i:s');
-        $endAt = $this->resolveEndAt($duration, $startAt);
-
-        $subscriptionModel->insert([
-            'clinic_id' => $request['clinic_id'],
-            'plan_id' => $request['requested_plan_id'],
-            'status' => 'active',
-            'start_at' => $startAt,
-            'end_at' => $endAt,
-        ]);
-
-        $planRequestModel->update($id, [
-            'status' => 'approved',
-            'reviewed_by' => session()->get('user_id') ?? null,
-            'reviewed_at' => date('Y-m-d H:i:s'),
-        ]);
-
-        $this->auditService->logEvent('plan_request_approve', [
-            'route' => '/controlplane/plan-requests/' . $id . '/approve',
-            'method' => 'POST',
-            'metadata' => ['request_id' => $id, 'clinic_id' => $request['clinic_id']],
-        ]);
-
-        return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan request approved.');
+    private function formatLocalizedMessage(string $code, string $defaultFallback): string
+    {
+        $langKey = 'UI.subscriptionCode_' . $code;
+        $locale = $this->request ? $this->request->getLocale() : (service('request') ? service('request')->getLocale() : null);
+        $translated = lang($langKey, [], $locale);
+        return ($translated !== $langKey && !empty($translated)) ? $translated : $defaultFallback;
     }
 
     /**
@@ -217,17 +217,8 @@ class PlanRequests extends BaseController
         return redirect()->to(base_url('controlplane/plan-requests'))->with('success', 'Plan request deleted.');
     }
 
-    private function resolveEndAt(string $duration, string $startAt): ?string
+    private function resolveEndAt(string $duration, ?string $startAt): string|false|null
     {
-        if ($duration === 'lifetime') {
-            return null;
-        }
-
-        $time = strtotime($startAt);
-        if ($duration === 'yearly') {
-            return date('Y-m-d H:i:s', strtotime('+1 year', $time));
-        }
-
-        return date('Y-m-d H:i:s', strtotime('+1 month', $time));
+        return ClinicSubscriptionModel::resolveEndAt($duration, $startAt);
     }
 }

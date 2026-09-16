@@ -9,9 +9,9 @@ class ControlPlaneAuditService
 {
     protected $auditModel;
 
-    public function __construct()
+    public function __construct(?ControlPlaneAuditModel $auditModel = null)
     {
-        $this->auditModel = new ControlPlaneAuditModel();
+        $this->auditModel = $auditModel ?? new ControlPlaneAuditModel();
     }
 
     public function logEvent(string $eventType, array $context = [], bool $failClosed = false): bool
@@ -58,5 +58,10 @@ class ControlPlaneAuditService
         }
 
         return '/' . ltrim($trimmed, '/');
+    }
+
+    public function getAuditModel(): ControlPlaneAuditModel
+    {
+        return $this->auditModel;
     }
 }

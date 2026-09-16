@@ -31,18 +31,8 @@ class Home extends BaseController
         if ($sub) {
             $sub = $subModel->markExpiredIfNeeded($sub);
         }
-        $isValid = false;
-
-        if ($sub) {
-            $now = time();
-            if ($sub['status'] === 'active') {
-                $startOk = empty($sub['start_at']) || strtotime($sub['start_at']) <= $now;
-                $endOk = empty($sub['end_at']) || strtotime($sub['end_at']) > $now;
-                if ($startOk && $endOk) {
-                    $isValid = true;
-                }
-            }
-        }
+        $standing = ClinicSubscriptionModel::evaluateStanding($sub);
+        $isValid = $standing['is_valid'];
 
         if (!$isValid) {
             throw PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
