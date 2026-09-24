@@ -645,7 +645,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateRetention', 'Settings::updateRetention', ['filter' => 'permission:settings:edit']);
     $routes->post('plan-request', 'Settings::requestPlan', ['filter' => 'permission:settings:edit']);
     $routes->get('backup', static function () {
-        return redirect()->to('/settings?tab=backup', 301);
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
     }, ['filter' => 'permission:settings:view']);
     $routes->post('create-backup', 'Settings::createBackup', ['filter' => 'permission:settings:edit']);
     $routes->post('restore', 'Settings::restore', ['filter' => 'permission:settings:edit']);

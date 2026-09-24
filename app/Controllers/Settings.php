@@ -653,51 +653,17 @@ class Settings extends BaseController
 
     public function createBackup()
     {
-        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        if ($clinicId <= 0) {
-            return redirect()->back()->with('error', 'Clinic context required.');
-        }
-
-        $backupPath = WRITEPATH . 'backups' . DIRECTORY_SEPARATOR;
-        if (!is_dir($backupPath) && !mkdir($backupPath, 0775, true) && !is_dir($backupPath)) {
-            return redirect()->back()->with('error', 'Unable to create the backup directory.');
-        }
-
-        $clinicSlug = preg_replace('/[^a-z0-9]+/i', '-', strtolower((string) ($this->settingsService->get('clinic_name', 'clinic'))));
-        $clinicSlug = trim((string) $clinicSlug, '-');
-        if ($clinicSlug === '') {
-            $clinicSlug = 'clinic-' . $clinicId;
-        }
-
-        $filename = sprintf('%s-%s.sql', $clinicSlug, date('Ymd-His'));
-        $fullPath = $backupPath . $filename;
-        $content = $this->settingsService->generateDatabaseBackup();
-
-        if (file_put_contents($fullPath, $content) === false) {
-            return redirect()->back()->with('error', 'Failed to create the backup file.');
-        }
-
-        return redirect()->to('/settings?tab=backup')->with('success', 'Backup created successfully.');
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
     }
 
     public function downloadBackup(string $filename)
     {
-        $safeFilename = basename($filename);
-        if ($safeFilename === '' || $safeFilename !== $filename) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
-
-        $fullPath = WRITEPATH . 'backups' . DIRECTORY_SEPARATOR . $safeFilename;
-        if (!is_file($fullPath)) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
-
-        return $this->response->download($fullPath, null)->setFileName($safeFilename);
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
     }
 
     public function restore()
     {
-        return redirect()->to('/settings?tab=backup')->with('error', 'Backup restore is not available from the web settings UI yet.');
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
     }
 
     public function updateRetention()
@@ -843,23 +809,9 @@ class Settings extends BaseController
         ]);
     }
 
-    private function getBackups()
+    private function getBackups(): array
     {
-        $backupPath = WRITEPATH . 'backups/';
-        if (!is_dir($backupPath)) return [];
-        
-        $files = array_diff(scandir($backupPath), ['.', '..']);
-        $backups = [];
-        foreach ($files as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) === 'sql' || pathinfo($file, PATHINFO_EXTENSION) === 'zip') {
-                $backups[] = [
-                    'name' => $file,
-                    'size' => $this->formatBytes(filesize($backupPath . $file)),
-                    'created_at' => date('Y-m-d H:i:s', filemtime($backupPath . $file))
-                ];
-            }
-        }
-        return $backups;
+        return [];
     }
 
     private function getMaxBookingChairs()

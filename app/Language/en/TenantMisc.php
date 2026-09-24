@@ -346,6 +346,8 @@ return [
     'reenterPin' => 'Re-enter PIN',
     'backupRestore' => 'Backup & Restore',
     'manageDataSafety' => 'Manage data safety',
+    'backupManagedPlatformTitle' => 'Database Backup & Restore Managed Centrally',
+    'backupManagedPlatformDesc' => 'Platform database backups and restores are managed at the infrastructure layer to ensure multi-tenant security and data isolation. Direct tenant database dump and restore operations are disabled. Scoped clinic data export will be available in a future release.',
     'clinic' => 'Clinic',
     'email' => 'Email',
     'sms' => 'SMS',

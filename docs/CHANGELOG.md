@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-24 - Checkpoint 01: Baseline Evidence, Program Plan & Tenant Backup Containment
+
+- Baseline capture recorded under `.ai/antigravity-runs/20260924-denta-plus-program-01/`, `.../20260924-denta-plus-program-01-correction-01/`, and `.../20260924-denta-plus-program-01-correction-02/`: Git status/HEAD (c4f31e5), runtimes (PHP 8.2.12, Composer 2.9.5, Node v24.12.0, npm 11.11.0, MariaDB 10.4.32), migration status (69 batches current), static asset byte sizes, and SaaS guardrails baseline gate (exit code 1: 6 DOM sinks, 12 raw queries, 4 font strings; blind spot documented for ~40 camelCase `->isAdmin()` / `->inGroup()` calls).
+- Established `docs/refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md` as the single active modernization program plan linked in `docs/START_HERE.md`, covering verified/false/already-fixed findings, 13-stage dependency order, acceptance gates, and risks.
+- Contained P0 platform database backup exposure in the tenant plane:
+  - `Settings::createBackup()` hard-denies with 404 (`PageNotFoundException::forPageNotFound()`), preventing all-table database dump generation.
+  - `Settings::downloadBackup(string $filename)` hard-denies with 404 (`PageNotFoundException::forPageNotFound()`), closing dump file downloads.
+  - `Settings::restore()` hard-denies with 404 (`PageNotFoundException::forPageNotFound()`).
+  - `Settings::getBackups()` returns `[]` without scanning or exposing `writable/backups/`.
+  - `SettingsService::generateDatabaseBackup()` unconditionally throws `\RuntimeException`, preventing programmatic all-table dumping.
+  - Removed manual backup generation form, table list, and client-side download/restore scripts from `app/Views/settings/index.php` and `app/Views/settings/partials/backup.php`.
+  - Added bilingual explanatory status alert in English and Arabic (`TenantMisc.backupManagedPlatformTitle` / `TenantMisc.backupManagedPlatformDesc`), preserving Export Retention Policy and ordinary clinic settings functionality.
+  - Left existing backups on disk untouched without deletion or mutation.
+- Established repeatable test isolation:
+  - Added `scripts/safe_test_runner.php` with preflight isolation check against `SELECT DATABASE()`.
+  - Configured `phpunit.xml.dist` with `<env name="database.tests.database" value="democa_dental_saas_test"/>`.
+  - Added fail-closed safeguard in `TenantBackupContainmentTest.php::setUp()` aborting immediately before assertions or fixture creation if connected to business database `democa_dental_saas`.
+  - Verified containment suite: 13 tests, 91 assertions, 0 failures on verified disposable test target `democa_dental_saas_test`.
+- Acceptance Boundary & Unresolved Validation Debt:
+  - Accepted strictly as a coherent local checkpoint commit; not certified for full regression suite release or production deployment.
+  - Six broader unit-suite issues on the disposable test database (285 tests, 1795 assertions, 2 errors, 4 failures) are documented as unresolved test-environment and schema reconciliation debt: onboarding commit failure, HealthTest baseURL, AppApiFoundation clinic_required/no_clinic, invoice-table down assertion, invoice empty-state assertion, and TenantDashboardSubscriptionTimezoneTest login/clinic-select routing. Incomplete test schema in the disposable database must be reconciled in a dedicated task before the framework upgrade.
+  - Failing SaaS guardrails gate (exit code 1) and deferred browser verification remain documented limitations.
+
 ## 2026-09-15 - Subscription Timezone Contract & Tenant Dashboard Entry
 
 - Established canonical UTC persistence (`ClinicSubscriptionModel::nowUtc`) for all subscription lifecycle timestamps across `OnboardingService`, `ControlPlane\Clinics`, and `ControlPlane\PlanRequests`.

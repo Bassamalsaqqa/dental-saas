@@ -1,16 +1,17 @@
 # Project State
 
-Last updated: 2026-09-15
+Last updated: 2026-09-24
 
 ## Status
 
 - Stage: pre-alpha; production release readiness is not approved.
 - Backend: CodeIgniter 4 + MySQL tenant/control-plane application remains live.
 - React: separate Lovable repository remains mock-first; `/app-api/v1/*` wiring is not started beyond foundation and Patients contracts.
-- Active product track: cross-module clinic workflow optimization.
+- Active product track: Denta+ Modernization Program (Security, Financial Integrity, Storage, Performance & Product Architecture) governed by `docs/refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md`.
 
 ## Implemented Workflow Milestones
 
+- Checkpoint 01 — Baseline Evidence, Program Plan & Tenant Database Backup Containment (P0): Accepted for local checkpoint commit. Captured reproducible baseline across toolchains, migrations, tests, guardrails, and asset sizes in `.ai/antigravity-runs/20260924-denta-plus-program-01*/`. Established single active program plan `docs/refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md` linked in `START_HERE`. Completely contained tenant-plane database backup exposure: `Settings::createBackup()`, `Settings::downloadBackup($filename)`, and `Settings::restore()` hard-deny with 404 (`PageNotFoundException`); `Settings::getBackups()` returns empty array without filesystem scanning; `SettingsService::generateDatabaseBackup()` unconditionally throws `RuntimeException`. Removed manual backup forms, download buttons, and restore triggers from settings UI; added bilingual explanatory status (English/Arabic) in `settings/partials/backup.php`; verified file/DB non-mutation, absence of shared SQL disclosure, and legitimate file streaming / ordinary settings updates intact via tests (`TenantBackupContainmentTest`: 13 tests, 91 assertions passing). Established repeatable test isolation via `scripts/safe_test_runner.php`, `phpunit.xml.dist` tests DB config, and suite-level fail-closed safeguard. Unresolved validation debt documented: 6 broader-suite issues on isolated disposable database (schema/seed reconciliation required before framework upgrade), failing SaaS guardrails gate (exit code 1), and deferred browser QA.
 - Control Plane onboarding works without tenant session context, uses its own authorized email-check route, atomically persists clinic/admin/subscription/defaults/designation and required audits, and rejects nested transactions and ineligible administrator accounts. Local behavioral creation/rollback, route authorization, English/Arabic errors, and rendered JavaScript parsing are verified; no production clinic is created for smoke testing.
 - Visit stages are server-owned from scheduled through checkout/completed.
 - Dashboard groups today’s appointments into operational queues.
@@ -41,7 +42,7 @@ Last updated: 2026-09-15
 
 ## Current Next Slice
 
-Signed clinical-note governance, documentation attention, and accepted-but-unscheduled treatment recovery are implemented and code-verified. The next bounded product slice is recall/no-show recovery; broader clinical-document signing remains deferred.
+Checkpoint 01 (baseline, plan & backup containment) is accepted for local checkpoint commit. The immediate next validation task before the framework upgrade is to reconcile disposable test schema and reference seeds, establish a verified isolated baseline, and classify the remaining 6 test issues. Following that, proceed to Checkpoint 02: Remaining P0 security & CI upgrade (compatible CI 4.7.x release verification, removal of web/debug artifacts, private document root protection, RBAC guardrails, public API session trust removal).
 
 ## App API / React State
 

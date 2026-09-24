@@ -7,49 +7,16 @@
                             </div>
                         </div>
                         <div class="p-8">
-                            <div class="settings-action-panel mb-8 flex flex-col gap-5 rounded-[1.5rem] p-5 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="settings-action-panel mb-8 flex flex-col gap-5 rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-6 sm:flex-row sm:items-center">
                                 <div class="flex items-start gap-4">
-                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25">
-                                        <i class="fas fa-download"></i>
+                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-amber-400 shadow-md">
+                                        <i class="fas fa-shield-alt text-xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-black text-slate-950"><?= lang('UI.settingsManualBackup') ?></h4>
-                                        <p class="mt-1 max-w-2xl text-sm font-semibold text-slate-600"><?= lang('UI.settingsManualBackupDesc') ?></p>
+                                        <h4 class="text-lg font-black text-slate-950"><?= lang('TenantMisc.backupManagedPlatformTitle') ?></h4>
+                                        <p class="mt-2 text-sm font-semibold leading-relaxed text-slate-600"><?= lang('TenantMisc.backupManagedPlatformDesc') ?></p>
                                     </div>
                                 </div>
-                                <form action="<?= base_url('settings/create-backup') ?>" method="POST" class="shrink-0">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-extrabold text-white shadow-lg shadow-violet-500/25 transition-all hover:-translate-y-0.5 hover:shadow-xl"><i class="fas fa-download mr-2"></i><?= lang('UI.settingsCreateBackup') ?></button>
-                                </form>
-                            </div>
-
-                            <div class="space-y-4">
-                                <?php if (!empty($backups)): ?>
-                                    <?php foreach ($backups as $backup): ?>
-                                        <?php $backupName = (string) ($backup['name'] ?? ''); ?>
-                                        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                                            <div class="min-w-0">
-                                                <h5 class="truncate font-black text-slate-900"><?= esc($backupName) ?></h5>
-                                                <p class="mt-1 text-xs font-semibold text-slate-500"><?= esc((string) ($backup['size'] ?? '')) ?> &bull; <?= esc((string) ($backup['created_at'] ?? '')) ?></p>
-                                            </div>
-                                            <div class="flex gap-2">
-                                                <button type="button" onclick="downloadBackup(<?= json_encode($backupName) ?>)" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition hover:bg-blue-100"><i class="fas fa-download"></i></button>
-                                                <button type="button" onclick="restoreBackup(<?= json_encode($backupName) ?>)" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100"><i class="fas fa-undo"></i></button>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="settings-empty-state flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-14 text-center">
-                                        <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-blue-700 text-white shadow-lg shadow-blue-500/20">
-                                            <i class="fas fa-database text-2xl"></i>
-                                        </div>
-                                        <h4 class="mb-1 text-lg font-black text-slate-950"><?= lang('UI.settingsNoBackupsYet') ?></h4>
-                                        <p class="mb-6 max-w-md text-sm font-semibold text-slate-600">
-                                            Create your first backup to protect your clinic's data.
-                                            Backups can be downloaded or used to restore the system.
-                                        </p>
-                                    </div>
-                                <?php endif; ?>
                             </div>
 
                             <div class="mt-8 border-t border-slate-200 pt-8">

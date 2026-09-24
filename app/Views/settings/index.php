@@ -846,31 +846,6 @@ function testWhatsAppChannel() {
     });
 }
 
-function downloadBackup(filename) { window.location.href = `<?= base_url('settings/download-backup/') ?>${filename}`; }
-function restoreBackup(filename) {
-    openConfirmModal({
-        title: settingsI18n.confirmRestoreBackupTitle,
-        message: settingsI18n.confirmRestoreBackupMessage,
-        confirmText: settingsI18n.confirmRestore,
-        onConfirm: () => {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '<?= base_url('settings/restore') ?>';
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = csrfHeader;
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'backup_file';
-            input.value = filename;
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        },
-    });
-}
 
 function openConfirmModal(options = {}) {
     const modal = document.getElementById('confirm-modal');
