@@ -41,6 +41,7 @@ final class ControlPlaneClinicDetailTest extends CIUnitTestCase
         if ($this->db && $this->db->transDepth > 0) {
             $this->db->transRollback();
         }
+        $this->db?->resetTransStatus();
         parent::tearDown();
     }
 

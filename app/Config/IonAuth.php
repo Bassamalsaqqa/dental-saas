@@ -39,7 +39,7 @@ class IonAuth extends \CodeIgniter\Config\BaseConfig
 	 *
 	 * @var string
 	 */
-	public $databaseGroupName = 'default';
+	public $databaseGroupName = '';
 
 	/**
 	 * Tables (Database table names)

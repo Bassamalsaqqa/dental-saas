@@ -66,12 +66,12 @@ class CreateActivityLogsTable extends Migration
                 'created_at' => [
                     'type' => 'TIMESTAMP',
                     'null' => false,
-                    'default' => 'CURRENT_TIMESTAMP'
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
                 ],
                 'updated_at' => [
                     'type' => 'TIMESTAMP',
                     'null' => false,
-                    'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
                 ]
             ]);
 

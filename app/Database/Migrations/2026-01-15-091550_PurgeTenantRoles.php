@@ -16,7 +16,7 @@ class PurgeTenantRoles extends Migration
             $defaultRoles[] = 'super_admin';
         }
 
-        $db = \Config\Database::connect();
+        $db = $this->db;
         
         // 1. Get roles that are NOT in the default list and NOT marked as system
         $leakedRoles = $db->table('roles')

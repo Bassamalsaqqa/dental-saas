@@ -1,5 +1,85 @@
 # Changelog
 
+## 2026-09-25 - Isolated Test Baseline: Harness Stack Unwinding & Shared Orchestration (Run ID: 20260925-denta-plus-isolated-baseline-correction-03)
+
+- **High Harness Safety: Guaranteed Stack Unwinding & Finally Cleanup:**
+  - Resolved `exit(1)` inside `try` block in `scripts/verify_isolation_and_canary.php` that prevented PHP `finally` handlers from executing after dropping the ownership marker table.
+  - Implemented `VerificationFailureException` propagation: `failVerification()` now throws `VerificationFailureException`, allowing the PHP call stack to unwind normally into the outer `try ... catch (\Throwable $primaryError) ... finally` block.
+  - Guarded `finally` cleanup: safely restores ownership marker and baseline schema only when `$markerWasRemovedByHarness === true`, captures and logs cleanup diagnostics, and preserves original failure diagnostics if cleanup also fails. Outer boundary terminates with exit code 1.
+  - Added CLI flag `--test-injected-failure-after-marker-drop` to simulate harness assertion failure precisely after the task ownership marker is dropped; verified that `finally` executes, restores the marker, and leaves `democa_dental_saas_test` confirmed usable.
+  - Early preflight refusals (`--test-injected-failure`) remain strictly mutation-free before any schema changes or table drops.
+- **Medium Test Fidelity: Shared Production Orchestration Replacing Test Replicas:**
+  - Eliminated test-only replica closures and self-calling fakes in `tests/unit/SafeTestIsolationPreflightTest.php` that did not test actual production code.
+  - Extracted shared, reusable orchestration methods in `scripts/TestDatabasePreflight.php`:
+    - `checkDatabaseExistsOnServer(string $host, string $user, string $pass, int $port, string $targetDb): bool`
+    - `orchestrateCheckOnly(callable $existenceChecker, callable $liveConnector, string $targetDb, ?callable $writerSpy = null): array`
+    - `orchestrateRunnerPreTest(bool $provisionRequested, callable $provisionerExecutor, callable $targetConnector, callable $liveValidator): array`
+  - Integrated shared orchestration directly into production scripts `scripts/provision_test_db.php` and `scripts/safe_test_runner.php`.
+  - Re-implemented unit tests in `SafeTestIsolationPreflightTest.php` to exercise the exact production methods with mock/spy collaborators:
+    - Demonstrated negative path: reversing runner execution order in `orchestrateRunnerPreTest` fails unit test with `Provisioning must execute BEFORE target connection!`.
+    - Demonstrated negative path: calling writer/creator on absent target in `orchestrateCheckOnly` fails unit test with `Writer/creator must NOT be called on absent target in check-only mode.`.
+  - Added automated unit test `testInjectedFailureAfterMarkerDropExecutesCleanupAndRestoresUsableTarget`.
+- **Verification Evidence:**
+  - Full Test Suite in a single invocation (`scripts/safe_test_runner.php --no-coverage --display-skipped tests/unit tests/database`): Tests: **313**, Assertions: **1898**, Errors: **0**, Failures: **0**, Skipped: **0** (20.5s).
+  - Safe Test Isolation Preflight Suite (`SafeTestIsolationPreflightTest.php`): Tests: **26**, Assertions: **74**, Errors: **0**, Failures: **0**.
+  - Containment Suite (`TenantBackupContainmentTest.php`): Tests: **13**, Assertions: **91**, Errors: **0**, Failures: **0**.
+  - Canary Verification (`scripts/verify_isolation_and_canary.php`): All 6 verification steps passed cleanly.
+  - Injected Failure After Marker Drop: verified exit code 1, STDERR diagnostic, `finally` cleanup executed, marker restored, target confirmed usable.
+  - Injected Failure Early Refusal: verified exit code 1, early exit, zero database mutations.
+  - Business Database Integrity: Observed counts recorded separately (`democa_dental_saas`: 67 tables, 7 patients, 9 appointments) without unproven absolute claims.
+  - All changes left uncommitted for Codex audit.
+
+## 2026-09-25 - Isolated Test Baseline: Tooling Safety Hardening (Run ID: 20260925-denta-plus-isolated-baseline-correction-02)
+
+- **High Tooling Safety: Alternate Connection Overrides Rejected Fail-Closed:**
+  - Hardened `scripts/TestDatabasePreflight.php::validateConfigBeforeConnection()` to reject non-empty `failover`, `DSN`, and `subdriver` configuration keys without connecting, preventing CodeIgniter's `BaseConnection` failover loop from substituting remote connection parameters.
+  - Added live client loopback enforcement in `validateLiveConnection()` checking `USER()` host identity (`localhost`, `127.0.0.1`, `::1`).
+  - Added marker target database validation in `verifyOwnershipForReset()` enforcing that `$marker['target_db'] === self::APPROVED_DISPOSABLE_TEST_DB` alongside task owner signature and disposable flag.
+  - Hardened `scripts/verify_isolation_and_canary.php` to run preflight validation on its own connection handle before issuing any writes, drop, or create statements.
+  - Added pure unit regression tests in `tests/unit/SafeTestIsolationPreflightTest.php` for `failover` rejection, `DSN` rejection, `subdriver` rejection, marker missing records, wrong task owner, non-disposable flag, and target database mismatch without making real network connections.
+- **Medium Tooling Safety: Strictly Read-Only --check-only & Fresh Provisioning Ordering:**
+  - Corrected `scripts/provision_test_db.php`: made `--check-only` strictly read-only by querying `INFORMATION_SCHEMA.SCHEMATA` via raw MySQLi without selecting a database; reports `ABSENT / UNPROVISIONED` without executing `CREATE DATABASE` or mutating schemas, exiting 0.
+  - Explicit database creation is reserved strictly for the actual provisioning path with verified error handling.
+  - Reordered `scripts/safe_test_runner.php`: when `--provision` is passed, provisioning runs *before* connecting to the target database, allowing sound first-run bootstrap of an absent database.
+  - Added automated tests in `SafeTestIsolationPreflightTest.php` verifying that absent-target `--check-only` does not invoke database creation and that first-run provisioning creates the schema before connecting.
+- **Medium Tooling Safety: Nonzero Exit on Verification Failure & Checked Operations:**
+  - Replaced all `die("message")` exits in `scripts/verify_isolation_and_canary.php` with `failVerification()` writing to STDERR and terminating with `exit(1)`.
+  - Added `--test-injected-failure` flag to `verify_isolation_and_canary.php` and verified via automated test and CLI that parent commands receive exit code 1 with stderr diagnostic output.
+  - Canary preservation check now compares complete row values across all columns before and after normal repeat provisioning.
+  - Added bounded cleanup in `try ... finally` in `verify_isolation_and_canary.php` restoring clean test DB without touching unowned targets.
+  - Added return value checks for `MigrationRunner::latest()` (`$migrationResult !== false`) and fixture `insert()` operations (`safeFixtureInsert`).
+- **Verification Evidence:**
+  - Full Test Suite in a single invocation (`scripts/safe_test_runner.php --no-coverage --display-skipped tests/unit tests/database`): Tests: **309**, Assertions: **1869**, Errors: **0**, Failures: **0**, Skipped: **0**.
+  - Safe Test Isolation Preflight Suite (`SafeTestIsolationPreflightTest.php`): Tests: **22**, Assertions: **45**, Errors: **0**, Failures: **0**.
+  - Containment Suite (`TenantBackupContainmentTest.php`): Tests: **13**, Assertions: **91**, Errors: **0**, Failures: **0**.
+  - Canary Preservation & Guarded Refusal (`scripts/verify_isolation_and_canary.php`): All 6 verification steps passed (canary all columns preserved on repeat, wiped on explicit reset, unowned non-empty database refused by both normal and reset paths with exit code 1).
+  - Business Database Integrity: Observed counts recorded separately (`democa_dental_saas`: 67 tables, 7 patients, 9 appointments) without unproven absolute claims.
+  - All changes left uncommitted for Codex audit.
+
+
+
+- **Canonical Migration Replayability & Pre-Migration Foundation:**
+  - Removed obsolete snapshot and manufactured migration tracking rows.
+  - Created `tests/_support/Database/LegacyBaseSchema.php`: encapsulates the 18 foundation tables that predated CodeIgniter migrations with `CREATE TABLE IF NOT EXISTS`, zero data rows, zero credentials, and zero DROP statements.
+  - Reconciled migrations `2025-01-19-000001_CreateRBACTables.php` and `2025-01-19-000002_CreateActivityLogsTable.php` by replacing quoted `'CURRENT_TIMESTAMP'` defaults with `RawSql` and including columns required by downstream migrations (`roles.slug`, `roles.is_system`, `roles.created_by`, `permissions.category`, `permissions.is_system`, `permissions.sort_order`, `user_roles.expires_at`, `user_roles.is_active`).
+  - Verified CodeIgniter's own `MigrationRunner::latest()` executes all 75 canonical migrations sequentially from scratch against an empty schema, recording them organically in the `migrations` table.
+- **Fail-Closed Preflight Safeguard & Guarded Reset:**
+  - Created `scripts/TestDatabasePreflight.php`: unified preflight safeguard policy used across `provision_test_db.php` and `scripts/safe_test_runner.php`. Validates host (`127.0.0.1`, `localhost`, `::1`), port (`3306`, `3307`), driver (`MySQLi`), target DB name (`democa_dental_saas_test`), and business disjointness before attempting any database connection. Strictly refuses remote targets without connecting.
+  - Added unit test suite `tests/unit/SafeTestIsolationPreflightTest.php` (10 tests, 21 assertions) verifying fail-closed refusal of remote hosts, non-MySQLi drivers, non-approved ports, and business DB collisions without connecting.
+  - Implemented `_test_db_marker` task ownership tracking table. Normal provisioning (`provision_test_db.php`) is strictly non-destructive: migrates pending schema without deleting existing data, and was verified via `scripts/verify_isolation_and_canary.php` to preserve synthetic canary rows across repeat invocations.
+  - Guarded `--reset` requires explicit opt-in, validates ownership marker prior to any destructive statement, and refuses non-empty unowned databases with exit code 1.
+- **Deterministic Synthetic Fixtures & 0 Skips:**
+  - Seeded owned synthetic reference fixtures (clinic 1, active plan 1, clinic subscription 1, super_admin user 1, patient 1, encrypted WhatsApp meta_cloud channel for clinic 1, platform secrets `wa_app_secret`, `wa_phone_number_id`, `wa_access_token`, and executed `PermissionSyncService::fullSync()`).
+  - Resolved all 16 previously skipped tests in `DispatchServiceTest`, `WhatsAppPhase5EndpointsTest`, and `WhatsAppWebhookTest` with deterministic local mock configurations (zero real network transmission).
+- **Verification Evidence:**
+  - Full Test Suite in a single invocation (`scripts/safe_test_runner.php --no-coverage --display-skipped tests/unit tests/database`): Tests: **297**, Assertions: **1845**, Errors: **0**, Failures: **0**, Skipped: **0**.
+  - Containment Suite (`TenantBackupContainmentTest.php`): Tests: **13**, Assertions: **91**, Errors: **0**, Failures: **0**.
+  - Previously Skipped Messaging Suites (`DispatchServiceTest`, `WhatsAppPhase5EndpointsTest`, `WhatsAppWebhookTest`): Tests: **34**, Assertions: **178**, Errors: **0**, Failures: **0**, Skipped: **0**.
+  - Database Examples (`ExampleDatabaseTest.php`): Tests: **2**, Assertions: **3**, Errors: **0**, Failures: **0**.
+  - Canary Preservation & Guarded Refusal (`scripts/verify_isolation_and_canary.php`): All 6 verification steps passed (canary preserved on normal repeat, wiped on explicit reset, unowned non-empty database refused by both normal and reset paths with exit code 1).
+  - Business Database Integrity: Verified completely untouched (`democa_dental_saas`: 67 tables, 7 patients, 9 appointments).
+  - All changes left uncommitted for Codex audit.
+
 ## 2026-09-24 - Checkpoint 01: Baseline Evidence, Program Plan & Tenant Backup Containment
 
 - Baseline capture recorded under `.ai/antigravity-runs/20260924-denta-plus-program-01/`, `.../20260924-denta-plus-program-01-correction-01/`, and `.../20260924-denta-plus-program-01-correction-02/`: Git status/HEAD (c4f31e5), runtimes (PHP 8.2.12, Composer 2.9.5, Node v24.12.0, npm 11.11.0, MariaDB 10.4.32), migration status (69 batches current), static asset byte sizes, and SaaS guardrails baseline gate (exit code 1: 6 DOM sinks, 12 raw queries, 4 font strings; blind spot documented for ~40 camelCase `->isAdmin()` / `->inGroup()` calls).

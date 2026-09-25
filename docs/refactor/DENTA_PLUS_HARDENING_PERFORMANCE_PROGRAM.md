@@ -4,7 +4,7 @@
 **Track:** Modernization & Performance Refactor
 **Status:** Active
 **Initial Checkpoint:** Checkpoint 01 (Baseline & Tenant Database-Backup Containment)
-**Last Updated:** 2026-09-24
+**Last Updated:** 2026-09-25
 **Target Head:** `c4f31e59cc656bbb622047a33217fd2fd0be5c5a`
 
 ---
@@ -80,10 +80,16 @@ This document serves as the **sole active temporary implementation plan** for th
 - **Runtimes:** PHP 8.2.12 (ZTS x64), Node.js v24.12.0, npm 11.11.0, Composer 2.9.5, MariaDB 10.4.32 on `127.0.0.1:3306`.
 - **Migration State:** 69 batches applied and verified; latest `2026-09-14-200000` (`EnsureControlPlaneInvoicesTables`).
 - **PHPUnit Unit Suite Baseline on Disposable Target (`democa_dental_saas_test`):**
-  - Full Unit Suite: Tests: **285**, Assertions: **1795**, Errors: **2**, Failures: **4** (authoritative raw log: `.ai/antigravity-runs/20260924-denta-plus-program-01-correction-02/unit-regression-results.txt`).
+  - Full Unit Suite: Tests: **285**, Assertions: **1695**, Errors: **0**, Failures: **0**, Skipped: **16** (authoritative raw log: `.ai/antigravity-runs/20260924-denta-plus-isolated-baseline-reconciliation/unit-regression-results.txt`).
   - Containment Suite (`TenantBackupContainmentTest`): **13 passed**, **91 assertions**, 0 failures.
-  - Remaining 6 broader-suite issues (onboarding commit failure, HealthTest baseURL, AppApiFoundation clinic_required/no_clinic, invoice-table down assertion, invoice empty-state assertion, and TenantDashboardSubscriptionTimezoneTest login/clinic-select routing) represent unresolved test schema, fixture, and routing reconciliation debt in the isolated test environment. Specifically, the invoice-table down assertion indicates incomplete test schema in the disposable database.
-  - Dedicated validation task required before framework upgrade: establish reproducible disposable test schema and fixtures from canonical migrations and synthetic reference seeds, and classify remaining failures.
+  - Database Examples Suite (`ExampleDatabaseTest`): **2 passed**, **3 assertions**, 0 failures.
+  - All 6 previously failing issues classified and resolved:
+    1. `HealthTest::testBaseUrlHasBeenSet`: Initialized default typed `$baseURL` in `app/Config/App.php`.
+    2. `AppApiFoundationTest::testBootstrapClinicRequiredState`: Removed hardcoded `databaseGroupName = 'default'` in `app/Config/IonAuth.php` so IonAuth respects the active testing connection.
+    3. `TenantDashboardSubscriptionTimezoneTest::testActualRegisteredLoginAndClinicSelectRoutesToDashboard`: Resolved via IonAuth dynamic database group inheritance.
+    4. `ControlPlaneClinicDetailTest::testEnsureControlPlaneInvoicesTablesDownIsNonDestructive`: Provisioned physical tables `control_plane_invoices` and `control_plane_invoice_payments` in canonical baseline.
+    5. `ControlPlaneClinicDetailTest::testShowWithEmptyInvoicesRendersNormalEmptyState`: Resolved by canonical invoice schema provisioning.
+    6. `ControlPlaneOnboardingBehaviorTest::testCreationCommitsCompleteOnboardingWithoutTenantContext`: Added `$this->db?->resetTransStatus();` in `ControlPlaneClinicDetailTest::tearDown()` to eliminate connection state leakage across tests.
 - **SaaS Guardrails Baseline Gate (Exit Code: 1 — FAILING GATE):**
   - `Group-based auth helpers`: 0 matches in snake_case scan (blind spot identified above).
   - Pre-existing failing matches (3 categories):
@@ -91,9 +97,13 @@ This document serves as the **sole active temporary implementation plan** for th
     - `Raw tenant queries in controllers`: 12 matches (`Finance.php` [7], `Inventory.php` [1], `Reports.php` [4]).
     - `Forbidden UI font-family strings`: 4 matches (`clinic/select.php:17`, `auth/login.php:18`, `auth/forgot_password.php:18`, `treatment/show.php:74`).
   - *Gate Policy:* These pre-existing violations are documented baseline gates; they must not increase, and will be burned down in their respective stages (Stage 5, Stage 2, Stage 8).
-- **Test Database Isolation:**
-  - In `app/Config/Database.php`, the `tests` group inherits credentials from the `default` group (`democa_dental_saas`) when `database.tests.database` environment variable is not explicitly set.
-  - Dedicated disposable test database `democa_dental_saas_test` has been provisioned locally (schema loaded and verified with 65 tables) to support fully isolated, repeatable test execution via `database.tests.database=democa_dental_saas_test`.
+- **Test Database Isolation & Tooling Safety (Corrections 01, 02 & 03):**
+  - Automated provisioning and reset CLI established in `scripts/provision_test_db.php` using minimal pre-migration foundation `tests/_support/Database/LegacyBaseSchema.php` (18 tables, zero PHI, zero credentials, `CREATE TABLE IF NOT EXISTS`) and canonical migration replay via `MigrationRunner::latest()` (75 migrations recorded organically).
+  - Preflight checks enforce fail-closed isolation via `scripts/TestDatabasePreflight.php`: requires exact dotted `database.tests.database`, local loopback host (`127.0.0.1`, `localhost`, `::1`), approved port (`3306`, `3307`), driver (`MySQLi`), and business disjointness before connecting. Remote targets, non-empty `failover`, `DSN`, `subdriver`, and business DB collisions are strictly refused without connecting.
+  - Guarded reset and canary preservation: `_test_db_marker` tracks task ownership and enforces `$marker['target_db'] === 'democa_dental_saas_test'`; normal provisioning is non-destructive and verified to preserve synthetic canaries across repeat runs; explicit `--reset` validates ownership marker and refuses unowned non-empty databases.
+  - Strictly read-only `--check-only` via `INFORMATION_SCHEMA.SCHEMATA` without creating absent targets; fresh provisioning ordered to provision before target connection in `safe_test_runner.php`. Shared production orchestration methods extracted in `TestDatabasePreflight.php` (`checkDatabaseExistsOnServer`, `orchestrateCheckOnly`, `orchestrateRunnerPreTest`) integrated into production CLI scripts and verified via unit tests with mock/spy collaborators (including demonstrated negative failure paths on reversal/mutation).
+  - Harness stack unwinding guaranteed: resolved PHP `exit()` in `try` bypassing `finally` by implementing `VerificationFailureException` in `scripts/verify_isolation_and_canary.php`; verified via `--test-injected-failure-after-marker-drop` that `finally` executes, restores marker, and leaves target usable; early refusals (`--test-injected-failure`) remain mutation-free.
+  - Zero skips: seeded owned synthetic fixtures for clinic, plan, user, patient, encrypted WhatsApp notification channel, and secrets; full suite passes with 313 tests, 1898 assertions, 0 errors, 0 failures, 0 skips. Business database `democa_dental_saas` observed counts recorded separately (67 tables, 7 patients, 9 appointments).
 - **Build Baseline (Post-Change):**
   - Root Tailwind CSS: `npm run build` -> `public/assets/css/tailwind.css` 291,911 bytes (+111 bytes delta).
   - Frontend SPA: `npm --prefix frontend run build` -> monolithic `index-BLGBVVz9.js` (1,305.38 kB / 320.79 kB gzip), confirming bundle-split necessity.

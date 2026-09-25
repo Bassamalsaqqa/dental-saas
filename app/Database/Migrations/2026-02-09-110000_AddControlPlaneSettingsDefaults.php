@@ -8,7 +8,7 @@ class AddControlPlaneSettingsDefaults extends Migration
 {
     public function up()
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
 
         if (!$db->tableExists('settings')) {
             return;
@@ -61,7 +61,7 @@ class AddControlPlaneSettingsDefaults extends Migration
 
     public function down()
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         if (!$db->tableExists('settings')) {
             return;
         }

@@ -23,7 +23,7 @@ class AddClinicIdToRoles extends Migration
         }
 
         // Ensure slug is unique per clinic
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $indexName = 'roles_clinic_slug';
         $hasIndex = $db->query("SHOW INDEX FROM roles WHERE Key_name = ?", [$indexName])->getNumRows() > 0;
 
@@ -34,16 +34,16 @@ class AddClinicIdToRoles extends Migration
 
     public function down()
     {
-        if ($this->db->fieldExists('clinic_id', 'roles')) {
-            $this->forge->dropColumn('roles', 'clinic_id');
-        }
-
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $indexName = 'roles_clinic_slug';
         $hasIndex = $db->query("SHOW INDEX FROM roles WHERE Key_name = ?", [$indexName])->getNumRows() > 0;
 
         if ($hasIndex) {
             $db->query("DROP INDEX {$indexName} ON roles");
+        }
+
+        if ($this->db->fieldExists('clinic_id', 'roles')) {
+            $this->forge->dropColumn('roles', 'clinic_id');
         }
     }
 }

@@ -1,9 +1,42 @@
 # Running Application Tests
 
-This is the quick-start to CodeIgniter testing. Its intent is to describe what
-it takes to set up your application and get it ready to run unit tests.
-It is not intended to be a full description of the test features that you can
-use to test your application. Those details can be found in the documentation.
+## Safe Test Execution & Test Database Provisioning (Mandatory)
+
+> [!IMPORTANT]
+> **Strict Fail-Closed Isolation:** Tests must NEVER run against or mutate the business database (`democa_dental_saas`).
+> Always use `scripts/safe_test_runner.php` or ensure exact dotted `database.tests.database=democa_dental_saas_test` is set in the execution environment.
+
+### 1. Provisioning / Resetting the Isolated Test Database
+
+The disposable test database schema is provisioned from the minimal pre-migration foundation (`tests/_support/Database/LegacyBaseSchema.php`), followed by canonical migrations executed via CodeIgniter's `MigrationRunner::latest()`, and seeded with deterministic synthetic reference fixtures (zero PHI, zero credentials, zero business transaction records).
+
+To verify isolation or provision the disposable test database:
+```console
+# Verify connection, isolation, and disposable target eligibility (no mutations):
+php scripts/provision_test_db.php --check-only
+
+# Normal non-destructive provisioning (applies pending schema/seeds without wiping existing data):
+php scripts/provision_test_db.php
+
+# Explicit guarded reset (requires ownership marker verification, wipes disposable schema, re-provisions):
+php scripts/provision_test_db.php --reset
+```
+
+### 2. Running Tests Safely
+
+Use `scripts/safe_test_runner.php` which validates preflight isolation (`TestDatabasePreflight`) before invoking PHPUnit:
+```console
+# Run focused containment suite:
+php scripts/safe_test_runner.php --no-coverage tests/unit/TenantBackupContainmentTest.php
+
+# Run full test suite in a single invocation:
+php scripts/safe_test_runner.php --no-coverage --display-skipped tests/unit tests/database
+
+# Automatically provision clean database before running tests:
+php scripts/safe_test_runner.php --provision --no-coverage tests/unit
+```
+
+---
 
 ## Resources
 

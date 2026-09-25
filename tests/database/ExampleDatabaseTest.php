@@ -12,7 +12,25 @@ final class ExampleDatabaseTest extends CIUnitTestCase
 {
     use DatabaseTestTrait;
 
+    protected $refresh = false;
     protected $seed = ExampleSeeder::class;
+
+    protected function setUp(): void
+    {
+        $this->db = \Config\Database::connect('tests');
+        if ($this->db->tableExists('factories')) {
+            $this->db->table('factories')->emptyTable();
+        }
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->db && $this->db->tableExists('factories')) {
+            $this->db->table('factories')->emptyTable();
+        }
+        parent::tearDown();
+    }
 
     public function testModelFindAll(): void
     {

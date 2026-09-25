@@ -33,13 +33,28 @@ class CreateRBACTables extends Migration
                     'type' => 'TEXT',
                     'null' => true,
                 ],
+                'category' => [
+                    'type' => 'VARCHAR',
+                    'constraint' => 50,
+                    'default' => 'general',
+                ],
+                'is_system' => [
+                    'type' => 'TINYINT',
+                    'constraint' => 1,
+                    'default' => 0,
+                ],
+                'sort_order' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'default' => 0,
+                ],
                 'created_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
                 ],
                 'updated_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
                 ],
             ]);
             
@@ -61,6 +76,11 @@ class CreateRBACTables extends Migration
                     'type' => 'VARCHAR',
                     'constraint' => 100,
                 ],
+                'slug' => [
+                    'type' => 'VARCHAR',
+                    'constraint' => 100,
+                    'default' => '',
+                ],
                 'description' => [
                     'type' => 'TEXT',
                     'null' => true,
@@ -70,13 +90,24 @@ class CreateRBACTables extends Migration
                     'constraint' => 1,
                     'default' => 1,
                 ],
+                'is_system' => [
+                    'type' => 'TINYINT',
+                    'constraint' => 1,
+                    'default' => 0,
+                ],
+                'created_by' => [
+                    'type' => 'INT',
+                    'constraint' => 10,
+                    'unsigned' => true,
+                    'default' => 1,
+                ],
                 'created_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
                 ],
                 'updated_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
                 ],
             ]);
             
@@ -111,7 +142,7 @@ class CreateRBACTables extends Migration
                 ],
                 'created_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
                 ],
             ]);
             
@@ -143,13 +174,22 @@ class CreateRBACTables extends Migration
                 ],
                 'assigned_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
                 ],
                 'assigned_by' => [
                     'type' => 'INT',
                     'constraint' => 11,
                     'unsigned' => true,
                     'null' => true,
+                ],
+                'expires_at' => [
+                    'type' => 'TIMESTAMP',
+                    'null' => true,
+                ],
+                'is_active' => [
+                    'type' => 'TINYINT',
+                    'constraint' => 1,
+                    'default' => 1,
                 ],
             ]);
             
@@ -191,7 +231,7 @@ class CreateRBACTables extends Migration
                 ],
                 'created_at' => [
                     'type' => 'TIMESTAMP',
-                    'default' => 'CURRENT_TIMESTAMP',
+                    'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
                 ],
                 'created_by' => [
                     'type' => 'INT',
