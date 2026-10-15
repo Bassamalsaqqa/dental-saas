@@ -162,3 +162,17 @@ node tests/js/P0SearchUrlTest.cjs
 Initial draft isolated run: 204 tests / 1,676 assertions and 36 JS assertions passed. Coverage includes real registered filter execution and transaction/audit failures, not only parser or mocked happy paths. Bilingual render checks also parse inline JavaScript using Node. See [review, known release blockers and rollback](../docs/SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
 
 PR #1 correction target run: **42 tests / 514 assertions passed** in `P0ReviewBoundaryAcceptanceTest.php` and `PR1ReviewCorrectionRegressionTest.php`. The expanded command above is the single final focused acceptance suite; its exact corrected SHA and outcome are retained in the PR. These tests use actual registered routes and preserve canonical foreign-key constraints (deleting a fixture role cascades its memberships), without replacement routes or weakened schema.
+
+
+## Phase B focused acceptance
+
+Use the explicitly owned disposable database on loopback port 3307, dedicated test credentials and a valid ownership marker. Apply canonical migrations to that isolated target only. Never use a customer dump or a production connection. Run serially: this suite includes a two-process booking race and an expansion rollback/reapply test, which refuses unrelated populated provider data.
+
+```console
+php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result --configuration phpunit.phase-b.xml
+node tests/js/PhaseBSlotTransportTest.cjs
+node tests/js/PhaseBEditSlotPreservationTest.cjs
+node tests/js/P0SearchUrlTest.cjs
+```
+
+The PHP routed regressions generate synthetic EN/AR edit HTML in ignored `tmp/phase-b-rendered-edit-*.html`; the edit-slot JavaScript check consumes those artifacts. No network, notifications, production migration, GitHub Actions or broad suite is required.

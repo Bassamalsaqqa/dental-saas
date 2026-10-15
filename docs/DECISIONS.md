@@ -193,3 +193,11 @@ Append-only. Do not edit previous entries.
 
 ### 2026-09-24 Addendum — Verification Scope and Limitations
 - **Clarification:** While application routes and service layers now fail closed (throwing `PageNotFoundException` and `RuntimeException`), overall platform containment also relies on web-server-level enforcement (e.g. Apache `.htaccess` rules denying direct access to `writable/` and `.sql` extensions). Direct static file protections and environment boundaries must continue to be audited in deployment pipelines. Absolute "zero risk" should not be claimed without ongoing web-server and infrastructure isolation verification.
+
+
+## 2026-10-15 ? Stable doctor scheduling resources and preservation
+
+- **Decision:** Phase B uses nullable appointment provider user IDs with historical label snapshots, a default-off clinic switch and explicit provider profiles. Active canonical clinic membership bounds eligibility; medical-assistant flags never imply doctor qualification. No existing appointment is automatically assigned by name.
+- **Consistency:** Booking, availability, hours and feature changes serialize on the clinic row. Mutations revalidate actor, provider and overlap under an owned checked transaction. Public Bearer writes use explicit runtime context and explicit clinic settings. Visit-stage/checkout transitions retain their dedicated contract.
+- **Preservation:** Unresolved historical visits block overlapping bookings conservatively and remain visible. Timezone changes are refused for clinics with appointments. Disabling dynamic mode is refused once provider-linked appointments exist. Expansion rollback refuses populated provider/profile data; later reconciliation requires separate reviewed authorization.
+- **Release boundary:** P0 PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759` without deployment. Phase B is a separate review PR; production schema, assignments and data remain untouched.

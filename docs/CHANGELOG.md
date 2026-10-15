@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-15 ? Phase B doctor scheduling review
+
+- P0 PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759`, including the Super Admin display fix (`e43af245e7ab61cb46515f7664b6289def903d23`; 21 focused tests / 196 assertions). No deployment.
+- Prepare a separate, default-off doctor scheduling expansion: stable provider IDs, active clinic doctor columns, weekly/break/leave availability, serialized booking and settings writes, preserved historical appointment snapshots and conservative unresolved-visit blocking.
+- Keep existing visits, clinical handoff and session/Bearer authority boundaries intact. See [scheduling contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md) for safe migration and release gates. Focused acceptance passed **56 tests / 500 assertions**; final EN/AR edit/fallback verification passed **13 tests / 89 assertions**. JavaScript passed **116 behavioral assertions**; 38 PHP and 10 rendered-inline-script syntax checks passed. Independent review found no remaining blocker for a separate review PR. No Phase B merge/deployment.
+
+
+
 ## 2026-10-15 ? P0 final display correction
 
 - Control-plane user directory derives its Super Admin label from active, unexpired canonical platform RBAC rather than authentication-group membership. This changes presentation only.

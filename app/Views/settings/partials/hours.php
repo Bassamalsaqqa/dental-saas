@@ -9,6 +9,13 @@
                         <div class="p-8">
                             <form action="<?= base_url('settings/updateWorkingHours') ?>" method="POST">
                                 <?= csrf_field() ?>
+                                <?php $dynamicScheduling = in_array((string) old('dynamic_doctor_scheduling_enabled', $settings['dynamic_doctor_scheduling_enabled'] ?? '0'), ['1', 'true'], true); ?>
+                                <input type="hidden" name="dynamic_doctor_scheduling_enabled" value="0">
+                                <label class="mb-6 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+                                    <input type="checkbox" id="dynamicDoctorScheduling" name="dynamic_doctor_scheduling_enabled" value="1" <?= $dynamicScheduling ? 'checked' : '' ?> <?= empty($provider_settings['schema_ready']) ? 'disabled' : '' ?> class="mt-1">
+                                    <span><strong><?= esc(lang('DoctorScheduleSettings.enabled')) ?></strong><span class="mt-1 block text-sm text-slate-600"><?= esc(lang('DoctorScheduleSettings.enabledHelp')) ?></span></span>
+                                </label>
+                                <?php if (empty($provider_settings['schema_ready'])): ?><p class="mb-4 text-sm text-amber-800"><?= esc(lang('DoctorScheduleSettings.schemaMissing')) ?></p><?php endif; ?>
                                 <?php
                                     $appointmentDurationOptions = [30, 45, 60, 90, 120, 180];
                                     $selectedAppointmentDuration = (int) old('appointment_duration', $settings['appointment_duration'] ?? 30);
@@ -26,6 +33,7 @@
                                         $chairNames = [];
                                     }
                                     $workingDays = old('working_days') ?? ($settings['working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
+                                    $workingDays = is_array($workingDays) ? $workingDays : [];
                                     $dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
                                     $dayLabels = [
                                         'monday' => lang('UI.settingsDayMonday'),
@@ -38,8 +46,8 @@
                                     ];
                                 ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursStartTime') ?></label><input type="time" name="working_hours_start" value="<?= old('working_hours_start', $settings['working_hours_start'] ?? '09:00') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursStartTimeHelp') ?></p></div>
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursEndTime') ?></label><input type="time" name="working_hours_end" value="<?= old('working_hours_end', $settings['working_hours_end'] ?? '17:00') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursEndTimeHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursStartTime') ?></label><input type="time" name="working_hours_start" value="<?= esc(old('working_hours_start', $settings['working_hours_start'] ?? '09:00'), 'attr') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursStartTimeHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursEndTime') ?></label><input type="time" name="working_hours_end" value="<?= esc(old('working_hours_end', $settings['working_hours_end'] ?? '17:00'), 'attr') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursEndTimeHelp') ?></p></div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursWorkingDays') ?></label>
                                         <p class="text-xs text-gray-500 mt-1 mb-3"><?= lang('UI.settingsHoursWorkingDaysHelp') ?></p>
@@ -66,12 +74,13 @@
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursAppointmentDurationHelp') ?></p>
                                     </div>
-                                    <div class="md:col-span-2">
+                                    <fieldset data-legacy-scheduling class="md:col-span-2" <?= $dynamicScheduling ? 'disabled hidden' : '' ?>>
+                                        <legend class="mb-2 font-semibold"><?= esc(lang('DoctorScheduleSettings.legacyResources')) ?></legend>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label>
                                         <input type="number" id="bookingChairCount" name="booking_chair_count" value="<?= $selectedChairCount ?>" min="1" max="<?= esc($maxChairCount) ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required>
                                         <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p>
-                                    </div>
-                                    <div class="md:col-span-2 rounded-2xl border border-orange-100 bg-orange-50/60 p-5">
+                                    </fieldset>
+                                    <fieldset data-legacy-scheduling class="md:col-span-2 rounded-2xl border border-orange-100 bg-orange-50/60 p-5" <?= $dynamicScheduling ? 'disabled hidden' : '' ?>>
                                         <div class="mb-4">
                                             <label class="block text-sm font-semibold text-gray-700 mb-1"><?= lang('UI.settingsHoursChairNames') ?></label>
                                             <p class="text-xs text-gray-500"><?= lang('UI.settingsHoursChairNamesHelp') ?></p>
@@ -88,15 +97,23 @@
                                                 </div>
                                             <?php endfor; ?>
                                         </div>
-                                    </div>
+                                    </fieldset>
                                 </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
+                            <?= view('settings/partials/provider_schedules', ['provider_settings' => $provider_settings ?? ['schema_ready' => false, 'members' => []]]) ?>
                         </div>
                     </div>
                 </div>
                 <script>
                 document.addEventListener('DOMContentLoaded', function () {
+                    const dynamicToggle = document.getElementById('dynamicDoctorScheduling');
+                    const syncMode = () => document.querySelectorAll('[data-legacy-scheduling]').forEach((field) => {
+                        field.disabled = Boolean(dynamicToggle?.checked);
+                        field.hidden = Boolean(dynamicToggle?.checked);
+                    });
+                    dynamicToggle?.addEventListener('change', syncMode);
+                    syncMode();
                     const chairCountInput = document.getElementById('bookingChairCount');
                     const chairRows = Array.from(document.querySelectorAll('[data-chair-name-row]'));
                     if (!chairCountInput || chairRows.length === 0) return;

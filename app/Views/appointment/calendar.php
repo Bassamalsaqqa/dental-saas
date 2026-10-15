@@ -105,6 +105,31 @@ $calendarStatusLegend = [
     ['status' => 'in_chair', 'class' => 'bg-indigo-500', 'label' => lang('UI.appointmentStageInChair')],
     ['status' => 'checkout', 'class' => 'bg-violet-500', 'label' => lang('UI.appointmentStageCheckout')],
 ];
+$bookingContext = $booking_context ?? null;
+if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryService::class)) {
+    $activeClinicId = (int) (session('active_clinic_id') ?? 0);
+    if ($activeClinicId > 0) {
+        $providerService = new \App\Services\ProviderDirectoryService();
+        $isDynamic = false;
+        try {
+            $isDynamic = $providerService->isEnabled($activeClinicId);
+            $bookingContext = $providerService->getBookingContext($activeClinicId);
+        } catch (\Throwable $e) {
+            if ($isDynamic || (strpos($e->getMessage(), 'DYNAMIC_SCHEDULING') !== false)) {
+                $bookingContext = [
+                    'enabled' => true,
+                    'schema_ready' => false,
+                    'providers' => [],
+                    'chair_options' => [],
+                    'error' => $e->getMessage(),
+                ];
+            } else {
+                $bookingContext = null;
+            }
+        }
+    }
+}
+$dynamicMode = !empty($bookingContext['enabled']);
 ?>
 <div class="appointment-calendar-page">
 <div class="appointment-calendar-wrap w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
@@ -314,6 +339,15 @@ $calendarStatusLegend = [
         </div>
     </div>
 
+    <!-- Native HTML/CSS Doctor Dayboard Partial -->
+    <?php if ($dynamicMode): ?>
+        <?= view('appointment/partials/doctor_dayboard', [
+            'appointments' => $dayboard_appointments ?? $appointments ?? [],
+            'selected_date' => $selected_date ?? date('Y-m-d'),
+            'booking_context' => $bookingContext ?? null,
+        ]) ?>
+    <?php endif; ?>
+
 </div>
 
 <?= view('appointment/partials/quick_create_modal', [
@@ -322,6 +356,7 @@ $calendarStatusLegend = [
     'contextual' => false,
     'selected_patient' => null,
     'chair_options' => $chair_options ?? [],
+    'booking_context' => $bookingContext ?? null,
     'requested_date' => old('appointment_date', date('Y-m-d')),
     'appointment_type_prefill' => old('appointment_type', ''),
 ]) ?>
