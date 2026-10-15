@@ -860,3 +860,7 @@ React and Lovable-generated code must not assume:
 - bootstrap correctness
 - clinic switch session regeneration
 - validation error shape
+
+### P0 role eligibility at tenant resource entry (2026-10-15 review correction)
+
+`AppApiTenant` requires `PermissionService::getTenantRoleId()` eligibility, including active account, clinic, membership and correctly scoped active role; inactive, missing, foreign-clinic or platform-spoofing roles fail with JSON `tenant_context_forbidden` before resource controllers and clear stale tenant context. This does not add a tenant filter to bootstrap or clinic-switch discovery endpoints, nor authorize web impersonation on App API mutations.

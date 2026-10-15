@@ -450,6 +450,15 @@ class Users extends BaseController
         return redirect()->back()->with('error', $msg);
     }
 
+    private function parsePositiveInt(mixed $value): ?int
+    {
+        if ((!is_int($value) && !is_string($value)) || !preg_match('/^[1-9][0-9]*$/D', (string) $value)) {
+            return null;
+        }
+        $id = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        return $id === false ? null : $id;
+    }
+
     /**
      * POST /controlplane/users/{id}/memberships/add
      */
@@ -461,6 +470,12 @@ class Users extends BaseController
             return redirect()->back()->with('error', 'User not found.');
         }
 
+        $clinicId = $this->parsePositiveInt($this->request->getPost('clinic_id'));
+        $roleId = $this->parsePositiveInt($this->request->getPost('role_id'));
+        if ($clinicId === null || $roleId === null) {
+            return redirect()->back()->with('error', lang('UserRole.membershipClinicRoleRequired'));
+        }
+
         $actorUserId = (int) ($this->ionAuth->getUserId() ?? 0);
         $membershipService = new \App\Services\ClinicMembershipService();
         $result = $membershipService->addExistingUserMembership($clinicId, $id, $roleId, $actorUserId);
@@ -469,7 +484,7 @@ class Users extends BaseController
             return redirect()->back()->with('error', $result['message']);
         }
 
-        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership saved successfully.');
+        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', $result['message']);
     }
 
     /**

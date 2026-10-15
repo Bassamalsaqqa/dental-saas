@@ -254,4 +254,5 @@ return [
     'membershipOperationDenied' => 'Clinic access could not be changed. Check your authority and the current membership state.',
     'removeClinicAccess' => 'Remove clinic access',
     'confirmRemoveClinicAccess' => 'Remove access to this clinic? The account and historical records will be preserved.',
+    'membershipClinicRoleRequired' => 'Select a valid clinic and role.',
 ];

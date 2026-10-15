@@ -4,10 +4,10 @@
 
 SEC-01..05 remediation is prepared in `audit/2026-10-15-p0-identity-rbac`; it is not deployed or merged. Active clinic membership is tenant role authority; existing identities cannot be linked or overwritten by tenant creation. Clinic access management is separate from account-owner Profile/password recovery. Public Bearer API ignores web impersonation; the nine first-party search controls use session-authenticated `/api/search/*`.
 
-See [P0 review and rollout boundary](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md) for environment evidence, data impact, migration and rollback. Hostinger remains at `063317498e366a009357e0c0fe500041b2417050`; read-only health and backup containment were rechecked. Four historical global-role/membership differences require owner review before rollout. No schema/backfill, SQL dump, dependency update, production write or GitHub Actions is part of this patch. Doctor registry/scheduling remains a separate PR after P0 acceptance.
+See [P0 review and rollout boundary](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md) for environment evidence, data impact, migration and rollback. Hostinger remains at `063317498e366a009357e0c0fe500041b2417050`; read-only health and backup containment were rechecked. The four historical role differences were adjudicated read-only: two disabled accounts across two clinics, valid membership roles, zero capability-set loss from ignoring the differing global grants. No account or assignment was changed. Independent review blocked P0 acceptance at the initial SHA; controller and tenant-entry corrections require another review before acceptance. No schema/backfill, SQL dump, dependency update, production write or GitHub Actions is part of this patch. Doctor registry/scheduling remains a separate PR after P0 acceptance.
 
 
-Last updated: 2026-09-25
+Last updated: 2026-10-15
 
 ## Status
 

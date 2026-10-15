@@ -126,20 +126,14 @@ class TenantFilter implements FilterInterface
             return redirect()->to('/clinic/select');
         }
 
-        $membership = $db->table('clinic_users')
-            ->where('user_id', $userId)
-            ->where('clinic_id', $activeClinicId)
-            ->where('status', 'active')
-            ->get()
-            ->getRowArray();
+        $permissionService = service('permission');
+        if (!$permissionService) {
+            $permissionService = new \App\Services\PermissionService();
+        }
 
         $isImpersonating = $session->get('is_impersonating') === true;
         $impersonatedClinicId = (int) ($session->get('impersonated_clinic_id') ?? 0);
-        if (!$membership && $isImpersonating && $impersonatedClinicId > 0 && $impersonatedClinicId === $activeClinicId && $session->get('global_mode') !== true) {
-            $permissionService = service('permission');
-            if (!$permissionService) {
-                $permissionService = new \App\Services\PermissionService();
-            }
+        if ($isImpersonating && $impersonatedClinicId > 0 && $impersonatedClinicId === $activeClinicId && $session->get('global_mode') !== true) {
             if ($permissionService->isSuperAdmin($userId)) {
                 $session->remove('active_clinic_role_id');
                 log_message('info', 'Impersonation bypass for user_id={userId} clinic_id={clinicId}', [
@@ -150,28 +144,29 @@ class TenantFilter implements FilterInterface
             }
         }
 
-        // 3. Invalid Context
-        if (!$membership) {
+        // 3. Ordinary Membership Context - Canonical PermissionService verification
+        $tenantRoleId = $permissionService->getTenantRoleId($userId, $activeClinicId);
+        if ($tenantRoleId === null) {
             $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
-            
+
             if ($request->isAJAX() || $isApi) {
-                 return service('response')->setStatusCode(403)->setJSON([
-                     'error' => [
-                         'code' => 'tenant_context_forbidden',
-                         'message' => 'Access denied to this clinic.'
-                     ]
-                 ]);
+                return service('response')->setStatusCode(403)->setJSON([
+                    'error' => [
+                        'code' => 'tenant_context_forbidden',
+                        'message' => 'Access denied to this clinic.'
+                    ]
+                ]);
             }
-            
+
             // HTML fallback
             $session->setFlashdata('error', 'Access denied to this clinic.');
             return redirect()->to('/clinic/select');
         }
 
         // 4. Enforce Role Consistency
-        // We trust the DB over the session for role_id
-        if ($session->get('active_clinic_role_id') != $membership['role_id']) {
-            $session->set('active_clinic_role_id', $membership['role_id']);
+        // We trust canonical tenant role ID over session
+        if ($session->get('active_clinic_role_id') !== $tenantRoleId) {
+            $session->set('active_clinic_role_id', $tenantRoleId);
         }
 
         return null;

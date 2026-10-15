@@ -254,4 +254,5 @@ return [
     'membershipOperationDenied' => 'تعذر تغيير الوصول إلى العيادة. تحقق من صلاحياتك وحالة العضوية الحالية.',
     'removeClinicAccess' => 'إزالة الوصول إلى العيادة',
     'confirmRemoveClinicAccess' => 'هل تريد إزالة الوصول إلى هذه العيادة؟ سيُحفظ الحساب والسجل السابق.',
+    'membershipClinicRoleRequired' => 'يرجى اختيار عيادة ودور صالحين.',
 ];

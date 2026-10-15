@@ -43,7 +43,7 @@
                         <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle text-red-500"></i>
-                                <span><?= session()->getFlashdata('error') ?></span>
+                                <span><?= esc(session()->getFlashdata('error')) ?></span>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -52,7 +52,7 @@
                         <div class="mb-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-800">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-check-circle text-green-500"></i>
-                                <span><?= session()->getFlashdata('success') ?></span>
+                                <span><?= esc(session()->getFlashdata('success')) ?></span>
                             </div>
                         </div>
                     <?php endif; ?>

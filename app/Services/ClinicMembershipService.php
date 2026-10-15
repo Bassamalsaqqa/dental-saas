@@ -1066,7 +1066,8 @@ class ClinicMembershipService
 
             // Lock role
             $lockedRole = $db->query('SELECT id, slug, is_active, clinic_id FROM roles WHERE id = ? FOR UPDATE', [$roleId])->getRowArray();
-            if (!$lockedRole || (int) ($lockedRole['is_active'] ?? 0) !== 1 || ($lockedRole['slug'] ?? '') === 'super_admin') {
+            if (!$lockedRole || (int) ($lockedRole['is_active'] ?? 0) !== 1 || ($lockedRole['slug'] ?? '') === 'super_admin'
+                || ($lockedRole['clinic_id'] !== null && (int) $lockedRole['clinic_id'] !== $clinicId)) {
                 return [
                     'success' => false,
                     'code' => 'invalid_role',

@@ -634,7 +634,8 @@ abstract class BaseController extends Controller
         }
 
         // Kiosk already resolves locale explicitly per clinic context.
-        $uriPath = trim((string) $request->getUri()->getPath(), '/');
+        $uri = $request->getUri();
+        $uriPath = trim((string) ($uri instanceof \CodeIgniter\HTTP\SiteURI ? $uri->getRoutePath() : $uri->getPath()), '/');
         if (str_starts_with($uriPath, 'kiosk')) {
             $this->currentLocale = strtolower((string) $request->getLocale() ?: 'en');
             $this->isRtl = $this->localeResolver->isRtl($this->currentLocale);

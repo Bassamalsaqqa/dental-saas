@@ -3,7 +3,7 @@
 namespace App\Filters;
 
 use App\Libraries\IonAuth;
-use App\Models\ClinicUserModel;
+use App\Services\PermissionService;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -28,15 +28,40 @@ class AppApiTenant implements FilterInterface
             return $this->error('unauthenticated', 'Authentication required.', 401);
         }
 
-        $membership = (new ClinicUserModel())->getMembership($userId, $clinicId);
-        if (! $membership) {
+        $db = \Config\Database::connect();
+        $userRow = $db->table('users')->where('id', $userId)->where('active', 1)->get()->getRowArray();
+        if (!$userRow) {
+            $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
+            return $this->error('unauthenticated', 'User account is inactive or disabled.', 401);
+        }
+
+        $clinicRow = $db->table('clinics')->where('id', $clinicId)->where('status', 'active')->get()->getRowArray();
+        if (!$clinicRow) {
+            $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
+            return $this->error('tenant_context_forbidden', 'Clinic is suspended or inactive.', 403);
+        }
+
+        $permissionService = service('permission');
+        if (!$permissionService) {
+            $permissionService = new PermissionService();
+        }
+
+        // App API resources never gain authority from web impersonation,
+        // including platform users with an eligible low-privilege membership.
+        if ($session->get('is_impersonating') === true || (int) ($session->get('impersonated_clinic_id') ?? 0) > 0) {
+            $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
+            return $this->error('tenant_context_forbidden', 'Web impersonation is not supported for App API resources.', 403);
+        }
+
+        $tenantRoleId = $permissionService->getTenantRoleId($userId, $clinicId);
+        if ($tenantRoleId === null) {
             $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
 
             return $this->error('tenant_context_forbidden', 'Access denied to this clinic.', 403);
         }
 
-        if ($session->get('active_clinic_role_id') != ($membership['role_id'] ?? null)) {
-            $session->set('active_clinic_role_id', $membership['role_id'] ?? null);
+        if ($session->get('active_clinic_role_id') !== $tenantRoleId) {
+            $session->set('active_clinic_role_id', $tenantRoleId);
         }
 
         return null;

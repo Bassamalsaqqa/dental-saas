@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-15 — PR #1 independent-review corrections (not deployed)
+
+- Restore strict positive-ID parsing of routed control-plane membership POSTs, localize validation/success feedback, and revalidate role clinic scope under the membership transaction lock.
+- Require canonical active account/clinic/membership/role eligibility in tenant-only web and App API gates. Web impersonation remains explicit and session-owned; App API resource gates reject it, including platform users who also have an ordinary membership. Bearer headers do not select web session authority.
+- Independently reproduce and remove an AGY draft App API impersonation regression. Targeted routed corrections pass **42 tests / 514 assertions**. The exact committed final focused-suite result is recorded in the PR follow-up; no Actions or broad suite is run.
+- Restore original LF convention in PR files with byte-equivalent normalization evidence, escape P0 flash text, and document each of the four production role differences using SELECT-only evidence. Two disabled accounts remain disabled; no automatic role/data repair, schema change or deployment. See the [active review](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
+
 ## 2026-10-15 — P0 tenant identity and RBAC corrections (not deployed)
 
 - Make validated active `clinic_users.role_id` the tenant role authority; retain historical global tenant grants and unscoped overrides without allowing tenant escalation. Require active, unexpired global platform RBAC, removing authentication-group fallback and runtime auto-promotion.
