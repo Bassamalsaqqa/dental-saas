@@ -1,6 +1,6 @@
 # Project State
 
-## 2026-10-15 ? P0 and Phase B merged; pre-pilot workflow under review
+## 2026-10-16 ? P0/Phase B merged; PR #3 approved, Owner merge pending
 
 P0 PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759`, including the Super Admin display correction at `e43af245e7ab61cb46515f7664b6289def903d23`. Independent code review found no blockers; the display correction and adjacent authority regressions passed 21 tests / 196 assertions. Nothing was deployed. Hostinger was last observed at `063317498e366a009357e0c0fe500041b2417050` through read-only inspection.
 
@@ -9,7 +9,9 @@ Active clinic membership is tenant role authority. Existing identities cannot be
 Phase B PR #2 was independently approved at `3bf46f96a653d266870d2aa6a783dcc96f493415` and merged at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04` with an identical tree. A separate pre-pilot PR adds full-horizon before/after reporting, attributed dispositions, verified audit bundles and current-state rechecks; final focused acceptance passed 50 tests / 524 assertions plus 198 EN/AR mobile Chromium assertions. Dynamic scheduling remains default off. Its [contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md) preserves existing appointments and requires an additive schema before explicit feature enablement. No production migration, backfill, dependency upgrade or deployment is authorized. Overall release readiness remains unapproved.
 
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
+
+PR #3 has independent code approval at `ad481ebbf454ebf3a53bc09417d13a2b2f57c0d5`. Its exact HEAD remains open for the Owner-only merge decision; no merge/deployment/activation is authorized here. Isolated synthetic certification and remaining release blockers are recorded in [production readiness](SaaS/PRODUCTION_READINESS_2026-10-16.md). Dynamic scheduling remains default-off.
 
 ## Status
 
@@ -53,7 +55,7 @@ Last updated: 2026-10-15
 
 ## Current Next Slice
 
-Phase B Dynamic Doctor Scheduling is prepared in a separate review PR after merged P0 PR #1. Finish independent review and staging rollout planning under the [scheduling contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md). Production remains unchanged. The feature defaults off; schema expansion, operator qualification/schedules, legacy reconciliation and explicit pilot approval precede any future enablement. Framework/dependency upgrades and other modernization checkpoints remain separate work.
+PR #3 is independently approved at `ad481ebbf454ebf3a53bc09417d13a2b2f57c0d5` and awaits the Owner merge decision. Finish isolated staging certification and resolve the remaining [readiness gates](SaaS/PRODUCTION_READINESS_2026-10-16.md). Production remains unchanged and dynamic scheduling remains default-off. No automatic merge, deployment, migration or activation is authorized.
 
 ## App API / React State
 
