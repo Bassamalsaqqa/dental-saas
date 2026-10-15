@@ -111,6 +111,7 @@
                                 <tr class="transition-colors <?= $rowBg ?>">
                                     <td class="py-3 px-4 font-mono font-semibold text-slate-800 whitespace-nowrap">
                                         <span dir="ltr">#<?= esc((string) $item['appointment_id']) ?></span>
+                                        <?php if (($item['temporal_state'] ?? '') === 'in_progress'): ?><span class="block text-xs text-amber-800" data-temporal-state="in_progress"><?= esc(lang('DoctorScheduleSettings.inProgressVisit')) ?></span><?php endif; ?>
                                         <?php if ($item['status'] === 'completed'): ?>
                                             <span class="block text-xs font-normal text-slate-500"><?= esc(lang('DoctorScheduleSettings.completedPreserved')) ?></span>
                                         <?php endif; ?>

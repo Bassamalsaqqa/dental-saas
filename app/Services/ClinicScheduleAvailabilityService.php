@@ -40,7 +40,7 @@ final class ClinicScheduleAvailabilityService
         $startMinutes = ((int) substr($time, 0, 2) * 60) + (int) substr($time, 3, 2);
         $endMinutes = $startMinutes + $duration;
 
-        if ($endMinutes > 1440) {
+        if ($endMinutes >= 1440) {
             return ['compliant' => false, 'code' => 'CROSS_MIDNIGHT', 'reason' => 'Appointments cannot cross midnight'];
         }
 

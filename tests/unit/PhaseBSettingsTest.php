@@ -84,7 +84,8 @@ final class PhaseBSettingsTest extends CIUnitTestCase
         $this->assertSame('09:00',$this->value('working_hours_start'));
         $this->assertSame('07:00',$this->db->table('settings')->where('clinic_id',$this->foreignClinic)->where('setting_key','working_hours_start')->get()->getRowArray()['setting_value']);
         $this->assertSame(0,$this->db->transDepth);
-        $this->assertSame(1,$this->db->table('control_plane_audits')->where('actor_user_id',$this->actor)->countAllResults());
+        $this->assertSame(1,$this->db->table('control_plane_audits')->where(['actor_user_id'=>$this->actor,'event_type'=>'doctor_scheduling_settings_update'])->countAllResults());
+        $this->assertNotNull((new \App\Services\ScheduleImpactService($this->db))->getLatestAuditRecord($this->clinic));
     }
 
     public function testDynamicModeIgnoresLegacyCapacityAndRefusesUnsafeDisable(): void

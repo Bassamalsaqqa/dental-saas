@@ -20,12 +20,13 @@ class ClinicSchedulingConfigurationService
         }
         try {
             if (!$db->transBegin()) return $fail('saveFailed');
-            $clinic = $db->query('SELECT id, status FROM clinics WHERE id = ? FOR UPDATE', [$clinicId])->getRowArray();
+            $impactService = $this->impactService ?? new ScheduleImpactService($db);
+            // 1. Lock clinic FIRST and establish shared consistent lock ordering immediately
+            $impactService->lockState($clinicId, null, $actorId);
+            $clinic = $db->query('SELECT id, status FROM clinics WHERE id = ?', [$clinicId])->getRowArray();
             if (!$clinic || $clinic['status'] !== 'active' || !$this->canEditScheduling($db, $clinicId, $actorId)) {
                 throw new \DomainException('forbidden');
             }
-            $impactService = $this->impactService ?? new ScheduleImpactService($db);
-            $impactService->lockState($clinicId);
             $settings = $db->table('settings')->where('clinic_id', $clinicId)->get()->getResultArray();
             $values = [];
             foreach ($settings as $row) $values[$row['setting_key']] = $row;
@@ -42,8 +43,8 @@ class ClinicSchedulingConfigurationService
                 throw new \DomainException('cannotDisable');
             }
 
-            // Schedule Impact Verification Hook under the clinic lock
-            $report = $impactService->generateReport($db, $clinicId, 'clinic_hours', $data, null, true);
+            // Schedule Impact Verification Hook under the clinic lock (forUpdate=false to avoid redundant lockState call)
+            $report = $impactService->generateReport($db, $clinicId, 'clinic_hours', $data, null, false);
 
             $token = $impactProof['token'] ?? ($input['impact_proof_token'] ?? null);
             $acknowledged = $impactProof['acknowledged'] ?? ($input['acknowledged'] ?? null);
@@ -148,8 +149,9 @@ class ClinicSchedulingConfigurationService
         if ($db->transDepth !== 0) return $fail('saveFailed');
         try {
             if (!$db->transBegin()) return $fail('saveFailed');
-            $clinic=$db->query('SELECT id, status FROM clinics WHERE id = ? FOR UPDATE',[$clinicId])->getRowArray();
-            if (!$clinic || $clinic['status']!=='active' || !$this->canEditScheduling($db,$clinicId,$actorId)) throw new \DomainException('forbidden');
+            $clinic = $db->query('SELECT id, status FROM clinics WHERE id = ? FOR UPDATE', [$clinicId])->getRowArray();
+            SchedulingAuthorityLocks::acquire($db, $clinicId, [$actorId]);
+            if (!$clinic || $clinic['status'] !== 'active' || !$this->canEditScheduling($db, $clinicId, $actorId)) throw new \DomainException('forbidden');
             $timezone=$data['timezone']??null;
             if (!is_string($timezone) || !in_array($timezone,\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),true)) throw new \DomainException('invalidInput');
             $oldTimezone=(new ClinicSchedulingSettings($db))->get($clinicId,'timezone','Asia/Jerusalem');
@@ -160,6 +162,8 @@ class ClinicSchedulingConfigurationService
                 'currency'=>['ILS','USD','JOD','EUR','GBP'],'currency_position'=>['before','after'],'finance_auto_post_inventory_cogs'=>['0','1',0,1]] as $key=>$options) {
                 if(array_key_exists($key,$data) && !in_array($data[$key],$options,true)) throw new \DomainException('invalidInput');
             }
+            // Lock settings in numeric order before mutation
+            $db->query('SELECT id FROM settings WHERE clinic_id = ? ORDER BY id FOR UPDATE', [$clinicId]);
             foreach ($data as $key=>$value) {
                 if (!is_scalar($value)) throw new \DomainException('invalidInput');
                 $existing=$db->table('settings')->where(['clinic_id'=>$clinicId,'setting_key'=>$key])->get()->getRowArray();

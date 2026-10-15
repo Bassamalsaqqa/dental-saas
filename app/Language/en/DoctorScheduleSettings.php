@@ -74,4 +74,5 @@ return [
     'invalidIntervalReason' => 'The recorded appointment interval or availability configuration is invalid. Review this visit.',
     'recordedLabel' => 'Recorded doctor label',
     'visit' => 'Visit',
+    'inProgressVisit' => 'In progress: scheduling is locked; notes remain editable.',
 ];

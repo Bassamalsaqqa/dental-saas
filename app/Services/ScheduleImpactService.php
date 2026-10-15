@@ -270,34 +270,88 @@ class ScheduleImpactService
         ];
     }
 
-    /** Lock all policy dependencies before any consistent snapshot read; caller owns the transaction. */
-    public function lockState(int $clinicId): void
+    /**
+     * Lock necessary policy dependencies before consistent snapshot read; caller owns transaction.
+     * Bounded locking: clinic FIRST serialization, settings, profiles, clinic users, users, roles,
+     * and upcoming active appointments only.
+     * Unrelated patient/clinical/financial history is NOT locked.
+     */
+    public function lockState(int $clinicId, ?DateTimeImmutable $referenceNow = null, ?int $extraUserId = null): void
     {
-        if ($clinicId<=0 || $this->db->transDepth!==1) throw new RuntimeException('Owned schedule review transaction required.');
-        $this->db->query('SELECT id,status FROM clinics WHERE id=? FOR UPDATE',[$clinicId])->getRowArray();
-        foreach (['settings','appointments','patients','examinations','clinical_procedures','clinical_charge_lines','clinic_users'] as $table) {
-            $this->db->query("SELECT id FROM {$table} WHERE clinic_id=? ORDER BY id FOR UPDATE",[$clinicId])->getResultArray();
+        if ($clinicId <= 0 || $this->db->transDepth !== 1) {
+            throw new RuntimeException('Owned schedule review transaction required.');
         }
-        if ($this->db->tableExists('clinic_provider_profiles')) $this->db->query('SELECT id FROM clinic_provider_profiles WHERE clinic_id=? ORDER BY id FOR UPDATE',[$clinicId])->getResultArray();
-        $this->db->query('SELECT cu.id FROM clinic_users cu JOIN users u ON u.id=cu.user_id JOIN roles r ON r.id=cu.role_id WHERE cu.clinic_id=? ORDER BY u.id FOR UPDATE',[$clinicId])->getResultArray();
+
+        // 1. Clinic FIRST serialization
+        $clinic = $this->db->query('SELECT id, status FROM clinics WHERE id = ? FOR UPDATE', [$clinicId])->getRowArray();
+        if (!$clinic || $clinic['status'] !== 'active') {
+            throw new DomainException('forbidden');
+        }
+
+        SchedulingAuthorityLocks::acquire($this->db, $clinicId, null, [$extraUserId ?? 0]);
+        $settingRows=$this->db->query('SELECT id, setting_key, setting_value FROM settings WHERE clinic_id = ? ORDER BY id FOR UPDATE', [$clinicId])->getResultArray();
+        if ($this->db->tableExists('clinic_provider_profiles')) {
+            $this->db->query('SELECT id FROM clinic_provider_profiles WHERE clinic_id = ? ORDER BY id FOR UPDATE', [$clinicId])->getResultArray();
+        }
+
+        // 8. Bounded active appointments (upcoming + ongoing only; omit elapsed, historical, cancelled, no-show)
+        // Interval policy rejects crossing midnight (CROSS_MIDNIGHT), so appointment_date >= today is comprehensive.
+        $tzString = 'Asia/Jerusalem';
+        foreach ($settingRows as $sr) {
+            if (($sr['setting_key'] ?? '') === 'timezone' && !empty($sr['setting_value'])) {
+                $tzString = (string) $sr['setting_value'];
+                break;
+            }
+        }
+        $tz = new \DateTimeZone($tzString);
+        $now = ($referenceNow !== null ? $referenceNow->setTimezone($tz) : ClinicTemporalPolicyService::now($tz));
+        $today = $now->format('Y-m-d');
+
+        $candidates = $this->db->query(
+            "SELECT id, appointment_date, appointment_time, duration
+             FROM appointments
+             WHERE clinic_id = ? AND status NOT IN ('cancelled', 'no_show') AND appointment_date >= ?
+             ORDER BY id ASC",
+            [$clinicId, $today]
+        )->getResultArray();
+
+        $activeApptIds = [];
+        foreach ($candidates as $cand) {
+            $cDate = (string) $cand['appointment_date'];
+            $cTime = (string) $cand['appointment_time'];
+            $cDur = (int) $cand['duration'];
+            if (ClinicTemporalPolicyService::classifyAppointment($cDate, $cTime, $cDur, $tz, $now) !== ClinicTemporalPolicyService::STATE_ELAPSED) {
+                $activeApptIds[] = (int) $cand['id'];
+            }
+        }
+
+        if (!empty($activeApptIds)) {
+            sort($activeApptIds, SORT_NUMERIC);
+            foreach ($activeApptIds as $aid) {
+                $this->db->query('SELECT id FROM appointments WHERE id = ? AND clinic_id = ? FOR UPDATE', [$aid, $clinicId])->getRowArray();
+            }
+        }
     }
 
     /**
-     * Compute deterministic state digest from the complete content of future visits,
-     * clinical links, settings, provider profiles, and clinic user/role eligibility.
+     * Compute deterministic state digest from the complete content of relevant future visits,
+     * linked clinical deps, settings, provider profiles, and clinic user/role eligibility.
+     * Bounded to relevant future horizon without scanning historical clinic records.
+     * Never hashes volatile exact now seconds.
      */
-    public function computeStateDigest(BaseConnection $db, int $clinicId): string
+    public function computeStateDigest(BaseConnection $db, int $clinicId, ?DateTimeImmutable $now = null): string
     {
-        $tzString = $this->clinicSettings->get($clinicId, 'timezone', 'Asia/Jerusalem');
         $tz = $this->clinicSettings->timezone($clinicId);
-        $today = (new DateTimeImmutable('now', $tz))->format('Y-m-d');
+        $referenceNow = ($now ?? ClinicTemporalPolicyService::now($tz))->setTimezone($tz);
+        $today = $referenceNow->format('Y-m-d');
+        $tzString = $this->clinicSettings->get($clinicId, 'timezone', 'Asia/Jerusalem');
 
         $clinicRow = $db->query('SELECT id, status FROM clinics WHERE id = ?', [$clinicId])->getRowArray();
 
         $hasProvCol = $db->fieldExists('provider_user_id', 'appointments');
         $provColSql = $hasProvCol ? 'provider_user_id' : 'NULL AS provider_user_id';
 
-        $appointments = $db->query(
+        $rawAppointments = $db->query(
             "SELECT id, clinic_id, patient_id, appointment_date, appointment_time, duration, status, chair_name, {$provColSql}, notes, created_at, updated_at
              FROM appointments
              WHERE clinic_id = ? AND appointment_date >= ? AND status NOT IN ('cancelled', 'no_show')
@@ -305,23 +359,63 @@ class ScheduleImpactService
             [$clinicId, $today]
         )->getResultArray();
 
-        $exams = $db->query(
-            'SELECT appointment_id FROM examinations WHERE clinic_id = ? AND appointment_id IS NOT NULL ORDER BY appointment_id ASC',
-            [$clinicId]
-        )->getResultArray();
+        $activeAppointments = [];
+        $aptIds = [];
+        $patientIds = [];
 
-        $procedures = $db->query(
-            'SELECT appointment_id, scheduled_appointment_id FROM clinical_procedures WHERE clinic_id = ? AND (appointment_id IS NOT NULL OR scheduled_appointment_id IS NOT NULL) ORDER BY id ASC',
-            [$clinicId]
-        )->getResultArray();
+        foreach ($rawAppointments as $apt) {
+            $state = ClinicTemporalPolicyService::classifyAppointment($apt['appointment_date'], $apt['appointment_time'], (int) $apt['duration'], $tz, $referenceNow);
+            if ($state === ClinicTemporalPolicyService::STATE_ELAPSED) {
+                continue;
+            }
+            $apt['temporal_state'] = $state;
+            $activeAppointments[] = $apt;
+            $aptIds[] = (int) $apt['id'];
+            if (!empty($apt['patient_id'])) {
+                $patientIds[] = (int) $apt['patient_id'];
+            }
+        }
 
-        $charges = $db->query(
-            'SELECT appointment_id FROM clinical_charge_lines WHERE clinic_id = ? AND appointment_id IS NOT NULL ORDER BY appointment_id ASC',
-            [$clinicId]
-        )->getResultArray();
+        $aptIds = array_values(array_unique($aptIds));
+        $patientIds = array_values(array_unique($patientIds));
+        sort($patientIds);
 
-        $settings = $db->query("SELECT setting_key, setting_value, setting_type FROM settings WHERE clinic_id=? AND setting_key IN ('timezone','working_hours_start','working_hours_end','working_days','appointment_duration','dynamic_doctor_scheduling_enabled','booking_chair_count','booking_chair_names') ORDER BY setting_key",[$clinicId])->getResultArray();
-        $patients = $db->query('SELECT id,clinic_id,status FROM patients WHERE clinic_id=? ORDER BY id',[$clinicId])->getResultArray();
+        // Bounded clinical dependencies strictly for active future appointments
+        $exams = [];
+        $procedures = [];
+        $charges = [];
+
+        if (!empty($aptIds)) {
+            $aPlaceholders = implode(',', array_fill(0, count($aptIds), '?'));
+            $params = array_merge([$clinicId], $aptIds);
+
+            $exams = $db->query(
+                "SELECT appointment_id FROM examinations WHERE clinic_id = ? AND appointment_id IN ({$aPlaceholders}) ORDER BY appointment_id ASC",
+                $params
+            )->getResultArray();
+
+            $procedures = $db->query(
+                "SELECT appointment_id, scheduled_appointment_id FROM clinical_procedures WHERE clinic_id = ? AND (appointment_id IN ({$aPlaceholders}) OR scheduled_appointment_id IN ({$aPlaceholders})) ORDER BY id ASC",
+                array_merge([$clinicId], $aptIds, $aptIds)
+            )->getResultArray();
+
+            $charges = $db->query(
+                "SELECT appointment_id FROM clinical_charge_lines WHERE clinic_id = ? AND appointment_id IN ({$aPlaceholders}) ORDER BY appointment_id ASC",
+                $params
+            )->getResultArray();
+        }
+
+        $settings = $db->query("SELECT setting_key, setting_value, setting_type FROM settings WHERE clinic_id=? AND setting_key IN ('timezone','working_hours_start','working_hours_end','working_days','appointment_duration','dynamic_doctor_scheduling_enabled','booking_chair_count','booking_chair_names') ORDER BY setting_key", [$clinicId])->getResultArray();
+
+        // Bounded patients strictly for active future appointments
+        $patients = [];
+        if (!empty($patientIds)) {
+            $pPlaceholders = implode(',', array_fill(0, count($patientIds), '?'));
+            $patients = $db->query(
+                "SELECT id, clinic_id, status FROM patients WHERE clinic_id = ? AND id IN ({$pPlaceholders}) ORDER BY id ASC",
+                array_merge([$clinicId], $patientIds)
+            )->getResultArray();
+        }
 
         $profiles = [];
         if ($db->tableExists('clinic_provider_profiles')) {
@@ -347,7 +441,7 @@ class ScheduleImpactService
             'clinic_status' => $clinicRow['status'] ?? 'unknown',
             'timezone' => $tzString,
             'today' => $today,
-            'appointments' => $appointments,
+            'appointments' => $activeAppointments,
             'patients' => $patients,
             'exams' => $exams,
             'procedures' => $procedures,
@@ -370,15 +464,17 @@ class ScheduleImpactService
         string $targetType,
         array $proposedDto,
         ?int $targetId = null,
-        bool $forUpdate = false
+        bool $forUpdate = false,
+        ?DateTimeImmutable $now = null
     ): array {
+        if ($forUpdate) $this->lockState($clinicId, $now, $targetId);
         if (!$this->canReadReview($clinicId)) {
             throw new DomainException('forbidden');
         }
 
-        if ($forUpdate) $this->lockState($clinicId);
         $tz = $this->clinicSettings->timezone($clinicId);
-        $today = (new DateTimeImmutable('now', $tz))->format('Y-m-d');
+        $referenceNow=($now ?? ClinicTemporalPolicyService::now($tz))->setTimezone($tz);
+        $today=$referenceNow->format('Y-m-d');
 
         $hasProvCol = $db->fieldExists('provider_user_id', 'appointments');
         $provColSql = $hasProvCol ? 'provider_user_id' : 'NULL AS provider_user_id';
@@ -388,11 +484,14 @@ class ScheduleImpactService
                 WHERE clinic_id = ? AND appointment_date >= ? AND status NOT IN ('cancelled', 'no_show')
                 ORDER BY appointment_date ASC, appointment_time ASC, id ASC";
 
-        if ($forUpdate) {
-            $sql .= ' FOR UPDATE';
-        }
 
-        $appointments = $db->query($sql, [$clinicId, $today])->getResultArray();
+        $candidates = $db->query($sql, [$clinicId, $today])->getResultArray();
+        $appointments=[];
+        foreach($candidates as $apt){
+            $state=ClinicTemporalPolicyService::classifyAppointment($apt['appointment_date'],$apt['appointment_time'],(int)$apt['duration'],$tz,$referenceNow);
+            if($state===ClinicTemporalPolicyService::STATE_ELAPSED) continue;
+            $apt['temporal_state']=$state;$appointments[]=$apt;
+        }
 
         // Baseline configuration
         $baselineHours = $this->clinicSettings->hours($clinicId);
@@ -423,16 +522,27 @@ class ScheduleImpactService
 
         // Provider names cache
         $providerNames = [];
+        $cachedUsers = [];
         if ($db->tableExists('users')) {
             $userRows = $db->query(
-                'SELECT u.id, u.first_name, u.last_name, u.email FROM users u JOIN clinic_users cu ON cu.user_id=u.id WHERE cu.clinic_id=?',
+                'SELECT u.id, u.first_name, u.last_name, u.email, u.active, cu.status AS membership_status, cu.role_id, r.slug AS role_slug, r.is_doctor, r.is_active AS role_is_active, r.clinic_id AS role_clinic_id FROM users u JOIN clinic_users cu ON cu.user_id=u.id JOIN roles r ON r.id=cu.role_id WHERE cu.clinic_id=?',
                 [$clinicId]
             )->getResultArray();
             foreach ($userRows as $ur) {
+                $cachedUsers[(int)$ur['id']]=$ur;
                 $pName = trim(($ur['first_name'] ?? '') . ' ' . ($ur['last_name'] ?? ''));
                 $providerNames[(int) $ur['id']] = $pName ?: (string) ($ur['email'] ?? ('Doctor #' . $ur['id']));
             }
         }
+
+        $cachedProfiles=[];
+        if($db->tableExists('clinic_provider_profiles')){
+            foreach($db->query('SELECT * FROM clinic_provider_profiles WHERE clinic_id=?',[$clinicId])->getResultArray() as $profile){
+                try{$cachedProfiles[(int)$profile['user_id']]=$this->scheduleService->parsePersistedProfileRow($profile);}
+                catch(\Throwable $e){$cachedProfiles[(int)$profile['user_id']]=['invalid_profile'=>true];}
+            }
+        }
+        $reschedulableMap=AppointmentReschedulabilityService::batchEvaluate($db,$clinicId,$appointments,$referenceNow);
 
         // Permission check for edit links
         $actorId = (int) (new IonAuth())->getUserId();
@@ -469,7 +579,9 @@ class ScheduleImpactService
                 $configuredChairs,
                 null,
                 null,
-                $tz
+                $tz,
+                $cachedUsers,
+                $cachedProfiles
             );
 
             $afterOutcome = $this->evaluateAppointmentCompliance(
@@ -481,7 +593,9 @@ class ScheduleImpactService
                 $afterChairs,
                 $profileOverride,
                 $profileOverrideUserId,
-                $tz
+                $tz,
+                $cachedUsers,
+                $cachedProfiles
             );
 
             $isBeforeConflict = !$beforeOutcome['compliant'];
@@ -505,16 +619,18 @@ class ScheduleImpactService
                 $resolvedConflictsCount++;
             }
 
-            $reschedulable = AppointmentReschedulabilityService::isReschedulable($db, $clinicId, $apt);
+            $reschedulable = $reschedulableMap[$aptId] ?? false;
 
             // PHI Protection: omit patient_id on settings-only outward report items
             $items[] = [
                 'appointment_id' => $aptId,
                 'appointment_date' => $date,
                 'appointment_time' => $rawTime,
+                'stored_appointment_time' => (string)$apt['appointment_time'],
                 'duration' => $duration,
                 'end_time' => $endTimeStr,
                 'status' => (string) $apt['status'],
+                'temporal_state' => $apt['temporal_state'],
                 'provider_user_id' => $provId,
                 'provider_name' => $provName,
                 'chair_name' => (string) ($apt['chair_name'] ?? ''),
@@ -528,7 +644,7 @@ class ScheduleImpactService
             ];
         }
 
-        $stateDigest = $this->computeStateDigest($db, $clinicId);
+        $stateDigest = $this->computeStateDigest($db, $clinicId, $referenceNow);
 
         return [
             'clinic_id' => $clinicId,
@@ -557,11 +673,17 @@ class ScheduleImpactService
         array $chairOptions,
         ?array $profileOverride,
         ?int $profileOverrideUserId,
-        \DateTimeZone $tz
+        \DateTimeZone $tz,
+        ?array $cachedUsers = null,
+        ?array $cachedProfiles = null
     ): array {
         $date = (string) $apt['appointment_date'];
         $time = substr(trim((string) $apt['appointment_time']), 0, 5);
         $duration = (int) $apt['duration'];
+
+        if(($apt['temporal_state']??'')===ClinicTemporalPolicyService::STATE_INVALID){
+            return ['compliant'=>false,'code'=>'INVALID_INTERVAL','reason'=>lang('DoctorScheduleSettings.invalidIntervalReason')];
+        }
 
         // Pure interval & DST validation
         $intervalError = ClinicScheduleAvailabilityService::validateAppointmentInterval($date, $time, $duration, $tz);
@@ -621,6 +743,7 @@ class ScheduleImpactService
             }
 
             // Check provider membership & canonical clinic role
+            if($cachedUsers!==null){$userRow=$cachedUsers[$provId]??null;}else{
             $userRow = $db->query(
                 'SELECT u.id, u.active, cu.status as membership_status, cu.role_id, r.slug as role_slug, r.is_doctor, r.is_active as role_is_active, r.clinic_id as role_clinic_id
                  FROM users u
@@ -629,6 +752,8 @@ class ScheduleImpactService
                  WHERE u.id = ? AND cu.clinic_id = ?',
                 [$provId, $clinicId]
             )->getRowArray();
+
+            }
 
             if (!$userRow || (int) $userRow['active'] !== 1 || ($userRow['membership_status'] ?? '') !== 'active'
                 || (int) ($userRow['role_is_active'] ?? 0) !== 1 || ($userRow['role_slug'] ?? '') === 'super_admin'
@@ -641,7 +766,11 @@ class ScheduleImpactService
             }
 
             // Use the same strict persisted-profile parser as canonical booking, including every day/date.
-            try { $profileRow=($profileOverrideUserId===$provId && $profileOverride!==null) ? null : $this->scheduleService->getProfile($clinicId,$provId); }
+            try {
+                $profileRow=($profileOverrideUserId===$provId && $profileOverride!==null) ? null
+                    : ($cachedProfiles!==null ? ($cachedProfiles[$provId]??null) : $this->scheduleService->getProfile($clinicId,$provId));
+                if(!empty($profileRow['invalid_profile'])) throw new DomainException('Invalid persisted profile');
+            }
             catch (\Throwable $e) { return ['compliant'=>false,'code'=>'PROVIDER_PROFILE_CORRUPT','reason'=>lang('DoctorScheduleSettings.invalidIntervalReason')]; }
 
             // Clinician qualification check
@@ -943,6 +1072,7 @@ class ScheduleImpactService
                     'appointment_id' => $item['appointment_id'],
                     'appointment_date' => $item['appointment_date'],
                     'appointment_time' => $item['appointment_time'],
+                    'stored_appointment_time' => $item['stored_appointment_time'] ?? null,
                     'duration' => $item['duration'],
                     'provider_user_id' => $item['provider_user_id'],
                     'chair_name' => $item['chair_name'],
@@ -1020,17 +1150,24 @@ class ScheduleImpactService
     {
         $review=$this->getLatestAuditRecord($clinicId);
         if ($review === null || !hash_equals((string)($review['configuration_digest']??''),$this->configurationDigest($clinicId))) return [];
-        $today=(new DateTimeImmutable('now',$this->clinicSettings->timezone($clinicId)))->format('Y-m-d');
+        $tz=$this->clinicSettings->timezone($clinicId);$now=ClinicTemporalPolicyService::now($tz);$today=$now->format('Y-m-d');
+        $ids=[];foreach($review['affected_items']??[] as $item){$id=ClinicSchedulingSettings::positiveInt($item['appointment_id']??null);if($id!==null)$ids[]=$id;}
+        $rows=[];if($ids){$placeholders=implode(',',array_fill(0,count($ids),'?'));$rows=array_column($this->db->query("SELECT * FROM appointments WHERE clinic_id=? AND id IN ($placeholders)",array_merge([$clinicId],$ids))->getResultArray(),null,'id');}
         $result=[];
         foreach ($review['affected_items']??[] as $item) {
             $id=ClinicSchedulingSettings::positiveInt($item['appointment_id']??null);
             if ($id===null) continue;
-            $row=$this->db->table('appointments')->where(['clinic_id'=>$clinicId,'id'=>$id])->get()->getRowArray();
-            if (!$row || $row['appointment_date']<$today || in_array($row['status'],['cancelled','no_show'],true)) continue;
+            $row=$rows[$id]??null;
+            if (!$row || $row['appointment_date']<$today || in_array($row['status'],['cancelled','no_show'],true)
+                || ClinicTemporalPolicyService::classifyAppointment($row['appointment_date'],$row['appointment_time'],(int)$row['duration'],$tz,$now)===ClinicTemporalPolicyService::STATE_ELAPSED) continue;
             foreach (['appointment_date','duration','provider_user_id','chair_name','status'] as $field) {
                 if ((string)($row[$field]??'')!==(string)($item[$field]??'')) continue 2;
             }
-            if (substr($row['appointment_time'],0,5)!==$item['appointment_time']) continue;
+            $storedTime=$item['stored_appointment_time']??null;
+            if($storedTime!==null){
+                if(!is_string($storedTime) || $storedTime!==(string)$row['appointment_time']) continue;
+            }elseif(preg_match('/^[0-2][0-9]:[0-5][0-9](?::00)?$/D',(string)$row['appointment_time'])!==1
+                || substr($row['appointment_time'],0,5)!==$item['appointment_time']) continue;
             $disposition=$review['dispositions'][$id]??null;
             if (!is_array($disposition) || ($disposition['action']??'')!=='retain') continue;
             $result[$id]=$disposition+['appointment_id'=>$id,'review_id'=>$review['review_id'],

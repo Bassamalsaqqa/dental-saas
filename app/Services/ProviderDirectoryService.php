@@ -44,7 +44,7 @@ class ProviderDirectoryService
      * Exclude super_admin/foreign/inactive roles, inactive users/memberships/clinics.
      * Canonical doctors auto-eligible without profile.
      */
-    public function listForClinic(int $clinicId, bool $forUpdate = false): array
+    public function listForClinic(int $clinicId, bool $forUpdate = false, ?int $onlyUserId = null): array
     {
         if ($clinicId <= 0) {
             return [];
@@ -105,6 +105,8 @@ class ProviderDirectoryService
             ');
             $builder->join('clinic_provider_profiles cpp', "cpp.clinic_id = {$clinicId} AND cpp.user_id = users.id", 'left');
         }
+
+        if ($onlyUserId !== null) $builder->where('users.id', $onlyUserId);
 
         $builder->orderBy('users.first_name', 'ASC')
             ->orderBy('users.last_name', 'ASC')
@@ -182,7 +184,7 @@ class ProviderDirectoryService
             return null;
         }
 
-        $providers = $this->listForClinic($clinicId, $forUpdate);
+        $providers = $this->listForClinic($clinicId, $forUpdate, $userId);
         foreach ($providers as $provider) {
             if ($provider['user_id'] === $userId) {
                 return $provider['is_bookable'] ? $provider : null;

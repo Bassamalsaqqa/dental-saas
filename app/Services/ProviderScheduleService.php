@@ -47,6 +47,7 @@ class ProviderScheduleService
             if (!$this->db->transBegin()) throw $deny('saveFailed');
             $clinic = $this->db->query('SELECT id, status FROM clinics WHERE id = ? FOR UPDATE', [$clinicId])->getRowArray();
             if (!$clinic || $clinic['status'] !== 'active') throw $deny('forbidden');
+            $impactService->lockState($clinicId, null, $userId);
             // Lock all actor/target authority rows before resolving canonical permissions.
             foreach (array_unique([$actorId, $userId]) as $id) {
                 $user = $this->db->query('SELECT id, active FROM users WHERE id = ? FOR UPDATE', [$id])->getRowArray();
@@ -61,7 +62,7 @@ class ProviderScheduleService
             if (!$this->db->tableExists('clinic_provider_profiles')) throw $deny('schemaMissing');
 
             // Schedule Impact Verification Hook under the lock
-            $report = $impactService->generateReport($this->db, $clinicId, 'provider_profile', $dto, $userId, true);
+            $report = $impactService->generateReport($this->db, $clinicId, 'provider_profile', $dto, $userId, false);
 
             $token = $impactProof['token'] ?? ($data['impact_proof_token'] ?? null);
             $acknowledged = $impactProof['acknowledged'] ?? ($data['acknowledged'] ?? null);
@@ -160,6 +161,12 @@ class ProviderScheduleService
             return null;
         }
 
+        return $this->parsePersistedProfileRow($row);
+    }
+
+    /** Strict pure persisted-profile parser shared by booking and batched impact reports. */
+    public function parsePersistedProfileRow(array $row): array
+    {
         try {
             foreach(['is_bookable','is_clinician'] as $flag) if(!in_array($row[$flag],[0,1,'0','1'],true))throw new DomainException('Invalid flag');
             $weekly=$row['weekly_hours_json']===null ? null : json_decode($row['weekly_hours_json'],true,512,JSON_THROW_ON_ERROR);

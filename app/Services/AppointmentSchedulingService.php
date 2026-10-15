@@ -152,21 +152,27 @@ class AppointmentSchedulingService
                 return ['success' => false, 'code' => 'CLINIC_INACTIVE', 'message' => 'Clinic is not active.'];
             }
 
-            // 9. Recheck PlanGuard subscription under clinic lock
+            // Resolve only this appointment's provider using a current clinic-owned read.
+            $providerId = ClinicSchedulingSettings::positiveInt($input['provider_user_id'] ?? null);
+            if ($providerId === null && $id !== null && $this->db->fieldExists('provider_user_id', 'appointments')) {
+                $providerRow = $this->db->query('SELECT provider_user_id FROM appointments WHERE id = ? AND clinic_id = ? FOR UPDATE', [$id, $validClinicId])->getRowArray();
+                $providerId = ClinicSchedulingSettings::positiveInt($providerRow['provider_user_id'] ?? null);
+            }
+            SchedulingAuthorityLocks::acquire($this->db, $validClinicId, array_filter([$validActorId, $providerId]), [], true);
+
+            // First snapshot reads occur after current global authority locks.
             $subErrorUnderLock = $this->checkSubscriptionStanding($validClinicId);
             if ($subErrorUnderLock !== null) {
                 $this->db->transRollback();
                 return $subErrorUnderLock;
             }
-
-            // 10. Revalidate actor and canonical active membership/role under lock
             $actorError = $this->revalidateActorUnderLock($validClinicId, $validActorId, $action);
             if ($actorError !== null) {
                 $this->db->transRollback();
                 return $actorError;
             }
 
-            // 11. If updating, retrieve and lock existing appointment
+            // 12. If updating, retrieve and lock existing appointment
             $existing = null;
             if ($id !== null) {
                 $existing = $this->db->query(
@@ -199,7 +205,7 @@ class AppointmentSchedulingService
                 }
             }
 
-            // 12. Validate patient under lock
+            // Validate the selected patient under its existing canonical lock.
             $patientId = ($id !== null)
                 ? (int) $existing['patient_id']
                 : (ClinicSchedulingSettings::positiveInt($input['patient_id'] ?? null) ?? 0);
@@ -219,13 +225,15 @@ class AppointmentSchedulingService
                 return ['success' => false, 'code' => 'PATIENT_NOT_FOUND', 'message' => 'Active patient not found in this clinic.'];
             }
 
-            // 13. Reschedulability and locked-visit assessment
-            $today = (new DateTimeImmutable('now', $this->clinicSettings->timezone($validClinicId)))->format('Y-m-d');
+            // 14. Reschedulability and locked-visit assessment
+            $tz = $this->clinicSettings->timezone($validClinicId);
+            $now = ClinicTemporalPolicyService::now($tz);
+            $today = $now->format('Y-m-d');
             $dynamicEnabled = $this->directoryService->isEnabled($validClinicId);
             $schemaReady = $this->directoryService->isSchemaReady();
 
             if ($id !== null) {
-                $isReschedulable = AppointmentReschedulabilityService::isReschedulable($this->db, $validClinicId, $existing);
+                $isReschedulable = AppointmentReschedulabilityService::isReschedulable($this->db, $validClinicId, $existing, null, $now);
 
                 // Evaluate requested changes
                 $reqDate = isset($input['appointment_date']) ? (string) $input['appointment_date'] : $existing['appointment_date'];
@@ -332,6 +340,17 @@ class AppointmentSchedulingService
                 return $dateTimeError;
             }
 
+            // Target interval must be upcoming (start >= now). Reject past or in-progress target writes.
+            $targetState = ClinicTemporalPolicyService::classifyAppointment($date, $time, $duration, $tz, $now);
+            if ($targetState !== ClinicTemporalPolicyService::STATE_UPCOMING) {
+                $this->db->transRollback();
+                return [
+                    'success' => false,
+                    'code'    => 'PAST_APPOINTMENT_LOCKED',
+                    'message' => 'Appointments cannot be scheduled or rescheduled to past or in-progress time intervals.',
+                ];
+            }
+
             // 16. Clinic working hours validation
             $clinicHours = $this->clinicSettings->hours($validClinicId);
             $dayOfWeek = strtolower(date('l', strtotime($date)));
@@ -383,7 +402,7 @@ class AppointmentSchedulingService
                     ? (int) $existing['provider_user_id']
                     : null;
 
-                $provider = $this->directoryService->findBookable($validClinicId, $providerUserId, true);
+                $provider = $this->directoryService->findBookable($validClinicId, $providerUserId, false);
                 if (!$provider) {
                     $this->db->transRollback();
                     return [
@@ -611,7 +630,15 @@ class AppointmentSchedulingService
             return [];
         }
 
-        $validExcludeId = (new AppointmentSlotEditContext($this->db))->resolve($validClinicId, $excludeId, $editContextToken);
+        $tz = $this->clinicSettings->timezone($validClinicId);
+        $now = ClinicTemporalPolicyService::now($tz);
+        $today = $now->format('Y-m-d');
+
+        if ($date < $today) {
+            return [];
+        }
+
+        $validExcludeId = (new AppointmentSlotEditContext($this->db))->resolve($validClinicId, $excludeId, $editContextToken, $now);
         $dynamicEnabled = $this->directoryService->isEnabled($validClinicId);
         $schemaReady = $this->directoryService->isSchemaReady();
 
@@ -658,6 +685,11 @@ class AppointmentSchedulingService
 
                 for ($currMin = $wStartMin; ($currMin + $validDuration) <= $wEndMin; $currMin += $slotIncrement) {
                     $slotTime = sprintf('%02d:%02d', intdiv($currMin, 60), $currMin % 60);
+
+                    // Slots advice aligns with future write eligibility: skip past or ongoing slots today
+                    if ($date === $today && !ClinicTemporalPolicyService::isUpcoming($date, $slotTime, $validDuration, $tz, $now)) {
+                        continue;
+                    }
 
                     // Skip DST gap invalid intervals
                     if ($this->validateDateTimeDurationDst($validClinicId, $date, $slotTime, $validDuration) !== null) {
@@ -732,6 +764,11 @@ class AppointmentSchedulingService
 
         for ($currMin = $wStartMin; ($currMin + $validDuration) <= $wEndMin; $currMin += $slotIncrement) {
             $slotTime = sprintf('%02d:%02d', intdiv($currMin, 60), $currMin % 60);
+
+            // Slots advice aligns with future write eligibility: skip past or ongoing slots today
+            if ($date === $today && !ClinicTemporalPolicyService::isUpcoming($date, $slotTime, $validDuration, $tz, $now)) {
+                continue;
+            }
 
             if ($this->validateDateTimeDurationDst($validClinicId, $date, $slotTime, $validDuration) !== null) {
                 continue;
