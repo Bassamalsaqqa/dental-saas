@@ -169,7 +169,7 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                                     </div>
                                                 </div>
                                             </div>
-                                            <select name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
                                                 <option value=""><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
                                             </select>
                                         <?php elseif (empty($providers)): ?>
@@ -177,18 +177,19 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                                 <i class="fas fa-triangle-exclamation me-1"></i>
                                                 <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
                                             </div>
-                                            <select name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
                                                 <option value=""><?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
                                             </select>
                                         <?php else: ?>
-                                            <select name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 required>
                                                 <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
                                                 <?php foreach ($providers as $provider): ?>
                                                     <?php
                                                     $pId = (int) ($provider['user_id'] ?? $provider['id'] ?? 0);
                                                     $pName = (string) ($provider['name'] ?? trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')));
+                                                    $pLabel = \App\Libraries\ProviderDisplayLabel::forOption($pId, $pName);
                                                     ?>
-                                                    <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pName) ?></option>
+                                                    <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pLabel) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         <?php endif; ?>

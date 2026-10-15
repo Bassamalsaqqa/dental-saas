@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="system/Test/bootstrap.php" backupGlobals="false" beStrictAboutOutputDuringTests="true" colors="true" columns="max" failOnRisky="true" failOnWarning="true" cacheDirectory="build/.phpunit.cache">
+    <php>
+        <server name="app.baseURL" value="http://example.com/" />
+        <server name="CODEIGNITER_SCREAM_DEPRECATIONS" value="0" />
+        <const name="HOMEPATH" value="./" />
+        <const name="CONFIGPATH" value="./app/Config/" />
+        <const name="PUBLICPATH" value="./public/" />
+        <env name="database.tests.database" value="democa_dental_saas_test" />
+    </php>
+    <testsuites>
+        <testsuite name="PR2 focused corrections">
+            <file>tests/unit/PR2DoctorIdentityUiTest.php</file>
+            <file>tests/unit/PR2EscapingReviewTest.php</file>
+            <file>tests/unit/PR2SlotAdviceReviewTest.php</file>
+            <file>tests/unit/PhaseBWorkflowRenderingTest.php</file>
+            <file>tests/unit/PhaseBReviewSchedulingTest.php</file>
+            <file>tests/unit/PhaseBUpdatePreservationTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

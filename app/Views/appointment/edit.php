@@ -123,8 +123,8 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                         <option value=""><?= esc(lang('UI.appointmentSelectPatient')) ?></option>
                                         <?php if (!empty($patients)): ?>
                                             <?php foreach ($patients as $patient): ?>
-                                                <option value="<?= $patient['id'] ?>" selected>
-                                                    <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
+                                                <option value="<?= (int)$patient['id'] ?>" selected>
+                                                    <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?> (<?= esc($patient['phone'] ?? '') ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -204,36 +204,39 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                                     </div>
                                                 </div>
                                             </div>
-                                            <select name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
-                                                <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc($storedChairName) ?> - <?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                                <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc(($currentProviderUserId === null ? \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName) : \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId,$storedChairName))) ?> - <?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
                                             </select>
                                         <?php elseif (empty($providers)): ?>
                                             <div class="mb-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
                                                 <i class="fas fa-triangle-exclamation me-1"></i>
                                                 <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
                                             </div>
-                                            <select name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
-                                                <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc($storedChairName) ?> - <?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                                <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc(($currentProviderUserId === null ? \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName) : \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId,$storedChairName))) ?> - <?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
                                             </select>
                                         <?php else: ?>
-                                            <select name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 <?= ($currentProviderUserId === null) ? '' : 'required' ?>>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 <?= ($currentProviderUserId === null) ? '' : 'required' ?>>
                                                 <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
                                                 <?php if ($currentProviderUserId !== null && !$isCurrentProviderActive): ?>
+                                                    <?php $inactiveLabel = \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId, $storedChairName !== '' ? $storedChairName : null); ?>
                                                     <option value="<?= $currentProviderUserId ?>" <?= ($selectedProviderId === $currentProviderUserId) ? 'selected' : '' ?>>
-                                                        <?= esc($storedChairName !== '' ? $storedChairName : ('Doctor #' . $currentProviderUserId)) ?> (<?= esc(lang('DoctorScheduling.inactiveProviderLabel')) ?>)
+                                                        <?= esc($inactiveLabel) ?>
                                                     </option>
                                                 <?php endif; ?>
                                                 <?php if ($currentProviderUserId === null && $storedChairName !== ''): ?>
+                                                    <?php $unassignedLabel = \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName); ?>
                                                     <option value="" <?= ($selectedProviderId === '') ? 'selected' : '' ?>>
-                                                        <?= esc($storedChairName) ?> (<?= esc(lang('DoctorScheduling.legacyStoredChairOption')) ?>)
+                                                        <?= esc($unassignedLabel) ?>
                                                     </option>
                                                 <?php endif; ?>
                                                 <?php foreach ($providers as $provider): ?>
                                                     <?php
                                                     $pId = (int) ($provider['user_id'] ?? $provider['id'] ?? 0);
                                                     $pName = (string) ($provider['name'] ?? trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')));
+                                                    $pLabel = \App\Libraries\ProviderDisplayLabel::forOption($pId, $pName);
                                                     ?>
-                                                    <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pName) ?></option>
+                                                    <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pLabel) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
@@ -400,7 +403,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const doctorSelect = document.querySelector('[data-appointment-provider]') || document.getElementById('providerSelect') || document.querySelector('[data-appointment-chair]') || document.getElementById('chairName');
     const isDynamic = Boolean(doctorSelect && (doctorSelect.matches('[data-appointment-provider]') || doctorSelect.name === 'provider_user_id'));
     const currentTime = '<?= $appointment['appointment_time'] ?>';
-    const appointmentId = '<?= $appointment['id'] ?>';
+    const appointmentId = '<?= (int)$appointment['id'] ?>';
+    const slotEditContext = <?= json_encode($slot_edit_context ?? '') ?>;
     const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
     const appointmentI18n = {
         current: '<?= esc(lang('UI.appointmentCurrentTime'), 'js') ?>',
@@ -507,6 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
             targetUrl.searchParams.set('date', date);
             targetUrl.searchParams.set('duration', duration);
             targetUrl.searchParams.set('exclude_id', appointmentId);
+            targetUrl.searchParams.set('edit_context', slotEditContext);
             if (isDynamic) {
                 targetUrl.searchParams.set('provider_user_id', doctorVal);
                 targetUrl.searchParams.delete('chair_name');

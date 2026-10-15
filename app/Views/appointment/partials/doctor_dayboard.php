@@ -169,18 +169,24 @@ $statusLabelMap = [
                 <!-- Doctor Column Header -->
                 <div class="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/50 p-4 rounded-t-2xl">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0">
-                            <h4 class="truncate text-sm font-black text-slate-900" title="<?= esc($doctor['name']) ?>">
-                                <i class="fas fa-user-md text-blue-600 me-1.5"></i><?= esc($doctor['name']) ?>
-                            </h4>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <i class="fas fa-user-md text-blue-600 flex-shrink-0" style="flex-shrink: 0;"></i>
+                                <span class="doctor-reference-badge flex-shrink-0 inline-flex items-center rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-700 shadow-2xs" dir="ltr" style="flex-shrink: 0; min-width: max-content;">#<?= (int) $doctor['user_id'] ?></span>
+                                <h4 class="truncate text-sm font-black text-slate-900 min-w-0" title="<?= esc(\App\Libraries\ProviderDisplayLabel::forOption($doctor['user_id'], $doctor['name'])) ?>">
+                                    <?= esc($doctor['name']) ?>
+                                </h4>
+                            </div>
                             <span class="mt-1 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
                                 <?= count($doctor['appointments']) ?> <?= esc(lang('UI.menuAppointments')) ?>
                             </span>
                         </div>
                         <?php if (has_permission('appointments', 'create')): ?>
-                            <a href="<?= base_url('appointment/create?provider_user_id=' . (int) $doctor['user_id'] . '&appointment_date=' . esc($chosenDay)) ?>" data-appointment-create-modal-open data-appointment-provider="<?= (int) $doctor['user_id'] ?>" data-appointment-date="<?= esc($chosenDay) ?>" class="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 hover:shadow" title="<?= esc(lang('DoctorScheduling.newBookingForDoctor', [$doctor['name']])) ?>">
+                            <?php $doctorDisplayLabel = \App\Libraries\ProviderDisplayLabel::forOption($doctor['user_id'], $doctor['name']); ?>
+                            <a href="<?= base_url('appointment/create?provider_user_id=' . (int) $doctor['user_id'] . '&appointment_date=' . esc($chosenDay)) ?>" data-appointment-create-modal-open data-appointment-provider="<?= (int) $doctor['user_id'] ?>" data-appointment-date="<?= esc($chosenDay) ?>" class="flex-shrink-0 inline-flex items-center gap-1 rounded-xl bg-blue-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 hover:shadow" title="<?= esc(lang('DoctorScheduling.newBookingForDoctor', [$doctorDisplayLabel])) ?>" aria-label="<?= esc(lang('DoctorScheduling.newBookingForDoctor', [$doctorDisplayLabel])) ?>" style="flex-shrink: 0;">
                                 <i class="fas fa-plus text-[10px]"></i>
                                 <span><?= esc(lang('DoctorScheduling.newBooking')) ?></span>
+                                <span class="font-mono text-[10px] opacity-90" dir="ltr">(#<?= (int) $doctor['user_id'] ?>)</span>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -283,6 +289,7 @@ $statusLabelMap = [
                                 <div class="mt-1 flex flex-wrap items-center justify-between gap-1 text-[11px]">
                                     <span class="inline-flex items-center gap-1 font-semibold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-md">
                                         <i class="fas fa-chair text-amber-600"></i>
+                                        <?php if (!empty($visit['provider_user_id'])): ?><bdi dir="ltr">#<?= (int)$visit['provider_user_id'] ?></bdi><?php endif; ?>
                                         <?= esc(lang('DoctorScheduling.storedChairSnapshot', [$storedChair !== '' ? $storedChair : 'N/A'])) ?>
                                     </span>
                                     <?php if (has_permission('appointments', 'edit')): ?>

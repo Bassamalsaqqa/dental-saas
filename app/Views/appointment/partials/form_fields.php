@@ -80,7 +80,7 @@ if ($selectedProviderId !== '') {
                         <i class="fas fa-triangle-exclamation me-1 text-amber-600"></i>
                         <?= esc(lang('DoctorScheduling.schemaNotReady')) ?>
                     </div>
-                    <select name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed bg-slate-100" data-appointment-provider disabled required>
+                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed bg-slate-100" data-appointment-provider disabled required>
                         <option value=""><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
                     </select>
                 <?php elseif (empty($providers)): ?>
@@ -88,18 +88,19 @@ if ($selectedProviderId !== '') {
                         <i class="fas fa-triangle-exclamation me-1"></i>
                         <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
                     </div>
-                    <select name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed bg-slate-100" data-appointment-provider disabled required>
+                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed bg-slate-100" data-appointment-provider disabled required>
                         <option value=""><?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
                     </select>
                 <?php else: ?>
-                    <select name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?>" data-appointment-provider data-force-select2 data-allow-clear="false" required>
+                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?>" data-appointment-provider data-force-select2 data-allow-clear="false" required>
                         <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
                         <?php foreach ($providers as $provider): ?>
                             <?php
                             $pId = (int) ($provider['user_id'] ?? $provider['id'] ?? 0);
                             $pName = (string) ($provider['name'] ?? trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')));
+                            $pLabel = \App\Libraries\ProviderDisplayLabel::forOption($pId, $pName);
                             ?>
-                            <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pName) ?></option>
+                            <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pLabel) ?></option>
                         <?php endforeach; ?>
                     </select>
                 <?php endif; ?>

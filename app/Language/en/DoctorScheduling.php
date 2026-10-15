@@ -50,4 +50,5 @@ return [
     'viewDayboard' => 'Doctor Dayboard',
     'dayboardAllDoctors' => 'Active Clinic Doctors',
     'previousDoctorLabel' => 'Previous: {0}',
+    'unassignedDoctor' => 'Unassigned',
 ];

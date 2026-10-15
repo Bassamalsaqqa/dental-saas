@@ -513,6 +513,7 @@ class Appointment extends BaseController
         $data = [
             'title' => 'Edit Appointment - ' . $appointment['appointment_id'],
             'appointment' => $appointment,
+            'slot_edit_context' => (new \App\Services\AppointmentSlotEditContext($this->db))->issue((int)$clinicId,(int)$appointment['id']),
             'patients' => [$patient], // Only emit the current patient as option
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
@@ -790,7 +791,9 @@ class Appointment extends BaseController
         if (!\App\Services\ClinicSchedulingSettings::validDate($date)) return $this->response->setStatusCode(422)->setJSON(['error'=>'Invalid date.']);
         $duration = $this->request->getGet('duration') ?? getAppointmentDuration();
         $excludeId = $this->request->getGet('exclude_id');
-        $chairName = trim((string) $this->request->getGet('chair_name'));
+        $rawChair = $this->request->getGet('chair_name');
+        $chairName = is_string($rawChair) ? trim($rawChair) : '';
+        $editContextToken = $this->request->getGet('edit_context');
         $providerUserId = $this->request->getGet('provider_user_id');
 
         if (empty($date)) {
@@ -818,7 +821,8 @@ class Appointment extends BaseController
             (int) $duration,
             !empty($providerUserId) ? (int) $providerUserId : null,
             !empty($excludeId) ? (int) $excludeId : null,
-            $chairName !== '' ? $chairName : null
+            $chairName !== '' ? $chairName : null,
+            is_string($editContextToken) ? $editContextToken : null
         );
 
         return $this->response->setJSON($timeSlots);

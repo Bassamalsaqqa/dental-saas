@@ -50,4 +50,5 @@ return [
     'viewDayboard' => 'لوحة الأطباء اليومية',
     'dayboardAllDoctors' => 'أطباء العيادة النشطون',
     'previousDoctorLabel' => 'السابق: {0}',
+    'unassignedDoctor' => 'غير معين',
 ];

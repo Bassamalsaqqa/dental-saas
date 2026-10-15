@@ -621,7 +621,8 @@ class AppointmentSchedulingService
         int $duration,
         ?int $providerUserId = null,
         ?int $excludeId = null,
-        ?string $chairName = null
+        ?string $chairName = null,
+        ?string $editContextToken = null
     ): array {
         $validClinicId = ClinicSchedulingSettings::positiveInt($clinicId);
         $validDuration = ClinicSchedulingSettings::positiveInt($duration, 480);
@@ -630,7 +631,7 @@ class AppointmentSchedulingService
             return [];
         }
 
-        $validExcludeId = ($excludeId !== null) ? ClinicSchedulingSettings::positiveInt($excludeId) : null;
+        $validExcludeId = (new AppointmentSlotEditContext($this->db))->resolve($validClinicId, $excludeId, $editContextToken);
         $dynamicEnabled = $this->directoryService->isEnabled($validClinicId);
         $schemaReady = $this->directoryService->isSchemaReady();
 
