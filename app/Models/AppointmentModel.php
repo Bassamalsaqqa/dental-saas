@@ -15,6 +15,7 @@ class AppointmentModel extends TenantAwareModel
     protected $allowedFields = [
         'clinic_id',
         'patient_id',
+        'provider_user_id',
         'appointment_id',
         'appointment_date',
         'appointment_time',
@@ -39,7 +40,8 @@ class AppointmentModel extends TenantAwareModel
         'appointment_time' => 'required',
         'duration' => 'required|integer|greater_than[0]',
         'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
-        'chair_name' => 'required|max_length[100]',
+        'chair_name' => 'permit_empty|max_length[100]',
+        'provider_user_id' => 'permit_empty|integer',
         'status' => 'required|in_list[scheduled,confirmed,arrived,ready,in_chair,checkout,completed,cancelled,no_show]'
     ];
 
@@ -386,20 +388,30 @@ class AppointmentModel extends TenantAwareModel
         }
     }
 
-    public function checkTimeSlotAvailability($date, $time, $duration, $excludeId = null, $chairName = null)
+    public function checkTimeSlotAvailability($date, $time, $duration, $excludeId = null, $chairName = null, ?int $clinicId = null)
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = $clinicId ?? (int) (session()->get('active_clinic_id') ?? 0);
         $cleanChairName = trim((string) $chairName);
-        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
+        try {
+            $chairs = (new \App\Services\ClinicSchedulingSettings($this->db))->chairs($clinicId);
+            $chairCount = ($cleanChairName !== '') ? 1 : max(1, count($chairs));
+        } catch (\Throwable $e) {
+            $chairCount = 1;
+        }
         $overlapCount = $this->countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId, $cleanChairName);
         return $overlapCount < $chairCount;
     }
 
-    public function getSlotRemainingCapacity($date, $time, $duration, $excludeId = null, $chairName = null)
+    public function getSlotRemainingCapacity($date, $time, $duration, $excludeId = null, $chairName = null, ?int $clinicId = null)
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = $clinicId ?? (int) (session()->get('active_clinic_id') ?? 0);
         $cleanChairName = trim((string) $chairName);
-        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
+        try {
+            $chairs = (new \App\Services\ClinicSchedulingSettings($this->db))->chairs($clinicId);
+            $chairCount = ($cleanChairName !== '') ? 1 : max(1, count($chairs));
+        } catch (\Throwable $e) {
+            $chairCount = 1;
+        }
         $overlapCount = $this->countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId, $cleanChairName);
 
         return max(0, $chairCount - $overlapCount);

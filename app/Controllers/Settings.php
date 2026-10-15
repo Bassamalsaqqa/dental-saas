@@ -125,6 +125,7 @@ class Settings extends BaseController
         $data = [
             'title' => 'System Settings',
             'settings' => $settings,
+            'provider_settings' => $this->providerSettingsContext((int) $clinicId),
             'active_tab' => $activeTab,
             'max_booking_chair_count' => $maxBookingChairCount,
             'backups' => $backups,
@@ -281,9 +282,10 @@ class Settings extends BaseController
                 : (int) ($currentSettings['finance_auto_post_inventory_cogs'] ?? 0),
         ];
 
-        log_message('info', 'Saving system settings: ' . json_encode($settingsData));
-        
-        if ($this->saveSettings($settingsData)) {
+        $result = (new \App\Services\ClinicSchedulingConfigurationService())->configureSystem(
+            (int) (session()->get('active_clinic_id') ?? 0), $settingsData, (int) ((new \App\Libraries\IonAuth())->getUserId() ?: 0)
+        );
+        if ($result['success']) {
             $this->settingsService->reloadSettings();
             session()->set('ui_locale', (string) $settingsData['ui_language']);
             log_message('info', 'System settings saved successfully');
@@ -295,7 +297,7 @@ class Settings extends BaseController
             return redirect()->to('/settings?tab=' . rawurlencode($redirectTab))->with('success', 'System preferences updated successfully!');
         } else {
             log_message('error', 'Failed to save system settings');
-            return redirect()->back()->withInput()->with('error', 'Failed to update system preferences. Please try again.');
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
     }
 
@@ -328,44 +330,99 @@ class Settings extends BaseController
 
     public function updateWorkingHours()
     {
-        $maxChairCount = $this->getMaxBookingChairs();
-        $rules = [
-            'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
-            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[' . $maxChairCount . ']',
-            'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
-            'working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
-            'working_days' => 'permit_empty',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        $result = $this->persistSchedulingSettings((array) $this->request->getPost());
+        if (!$result['success']) {
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
+        $this->settingsService->reloadSettings();
+        return redirect()->to(base_url('settings?tab=hours'))->with('success', $result['message']);
+    }
 
-        $chairCount = min($maxChairCount, max(1, (int) $this->request->getPost('booking_chair_count')));
-        [$chairNames, $chairError] = $this->normalizeChairNames($this->request->getPost('booking_chair_names'), $chairCount);
-        if ($chairError !== null) {
-            return redirect()->back()->withInput()->with('error', $chairError);
+    protected function persistSchedulingSettings(array $input): array
+    {
+        return (new \App\Services\ClinicSchedulingConfigurationService())->configureHours(
+            (int) (session()->get('active_clinic_id') ?? 0), $input, (int) ((new \App\Libraries\IonAuth())->getUserId() ?: 0)
+        );
+    }
+
+    public function updateProviderSchedule()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        $actorId = (int) ((new \App\Libraries\IonAuth())->getUserId() ?: 0);
+        try {
+            $userId = filter_var($this->request->getPost('provider_user_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if ($userId === false || !preg_match('/^[1-9][0-9]*$/D', (string) $this->request->getPost('provider_user_id'))) throw new \DomainException('invalidInput');
+            $dto = $this->providerScheduleInput((array) $this->request->getPost());
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', lang('DoctorScheduleSettings.invalidInput'));
         }
-
-        $settingsData = [
-            'appointment_duration' => $this->request->getPost('appointment_duration'),
-            'booking_chair_count' => $chairCount,
-            'booking_chair_names' => $chairNames,
-            'working_hours_start' => $this->request->getPost('working_hours_start'),
-            'working_hours_end' => $this->request->getPost('working_hours_end'),
-            'working_days' => $this->request->getPost('working_days'),
-        ];
-
-        log_message('info', 'Saving working hours settings: ' . json_encode($settingsData));
-        
-        if ($this->saveSettings($settingsData)) {
-            $this->settingsService->reloadSettings();
-            log_message('info', 'Working hours settings saved successfully');
-            return redirect()->to('/settings?tab=hours')->with('success', 'Working hours updated successfully!');
-        } else {
-            log_message('error', 'Failed to save working hours settings');
-            return redirect()->back()->withInput()->with('error', 'Failed to update working hours. Please try again.');
+        try {
+            $result = (new \App\Services\ProviderScheduleService())->configureProfile($clinicId, $userId, $dto, $actorId);
+            if (empty($result['success'])) throw new \DomainException('saveFailed');
+            return redirect()->to(base_url('settings?tab=hours'))->with('success', lang('DoctorScheduleSettings.saved'));
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', ($e instanceof \DomainException ? $e->getMessage() : lang('DoctorScheduleSettings.saveFailed')));
         }
+    }
+
+    protected function providerScheduleInput(array $input): array
+    {
+        foreach(['is_bookable','is_clinician','weekly_override'] as $flag) {
+            if(array_key_exists($flag,$input) && !in_array($input[$flag],['0','1'],true)) throw new \DomainException('invalidInput');
+        }
+        $windows = static function ($rows): array {
+            if (!is_array($rows) || count($rows) > 12) throw new \DomainException('invalidInput');
+            $out = [];
+            foreach ($rows as $row) {
+                if (!is_array($row)) throw new \DomainException('invalidInput');
+                $start = $row['start'] ?? ''; $end = $row['end'] ?? '';
+                if ($start === '' && $end === '') continue;
+                if (!is_string($start) || !is_string($end) || !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D', $start)
+                    || !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D', $end) || $start >= $end) throw new \DomainException('invalidInput');
+                $out[] = ['start' => $start, 'end' => $end];
+            }
+            usort($out, static fn($a, $b) => strcmp($a['start'], $b['start']));
+            for ($i = 1; $i < count($out); $i++) if ($out[$i]['start'] < $out[$i - 1]['end']) throw new \DomainException('invalidInput');
+            return $out;
+        };
+        $weekly = null;
+        if (($input['weekly_override'] ?? '0') === '1') {
+            $weekly = [];
+            foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) {
+                $weekly[$day] = $windows($input['weekly'][$day] ?? []);
+            }
+        }
+        $exceptions = [];
+        $exceptionRows = $input['exceptions'] ?? [];
+        if (!is_array($exceptionRows) || count($exceptionRows) > 366) throw new \DomainException('invalidInput');
+        foreach ($exceptionRows as $row) {
+            if (!is_array($row)) throw new \DomainException('invalidInput');
+            if (($row['remove'] ?? '') === '1' || ($row['date'] ?? '') === '') continue;
+            $date = $row['date'];
+            if (!is_string($date)) throw new \DomainException('invalidInput');
+            $dt = \DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+            if (!$dt || $dt->format('Y-m-d') !== $date || isset($exceptions[$date])) throw new \DomainException('invalidInput');
+            $exceptions[$date] = ($row['leave'] ?? '') === '1' ? [] : $windows($row['windows'] ?? []);
+        }
+        return ['is_bookable' => ($input['is_bookable'] ?? '0') === '1', 'is_clinician' => ($input['is_clinician'] ?? '0') === '1',
+            'weekly_hours' => $weekly, 'exceptions' => $exceptions];
+    }
+
+    private function providerSettingsContext(int $clinicId): array
+    {
+        $db = \Config\Database::connect();
+        $ready = $db->tableExists('clinic_provider_profiles') && $db->fieldExists('provider_user_id', 'appointments');
+        $rows = $db->table('clinic_users cu')->select('u.id AS user_id, u.first_name, u.last_name, u.email, r.slug AS role_slug')
+            ->join('users u', 'u.id = cu.user_id')->join('roles r', 'r.id = cu.role_id')
+            ->where('cu.clinic_id', $clinicId)->where('cu.status', 'active')->where('u.active', 1)->where('r.is_active', 1)->where('r.slug !=', 'super_admin')
+            ->groupStart()->where('r.clinic_id', null)->orWhere('r.clinic_id', $clinicId)->groupEnd()->orderBy('u.first_name', 'ASC')->get()->getResultArray();
+        $profiles = [];
+        if ($ready) foreach ($db->table('clinic_provider_profiles')->where('clinic_id', $clinicId)->get()->getResultArray() as $profile) $profiles[(int) $profile['user_id']] = $profile;
+        foreach ($rows as &$row) {
+            $row['name'] = trim($row['first_name'] . ' ' . $row['last_name']) ?: $row['email'];
+            $row['profile'] = $profiles[(int) $row['user_id']] ?? [];
+        }
+        return ['schema_ready' => $ready, 'members' => $rows];
     }
 
     public function updateKiosk()
@@ -816,7 +873,7 @@ class Settings extends BaseController
 
     private function getMaxBookingChairs()
     {
-        return 3; 
+        return (new \App\Services\ClinicSchedulingConfigurationService())->legacyChairMax();
     }
 
     private function normalizeChairNames($names, $count)

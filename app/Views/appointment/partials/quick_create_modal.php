@@ -18,6 +18,9 @@ if (!empty($modalClinicalProcedureId)) {
 if (!empty($appointment_type_prefill)) {
     $modalFullPageQuery['appointment_type'] = (string) $appointment_type_prefill;
 }
+if (!empty($provider_id_prefill)) {
+    $modalFullPageQuery['provider_user_id'] = (int) $provider_id_prefill;
+}
 $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFullPageQuery));
 ?>
 <?php if (has_permission('appointments', 'create')): ?>
@@ -87,7 +90,9 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
                 <input type="hidden" name="source_modal" value="appointment_quick_create">
-                <input type="hidden" name="clinical_procedure_id" value="<?= !empty($modalClinicalProcedureId) ? (int) $modalClinicalProcedureId : '' ?>">
+                <?php if (!empty($modalClinicalProcedureId)): ?>
+                    <input type="hidden" name="clinical_procedure_id" value="<?= (int) $modalClinicalProcedureId ?>">
+                <?php endif; ?>
                 <?php if (!empty($modalSelectedExaminationId)): ?>
                     <input type="hidden" name="examination_id" value="<?= (int) $modalSelectedExaminationId ?>">
                 <?php endif; ?>
@@ -121,8 +126,11 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                             'contextual' => $modalContextual,
                             'selected_patient' => $modalSelectedPatient,
                             'chair_options' => $chair_options ?? [],
+                            'booking_context' => $booking_context ?? null,
+                            'provider_id_prefill' => $provider_id_prefill ?? null,
                             'requested_date' => old('appointment_date', $requested_date ?? date('Y-m-d')),
                             'appointment_type_prefill' => old('appointment_type', $appointment_type_prefill ?? ''),
+                            'field_id_prefix' => 'quick_modal_',
                         ]) ?>
                     </div>
                 </div>
@@ -241,6 +249,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 time: trigger.dataset.appointmentTime || params.get('appointment_time') || dateTime.time,
                 duration: trigger.dataset.appointmentDuration || params.get('duration'),
                 chair: trigger.dataset.appointmentChair || params.get('chair_name'),
+                providerId: trigger.dataset.appointmentProvider || params.get('provider_user_id') || params.get('provider_id'),
                 type: trigger.dataset.appointmentType || params.get('appointment_type'),
                 patientId: trigger.dataset.patientId || params.get('patient_id'),
                 clinicalProcedureId: trigger.dataset.clinicalProcedureId || params.get('clinical_procedure_id'),
@@ -257,6 +266,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             const defaults = collectTriggerDefaults(trigger);
             setFieldValue(form, '[name="appointment_date"]', defaults.date);
             setFieldValue(form, '[name="duration"]', defaults.duration);
+            setFieldValue(form, '[name="provider_user_id"]', defaults.providerId);
             setFieldValue(form, '[name="chair_name"]', defaults.chair);
             setFieldValue(form, '[name="appointment_type"]', defaults.type);
             setFieldValue(form, '[name="patient_id"]', defaults.patientId);
@@ -280,6 +290,9 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 }
                 if (defaults.duration) {
                     fullPageUrl.searchParams.set('duration', defaults.duration);
+                }
+                if (defaults.providerId) {
+                    fullPageUrl.searchParams.set('provider_user_id', defaults.providerId);
                 }
                 if (defaults.chair) {
                     fullPageUrl.searchParams.set('chair_name', defaults.chair);

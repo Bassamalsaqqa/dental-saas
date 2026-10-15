@@ -50,6 +50,31 @@ if ($nextAppointment) {
     $nextRow = $nextAppointment['appointment'];
     $nextAppointmentLabel = trim((string) (($nextRow['first_name'] ?? '') . ' ' . ($nextRow['last_name'] ?? '')));
 }
+$bookingContext = $booking_context ?? null;
+if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryService::class)) {
+    $activeClinicId = (int) (session('active_clinic_id') ?? 0);
+    if ($activeClinicId > 0) {
+        $providerService = new \App\Services\ProviderDirectoryService();
+        $isDynamic = false;
+        try {
+            $isDynamic = $providerService->isEnabled($activeClinicId);
+            $bookingContext = $providerService->getBookingContext($activeClinicId);
+        } catch (\Throwable $e) {
+            if ($isDynamic || (strpos($e->getMessage(), 'DYNAMIC_SCHEDULING') !== false)) {
+                $bookingContext = [
+                    'enabled' => true,
+                    'schema_ready' => false,
+                    'providers' => [],
+                    'chair_options' => [],
+                    'error' => $e->getMessage(),
+                ];
+            } else {
+                $bookingContext = null;
+            }
+        }
+    }
+}
+$dynamicMode = !empty($bookingContext['enabled']);
 ?>
 <style>
     .appointment-page {
@@ -321,6 +346,16 @@ if ($nextAppointment) {
                     </div>
             </div>
         </div>
+        <?php endif; ?>
+
+        <?php if ($dynamicMode && !$viewAllMode): ?>
+            <div class="mb-6">
+                <?= view('appointment/partials/doctor_dayboard', [
+                    'appointments' => $dayboard_appointments ?? $appointments ?? [],
+                    'selected_date' => $selected_date ?? date('Y-m-d'),
+                    'booking_context' => $bookingContext ?? null,
+                ]) ?>
+            </div>
         <?php endif; ?>
 
         <!-- Appointment schedule list -->

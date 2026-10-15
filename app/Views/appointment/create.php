@@ -1,6 +1,42 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$bookingContext = $booking_context ?? null;
+if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryService::class)) {
+    $activeClinicId = (int) (session('active_clinic_id') ?? 0);
+    if ($activeClinicId > 0) {
+        $providerService = new \App\Services\ProviderDirectoryService();
+        $isDynamic = false;
+        try {
+            $isDynamic = $providerService->isEnabled($activeClinicId);
+            $bookingContext = $providerService->getBookingContext($activeClinicId);
+        } catch (\Throwable $e) {
+            if ($isDynamic || (strpos($e->getMessage(), 'DYNAMIC_SCHEDULING') !== false)) {
+                $bookingContext = [
+                    'enabled' => true,
+                    'schema_ready' => false,
+                    'providers' => [],
+                    'chair_options' => [],
+                    'error' => $e->getMessage(),
+                ];
+            } else {
+                $bookingContext = null;
+            }
+        }
+    }
+}
+$dynamicMode = !empty($bookingContext['enabled']);
+$schemaReady = !isset($bookingContext['schema_ready']) || !empty($bookingContext['schema_ready']);
+$providers = is_array($bookingContext['providers'] ?? null) ? $bookingContext['providers'] : ($clinic_providers ?? ($providers ?? []));
+$chairOptions = is_array($bookingContext['chair_options'] ?? null) ? $bookingContext['chair_options'] : ($chair_options ?? []);
+$selectedChair = old('chair_name', $chairOptions[0] ?? '');
+$selectedProviderId = old('provider_user_id', $provider_id_prefill ?? ($provider_user_id ?? ''));
+if ($selectedProviderId !== '') {
+    $selectedProviderId = (int) $selectedProviderId;
+}
+$isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
+?>
 <style>
 [dir="ltr"] input[data-clinic-date="1"].appointment-date-input {
     padding-left: 1rem !important;
@@ -116,31 +152,80 @@
                                 <?php endif; ?>
                             </div>
 
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-door-open text-indigo-600"></i>
-                                    <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
-                                </label>
-                                <div class="relative">
-                                    <?php $selectedChair = old('chair_name', $chair_options[0] ?? ''); ?>
-                                    <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
-                                        <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
-                                        <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
-                                            <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
+                            <?php if ($dynamicMode): ?>
+                                <div class="group/field relative">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <i class="fas fa-user-md text-indigo-600"></i>
+                                        <span><?= esc(lang('DoctorScheduling.doctorRequired')) ?> *</span>
+                                    </label>
+                                    <div class="relative">
+                                        <?php if (!$schemaReady): ?>
+                                            <div class="mb-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 shadow-sm">
+                                                <div class="flex items-center gap-3">
+                                                    <i class="fas fa-triangle-exclamation text-amber-600 text-base"></i>
+                                                    <div>
+                                                        <h4 class="font-bold text-xs uppercase tracking-wide text-amber-800"><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></h4>
+                                                        <p class="mt-0.5 text-xs text-amber-900"><?= esc(lang('DoctorScheduling.schemaNotReady')) ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                                <option value=""><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
+                                            </select>
+                                        <?php elseif (empty($providers)): ?>
+                                            <div class="mb-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
+                                                <i class="fas fa-triangle-exclamation me-1"></i>
+                                                <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
+                                            </div>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                                <option value=""><?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
+                                            </select>
+                                        <?php else: ?>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 required>
+                                                <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
+                                                <?php foreach ($providers as $provider): ?>
+                                                    <?php
+                                                    $pId = (int) ($provider['user_id'] ?? $provider['id'] ?? 0);
+                                                    $pName = (string) ($provider['name'] ?? trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')));
+                                                    $pLabel = \App\Libraries\ProviderDisplayLabel::forOption($pId, $pName);
+                                                    ?>
+                                                    <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pLabel) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
                                         <?php endif; ?>
-                                        <?php foreach (($chair_options ?? []) as $chairOption): ?>
-                                            <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-
+                                    </div>
+                                    <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('provider_user_id')): ?>
+                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span><?= session()->getFlashdata('validation')->getError('provider_user_id') ?></span>
+                                        </p>
+                                    <?php endif; ?>
                                 </div>
-                                <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
-                                    </p>
-                                <?php endif; ?>
-                            </div>
+                            <?php else: ?>
+                                <div class="group/field relative">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <i class="fas fa-door-open text-indigo-600"></i>
+                                        <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-chair data-force-select2 required>
+                                            <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
+                                            <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chairOptions ?? []), true)): ?>
+                                                <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
+                                            <?php endif; ?>
+                                            <?php foreach (($chairOptions ?? []) as $chairOption): ?>
+                                                <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
+                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Date, Time & Duration -->
@@ -219,7 +304,7 @@
                                 <span><?= esc(lang('UI.appointmentAdditionalNotes')) ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes')) ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -233,7 +318,7 @@
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.cancel')) ?></span>
                             </a>
-                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
+                            <button type="submit" <?= $isCreateDisabled ? 'disabled class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-slate-400 text-white text-sm font-bold rounded-xl cursor-not-allowed opacity-60"' : 'class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"' ?>>
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-calendar-check mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.appointmentSchedule')) ?></span>
@@ -251,7 +336,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('appointmentDate');
     const timeSelect = document.getElementById('appointmentTime');
     const durationSelect = document.getElementById('duration');
-    const doctorSelect = document.getElementById('chairName');
+    const doctorSelect = document.querySelector('[data-appointment-provider]') || document.getElementById('providerSelect') || document.querySelector('[data-appointment-chair]') || document.getElementById('chairName');
+    const isDynamic = Boolean(doctorSelect && (doctorSelect.matches('[data-appointment-provider]') || doctorSelect.name === 'provider_user_id'));
     const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
     const appointmentI18n = {
         validDateFirst: '<?= esc(lang('UI.appointmentEnterValidDateFirst'), 'js') ?>',
@@ -324,13 +410,16 @@ document.addEventListener('DOMContentLoaded', function() {
         timeSelect.parentNode.appendChild(errorDiv);
     }
 
+    let currentSlotRequestId = 0;
+
     function loadAvailableTimeSlots() {
+        const requestId = ++currentSlotRequestId;
         const rawDate = (dateInput.value || '').trim();
         const date = window.parseClinicDateToIso ? (window.parseClinicDateToIso(rawDate) || rawDate) : rawDate;
         const duration = durationSelect.value;
-        const chairName = (doctorSelect?.value || '').trim();
+        const doctorVal = (doctorSelect?.value || '').trim();
 
-        if (date && duration && chairName) {
+        if (date && duration && doctorVal) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
                 setTimeOptions([{ value: '', label: appointmentI18n.validDateFirst }]);
                 timeSelect.disabled = true;
@@ -342,7 +431,23 @@ document.addEventListener('DOMContentLoaded', function() {
             timeSelect.disabled = true;
             clearSlotError();
 
-            fetch(`${apiBase}?date=${date}&duration=${duration}&chair_name=${encodeURIComponent(chairName)}`)
+            let targetUrl;
+            try {
+                targetUrl = new URL(apiBase, window.location.origin);
+            } catch (e) {
+                targetUrl = new URL(apiBase, window.location.href);
+            }
+            targetUrl.searchParams.set('date', date);
+            targetUrl.searchParams.set('duration', duration);
+            if (isDynamic) {
+                targetUrl.searchParams.set('provider_user_id', doctorVal);
+                targetUrl.searchParams.delete('chair_name');
+            } else {
+                targetUrl.searchParams.set('chair_name', doctorVal);
+                targetUrl.searchParams.delete('provider_user_id');
+            }
+
+            fetch(targetUrl.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
@@ -350,6 +455,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(data => {
+                    if (requestId !== currentSlotRequestId) {
+                        return;
+                    }
                     const normalized = normalizeSlotsPayload(data);
                     const slots = normalized.slots;
 
@@ -370,6 +478,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     timeSelect.disabled = false;
                 })
                 .catch(error => {
+                    if (requestId !== currentSlotRequestId) {
+                        return;
+                    }
                     console.error('Error loading time slots:', error);
                     setTimeOptions([{ value: '', label: appointmentI18n.loadError }]);
                     timeSelect.disabled = false;

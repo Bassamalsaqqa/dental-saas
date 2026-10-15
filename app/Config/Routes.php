@@ -641,6 +641,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateClinic', 'Settings::updateClinic', ['filter' => 'permission:settings,edit']);
     $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings,edit']);
     $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings,edit']);
+    $routes->post('update-provider-schedule', 'Settings::updateProviderSchedule', ['filter' => 'permission:settings,edit']);
     $routes->post('updateKiosk', 'Settings::updateKiosk', ['filter' => 'permission:settings,edit']);
     $routes->post('updateRetention', 'Settings::updateRetention', ['filter' => 'permission:settings,edit']);
     $routes->post('plan-request', 'Settings::requestPlan', ['filter' => 'permission:settings,edit']);

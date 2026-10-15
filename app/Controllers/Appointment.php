@@ -14,6 +14,8 @@ use App\Services\AppointmentCheckoutService;
 use App\Services\AppointmentCheckoutCompletionService;
 use App\Services\AppointmentVisitStageService;
 use App\Services\WhatsAppWorkflowService;
+use App\Services\ProviderDirectoryService;
+use App\Services\AppointmentSchedulingService;
 
 class Appointment extends BaseController
 {
@@ -25,6 +27,8 @@ class Appointment extends BaseController
     protected AppointmentVisitStageService $visitStageService;
     protected AppointmentCheckoutService $checkoutService;
     protected AppointmentCheckoutCompletionService $checkoutCompletionService;
+    protected ProviderDirectoryService $providerDirectoryService;
+    protected AppointmentSchedulingService $schedulingService;
     protected $db;
 
     public function __construct() 
@@ -38,6 +42,8 @@ class Appointment extends BaseController
         $this->visitStageService = new AppointmentVisitStageService();
         $this->checkoutService = new AppointmentCheckoutService();
         $this->checkoutCompletionService = new AppointmentCheckoutCompletionService($this->checkoutService);
+        $this->providerDirectoryService = new ProviderDirectoryService($this->db);
+        $this->schedulingService = new AppointmentSchedulingService($this->db);
     }
 
     public function index()
@@ -83,6 +89,8 @@ class Appointment extends BaseController
             $hasMore = false;
         }
         
+        $dayboardAppointments = $view === 'all' ? [] : $appointments;
+
         // Apply client-side filters only for daily view (server-side filtering for all view)
         if ($view !== 'all') {
             // Apply status filter for daily view
@@ -119,6 +127,7 @@ class Appointment extends BaseController
         $data = [
             'title' => 'Appointment Management',
             'appointments' => $appointments,
+            'dayboard_appointments' => $dayboardAppointments,
             'view_mode' => $view,
             'selected_date' => $date,
             'selected_date_formatted' => formatDate($date),
@@ -129,6 +138,7 @@ class Appointment extends BaseController
             'loadSelect2' => true,
             'quick_create_patient' => $quickCreatePatient,
             'chair_options' => $this->getChairOptions(),
+            'booking_context' => $this->providerDirectoryService->getBookingContext((int) $clinicId),
             'pagination' => [
                 'total_count' => $totalCount,
                 'has_more' => $hasMore,
@@ -222,7 +232,10 @@ class Appointment extends BaseController
             $appointmentType = null;
         }
 
-        $requestedDate = $this->normalizeDateOnly((string) $this->request->getGet('date'));
+        $rawDate = $this->request->getGet('appointment_date') ?? $this->request->getGet('date');
+        $requestedDate = is_string($rawDate) ? $this->normalizeDateOnly($rawDate) : null;
+        $providerPrefill = \App\Services\ClinicSchedulingSettings::positiveInt($this->request->getGet('provider_user_id'));
+        if ($providerPrefill && !$this->providerDirectoryService->findBookable((int)$clinicId,$providerPrefill)) $providerPrefill=null;
 
         $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments']);
         if (!$returnTo) {
@@ -243,7 +256,9 @@ class Appointment extends BaseController
             'clinical_procedure_id' => $clinicalProcedureId,
             'appointment_type_prefill' => $appointmentType,
             'chair_options' => $this->getChairOptions(),
+            'booking_context' => $this->providerDirectoryService->getBookingContext((int) $clinicId),
             'requested_date' => $requestedDate,
+            'provider_id_prefill' => $providerPrefill ?? '',
             'return_to' => $returnTo
         ];
 
@@ -261,17 +276,26 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to schedule an appointment.');
         }
 
+        $dynamicEnabled = $this->providerDirectoryService->isEnabled((int) $clinicId);
         $rules = [
             'patient_id' => 'required|integer',
             'appointment_date' => 'required|valid_date',
             'appointment_time' => 'required',
             'duration' => 'required|integer|greater_than[0]',
             'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
-            'chair_name' => 'required|max_length[100]',
+            'chair_name' => $dynamicEnabled ? 'permit_empty|max_length[100]' : 'required|max_length[100]',
+            'provider_user_id' => $dynamicEnabled ? 'required|integer' : 'permit_empty|integer',
             'clinical_procedure_id' => 'permit_empty|integer',
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON([
+                    'success' => false,
+                    'message' => 'Please review the highlighted fields and try again.',
+                    'errors'  => $this->validator->getErrors(),
+                ]);
+            }
             if ($this->request->getPost('source_modal') === 'appointment_quick_create') {
                 $modalReturnTo = $this->sanitizeInternalReturnTo(
                     $this->request->getPost('return_to'),
@@ -286,7 +310,7 @@ class Appointment extends BaseController
         }
 
         $currentUser = $this->getCurrentUser();
-        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : 0);
 
         $appointmentData = [
             'patient_id' => $this->request->getPost('patient_id'),
@@ -295,99 +319,56 @@ class Appointment extends BaseController
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),
             'chair_name' => trim((string) $this->request->getPost('chair_name')),
-            'status' => 'scheduled',
+            'provider_user_id' => $this->request->getPost('provider_user_id'),
             'notes' => $this->request->getPost('notes'),
-            'created_by' => $currentUserId
+            'clinical_procedure_id' => $this->request->getPost('clinical_procedure_id'),
         ];
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find((int) $appointmentData['patient_id']);
-        if (!$patient) {
-            return redirect()->back()->withInput()->with('error', 'Selected patient was not found in this clinic');
-        }
+        $result = $this->schedulingService->createForClinic((int) $clinicId, $appointmentData, (int) $currentUserId, 'session');
 
-        // Check if appointment is within working hours
-        $workingHours = getWorkingHours();
-        $dayOfWeek = strtolower(date('l', strtotime($appointmentData['appointment_date'])));
-        
-        if (!in_array($dayOfWeek, $workingHours['days'])) {
-            return redirect()->back()->withInput()->with('error', 'Appointments cannot be scheduled on non-working days');
-        }
-
-        if (!$this->isAppointmentWithinWorkingHours(
-            $appointmentData['appointment_date'],
-            $appointmentData['appointment_time'],
-            (int) $appointmentData['duration'],
-            $workingHours
-        )) {
-            return redirect()->back()->withInput()->with('error', 'Appointments can only be scheduled during working hours (' . formatTime($workingHours['start']) . ' - ' . formatTime($workingHours['end']) . ')');
-        }
-
-        // Check for time slot availability
-        if (!$this->appointmentModel->checkTimeSlotAvailability(
-            $appointmentData['appointment_date'],
-            $appointmentData['appointment_time'],
-            $appointmentData['duration'],
-            null,
-            $appointmentData['chair_name']
-        )) {
-            return redirect()->back()->withInput()->with('error', 'The selected doctor is not available for this time slot');
-        }
-
-        $clinicalProcedureId = (int) ($this->request->getPost('clinical_procedure_id') ?? 0);
-        $this->db->transBegin();
-        if ($this->appointmentModel->insert($appointmentData)) {
-            $appointmentId = $this->appointmentModel->getInsertID();
-            try {
-                if ($clinicalProcedureId > 0) {
-                    (new TreatmentProcedureIntegrationService($this->db))->scheduleAcceptedProcedure(
-                        (int) $clinicId,
-                        $clinicalProcedureId,
-                        (int) $appointmentId,
-                        (int) $appointmentData['patient_id'],
-                        (int) $currentUserId
-                    );
-                }
-                $this->db->transCommit();
-            } catch (\Throwable $e) {
-                $this->db->transRollback();
-                return redirect()->back()->withInput()->with('error', $e->getMessage());
-            }
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-            
-            // Log the appointment creation activity
-            $this->activityLogger->logAppointmentActivity(
-                'create',
-                $appointmentId,
-                "New {$appointmentData['appointment_type']} appointment scheduled for {$patientName} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
-            );
-
-            try {
-                $this->whatsAppWorkflowService->queueAppointmentConfirmation((int) $clinicId, (int) $appointmentId, $currentUserId);
-            } catch (\Throwable $e) {
-                log_message('warning', 'WhatsApp appointment confirmation enqueue failed for appointment_id={appointment_id}: {message}', [
-                    'appointment_id' => $appointmentId,
-                    'message' => substr($e->getMessage(), 0, 255),
+        if (!$result['success']) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON([
+                    'success' => false,
+                    'message' => $result['message'],
+                    'code'    => $result['code'] ?? 'ERROR',
                 ]);
             }
-            
-            $returnTo = $this->resolveCreateReturnTo((int) $appointmentData['patient_id'], $this->request->getPost('examination_id'), $this->request->getPost('return_to'));
-            if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments'])
-                    ->with('success', 'Appointment created successfully');
+            if ($this->request->getPost('source_modal') === 'appointment_quick_create') {
+                $modalReturnTo = $this->sanitizeInternalReturnTo(
+                    $this->request->getPost('return_to'),
+                    ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments']
+                ) ?: 'appointment';
+                return redirect()->to(base_url($modalReturnTo))
+                    ->withInput()
+                    ->with('error', $result['message']);
             }
-
-            $examinationId = $this->request->getPost('examination_id');
-            if (is_numeric($examinationId)) {
-                return $this->redirectAfterWorkflow('examination/' . (int) $examinationId, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
-                    ->with('success', 'Follow-up appointment scheduled successfully');
-            }
-
-            return $this->redirectAfterWorkflow('appointment', ['patient', 'patients', 'examination', 'appointment', 'appointments'])
-                ->with('success', 'Appointment created successfully');
-        } else {
-            $this->db->transRollback();
-            return redirect()->back()->withInput()->with('error', 'Failed to create appointment');
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success'     => true,
+                'message'     => 'Appointment created successfully',
+                'id'          => $result['id'] ?? null,
+                'appointment' => $result['appointment'] ?? null,
+            ]);
+        }
+
+        $returnTo = $this->resolveCreateReturnTo((int) $appointmentData['patient_id'], $this->request->getPost('examination_id'), $this->request->getPost('return_to'));
+        if ($returnTo) {
+            return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments', 'treatment', 'treatments'])
+                ->with('success', 'Appointment created successfully');
+        }
+
+        $examinationId = $this->request->getPost('examination_id');
+        if (is_numeric($examinationId)) {
+            return $this->redirectAfterWorkflow('examination/' . (int) $examinationId, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                ->with('success', 'Follow-up appointment scheduled successfully');
+        }
+
+        return $this->redirectAfterWorkflow('appointment', ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+            ->with('success', 'Appointment created successfully');
     }
 
     private function resolveCreateReturnTo(int $patientId, $examinationIdRaw, $returnToRaw): ?string
@@ -532,10 +513,12 @@ class Appointment extends BaseController
         $data = [
             'title' => 'Edit Appointment - ' . $appointment['appointment_id'],
             'appointment' => $appointment,
+            'slot_edit_context' => (new \App\Services\AppointmentSlotEditContext($this->db))->issue((int)$clinicId,(int)$appointment['id']),
             'patients' => [$patient], // Only emit the current patient as option
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'chair_options' => $this->getChairOptions(),
+            'booking_context' => $this->providerDirectoryService->getBookingContext((int) $clinicId),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments'])
         ];
 
@@ -554,22 +537,25 @@ class Appointment extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
         }
 
-        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
-        
-        if (!$appointment) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
-        }
-
+        $dynamicEnabled = $this->providerDirectoryService->isEnabled((int) $clinicId);
         $rules = [
             'patient_id' => 'required|integer',
             'appointment_date' => 'required|valid_date',
             'appointment_time' => 'required',
             'duration' => 'required|integer|greater_than[0]',
             'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
-            'chair_name' => 'required|max_length[100]',
+            'chair_name' => $dynamicEnabled ? 'permit_empty|max_length[100]' : 'required|max_length[100]',
+            'provider_user_id' => 'permit_empty|integer',
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON([
+                    'success' => false,
+                    'message' => 'Please review the highlighted fields and try again.',
+                    'errors'  => $this->validator->getErrors(),
+                ]);
+            }
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
@@ -580,74 +566,46 @@ class Appointment extends BaseController
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),
             'chair_name' => trim((string) $this->request->getPost('chair_name')),
+            'provider_user_id' => $this->request->getPost('provider_user_id'),
             'status' => (string) ($existingAppointment['status'] ?? 'scheduled'),
-            'notes' => $this->request->getPost('notes')
+            'notes' => $this->request->getPost('notes'),
         ];
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find((int) $appointmentData['patient_id']);
-        if (!$patient) {
-            return redirect()->back()->withInput()->with('error', 'Selected patient was not found in this clinic');
-        }
+        if (!array_key_exists('provider_user_id',(array)$this->request->getPost())) unset($appointmentData['provider_user_id']);
 
-        // Check if appointment is within working hours
-        $workingHours = getWorkingHours();
-        $dayOfWeek = strtolower(date('l', strtotime($appointmentData['appointment_date'])));
-        
-        if (!in_array($dayOfWeek, $workingHours['days'])) {
-            return redirect()->back()->withInput()->with('error', 'Appointments cannot be scheduled on non-working days');
-        }
+        $currentUser = $this->getCurrentUser();
+        $actorUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : 0);
 
-        if (!$this->isAppointmentWithinWorkingHours(
-            $appointmentData['appointment_date'],
-            $appointmentData['appointment_time'],
-            (int) $appointmentData['duration'],
-            $workingHours
-        )) {
-            return redirect()->back()->withInput()->with('error', 'Appointments can only be scheduled during working hours (' . formatTime($workingHours['start']) . ' - ' . formatTime($workingHours['end']) . ')');
-        }
+        $result = $this->schedulingService->updateForClinic((int) $clinicId, (int) $id, $appointmentData, $actorUserId, 'session');
 
-        // Check for time slot availability (excluding current appointment)
-        if (!$this->appointmentModel->checkTimeSlotAvailability(
-            $appointmentData['appointment_date'],
-            $appointmentData['appointment_time'],
-            $appointmentData['duration'],
-            $id,
-            $appointmentData['chair_name']
-        )) {
-            return redirect()->back()->withInput()->with('error', 'The selected doctor is not available for this time slot');
-        }
-
-        if ($this->appointmentModel->update($id, $appointmentData)) {
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-            
-            // Log the appointment update activity
-            $this->activityLogger->logAppointmentActivity(
-                'update',
-                $id,
-                "Appointment updated for {$patientName} - {$appointmentData['appointment_type']} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
-            );
-
-            try {
-                $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
-                $this->whatsAppWorkflowService->queueAppointmentConfirmation((int) $clinicId, (int) $id, $actorUserId);
-            } catch (\Throwable $e) {
-                log_message('warning', 'WhatsApp appointment workflow enqueue failed for appointment_id={appointment_id}: {message}', [
-                    'appointment_id' => $id,
-                    'message' => substr($e->getMessage(), 0, 255),
+        if (!$result['success']) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON([
+                    'success' => false,
+                    'message' => $result['message'],
+                    'code'    => $result['code'] ?? 'ERROR',
                 ]);
             }
-
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
-            if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
-                    ->with('success', 'Appointment updated successfully');
-            }
-            
-            return $this->redirectAfterWorkflow('appointment/' . $id, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
-                ->with('success', 'Appointment updated successfully');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update appointment');
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success'     => true,
+                'message'     => 'Appointment updated successfully',
+                'id'          => $id,
+                'appointment' => $result['appointment'] ?? null,
+            ]);
+        }
+
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
+        if ($returnTo) {
+            return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+                ->with('success', 'Appointment updated successfully');
+        }
+
+        return $this->redirectAfterWorkflow('appointment/' . $id, ['patient', 'patients', 'examination', 'appointment', 'appointments'])
+            ->with('success', 'Appointment updated successfully');
     }
 
     public function delete($id)
@@ -830,54 +788,42 @@ class Appointment extends BaseController
         }
 
         $date = $this->request->getGet('date');
+        if (!\App\Services\ClinicSchedulingSettings::validDate($date)) return $this->response->setStatusCode(422)->setJSON(['error'=>'Invalid date.']);
         $duration = $this->request->getGet('duration') ?? getAppointmentDuration();
-        $excludeId = $this->request->getGet('exclude_id'); // For editing appointments
-        $chairName = trim((string) $this->request->getGet('chair_name'));
+        $excludeId = $this->request->getGet('exclude_id');
+        $rawChair = $this->request->getGet('chair_name');
+        $chairName = is_string($rawChair) ? trim($rawChair) : '';
+        $editContextToken = $this->request->getGet('edit_context');
+        $providerUserId = $this->request->getGet('provider_user_id');
 
         if (empty($date)) {
             return $this->response->setJSON(['error' => 'Date is required']);
         }
 
-        if ($chairName === '') {
-            return $this->response->setJSON(['error' => 'Doctor is required']);
-        }
-
-        // Get working hours from settings
-        $workingHours = getWorkingHours();
-        
-        // Check if the requested date is a working day
-        $dayOfWeek = strtolower(date('l', strtotime($date)));
-        if (!in_array($dayOfWeek, $workingHours['days'])) {
-            return $this->response->setJSON(['error' => 'Selected date is not a working day']);
-        }
-
-        // Log the request for debugging
-        log_message('info', 'Getting available time slots for date: ' . $date . ', duration: ' . $duration . ', exclude_id: ' . $excludeId);
-
-        $timeSlots = [];
-        $startTime = strtotime($workingHours['start']);
-        $endTime = strtotime($workingHours['end']);
-        $slotDuration = max(1, (int) $duration) * 60; // Convert to seconds
-        $slotIncrement = $this->getSchedulingIncrementMinutes() * 60;
-        $chairCount = ($chairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
-
-        for ($time = $startTime; ($time + $slotDuration) <= $endTime; $time += $slotIncrement) {
-            $timeSlot = date('H:i', $time);
-
-            $remainingCapacity = $this->appointmentModel->getSlotRemainingCapacity($date, $timeSlot, $duration, $excludeId, $chairName);
-            if ($remainingCapacity > 0) {
-                $timeSlots[] = [
-                    'value' => $timeSlot,
-                    'display' => formatTime($timeSlot),
-                    'remaining_capacity' => $remainingCapacity,
-                    'chair_capacity' => $chairCount,
-                    'chair_name' => $chairName
-                ];
+        $dynamicEnabled = $this->providerDirectoryService->isEnabled((int) $clinicId);
+        if ($dynamicEnabled) {
+            if (empty($providerUserId) && $chairName === '') {
+                return $this->response->setJSON(['error' => 'Doctor is required']);
+            }
+        } else {
+            if ($chairName === '') {
+                return $this->response->setJSON(['error' => 'Doctor is required']);
             }
         }
 
-        // Log the result for debugging
-        log_message('info', 'Available time slots: ' . json_encode($timeSlots));
+        $duration = \App\Services\ClinicSchedulingSettings::positiveInt($duration,480);
+        $providerUserId = $providerUserId === null || $providerUserId === '' ? null : \App\Services\ClinicSchedulingSettings::positiveInt($providerUserId);
+        $excludeId = $excludeId === null || $excludeId === '' ? null : \App\Services\ClinicSchedulingSettings::positiveInt($excludeId);
+        if (!$duration || ($dynamicEnabled && !$providerUserId)) return $this->response->setStatusCode(422)->setJSON(['error'=>'Invalid scheduling selection.']);
+        $timeSlots = $this->schedulingService->availableSlots(
+            (int) $clinicId,
+            $date,
+            (int) $duration,
+            !empty($providerUserId) ? (int) $providerUserId : null,
+            !empty($excludeId) ? (int) $excludeId : null,
+            $chairName !== '' ? $chairName : null,
+            is_string($editContextToken) ? $editContextToken : null
+        );
 
         return $this->response->setJSON($timeSlots);
     }
@@ -932,10 +878,21 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view calendar.');
         }
 
+        try {
+            $workingHours = (new \App\Services\ClinicSchedulingSettings($this->db))->hours((int) $clinicId);
+        } catch (\Throwable $e) {
+            $workingHours = ['start' => '09:00', 'end' => '17:00', 'days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']];
+        }
+
+        $selectedDate = $this->request->getGet('date') ?? (new \DateTimeImmutable('now',(new \App\Services\ClinicSchedulingSettings($this->db))->timezone((int)$clinicId)))->format('Y-m-d');
+        if (!\App\Services\ClinicSchedulingSettings::validDate($selectedDate)) $selectedDate=date('Y-m-d');
         $data = [
             'title' => 'Appointment Calendar',
+            'selected_date' => $selectedDate,
+            'dayboard_appointments' => $this->appointmentModel->getAppointmentsByDateByClinic($clinicId,$selectedDate),
+            'booking_context' => $this->providerDirectoryService->getBookingContext((int)$clinicId),
             'stats' => $this->appointmentModel->getAppointmentStatsByClinic($clinicId),
-            'workingHours' => getWorkingHours(),
+            'workingHours' => $workingHours,
             'loadSelect2' => true,
             'chair_options' => $this->getChairOptions(),
         ];
@@ -989,6 +946,7 @@ class Appointment extends BaseController
                     'end' => $appointment['appointment_date'] . 'T' . date('H:i', strtotime($appointment['appointment_time'] . ' +' . ($appointment['duration'] ?? 30) . ' minutes')),
                     'status' => $appointment['status'] ?? 'scheduled',
                     'patient_id' => $appointment['patient_id'],
+                    'provider_user_id' => $appointment['provider_user_id'] ?? null,
                     'appointment_type' => $appointmentType,
                     'duration' => $appointment['duration'] ?? 30,
                     'doctor_name' => $doctorLabel,
@@ -1013,7 +971,13 @@ class Appointment extends BaseController
 
     private function getChairOptions(): array
     {
-        return service('settings')->getBookingChairNames();
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId > 0) {
+            try {
+                return (new \App\Services\ClinicSchedulingSettings($this->db))->chairs($clinicId);
+            } catch (\Throwable $e) {}
+        }
+        return ['Doctor 1'];
     }
 
     private function isAppointmentWithinWorkingHours(string $date, string $time, int $duration, array $workingHours): bool

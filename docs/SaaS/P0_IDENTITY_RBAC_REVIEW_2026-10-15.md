@@ -1,5 +1,7 @@
 # P0 identity and tenant RBAC review — 2026-10-15
 
+Status update: PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759` after independent code approval and the Super Admin display correction (`e43af245e7ab61cb46515f7664b6289def903d23`; 21 focused tests / 196 assertions). No deployment or production data/schema change occurred. The evidence below records the original review and corrections; doctor scheduling is a separate default-off review phase.
+
 Status: draft PR #1; independent review requested changes at `8496425419651c6add53d5027b3278f8c1aeb3cd`. Acceptance remains blocked pending independent review of corrections; no merge or deployment. Scope is SEC-01 through SEC-05 from the repository audit. Doctor registry/scheduling remains a separate follow-up after P0 acceptance.
 
 ## Confirmed baseline and compatibility

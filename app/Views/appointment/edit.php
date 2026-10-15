@@ -1,6 +1,57 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$bookingContext = $booking_context ?? null;
+if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryService::class)) {
+    $activeClinicId = (int) (session('active_clinic_id') ?? 0);
+    if ($activeClinicId > 0) {
+        $providerService = new \App\Services\ProviderDirectoryService();
+        $isDynamic = false;
+        try {
+            $isDynamic = $providerService->isEnabled($activeClinicId);
+            $bookingContext = $providerService->getBookingContext($activeClinicId);
+        } catch (\Throwable $e) {
+            if ($isDynamic || (strpos($e->getMessage(), 'DYNAMIC_SCHEDULING') !== false)) {
+                $bookingContext = [
+                    'enabled' => true,
+                    'schema_ready' => false,
+                    'providers' => [],
+                    'chair_options' => [],
+                    'error' => $e->getMessage(),
+                ];
+            } else {
+                $bookingContext = null;
+            }
+        }
+    }
+}
+$dynamicMode = !empty($bookingContext['enabled']);
+$schemaReady = !isset($bookingContext['schema_ready']) || !empty($bookingContext['schema_ready']);
+$providers = is_array($bookingContext['providers'] ?? null) ? $bookingContext['providers'] : ($clinic_providers ?? ($providers ?? []));
+$chairOptions = is_array($bookingContext['chair_options'] ?? null) ? $bookingContext['chair_options'] : ($chair_options ?? []);
+
+$currentProviderUserId = !empty($appointment['provider_user_id']) ? (int) $appointment['provider_user_id'] : null;
+$storedChairName = trim((string) ($appointment['chair_name'] ?? ''));
+
+$isCurrentProviderActive = false;
+if ($currentProviderUserId !== null) {
+    foreach ($providers as $p) {
+        $pId = (int) ($p['user_id'] ?? $p['id'] ?? 0);
+        if ($pId === $currentProviderUserId) {
+            $isCurrentProviderActive = true;
+            break;
+        }
+    }
+}
+
+$isLegacyOrInactive = ($currentProviderUserId === null) || (!$isCurrentProviderActive);
+$selectedProviderId = old('provider_user_id', $currentProviderUserId !== null ? $currentProviderUserId : '');
+if ($selectedProviderId !== '') {
+    $selectedProviderId = (int) $selectedProviderId;
+}
+$selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[0] ?? ''));
+?>
 <style>
 [dir="ltr"] input[data-clinic-date="1"].appointment-date-input {
     padding-left: 1rem !important;
@@ -72,8 +123,8 @@
                                         <option value=""><?= esc(lang('UI.appointmentSelectPatient')) ?></option>
                                         <?php if (!empty($patients)): ?>
                                             <?php foreach ($patients as $patient): ?>
-                                                <option value="<?= $patient['id'] ?>" selected>
-                                                    <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
+                                                <option value="<?= (int)$patient['id'] ?>" selected>
+                                                    <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?> (<?= esc($patient['phone'] ?? '') ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -117,33 +168,117 @@
                                 <?php endif; ?>
                             </div>
 
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-door-open text-indigo-600"></i>
-                                    <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
-                                </label>
-                                <div class="relative">
-                                    <?php $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chair_options[0] ?? '')); ?>
-                                    <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
-                                        <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
-                                        <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
-                                            <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
+                            <?php if ($dynamicMode): ?>
+                                <div class="group/field relative">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <i class="fas fa-user-md text-indigo-600"></i>
+                                        <span><?= esc(lang('DoctorScheduling.doctorRequired')) ?> *</span>
+                                    </label>
+                                    <?php if ($isLegacyOrInactive): ?>
+                                        <div class="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-900">
+                                            <div class="flex items-start gap-2.5">
+                                                <i class="fas fa-triangle-exclamation mt-0.5 text-amber-600"></i>
+                                                <div>
+                                                    <p class="font-bold text-xs uppercase tracking-wide text-amber-800"><?= esc(lang('DoctorScheduling.legacyProviderNotice')) ?></p>
+                                                    <p class="mt-0.5 text-xs text-amber-900">
+                                                        <?php if ($currentProviderUserId !== null && !$isCurrentProviderActive): ?>
+                                                            <?= esc(lang('DoctorScheduling.legacyProviderInactiveNotice', [$storedChairName !== '' ? $storedChairName : ('Doctor #' . $currentProviderUserId)])) ?>
+                                                        <?php elseif ($storedChairName !== ''): ?>
+                                                            <?= esc(lang('DoctorScheduling.legacyProviderReassignmentNotice', [$storedChairName])) ?>
+                                                        <?php else: ?>
+                                                            <?= esc(lang('DoctorScheduling.legacyProviderUnassignedNotice')) ?>
+                                                        <?php endif; ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="relative">
+                                        <?php if (!$schemaReady): ?>
+                                            <div class="mb-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 shadow-sm">
+                                                <div class="flex items-center gap-3">
+                                                    <i class="fas fa-triangle-exclamation text-amber-600 text-base"></i>
+                                                    <div>
+                                                        <h4 class="font-bold text-xs uppercase tracking-wide text-amber-800"><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></h4>
+                                                        <p class="mt-0.5 text-xs text-amber-900"><?= esc(lang('DoctorScheduling.schemaNotReady')) ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                                <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc(($currentProviderUserId === null ? \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName) : \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId,$storedChairName))) ?> - <?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
+                                            </select>
+                                        <?php elseif (empty($providers)): ?>
+                                            <div class="mb-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
+                                                <i class="fas fa-triangle-exclamation me-1"></i>
+                                                <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
+                                            </div>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                                <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc(($currentProviderUserId === null ? \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName) : \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId,$storedChairName))) ?> - <?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
+                                            </select>
+                                        <?php else: ?>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 <?= ($currentProviderUserId === null) ? '' : 'required' ?>>
+                                                <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
+                                                <?php if ($currentProviderUserId !== null && !$isCurrentProviderActive): ?>
+                                                    <?php $inactiveLabel = \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId, $storedChairName !== '' ? $storedChairName : null); ?>
+                                                    <option value="<?= $currentProviderUserId ?>" <?= ($selectedProviderId === $currentProviderUserId) ? 'selected' : '' ?>>
+                                                        <?= esc($inactiveLabel) ?>
+                                                    </option>
+                                                <?php endif; ?>
+                                                <?php if ($currentProviderUserId === null && $storedChairName !== ''): ?>
+                                                    <?php $unassignedLabel = \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName); ?>
+                                                    <option value="" <?= ($selectedProviderId === '') ? 'selected' : '' ?>>
+                                                        <?= esc($unassignedLabel) ?>
+                                                    </option>
+                                                <?php endif; ?>
+                                                <?php foreach ($providers as $provider): ?>
+                                                    <?php
+                                                    $pId = (int) ($provider['user_id'] ?? $provider['id'] ?? 0);
+                                                    $pName = (string) ($provider['name'] ?? trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')));
+                                                    $pLabel = \App\Libraries\ProviderDisplayLabel::forOption($pId, $pName);
+                                                    ?>
+                                                    <option value="<?= $pId ?>" <?= ($selectedProviderId === $pId) ? 'selected' : '' ?>><?= esc($pLabel) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                                <i class="fas fa-chevron-down text-gray-400"></i>
+                                            </div>
                                         <?php endif; ?>
-                                        <?php foreach (($chair_options ?? []) as $chairOption): ?>
-                                            <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
+                                    <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('provider_user_id')): ?>
+                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span><?= session()->getFlashdata('validation')->getError('provider_user_id') ?></span>
+                                        </p>
+                                    <?php endif; ?>
                                 </div>
-                                <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
-                                    </p>
-                                <?php endif; ?>
-                            </div>
+                            <?php else: ?>
+                                <div class="group/field relative">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <i class="fas fa-door-open text-indigo-600"></i>
+                                        <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-chair data-force-select2 required>
+                                            <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
+                                            <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chairOptions ?? []), true)): ?>
+                                                <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
+                                            <?php endif; ?>
+                                            <?php foreach (($chairOptions ?? []) as $chairOption): ?>
+                                                <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                            <i class="fas fa-chevron-down text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
+                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Date, Time & Duration -->
@@ -154,7 +289,7 @@
                                     <span><?= esc(lang('UI.appointmentDateRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', $appointment['appointment_date']) ?>" class="appointment-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= esc(old('appointment_date', $appointment['appointment_date']), 'attr') ?>" class="appointment-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -233,7 +368,7 @@
                                 <span><?= esc(lang('UI.appointmentAdditionalNotes')) ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= old('notes', $appointment['notes']) ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes', $appointment['notes'])) ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -265,9 +400,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('appointmentDate');
     const timeSelect = document.getElementById('appointmentTime');
     const durationSelect = document.getElementById('duration');
-    const doctorSelect = document.getElementById('chairName');
+    const doctorSelect = document.querySelector('[data-appointment-provider]') || document.getElementById('providerSelect') || document.querySelector('[data-appointment-chair]') || document.getElementById('chairName');
+    const isDynamic = Boolean(doctorSelect && (doctorSelect.matches('[data-appointment-provider]') || doctorSelect.name === 'provider_user_id'));
     const currentTime = '<?= $appointment['appointment_time'] ?>';
-    const appointmentId = '<?= $appointment['id'] ?>';
+    const appointmentId = '<?= (int)$appointment['id'] ?>';
+    const slotEditContext = <?= json_encode($slot_edit_context ?? '') ?>;
     const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
     const appointmentI18n = {
         current: '<?= esc(lang('UI.appointmentCurrentTime'), 'js') ?>',
@@ -324,8 +461,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return { slots: [], error: appointmentI18n.invalidFormat };
     }
 
+    const originalDate = <?= json_encode($appointment['appointment_date']) ?>;
+    const originalDuration = <?= (int)$appointment['duration'] ?>;
+    const originalDoctor = <?= json_encode((string)($dynamicMode ? ($appointment['provider_user_id'] ?? '') : $appointment['chair_name'])) ?>;
     function appendCurrentTimeIfMissing(slots) {
-        if (!currentTime) {
+        const selectedDate = window.parseClinicDateToIso ? (window.parseClinicDateToIso(dateInput.value) || dateInput.value) : dateInput.value;
+        if (selectedDate !== originalDate || Number(durationSelect.value) !== originalDuration || String(doctorSelect?.value || '') !== originalDoctor || !currentTime) {
             return;
         }
         const hasCurrent = slots.some((slot) => slot && slot.value === currentTime);
@@ -336,15 +477,23 @@ document.addEventListener('DOMContentLoaded', function() {
             currentOption.selected = true;
             timeSelect.appendChild(currentOption);
         }
+        timeSelect.value = currentTime;
+        timeSelect.disabled = false;
+        if (window.jQuery && window.jQuery(timeSelect).data('select2')) {
+            window.jQuery(timeSelect).trigger('change.select2');
+        }
     }
 
+    let currentSlotRequestId = 0;
+
     function loadAvailableTimeSlots() {
+        const requestId = ++currentSlotRequestId;
         const rawDate = (dateInput.value || '').trim();
         const date = window.parseClinicDateToIso ? (window.parseClinicDateToIso(rawDate) || rawDate) : rawDate;
         const duration = durationSelect.value;
-        const chairName = (doctorSelect?.value || '').trim();
+        const doctorVal = (doctorSelect?.value || '').trim();
 
-        if (date && duration && chairName) {
+        if (date && duration && doctorVal) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
                 setTimeOptions([{ value: '', label: appointmentI18n.validDateFirst }], '');
                 appendCurrentTimeIfMissing([]);
@@ -353,7 +502,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
             setTimeOptions([{ value: '', label: appointmentI18n.loadingSlots }], '');
 
-            fetch(`${apiBase}?date=${date}&duration=${duration}&exclude_id=${appointmentId}&chair_name=${encodeURIComponent(chairName)}`)
+            let targetUrl;
+            try {
+                targetUrl = new URL(apiBase, window.location.origin);
+            } catch (e) {
+                targetUrl = new URL(apiBase, window.location.href);
+            }
+            targetUrl.searchParams.set('date', date);
+            targetUrl.searchParams.set('duration', duration);
+            targetUrl.searchParams.set('exclude_id', appointmentId);
+            targetUrl.searchParams.set('edit_context', slotEditContext);
+            if (isDynamic) {
+                targetUrl.searchParams.set('provider_user_id', doctorVal);
+                targetUrl.searchParams.delete('chair_name');
+            } else {
+                targetUrl.searchParams.set('chair_name', doctorVal);
+                targetUrl.searchParams.delete('provider_user_id');
+            }
+
+            fetch(targetUrl.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
@@ -361,6 +528,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(data => {
+                    if (requestId !== currentSlotRequestId) {
+                        return;
+                    }
                     const normalized = normalizeSlotsPayload(data);
                     if (normalized.slots.length > 0) {
                         const options = [{ value: '', label: appointmentI18n.selectTime }].concat(
@@ -379,6 +549,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     appendCurrentTimeIfMissing(normalized.slots);
                 })
                 .catch(error => {
+                    if (requestId !== currentSlotRequestId) {
+                        return;
+                    }
                     console.error('Error loading time slots:', error);
                     setTimeOptions([{ value: '', label: appointmentI18n.loadError }], '');
                     appendCurrentTimeIfMissing([]);

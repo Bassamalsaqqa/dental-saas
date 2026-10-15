@@ -25,6 +25,7 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | WhatsApp | `WHATSAPP_CURRENT_STATE.md` |
 | Entity workspaces/drawers | `refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` |
 | React/Lovable strategy | `refactor/LOVABLE_STRATEGY_CODEX.md` |
+| Dynamic doctor scheduling | `SaaS/DOCTOR_SCHEDULING_CONTRACT.md` |
 | Control-plane entitlements | `SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` |
 
 ## Assistant Guides

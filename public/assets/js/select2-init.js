@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         return select2I18n.inputTooShort(minimumInputLength);
                     }
                 },
-                dir: isRtl ? 'rtl' : 'ltr',
+                dir: select.name === 'provider_user_id' ? 'ltr' : (isRtl ? 'rtl' : 'ltr'),
                 dropdownParent: getAppSelect2DropdownParent(select)
             };
             
@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             $(select).select2({
                 placeholder: select2I18n.placeholder,
-                dir: isRtl ? 'rtl' : 'ltr',
+                dir: select.name === 'provider_user_id' ? 'ltr' : (isRtl ? 'rtl' : 'ltr'),
                 allowClear: regularAllowClear,
                 width: '100%',
                 theme: 'default',
@@ -810,7 +810,7 @@ window.initAppSelects = async function initAppSelects(root) {
             allowClear: allowClear,
             width: '100%',
             theme: 'default',
-            dir: isRtl ? 'rtl' : 'ltr',
+            dir: select.name === 'provider_user_id' ? 'ltr' : (isRtl ? 'rtl' : 'ltr'),
             dropdownParent: dropdownParent,
             minimumResultsForSearch: searchable || optionCount > 5 ? 0 : Infinity,
             language: {

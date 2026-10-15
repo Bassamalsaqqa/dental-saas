@@ -1,10 +1,12 @@
 # Project State
 
-## 2026-10-15 — P0 identity and tenant RBAC review branch
+## 2026-10-15 ? P0 merged; Phase B scheduling under review
 
-SEC-01..05 remediation is prepared in `audit/2026-10-15-p0-identity-rbac`; it is not deployed or merged. Active clinic membership is tenant role authority; existing identities cannot be linked or overwritten by tenant creation. Clinic access management is separate from account-owner Profile/password recovery. Public Bearer API ignores web impersonation; the nine first-party search controls use session-authenticated `/api/search/*`.
+P0 PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759`, including the Super Admin display correction at `e43af245e7ab61cb46515f7664b6289def903d23`. Independent code review found no blockers; the display correction and adjacent authority regressions passed 21 tests / 196 assertions. Nothing was deployed. Hostinger was last observed at `063317498e366a009357e0c0fe500041b2417050` through read-only inspection.
 
-See [P0 review and rollout boundary](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md) for environment evidence, data impact, migration and rollback. Hostinger remains at `063317498e366a009357e0c0fe500041b2417050`; read-only health and backup containment were rechecked. The four historical role differences were adjudicated read-only: two disabled accounts across two clinics, valid membership roles, zero capability-set loss from ignoring the differing global grants. No account or assignment was changed. Independent review blocked P0 acceptance at the initial SHA; controller and tenant-entry corrections require another review before acceptance. No schema/backfill, SQL dump, dependency update, production write or GitHub Actions is part of this patch. Doctor registry/scheduling remains a separate PR after P0 acceptance.
+Active clinic membership is tenant role authority. Existing identities cannot be overwritten by tenant creation. Public Bearer API ignores web impersonation; first-party searches use session-authenticated `/api/search/*`. The four historical production role differences concern two disabled accounts across two clinics; read-only comparison found zero capability-set loss. No account or assignment changed. See [P0 review boundary](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
+
+Phase B is a separate review PR for dynamic doctor columns, stable provider IDs and clinic/provider availability. Its [contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md) preserves existing appointments and requires an additive schema before explicit feature enablement. No production migration, backfill, dependency upgrade or deployment is authorized. Overall release readiness remains unapproved.
 
 
 Last updated: 2026-10-15
@@ -51,7 +53,7 @@ Last updated: 2026-10-15
 
 ## Current Next Slice
 
-Isolated baseline reconciliation and tooling safety corrections (Run ID: `20260925-denta-plus-isolated-baseline-correction-03`) are complete, fully verified, and ready for Codex review. All findings resolved: stack unwinding guaranteed via `VerificationFailureException` with tested `finally` cleanup restoration after marker drop, test-only replicas replaced with shared production orchestration methods tested against real production code with negative reversal proofs. Full test suite (313 tests, 1898 assertions) passes in a single 20.5s run with zero skips, zero errors, and zero failures. Following Codex acceptance, proceed to Checkpoint 02: Remaining P0 security & CI upgrade (compatible CI 4.7.x release verification, removal of web/debug artifacts, private document root protection, RBAC guardrails, public API session trust removal). Note: P0 containment and test reconciliation are local validation milestones; neither is deployed to production.
+Phase B Dynamic Doctor Scheduling is prepared in a separate review PR after merged P0 PR #1. Finish independent review and staging rollout planning under the [scheduling contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md). Production remains unchanged. The feature defaults off; schema expansion, operator qualification/schedules, legacy reconciliation and explicit pilot approval precede any future enablement. Framework/dependency upgrades and other modernization checkpoints remain separate work.
 
 ## App API / React State
 

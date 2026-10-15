@@ -162,3 +162,31 @@ node tests/js/P0SearchUrlTest.cjs
 Initial draft isolated run: 204 tests / 1,676 assertions and 36 JS assertions passed. Coverage includes real registered filter execution and transaction/audit failures, not only parser or mocked happy paths. Bilingual render checks also parse inline JavaScript using Node. See [review, known release blockers and rollback](../docs/SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
 
 PR #1 correction target run: **42 tests / 514 assertions passed** in `P0ReviewBoundaryAcceptanceTest.php` and `PR1ReviewCorrectionRegressionTest.php`. The expanded command above is the single final focused acceptance suite; its exact corrected SHA and outcome are retained in the PR. These tests use actual registered routes and preserve canonical foreign-key constraints (deleting a fixture role cascades its memberships), without replacement routes or weakened schema.
+
+
+## Phase B focused acceptance
+
+Use the explicitly owned disposable database on loopback port 3307, dedicated test credentials and a valid ownership marker. Apply canonical migrations to that isolated target only. Never use a customer dump or a production connection. Run serially: this suite includes a two-process booking race and an expansion rollback/reapply test, which refuses unrelated populated provider data.
+
+```console
+php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result --configuration phpunit.phase-b.xml
+node tests/js/PhaseBSlotTransportTest.cjs
+node tests/js/PhaseBEditSlotPreservationTest.cjs
+node tests/js/P0SearchUrlTest.cjs
+```
+
+The PHP routed regressions generate synthetic EN/AR edit HTML in ignored `tmp/phase-b-rendered-edit-*.html`; the edit-slot JavaScript check consumes those artifacts. No network, notifications, production migration, GitHub Actions or broad suite is required.
+
+
+## PR #2 focused review corrections
+
+No migration/provisioning is needed for this correction. Use the existing task-owned, already expanded disposable database on port 3307 and run serially:
+
+```console
+php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result --configuration phpunit.pr2-review.xml
+node tests/js/PR2DoctorIdentityMobileTest.cjs
+node tests/js/PhaseBSlotTransportTest.cjs
+node tests/js/P0SearchUrlTest.cjs
+```
+
+The PHP correction tests render synthetic full-create/edit/shared/quick controls and EN/AR dayboards into ignored `tmp/pr2-mobile-*.html`. The browser check uses local Chrome headless DevTools (override `PR2_BROWSER_BINARY` if necessary), actual 320/360/390px viewports, the real compiled CSS and app Select2 initializer. Cache **the same versions already loaded by `main_auth.php`**, without installing/upgrading dependencies: `https://code.jquery.com/jquery-3.7.1.min.js` as `tmp/pr2-jquery-3.7.1.min.js`, and Select2 `4.1.0-rc.0` JS/CSS from jsDelivr as `tmp/pr2-select2-4.1.0-rc.0.min.js` / `.min.css`. These ignored browser fixtures are never committed or deployed. The check blocks external host resolution during browser execution, verifies visible reference prefixes/menu selection/submitted IDs and unclipped column references, and saves 360px screenshots. No production browser requests or customer fixtures are used.
