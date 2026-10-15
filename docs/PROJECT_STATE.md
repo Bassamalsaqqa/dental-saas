@@ -1,12 +1,12 @@
 # Project State
 
-## 2026-10-15 ? P0 merged; Phase B scheduling under review
+## 2026-10-15 ? P0 and Phase B merged; pre-pilot workflow under review
 
 P0 PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759`, including the Super Admin display correction at `e43af245e7ab61cb46515f7664b6289def903d23`. Independent code review found no blockers; the display correction and adjacent authority regressions passed 21 tests / 196 assertions. Nothing was deployed. Hostinger was last observed at `063317498e366a009357e0c0fe500041b2417050` through read-only inspection.
 
 Active clinic membership is tenant role authority. Existing identities cannot be overwritten by tenant creation. Public Bearer API ignores web impersonation; first-party searches use session-authenticated `/api/search/*`. The four historical production role differences concern two disabled accounts across two clinics; read-only comparison found zero capability-set loss. No account or assignment changed. See [P0 review boundary](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
 
-Phase B is a separate review PR for dynamic doctor columns, stable provider IDs and clinic/provider availability. Its [contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md) preserves existing appointments and requires an additive schema before explicit feature enablement. No production migration, backfill, dependency upgrade or deployment is authorized. Overall release readiness remains unapproved.
+Phase B PR #2 was independently approved at `3bf46f96a653d266870d2aa6a783dcc96f493415` and merged at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04` with an identical tree. A separate pre-pilot PR adds full-horizon before/after reporting, attributed dispositions, verified audit bundles and current-state rechecks; final focused acceptance passed 50 tests / 524 assertions plus 198 EN/AR mobile Chromium assertions. Dynamic scheduling remains default off. Its [contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md) preserves existing appointments and requires an additive schema before explicit feature enablement. No production migration, backfill, dependency upgrade or deployment is authorized. Overall release readiness remains unapproved.
 
 
 Last updated: 2026-10-15

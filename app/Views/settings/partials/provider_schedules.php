@@ -25,8 +25,9 @@ $inputClass = 'rounded-lg border border-slate-300 px-3 py-2';
             ?>
             <details class="rounded-xl border border-slate-200 bg-white p-4" data-provider-settings-id="<?= $providerId ?>">
                 <summary class="cursor-pointer font-semibold"><?= esc($member['name']) ?> <span class="text-sm font-normal text-slate-500" dir="ltr">#<?= $providerId ?> · <?= esc($member['role_slug']) ?></span></summary>
-                <form action="<?= esc(base_url('settings/update-provider-schedule'), 'attr') ?>" method="post" class="mt-5 space-y-5">
+                <form action="<?= esc(base_url('settings/preview-schedule-impact'), 'attr') ?>" method="post" class="mt-5 space-y-5">
                     <?= csrf_field() ?>
+                    <input type="hidden" name="target_type" value="provider_profile">
                     <input type="hidden" name="provider_user_id" value="<?= $providerId ?>">
                     <div class="flex flex-wrap gap-5">
                         <label class="flex items-center gap-2"><input type="checkbox" name="is_bookable" value="1" <?= (int) ($profile['is_bookable'] ?? 1) === 1 ? 'checked' : '' ?>><?= esc(lang('DoctorScheduleSettings.bookable')) ?></label>

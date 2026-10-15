@@ -1,6 +1,6 @@
 # Dynamic Doctor Scheduling ? Phase B
 
-Status: separate review phase after P0 PR #1. No production migration, backfill, assignment change or deployment is authorized by this document.
+Status: Phase B PR #2 independently approved at `3bf46f96a653d266870d2aa6a783dcc96f493415` and merged at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04`; pre-pilot workflow is a separate review PR. No production migration, backfill, assignment change or deployment is authorized by this document.
 
 ## Identity and eligibility
 
@@ -41,18 +41,25 @@ The schema test uses synthetic rows only. It does not establish production data 
 
 ## Required pilot gate: future-appointment schedule-change impact
 
-**Production pilot remains blocked until an operator-visible impact report and explicit acknowledgment/resolution workflow are available and exercised in staging.** This review correction documents the gate; it does not implement that workflow or authorize schedule changes on customer data.
+**Production pilot remains blocked until an operator-visible impact report and explicit acknowledgment/resolution workflow are available and exercised in staging.**
 
 Changing clinic working days/hours, provider weekly windows, leave exceptions, qualification or bookability changes eligibility for new bookings. It deliberately does **not** rewrite, move, cancel, reassign or shorten existing appointments. A future visit can therefore remain booked outside the new hours, during new leave, or against a provider who is no longer bookable/eligible. Its stable provider ID, patient/clinical links and historical label remain intact. Default duration changes likewise leave stored durations unchanged. Timezone changes are already refused for clinics containing appointments.
 
-Before enabling a clinic pilot, and before relying on later schedule/profile changes in production:
+### Implemented schedule-impact workflow (Pre-pilot PR)
 
-1. Produce a read-only, clinic-scoped before/after impact report over the full future booking horizon, including confirmed visits and unresolved historical provider assignments. Check the entire interval against proposed clinic/provider windows, breaks, leave and current eligibility; report appointment ID, doctor reference, local date/time/duration and a concrete reason. Restrict any patient details to authorized staff; do not export a shared/customer database dump.
-2. Show affected appointments to the authorized operator before accepting the operational change. Require an attributed acknowledgment and a recorded disposition for every affected visit. Silent acceptance, automatic cancellation/reassignment and name-based matching are prohibited.
-3. Resolve or explicitly manage affected confirmed visits through the approved appointment workflow, including clinic-approved patient/doctor communication. Define how an intentionally retained out-of-hours visit is shown and protected; unresolved impacts block the pilot. Preserve clinical/finance links and audit any explicit rescheduling.
-4. Recheck the report after applying an approved change, verify dayboard/unavailable-provider visibility and overlap protection, and rehearse restoring the previous configuration. Existing reminder/confirmation jobs keep their booked times; a schedule edit alone must not be assumed to reschedule visits or notify patients.
+1. **Full future booking horizon report**: Read-only, clinic-scoped before/after impact evaluation over all future appointments starting from clinic-local `today` (`appointments.appointment_date >= today`), including confirmed visits, completed visits, and unresolved historical assignments (`provider_user_id IS NULL`). Cancelled and no-show visits release capacity. Checks whole visit intervals against proposed clinic hours, working days, provider weekly windows, lunch breaks, dated leave, and canonical clinic-scoped role eligibility.
+2. **Preview/apply cryptographic handshake**: `POST /settings/preview-schedule-impact` validates normalized proposed DTOs, computes a full-content SHA-256 state digest across all future visits and settings, and issues a 15-minute session-bound proof. `POST /settings/apply-schedule-impact` and direct service mutations (`configureHours`, `configureProfile`) recompute the report under the clinic-first transaction lock (`FOR UPDATE`). Direct mutation bypass without valid proof is rejected whenever conflicts exist. Stale, tampered, expired, cross-clinic, or Bearer-blended requests fail closed.
+3. **Explicit retention and resolution communication**: For every affected after-change visit, an attributed acknowledgment checkbox and an explicit reasoned retain disposition (`action: retain`, non-empty reason) are required. Alternatively, operators may reschedule affected visits via the existing authorized appointment-edit page and refresh the report. Retained exceptions block overlapping slot bookings canonically but do not grant new booking availability. Existing appointment records, patient links, and clinical/finance links remain byte-for-byte unchanged.
+4. **Durable audit evidence location**: Implemented strictly using existing tables (`settings`, `control_plane_audits`) without migrations or schema additions. Stores a compact clinic-scoped review reference in `settings`; complete configuration/report/disposition evidence belongs in bounded, verified audit parts in `control_plane_audits`. Evidence must include all affected IDs, before/after reasons, original and proposed configuration, actor and timestamp; no silent truncation is permitted. Audit failure triggers complete transaction rollback.
+5. **Recheck pilot gate**: `GET /settings/schedule-impact-recheck` provides an on-demand, read-only post-change recheck report showing active clinic conflict status and referencing the latest applied audit record.
 
-No automatic impact analysis, operator acknowledgment workflow or customer-data repair is claimed by Phase B. Staging evidence and the above operational controls are required release work, separate from code review approval.
+### Remaining staging and pilot gates
+
+Code implementation alone does **not** claim deployment readiness or authorize production data changes. The following gates remain open:
+- Independent code review and approval by Codex.
+- Staging walkthrough and workflow rehearsal with clinic operators managing out-of-hours visits.
+- Operator review of legacy unresolved bookings and provider qualifications.
+- Existing P0 security/dependency and schema-parity release debt remains separate and active.
 
 ## Advisory edit exclusions and visible doctor identity
 
@@ -66,4 +73,28 @@ Independent GitHub review requested changes at `d623d203671ae45ffd23de6fc369cb60
 
 Focused final acceptance passed **36 tests / 582 assertions** (`phpunit.pr2-review.xml`). Actual headless Chromium checks passed **564 assertions** for native controls, real app Select2, selected numeric IDs, long equal names, visible column/action references and internal scrolling in EN/AR at **320/360/390px**. Retained slot transport and P0 URL checks passed **60 + 36 assertions**. Browser fixtures use synthetic data and locally cached copies of the already shipped third-party versions; no dependency change is included. No migration, schema/backfill, production request/write, customer-data change, merge, deployment or GitHub Actions was performed for this correction.
 
-The affected-future-appointment report and acknowledgment workflow remain a mandatory, **unimplemented production pilot gate**, not an authorization to change existing appointments.
+The pre-pilot workflow in this separate PR must pass independent approval and a staging operator rehearsal before a production pilot. No approval here authorizes customer-data changes.
+
+## Pre-pilot operating boundary
+
+The preview/apply gate covers clinic hours and provider-profile availability, bookability and explicit clinician qualification. Security lifecycle actions (account deactivation, membership removal or role changes) remain available through their existing authorized workflows. They can invalidate existing doctor eligibility and must invalidate pending previews. Operators must run the current schedule recheck and complete a fresh acknowledgment after any such action before relying on pilot readiness. The code does not prevent emergency account disabling or claim that every administrative action is a schedule change.
+
+A retained exception is an explicit, reasoned decision about an exact existing appointment snapshot. It does not create available slots, waive overlapping-booking checks, grant clinician authority or automatically contact anyone. A stale decision after rescheduling or configuration/eligibility changes requires a new review. A proposed or planned reschedule is unresolved until the canonical appointment workflow succeeds and a refreshed report verifies the result. Historical display labels and all patient, clinical and finance links remain intact.
+
+Platform audit retention can prune older evidence. Missing, incomplete or corrupt review evidence must be reported as unavailable and require a fresh operator review; absence is never proof that a conflict was accepted. Operators must retain required evidence under the clinic's approved policy before a pilot. Recheck reports are operational evidence, not a deployment switch.
+
+Before a pilot, rehearse an hours reduction, a lunch-window change, leave, loss of bookability, qualification change, explicit retention, canonical rescheduling, stale-preview rejection, evidence loss, and restoration of the previous configuration on staging synthetic data. Confirm dayboard/unavailable-provider visibility, preserved overlap protection and unchanged booked reminder times. Patient/doctor communication needs an attributed clinic-approved process; a schedule edit neither reschedules visits nor sends those communications.
+
+PR #2 merge authorizes code integration only. No deployment, migration, backfill, feature activation, production request or customer-data modification is part of this workflow PR. Existing P0 dependency/security, guardrail and schema-parity release blockers remain. Production readiness requires independent code approval, successful staging rehearsal, resolved or explicitly managed impacts and separately authorized release work.
+
+Compatibility: the legacy direct hours/profile entry points remain available for changes whose recomputed full-horizon report has zero affected visits and which supply no preview fields. They still require current tenant settings authority, serialization and required audit. They cannot silently accept existing conflicts: any affected visit requires the same proof, explicit acknowledgment and exact per-visit dispositions. The current settings UI always previews and requests explicit confirmation, including zero-conflict changes.
+
+## Pre-pilot PR verification (2026-10-15)
+
+AGY implemented and corrected the initial slice; Codex independently reviewed the source and corrected audit storage, snapshot consistency, transport parsing, stale retention and UI controls. A separate read-only source reviewer found no remaining isolation, transaction, audit-integrity, appointment-preservation or schema blocker after the identified corrections. External PR approval remains pending.
+
+Focused final command: `php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result --configuration phpunit.schedule-impact.xml` passed **50 tests / 524 assertions** on the owned loopback MariaDB test database at port 3307. No migrations, DDL, schema resets or production requests were run. Coverage includes before/after hours, weekly breaks, leave, bookability/qualification, legacy unresolved and confirmed visits, stale role/booking state, exact dispositions, CSRF-protected EN/AR preview/apply/recheck, Bearer/session isolation, second-audit-part rollback, over-64-KiB Arabic evidence and missing-part rejection, exact appointment preservation and completed/clinical-lock proof invalidation.
+
+`node tests/js/ScheduleImpactMobileTest.cjs` passed **198 assertions** using actual headless Chromium at 320/360/390px in EN/AR. Rendered report fixtures use synthetic data and local compiled CSS, with network requests blocked; tests verify the report content and real submit handler, not a deployed installation or full production browser shell. The 505-visit fixture preserves all IDs/reasons via one JSON field beyond PHP's default form-variable limit. No dependency changes.
+
+All 22 changed/new PHP files passed syntax checks; whitespace and LF preservation passed. Required SaaS guardrails still fail on the same 24 baseline source matches across three categories, with zero added matches. Required route scan completed through an ignored CLI bootstrap shim for the repository's existing SUPPORTPATH issue. Original checkout and local main remain unchanged; detailed relay/review/test/preservation artifacts live in the ignored `.ai/schedule-impact-20261015/` directory. Future-horizon load/lock duration, operator communications, restoration rehearsal and audit retention require representative staging verification before a pilot.

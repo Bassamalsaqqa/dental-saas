@@ -25,6 +25,8 @@ final class AppointmentSlotEditContext
     {
         $actor = $this->authorizedActor($clinicId);
         if ($actor === null || !$this->ownsAppointment($clinicId, $appointmentId)) return null;
+        try { if (!AppointmentReschedulabilityService::isReschedulable($this->db, $clinicId, $appointmentId)) return null; }
+        catch (\Throwable $e) { return null; }
         $contexts = $this->contexts();
         $contexts = array_filter($contexts, static fn($item): bool => is_array($item) && (int)($item['expires_at']??0) > time());
         $key = $clinicId . ':' . $appointmentId;
@@ -47,6 +49,8 @@ final class AppointmentSlotEditContext
         if (!is_array($context) || (int)($context['actor_id']??0) !== $actor
             || (int)($context['expires_at']??0) <= time()
             || !hash_equals((string)($context['digest']??''), hash('sha256',$token))) return null;
+        try { if (!AppointmentReschedulabilityService::isReschedulable($this->db, $clinicId, $appointmentId)) return null; }
+        catch (\Throwable $e) { return null; }
         return $this->ownsAppointment($clinicId,$appointmentId) ? $appointmentId : null;
     }
 

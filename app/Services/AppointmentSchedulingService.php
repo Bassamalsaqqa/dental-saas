@@ -225,27 +225,7 @@ class AppointmentSchedulingService
             $schemaReady = $this->directoryService->isSchemaReady();
 
             if ($id !== null) {
-                $isFutureDate = ($existing['appointment_date'] >= $today);
-                $isScheduledOrConfirmed = in_array((string) $existing['status'], ['scheduled', 'confirmed'], true);
-
-                // Check encounter and charge links
-                $examLinkCount = (int) ($this->db->query(
-                    'SELECT COUNT(*) AS c FROM examinations WHERE clinic_id = ? AND appointment_id = ?',
-                    [$validClinicId, $id]
-                )->getRow('c') ?? 0);
-
-                $chargeLinkCount = (int) ($this->db->query(
-                    'SELECT COUNT(*) AS c FROM clinical_charge_lines WHERE clinic_id = ? AND appointment_id = ?',
-                    [$validClinicId, $id]
-                )->getRow('c') ?? 0);
-
-                $procEncounterCount = (int) ($this->db->query(
-                    'SELECT COUNT(*) AS c FROM clinical_procedures WHERE clinic_id = ? AND appointment_id = ?',
-                    [$validClinicId, $id]
-                )->getRow('c') ?? 0);
-
-                $hasClinicalLinks = ($examLinkCount > 0 || $chargeLinkCount > 0 || $procEncounterCount > 0);
-                $isReschedulable = ($isFutureDate && $isScheduledOrConfirmed && !$hasClinicalLinks);
+                $isReschedulable = AppointmentReschedulabilityService::isReschedulable($this->db, $validClinicId, $existing);
 
                 // Evaluate requested changes
                 $reqDate = isset($input['appointment_date']) ? (string) $input['appointment_date'] : $existing['appointment_date'];
@@ -884,96 +864,19 @@ class AppointmentSchedulingService
      */
     protected function validateDateTimeDurationDst(int $clinicId, string $date, string $time, int $duration): ?array
     {
-        if (!ClinicSchedulingSettings::validDate($date)) {
-            return ['success' => false, 'code' => 'INVALID_DATE', 'message' => 'Valid ISO date (YYYY-MM-DD) required.'];
-        }
-
-        if (!ClinicSchedulingSettings::validTime($time)) {
-            return ['success' => false, 'code' => 'INVALID_TIME', 'message' => 'Valid appointment time (HH:MM) required.'];
-        }
-
-        if ($duration < 1 || $duration > 480) {
-            return ['success' => false, 'code' => 'INVALID_DURATION', 'message' => 'Duration must be between 1 and 480 minutes.'];
-        }
-
-        $startMinutes = ((int) substr($time, 0, 2) * 60) + (int) substr($time, 3, 2);
-        $endMinutes = $startMinutes + $duration;
-
-        if ($endMinutes > 1440) {
-            return ['success' => false, 'code' => 'CROSS_MIDNIGHT', 'message' => 'Appointments cannot cross midnight.'];
-        }
-
-        // Canonical clinic timezone lookup; fail closed if invalid
         try {
             $tz = $this->clinicSettings->timezone($clinicId);
         } catch (\Throwable $e) {
             return ['success' => false, 'code' => 'INVALID_TIMEZONE', 'message' => 'Invalid clinic timezone configuration.'];
         }
 
-        $endTimeStr = sprintf('%02d:%02d', intdiv($endMinutes, 60), $endMinutes % 60);
-
-        // Gap test: check whether start and end local timestamps exist in local time
-        $dtStart = DateTimeImmutable::createFromFormat('!Y-m-d H:i', "{$date} {$time}", $tz);
-        if (!$dtStart || $dtStart->format('Y-m-d H:i') !== "{$date} {$time}") {
+        $res = ClinicScheduleAvailabilityService::validateAppointmentInterval($date, $time, $duration, $tz);
+        if ($res !== null) {
             return [
                 'success' => false,
-                'code'    => 'INVALID_DST_INTERVAL',
-                'message' => 'The selected appointment time does not exist in local time (daylight saving time gap).',
+                'code' => $res['code'],
+                'message' => $res['reason'],
             ];
-        }
-
-        $dtEnd = DateTimeImmutable::createFromFormat('!Y-m-d H:i', "{$date} {$endTimeStr}", $tz);
-        if (!$dtEnd || $dtEnd->format('Y-m-d H:i') !== "{$date} {$endTimeStr}") {
-            return [
-                'success' => false,
-                'code'    => 'INVALID_DST_INTERVAL',
-                'message' => 'The appointment interval falls into a local daylight saving time gap.',
-            ];
-        }
-
-        // Transition scan: inspect transitions crossing this local day
-        // Skip baseline entry at index 0 to avoid false positives!
-        $dayStartUtc = strtotime("{$date} 00:00:00 UTC") - 86400;
-        $dayEndUtc = strtotime("{$date} 23:59:59 UTC") + 86400;
-        $transitions = $tz->getTransitions($dayStartUtc, $dayEndUtc);
-
-        if (is_array($transitions) && count($transitions) > 1) {
-            $apptStartNaiveSec = strtotime("{$date} {$time}:00 UTC");
-            $apptEndNaiveSec = strtotime("{$date} {$endTimeStr}:00 UTC");
-
-            for ($i = 1; $i < count($transitions); $i++) {
-                $tr = $transitions[$i];
-                $prev = $transitions[$i - 1];
-                $offsetDelta = $tr['offset'] - $prev['offset'];
-
-                if ($offsetDelta === 0) {
-                    continue;
-                }
-
-                $transTs = $tr['ts'];
-                $localBefore = $transTs + $prev['offset'];
-                $localAfter = $transTs + $tr['offset'];
-
-                if ($offsetDelta > 0) {
-                    // Gap (Spring forward): [localBefore, localAfter) does not exist
-                    if ($apptStartNaiveSec < $localAfter && $apptEndNaiveSec > $localBefore) {
-                        return [
-                            'success' => false,
-                            'code'    => 'INVALID_DST_INTERVAL',
-                            'message' => 'The selected appointment time crosses a local daylight saving time gap.',
-                        ];
-                    }
-                } else {
-                    // Fold (Fall back): [localAfter, localBefore] occurs twice (ambiguous)
-                    if ($apptStartNaiveSec < $localBefore && $apptEndNaiveSec > $localAfter) {
-                        return [
-                            'success' => false,
-                            'code'    => 'AMBIGUOUS_DST_INTERVAL',
-                            'message' => 'The selected appointment time is ambiguous due to daylight saving time transition.',
-                        ];
-                    }
-                }
-            }
         }
 
         return null;
