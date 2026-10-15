@@ -16,8 +16,44 @@ const uiSearchAuth = {
     tokenPromise: null
 };
 
+function isSameOriginUrl(url) {
+    if (typeof url !== 'string' || !url) return false;
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(url) && !url.startsWith('//')) {
+        return true;
+    }
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+        try {
+            const parsed = new URL(url, window.location.origin);
+            return parsed.origin === window.location.origin;
+        } catch (_e) {
+            return false;
+        }
+    }
+    return false;
+}
+
 function isV1SearchUrl(url) {
-    return typeof url === 'string' && url.indexOf('/api/v1/search/') !== -1;
+    return typeof url === 'string' && /(?:^|\/)api\/v1\/search\//.test(url);
+}
+
+function resolveFirstPartySearchUrl(url) {
+    if (typeof url !== 'string' || !url) {
+        return url;
+    }
+    if (!isSameOriginUrl(url)) {
+        return url;
+    }
+
+    const pattern = /^(.*\/)?api\/v1\/search\/(patients|users|examinations|treatments|inventory|medications|treatment-types|departments|roles)([?#].*)?$/;
+    const match = url.match(pattern);
+    if (match) {
+        const prefix = match[1] || '';
+        const endpoint = match[2];
+        const rest = match[3] || '';
+        return `${prefix}api/search/${endpoint}${rest}`;
+    }
+
+    return url;
 }
 
 function isTokenValid() {
@@ -161,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     let needsBearer = false;
     searchableSelects.forEach(select => {
-        const searchUrl = select.dataset.searchUrl || '';
+        const searchUrl = resolveFirstPartySearchUrl(select.dataset.searchUrl || '');
         if (searchUrl.indexOf('/api/v1/search/') !== -1) {
             needsBearer = true;
         }
@@ -176,7 +212,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     searchableSelects.forEach((select, index) => {
         try {
-            const searchUrl = select.dataset.searchUrl;
+            const searchUrl = resolveFirstPartySearchUrl(select.dataset.searchUrl);
             const searchParam = select.dataset.searchParam || 'q';
             const valueField = select.dataset.valueField || 'id';
             const textField = select.dataset.textField || 'text';
@@ -746,7 +782,7 @@ window.initAppSelects = async function initAppSelects(root) {
     }
 
     const drawerSearchSelects = Array.from(scope.querySelectorAll('select[data-searchable-select]'));
-    const needsBearer = drawerSearchSelects.some(select => isV1SearchUrl(select.dataset.searchUrl || ''));
+    const needsBearer = drawerSearchSelects.some(select => isV1SearchUrl(resolveFirstPartySearchUrl(select.dataset.searchUrl || '')));
 
     if (needsBearer) {
         const token = await fetchUiSearchToken();
@@ -784,7 +820,7 @@ window.initAppSelects = async function initAppSelects(root) {
         };
 
         if (searchable && select.dataset.searchUrl) {
-            const searchUrl = select.dataset.searchUrl;
+            const searchUrl = resolveFirstPartySearchUrl(select.dataset.searchUrl);
             const limit = parseInt(select.dataset.limit || '10', 10);
             const searchParam = select.dataset.searchParam || 'q';
             const valueField = select.dataset.valueField || 'id';
@@ -881,3 +917,11 @@ window.initAppSelects = async function initAppSelects(root) {
     drawerSearchSelects.forEach(select => initializeSelect(select, true));
     scope.querySelectorAll('select[data-force-select2], .app-drawer select:not([data-no-select2]), .app-scale-modal select:not([data-no-select2])').forEach(select => initializeSelect(select, false));
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        resolveFirstPartySearchUrl,
+        isV1SearchUrl,
+        isSameOriginUrl
+    };
+}

@@ -31,7 +31,8 @@ class DebugController extends BaseController
     public function rbac()
     {
         // Check if user is admin using IonAuth
-        if (!$this->ionAuth->isAdmin()) {
+        if (!$this->ionAuth->loggedIn() || session()->get('global_mode') !== true
+            || !$this->permissionService->isSuperAdmin((int) $this->ionAuth->getUserId())) {
             return redirect()->to('/dashboard')->with('error', 'You must be an administrator to access debug information.');
         }
 
@@ -49,7 +50,8 @@ class DebugController extends BaseController
     public function rolePermissions()
     {
         // Check if user is admin using IonAuth
-        if (!$this->ionAuth->isAdmin()) {
+        if (!$this->ionAuth->loggedIn() || session()->get('global_mode') !== true
+            || !$this->permissionService->isSuperAdmin((int) $this->ionAuth->getUserId())) {
             return redirect()->to('/dashboard')->with('error', 'You must be an administrator to access debug information.');
         }
 

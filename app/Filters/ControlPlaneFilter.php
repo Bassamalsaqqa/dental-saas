@@ -86,9 +86,7 @@ class ControlPlaneFilter implements FilterInterface
         }
 
         // 5. Clear/Ignore Tenant Context
-        $session->remove('active_clinic_id');
-        $session->remove('active_clinic_role_id');
-        $session->remove('impersonated_clinic_id');
+        $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id', 'impersonated_clinic_id', 'is_impersonating']);
         
         return null;
     }

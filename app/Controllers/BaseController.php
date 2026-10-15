@@ -106,10 +106,7 @@ abstract class BaseController extends Controller
                 
                 // P5-11-UX: Control Plane Visibility
                 $this->initPermissionService();
-                $isSuperAdmin = $this->permissionService->isSuperAdmin($user->id);
-                if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
-                    $isSuperAdmin = true;
-                }
+                $isSuperAdmin = $this->permissionService ? $this->permissionService->isSuperAdmin($user->id) : false;
                 $renderer->setVar('is_super_admin', $isSuperAdmin);
                 $renderer->setVar('global_mode', session()->get('global_mode'));
             }
@@ -479,12 +476,18 @@ abstract class BaseController extends Controller
      */
     protected function isAdmin($userId = null)
     {
-        // If no userId provided, use IonAuth method for backward compatibility
         if (!$userId) {
-            return $this->ionAuth->isAdmin();
+            $user = $this->getCurrentUser();
+            if (!$user) {
+                return false;
+            }
+            $userId = (int) $user->id;
         }
 
         $this->initPermissionService();
+        if (!$this->permissionService) {
+            return false;
+        }
         return $this->permissionService->isAdmin($userId);
     }
 
@@ -631,7 +634,8 @@ abstract class BaseController extends Controller
         }
 
         // Kiosk already resolves locale explicitly per clinic context.
-        $uriPath = trim((string) $request->getUri()->getPath(), '/');
+        $uri = $request->getUri();
+        $uriPath = trim((string) ($uri instanceof \CodeIgniter\HTTP\SiteURI ? $uri->getRoutePath() : $uri->getPath()), '/');
         if (str_starts_with($uriPath, 'kiosk')) {
             $this->currentLocale = strtolower((string) $request->getLocale() ?: 'en');
             $this->isRtl = $this->localeResolver->isRtl($this->currentLocale);

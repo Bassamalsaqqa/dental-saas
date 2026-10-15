@@ -1,5 +1,14 @@
 # App API Contract
 
+## 2026-10-15 — Existing web search compatibility boundary
+
+The server-rendered UI's existing Select2 controls use GET `/api/search/{type}` for `patients`, `users`, `examinations`, `treatments`, `inventory`, `medications`, `treatment-types`, `departments`, and `roles`. Payloads reuse `/api/v1/search/*` query implementations. Users return global user IDs, constrained to active membership and account in the selected clinic.
+
+Filter order is authenticated session, validated active session clinic/membership (or genuine matching web platform impersonation in tenant mode), active subscription, then exact existing module/view permission. All failures return JSON, with no redirects/HTML. `X-Clinic-Id` and Bearer headers do not select session authority. Stale runtime API context is cleared. Global mode, forged impersonation and inactive clinics/accounts fail closed. Original main-page and drawer controls preserve application subdirectory URLs; external URLs are unchanged.
+
+This read-only search exception does not enable impersonation on `/app-api/v1/patients` mutations. Public `/api/v1/*` remains strict Bearer and independently membership-bound. Tenant user-management edits clinic role/access only; identity/password changes use owner Profile or verified self-service recovery.
+
+
 Status: active contract. Foundation and Patients Slice 1/2 are implemented.
 
 This document defines the first-party JSON API for the future React application.
@@ -851,3 +860,7 @@ React and Lovable-generated code must not assume:
 - bootstrap correctness
 - clinic switch session regeneration
 - validation error shape
+
+### P0 role eligibility at tenant resource entry (2026-10-15 review correction)
+
+`AppApiTenant` requires `PermissionService::getTenantRoleId()` eligibility, including active account, clinic, membership and correctly scoped active role; inactive, missing, foreign-clinic or platform-spoofing roles fail with JSON `tenant_context_forbidden` before resource controllers and clear stale tenant context. This does not add a tenant filter to bootstrap or clinic-switch discovery endpoints, nor authorize web impersonation on App API mutations.

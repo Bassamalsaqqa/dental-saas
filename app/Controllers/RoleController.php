@@ -44,18 +44,10 @@ class RoleController extends BaseController
                 return false;
             }
             
-            // Check if RBAC system is ready (has permissions in database)
-            $permissionCount = $this->permissionModel->countAll();
-            if ($permissionCount == 0) {
-                // RBAC not set up yet, use IonAuth
-                return $this->ionAuth->isAdmin();
-            }
-            
-            // Try RBAC first
             return $this->permissionService->canManageRoles($user->id);
-        } catch (\Exception $e) {
-            // Fallback to IonAuth during setup
-            return $this->ionAuth->isAdmin();
+        } catch (\Throwable $e) {
+            log_message('error', 'canManageRoles error: ' . $e->getMessage());
+            return false;
         }
     }
 
@@ -72,8 +64,9 @@ class RoleController extends BaseController
             if ($user) {
                 $isSuperAdmin = $this->permissionService->isSuperAdmin($user->id);
             }
-        } catch (\Exception $e) {
-            $isSuperAdmin = $this->ionAuth->isAdmin();
+        } catch (\Throwable $e) {
+            log_message('error', 'ensureControlPlane error: ' . $e->getMessage());
+            $isSuperAdmin = false;
         }
 
         // Must be Super Admin AND in global_mode (or just Super Admin for strict enforcement)

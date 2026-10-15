@@ -32,11 +32,8 @@ class ControlPlane extends BaseController
 
         $userId = $this->ionAuth->getUserId();
 
-        // Strict Super Admin Check (fallback to IonAuth admin flag)
+        // Strict Super Admin Check (genuine platform super_admin)
         $isSuperAdmin = $this->permissionService && $this->permissionService->isSuperAdmin($userId);
-        if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
-            $isSuperAdmin = true;
-        }
         if (!$isSuperAdmin) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
@@ -52,10 +49,13 @@ class ControlPlane extends BaseController
         session()->set('global_mode', true);
         
         // Clear Tenant Context
-        session()->remove('active_clinic_id');
-        session()->remove('active_clinic_role_id');
-        session()->remove('impersonated_clinic_id');
-        session()->remove('is_impersonating');
+        session()->remove([
+            'active_clinic_id',
+            'active_clinic_role_id',
+            'active_clinic_membership_id',
+            'impersonated_clinic_id',
+            'is_impersonating',
+        ]);
 
         // Regenerate Session ID for security
         session()->regenerate();
@@ -127,18 +127,18 @@ class ControlPlane extends BaseController
 
         $userId = $this->ionAuth->getUserId();
         $isSuperAdmin = $this->permissionService && $this->permissionService->isSuperAdmin($userId);
-        if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
-            $isSuperAdmin = true;
-        }
         if (!$isSuperAdmin) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
         session()->set('global_mode', true);
-        session()->remove('active_clinic_id');
-        session()->remove('active_clinic_role_id');
-        session()->remove('impersonated_clinic_id');
-        session()->remove('is_impersonating');
+        session()->remove([
+            'active_clinic_id',
+            'active_clinic_role_id',
+            'active_clinic_membership_id',
+            'impersonated_clinic_id',
+            'is_impersonating',
+        ]);
         session()->regenerate();
 
         $this->auditService->logEvent('impersonation_end', [

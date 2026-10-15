@@ -8,8 +8,11 @@ use App\Models\UserRoleModel;
 use App\Models\UserModel;
 use App\Models\ClinicUserModel;
 
+use CodeIgniter\Database\BaseConnection;
+
 class PermissionService
 {
+    protected ?BaseConnection $db = null;
     protected $permissionModel;
     protected $roleModel;
     protected $userRoleModel;
@@ -22,13 +25,101 @@ class PermissionService
         'edit' => ['update'],
     ];
 
-    public function __construct()
+    public function __construct(?BaseConnection $db = null)
     {
-        $this->permissionModel = new PermissionModel();
-        $this->roleModel = new RoleModel();
-        $this->userRoleModel = new UserRoleModel();
-        $this->userModel = new UserModel();
-        $this->clinicUserModel = new ClinicUserModel();
+        $this->db = $db ?? \Config\Database::connect();
+        $this->permissionModel = new PermissionModel($this->db);
+        $this->roleModel = new RoleModel($this->db);
+        $this->userRoleModel = new UserRoleModel($this->db);
+        $this->userModel = new UserModel($this->db);
+        $this->clinicUserModel = new ClinicUserModel($this->db);
+    }
+
+    /**
+     * Resolve active clinic ID respecting context:
+     * - Bearer API: exclusively from ApiRuntimeContext
+     * - Web: from session active_clinic_id when not in global_mode
+     */
+    public function resolveCurrentClinicId(): ?int
+    {
+        if (\App\Libraries\ApiRuntimeContext::getUserId() !== null || \App\Libraries\ApiRuntimeContext::getClinicId() !== null) {
+            return \App\Libraries\ApiRuntimeContext::getClinicId();
+        }
+
+        $session = service('session');
+        if (!$session || $session->get('global_mode') === true) {
+            return null;
+        }
+
+        $clinicId = (int) ($session->get('active_clinic_id') ?? 0);
+        return $clinicId > 0 ? $clinicId : null;
+    }
+
+    /**
+     * Get validated tenant role ID for a user in a clinic.
+     * Enforces active global user, active clinic, active membership,
+     * and role clinic_id NULL or matching clinic. Excludes super_admin spoofing.
+     */
+    public function getTenantRoleId(int $userId, int $clinicId): ?int
+    {
+        if ($userId <= 0 || $clinicId <= 0) {
+            return null;
+        }
+
+        $user = $this->userModel->find($userId);
+        if (!$user || (int) ($user['active'] ?? 0) !== 1) {
+            return null;
+        }
+
+        $clinicModel = new \App\Models\ClinicModel($this->db);
+        $clinic = $clinicModel->find($clinicId);
+        if (!$clinic || ($clinic['status'] ?? '') !== 'active') {
+            return null;
+        }
+
+        $membership = (new \App\Models\ClinicUserModel($this->db))->withoutTenantScope()
+            ->where('user_id', $userId)
+            ->where('clinic_id', $clinicId)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$membership || empty($membership['role_id'])) {
+            return null;
+        }
+
+        $roleId = (int) $membership['role_id'];
+        $role = $this->roleModel->find($roleId);
+        if (!$role || (int) ($role['is_active'] ?? 0) !== 1) {
+            return null;
+        }
+
+        // Exclude super_admin membership spoofing
+        if (($role['slug'] ?? '') === 'super_admin') {
+            return null;
+        }
+
+        $roleClinicId = $role['clinic_id'] !== null ? (int) $role['clinic_id'] : null;
+        if ($roleClinicId !== null && $roleClinicId !== $clinicId) {
+            return null;
+        }
+
+        return $roleId;
+    }
+
+    private function isActiveClinic(int $clinicId): bool
+    {
+        return $clinicId > 0 && $this->db->table('clinics')->where('id', $clinicId)->where('status', 'active')->countAllResults() === 1;
+    }
+
+    public function getSuperAdminRoleId(): ?int
+    {
+        $role = $this->roleModel
+            ->where('slug', 'super_admin')
+            ->where('clinic_id IS NULL', null, false)
+            ->where('is_active', 1)
+            ->first();
+
+        return $role ? (int) $role['id'] : null;
     }
 
     /**
@@ -36,8 +127,23 @@ class PermissionService
      */
     public function hasPermission($userId, $module, $action)
     {
-        if ($this->isSuperAdmin($userId)) {
-            return true;
+        $isApi = (\App\Libraries\ApiRuntimeContext::getUserId() !== null || \App\Libraries\ApiRuntimeContext::getClinicId() !== null);
+
+        // Platform Super Admin in Global Mode or validated WEB impersonation
+        if (!$isApi) {
+            $session = service('session');
+            $isGlobal = $session && $session->get('global_mode') === true;
+            $clinicId = $session ? (int) ($session->get('active_clinic_id') ?? 0) : 0;
+            $isImpersonating = $session && $session->get('is_impersonating') === true;
+            $impersonatedClinicId = $session ? (int) ($session->get('impersonated_clinic_id') ?? 0) : 0;
+
+            if ($isGlobal && $this->isSuperAdmin($userId)) {
+                return true;
+            }
+
+            if ($clinicId > 0 && $isImpersonating && $impersonatedClinicId === $clinicId && !$isGlobal && $this->isActiveClinic($clinicId) && $this->isSuperAdmin($userId)) {
+                return true;
+            }
         }
 
         foreach ($this->getActionCandidates($action) as $candidate) {
@@ -50,25 +156,14 @@ class PermissionService
     }
 
     /**
-     * Check user-specific permission override
+     * Check user-specific permission override.
+     * NOTE: Retained for documentation. Legacy user_permissions table lacks clinic_id
+     * and is denied as tenant authority.
      */
     protected function hasUserPermission($userId, $module, $action)
     {
-        $db = \Config\Database::connect();
-        
-        $permission = $this->permissionModel->getByModuleAction($module, $action);
-        if (!$permission) {
-            return false;
-        }
-
-        $result = $db->table('user_permissions up')
-                    ->where('up.user_id', $userId)
-                    ->where('up.permission_id', $permission['id'])
-                    ->where('up.granted', 1)
-                    ->where('(up.expires_at IS NULL OR up.expires_at > NOW())')
-                    ->countAllResults();
-
-        return $result > 0;
+        // Legacy user_permissions has no clinic_id: deny use as tenant authority
+        return false;
     }
 
     protected function hasPermissionForAction($userId, $module, $action)
@@ -79,7 +174,7 @@ class PermissionService
             }
         }
 
-        return $this->hasUserPermission($userId, $module, $action);
+        return false;
     }
 
     protected function getActionCandidates($action)
@@ -94,32 +189,59 @@ class PermissionService
 
     protected function getActiveClinicRoleId($userId)
     {
-        $session = service('session');
-        $clinicId = $session->get('active_clinic_id');
+        $clinicId = $this->resolveCurrentClinicId();
         if (!$clinicId) {
             return null;
         }
 
-        $membership = $this->clinicUserModel->getMembership($userId, $clinicId);
-        return $membership['role_id'] ?? null;
+        return $this->getTenantRoleId((int) $userId, $clinicId);
     }
 
-    protected function getEffectiveRoleIds($userId)
+    public function getEffectiveRoleIds($userId)
     {
-        $roleIds = [];
-        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
-        foreach ($userRoles as $userRole) {
-            if (!in_array($userRole['role_id'], $roleIds, true)) {
-                $roleIds[] = $userRole['role_id'];
+        $userId = (int) $userId;
+        if ($userId <= 0) {
+            return [];
+        }
+
+        $isApi = (\App\Libraries\ApiRuntimeContext::getUserId() !== null || \App\Libraries\ApiRuntimeContext::getClinicId() !== null);
+
+        if ($isApi) {
+            $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
+            if (!$clinicId) {
+                return [];
             }
+            $tenantRoleId = $this->getTenantRoleId($userId, $clinicId);
+            return $tenantRoleId ? [$tenantRoleId] : [];
         }
 
-        $clinicRoleId = $this->getActiveClinicRoleId($userId);
-        if ($clinicRoleId && !in_array($clinicRoleId, $roleIds, true)) {
-            $roleIds[] = $clinicRoleId;
+        $session = service('session');
+        $isGlobalMode = $session && $session->get('global_mode') === true;
+
+        if ($isGlobalMode) {
+            if ($this->isSuperAdmin($userId)) {
+                $superAdminRoleId = $this->getSuperAdminRoleId();
+                return $superAdminRoleId ? [$superAdminRoleId] : [];
+            }
+            return [];
         }
 
-        return $roleIds;
+        $clinicId = $session ? (int) ($session->get('active_clinic_id') ?? 0) : 0;
+        if ($clinicId <= 0) {
+            return [];
+        }
+
+        // Explicit validated WEB impersonation
+        $isImpersonating = $session->get('is_impersonating') === true;
+        $impersonatedClinicId = (int) ($session->get('impersonated_clinic_id') ?? 0);
+        if ($isImpersonating && $impersonatedClinicId === $clinicId && !$isGlobalMode && $this->isActiveClinic($clinicId) && $this->isSuperAdmin($userId)) {
+            $superAdminRoleId = $this->getSuperAdminRoleId();
+            return $superAdminRoleId ? [$superAdminRoleId] : [];
+        }
+
+        // Sole tenant authority: clinic_users.role_id
+        $tenantRoleId = $this->getTenantRoleId($userId, $clinicId);
+        return $tenantRoleId ? [$tenantRoleId] : [];
     }
 
     /**
@@ -129,7 +251,7 @@ class PermissionService
     {
         $permissions = [];
         
-        // Get role permissions (include clinic membership)
+        // Get role permissions (strictly from effective tenant role or global platform role)
         foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
             $rolePermissions = $this->roleModel->getPermissionsGrouped($roleId);
             foreach ($rolePermissions as $module => $modulePermissions) {
@@ -142,71 +264,50 @@ class PermissionService
             }
         }
 
-        // Add user-specific permissions
-        $userPermissions = $this->getUserSpecificPermissions($userId);
-        foreach ($userPermissions as $module => $modulePermissions) {
-            if (!isset($permissions[$module])) {
-                $permissions[$module] = [];
-            }
-            foreach ($modulePermissions as $permission) {
-                $permissions[$module][$permission['action']] = $permission;
-            }
-        }
-
         return $permissions;
     }
 
     /**
-     * Get user-specific permission overrides
+     * Get user-specific permission overrides.
+     * NOTE: Retained for documentation. Legacy user_permissions table lacks clinic_id
+     * and is denied as tenant authority.
      */
     protected function getUserSpecificPermissions($userId)
     {
-        $db = \Config\Database::connect();
-        
-        $permissions = $db->table('user_permissions up')
-                         ->select('p.*, up.granted, up.expires_at')
-                         ->join('permissions p', 'p.id = up.permission_id')
-                         ->where('up.user_id', $userId)
-                         ->where('up.granted', 1)
-                         ->where('(up.expires_at IS NULL OR up.expires_at > NOW())')
-                         ->get()
-                         ->getResultArray();
-
-        $grouped = [];
-        foreach ($permissions as $permission) {
-            $grouped[$permission['module']][] = $permission;
-        }
-
-        return $grouped;
+        return [];
     }
 
     /**
-     * Get user roles with permissions
+     * Get user roles with permissions for effective authority.
      */
     public function getUserRolesWithPermissions($userId)
     {
-        $userRoles = $this->userRoleModel->getUserRolesWithDetails($userId, true);
-        
-        foreach ($userRoles as &$userRole) {
-            $userRole['permissions'] = $this->roleModel->getPermissionsGrouped($userRole['id']);
+        $roles = [];
+        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
+            $role = $this->roleModel->find($roleId);
+            if ($role) {
+                $role['permissions'] = $this->roleModel->getPermissionsGrouped($roleId);
+                $roles[] = $role;
+            }
         }
 
-        return $userRoles;
+        return $roles;
     }
 
     /**
-     * Check if user has role
+     * Check if user has role.
+     * In tenant context: clinic_users.role_id is sole authority.
+     * For super_admin: requires genuine global NULL-clinic assignment.
      */
     public function hasRole($userId, $roleSlug)
     {
-        if ($this->userRoleModel->hasRole($userId, $roleSlug)) {
-            return true;
+        if ($roleSlug === 'super_admin') {
+            return $this->isSuperAdmin($userId);
         }
 
-        $clinicRoleId = $this->getActiveClinicRoleId($userId);
-        if ($clinicRoleId) {
-            $role = $this->roleModel->find($clinicRoleId);
-            if ($role && $role['slug'] === $roleSlug) {
+        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
+            $role = $this->roleModel->find($roleId);
+            if ($role && ($role['slug'] ?? '') === $roleSlug) {
                 return true;
             }
         }
@@ -215,7 +316,7 @@ class PermissionService
     }
 
     /**
-     * Check if user has any of the given roles
+     * Check if user has any of the given roles.
      */
     public function hasAnyRole($userId, $roleSlugs)
     {
@@ -223,14 +324,13 @@ class PermissionService
             return false;
         }
 
-        if ($this->userRoleModel->hasAnyRole($userId, $roleSlugs)) {
+        if (in_array('super_admin', $roleSlugs, true) && $this->isSuperAdmin($userId)) {
             return true;
         }
 
-        $clinicRoleId = $this->getActiveClinicRoleId($userId);
-        if ($clinicRoleId) {
-            $role = $this->roleModel->find($clinicRoleId);
-            if ($role && in_array($role['slug'], $roleSlugs, true)) {
+        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
+            $role = $this->roleModel->find($roleId);
+            if ($role && in_array($role['slug'] ?? '', $roleSlugs, true)) {
                 return true;
             }
         }
@@ -239,11 +339,11 @@ class PermissionService
     }
 
     /**
-     * Check if user is admin
+     * Check if user is admin (delegates to genuine super_admin check).
      */
     public function isAdmin($userId)
     {
-        return $this->hasRole($userId, 'super_admin');
+        return $this->isSuperAdmin($userId);
     }
 
     /**
@@ -251,11 +351,6 @@ class PermissionService
      */
     public function canManageUsers($userId)
     {
-        // Super Admin can manage users
-        if ($this->isSuperAdmin($userId)) {
-            return true;
-        }
-        
         return $this->hasPermission($userId, 'users', 'create') || 
                $this->hasPermission($userId, 'users', 'edit') ||
                $this->hasPermission($userId, 'users', 'delete');
@@ -266,27 +361,40 @@ class PermissionService
      */
     public function canManageRoles($userId)
     {
-        // Super Admin can manage roles
-        if ($this->isSuperAdmin($userId)) {
-            return true;
-        }
-        
         return $this->hasPermission($userId, 'users', 'roles');
     }
 
     /**
-     * Check if user is Super Admin
+     * Check if user is genuine platform Super Admin.
+     * Requires:
+     * 1. Active global user (users.active = 1)
+     * 2. Active, unexpired assignment in user_roles
+     * 3. Role must be slug='super_admin', clinic_id IS NULL, status='active'
+     * No recursion, no IonAuth group fallback, exclude spoofed clinic roles.
      */
-    public function isSuperAdmin($userId)
+    public function isSuperAdmin($userId): bool
     {
-        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
-            $role = $this->roleModel->find($roleId);
-            if ($role && $role['slug'] === 'super_admin') {
-                return true;
-            }
+        $userId = (int) $userId;
+        if ($userId <= 0) {
+            return false;
         }
 
-        return false;
+        $user = $this->userModel->find($userId);
+        if (!$user || (int) ($user['active'] ?? 0) !== 1) {
+            return false;
+        }
+
+        $db = $this->db ?? \Config\Database::connect();
+        $builder = $db->table('user_roles ur')
+            ->join('roles r', 'r.id = ur.role_id')
+            ->where('ur.user_id', $userId)
+            ->where('ur.is_active', 1)
+            ->where('r.slug', 'super_admin')
+            ->where('r.clinic_id IS NULL', null, false)
+            ->where('r.is_active', 1)
+            ->where('(ur.expires_at IS NULL OR ur.expires_at > NOW())');
+
+        return $builder->countAllResults() > 0;
     }
 
     /**
@@ -308,11 +416,19 @@ class PermissionService
     }
 
     /**
-     * Grant user-specific permission
+     * Grant user-specific permission override.
+     * NOTE: Legacy user_permissions table lacks clinic_id.
+     * Per SEC01, rows are retained in the database but denied their use or granting as tenant authority.
      */
     public function grantUserPermission($userId, $permissionId, $assignedBy, $expiresAt = null, $reason = '')
     {
-        $db = \Config\Database::connect();
+        // Deny granting as tenant authority
+        if ($this->resolveCurrentClinicId() !== null) {
+            log_message('warning', 'Direct user_permissions grant denied in tenant context for user_id={userId}', ['userId' => $userId]);
+            return false;
+        }
+
+        $db = $this->db ?? \Config\Database::connect();
         
         // Check if already exists
         $existing = $db->table('user_permissions')
@@ -347,11 +463,19 @@ class PermissionService
     }
 
     /**
-     * Revoke user-specific permission
+     * Revoke user-specific permission override.
+     * NOTE: Legacy user_permissions table lacks clinic_id.
+     * Per SEC01, rows are retained in the database but denied their use or granting as tenant authority.
      */
     public function revokeUserPermission($userId, $permissionId, $assignedBy, $reason = '')
     {
-        $db = \Config\Database::connect();
+        // Deny modifying in tenant context
+        if ($this->resolveCurrentClinicId() !== null) {
+            log_message('warning', 'Direct user_permissions revoke denied in tenant context for user_id={userId}', ['userId' => $userId]);
+            return false;
+        }
+
+        $db = $this->db ?? \Config\Database::connect();
         
         // Check if already exists
         $existing = $db->table('user_permissions')
@@ -388,7 +512,7 @@ class PermissionService
      */
     public function logPermissionChange($userId, $action, $performedBy, $roleId = null, $permissionId = null, $ipAddress = null, $userAgent = null)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db ?? \Config\Database::connect();
         
         return $db->table('permission_audit_log')
                  ->insert([
@@ -407,7 +531,7 @@ class PermissionService
      */
     public function getAuditLog($userId = null, $limit = 50)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db ?? \Config\Database::connect();
         
         $builder = $db->table('permission_audit_log pal')
                      ->select('pal.*, u.first_name, u.last_name, p.performed_by_name')

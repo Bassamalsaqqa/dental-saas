@@ -277,7 +277,7 @@ final class ControlPlaneOnboardingBehaviorTest extends CIUnitTestCase
     public function testLocalizedFailureAndRenderedOnboardingJavaScript(): void
     {
         foreach (['en', 'ar'] as $locale) {
-            $data = array_replace($this->sessionData, ['ui_locale' => $locale]);
+            $data = array_replace($this->sessionData, ['cp_ui_locale' => $locale]);
             session()->set($data);
             service('language')->setLocale($locale);
             $security = service('security');

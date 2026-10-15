@@ -1,7 +1,12 @@
-<?php $emailCheckUrl = $emailCheckUrl ?? base_url('users/check-email'); ?>
+<?php
+$emailCheckUrl = $emailCheckUrl ?? base_url('users/check-email');
+$allowExistingLink = $allowExistingLink ?? false;
+?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const endpoint = '<?= esc($emailCheckUrl) ?>';
+    const allowExistingLink = <?= json_encode((bool) $allowExistingLink) ?>;
+    const existingAccountMessage = <?= json_encode(lang('UserRole.existingAccountRestricted'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     const inputs = document.querySelectorAll('[data-user-email-check]');
     if (!inputs.length) {
         return;
@@ -68,6 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const handleExisting = (payload) => {
             togglePasswordFields(passwordFields, true);
+            if (!allowExistingLink) {
+                input.setCustomValidity(existingAccountMessage);
+                setNoteText(noteEl, existingAccountMessage);
+                return;
+            }
             if (!noteEl) return;
             const membershipDesc = describeMemberships(payload.memberships);
             let message = `Existing user${payload.name ? ` (${payload.name.trim()})` : ''} already exists.`;
@@ -84,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const checkEmail = debounce(async () => {
             const email = input.value.trim();
+            input.setCustomValidity('');
             if (!email) {
                 resetState(noteEl, passwordFields);
                 return;
@@ -98,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 const payload = await response.json();
+                if (input.value.trim() !== email) return;
                 if (payload.exists) {
                     handleExisting(payload);
                 } else {
@@ -109,7 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        input.addEventListener('input', checkEmail);
+        input.addEventListener('input', () => {
+            input.setCustomValidity('');
+            resetState(noteEl, passwordFields);
+            checkEmail();
+        });
         input.addEventListener('blur', checkEmail);
         if (input.value.trim()) {
             checkEmail();

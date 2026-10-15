@@ -6,6 +6,7 @@
     $activeUsers = (int) ($active_users ?? 0);
     $inactiveUsers = (int) ($inactive_users ?? 0);
     $assignedRoleRows = (int) ($diagnostics['total_user_roles'] ?? 0);
+    $currentUserId = (int) ($current_user->id ?? (session()->get('user_id') ?? 0));
 ?>
 <style>
     .users-hero {
@@ -252,7 +253,7 @@
             <div class="users-stat-card bg-gradient-to-br from-fuchsia-700 via-purple-700 to-indigo-700 p-5 text-white">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-[0.14em] text-fuchsia-100/80"><?= lang('UserRole.adminUsers') ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.14em] text-fuchsia-100/80"><?= lang('UserRole.roles') ?></p>
                         <p class="mt-3 text-4xl font-black"><?= $assignedRoleRows ?></p>
                     </div>
                     <div class="rounded-2xl bg-white/20 p-3"><i class="fas fa-user-shield text-xl"></i></div>
@@ -292,8 +293,8 @@
                     </select>
                     <select id="statusFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                         <option value=""><?= lang('UserRole.allStatus') ?></option>
-                        <option value="1"><?= lang('UserRole.active') ?></option>
-                        <option value="0"><?= lang('UserRole.inactive') ?></option>
+                        <option value="active"><?= lang('UserRole.active') ?></option>
+                        <option value="inactive"><?= lang('UserRole.inactive') ?></option>
                     </select>
                 </div>
             </section>
@@ -306,8 +307,11 @@
                     <?php
                         $userName = trim((string) (($user->first_name ?? '') . ' ' . ($user->last_name ?? '')));
                         $userName = $userName !== '' ? $userName : (string) ($user->email ?? lang('UserRole.unknownRole'));
-                        $userStatusText = $user->active == 1 ? lang('UserRole.active') : lang('UserRole.inactive');
-                        $userStatusClass = $user->active == 1 ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
+                        $membershipActive = ($user->membership_status ?? 'active') === 'active';
+                        $membershipStatusText = $membershipActive ? lang('UserRole.active') : lang('UserRole.inactive');
+                        $membershipStatusClass = $membershipActive ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
+                        $isGloballyDisabled = (int) ($user->active ?? 0) !== 1;
+                        $isSelf = (int) $user->id === $currentUserId;
                         $roleNames = [];
                         if (!empty($user->display_roles)) {
                             foreach ($user->display_roles as $role) {
@@ -317,7 +321,7 @@
                             }
                         }
                     ?>
-                    <article class="user-card group" data-user-card data-user-name="<?= esc(strtolower($userName), 'attr') ?>" data-user-email="<?= esc(strtolower((string) $user->email), 'attr') ?>" data-user-status="<?= (int) $user->active ?>" data-user-roles="<?= esc(strtolower(implode(' ', $roleNames)), 'attr') ?>">
+                    <article class="user-card group" data-user-card data-user-name="<?= esc(strtolower($userName), 'attr') ?>" data-user-email="<?= esc(strtolower((string) $user->email), 'attr') ?>" data-user-status="<?= esc($membershipActive ? 'active' : 'inactive') ?>" data-user-roles="<?= esc(strtolower(implode(' ', $roleNames)), 'attr') ?>">
                         <div class="p-5">
                             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                 <div class="flex min-w-0 items-start gap-4">
@@ -327,10 +331,18 @@
                                     <div class="min-w-0">
                                         <h3 class="truncate text-lg font-black text-slate-950"><?= esc($userName) ?></h3>
                                         <p class="mt-1 truncate text-sm font-bold text-slate-500" dir="ltr"><?= esc($user->email) ?></p>
-                                        <span class="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-black <?= $userStatusClass ?>">
-                                            <span class="h-1.5 w-1.5 rounded-full <?= $user->active == 1 ? 'bg-emerald-500' : 'bg-slate-500' ?>"></span>
-                                            <?= esc($userStatusText) ?>
-                                        </span>
+                                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                                            <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black <?= $membershipStatusClass ?>" title="<?= esc(lang('UserRole.membershipStatus')) ?>">
+                                                <span class="h-1.5 w-1.5 rounded-full <?= $membershipActive ? 'bg-emerald-500' : 'bg-slate-500' ?>"></span>
+                                                <?= esc($membershipStatusText) ?>
+                                            </span>
+                                            <?php if ($isGloballyDisabled): ?>
+                                                <span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-black text-rose-800 ring-1 ring-rose-200" title="<?= esc(lang('UserRole.globallyDisabledWarning')) ?>">
+                                                    <i class="fas fa-ban text-[10px]"></i>
+                                                    <?= esc(lang('UserRole.globallyDisabled')) ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="flex flex-wrap gap-2 sm:justify-end">
@@ -343,15 +355,17 @@
                                             <a href="<?= workflow_context_url('users/' . $user->id . '/edit') ?>" class="user-action-btn bg-amber-50 text-amber-700 ring-1 ring-amber-100 hover:bg-amber-100" title="<?= lang('UserRole.editUser') ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="<?= workflow_context_url('users/' . $user->id . '/change-password') ?>" class="user-action-btn bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100" title="<?= lang('UserRole.changePassword') ?>">
-                                                <i class="fas fa-key"></i>
-                                            </a>
-                                            <button onclick="toggleStatus(<?= $user->id ?>)" class="user-action-btn bg-purple-50 text-purple-700 ring-1 ring-purple-100 hover:bg-purple-100" title="<?= lang('UserRole.toggleStatus') ?>">
+                                            <?php if ($isSelf): ?>
+                                                <a href="<?= workflow_context_url('users/' . $user->id . '/change-password') ?>" class="user-action-btn bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100" title="<?= lang('UserRole.changePassword') ?>">
+                                                    <i class="fas fa-key"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <button onclick="toggleStatus(<?= (int) $user->id ?>)" <?= $isGloballyDisabled && !$membershipActive ? 'disabled aria-disabled="true"' : '' ?> class="user-action-btn bg-purple-50 text-purple-700 ring-1 ring-purple-100 hover:bg-purple-100" title="<?= lang('UserRole.toggleStatus') ?>">
                                                 <i class="fas fa-toggle-on"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <?php if (has_permission('users', 'delete') && $user->id != 1): ?>
-                                            <button onclick="deleteUser(<?= $user->id ?>)" class="user-action-btn bg-rose-50 text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100" title="<?= lang('UserRole.deleteUser') ?>">
+                                        <?php if (has_permission('users', 'delete')): ?>
+                                            <button onclick="deleteUser(<?= (int) $user->id ?>)" class="user-action-btn bg-rose-50 text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100" title="<?= lang('UserRole.removeClinicAccess') ?>">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         <?php endif; ?>
@@ -594,7 +608,7 @@ function toggleStatus(id) {
 }
 
 function deleteUser(id) {
-    if (confirm(<?= json_encode(lang('UserRole.confirmDeleteUser')) ?>)) {
+    if (confirm(<?= json_encode(lang('UserRole.confirmRemoveClinicAccess')) ?>)) {
         fetch(`<?= base_url('users') ?>/${id}`, {
             method: 'DELETE',
             headers: {

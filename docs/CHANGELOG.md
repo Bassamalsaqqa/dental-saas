@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-15 ? P0 final display correction
+
+- Control-plane user directory derives its Super Admin label from active, unexpired canonical platform RBAC rather than authentication-group membership. This changes presentation only.
+- Focused label/authority/routed regression verification: **21 tests / 196 assertions passed**. Valid platform authority without admin-group membership is labeled correctly; historical group-only, expired/inactive assignment and disabled-account cases are not labeled Super Admin. No schema or production change.
+
+## 2026-10-15 — PR #1 independent-review corrections (not deployed)
+
+- Restore strict positive-ID parsing of routed control-plane membership POSTs, localize validation/success feedback, and revalidate role clinic scope under the membership transaction lock.
+- Require canonical active account/clinic/membership/role eligibility in tenant-only web and App API gates. Web impersonation remains explicit and session-owned; App API resource gates reject it, including platform users who also have an ordinary membership. Bearer headers do not select web session authority.
+- Independently reproduce and remove an AGY draft App API impersonation regression. Targeted routed corrections pass **42 tests / 514 assertions**. The exact committed final focused-suite result is recorded in the PR follow-up; no Actions or broad suite is run.
+- Restore original LF convention in PR files with byte-equivalent normalization evidence, escape P0 flash text, and document each of the four production role differences using SELECT-only evidence. Two disabled accounts remain disabled; no automatic role/data repair, schema change or deployment. See the [active review](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
+
+## 2026-10-15 — P0 tenant identity and RBAC corrections (not deployed)
+
+- Make validated active `clinic_users.role_id` the tenant role authority; retain historical global tenant grants and unscoped overrides without allowing tenant escalation. Require active, unexpired global platform RBAC, removing authentication-group fallback and runtime auto-promotion.
+- Add checked clinic-serialized membership creation/role/status/removal transactions with actor/context validation, rollback on audit/commit failure, last-manager/designated-admin protection and isolated connection support. Refuse tenant creation against an existing identity; platform-only linking preserves identity fields.
+- Deny tenant global identity/password edits through user-management and legacy aliases. Retain Profile/recovery and verified self-password changes; display clinic access separately from global account status, in EN/AR.
+- Separate strict public Bearer authority from validated first-party session search. Reuse the original nine search queries, select user IDs explicitly, enforce JSON failures and preserve hosted subdirectories and drawer initialization.
+- Normalize permission declarations to framework-supported comma arguments; CI4.6 truncates a third colon segment. Deny malformed parser inputs and global-mode AJAX crossings.
+- Final focused verification: **204 tests / 1,676 assertions**, **36 JS URL/transport assertions**, and **37 changed/new PHP lint checks** passed; diff whitespace check passed. Existing guardrails still report the same 22 baseline matches.
+- Add behavioral/route/transaction-failure, bilingual render and URL mapping regressions. No migration/backfill or compiled asset change. See [review evidence and rollback](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md). Existing framework/dependency, guardrail and schema-parity debt remains deferred.
+
+
 ## 2026-09-25 - Isolated Test Baseline: Harness Stack Unwinding & Shared Orchestration (Run ID: 20260925-denta-plus-isolated-baseline-correction-03)
 
 - **High Harness Safety: Guaranteed Stack Unwinding & Finally Cleanup:**

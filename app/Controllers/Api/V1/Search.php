@@ -31,7 +31,7 @@ class Search extends Controller
         $this->roleModel = new RoleModel();
     }
 
-    private function getClinicIdOrError()
+    protected function getClinicIdOrError()
     {
         $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
@@ -86,8 +86,10 @@ class Search extends Controller
         $roleId = $this->request->getGet('role_id');
 
         $builder = $this->userModel
+            ->select('users.*')
             ->join('clinic_users', 'clinic_users.user_id = users.id')
             ->where('clinic_users.clinic_id', $clinicId)
+            ->where('clinic_users.status', 'active')
             ->where('users.active', 1);
 
         if ($roleId) {

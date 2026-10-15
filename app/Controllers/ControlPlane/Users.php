@@ -171,6 +171,7 @@ class Users extends BaseController
             $clinicNames[$userId][] = $clinicLabel;
         }
 
+        $permissionService = new \App\Services\PermissionService();
         foreach ($users as $user) {
             $clinicCount = $clinicCounts[$user['id']] ?? 0;
             $clinicList = $clinicNames[$user['id']] ?? [];
@@ -178,7 +179,7 @@ class Users extends BaseController
             // Determine primary role (Global > Clinic) - simplified
             // We could join user_roles, but for list view, clinic count is more relevant for CP.
             $roleLabel = 'User';
-            if ($this->ionAuth->inGroup('admin', $user['id'])) {
+            if ($permissionService->isSuperAdmin((int) $user['id'])) {
                 $roleLabel = 'Super Admin';
             } elseif ($clinicCount > 0) {
                 $roleLabel = 'Clinic Staff';
@@ -450,6 +451,15 @@ class Users extends BaseController
         return redirect()->back()->with('error', $msg);
     }
 
+    private function parsePositiveInt(mixed $value): ?int
+    {
+        if ((!is_int($value) && !is_string($value)) || !preg_match('/^[1-9][0-9]*$/D', (string) $value)) {
+            return null;
+        }
+        $id = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        return $id === false ? null : $id;
+    }
+
     /**
      * POST /controlplane/users/{id}/memberships/add
      */
@@ -461,59 +471,21 @@ class Users extends BaseController
             return redirect()->back()->with('error', 'User not found.');
         }
 
-        $clinicId = (int) $this->request->getPost('clinic_id');
-        $roleId = (int) $this->request->getPost('role_id');
-        if ($clinicId <= 0 || $roleId <= 0) {
-            return redirect()->back()->with('error', 'Clinic and role are required.');
+        $clinicId = $this->parsePositiveInt($this->request->getPost('clinic_id'));
+        $roleId = $this->parsePositiveInt($this->request->getPost('role_id'));
+        if ($clinicId === null || $roleId === null) {
+            return redirect()->back()->with('error', lang('UserRole.membershipClinicRoleRequired'));
         }
 
-        $clinic = (new ClinicModel())->find($clinicId);
-        if (!$clinic || ($clinic['status'] ?? '') !== 'active') {
-            return redirect()->back()->with('error', 'Invalid clinic selected.');
+        $actorUserId = (int) ($this->ionAuth->getUserId() ?? 0);
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->addExistingUserMembership($clinicId, $id, $roleId, $actorUserId);
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['message']);
         }
 
-        $role = $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
-        if (!$role) {
-            return redirect()->back()->with('error', 'Invalid role selected for this clinic.');
-        }
-
-        $clinicUserModel = $this->clinicUserModel();
-        $existing = $clinicUserModel
-            ->where('clinic_id', $clinicId)
-            ->where('user_id', $id)
-            ->first();
-
-        if ($existing && ($existing['status'] ?? '') === 'active') {
-            return redirect()->to(base_url('controlplane/users/' . $id))->with('error', 'User is already an active member of this clinic.');
-        }
-
-        $payload = [
-            'clinic_id' => $clinicId,
-            'user_id' => $id,
-            'role_id' => $roleId,
-            'status' => 'active',
-        ];
-
-        if ($existing) {
-            $clinicUserModel->update($existing['id'], $payload);
-            $action = 'membership_update';
-        } else {
-            $clinicUserModel->insert($payload);
-            $action = 'membership_add';
-        }
-
-        $this->auditService->logEvent($action, [
-            'route' => '/controlplane/users/' . $id . '/memberships/add',
-            'method' => 'POST',
-            'metadata' => [
-                'target_user_id' => $id,
-                'clinic_id' => $clinicId,
-                'role_id' => $roleId,
-                'role_slug' => $role['slug'] ?? null,
-            ],
-        ]);
-
-        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership saved successfully.');
+        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', $result['message']);
     }
 
     /**
@@ -533,35 +505,14 @@ class Users extends BaseController
         }
 
         $clinicId = (int) $membership['clinic_id'];
-        $role = $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
-        if (!$role) {
-            return redirect()->back()->with('error', 'Invalid role selected for this clinic.');
+        $actorUserId = (int) ($this->ionAuth->getUserId() ?? 0);
+
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->replaceRole($clinicId, $id, $roleId, $actorUserId);
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['message']);
         }
-
-        $currentRoleId = (int) ($membership['role_id'] ?? 0);
-        if ($currentRoleId !== $roleId
-            && $this->isClinicManagerRole($currentRoleId)
-            && !$this->isClinicManagerRole($roleId)
-            && $this->countActiveClinicManagers($clinicId) <= 1) {
-            return redirect()->back()->with('error', 'Cannot demote the last clinic manager.');
-        }
-
-        $clinicUserModel->update($membershipId, [
-            'role_id' => $roleId,
-            'status' => 'active',
-        ]);
-
-        $this->auditService->logEvent('membership_role_update', [
-            'route' => '/controlplane/users/' . $id . '/memberships/' . $membershipId . '/update-role',
-            'method' => 'POST',
-            'metadata' => [
-                'target_user_id' => $id,
-                'membership_id' => $membershipId,
-                'clinic_id' => $clinicId,
-                'role_id' => $roleId,
-                'role_slug' => $role['slug'] ?? null,
-            ],
-        ]);
 
         return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership role updated.');
     }
@@ -578,32 +529,14 @@ class Users extends BaseController
         }
 
         $clinicId = (int) ($membership['clinic_id'] ?? 0);
-        $activeCount = $clinicUserModel
-            ->where('clinic_id', $clinicId)
-            ->where('status', 'active')
-            ->countAllResults();
+        $actorUserId = (int) ($this->ionAuth->getUserId() ?? 0);
 
-        // Guardrail: prevent orphaning a clinic with zero active users.
-        if ($activeCount <= 1) {
-            return redirect()->back()->with('error', 'Cannot remove the last active user from this clinic.');
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->removeMembership($clinicId, $id, $actorUserId);
+
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['message']);
         }
-
-        $currentRoleId = (int) ($membership['role_id'] ?? 0);
-        if ($this->isClinicManagerRole($currentRoleId) && $this->countActiveClinicManagers($clinicId) <= 1) {
-            return redirect()->back()->with('error', 'Cannot remove the last clinic manager.');
-        }
-
-        $clinicUserModel->update($membershipId, ['status' => 'inactive']);
-
-        $this->auditService->logEvent('membership_remove', [
-            'route' => '/controlplane/users/' . $id . '/memberships/' . $membershipId . '/remove',
-            'method' => 'POST',
-            'metadata' => [
-                'target_user_id' => $id,
-                'membership_id' => $membershipId,
-                'clinic_id' => $clinicId,
-            ],
-        ]);
 
         return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership removed.');
     }

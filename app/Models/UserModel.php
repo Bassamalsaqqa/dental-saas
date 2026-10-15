@@ -122,9 +122,9 @@ class UserModel extends Model
 
     public function getUsersByClinic($clinicId)
     {
-        $db = \Config\Database::connect();
-        
         return $this->select('users.*, 
+                            clinic_users.role_id as clinic_role_id,
+                            clinic_users.status as membership_status,
                             CASE 
                                 WHEN last_login IS NULL THEN "never"
                                 WHEN last_login < DATE_SUB(NOW(), INTERVAL 30 DAY) THEN "inactive"
@@ -325,7 +325,7 @@ class UserModel extends Model
      */
     public function findByClinic($clinicId, $userId)
     {
-        return $this->select('users.*')
+        return $this->select('users.*, clinic_users.role_id as clinic_role_id, clinic_users.status as membership_status')
                     ->join('clinic_users', 'clinic_users.user_id = users.id')
                     ->where('clinic_users.clinic_id', $clinicId)
                     ->where('users.id', $userId)

@@ -47,6 +47,7 @@ class Filters extends BaseFilters
         'permission'    => \App\Filters\PermissionFilter::class,
         'csrfjson'      => \App\Filters\CsrfJson::class,
         'apiv1'         => \App\Filters\ApiV1AuthFilter::class,
+        'sessionsearch' => \App\Filters\SessionSearchFilter::class,
     ];
 
     /**
@@ -89,7 +90,7 @@ class Filters extends BaseFilters
             'forcehttps' => ['except' => ['api/*', 'api/v1/*', 'app-api/*']],
         ],
         'after' => [
-            'toolbar' => ['except' => ['api/v1/*', 'app-api/*']],
+            'toolbar' => ['except' => ['api/*', 'api/v1/*', 'app-api/*']],
             'secureheaders',
             'csrfjson' => ['except' => ['api/v1/*', 'app-api/*', 'webhooks/*']],
             // 'honeypot',

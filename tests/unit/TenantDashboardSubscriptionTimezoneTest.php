@@ -28,11 +28,24 @@ final class TenantDashboardSubscriptionTimezoneTest extends CIUnitTestCase
     private array $createdUserIds = [];
     private array $createdPlanRequestIds = [];
 
+    private ?int $dashboardFixtureGrantId = null;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->db = Database::connect();
         $this->originalTimezone = date_default_timezone_get();
+        // These subscription tests need explicit tenant-role dashboard authority.
+        // Legacy global assignments and auth groups no longer supply tenant permissions.
+        $manager = (new RoleModel())->getBySlug('practice_manager') ?: (new RoleModel())->getBySlug('clinic_admin');
+        $permission = $this->db->table('permissions')->where('module', 'dashboard')->where('action', 'view')->get()->getRowArray();
+        $this->assertNotEmpty($manager);
+        $this->assertNotEmpty($permission);
+        if (!$this->db->table('role_permissions')->where('role_id', $manager['id'])->where('permission_id', $permission['id'])->countAllResults()) {
+            $this->db->table('role_permissions')->insert(['role_id' => $manager['id'], 'permission_id' => $permission['id'], 'granted' => 1]);
+            $this->dashboardFixtureGrantId = (int) $this->db->insertID();
+        }
+
 
         $this->operator = $this->db->table('users')->select('users.*')
             ->join('user_roles', 'user_roles.user_id = users.id')
@@ -51,6 +64,9 @@ final class TenantDashboardSubscriptionTimezoneTest extends CIUnitTestCase
             $this->db->transRollback();
         }
         $this->db->resetTransStatus();
+        if ($this->dashboardFixtureGrantId !== null) {
+            $this->db->table('role_permissions')->where('id', $this->dashboardFixtureGrantId)->delete();
+        }
 
         foreach ($this->createdPlanRequestIds as $reqId) {
             $this->db->table('plan_requests')->where('id', $reqId)->delete();

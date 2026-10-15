@@ -1,5 +1,14 @@
 # DentaCare Multi-Tenant Security & Isolation Contract
 
+## 2026-10-15 P0 authority clarification
+
+- Effective tenant permissions come only from the active membership's `role_id`, requiring active global user, active clinic/membership/role, role `clinic_id` NULL (template) or matching clinic, and excluding `super_admin` as a membership role. Legacy global tenant roles/direct overrides are retained but ignored.
+- Platform authority requires active global `super_admin` role and active, unexpired global assignment. Authentication groups, numeric user IDs and session role caches cannot grant platform access. Runtime sync cannot promote group members.
+- Membership mutations authenticate the supplied actor against the session, require correct plane/clinic and exact action, reject nested transaction ownership, lock clinic before membership, revalidate under locks and atomically check writes/audit/status/commit. Existing-identity linking is global control-plane only. Clinic removal preserves other memberships and shared identity.
+- Genuine explicit web impersonation requires positive matching active/impersonated clinic, active clinic, tenant mode and genuine platform authority. Public Bearer requests must have their own eligible membership and read only `ApiRuntimeContext` authority. A session-search boundary clears stale runtime context before models/permissions and after the request.
+- Global-mode AJAX/JSON is denied from tenant surfaces. Clearing tenant context includes membership caches and impersonation fields. See [review and migration boundary](P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).
+
+
 ## Purpose
 
 This document defines the non-negotiable rules governing tenant isolation, clinic selection, authorization, storage, background jobs, and failure behavior in the **DentaCare SaaS platform**.

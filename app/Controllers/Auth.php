@@ -75,37 +75,42 @@ class Auth extends BaseController
 	}
 
 	/**
+	 * Require genuine platform Super Admin in global mode.
+	 */
+	protected function requirePlatformSuperAdmin(): ?\CodeIgniter\HTTP\RedirectResponse
+	{
+		if (!$this->ionAuth->loggedIn()) {
+			return redirect()->to('/auth/login');
+		}
+
+		$session = service('session');
+		$isGlobal = $session && $session->get('global_mode') === true;
+		$userId = (int) $this->ionAuth->getUserId();
+		$permService = service('permission');
+		if (!$permService) {
+			$permService = new \App\Services\PermissionService();
+		}
+
+		if (!$isGlobal || !$permService->isSuperAdmin($userId)) {
+			return redirect()->to('/controlplane')->with('error', 'Platform administrator access required.');
+		}
+
+		return null;
+	}
+
+	/**
 	 * Redirect if needed, otherwise display the user list
 	 *
 	 * @return string|\CodeIgniter\HTTP\RedirectResponse
 	 */
 	public function index()
 	{
-		if (! $this->ionAuth->loggedIn())
-		{
-			// redirect them to the login page
-			return redirect()->to('/auth/login');
+		$redirect = $this->requirePlatformSuperAdmin();
+		if ($redirect) {
+			return $redirect;
 		}
-		else if (! $this->ionAuth->isAdmin()) // remove this elseif if you want to enable this for non-admins
-		{
-			// redirect them to the home page because they must be an administrator to view this
-			//show_error('You must be an administrator to view this page.');
-			throw new \Exception('You must be an administrator to view this page.');
-		}
-		else
-		{
-			$this->data['title'] = lang('Auth.index_heading');
 
-			// set the flash data error message if there is one
-			$this->data['message'] = $this->validation->getErrors() ? $this->validation->listErrors($this->validationListTemplate) : $this->session->getFlashdata('message');
-			//list the users
-			$this->data['users'] = $this->ionAuth->users()->result();
-			foreach ($this->data['users'] as $k => $user)
-			{
-				$this->data['users'][$k]->groups = $this->ionAuth->getUsersGroups($user->id)->getResult();
-			}
-			return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'index', $this->data);
-		}
+		return redirect()->to('/controlplane/users');
 	}
 
 	/**
@@ -522,8 +527,12 @@ class Auth extends BaseController
 		{
 			$activation = $this->ionAuth->activate($id, $code);
 		}
-		else if ($this->ionAuth->isAdmin())
+		else
 		{
+			$redirect = $this->requirePlatformSuperAdmin();
+			if ($redirect) {
+				return $redirect;
+			}
 			$activation = $this->ionAuth->activate($id);
 		}
 
@@ -552,11 +561,9 @@ class Auth extends BaseController
 	 */
 	public function deactivate(int $id = 0)
 	{
-		if (! $this->ionAuth->loggedIn() || ! $this->ionAuth->isAdmin())
-		{
-			// redirect them to the home page because they must be an administrator to view this
-			throw new \Exception('You must be an administrator to view this page.');
-			// TODO : I think it could be nice to have a dedicated exception like '\IonAuth\Exception\NotAllowed
+		$redirect = $this->requirePlatformSuperAdmin();
+		if ($redirect) {
+			return $redirect;
 		}
 
 		$this->validation->setRule('confirm', lang('Auth.deactivate_validation_confirm_label'), 'required');
@@ -573,17 +580,14 @@ class Auth extends BaseController
 			if ($this->request->getPost('confirm') === 'yes')
 			{
 				// do we have a valid request?
-				if ($id !== $this->request->getPost('id', FILTER_VALIDATE_INT))
+				if ($id !== (int) $this->request->getPost('id'))
 				{
-					throw new \Exception(lang('Auth.error_security'));
+					$this->session->setFlashdata('message', lang('Auth.error_security'));
+					return redirect()->to('/auth');
 				}
 
-				// do we have the right userlevel?
-				if ($this->ionAuth->loggedIn() && $this->ionAuth->isAdmin())
-				{
-					$message = $this->ionAuth->deactivate($id) ? $this->ionAuth->messages() : $this->ionAuth->errors($this->validationListTemplate);
-					$this->session->setFlashdata('message', $message);
-				}
+				$message = $this->ionAuth->deactivate($id) ? $this->ionAuth->messages() : $this->ionAuth->errors($this->validationListTemplate);
+				$this->session->setFlashdata('message', $message);
 			}
 
 			// redirect them back to the auth page
@@ -598,112 +602,14 @@ class Auth extends BaseController
 	 */
 	public function create_user()
 	{
-		$this->data['title'] = lang('Auth.create_user_heading');
-
-		if (! $this->ionAuth->loggedIn() || ! $this->ionAuth->isAdmin())
-		{
-			return redirect()->to('/auth');
+		$redirect = $this->requirePlatformSuperAdmin();
+		if ($redirect) {
+			return $redirect;
 		}
 
-		$tables                        = $this->configIonAuth->tables;
-		$identityColumn                = $this->configIonAuth->identity;
-		$this->data['identity_column'] = $identityColumn;
-
-		// validate form input
-		$this->validation->setRule('first_name', lang('Auth.create_user_validation_fname_label'), 'trim|required');
-		$this->validation->setRule('last_name', lang('Auth.create_user_validation_lname_label'), 'trim|required');
-		if ($identityColumn !== 'email')
-		{
-			$this->validation->setRule('identity', lang('Auth.create_user_validation_identity_label'), 'trim|required|is_unique[' . $tables['users'] . '.' . $identityColumn . ']');
-			$this->validation->setRule('email', lang('Auth.create_user_validation_email_label'), 'trim|required|valid_email');
-		}
-		else
-		{
-			$this->validation->setRule('email', lang('Auth.create_user_validation_email_label'), 'trim|required|valid_email|is_unique[' . $tables['users'] . '.email]');
-		}
-		$this->validation->setRule('phone', lang('Auth.create_user_validation_phone_label'), 'trim');
-		$this->validation->setRule('company', lang('Auth.create_user_validation_company_label'), 'trim');
-		$this->validation->setRule('password', lang('Auth.create_user_validation_password_label'), 'required|min_length[' . $this->configIonAuth->minPasswordLength . ']|matches[password_confirm]');
-		$this->validation->setRule('password_confirm', lang('Auth.create_user_validation_password_confirm_label'), 'required');
-
-		if ($this->request->getPost() && $this->validation->withRequest($this->request)->run())
-		{
-			$email    = strtolower($this->request->getPost('email'));
-			$identity = ($identityColumn === 'email') ? $email : $this->request->getPost('identity');
-			$password = $this->request->getPost('password');
-
-			$additionalData = [
-				'first_name' => $this->request->getPost('first_name'),
-				'last_name'  => $this->request->getPost('last_name'),
-				'company'    => $this->request->getPost('company'),
-				'phone'      => $this->request->getPost('phone'),
-			];
-		}
-		if ($this->request->getPost() && $this->validation->withRequest($this->request)->run() && $this->ionAuth->register($identity, $password, $email, $additionalData))
-		{
-			// check to see if we are creating the user
-			// redirect them back to the admin page
-			$this->session->setFlashdata('message', $this->ionAuth->messages());
-			return redirect()->to('/auth');
-		}
-		else
-		{
-			// display the create user form
-			// set the flash data error message if there is one
-			$this->data['message'] = $this->validation->getErrors() ? $this->validation->listErrors($this->validationListTemplate) : ($this->ionAuth->errors($this->validationListTemplate) ? $this->ionAuth->errors($this->validationListTemplate) : $this->session->getFlashdata('message'));
-
-			$this->data['first_name'] = [
-				'name'  => 'first_name',
-				'id'    => 'first_name',
-				'type'  => 'text',
-				'value' => set_value('first_name'),
-			];
-			$this->data['last_name'] = [
-				'name'  => 'last_name',
-				'id'    => 'last_name',
-				'type'  => 'text',
-				'value' => set_value('last_name'),
-			];
-			$this->data['identity'] = [
-				'name'  => 'identity',
-				'id'    => 'identity',
-				'type'  => 'text',
-				'value' => set_value('identity'),
-			];
-			$this->data['email'] = [
-				'name'  => 'email',
-				'id'    => 'email',
-				'type'  => 'email',
-				'value' => set_value('email'),
-			];
-			$this->data['company'] = [
-				'name'  => 'company',
-				'id'    => 'company',
-				'type'  => 'text',
-				'value' => set_value('company'),
-			];
-			$this->data['phone'] = [
-				'name'  => 'phone',
-				'id'    => 'phone',
-				'type'  => 'text',
-				'value' => set_value('phone'),
-			];
-			$this->data['password'] = [
-				'name'  => 'password',
-				'id'    => 'password',
-				'type'  => 'password',
-				'value' => set_value('password'),
-			];
-			$this->data['password_confirm'] = [
-				'name'  => 'password_confirm',
-				'id'    => 'password_confirm',
-				'type'  => 'password',
-				'value' => set_value('password_confirm'),
-			];
-
-			return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'create_user', $this->data);
-		}
+		return redirect()->to('/controlplane/onboarding/clinic/create');
 	}
+
 
 	/**
 	 * Redirect a user checking if is admin
@@ -712,7 +618,7 @@ class Auth extends BaseController
 	 */
 	public function redirectUser()
 	{
-		if ($this->ionAuth->isAdmin())
+		if ($this->ionAuth->loggedIn() && (new \App\Services\PermissionService())->isSuperAdmin((int) $this->ionAuth->getUserId()))
 		{
 			return redirect()->to('/auth');
 		}
@@ -728,133 +634,14 @@ class Auth extends BaseController
 	 */
 	public function edit_user(int $id)
 	{
-		$this->data['title'] = lang('Auth.edit_user_heading');
-
-		if (! $this->ionAuth->loggedIn() || (! $this->ionAuth->isAdmin() && ! ($this->ionAuth->user()->row()->id == $id)))
-		{
-			return redirect()->to('/auth');
+		$redirect = $this->requirePlatformSuperAdmin();
+		if ($redirect) {
+			return $redirect;
 		}
 
-		$user          = $this->ionAuth->user($id)->row();
-		$groups        = $this->ionAuth->groups()->resultArray();
-		$currentGroups = $this->ionAuth->getUsersGroups($id)->getResult();
-
-		if (! empty($_POST))
-		{
-			// validate form input
-			$this->validation->setRule('first_name', lang('Auth.edit_user_validation_fname_label'), 'trim|required');
-			$this->validation->setRule('last_name', lang('Auth.edit_user_validation_lname_label'), 'trim|required');
-			$this->validation->setRule('phone', lang('Auth.edit_user_validation_phone_label'), 'trim|required');
-			$this->validation->setRule('company', lang('Auth.edit_user_validation_company_label'), 'trim|required');
-
-			// do we have a valid request?
-			if ($id !== $this->request->getPost('id', FILTER_VALIDATE_INT))
-			{
-				//show_error(lang('Auth.error_security'));
-				throw new \Exception(lang('Auth.error_security'));
-			}
-
-			// update the password if it was posted
-			if ($this->request->getPost('password'))
-			{
-				$this->validation->setRule('password', lang('Auth.edit_user_validation_password_label'), 'required|min_length[' . $this->configIonAuth->minPasswordLength . ']|matches[password_confirm]');
-				$this->validation->setRule('password_confirm', lang('Auth.edit_user_validation_password_confirm_label'), 'required');
-			}
-
-			if ($this->request->getPost() && $this->validation->withRequest($this->request)->run())
-			{
-				$data = [
-					'first_name' => $this->request->getPost('first_name'),
-					'last_name'  => $this->request->getPost('last_name'),
-					'company'    => $this->request->getPost('company'),
-					'phone'      => $this->request->getPost('phone'),
-				];
-
-				// update the password if it was posted
-				if ($this->request->getPost('password'))
-				{
-					$data['password'] = $this->request->getPost('password');
-				}
-
-				// Only allow updating groups if user is admin
-				if ($this->ionAuth->isAdmin())
-				{
-					// Update the groups user belongs to
-					$groupData = $this->request->getPost('groups');
-
-					if (! empty($groupData))
-					{
-						$this->ionAuth->removeFromGroup('', $id);
-
-						foreach ($groupData as $grp)
-						{
-							$this->ionAuth->addToGroup($grp, $id);
-						}
-					}
-				}
-
-				// check to see if we are updating the user
-				if ($this->ionAuth->update($user->id, $data))
-				{
-					$this->session->setFlashdata('message', $this->ionAuth->messages());
-				}
-				else
-				{
-					$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-				}
-				// redirect them back to the admin page if admin, or to the base url if non admin
-				return $this->redirectUser();
-			}
-		}
-
-		// display the edit user form
-
-		// set the flash data error message if there is one
-		$this->data['message'] = $this->validation->getErrors() ? $this->validation->listErrors($this->validationListTemplate) : ($this->ionAuth->errors($this->validationListTemplate) ? $this->ionAuth->errors($this->validationListTemplate) : $this->session->getFlashdata('message'));
-
-		// pass the user to the view
-		$this->data['user']          = $user;
-		$this->data['groups']        = $groups;
-		$this->data['currentGroups'] = $currentGroups;
-
-		$this->data['first_name'] = [
-			'name'  => 'first_name',
-			'id'    => 'first_name',
-			'type'  => 'text',
-			'value' => set_value('first_name', $user->first_name ?: ''),
-		];
-		$this->data['last_name'] = [
-			'name'  => 'last_name',
-			'id'    => 'last_name',
-			'type'  => 'text',
-			'value' => set_value('last_name', $user->last_name ?: ''),
-		];
-		$this->data['company'] = [
-			'name'  => 'company',
-			'id'    => 'company',
-			'type'  => 'text',
-			'value' => set_value('company', empty($user->company) ? '' : $user->company),
-		];
-		$this->data['phone'] = [
-			'name'  => 'phone',
-			'id'    => 'phone',
-			'type'  => 'text',
-			'value' => set_value('phone', empty($user->phone) ? '' : $user->phone),
-		];
-		$this->data['password'] = [
-			'name' => 'password',
-			'id'   => 'password',
-			'type' => 'password',
-		];
-		$this->data['password_confirm'] = [
-			'name' => 'password_confirm',
-			'id'   => 'password_confirm',
-			'type' => 'password',
-		];
-		$this->data['ionAuth'] = $this->ionAuth;
-
-		return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'edit_user', $this->data);
+		return redirect()->to('/controlplane/users/' . (int) $id);
 	}
+
 
 	/**
 	 * Create a new group
@@ -863,49 +650,14 @@ class Auth extends BaseController
 	 */
 	public function create_group()
 	{
-		$this->data['title'] = lang('Auth.create_group_title');
-
-		if (! $this->ionAuth->loggedIn() || ! $this->ionAuth->isAdmin())
-		{
-			return redirect()->to('/auth');
+		$redirect = $this->requirePlatformSuperAdmin();
+		if ($redirect) {
+			return $redirect;
 		}
 
-		// validate form input
-		$this->validation->setRule('group_name', lang('Auth.create_group_validation_name_label'), 'trim|required|alpha_dash');
-
-		if ($this->request->getPost() && $this->validation->withRequest($this->request)->run())
-		{
-			$newGroupId = $this->ionAuth->createGroup($this->request->getPost('group_name'), $this->request->getPost('description'));
-			if ($newGroupId)
-			{
-				// check to see if we are creating the group
-				// redirect them back to the admin page
-				$this->session->setFlashdata('message', $this->ionAuth->messages());
-				return redirect()->to('/auth');
-			}
-		}
-		else
-		{
-			// display the create group form
-			// set the flash data error message if there is one
-			$this->data['message'] = $this->validation->getErrors() ? $this->validation->listErrors($this->validationListTemplate) : ($this->ionAuth->errors($this->validationListTemplate) ? $this->ionAuth->errors($this->validationListTemplate) : $this->session->getFlashdata('message'));
-
-			$this->data['group_name'] = [
-				'name'  => 'group_name',
-				'id'    => 'group_name',
-				'type'  => 'text',
-				'value' => set_value('group_name'),
-			];
-			$this->data['description'] = [
-				'name'  => 'description',
-				'id'    => 'description',
-				'type'  => 'text',
-				'value' => set_value('description'),
-			];
-
-			return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'create_group', $this->data);
-		}
+		return redirect()->to('/controlplane/roles');
 	}
+
 
 	/**
 	 * Edit a group
@@ -916,66 +668,14 @@ class Auth extends BaseController
 	 */
 	public function edit_group(int $id = 0)
 	{
-		// bail if no group id given
-		if (! $id)
-		{
-			return redirect()->to('/auth');
+		$redirect = $this->requirePlatformSuperAdmin();
+		if ($redirect) {
+			return $redirect;
 		}
 
-		$this->data['title'] = lang('Auth.edit_group_title');
-
-		if (! $this->ionAuth->loggedIn() || ! $this->ionAuth->isAdmin())
-		{
-			return redirect()->to('/auth');
-		}
-
-		$group = $this->ionAuth->group($id)->row();
-
-		// validate form input
-		$this->validation->setRule('group_name', lang('Auth.edit_group_validation_name_label'), 'required|alpha_dash');
-
-		if ($this->request->getPost())
-		{
-			if ($this->validation->withRequest($this->request)->run())
-			{
-				$groupUpdate = $this->ionAuth->updateGroup($id, $this->request->getPost('group_name'), ['description' => $this->request->getPost('group_description')]);
-
-				if ($groupUpdate)
-				{
-					$this->session->setFlashdata('message', lang('Auth.edit_group_saved'));
-				}
-				else
-				{
-					$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-				}
-				return redirect()->to('/auth');
-			}
-		}
-
-		// set the flash data error message if there is one
-		$this->data['message'] = $this->validation->listErrors($this->validationListTemplate) ?: ($this->ionAuth->errors($this->validationListTemplate) ?: $this->session->getFlashdata('message'));
-
-		// pass the user to the view
-		$this->data['group'] = $group;
-
-		$readonly = $this->configIonAuth->adminGroup === $group->name ? 'readonly' : '';
-
-		$this->data['group_name']        = [
-			'name'    => 'group_name',
-			'id'      => 'group_name',
-			'type'    => 'text',
-			'value'   => set_value('group_name', $group->name),
-			$readonly => $readonly,
-		];
-		$this->data['group_description'] = [
-			'name'  => 'group_description',
-			'id'    => 'group_description',
-			'type'  => 'text',
-			'value' => set_value('group_description', $group->description),
-		];
-
-		return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'edit_group', $this->data);
+		return redirect()->to('/controlplane/roles');
 	}
+
 
 	private function sendForgotPasswordEmail(int $userId, string $email, $forgottenData): array
 	{

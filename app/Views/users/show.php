@@ -19,13 +19,17 @@
     $lastLoginText = $formatAccountDateTime($viewedUser->last_login ?? null, lang('UserRole.never'));
     $lastIpText = trim((string) ($viewedUser->ip_address ?? ''));
     $lastIpText = $lastIpText !== '' ? $lastIpText : lang('UserRole.na');
-    $statusText = (int) ($viewedUser->active ?? 0) === 1 ? lang('UserRole.active') : lang('UserRole.inactive');
-    $statusClass = (int) ($viewedUser->active ?? 0) === 1
+    $membershipActive = ($membership_status ?? ($viewedUser->membership_status ?? 'active')) === 'active';
+    $membershipStatusText = $membershipActive ? lang('UserRole.active') : lang('UserRole.inactive');
+    $isGloballyDisabled = (int) ($viewedUser->active ?? 0) !== 1;
+    $statusText = $membershipStatusText;
+    $statusClass = $membershipActive
         ? 'patient-hero-status patient-hero-status-active'
         : 'patient-hero-status patient-hero-status-inactive';
-    $contentStatusClass = (int) ($viewedUser->active ?? 0) === 1
+    $contentStatusClass = $membershipActive
         ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
         : 'bg-slate-100 text-slate-700 ring-slate-200';
+    $isSelf = !empty($is_self) || ((int) ($viewedUser->id ?? 0) === (int) ($current_user->id ?? 0));
     $providerSummary = $provider_finance_summary ?? [
         'payout_count' => 0,
         'gross_amount_total' => 0,
@@ -40,7 +44,7 @@
     $departments = $departments ?? [];
     $currentRoleId = (int) ($current_role_id ?? 0);
     $canEditUsers = has_permission('users', 'edit');
-    $canDeleteUsers = has_permission('users', 'delete') && (int) ($viewedUser->id ?? 0) !== 1;
+    $canDeleteUsers = has_permission('users', 'delete');
     $canViewFinance = has_permission('finance', 'view');
     $canEditFinance = has_permission('finance', 'edit');
     $departmentKey = (string) ($viewedUser->department ?? '');
@@ -1689,10 +1693,10 @@
                     <div class="w-full space-y-2 xl:w-[21rem]">
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if ($canEditUsers): ?>
-                                <button type="button" onclick="openInlineModal('editUserModal')" class="patient-header-action patient-header-action-primary">
+                                <a href="<?= workflow_context_url('users/' . (int) $viewedUser->id . '/edit') ?>" class="patient-header-action patient-header-action-primary">
                                     <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UserRole.editUser')) ?></span>
-                                </button>
+                                </a>
                             <?php endif; ?>
                             <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
@@ -1711,15 +1715,17 @@
                                 </a>
                             </div>
                         <?php endif; ?>
-                        <div class="grid gap-2 sm:grid-cols-2">
+                        <div class="grid gap-2 <?= $isSelf ? 'sm:grid-cols-2' : 'sm:grid-cols-1' ?>">
                             <?php if ($canEditUsers): ?>
-                                <button type="button" onclick="openInlineModal('passwordModal')" class="patient-hero-clinical-button">
-                                    <i class="fas fa-key"></i>
-                                    <span><?= esc(lang('UserRole.changePassword')) ?></span>
-                                </button>
-                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" class="user-inline-toggle <?= (int) ($viewedUser->active ?? 0) === 1 ? 'is-active' : '' ?>">
+                                <?php if ($isSelf): ?>
+                                    <a href="<?= workflow_context_url('users/' . (int) $viewedUser->id . '/change-password') ?>" class="patient-hero-clinical-button">
+                                        <i class="fas fa-key"></i>
+                                        <span><?= esc(lang('UserRole.changePassword')) ?></span>
+                                    </a>
+                                <?php endif; ?>
+                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" <?= $isGloballyDisabled && !$membershipActive ? 'disabled aria-disabled="true"' : '' ?> class="user-inline-toggle <?= $membershipActive ? 'is-active' : '' ?>">
                                     <span class="user-inline-toggle-track" aria-hidden="true"></span>
-                                    <span><?= esc(((int) ($viewedUser->active ?? 0) === 1 ? lang('UserRole.deactivate') : lang('UserRole.activate')) . ' ' . lang('UserRole.user')) ?></span>
+                                    <span><?= esc(($membershipActive ? lang('UserRole.deactivate') : lang('UserRole.activate')) . ' ' . lang('UserRole.clinicAccess')) ?></span>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -1727,7 +1733,7 @@
                             <div class="grid gap-2 sm:grid-cols-1">
                                 <button type="button" onclick="deleteUser(<?= (int) $viewedUser->id ?>)" class="patient-header-action patient-header-action-danger">
                                     <i class="fas fa-trash"></i>
-                                    <span><?= esc(lang('UserRole.deleteUser')) ?></span>
+                                    <span><?= esc(lang('UserRole.removeClinicAccess')) ?></span>
                                 </button>
                             </div>
                         <?php endif; ?>
@@ -1771,6 +1777,8 @@
                 </div>
             </section>
 
+            <p class="rounded-xl bg-blue-50 p-4 text-sm text-blue-900"><?= esc(lang('UserRole.identityManagedByOwner')) ?> <a href="<?= base_url('profile') ?>" class="underline"><?= esc(lang('UserRole.profileRedirectNotice')) ?></a></p>
+            <?php if ($isGloballyDisabled): ?><p class="rounded-xl bg-rose-50 p-4 text-sm text-rose-900"><?= esc(lang('UserRole.globallyDisabledWarning')) ?></p><?php endif; ?>
             <div class="user-workspace-section space-y-6">
             <div class="user-profile-grid">
                 <section class="user-section-card user-section-card-roles">
@@ -1831,13 +1839,13 @@
                     <div class="user-section-body">
                         <div class="user-action-list">
                             <?php if ($canEditUsers): ?>
-                                <button type="button" onclick="openInlineModal('editUserModal')" class="user-action-row user-action-row-modal">
+                                <a href="<?= workflow_context_url('users/' . (int) $viewedUser->id . '/edit') ?>" class="user-action-row">
                                     <span class="user-action-row-main">
                                         <span class="user-action-row-title"><i class="fas fa-pen text-sky-500"></i><?= esc(lang('UserRole.editUser')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></span>
                                     </span>
-                                    <span class="user-action-row-icon"><i class="fas fa-window-restore"></i></span>
-                                </button>
+                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right user-action-row-arrow"></i></span>
+                                </a>
                                 <button type="button" onclick="openInlineModal('roleModal')" class="user-action-row user-action-row-modal">
                                     <span class="user-action-row-main">
                                         <span class="user-action-row-title"><i class="fas fa-user-tag text-indigo-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></span>
@@ -1845,13 +1853,22 @@
                                     </span>
                                     <span class="user-action-row-icon"><i class="fas fa-window-restore"></i></span>
                                 </button>
-                                <button type="button" onclick="openInlineModal('passwordModal')" class="user-action-row user-action-row-modal">
-                                    <span class="user-action-row-main">
-                                        <span class="user-action-row-title"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
-                                        <span class="user-action-row-copy"><?= esc(lang('UserRole.changePassword')) ?></span>
-                                    </span>
-                                    <span class="user-action-row-icon"><i class="fas fa-window-restore"></i></span>
-                                </button>
+                                <?php if ($isSelf): ?>
+                                    <a href="<?= workflow_context_url('users/' . (int) $viewedUser->id . '/change-password') ?>" class="user-action-row">
+                                        <span class="user-action-row-main">
+                                            <span class="user-action-row-title"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
+                                            <span class="user-action-row-copy"><?= esc(lang('UserRole.changePassword')) ?></span>
+                                        </span>
+                                        <span class="user-action-row-icon"><i class="fas fa-arrow-right user-action-row-arrow"></i></span>
+                                    </a>
+                                <?php else: ?>
+                                    <div class="user-action-row opacity-80 cursor-default">
+                                        <span class="user-action-row-main">
+                                            <span class="user-action-row-title"><i class="fas fa-shield-alt text-slate-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
+                                            <span class="user-action-row-copy"><?= esc(lang('UserRole.cannotResetOtherUserPassword')) ?></span>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                             <?php if ($canViewFinance): ?>
                                 <a href="<?= base_url('finance/payouts') ?>" class="user-action-row">
@@ -2115,70 +2132,6 @@
             </div>
 
 <?php if ($canEditUsers): ?>
-    <div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="user-inline-modal-backdrop fixed inset-0"></div>
-        <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeInlineModal('editUserModal')">
-            <div class="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
-                <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-                    <div>
-                        <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('UserRole.editUser')) ?></h4>
-                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></p>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeInlineModal('editUserModal')">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-                <form id="inlineEditUserForm" class="space-y-5 p-6">
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label for="inlineFirstNameInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.firstName')) ?></label>
-                            <input type="text" id="inlineFirstNameInput" name="first_name" value="<?= esc((string) ($viewedUser->first_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                        </div>
-                        <div>
-                            <label for="inlineLastNameInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.lastName')) ?></label>
-                            <input type="text" id="inlineLastNameInput" name="last_name" value="<?= esc((string) ($viewedUser->last_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label for="inlineEmailInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.email')) ?></label>
-                            <input type="email" id="inlineEmailInput" name="email" value="<?= esc((string) ($viewedUser->email ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                        </div>
-                        <div>
-                            <label for="inlinePhoneInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.phone')) ?></label>
-                            <input type="text" id="inlinePhoneInput" name="phone" value="<?= esc((string) ($viewedUser->phone ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label for="inlineDepartmentSelect" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.department')) ?></label>
-                            <select id="inlineDepartmentSelect" name="department" class="user-modal-select w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('UserRole.selectDepartment')) ?>" data-allow-clear="true">
-                                <option value=""><?= esc(lang('UserRole.selectDepartment')) ?></option>
-                                <?php foreach ($departments as $departmentKey => $departmentName): ?>
-                                    <option value="<?= esc($departmentKey) ?>" <?= (($viewedUser->department ?? '') === $departmentKey) ? 'selected' : '' ?>><?= esc($departmentName) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="inlineHireDateInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(preg_replace('/\s+(Required|مطلوب)$/u', '', (string) lang('UserRole.hireDateRequired'))) ?></label>
-                            <input type="text" id="inlineHireDateInput" name="hire_date" data-clinic-date="1" value="<?= esc((string) ($viewedUser->hire_date ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap justify-end gap-2 pt-2">
-                        <button type="button" onclick="closeInlineModal('editUserModal')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                            <i class="fas fa-times text-xs"></i>
-                            <span><?= esc(lang('UserRole.cancel')) ?></span>
-                        </button>
-                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
-                            <i class="fas fa-save text-xs"></i>
-                            <span><?= esc(lang('UserRole.updateUser')) ?></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div id="roleModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="user-inline-modal-backdrop fixed inset-0"></div>
         <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeInlineModal('roleModal')">
@@ -2217,42 +2170,6 @@
         </div>
     </div>
 
-    <div id="passwordModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="user-inline-modal-backdrop fixed inset-0"></div>
-        <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeInlineModal('passwordModal')">
-            <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
-                <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-                    <div>
-                        <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('UserRole.changePassword')) ?></h4>
-                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.passwordRequirements')) ?></p>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeInlineModal('passwordModal')">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-                <form id="inlinePasswordForm" class="space-y-5 p-6">
-                    <div>
-                        <label for="inlineNewPasswordInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.newPassword')) ?></label>
-                        <input type="password" id="inlineNewPasswordInput" name="new_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                    </div>
-                    <div>
-                        <label for="inlineConfirmPasswordInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.confirmNewPassword')) ?></label>
-                        <input type="password" id="inlineConfirmPasswordInput" name="confirm_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                    </div>
-                    <div class="flex flex-wrap justify-end gap-2 pt-2">
-                        <button type="button" onclick="closeInlineModal('passwordModal')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                            <i class="fas fa-times text-xs"></i>
-                            <span><?= esc(lang('UserRole.cancel')) ?></span>
-                        </button>
-                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
-                            <i class="fas fa-key text-xs"></i>
-                            <span><?= esc(lang('UserRole.changePassword')) ?></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 <?php endif; ?>
 
 <?php if ($canEditFinance): ?>
@@ -2342,7 +2259,7 @@ function closeInlineModal(id) {
 }
 
 function closeOpenUserModals() {
-    ['editUserModal', 'roleModal', 'passwordModal'].forEach((id) => {
+    ['roleModal'].forEach((id) => {
         const modal = document.getElementById(id);
         if (modal && !modal.classList.contains('hidden')) {
             closeInlineModal(id);
@@ -2411,7 +2328,7 @@ function toggleStatus(id) {
 }
 
 function deleteUser(id) {
-    if (!confirm(<?= json_encode(lang('UserRole.confirmDeleteUser')) ?>)) {
+    if (!confirm(<?= json_encode(lang('UserRole.confirmRemoveClinicAccess')) ?>)) {
         return;
     }
 
@@ -2475,15 +2392,6 @@ function submitInlineUserForm(formId, url, successMessage, onSuccess) {
     });
 }
 
-submitInlineUserForm(
-    'inlineEditUserForm',
-    `<?= base_url('users/' . (int) $viewedUser->id . '/inline-update') ?>`,
-    <?= json_encode('User updated successfully') ?>,
-    () => {
-        closeInlineModal('editUserModal');
-        location.reload();
-    }
-);
 
 submitInlineUserForm(
     'inlineRoleForm',
@@ -2495,15 +2403,6 @@ submitInlineUserForm(
     }
 );
 
-submitInlineUserForm(
-    'inlinePasswordForm',
-    `<?= base_url('users/' . (int) $viewedUser->id . '/inline-reset-password') ?>`,
-    <?= json_encode('Password updated successfully') ?>,
-    () => {
-        closeInlineModal('passwordModal');
-        document.getElementById('inlinePasswordForm')?.reset();
-    }
-);
 <?php endif; ?>
 
 <?php if ($canEditFinance): ?>

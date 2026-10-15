@@ -149,37 +149,11 @@ class PermissionSyncService
 
     /**
      * Assign admin user to Super Admin role
+     * Note: Runtime sync must not auto-promote group1 to platform, preserving schema with admin_assigned=0.
      */
     protected function assignAdminToSuperAdmin()
     {
-        try {
-            // Get Super Admin role
-            $superAdminRole = $this->roleModel->getBySlug('super_admin', null);
-            if (!$superAdminRole) {
-                return false;
-            }
-            
-            // Get admin users (users in admin group)
-            $ionAuth = new \App\Libraries\IonAuth();
-            $adminUsers = $ionAuth->users(1)->result(); // Group ID 1 is typically admin
-            
-            $assignedCount = 0;
-            foreach ($adminUsers as $adminUser) {
-                // Check if user already has Super Admin role
-                $hasRole = $this->userRoleModel->hasRole($adminUser->id, 'super_admin');
-                
-                if (!$hasRole) {
-                    // Assign Super Admin role to admin user
-                    $this->userRoleModel->assignRole($adminUser->id, $superAdminRole['id'], $adminUser->id, null);
-                    $assignedCount++;
-                }
-            }
-            
-            return $assignedCount;
-        } catch (\Exception $e) {
-            log_message('error', 'Failed to assign admin to Super Admin role: ' . $e->getMessage());
-            return false;
-        }
+        return 0;
     }
 
     /**
