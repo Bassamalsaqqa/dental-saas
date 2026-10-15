@@ -171,6 +171,7 @@ class Users extends BaseController
             $clinicNames[$userId][] = $clinicLabel;
         }
 
+        $permissionService = new \App\Services\PermissionService();
         foreach ($users as $user) {
             $clinicCount = $clinicCounts[$user['id']] ?? 0;
             $clinicList = $clinicNames[$user['id']] ?? [];
@@ -178,7 +179,7 @@ class Users extends BaseController
             // Determine primary role (Global > Clinic) - simplified
             // We could join user_roles, but for list view, clinic count is more relevant for CP.
             $roleLabel = 'User';
-            if ($this->ionAuth->inGroup('admin', $user['id'])) {
+            if ($permissionService->isSuperAdmin((int) $user['id'])) {
                 $roleLabel = 'Super Admin';
             } elseif ($clinicCount > 0) {
                 $roleLabel = 'Clinic Staff';

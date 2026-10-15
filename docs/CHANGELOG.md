@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-15 ? P0 final display correction
+
+- Control-plane user directory derives its Super Admin label from active, unexpired canonical platform RBAC rather than authentication-group membership. This changes presentation only.
+- Focused label/authority/routed regression verification: **21 tests / 196 assertions passed**. Valid platform authority without admin-group membership is labeled correctly; historical group-only, expired/inactive assignment and disabled-account cases are not labeled Super Admin. No schema or production change.
+
 ## 2026-10-15 — PR #1 independent-review corrections (not deployed)
 
 - Restore strict positive-ID parsing of routed control-plane membership POSTs, localize validation/success feedback, and revalidate role clinic scope under the membership transaction lock.
