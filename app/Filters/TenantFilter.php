@@ -24,41 +24,47 @@ class TenantFilter implements FilterInterface
     {
         $session = service('session');
         $path = $request->getUri()->getPath();
+        $pathOnly = trim($path, '/');
+        $isControlPlane = str_starts_with($pathOnly, 'controlplane');
+
         $isApi = strpos($path, '/api/') !== false 
             || str_starts_with($path, 'api/') 
             || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
 
-        // CP-03: Airlock routing - Web requests in global_mode fail-closed with 404
+        // CP-03: Airlock routing - requests in global_mode fail-closed for ALL tenant resources
         if ($session->get('global_mode') === true) {
-            $isApiOrAjax = $request->isAJAX() || $isApi;
-            
-            if (!$isApiOrAjax) {
-                // Allow Control Plane surfaces in global mode
-                if (str_starts_with(trim($path, '/'), 'controlplane')) {
-                    return null;
-                }
-                
-                // UX: Redirect common tenant routes to their control plane equivalents if available
-                $pathOnly = trim($path, '/');
-                if ($pathOnly === 'roles') {
-                    return redirect()->to('/controlplane/roles');
-                }
-
-                if ($pathOnly === '') {
-                    return redirect()->to('/controlplane/dashboard');
-                }
-                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+            if ($isControlPlane) {
+                return null;
             }
+
+            $isApiOrAjax = $request->isAJAX() || $isApi;
+            if ($isApiOrAjax) {
+                return service('response')->setStatusCode(403)->setJSON([
+                    'error' => [
+                        'code' => 'forbidden',
+                        'message' => 'Global mode cannot access tenant resources.',
+                    ],
+                ]);
+            }
+
+            // UX: Redirect common tenant routes to their control plane equivalents if available
+            if ($pathOnly === 'roles') {
+                return redirect()->to('/controlplane/roles');
+            }
+
+            if ($pathOnly === '') {
+                return redirect()->to('/controlplane/dashboard');
+            }
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
         $activeClinicId = $session->get('active_clinic_id');
 
         // 1. Missing Context
-        if (!$activeClinicId) {
+        if (!$activeClinicId || (int) $activeClinicId <= 0) {
             // Detect API/AJAX
             if ($request->isAJAX() || $isApi) {
-                 $response = service('response');
-                 return $response->setStatusCode(422)->setJSON([
+                 return service('response')->setStatusCode(422)->setJSON([
                      'error' => [
                          'code' => 'tenant_context_missing',
                          'message' => 'Tenant context required.'
@@ -68,6 +74,8 @@ class TenantFilter implements FilterInterface
             return redirect()->to('/clinic/select');
         }
 
+        $activeClinicId = (int) $activeClinicId;
+
         // 2. Validate Membership
         $db = \Config\Database::connect();
         // Use IonAuth strictly for user ID
@@ -76,8 +84,7 @@ class TenantFilter implements FilterInterface
 
         if (!$userId) {
             if ($request->isAJAX() || $isApi) {
-                $response = service('response');
-                return $response->setStatusCode(401)->setJSON([
+                return service('response')->setStatusCode(401)->setJSON([
                     'error' => [
                         'code' => 'unauthenticated',
                         'message' => 'Authentication required.'
@@ -85,6 +92,38 @@ class TenantFilter implements FilterInterface
                 ]);
             }
              return redirect()->to('/auth/login');
+        }
+
+        $userId = (int) $userId;
+
+        // Validate active global user
+        $userRow = $db->table('users')->where('id', $userId)->where('active', 1)->get()->getRowArray();
+        if (!$userRow) {
+            $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
+            if ($request->isAJAX() || $isApi) {
+                return service('response')->setStatusCode(401)->setJSON([
+                    'error' => [
+                        'code' => 'unauthenticated',
+                        'message' => 'User account is inactive or disabled.'
+                    ]
+                ]);
+            }
+            return redirect()->to('/auth/login');
+        }
+
+        // Validate active clinic
+        $clinicRow = $db->table('clinics')->where('id', $activeClinicId)->where('status', 'active')->get()->getRowArray();
+        if (!$clinicRow) {
+            $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
+            if ($request->isAJAX() || $isApi) {
+                return service('response')->setStatusCode(403)->setJSON([
+                    'error' => [
+                        'code' => 'tenant_context_forbidden',
+                        'message' => 'Clinic is suspended or inactive.'
+                    ]
+                ]);
+            }
+            return redirect()->to('/clinic/select');
         }
 
         $membership = $db->table('clinic_users')
@@ -95,8 +134,8 @@ class TenantFilter implements FilterInterface
             ->getRowArray();
 
         $isImpersonating = $session->get('is_impersonating') === true;
-        $impersonatedClinicId = $session->get('impersonated_clinic_id');
-        if (!$membership && $isImpersonating && $impersonatedClinicId && (string) $impersonatedClinicId === (string) $activeClinicId) {
+        $impersonatedClinicId = (int) ($session->get('impersonated_clinic_id') ?? 0);
+        if (!$membership && $isImpersonating && $impersonatedClinicId > 0 && $impersonatedClinicId === $activeClinicId && $session->get('global_mode') !== true) {
             $permissionService = service('permission');
             if (!$permissionService) {
                 $permissionService = new \App\Services\PermissionService();
@@ -113,11 +152,10 @@ class TenantFilter implements FilterInterface
 
         // 3. Invalid Context
         if (!$membership) {
-            $session->remove(['active_clinic_id', 'active_clinic_role_id']);
+            $session->remove(['active_clinic_id', 'active_clinic_role_id', 'active_clinic_membership_id']);
             
             if ($request->isAJAX() || $isApi) {
-                 $response = service('response');
-                 return $response->setStatusCode(403)->setJSON([
+                 return service('response')->setStatusCode(403)->setJSON([
                      'error' => [
                          'code' => 'tenant_context_forbidden',
                          'message' => 'Access denied to this clinic.'

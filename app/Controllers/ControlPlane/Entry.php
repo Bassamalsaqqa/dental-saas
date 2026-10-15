@@ -36,9 +36,6 @@ class Entry extends BaseController
         }
 
         $isSuperAdmin = $permissionService->isSuperAdmin($userId);
-        if (!$isSuperAdmin && $ionAuth->isAdmin()) {
-            $isSuperAdmin = true;
-        }
         if (!$isSuperAdmin) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }

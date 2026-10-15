@@ -6,14 +6,32 @@ use App\Services\PermissionSyncService;
 
 class SyncController extends BaseController
 {
+    private function checkPlatformAccess(): bool
+    {
+        if (!$this->isLoggedIn()) {
+            return false;
+        }
+
+        $user = $this->getCurrentUser();
+        if (!$user) {
+            return false;
+        }
+
+        $this->initPermissionService();
+        if (!$this->permissionService || !$this->permissionService->isSuperAdmin($user->id)) {
+            return false;
+        }
+
+        return session()->get('global_mode') === true;
+    }
+
     /**
      * Sync permissions from config to database
      */
     public function sync()
     {
-        // Check if user is admin using IonAuth (fallback for initial setup)
-        if (!$this->ionAuth->isAdmin()) {
-            return redirect()->to('/dashboard')->with('error', 'You must be an administrator to sync permissions.');
+        if (!$this->checkPlatformAccess()) {
+            return redirect()->to('/dashboard')->with('error', 'You must be a platform administrator in global mode to sync permissions.');
         }
 
         try {
@@ -39,9 +57,8 @@ class SyncController extends BaseController
      */
     public function status()
     {
-        // Check if user is admin using IonAuth (fallback for initial setup)
-        if (!$this->ionAuth->isAdmin()) {
-            return $this->response->setJSON(['error' => 'Permission denied']);
+        if (!$this->checkPlatformAccess()) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Permission denied']);
         }
 
         try {
@@ -65,9 +82,8 @@ class SyncController extends BaseController
      */
     public function init()
     {
-        // Check if user is admin using IonAuth (fallback for initial setup)
-        if (!$this->ionAuth->isAdmin()) {
-            return redirect()->to('/dashboard')->with('error', 'You must be an administrator to initialize RBAC.');
+        if (!$this->checkPlatformAccess()) {
+            return redirect()->to('/dashboard')->with('error', 'You must be a platform administrator in global mode to initialize RBAC.');
         }
 
         try {

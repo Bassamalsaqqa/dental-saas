@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-15 — P0 tenant identity and RBAC corrections (not deployed)
+
+- Make validated active `clinic_users.role_id` the tenant role authority; retain historical global tenant grants and unscoped overrides without allowing tenant escalation. Require active, unexpired global platform RBAC, removing authentication-group fallback and runtime auto-promotion.
+- Add checked clinic-serialized membership creation/role/status/removal transactions with actor/context validation, rollback on audit/commit failure, last-manager/designated-admin protection and isolated connection support. Refuse tenant creation against an existing identity; platform-only linking preserves identity fields.
+- Deny tenant global identity/password edits through user-management and legacy aliases. Retain Profile/recovery and verified self-password changes; display clinic access separately from global account status, in EN/AR.
+- Separate strict public Bearer authority from validated first-party session search. Reuse the original nine search queries, select user IDs explicitly, enforce JSON failures and preserve hosted subdirectories and drawer initialization.
+- Normalize permission declarations to framework-supported comma arguments; CI4.6 truncates a third colon segment. Deny malformed parser inputs and global-mode AJAX crossings.
+- Final focused verification: **204 tests / 1,676 assertions**, **36 JS URL/transport assertions**, and **37 changed/new PHP lint checks** passed; diff whitespace check passed. Existing guardrails still report the same 22 baseline matches.
+- Add behavioral/route/transaction-failure, bilingual render and URL mapping regressions. No migration/backfill or compiled asset change. See [review evidence and rollback](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md). Existing framework/dependency, guardrail and schema-parity debt remains deferred.
+
+
 ## 2026-09-25 - Isolated Test Baseline: Harness Stack Unwinding & Shared Orchestration (Run ID: 20260925-denta-plus-isolated-baseline-correction-03)
 
 - **High Harness Safety: Guaranteed Stack Unwinding & Finally Cleanup:**

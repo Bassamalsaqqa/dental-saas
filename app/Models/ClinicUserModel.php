@@ -103,4 +103,16 @@ class ClinicUserModel extends TenantAwareModel
             ->get()
             ->getResultArray();
     }
+    public function getMembershipStatsByClinic(int $clinicId): array
+    {
+        if ($clinicId <= 0) {
+            throw new \InvalidArgumentException('A clinic is required for membership statistics.');
+        }
+        $total = $this->db->table('clinic_users')->where('clinic_id', $clinicId)->countAllResults();
+        $active = $this->db->table('clinic_users')->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults();
+        $byRole = $this->db->table('clinic_users cu')->select('r.name, count(cu.id) as count')
+            ->join('roles r', 'r.id = cu.role_id')->where('cu.clinic_id', $clinicId)
+            ->groupBy('r.id, r.name')->get()->getResultArray();
+        return ['total' => $total, 'active' => $active, 'inactive' => $total - $active, 'by_group' => $byRole];
+    }
 }

@@ -1,5 +1,12 @@
 # API Contract v1 (Stateless)
 
+## 2026-10-15 — Public Bearer authority hardening
+
+`/api/v1/*` requires a valid Bearer token owned by an active global account and strict positive-decimal `X-Clinic-Id`. Zero, signs, fractions, scientific notation and overflow are rejected. The clinic, membership and tenant role must be active and eligible for that clinic; subscription and exact route permission are enforced. Browser cookies, session clinic and web impersonation cannot supply missing membership or platform bypass. Authorization failure is JSON; runtime context is cleared on denial and after the request. Unavailable authorization returns JSON 503 rather than preserving stale authority.
+
+Tenant authority is `clinic_users.role_id`; historical global tenant roles and unscoped overrides cannot extend it. Route filter declarations use supported comma-separated `permission:module,action`. Public search payloads remain unchanged. First-party web controls now use `/api/search/*` with session authority; this does not broaden public API delegation or existing app API patient CRUD impersonation.
+
+
 Status: Active
 Scope: `/api/v1/*`
 Authority: This contract is the source of truth for v1 behavior.

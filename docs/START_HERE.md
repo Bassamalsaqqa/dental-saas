@@ -45,3 +45,5 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 ## Historical Material
 
 The working tree intentionally contains no documentation archive. Use Git history only when historical evidence is necessary, then confirm every conclusion against this active map and current code.
+
+- [P0 identity/RBAC review, deployment boundary and rollback (2026-10-15)](SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md) — review branch evidence; not a deployment authorization.

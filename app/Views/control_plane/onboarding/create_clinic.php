@@ -464,5 +464,5 @@ $errorMessage = session('error');
         </form>
     </div>
 </div>
-<?= view('components/email_check_script', ['emailCheckUrl' => base_url('controlplane/onboarding/check-email')]) ?>
+<?= view('components/email_check_script', ['emailCheckUrl' => base_url('controlplane/onboarding/check-email'), 'allowExistingLink' => true]) ?>
 <?= $this->endSection() ?>

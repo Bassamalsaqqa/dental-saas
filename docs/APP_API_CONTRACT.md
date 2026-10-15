@@ -1,5 +1,14 @@
 # App API Contract
 
+## 2026-10-15 — Existing web search compatibility boundary
+
+The server-rendered UI's existing Select2 controls use GET `/api/search/{type}` for `patients`, `users`, `examinations`, `treatments`, `inventory`, `medications`, `treatment-types`, `departments`, and `roles`. Payloads reuse `/api/v1/search/*` query implementations. Users return global user IDs, constrained to active membership and account in the selected clinic.
+
+Filter order is authenticated session, validated active session clinic/membership (or genuine matching web platform impersonation in tenant mode), active subscription, then exact existing module/view permission. All failures return JSON, with no redirects/HTML. `X-Clinic-Id` and Bearer headers do not select session authority. Stale runtime API context is cleared. Global mode, forged impersonation and inactive clinics/accounts fail closed. Original main-page and drawer controls preserve application subdirectory URLs; external URLs are unchanged.
+
+This read-only search exception does not enable impersonation on `/app-api/v1/patients` mutations. Public `/api/v1/*` remains strict Bearer and independently membership-bound. Tenant user-management edits clinic role/access only; identity/password changes use owner Profile or verified self-service recovery.
+
+
 Status: active contract. Foundation and Patients Slice 1/2 are implemented.
 
 This document defines the first-party JSON API for the future React application.

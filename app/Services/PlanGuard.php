@@ -12,6 +12,7 @@ use App\Models\FileAttachmentModel;
 
 class PlanGuard
 {
+    protected \CodeIgniter\Database\BaseConnection $db;
     protected $planModel;
     protected $subscriptionModel;
     protected $usageModel;
@@ -25,15 +26,16 @@ class PlanGuard
     const PLAN_FEATURE_DISABLED = 'PLAN_FEATURE_DISABLED';
     const PLAN_QUOTA_EXCEEDED = 'PLAN_QUOTA_EXCEEDED';
 
-    public function __construct()
+    public function __construct(?\CodeIgniter\Database\BaseConnection $db = null)
     {
-        $this->planModel = new PlanModel();
-        $this->subscriptionModel = new ClinicSubscriptionModel();
-        $this->usageModel = new PlanUsageModel();
-        $this->auditModel = new PlanAuditModel();
-        $this->patientModel = new PatientModel();
-        $this->clinicUserModel = new ClinicUserModel();
-        $this->fileAttachmentModel = new FileAttachmentModel();
+        $this->db = $db ?? \Config\Database::connect();
+        $this->planModel = new PlanModel($this->db);
+        $this->subscriptionModel = new ClinicSubscriptionModel($this->db);
+        $this->usageModel = new PlanUsageModel($this->db);
+        $this->auditModel = new PlanAuditModel($this->db);
+        $this->patientModel = new PatientModel($this->db);
+        $this->clinicUserModel = new ClinicUserModel($this->db);
+        $this->fileAttachmentModel = new FileAttachmentModel($this->db);
     }
 
     /**
@@ -72,7 +74,7 @@ class PlanGuard
      */
     public function assertSubscriptionActive(int $clinicId)
     {
-        $subModel = new ClinicSubscriptionModel();
+        $subModel = new ClinicSubscriptionModel($this->db);
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
         if ($sub) {
             $sub = $subModel->markExpiredIfNeeded($sub);
@@ -273,7 +275,7 @@ class PlanGuard
 
     private function getClinicPlan(int $clinicId)
     {
-        $subModel = new ClinicSubscriptionModel();
+        $subModel = new ClinicSubscriptionModel($this->db);
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
 
         if (!$sub) {

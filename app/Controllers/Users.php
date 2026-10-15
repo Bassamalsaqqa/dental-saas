@@ -39,51 +39,50 @@ class Users extends BaseController
     }
 
     /**
-     * AJAX/email helper: confirm whether user already exists and list clinic memberships.
+     * Return minimal account eligibility for authorized clinic user creation.
      *
-     * No tenant context required; global mode or tenant mode can both call this.
+     * Tenant authority is required; profiles, ids and foreign memberships are never returned.
      */
     public function checkEmail()
     {
+        $currentClinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($currentClinicId <= 0 || session()->get('global_mode') === true) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $currentUser = $this->getCurrentUser();
+        if (!$currentUser || !$this->permissionService->hasPermission($currentUser->id, 'users', 'create')) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'PERMISSION_DENIED']);
+        }
+
+        $authority = (new \App\Services\ClinicMembershipService())->authorizeActor($currentClinicId, (int) $currentUser->id, 'create');
+        if (!$authority['authorized']) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'PERMISSION_DENIED']);
+        }
+
         $email = trim((string) ($this->request->getGet('email') ?? $this->request->getPost('email')));
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->response->setJSON(['exists' => false]);
+            return $this->response->setJSON(['exists' => false, 'in_current_clinic' => false]);
         }
 
         $userModel = new UserModel();
         $user = $userModel->where('email', $email)->first();
         if (!$user) {
-            return $this->response->setJSON(['exists' => false]);
+            return $this->response->setJSON(['exists' => false, 'in_current_clinic' => false]);
         }
 
-        $currentClinicId = session()->get('active_clinic_id');
-        $memberships = $this->clinicUserModel
-            ->select('clinic_users.clinic_id, clinic_users.status AS membership_status, clinics.name AS clinic_name, clinics.status AS clinic_status')
-            ->join('clinics', 'clinics.id = clinic_users.clinic_id', 'left')
-            ->where('clinic_users.user_id', $user['id'])
-            ->findAll();
-
-        $membershipRows = [];
         $inCurrentClinic = false;
-        foreach ($memberships as $membership) {
-            $clinicId = isset($membership['clinic_id']) ? (int) $membership['clinic_id'] : null;
-            $membershipRows[] = [
-                'clinic_id' => $clinicId,
-                'clinic_name' => $membership['clinic_name'] ?? 'Clinic',
-                'clinic_status' => $membership['clinic_status'] ?? 'unknown',
-                'membership_status' => $membership['membership_status'] ?? 'unknown',
-            ];
-            if ($clinicId && $currentClinicId && $clinicId === (int) $currentClinicId) {
-                $inCurrentClinic = true;
-            }
+        $membership = $this->clinicUserModel->withoutTenantScope()
+            ->where('clinic_id', $currentClinicId)
+            ->where('user_id', $user['id'])
+            ->where('status', 'active')
+            ->first();
+        if ($membership) {
+            $inCurrentClinic = true;
         }
 
         return $this->response->setJSON([
             'exists' => true,
-            'user_id' => $user['id'],
-            'name' => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
-            'memberships' => $membershipRows,
-            'current_clinic_id' => $currentClinicId,
             'in_current_clinic' => $inCurrentClinic,
         ]);
     }
@@ -107,24 +106,17 @@ class Users extends BaseController
                 return (object)$user;
             }, $usersArray);
             
-            // Get RBAC roles for each user (prioritize RBAC over IonAuth groups)
+            // Get RBAC roles for each user strictly from clinic membership (no IonAuth fallback)
             foreach ($users as $user) {
-                // Get RBAC roles if system is ready
                 try {
                     $userRoles = $this->getUserRoles($user->id);
                     $user->roles = $userRoles;
                     $user->permissions = $this->getUserPermissions($user->id);
-                    
-                    // If RBAC roles exist, use them; otherwise fall back to IonAuth groups
-                    if (!empty($userRoles)) {
-                        $user->display_roles = $userRoles;
-                    } else {
-                        $user->display_roles = $this->ionAuth->getUsersGroups($user->id)->getResult();
-                    }
+                    $user->display_roles = $userRoles;
                 } catch (\Exception $e) {
                     $user->roles = [];
                     $user->permissions = [];
-                    $user->display_roles = $this->ionAuth->getUsersGroups($user->id)->getResult();
+                    $user->display_roles = [];
                 }
             }
 
@@ -146,15 +138,27 @@ class Users extends BaseController
                 $roles = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
                 $permissions = $this->permissionModel->getGroupedByModule();
                 
-                // Check RBAC system status
-                $diagnostics['total_permissions'] = $this->permissionModel->countAll();
-                $diagnostics['total_roles'] = $this->roleModel->countAll();
-                $diagnostics['total_user_roles'] = $this->userRoleModel->countAll();
-                $diagnostics['rbac_ready'] = $diagnostics['total_permissions'] > 0;
+                // Clinic-scoped counts for UI diagnostics (avoid leaking global directory totals)
+                $diagnostics['total_permissions'] = count($permissions);
+                $diagnostics['total_roles'] = count($roles);
+                $diagnostics['total_user_roles'] = count(array_filter($users, function($u) {
+                    return !empty($u->roles);
+                }));
+                $diagnostics['rbac_ready'] = !empty($roles);
             } catch (\Exception $e) {
                 // RBAC not ready yet
                 log_message('debug', 'RBAC not ready in Users index: ' . $e->getMessage());
             }
+
+            $totalClinicMembers = count($users);
+            $activeMembershipUsers = count(array_filter($users, function($user) {
+                return ($user->membership_status ?? '') === 'active';
+            }));
+            $inactiveMembershipUsers = $totalClinicMembers - $activeMembershipUsers;
+            $globallyActiveUsers = count(array_filter($users, function($user) {
+                return (int) ($user->active ?? 0) === 1;
+            }));
+            $globallyDisabledUsers = $totalClinicMembers - $globallyActiveUsers;
 
             $data = array_merge([
                 'title' => 'User Management',
@@ -163,9 +167,12 @@ class Users extends BaseController
                 'roles' => $roles,
                 'permissions' => $permissions,
                 'diagnostics' => $diagnostics,
-                'total_users' => count($users),
-                'active_users' => count(array_filter($users, function($user) { return $user->active == 1; })),
-                'inactive_users' => count(array_filter($users, function($user) { return $user->active == 0; })),
+                'total_users' => $totalClinicMembers,
+                'active_users' => $activeMembershipUsers,
+                'inactive_users' => $inactiveMembershipUsers,
+                'globally_active_users' => $globallyActiveUsers,
+                'globally_disabled_users' => $globallyDisabledUsers,
+                'current_user' => $this->getCurrentUser(),
                 'loadSelect2' => true,
             ], $this->getUserDataForView());
 
@@ -216,131 +223,52 @@ class Users extends BaseController
 
     public function store()
     {
-        $email = trim((string)$this->request->getPost('email'));
-        $existingUser = (new UserModel())->where('email', $email)->first();
-        $roleId = (int)$this->request->getPost('role');
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $currentUser = $this->getCurrentUser();
+        if (!$currentUser || !$this->permissionService->hasPermission($currentUser->id, 'users', 'create')) {
+            return redirect()->back()->withInput()->with('error', 'You do not have permission to create users.');
+        }
 
         $rules = [
             'first_name' => 'required|min_length[2]|max_length[50]',
             'last_name' => 'required|min_length[2]|max_length[50]',
             'email' => 'required|valid_email',
-            'password' => (!$existingUser ? 'required|min_length[8]|max_length[255]' : 'permit_empty|min_length[8]|max_length[255]'),
-            'password_confirm' => (!$existingUser ? 'required|matches[password]' : 'permit_empty|matches[password]'),
+            'password' => 'required|min_length[8]|max_length[255]',
+            'password_confirm' => 'required|matches[password]',
             'role' => 'required|integer',
             'phone' => 'permit_empty|min_length[10]|max_length[20]',
+            'department' => 'permit_empty|max_length[100]',
+            'hire_date' => 'permit_empty',
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
-        $roleModel = new \App\Models\RoleModel();
-        $clinicId = session()->get('active_clinic_id');
-        $role = $roleModel->findAssignableRoleById($roleId, $clinicId, true);
-        if (!$role) {
-            return redirect()->back()->withInput()->with('error', 'Invalid role selected.');
-        }
-        $currentUserId = $this->getCurrentUser()->id;
 
-        if ($existingUser) {
-            $userId = $existingUser['id'];
-            $additionalData = [
-                'first_name' => $this->request->getPost('first_name'),
-                'last_name' => $this->request->getPost('last_name'),
-                'phone' => $this->request->getPost('phone') ?: null,
-            ];
-
-            $updateData = [
-                'email' => $this->request->getPost('email'),
-                'additional_data' => $additionalData,
-            ];
-
-            if ($this->request->getPost('password')) {
-                $updateData['password'] = $this->request->getPost('password');
-            }
-
-            if (!$this->ionAuth->update($userId, $updateData)) {
-                $errors = $this->ionAuth->errors();
-                $errorMessage = is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update existing user.');
-                return redirect()->back()->withInput()->with('error', $errorMessage);
-            }
-
-            $userRoleModel = new \App\Models\UserRoleModel();
-            if (!$userRoleModel->assignRole($userId, $roleId, $currentUserId)) {
-                return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
-            }
-
-            if ($clinicId) {
-                $membershipPayload = [
-                    'clinic_id' => $clinicId,
-                    'user_id' => $userId,
-                    'role_id' => $roleId,
-                    'status' => 'active'
-                ];
-
-                $existingMembership = $this->clinicUserModel
-                    ->where('clinic_id', $clinicId)
-                    ->where('user_id', $userId)
-                    ->first();
-
-                if ($existingMembership) {
-                    $this->clinicUserModel->update($existingMembership['id'], $membershipPayload);
-                } else {
-                    $this->clinicUserModel->insert($membershipPayload);
-                }
-            }
-
-            $returnTo = $this->workflowReturnTo(['users']) ?? 'users';
-
-            return $this->redirectAfterWorkflow($returnTo, ['users'])->with('success', 'Existing user added to this clinic.');
-        }
-
-        $additionalData = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'phone' => $this->request->getPost('phone') ?: null,
+        $roleId = (int) $this->request->getPost('role');
+        $userData = [
+            'first_name' => (string) $this->request->getPost('first_name'),
+            'last_name' => (string) $this->request->getPost('last_name'),
+            'email' => (string) $this->request->getPost('email'),
+            'password' => (string) $this->request->getPost('password'),
+            'phone' => (string) ($this->request->getPost('phone') ?: ''),
+            'department' => (string) ($this->request->getPost('department') ?: ''),
+            'hire_date' => (string) ($this->request->getPost('hire_date') ?: ''),
         ];
 
-        // Create user using IonAuth (without groups for now)
-        $userId = $this->ionAuth->register(
-            $this->request->getPost('email'),
-            $this->request->getPost('password'),
-            $this->request->getPost('email'),
-            $additionalData
-        );
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->createMemberWithIdentity($clinicId, $userData, $roleId, (int) $currentUser->id);
 
-        if ($userId) {
-            // Assign role to user using UserRoleModel
-            $userRoleModel = new \App\Models\UserRoleModel();
-            $currentUserId = $this->getCurrentUser()->id;
-            
-            $roleAssigned = $userRoleModel->assignRole($userId, $roleId, $currentUserId);
-            
-            if ($roleAssigned) {
-                // Assign to current clinic
-                $clinicId = session()->get('active_clinic_id');
-                if ($clinicId) {
-                    $this->clinicUserModel->insert([
-                        'clinic_id' => $clinicId,
-                        'user_id' => $userId,
-                        'role_id' => $roleId,
-                        'status' => 'active',
-                        'created_at' => date('Y-m-d H:i:s')
-                    ]);
-                }
-
-                $returnTo = $this->workflowReturnTo(['users']) ?? 'users';
-
-                return $this->redirectAfterWorkflow($returnTo, ['users'])->with('success', 'User created successfully!');
-            } else {
-                // If role assignment fails, delete the user and show error
-                $this->ionAuth->deleteUser($userId);
-                return redirect()->back()->withInput()->with('error', 'Failed to assign role to user. Please try again.');
-            }
-        } else {
-            $errors = $this->ionAuth->errors();
-            $errorMessage = is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to create user. Please try again.');
-            return redirect()->back()->withInput()->with('error', $errorMessage);
+        if (!$result['success']) {
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
+
+        $returnTo = $this->workflowReturnTo(['users']) ?? 'users';
+        return $this->redirectAfterWorkflow($returnTo, ['users'])->with('success', $result['message']);
     }
 
     public function show($id)
@@ -360,21 +288,23 @@ class Users extends BaseController
         
         $user = (object)$userArray;
 
-        // Get RBAC roles for display (prioritize RBAC over IonAuth groups)
-        try {
-            $userRoles = $this->getUserRoles($id);
-            if (!empty($userRoles)) {
-                $user->display_roles = $userRoles;
-            } else {
-                $user->display_roles = $this->ionAuth->getUsersGroups($id)->getResult();
-            }
-        } catch (\Exception $e) {
-            $user->display_roles = $this->ionAuth->getUsersGroups($id)->getResult();
-        }
+        // Get role strictly from clinic_users membership
+        $membership = $this->clinicUserModel->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->where('user_id', $id)
+            ->first();
+        $membershipStatus = $membership['status'] ?? ($user->membership_status ?? 'inactive');
+        $user->membership_status = $membershipStatus;
+        $user->is_globally_disabled = (int) ($user->active ?? 0) !== 1;
+        $currentRoleId = !empty($membership['role_id']) ? (int) $membership['role_id'] : 0;
+        $userRole = $currentRoleId > 0 ? $this->roleModel->find($currentRoleId) : null;
+        $user->display_roles = $userRole ? [$userRole] : [];
 
         $assignableRoles = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
-        $currentRoleAssignments = $this->userRoleModel->getUserRoles($id);
-        $currentRoleId = !empty($currentRoleAssignments) ? (int) ($currentRoleAssignments[0]['role_id'] ?? 0) : 0;
+
+        $currentUserData = $this->getUserDataForView();
+        $currentLoggedInUser = $currentUserData['user'] ?? null;
+        $isSelf = (int) $id === (int) ($currentLoggedInUser->id ?? 0);
 
         $data = [
             'title' => 'User Details',
@@ -383,6 +313,9 @@ class Users extends BaseController
             'assignable_roles' => $assignableRoles,
             'departments' => $this->getDepartments(),
             'current_role_id' => $currentRoleId,
+            'is_self' => $isSelf,
+            'membership_status' => $membershipStatus,
+            'is_globally_disabled' => $user->is_globally_disabled,
             'provider_finance_summary' => $this->providerPayoutModel->getSummaryByProviderUserId((int) $clinicId, (int) $id),
             'provider_payout_rows' => $this->providerPayoutModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
             'provider_payment_rows' => $this->providerPayoutPaymentModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
@@ -391,8 +324,7 @@ class Users extends BaseController
         ];
         
         // Add current user data for view without overwriting the user being viewed
-        $currentUserData = $this->getUserDataForView();
-        $data['current_user'] = $currentUserData['user'];
+        $data['current_user'] = $currentLoggedInUser;
         $data['user_groups'] = $currentUserData['user_groups'];
 
         return $this->view('users/show', $data);
@@ -414,10 +346,18 @@ class Users extends BaseController
         
         $user = (object)$userArray;
 
-        // Get user roles from user_roles table
-        $userRoleModel = new \App\Models\UserRoleModel();
-        $userRoles = $userRoleModel->getUserRoles($id);
-        $user->roles = $userRoles;
+        // Get user role strictly from clinic_users
+        $membership = $this->clinicUserModel->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->where('user_id', $id)
+            ->first();
+        $membershipStatus = $membership['status'] ?? ($user->membership_status ?? 'inactive');
+        $user->membership_status = $membershipStatus;
+        $user->is_globally_disabled = (int) ($user->active ?? 0) !== 1;
+        $currentRoleId = !empty($membership['role_id']) ? (int) $membership['role_id'] : 0;
+        $userRole = $currentRoleId > 0 ? $this->roleModel->find($currentRoleId) : null;
+        $user->roles = $userRole ? [['role_id' => $currentRoleId, 'role_name' => $userRole['name'], 'role_slug' => $userRole['slug']]] : [];
+        $user->current_role_id = $currentRoleId;
         
         // Get all available roles from roles table
         $clinicId = session()->get('active_clinic_id');
@@ -430,17 +370,22 @@ class Users extends BaseController
             $roles[$role['id']] = $role['name'];
         }
 
+        $currentUser = $this->getCurrentUser();
+        $isSelf = (int) $id === (int) ($currentUser->id ?? 0);
+
         // Prepare data for the view
         $data = [
             'title' => 'Edit User',
             'user' => $user, // The user being edited
             'roles' => $roles,
             'departments' => $this->getDepartments(),
+            'is_self' => $isSelf,
+            'membership_status' => $membershipStatus,
+            'is_globally_disabled' => $user->is_globally_disabled,
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['users']),
         ];
         
         // Add current user data without conflicts
-        $currentUser = $this->getCurrentUser();
         $data['current_user'] = $currentUser;
         $data['user_groups'] = $this->getUserGroups();
 
@@ -449,146 +394,68 @@ class Users extends BaseController
 
     public function update($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
             return redirect()->to('/clinic/select');
         }
-
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        
-        if (!$userArray) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+        // This endpoint owns one clinic-role intent. Global identity belongs to Profile/recovery.
+        foreach (['first_name', 'last_name', 'email', 'phone', 'password', 'password_confirm', 'new_password', 'active', 'status'] as $field) {
+            if ($this->request->getPost($field) !== null) {
+                return redirect()->back()->with('error', lang('UserRole.identityManagedByOwner'));
+            }
         }
-        
-        $user = (object)$userArray;
-
-        $rules = [
-            'first_name' => 'required|min_length[2]|max_length[50]',
-            'last_name' => 'required|min_length[2]|max_length[50]',
-            'email' => 'required|valid_email',
-            'phone' => 'permit_empty|min_length[10]|max_length[20]',
-            'department' => 'permit_empty|max_length[100]',
-            'hire_date' => 'permit_empty',
-            'role' => 'required|integer',
-        ];
-
-        // Only validate password if it's provided
-        if ($this->request->getPost('password')) {
-            $rules['password'] = 'min_length[8]|max_length[255]';
-            $rules['password_confirm'] = 'matches[password]';
-        }
-
-        if (!$this->validate($rules)) {
+        if (!$this->validate(['role' => 'required|is_natural_no_zero'])) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
-
-        $roleId = $this->request->getPost('role');
-
-        $currentAssignments = $this->userRoleModel->getUserRoles($id);
-        $currentRoleId = !empty($currentAssignments) ? (int) ($currentAssignments[0]['role_id'] ?? 0) : 0;
-
-        // Prevent role changes for admin user (ID: 1)
-        if ($user->id == 1 && (int) $roleId !== $currentRoleId) {
-            return redirect()->back()->withInput()->with('error', 'Cannot modify the role of the system administrator account.');
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->replaceRole(
+            $clinicId, (int) $id, (int) $this->request->getPost('role'), (int) ($this->getCurrentUser()->id ?? 0)
+        );
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['message']);
         }
-        
-        // Validate that the role exists and is active
-        $roleModel = new \App\Models\RoleModel();
-        $role = $roleModel->findAssignableRoleById((int) $roleId, $clinicId, true);
-        
-        if (!$role) {
-            return redirect()->back()->withInput()->with('error', 'Invalid role selected.');
-        }
-
-        $additionalData = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'phone' => $this->request->getPost('phone') ?: null,
-        ];
-
-        // Update user using IonAuth
-        $updateData = [
-            'email' => $this->request->getPost('email'),
-            'additional_data' => $additionalData,
-        ];
-
-        // Update password if provided
-        if ($this->request->getPost('password')) {
-            $updateData['password'] = $this->request->getPost('password');
-        }
-
-        if ($this->ionAuth->update($id, $updateData)) {
-            $userModel->update($id, [
-                'department' => $this->request->getPost('department') ?: null,
-                'hire_date' => $this->request->getPost('hire_date') ?: null,
-            ]);
-
-            // Update user role
-            $userRoleModel = new \App\Models\UserRoleModel();
-            $currentUserId = $this->getCurrentUser()->id;
-            
-            // Remove all existing roles and assign new one
-            $roleUpdated = $userRoleModel->assignRoles($id, [$roleId], $currentUserId);
-            
-            if ($roleUpdated) {
-                return $this->redirectAfterWorkflow('users/' . (int) $id, ['users'])->with('success', 'User updated successfully!');
-            } else {
-                return redirect()->back()->withInput()->with('error', 'User updated but failed to update role. Please try again.');
-            }
-        } else {
-            $errors = $this->ionAuth->errors();
-            $errorMessage = is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update user. Please try again.');
-            return redirect()->back()->withInput()->with('error', $errorMessage);
-        }
+        return $this->redirectAfterWorkflow('users/' . (int) $id, ['users'])->with('success', $result['message']);
     }
 
     public function delete($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
             if ($this->request->isAJAX()) {
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
             return redirect()->to('/clinic/select');
         }
 
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        
-        if (!$userArray) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'User not found']);
-            }
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
-        }
-        
-        $user = (object)$userArray;
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->removeMembership($clinicId, (int) $id, $currentUserId);
 
-        // Prevent deletion of admin user (ID: 1)
-        if ($user->id == 1) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete the system administrator account']);
+        if ($this->request->isAJAX()) {
+            $status = $result['success'] ? 200 : 422;
+            return $this->response->setStatusCode($status)->setJSON([
+                'success' => $result['success'],
+                'message' => $result['message'],
+            ]);
         }
 
-        // Prevent deletion of the last admin
-        if ($this->ionAuth->inGroup('admin', $id)) {
-            $adminUsers = $this->ionAuth->users('admin')->result();
-            if (count($adminUsers) <= 1) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete the last admin user']);
-            }
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['message']);
         }
 
-        // Remove from clinic_users
-        $this->clinicUserModel->where('clinic_id', $clinicId)->where('user_id', $id)->delete();
-        
-        return $this->response->setJSON(['success' => true, 'message' => 'User removed from clinic successfully']);
+        return redirect()->to(base_url('users'))->with('success', $result['message']);
     }
 
     public function changePassword($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
             return redirect()->to('/clinic/select');
+        }
+
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
+        if ((int) $id !== $currentUserId) {
+            return redirect()->back()->with('error', lang('UserRole.cannotResetOtherUserPassword'));
         }
 
         $userModel = new \App\Models\UserModel();
@@ -598,7 +465,7 @@ class Users extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
         
-        $user = (object)$userArray;
+        $user = (object) $userArray;
 
         $data = array_merge([
             'title' => 'Change Password',
@@ -611,16 +478,14 @@ class Users extends BaseController
 
     public function updatePassword($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
             return redirect()->to('/clinic/select');
         }
 
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        
-        if (!$userArray) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
+        if ((int) $id !== $currentUserId) {
+            return redirect()->back()->with('error', lang('UserRole.cannotResetOtherUserPassword'));
         }
 
         $rules = [
@@ -633,8 +498,7 @@ class Users extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // Use IonAuth to change password
-        if ($this->ionAuth->changePassword($id, $this->request->getPost('current_password'), $this->request->getPost('new_password'))) {
+        if ($this->ionAuth->changePassword((string) $this->getCurrentUser()->email, $this->request->getPost('current_password'), $this->request->getPost('new_password'))) {
             return $this->redirectAfterWorkflow('users/' . (int) $id, ['users'])->with('success', 'Password updated successfully!');
         } else {
             $errors = $this->ionAuth->errors();
@@ -645,105 +509,54 @@ class Users extends BaseController
 
     public function toggleStatus($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        
-        if (!$userArray) {
-            return $this->response->setJSON(['success' => false, 'message' => 'User not found']);
-        }
-        
-        $user = (object)$userArray;
+        $membership = $this->clinicUserModel->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->where('user_id', $id)
+            ->first();
 
-        $newStatus = $user->active == 1 ? 0 : 1;
-        
-        if ($this->ionAuth->update($id, ['active' => $newStatus])) {
-            return $this->response->setJSON([
-                'success' => true, 
-                'message' => 'User status updated successfully',
-                'new_status' => $newStatus == 1 ? 'active' : 'inactive'
-            ]);
-        } else {
-            $errors = $this->ionAuth->errors();
-            return $this->response->setJSON(['success' => false, 'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update user status')]);
+        if (!$membership) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'code' => 'membership_not_found', 'message' => lang('UserRole.membershipOperationDenied')]);
         }
+
+        $currentStatus = $membership['status'] ?? 'inactive';
+        $newStatus = ($currentStatus === 'active') ? 'inactive' : 'active';
+
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->updateStatus($clinicId, (int) $id, $newStatus, $currentUserId);
+
+        if (!$result['success']) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => $result['message'],
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => lang('UserRole.membershipSaved'),
+            'new_status' => $newStatus,
+        ]);
     }
 
     public function inlineUpdate($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
-        }
-
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        if (!$userArray) {
-            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'User not found']);
-        }
-
-        $rules = [
-            'first_name' => 'required|min_length[2]|max_length[50]',
-            'last_name' => 'required|min_length[2]|max_length[50]',
-            'email' => 'required|valid_email',
-            'phone' => 'permit_empty|min_length[10]|max_length[20]',
-            'department' => 'permit_empty|max_length[100]',
-            'hire_date' => 'permit_empty',
-        ];
-
-        if (!$this->validate($rules)) {
-            return $this->response->setStatusCode(422)->setJSON([
-                'success' => false,
-                'message' => implode(' ', $this->validator->getErrors()),
-                'errors' => $this->validator->getErrors(),
-            ]);
-        }
-
-        $additionalData = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'phone' => $this->request->getPost('phone') ?: null,
-        ];
-
-        $updated = $this->ionAuth->update($id, [
-            'email' => $this->request->getPost('email'),
-            'additional_data' => $additionalData,
-        ]);
-
-        if (!$updated) {
-            $errors = $this->ionAuth->errors();
-            return $this->response->setStatusCode(422)->setJSON([
-                'success' => false,
-                'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update user.'),
-            ]);
-        }
-
-        $userModel->update($id, [
-            'department' => $this->request->getPost('department') ?: null,
-            'hire_date' => $this->request->getPost('hire_date') ?: null,
-        ]);
-
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'User updated successfully',
+        return $this->response->setStatusCode(403)->setJSON([
+            'success' => false, 'code' => 'identity_owner_required',
+            'message' => lang('UserRole.identityManagedByOwner'),
         ]);
     }
 
     public function inlineUpdateRole($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
-        }
-
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        if (!$userArray) {
-            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'User not found']);
         }
 
         $roleId = (int) $this->request->getPost('role_id');
@@ -751,20 +564,15 @@ class Users extends BaseController
             return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Invalid role selected.']);
         }
 
-        $role = $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
-        if (!$role) {
-            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Invalid role selected for this clinic.']);
-        }
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->replaceRole($clinicId, (int) $id, $roleId, $currentUserId);
 
-        $currentAssignments = $this->userRoleModel->getUserRoles($id);
-        $currentRoleId = !empty($currentAssignments) ? (int) ($currentAssignments[0]['role_id'] ?? 0) : 0;
-        if ((int) $id === 1 && $roleId !== $currentRoleId) {
-            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Cannot modify the role of the system administrator account.']);
-        }
-
-        $updated = $this->userRoleModel->assignRoles($id, [$roleId], $this->getCurrentUser()->id);
-        if (!$updated) {
-            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Failed to update role.']);
+        if (!$result['success']) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => $result['message'],
+            ]);
         }
 
         return $this->response->setJSON([
@@ -775,70 +583,20 @@ class Users extends BaseController
 
     public function inlineResetPassword($id)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
-        }
-
-        $userModel = new \App\Models\UserModel();
-        $userArray = $userModel->findByClinic($clinicId, $id);
-        if (!$userArray) {
-            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'User not found']);
-        }
-
-        $rules = [
-            'new_password' => 'required|min_length[8]|max_length[255]',
-            'confirm_password' => 'required|matches[new_password]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return $this->response->setStatusCode(422)->setJSON([
-                'success' => false,
-                'message' => implode(' ', $this->validator->getErrors()),
-                'errors' => $this->validator->getErrors(),
-            ]);
-        }
-
-        $updated = $this->ionAuth->update($id, [
-            'password' => $this->request->getPost('new_password'),
-        ]);
-
-        if (!$updated) {
-            $errors = $this->ionAuth->errors();
-            return $this->response->setStatusCode(422)->setJSON([
-                'success' => false,
-                'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update password.'),
-            ]);
-        }
-
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Password updated successfully',
+        return $this->response->setStatusCode(403)->setJSON([
+            'success' => false,
+            'message' => lang('UserRole.cannotResetOtherUserPassword'),
         ]);
     }
 
     public function getUserStats()
     {
-        $users = $this->ionAuth->users()->result();
-        $groups = $this->ionAuthModel->groups()->result();
-        
-        $stats = [
-            'total' => count($users),
-            'active' => count(array_filter($users, function($user) { return $user->active == 1; })),
-            'inactive' => count(array_filter($users, function($user) { return $user->active == 0; })),
-            'by_group' => []
-        ];
-
-        // Get user count by group
-        foreach ($groups as $group) {
-            $groupUsers = $this->ionAuth->users($group->id)->result();
-            $stats['by_group'][] = [
-                'name' => $group->name,
-                'count' => count($groupUsers)
-            ];
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        return $this->response->setJSON($stats);
+        return $this->response->setJSON($this->clinicUserModel->getMembershipStatsByClinic($clinicId));
     }
 
     private function getDepartments()
@@ -861,49 +619,37 @@ class Users extends BaseController
     private function canManageUsers()
     {
         try {
-            // Check if user is logged in first
-            if (!$this->isLoggedIn()) {
-                return false;
-            }
-            
-            $user = $this->getCurrentUser();
-            if (!$user) {
-                return false;
-            }
-            
-            // Check if RBAC system is ready (has permissions in database)
-            $permissionCount = $this->permissionModel->countAll();
-            
-            if ($permissionCount == 0) {
-                // RBAC not set up yet, use IonAuth
-                return $this->ionAuth->isAdmin();
-            }
-            
-            // Try RBAC first
-            return $this->permissionService->canManageUsers($user->id);
-        } catch (\Exception $e) {
-            // Fallback to IonAuth during setup
-            return $this->ionAuth->isAdmin();
+            $user = $this->isLoggedIn() ? $this->getCurrentUser() : null;
+            return $user && $this->permissionService
+                ? $this->permissionService->canManageUsers((int) $user->id) : false;
+        } catch (\Throwable $e) {
+            log_message('error', 'User management authority unavailable.');
+            return false;
         }
     }
 
     /**
-     * Get user roles
+     * Get user roles strictly scoped to active clinic membership
      */
     public function getUserRoles($userId)
     {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return [];
+        }
+
         try {
-            $userRoles = $this->userRoleModel->getUserRoles($userId, true);
-            $roles = [];
-            
-            foreach ($userRoles as $userRole) {
-                $role = $this->roleModel->find($userRole['role_id']);
-                if ($role) {
-                    $roles[] = $role;
-                }
+            $membership = $this->clinicUserModel->withoutTenantScope()
+                ->where('clinic_id', $clinicId)
+                ->where('user_id', $userId)
+                ->first();
+
+            if (!$membership || empty($membership['role_id'])) {
+                return [];
             }
-            
-            return $roles;
+
+            $role = $this->roleModel->find((int) $membership['role_id']);
+            return $role ? [$role] : [];
         } catch (\Exception $e) {
             return [];
         }
@@ -930,165 +676,66 @@ class Users extends BaseController
     }
 
     /**
-     * Assign role to user (AJAX)
+     * Assign role to user (AJAX) - delegates to ClinicMembershipService::replaceRole
      */
     public function assignRole()
     {
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage users.']);
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $userId = $this->request->getPost('user_id');
-        $clinicId = session()->get('active_clinic_id');
-        
-        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
-             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
-        }
+        $userId = (int) $this->request->getPost('user_id');
+        $roleId = (int) $this->request->getPost('role_id');
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
 
-        $roleId = $this->request->getPost('role_id');
-        $role = $this->roleModel->findAssignableRoleById((int) $roleId, $clinicId, true);
-        if (!$role) {
-            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Invalid role selected for this clinic']);
-        }
-        $expiresAt = $this->request->getPost('expires_at');
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->replaceRole($clinicId, $userId, $roleId, $currentUserId);
 
-        // Prevent role changes for admin user (ID: 1)
-        $user = $this->ionAuth->user($userId)->row();
-        if ($user && $user->id == 1) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cannot modify the role of the system administrator account.']);
-        }
-
-        $success = $this->userRoleModel->assignRole($userId, $roleId, $this->getCurrentUser()->id, $expiresAt);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Role assigned successfully']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to assign role']);
-        }
+        $status = $result['success'] ? 200 : 422;
+        return $this->response->setStatusCode($status)->setJSON($result);
     }
 
     /**
-     * Remove role from user (AJAX)
+     * Remove role from user (AJAX) - delegates to ClinicMembershipService::removeMembership
      */
     public function removeRole()
     {
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage users.']);
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $userId = $this->request->getPost('user_id');
-        $clinicId = session()->get('active_clinic_id');
-        
-        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
-             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
-        }
+        $userId = (int) $this->request->getPost('user_id');
+        $currentUserId = (int) ($this->getCurrentUser()->id ?? 0);
 
-        $roleId = $this->request->getPost('role_id');
+        $membershipService = new \App\Services\ClinicMembershipService();
+        $result = $membershipService->removeMembership($clinicId, $userId, $currentUserId);
 
-        // Prevent role changes for admin user (ID: 1)
-        $user = $this->ionAuth->user($userId)->row();
-        if ($user && $user->id == 1) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cannot modify the role of the system administrator account.']);
-        }
-
-        $success = $this->userRoleModel->removeRole($userId, $roleId);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Role removed successfully']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to remove role']);
-        }
+        $status = $result['success'] ? 200 : 422;
+        return $this->response->setStatusCode($status)->setJSON($result);
     }
 
     /**
-     * Grant permission to user (AJAX) - RESTRICTED TO SUPER ADMIN
+     * Direct permission overrides are denied for tenant users.
      */
     public function grantPermission()
     {
-        // 1. Must have manage users permission
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage users.']);
-        }
-
-        // 2. Must be Super Admin to grant individual permissions (Control Plane logic)
-        try {
-            if (!$this->permissionService->isSuperAdmin($this->getCurrentUser()->id)) {
-                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
-            }
-        } catch (\Exception $e) {
-            if (!$this->ionAuth->isAdmin()) {
-                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
-            }
-        }
-
-        $userId = $this->request->getPost('user_id');
-        $clinicId = session()->get('active_clinic_id');
-        
-        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
-             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
-        }
-
-        $permissionId = $this->request->getPost('permission_id');
-        $expiresAt = $this->request->getPost('expires_at');
-
-        // Prevent permission changes for admin user (ID: 1)
-        $user = $this->ionAuth->user($userId)->row();
-        if ($user && $user->id == 1) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cannot modify the permissions of the system administrator account.']);
-        }
-
-        $success = $this->permissionService->grantUserPermission($userId, $permissionId, $this->getCurrentUser()->id, $expiresAt);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Permission granted successfully']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to grant permission']);
-        }
+        return $this->response->setStatusCode(403)->setJSON([
+            'success' => false,
+            'message' => 'Direct permission overrides are denied for tenant users.',
+        ]);
     }
 
     /**
-     * Revoke permission from user (AJAX) - RESTRICTED TO SUPER ADMIN
+     * Direct permission overrides are denied for tenant users.
      */
     public function revokePermission()
     {
-        // 1. Must have manage users permission
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage users.']);
-        }
-
-        // 2. Must be Super Admin to revoke individual permissions (Control Plane logic)
-        try {
-            if (!$this->permissionService->isSuperAdmin($this->getCurrentUser()->id)) {
-                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
-            }
-        } catch (\Exception $e) {
-            if (!$this->ionAuth->isAdmin()) {
-                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
-            }
-        }
-
-        $userId = $this->request->getPost('user_id');
-        $clinicId = session()->get('active_clinic_id');
-        
-        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
-             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
-        }
-
-        $permissionId = $this->request->getPost('permission_id');
-
-        // Prevent permission changes for admin user (ID: 1)
-        $user = $this->ionAuth->user($userId)->row();
-        if ($user && $user->id == 1) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cannot modify the permissions of the system administrator account.']);
-        }
-
-        $success = $this->permissionService->revokeUserPermission($userId, $permissionId, $this->getCurrentUser()->id);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Permission revoked successfully']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to revoke permission']);
-        }
+        return $this->response->setStatusCode(403)->setJSON([
+            'success' => false,
+            'message' => 'Direct permission overrides are denied for tenant users.',
+        ]);
     }
 
     /**
@@ -1101,10 +748,10 @@ class Users extends BaseController
         }
 
         if (!$userId) {
-            $userId = $this->request->getPost('user_id');
+            $userId = (int) $this->request->getPost('user_id');
         }
         
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
         if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
              return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
         }

@@ -149,3 +149,14 @@ Be sure to modify the test case (or create your own) to point to your seed and m
 and include any additional steps to be run before tests in the `setUp()` method.
 See [Testing Your Database](https://codeigniter.com/user_guide/testing/database.html)
 for details.
+
+## P0 identity / tenant RBAC regression suite (2026-10-15)
+
+Use a provisioned disposable loopback database with a dedicated test-only account. Set the dotted test connection values through the existing approved local test environment; the runner must pass its preflight. The suite uses synthetic fixtures and cleans up only its own rows; do not run it against a business database.
+
+```powershell
+php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result tests/unit/P0AuthorityReviewTest.php tests/unit/P0PermissionFilterReviewTest.php tests/unit/P0MembershipMutationReviewTest.php tests/unit/AppApiFoundationTest.php tests/unit/AppApiPatientsTest.php tests/unit/ControlPlaneOnboardingTenantContextTest.php tests/unit/ControlPlaneOnboardingBehaviorTest.php tests/unit/ClinicAdminLifecycleServiceTest.php tests/unit/ClinicAdminLifecycleComprehensiveTest.php tests/unit/TenantDashboardSubscriptionTimezoneTest.php tests/unit/TenantBackupContainmentTest.php
+node tests/js/P0SearchUrlTest.cjs
+```
+
+Final isolated run: 204 tests / 1,676 assertions and 36 JS assertions passed. Coverage includes real registered filter execution and transaction/audit failures, not only parser or mocked happy paths. Bilingual render checks also parse inline JavaScript using Node. See [review, known release blockers and rollback](../docs/SaaS/P0_IDENTITY_RBAC_REVIEW_2026-10-15.md).

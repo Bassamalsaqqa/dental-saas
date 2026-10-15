@@ -27,10 +27,14 @@ class PermissionFilter implements FilterInterface
     {
         $path = trim($request->getUri()->getPath(), '/');
         // strict API segment match: works whether app is hosted at / or /dental-saas/
-        $isApi = ($path === 'api/v1' || str_starts_with($path, 'api/v1/'))
-            || str_contains($path, '/api/v1/');
+        $isApiV1 = (bool) preg_match('#(^|/)api/v1(/|$)#i', $path);
+        $isApi = (bool) preg_match('#(^|/)api(/|$)#i', $path);
 
-        $jsonError = function (int $statusCode, string $code, string $message) {
+        $wantsJson = $isApi
+            || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'))
+            || ($request->hasHeader('X-Requested-With') && strtolower($request->getHeaderLine('X-Requested-With')) === 'xmlhttprequest');
+
+        $jsonError = static function (int $statusCode, string $code, string $message) {
             $response = service('response');
             return $response->setStatusCode($statusCode)->setJSON([
                 'error' => [
@@ -40,31 +44,27 @@ class PermissionFilter implements FilterInterface
             ]);
         };
 
-        // Fail closed if no permission argument is provided
-        if (empty($arguments)) {
-            log_message('error', 'PermissionFilter: No permission specified in route filter arguments.');
-
-            if ($isApi) {
+        // Parse module and action strictly before any authority check
+        $parsed = $this->parsePermissionArguments($arguments);
+        if ($parsed === null) {
+            log_message('error', 'PermissionFilter: Malformed or missing permission filter argument specification: ' . json_encode($arguments));
+            if ($wantsJson) {
                 return $jsonError(403, 'forbidden', 'Forbidden.');
             }
-
             return redirect()->to('/')->with('error', 'Access denied (configuration error).');
         }
 
-        $requiredPermission = $arguments[0];
-        $action = $arguments[1] ?? 'view';
+        [$module, $action] = $parsed;
 
         // Get the current user
         try {
             $userId = null;
             
-            // 1. Try ApiRuntimeContext (Stateless API)
-            if ($isApi) {
+            // 1. Only /api/v1/* uses runtime actor (never IonAuth/session fallback)
+            if ($isApiV1) {
                 $userId = \App\Libraries\ApiRuntimeContext::getUserId();
-            }
-
-            // 2. Try IonAuth (Stateful Web)
-            if (!$userId && !$isApi) {
+            } else {
+                // 2. Stateful Web or First-Party Session (e.g. /api/search)
                 $ionAuth = new \App\Libraries\IonAuth();
                 if ($ionAuth->loggedIn()) {
                     $userId = $ionAuth->getUserId();
@@ -72,45 +72,113 @@ class PermissionFilter implements FilterInterface
             }
 
             if (!$userId) {
-                log_message('debug', 'PermissionFilter: No user found, redirecting to login');
-                if ($isApi) {
+                log_message('debug', 'PermissionFilter: No user found');
+                if ($wantsJson) {
                     return $jsonError(401, 'unauthenticated', 'Authentication required.');
                 }
 
                 return redirect()->to('/auth/login');
             }
 
-            log_message('debug', "PermissionFilter: Checking permission {$requiredPermission}/{$action} for user {$userId}");
+            log_message('debug', "PermissionFilter: Checking permission {$module}/{$action} for user {$userId}");
 
             // Check if user has the required permission
-            $permissionService = new \App\Services\PermissionService();
-            $hasPermission = $permissionService->hasPermission($userId, $requiredPermission, $action);
+            $permissionService = service('permission');
+            if (!$permissionService) {
+                $permissionService = new \App\Services\PermissionService();
+            }
+            $hasPermission = $permissionService->hasPermission($userId, $module, $action);
 
             log_message('debug', "PermissionFilter: Permission check result: " . ($hasPermission ? 'true' : 'false'));
 
             if (!$hasPermission) {
-                // Log the unauthorized access attempt
-                log_message('warning', "Unauthorized access attempt by user {$userId} to {$requiredPermission}/{$action}");
+                log_message('warning', "Unauthorized access attempt by user {$userId} to {$module}/{$action}");
 
-                if ($isApi) {
+                if ($wantsJson) {
                     return $jsonError(403, 'forbidden', 'Forbidden.');
                 }
 
-                // Return 403 Forbidden - redirect to a safe route without permission filters
                 return redirect()->to('/')->with('error', 'You do not have permission to access this resource.');
             }
-        } catch (\Exception $e) {
-            // Log the error and redirect to login if there's an issue
+        } catch (\Throwable $e) {
+            // Fail closed with JSON for API/AJAX requests
             log_message('error', 'Permission filter error: ' . $e->getMessage());
-            log_message('error', 'Permission filter stack trace: ' . $e->getTraceAsString());
 
-            // Fail closed with JSON for API requests
-            if ($isApi) {
+            if ($wantsJson) {
                 return $jsonError(403, 'forbidden', 'Forbidden.');
             }
 
             return redirect()->to('/')->with('error', 'System error during permission check.');
         }
+
+        return null;
+    }
+
+    private function parsePermissionArguments($arguments): ?array
+    {
+        if (empty($arguments) || !is_array($arguments)) {
+            return null;
+        }
+
+        $count = count($arguments);
+        if ($count === 1) {
+            $raw = (string) $arguments[0];
+            $hasColon = str_contains($raw, ':');
+            $hasDot = str_contains($raw, '.');
+            if ($hasColon && $hasDot) {
+                return null;
+            }
+
+            if ($hasColon) {
+                $parts = explode(':', $raw);
+                if (count($parts) !== 2) {
+                    return null;
+                }
+                $module = trim($parts[0]);
+                $action = trim($parts[1]);
+                if ($module === '' || $action === '') {
+                    return null;
+                }
+                return [$module, $action];
+            }
+
+            if ($hasDot) {
+                $parts = explode('.', $raw);
+                if (count($parts) !== 2) {
+                    return null;
+                }
+                $module = trim($parts[0]);
+                $action = trim($parts[1]);
+                if ($module === '' || $action === '') {
+                    return null;
+                }
+                return [$module, $action];
+            }
+
+            $module = trim($raw);
+            if ($module === '') {
+                return null;
+            }
+            return [$module, 'view'];
+        }
+
+        if ($count === 2) {
+            $raw0 = (string) $arguments[0];
+            $raw1 = (string) $arguments[1];
+
+            if (str_contains($raw0, ':') || str_contains($raw0, '.') || str_contains($raw1, ':') || str_contains($raw1, '.')) {
+                return null;
+            }
+
+            $module = trim($raw0);
+            $action = trim($raw1);
+            if ($module === '' || $action === '') {
+                return null;
+            }
+            return [$module, $action];
+        }
+
+        return null;
     }
 
     /**

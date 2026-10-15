@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\ApiTokenModel;
 use App\Models\ClinicUserModel;
 use App\Models\ClinicModel;
+use App\Models\UserModel;
 use App\Services\PlanGuard;
 
 class ApiV1AuthFilter implements FilterInterface
@@ -16,6 +17,17 @@ class ApiV1AuthFilter implements FilterInterface
     {
         \App\Libraries\ApiRuntimeContext::clear();
         helper('api');
+        try {
+            return $this->authorizeRequest($request);
+        } catch (\Throwable $e) {
+            \App\Libraries\ApiRuntimeContext::clear();
+            log_message('error', 'Bearer authorization unavailable.');
+            return api_error(503, 'authorization_unavailable', 'Authorization temporarily unavailable.');
+        }
+    }
+
+    private function authorizeRequest(RequestInterface $request)
+    {
 
         // 1. Bearer Authentication
         $authHeader = $request->getHeaderLine('Authorization');
@@ -30,74 +42,64 @@ class ApiV1AuthFilter implements FilterInterface
         }
 
         if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
+            \App\Libraries\ApiRuntimeContext::clear();
             return api_error(401, 'unauthenticated', 'Authentication required.');
         }
 
-        $userId = null;
-        $clinicId = null;
-        if (!empty($authHeader) && str_starts_with($authHeader, 'Bearer ')) {
-            $rawToken = substr($authHeader, 7);
-            $tokenModel = new ApiTokenModel();
-            $userId = $tokenModel->validateToken($rawToken);
+        $rawToken = substr($authHeader, 7);
+        $tokenModel = new ApiTokenModel();
+        $userId = $tokenModel->validateToken($rawToken);
 
-            if (!$userId) {
-                return api_error(401, 'unauthenticated', 'Authentication required.');
-            }
-
-            // 2. Tenant Header Mandatory (X-Clinic-Id)
-            $clinicIdHeader = $request->getHeaderLine('X-Clinic-Id');
-            if (empty($clinicIdHeader)) {
-                return api_error(422, 'tenant_context_missing', 'X-Clinic-Id header is required.');
-            }
-
-            if (!is_numeric($clinicIdHeader)) {
-                return api_error(422, 'tenant_context_invalid', 'X-Clinic-Id must be an integer.');
-            }
-
-            $clinicId = (int)$clinicIdHeader;
+        if (!$userId) {
+            \App\Libraries\ApiRuntimeContext::clear();
+            return api_error(401, 'unauthenticated', 'Authentication required.');
         }
 
-        // 3. Validate Clinic Existence
+        // Validate token owner account is active (users.active = 1)
+        $userModel = new UserModel();
+        $user = $userModel->find($userId);
+        if (!$user || (int) ($user['active'] ?? 0) !== 1) {
+            \App\Libraries\ApiRuntimeContext::clear();
+            return api_error(401, 'unauthenticated', 'User account is inactive or disabled.');
+        }
+
+        // 2. Tenant Header Mandatory (X-Clinic-Id)
+        $clinicIdHeader = $request->getHeaderLine('X-Clinic-Id');
+        if ($clinicIdHeader === '' || $clinicIdHeader === null) {
+            \App\Libraries\ApiRuntimeContext::clear();
+            return api_error(422, 'tenant_context_missing', 'X-Clinic-Id header is required.');
+        }
+
+        if (!preg_match('/^[1-9]\d{0,9}$/', $clinicIdHeader) || (int) $clinicIdHeader > 2147483647) {
+            \App\Libraries\ApiRuntimeContext::clear();
+            return api_error(422, 'tenant_context_invalid', 'X-Clinic-Id must be a positive integer.');
+        }
+
+        $clinicId = (int) $clinicIdHeader;
+
+        // 3. Validate Clinic Existence and Status
         $clinicModel = new ClinicModel();
         $clinic = $clinicModel->find($clinicId);
         if (!$clinic) {
+            \App\Libraries\ApiRuntimeContext::clear();
             return api_error(422, 'tenant_context_invalid', 'Clinic not found.');
         }
 
-        // 4. Tenant Membership Authorization
-        $membershipModel = new ClinicUserModel();
-        $membership = $membershipModel->where('user_id', $userId)
-                                      ->where('clinic_id', $clinicId)
-                                      ->where('status', 'active')
-                                      ->first();
-
-        // Match web TenantFilter behavior: allow superadmin impersonation to access tenant APIs
-        if (!$membership) {
-            $session = service('session');
-            $isImpersonating = $session->get('is_impersonating') === true;
-            $impersonatedClinicId = (int) ($session->get('impersonated_clinic_id') ?? 0);
-
-            if ($isImpersonating && $impersonatedClinicId === $clinicId) {
-                $permissionService = service('permission');
-                if (!$permissionService) {
-                    $permissionService = new \App\Services\PermissionService();
-                }
-                if ($permissionService->isSuperAdmin($userId)) {
-                    $membership = ['user_id' => $userId, 'clinic_id' => $clinicId, 'status' => 'active'];
-                }
-            }
+        if (($clinic['status'] ?? '') !== 'active') {
+            \App\Libraries\ApiRuntimeContext::clear();
+            return api_error(403, 'tenant_context_forbidden', 'Clinic is suspended or inactive.');
         }
 
-        if (!$membership) {
-            log_message('warning', 'ApiV1AuthFilter membership denied: user_id={userId}, clinic_id={clinicId}', [
+        // 4. Tenant Membership Authorization (Strictly stateless: no browser session fallback)
+        $permissionService = new \App\Services\PermissionService();
+        $roleId = $permissionService->getTenantRoleId($userId, $clinicId);
+        if (!$roleId) {
+            \App\Libraries\ApiRuntimeContext::clear();
+            log_message('warning', 'ApiV1AuthFilter membership or role denied: user_id={userId}, clinic_id={clinicId}', [
                 'userId' => $userId,
                 'clinicId' => $clinicId,
             ]);
             return api_error(403, 'tenant_context_forbidden', 'Access denied to this clinic.');
-        }
-
-        if ($clinic['status'] !== 'active') {
-            return api_error(403, 'tenant_context_forbidden', 'Clinic is suspended or inactive.');
         }
 
         // 5. Set Context (Stateless - Runtime Static)
@@ -106,10 +108,10 @@ class ApiV1AuthFilter implements FilterInterface
 
         // 6. Subscription Standing
         $planGuard = new PlanGuard();
-        // PlanGuard returns decision array in API scope
         $decision = $planGuard->assertSubscriptionActive($clinicId);
-        
+
         if (is_array($decision) && array_key_exists('allowed', $decision) && $decision['allowed'] === false) {
+             \App\Libraries\ApiRuntimeContext::clear();
              return api_error(
                  $decision['status_code'] ?? 403,
                  $decision['code'] ?? 'forbidden',

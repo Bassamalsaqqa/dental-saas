@@ -228,7 +228,7 @@ class RoleModel extends Model
             return null;
         }
 
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $permissions = $db->table('role_permissions rp')
                          ->select('p.*, rp.granted')
                          ->join('permissions p', 'p.id = rp.permission_id')
@@ -246,7 +246,7 @@ class RoleModel extends Model
      */
     public function assignPermission($roleId, $permissionId, $granted = 1)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         
         // Check if already exists
         $exists = $db->table('role_permissions')
@@ -276,7 +276,7 @@ class RoleModel extends Model
      */
     public function removePermission($roleId, $permissionId)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         return $db->table('role_permissions')
                  ->where('role_id', $roleId)
                  ->where('permission_id', $permissionId)
@@ -288,7 +288,7 @@ class RoleModel extends Model
      */
     public function assignPermissions($roleId, $permissions)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         
         // Remove all existing permissions
         $db->table('role_permissions')
@@ -319,7 +319,7 @@ class RoleModel extends Model
      */
     public function getPermissionsGrouped($roleId)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $permissions = $db->table('role_permissions rp')
                          ->select('p.*, rp.granted')
                          ->join('permissions p', 'p.id = rp.permission_id')
@@ -343,7 +343,7 @@ class RoleModel extends Model
      */
     public function hasPermission($roleId, $module, $action)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $result = $db->table('role_permissions rp')
                     ->select('rp.granted')
                     ->join('permissions p', 'p.id = rp.permission_id')
@@ -362,7 +362,7 @@ class RoleModel extends Model
      */
     public function getUsers($roleId, $clinicId = null)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $builder = $db->table('user_roles ur')
                  ->select('u.*, ur.assigned_at, ur.expires_at, ur.is_active')
                  ->join('users u', 'u.id = ur.user_id')
@@ -382,7 +382,7 @@ class RoleModel extends Model
      */
     public function getUserCount($roleId, $clinicId = null)
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         $builder = $db->table('user_roles ur')
                  ->where('ur.role_id', $roleId)
                  ->where('ur.is_active', 1);
@@ -482,7 +482,7 @@ class RoleModel extends Model
      */
     public function getAllRolePermissions(): array
     {
-        $db = \Config\Database::connect();
+        $db = $this->db;
         return $db->table('role_permissions')->get()->getResultArray();
     }
 }
