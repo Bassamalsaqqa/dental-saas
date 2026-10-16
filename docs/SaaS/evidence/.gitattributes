@@ -1,0 +1,2 @@
+# Preserve manifested evidence bytes across Windows and Unix checkouts.
+pr4-p2-20261016/* -text
