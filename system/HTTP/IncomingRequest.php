@@ -390,6 +390,8 @@ class IncomingRequest extends Request
     /**
      * Attempts to detect if the current connection is secure through
      * a few different methods.
+     *
+     * Adapted from CodeIgniter 4.7.5 trusted-proxy fix for CodeIgniter 4.6.3 (GHSA-7wmf-pw8j-mc78).
      */
     public function isSecure(): bool
     {
@@ -397,11 +399,22 @@ class IncomingRequest extends Request
             return true;
         }
 
+        if (! $this->isFromTrustedProxy()) {
+            return false;
+        }
+
         if ($this->hasHeader('X-Forwarded-Proto') && $this->header('X-Forwarded-Proto')->getValue() === 'https') {
             return true;
         }
 
-        return $this->hasHeader('Front-End-Https') && ! empty($this->header('Front-End-Https')->getValue()) && strtolower($this->header('Front-End-Https')->getValue()) !== 'off';
+        if (! $this->hasHeader('Front-End-Https')) {
+            return false;
+        }
+
+        $frontEndHttps = $this->header('Front-End-Https')->getValue();
+
+        return is_string($frontEndHttps) && ! in_array($frontEndHttps, ['', '0'], true)
+            && strtolower($frontEndHttps) !== 'off';
     }
 
     /**
