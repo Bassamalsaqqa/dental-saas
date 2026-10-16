@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="system/Test/bootstrap.php"
+         backupGlobals="false"
+         beStrictAboutOutputDuringTests="true"
+         colors="true"
+         columns="max"
+         failOnRisky="true"
+         failOnWarning="true"
+         cacheDirectory="build/.phpunit.cache">
+    <php>
+        <server name="app.baseURL" value="http://example.com/"/>
+        <server name="CODEIGNITER_SCREAM_DEPRECATIONS" value="0"/>
+        <const name="HOMEPATH" value="./"/>
+        <const name="CONFIGPATH" value="./app/Config/"/>
+        <const name="PUBLICPATH" value="./public/"/>
+        <env name="database.tests.database" value="democa_dental_saas_test"/>
+    </php>
+    <testsuites>
+        <testsuite name="PR3 Temporal and Locking Acceptance">
+            <file>tests/unit/PR3IndependentTemporalTest.php</file>
+            <file>tests/unit/PR3CrossClinicLockOrderTest.php</file>
+            <file>tests/unit/PR3SameClinicSchedulingRaceTest.php</file>
+            <file>tests/unit/PR3HistoricalIsolationTest.php</file>
+            <file>tests/unit/PhaseBConcurrencyTest.php</file>
+            <file>tests/unit/PhaseBReviewSchedulingTest.php</file>
+            <file>tests/unit/PhaseBSettingsTest.php</file>
+            <file>tests/unit/AppointmentReschedulabilityPolicyTest.php</file>
+            <file>tests/unit/ScheduleImpactServiceTest.php</file>
+            <file>tests/unit/ScheduleImpactWorkflowTest.php</file>
+            <file>tests/unit/ScheduleImpactIndependentReviewTest.php</file>
+            <file>tests/unit/ScheduleImpactUiRenderingTest.php</file>
+            <file>tests/unit/PR2SlotAdviceReviewTest.php</file>
+            <file>tests/unit/PhaseBUpdatePreservationTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

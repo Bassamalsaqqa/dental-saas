@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-15 - Pre-pilot schedule impact review workflow
+
+- Merge independently approved PR #2 at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04`, matching approved HEAD `3bf46f96a653d266870d2aa6a783dcc96f493415` exactly. No deployment or activation.
+- AGY implemented a separate schedule-impact workflow; independent review corrected proposal parsing, coherent locked snapshots, strict acknowledgment, compact verified audit storage, retained-visit freshness and responsive EN/AR confirmation.
+- Require reasoned dispositions for affected future visits while preserving appointments and clinical/finance links. Canonical appointment editing resolves reschedules; account/role security changes remain available and require fresh pilot review. Completed/past/clinical-locked visits cannot be excluded from slot advice.
+- Focused isolated acceptance: **50 tests / 524 assertions**; actual Chromium EN/AR preview/recheck at 320/360/390px: **198 assertions**, including 505-visit JSON submission. No migration/DDL, customer data, Actions, production request or deployment. Existing guardrail findings unchanged; staging/operator rehearsal and release blockers remain. See [contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md).
+
+
 ## 2026-10-15 - PR #2 independent-review corrections
 
 - Address the blocking duplicate-doctor-name feedback at `d623d203`: consistent visible clinician references in booking choices and dayboard columns/actions, retaining stable submitted IDs and historical name snapshots.

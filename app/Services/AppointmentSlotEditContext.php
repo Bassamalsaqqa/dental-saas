@@ -21,10 +21,12 @@ final class AppointmentSlotEditContext
         $this->db = $db ?? Database::connect();
     }
 
-    public function issue(int $clinicId, int $appointmentId): ?string
+    public function issue(int $clinicId, int $appointmentId, ?\DateTimeImmutable $now = null): ?string
     {
         $actor = $this->authorizedActor($clinicId);
         if ($actor === null || !$this->ownsAppointment($clinicId, $appointmentId)) return null;
+        try { if (!AppointmentReschedulabilityService::isReschedulable($this->db, $clinicId, $appointmentId, null, $now)) return null; }
+        catch (\Throwable $e) { return null; }
         $contexts = $this->contexts();
         $contexts = array_filter($contexts, static fn($item): bool => is_array($item) && (int)($item['expires_at']??0) > time());
         $key = $clinicId . ':' . $appointmentId;
@@ -37,7 +39,7 @@ final class AppointmentSlotEditContext
         return $token;
     }
 
-    public function resolve(int $clinicId, ?int $appointmentId, ?string $token): ?int
+    public function resolve(int $clinicId, ?int $appointmentId, ?string $token, ?\DateTimeImmutable $now = null): ?int
     {
         if ($appointmentId === null || $appointmentId <= 0 || $token === null
             || preg_match('/^[a-f0-9]{64}$/D', $token) !== 1) return null;
@@ -47,6 +49,8 @@ final class AppointmentSlotEditContext
         if (!is_array($context) || (int)($context['actor_id']??0) !== $actor
             || (int)($context['expires_at']??0) <= time()
             || !hash_equals((string)($context['digest']??''), hash('sha256',$token))) return null;
+        try { if (!AppointmentReschedulabilityService::isReschedulable($this->db, $clinicId, $appointmentId, null, $now)) return null; }
+        catch (\Throwable $e) { return null; }
         return $this->ownsAppointment($clinicId,$appointmentId) ? $appointmentId : null;
     }
 

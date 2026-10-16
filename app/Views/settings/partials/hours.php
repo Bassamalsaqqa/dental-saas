@@ -7,8 +7,10 @@
                             </div>
                         </div>
                         <div class="p-8">
-                            <form action="<?= base_url('settings/updateWorkingHours') ?>" method="POST">
+                            <p class="mb-6"><a class="text-blue-700 underline" href="<?= esc(base_url('settings/schedule-impact-recheck'), 'attr') ?>"><?= esc(lang('DoctorScheduleSettings.recheckReport')) ?></a></p>
+                            <form action="<?= base_url('settings/preview-schedule-impact') ?>" method="POST">
                                 <?= csrf_field() ?>
+                                <input type="hidden" name="target_type" value="clinic_hours">
                                 <?php $dynamicScheduling = in_array((string) old('dynamic_doctor_scheduling_enabled', $settings['dynamic_doctor_scheduling_enabled'] ?? '0'), ['1', 'true'], true); ?>
                                 <input type="hidden" name="dynamic_doctor_scheduling_enabled" value="0">
                                 <label class="mb-6 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">

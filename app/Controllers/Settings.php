@@ -126,6 +126,7 @@ class Settings extends BaseController
             'title' => 'System Settings',
             'settings' => $settings,
             'provider_settings' => $this->providerSettingsContext((int) $clinicId),
+            'schedule_impact_audit' => (new \App\Services\ScheduleImpactService())->getLatestAuditRecord((int) $clinicId),
             'active_tab' => $activeTab,
             'max_booking_chair_count' => $maxBookingChairCount,
             'backups' => $backups,
@@ -330,7 +331,17 @@ class Settings extends BaseController
 
     public function updateWorkingHours()
     {
-        $result = $this->persistSchedulingSettings((array) $this->request->getPost());
+        $input = (array) $this->request->getPost();
+        $token = $input['impact_proof_token'] ?? null;
+        $impactProof = $token !== null ? [
+            'token' => $token,
+            'acknowledged' => ($input['acknowledged'] ?? null) === '1',
+            'dispositions' => (array) ($input['dispositions'] ?? []),
+        ] : null;
+
+        $result = (new \App\Services\ClinicSchedulingConfigurationService())->configureHours(
+            (int) (session()->get('active_clinic_id') ?? 0), $input, (int) ((new \App\Libraries\IonAuth())->getUserId() ?: 0), $impactProof
+        );
         if (!$result['success']) {
             return redirect()->back()->withInput()->with('error', $result['message']);
         }
@@ -345,6 +356,149 @@ class Settings extends BaseController
         );
     }
 
+    public function previewScheduleImpact()
+    {
+        $clinicId = (int) session('active_clinic_id');
+        $actorId = (int) ((new \App\Libraries\IonAuth())->getUserId() ?: 0);
+        $input = (array) $this->request->getPost();
+        $targetType = $input['target_type'] ?? null;
+        $impact = new \App\Services\ScheduleImpactService();
+        try {
+            if (!$this->scheduleImpactSessionAllowed() || !is_string($targetType)
+                || !in_array($targetType, ['clinic_hours', 'provider_profile'], true)) throw new \DomainException('invalidInput');
+            if (($input['refresh_preview'] ?? null) === '1') {
+                $frozen = $input['proposed_dto_json'] ?? null;
+                if (!is_string($frozen)) throw new \DomainException('invalidInput');
+                $frozen = json_decode($frozen, true, 512, JSON_THROW_ON_ERROR);
+                if (!is_array($frozen)) throw new \DomainException('invalidInput');
+                $input = $frozen + ($targetType === 'provider_profile' ? ['provider_user_id' => $input['target_id'] ?? null] : []);
+            }
+            unset($input['target_type'], $input[config('Security')->tokenName]);
+            $targetId = null;
+            $targetLabel = lang('UI.settingsOperations');
+            if ($targetType === 'clinic_hours') {
+                $dto = $impact->validateProposedHoursDto($input, $clinicId);
+            } else {
+                $targetId = \App\Services\ClinicSchedulingSettings::positiveInt($input['provider_user_id'] ?? null);
+                $member = null;
+                foreach ($this->providerSettingsContext($clinicId)['members'] as $candidate) {
+                    if ((int) $candidate['user_id'] === $targetId) { $member = $candidate; break; }
+                }
+                // Reuse the clinic-scoped active member directory; never reveal a foreign account label.
+                if ($member === null) throw new \DomainException('invalidInput');
+                $input['is_bookable'] = $input['is_bookable'] ?? '0';
+                $input['is_clinician'] = $input['is_clinician'] ?? '0';
+                unset($input['provider_user_id']);
+                $dto = $impact->validateProposedProfileDto($input);
+                $targetLabel = \App\Libraries\ProviderDisplayLabel::forOption($targetId, $member['name']);
+            }
+            $db=\Config\Database::connect();
+            if ($db->transDepth!==0 || !$db->transBegin()) throw new \RuntimeException('Preview transaction failed.');
+            $report = $impact->generateReport($db, $clinicId, $targetType, $dto, $targetId, true);
+            if (!$db->transStatus() || !$db->transCommit()) throw new \RuntimeException('Preview transaction failed.');
+            $token = $impact->issueProof($clinicId, $actorId, $targetType, $dto, $report, $targetId);
+            return $this->view('settings/schedule_impact_preview', [
+                'title' => lang('DoctorScheduleSettings.impactReport'), 'report' => $report,
+                'proof_token' => $token, 'target_type' => $targetType, 'target_id' => $targetId,
+                'target_label' => $targetLabel, 'proposed_dto_json' => json_encode($dto, JSON_THROW_ON_ERROR),
+                'is_rtl' => service('request')->getLocale() === 'ar',
+            ]);
+        } catch (\Throwable $e) {
+            if (isset($db) && $db->transDepth>0) $db->transRollback();
+            return redirect()->to(base_url('settings?tab=hours'))->withInput()->with('error', $this->scheduleImpactError($e));
+        }
+    }
+
+    public function applyScheduleImpact()
+    {
+        $clinicId = (int) session('active_clinic_id');
+        $actorId = (int) ((new \App\Libraries\IonAuth())->getUserId() ?: 0);
+        $input = (array) $this->request->getPost();
+        try {
+            $targetType = $input['target_type'] ?? null;
+            $token = $input['proof_token'] ?? null;
+            $json = $input['proposed_dto_json'] ?? null;
+            if (!$this->scheduleImpactSessionAllowed() || !is_string($targetType)
+                || !is_string($token) || preg_match('/^[a-f0-9]{64}$/D', $token) !== 1
+                || !is_string($json) || !mb_check_encoding($json, 'UTF-8')) throw new \DomainException('invalidInput');
+            $dto = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            if (!is_array($dto)) throw new \DomainException('invalidInput');
+            $dispositions = $input['dispositions'] ?? [];
+            if (array_key_exists('dispositions_json', $input) && $input['dispositions_json'] !== '') {
+                if (!is_string($input['dispositions_json']) || !mb_check_encoding($input['dispositions_json'], 'UTF-8')) throw new \DomainException('invalidInput');
+                $dispositions = json_decode($input['dispositions_json'], true, 512, JSON_THROW_ON_ERROR);
+            }
+            if (!is_array($dispositions)) throw new \DomainException('invalidInput');
+            $proof = ['token' => $token, 'acknowledged' => ($input['acknowledged'] ?? null) === '1', 'dispositions' => $dispositions];
+            if ($targetType === 'clinic_hours') {
+                $result = (new \App\Services\ClinicSchedulingConfigurationService())->configureHours($clinicId, $dto, $actorId, $proof);
+            } elseif ($targetType === 'provider_profile') {
+                $targetId = \App\Services\ClinicSchedulingSettings::positiveInt($input['target_id'] ?? null);
+                if ($targetId === null) throw new \DomainException('invalidInput');
+                $result = (new \App\Services\ProviderScheduleService())->configureProfile($clinicId, $targetId, $dto, $actorId, $proof);
+            } else {
+                throw new \DomainException('invalidInput');
+            }
+            if (empty($result['success'])) return redirect()->to(base_url('settings?tab=hours'))->with('error', $result['message'] ?? lang('DoctorScheduleSettings.saveFailed'));
+            $this->settingsService->reloadSettings();
+            return redirect()->to(base_url('settings/schedule-impact-recheck'))->with('success', lang('DoctorScheduleSettings.saved'));
+        } catch (\Throwable $e) {
+            return redirect()->to(base_url('settings?tab=hours'))->with('error', $this->scheduleImpactError($e));
+        }
+    }
+
+    public function scheduleImpactReport()
+    {
+        $clinicId = (int) session('active_clinic_id');
+        try {
+            if (!$this->scheduleImpactSessionAllowed()) throw new \DomainException('forbidden');
+            $db = \Config\Database::connect();
+            $impact = new \App\Services\ScheduleImpactService($db);
+            $dto = $this->currentScheduleHours($clinicId);
+            return $this->view('settings/schedule_impact_report', [
+                'title' => lang('DoctorScheduleSettings.recheckReport'),
+                'report' => $impact->generateReport($db, $clinicId, 'clinic_hours', $dto),
+                'latest_audit' => $impact->getLatestAuditRecord($clinicId),
+                'retained_exceptions' => $impact->getRetainedExceptions($clinicId),
+                'current_dto' => $dto, 'is_rtl' => service('request')->getLocale() === 'ar',
+            ]);
+        } catch (\Throwable $e) {
+            return redirect()->to(base_url('settings?tab=hours'))->with('error', $this->scheduleImpactError($e));
+        }
+    }
+
+    private function currentScheduleHours(int $clinicId): array
+    {
+        $settings = new \App\Services\ClinicSchedulingSettings(\Config\Database::connect());
+        $hours = $settings->hours($clinicId);
+        $dto = ['working_hours_start' => $hours['start'], 'working_hours_end' => $hours['end'], 'working_days' => $hours['days'],
+            'appointment_duration' => (string) $settings->get($clinicId, 'appointment_duration', '30'),
+            'dynamic_doctor_scheduling_enabled' => (new \App\Services\ProviderDirectoryService())->isEnabled($clinicId) ? '1' : '0'];
+        if ($dto['dynamic_doctor_scheduling_enabled'] === '0') {
+            $dto['booking_chair_names'] = $settings->chairs($clinicId);
+            $dto['booking_chair_count'] = (string) count($dto['booking_chair_names']);
+        }
+        return $dto;
+    }
+
+    private function scheduleImpactSessionAllowed(): bool
+    {
+        return (int) session('active_clinic_id') > 0 && session('global_mode') !== true
+            && session('is_impersonating') !== true && (int) session('impersonated_clinic_id') <= 0
+            && \App\Libraries\ApiRuntimeContext::getUserId() === null && \App\Libraries\ApiRuntimeContext::getClinicId() === null;
+    }
+
+    private function scheduleImpactError(\Throwable $error): string
+    {
+        foreach (['forbidden', 'invalidInput', 'schemaMissing', 'cannotDisable', 'saveFailed', 'missingProof', 'staleProof',
+            'missingDisposition', 'foreignDisposition', 'invalidDisposition', 'reasonRequired', 'unacknowledgedImpact'] as $key) {
+            $text = lang('DoctorScheduleSettings.' . $key);
+            if ($error instanceof \DomainException && in_array($error->getMessage(), [$key, $text], true)) return $text;
+        }
+        log_message('error', 'Schedule impact workflow failed.');
+        return lang('DoctorScheduleSettings.saveFailed');
+    }
+
     public function updateProviderSchedule()
     {
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
@@ -357,7 +511,13 @@ class Settings extends BaseController
             return redirect()->back()->withInput()->with('error', lang('DoctorScheduleSettings.invalidInput'));
         }
         try {
-            $result = (new \App\Services\ProviderScheduleService())->configureProfile($clinicId, $userId, $dto, $actorId);
+            $token = $this->request->getPost('impact_proof_token');
+            $impactProof = $token !== null ? [
+                'token' => $token,
+                'acknowledged' => $this->request->getPost('acknowledged') === '1',
+                'dispositions' => (array) ($this->request->getPost('dispositions') ?? []),
+            ] : null;
+            $result = (new \App\Services\ProviderScheduleService())->configureProfile($clinicId, $userId, $dto, $actorId, $impactProof);
             if (empty($result['success'])) throw new \DomainException('saveFailed');
             return redirect()->to(base_url('settings?tab=hours'))->with('success', lang('DoctorScheduleSettings.saved'));
         } catch (\Throwable $e) {

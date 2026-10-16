@@ -28,7 +28,7 @@ class ProviderScheduleService
      * @return array
      * @throws DomainException
      */
-    public function configureProfile(int $clinicId, int $userId, array $data, int $actorId): array
+    public function configureProfile(int $clinicId, int $userId, array $data, int $actorId, ?array $impactProof = null): array
     {
         $deny = static fn(string $key): DomainException => new DomainException(lang('DoctorScheduleSettings.' . $key));
         if ($this->db->transDepth !== 0) throw $deny('saveFailed');
@@ -37,12 +37,17 @@ class ProviderScheduleService
             || (int) session()->get('active_clinic_id') !== $clinicId || session()->get('global_mode') === true
             || session()->get('is_impersonating') === true || (int) session()->get('impersonated_clinic_id') > 0
             || \App\Libraries\ApiRuntimeContext::getUserId() !== null || \App\Libraries\ApiRuntimeContext::getClinicId() !== null) throw $deny('forbidden');
-        try { $dto = $this->validateProfileDto($data); }
-        catch (\Throwable $e) { throw $deny('invalidInput'); }
+        try {
+            $impactService = new ScheduleImpactService($this->db);
+            $dto = $impactService->validateProposedProfileDto($data);
+        } catch (\Throwable $e) {
+            throw $deny('invalidInput');
+        }
         try {
             if (!$this->db->transBegin()) throw $deny('saveFailed');
             $clinic = $this->db->query('SELECT id, status FROM clinics WHERE id = ? FOR UPDATE', [$clinicId])->getRowArray();
             if (!$clinic || $clinic['status'] !== 'active') throw $deny('forbidden');
+            $impactService->lockState($clinicId, null, $userId);
             // Lock all actor/target authority rows before resolving canonical permissions.
             foreach (array_unique([$actorId, $userId]) as $id) {
                 $user = $this->db->query('SELECT id, active FROM users WHERE id = ? FOR UPDATE', [$id])->getRowArray();
@@ -55,7 +60,34 @@ class ProviderScheduleService
             $grant=$this->db->query("SELECT rp.permission_id FROM role_permissions rp JOIN permissions p ON p.id=rp.permission_id WHERE rp.role_id=? AND rp.granted=1 AND p.module='settings' AND p.action IN ('edit','update') FOR UPDATE",[(int)$actorMembership['role_id']])->getRowArray();
             if(!$grant)throw $deny('forbidden');
             if (!$this->db->tableExists('clinic_provider_profiles')) throw $deny('schemaMissing');
-            $existing = $this->db->query('SELECT id FROM clinic_provider_profiles WHERE clinic_id=? AND user_id=? FOR UPDATE', [$clinicId,$userId])->getRowArray();
+
+            // Schedule Impact Verification Hook under the lock
+            $report = $impactService->generateReport($this->db, $clinicId, 'provider_profile', $dto, $userId, false);
+
+            $token = $impactProof['token'] ?? ($data['impact_proof_token'] ?? null);
+            $acknowledged = $impactProof['acknowledged'] ?? ($data['acknowledged'] ?? null);
+            $dispositions = (array) ($impactProof['dispositions'] ?? ($data['dispositions'] ?? []));
+            $hasProofInput = ($token !== null) || ($acknowledged !== null) || !empty($dispositions);
+
+            if ($report['after_conflicts_count'] > 0 || $hasProofInput) {
+                $validationError = $impactService->validateProofAndDispositions(
+                    $this->db,
+                    $clinicId,
+                    $actorId,
+                    'provider_profile',
+                    $dto,
+                    $userId,
+                    $token,
+                    $acknowledged,
+                    $dispositions,
+                    $report
+                );
+                if ($validationError !== null) {
+                    throw $deny($validationError);
+                }
+            }
+
+            $existing = $this->db->query('SELECT * FROM clinic_provider_profiles WHERE clinic_id=? AND user_id=? FOR UPDATE', [$clinicId,$userId])->getRowArray();
             $now = date('Y-m-d H:i:s');
             $payload = ['is_bookable'=>$dto['is_bookable']?1:0,'is_clinician'=>$dto['is_clinician']?1:0,
                 'weekly_hours_json'=>$dto['weekly_hours'] === null ? null : json_encode($dto['weekly_hours'],JSON_THROW_ON_ERROR),
@@ -69,10 +101,34 @@ class ProviderScheduleService
                 $profileId=(int)$this->db->insertID();
             }
             if (!$saved || $profileId<=0) throw $deny('saveFailed');
+
+            $beforeConfig = [
+                'is_bookable' => ((int) ($existing['is_bookable'] ?? 1) === 1),
+                'is_clinician' => ((int) ($existing['is_clinician'] ?? 0) === 1),
+                'weekly_hours' => isset($existing['weekly_hours_json']) ? json_decode((string) $existing['weekly_hours_json'], true) : null,
+                'exceptions' => isset($existing['exceptions_json']) ? json_decode((string) $existing['exceptions_json'], true) : null,
+            ];
+
+            $impactService->recordAuditEvidence(
+                $this->db,
+                $clinicId,
+                $actorId,
+                'provider_profile',
+                $userId,
+                $beforeConfig,
+                $dto,
+                $report,
+                $dispositions
+            );
+
             $audit=new ControlPlaneAuditService(new \App\Models\ControlPlaneAuditModel($this->db));
             if (!$audit->logEvent('provider_schedule_update',['actor_user_id'=>$actorId,'route'=>'/settings/update-provider-schedule','method'=>'POST',
                 'metadata'=>['clinic_id'=>$clinicId,'provider_user_id'=>$userId,'is_bookable'=>$dto['is_bookable'],'is_clinician'=>$dto['is_clinician']]],true)) throw $deny('saveFailed');
             if ($this->db->transDepth !== 1 || !$this->db->transStatus() || !$this->db->transCommit()) throw $deny('saveFailed');
+
+            // Consume proof ONLY AFTER checked transCommit succeeds
+            $impactService->consumeProof($clinicId, 'provider_profile', $userId);
+
             return ['success'=>true,'id'=>$profileId,'profile'=>['id'=>$profileId,'clinic_id'=>$clinicId,'user_id'=>$userId,'updated_at'=>$now]+$dto];
         } catch (\Throwable $e) {
             if ($this->db->transDepth>0) $this->db->transRollback();
@@ -105,6 +161,12 @@ class ProviderScheduleService
             return null;
         }
 
+        return $this->parsePersistedProfileRow($row);
+    }
+
+    /** Strict pure persisted-profile parser shared by booking and batched impact reports. */
+    public function parsePersistedProfileRow(array $row): array
+    {
         try {
             foreach(['is_bookable','is_clinician'] as $flag) if(!in_array($row[$flag],[0,1,'0','1'],true))throw new DomainException('Invalid flag');
             $weekly=$row['weekly_hours_json']===null ? null : json_decode($row['weekly_hours_json'],true,512,JSON_THROW_ON_ERROR);
@@ -139,18 +201,9 @@ class ProviderScheduleService
         $day=strtolower((new \DateTimeImmutable($date))->format('l'));
         if (!in_array($day,$hours['days'],true)) return [];
         $profile=$this->getProfile($clinicId,$userId);
-        if ($profile && !$profile['is_bookable']) return [];
-        if ($profile && is_array($profile['exceptions']) && array_key_exists($date,$profile['exceptions'])) $windows=$profile['exceptions'][$date];
-        elseif ($profile && $profile['weekly_hours'] !== null) $windows=$profile['weekly_hours'][$day]??[];
-        else $windows=[['start'=>$hours['start'],'end'=>$hours['end']]];
-        if (!is_array($windows)) throw new DomainException(lang('DoctorScheduleSettings.invalidInput'));
-        $windows=$this->validateIntervals($windows,$date);
-        $result=[];
-        foreach($windows as $window){
-            $start=max($window['start'],$hours['start']);$end=min($window['end'],$hours['end']);
-            if($start<$end)$result[]=['start'=>$start,'end'=>$end];
-        }
-        return $result;
+        [$windows,$error] = ClinicScheduleAvailabilityService::resolveEffectiveWindows($date,$hours,$profile);
+        if ($error==='PROVIDER_PROFILE_CORRUPT') throw new DomainException(lang('DoctorScheduleSettings.invalidInput'));
+        return $windows ?? [];
     }
 
     /**
