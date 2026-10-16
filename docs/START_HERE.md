@@ -26,6 +26,7 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | Entity workspaces/drawers | `refactor/ENTITY_CENTERED_COMMAND_WORKSPACE_PLAN.md` |
 | React/Lovable strategy | `refactor/LOVABLE_STRATEGY_CODEX.md` |
 | Dynamic doctor scheduling | `SaaS/DOCTOR_SCHEDULING_CONTRACT.md` |
+| Scheduling readiness and Owner integration | `SaaS/PRODUCTION_READINESS_2026-10-16.md`, `SaaS/STAGING_CERTIFICATION_RUNBOOK.md`, `SaaS/OWNER_INTEGRATION_AND_READINESS.md` |
 | Control-plane entitlements | `SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` |
 
 ## Assistant Guides

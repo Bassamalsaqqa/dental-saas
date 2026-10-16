@@ -1,0 +1,20 @@
+{
+  "disjoint_clinic_mutex_isolation": {
+    "elapsed_seconds": 0.5314610004425049,
+    "status_counts": {
+      "process_errors": 0,
+      "rejected": 1,
+      "success": 7
+    },
+    "workers": 8
+  },
+  "shared_global_authority": {
+    "elapsed_seconds": 0.948199987411499,
+    "status_counts": {
+      "process_errors": 0,
+      "rejected": 0,
+      "success": 8
+    },
+    "workers": 8
+  }
+}

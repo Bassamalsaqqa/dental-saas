@@ -1,0 +1,218 @@
+{
+  "application_sha": "ad481ebbf454ebf3a53bc09417d13a2b2f57c0d5",
+  "main_sha": "89ccda3e65a4a091ca850db72ff7b0e4c1e56f04",
+  "scope": "Local synthetic evidence only; production and pilot blocked",
+  "php_final": {
+    "tests": 41,
+    "assertions": 643,
+    "seconds": 26.683,
+    "peak_mib": 64
+  },
+  "mobile": {
+    "assertions": 198,
+    "locales": [
+      "en",
+      "ar"
+    ],
+    "widths_px": [
+      320,
+      360,
+      390
+    ]
+  },
+  "scale": {
+    "fixture": {
+      "historical_appointments": 50000,
+      "future_appointments": 5000,
+      "historical_charges": 50000,
+      "encounter_charges": 1,
+      "patients": 2002,
+      "providers": 4
+    },
+    "benchmark": {
+      "lock_elapsed_seconds": 0.38863396644592285,
+      "lock_query_count": 5014,
+      "point_lock_complexity": "O(future_active_appointments)",
+      "report_elapsed_seconds": 0.5664618015289307,
+      "report_query_count": 43,
+      "locked_preview_total_elapsed_seconds": 0.9551160335540771,
+      "memory_before_bytes": 25165824,
+      "peak_memory_bytes": 62914560
+    },
+    "report_summary": {
+      "total_future_visits": 4999,
+      "reported_items_count": 4999,
+      "omitted_elapsed_count": 1
+    },
+    "before_rows": {
+      "appointments": {
+        "count": 55000,
+        "sha256": "5fb82fa0391808f559137274f5959a0218a6fc1a09596a99d35e2618b560973e"
+      },
+      "patients": {
+        "count": 2002,
+        "sha256": "b0d21ba064703b69a6dd86f10e18bd7dcf6841f90ca8a01887f433988beef50d"
+      },
+      "examinations": {
+        "count": 1,
+        "sha256": "91a31b623896fa2b4fe04c4080017ea3e3f09d576ecadfce9be6628909438042"
+      },
+      "clinical_procedures": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "clinical_charge_lines": {
+        "count": 50001,
+        "sha256": "d3be23234553d128cc957def05b7e1b3cca083030f1cda3d51c6a23358f10de8"
+      },
+      "finances": {
+        "count": 1,
+        "sha256": "aeb9712650d2f6a7dbb8e2893e4445875e65cd3f37c4acad01dac5db9c54e7e2"
+      }
+    },
+    "after_rows": {
+      "appointments": {
+        "count": 55000,
+        "sha256": "5fb82fa0391808f559137274f5959a0218a6fc1a09596a99d35e2618b560973e"
+      },
+      "patients": {
+        "count": 2002,
+        "sha256": "b0d21ba064703b69a6dd86f10e18bd7dcf6841f90ca8a01887f433988beef50d"
+      },
+      "examinations": {
+        "count": 1,
+        "sha256": "91a31b623896fa2b4fe04c4080017ea3e3f09d576ecadfce9be6628909438042"
+      },
+      "clinical_procedures": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "clinical_charge_lines": {
+        "count": 50001,
+        "sha256": "d3be23234553d128cc957def05b7e1b3cca083030f1cda3d51c6a23358f10de8"
+      },
+      "finances": {
+        "count": 1,
+        "sha256": "aeb9712650d2f6a7dbb8e2893e4445875e65cd3f37c4acad01dac5db9c54e7e2"
+      }
+    }
+  },
+  "charge_assessment": {
+    "table": "clinical_charge_lines",
+    "indexes_present": [
+      "PRIMARY",
+      "idx_ccl_patient_status",
+      "idx_ccl_examination",
+      "idx_ccl_treatment",
+      "idx_ccl_finance",
+      "idx_ccl_source_entity",
+      "idx_ccl_provider",
+      "idx_ccl_charge_date"
+    ],
+    "composite_clinic_appointment_index_present": false,
+    "optimizer_selected_key": "idx_ccl_patient_status",
+    "plan_estimated_rows": "25001",
+    "source": "current-run populated scale report query",
+    "populated_charge_rows": 50001,
+    "query_sha256": "fb3db4b7359ce412b74add89e6531a1ca6240e80238c7e265c4d523e3f86c5c5",
+    "explain_query_prefix": "SELECT DISTINCT appointment_id FROM clinical_charge_lines WHERE clinic_id = 4156 AND appointment_id IN (301821,301822,301823,301824,301825,301826,301827,301828,301829,301830,301831,301832,301833,301834,301835,301836,3018",
+    "plan": [
+      {
+        "id": "1",
+        "select_type": "PRIMARY",
+        "table": "clinical_charge_lines",
+        "type": "ref",
+        "possible_keys": "idx_ccl_patient_status,idx_ccl_examination,idx_ccl_treatment,idx_ccl_finance,idx_ccl_source_entity,idx_ccl_provider,idx_ccl_charge_date",
+        "key": "idx_ccl_patient_status",
+        "key_len": "4",
+        "ref": "const",
+        "rows": "25001",
+        "Extra": "Using temporary"
+      },
+      {
+        "id": "1",
+        "select_type": "PRIMARY",
+        "table": "<subquery2>",
+        "type": "eq_ref",
+        "possible_keys": "distinct_key",
+        "key": "distinct_key",
+        "key_len": "4",
+        "ref": "func",
+        "rows": "1",
+        "Extra": "Distinct"
+      },
+      {
+        "id": "2",
+        "select_type": "MATERIALIZED",
+        "table": "<derived3>",
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": "4999",
+        "Extra": ""
+      },
+      {
+        "id": "3",
+        "select_type": "DERIVED",
+        "table": null,
+        "type": null,
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": null,
+        "Extra": "No tables used"
+      }
+    ],
+    "assessment_summary": {
+      "current_behavior": "Optimizer uses available clinic_id prefix index (e.g. idx_ccl_patient_status) and scans clinic charges, filtering by appointment_id.",
+      "report_batching": "Dependencies are batched; inspect measured query count and estimated rows rather than infer constant scan work.",
+      "recommendation": "Separately reviewed migration proposal: ADD INDEX idx_ccl_clinic_appointment (clinic_id, appointment_id).",
+      "staging_gate": "Must measure write overhead and index build locking on production-like volume before proposing DDL."
+    }
+  },
+  "concurrency": {
+    "shared_global_authority": {
+      "workers": 8,
+      "elapsed_seconds": 0.3724179267883301
+    },
+    "disjoint_clinic_mutex_isolation": {
+      "workers": 8,
+      "elapsed_seconds": 0.3819761276245117
+    }
+  },
+  "configuration_restoration": {
+    "scope": "Synthetic checked hours restoration; no code rollback or feature-off activation.",
+    "original_review_id": "44e81235fc2624cf202fdeaad4439ec8",
+    "restoration_review_id": "81f274bab3e691d3305cc7d1747ccd46",
+    "appointment_sha256": "3aef86bd2514be3f258a36bab20d171dd3871a0bffc04fa6352d73e0595ae7dc",
+    "previous_hours_restored": true,
+    "original_review_preserved": true,
+    "appointment_unchanged": true
+  },
+  "preservation": {
+    "owner_files_unchanged": 24,
+    "all_readable_tables_identical": 68,
+    "rows_identical": 275,
+    "settings_identical": true,
+    "unreadable_tables": [
+      "whatsapp_delivery_events"
+    ],
+    "content_preservation_unverified": [
+      "whatsapp_delivery_events"
+    ]
+  },
+  "feature_flags": "Baseline query empty; all settings rows byte-identical after final suite. No persistent activation.",
+  "disposable_process": "Owned instance no longer running after tool-session expiration; unrelated accounting instance preserved.",
+  "artifacts_sha256": {
+    "staging-final-php.log": "0afd004a20b70b12bb10913c339a7334eb9021b2eaac80292c559a5b6ce43b8a",
+    "staging-final-mobile.log": "13de327d6057093af6ab3aec59d52014f14b5ad63848cfc4d217ccd6a1c1ca36",
+    "pr3-staging-scale.json": "119d88cd5d5f6ef81ae830dd70ace4356481738839607c147fe6ebc4d55e98aa",
+    "pr3-charge-index-assessment.json": "8da6a8544c67f22f0500baa5ecf68c5299165515d94337ba656111162712661c",
+    "pr3-staging-concurrency.json": "a6b686cfef07450a97fe1f129d8fb4118774271f6dde5e0cb7debe5c0fc6f1e1",
+    "pr3-staging-rollback.json": "b732e1adcdbefbbded5b5537d67254864d632dd04f1fa34202935ecdc6e1cda0",
+    "pr3-staging-audit-export.json": "d299a949fccceb2516c091135d55d99f80eb2179de51000f88996cec0d482dba"
+  }
+}

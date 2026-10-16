@@ -1,0 +1,72 @@
+{
+  "observed_at": "2026-10-16T05:58:16+00:00",
+  "deployed_sha": "063317498e366a009357e0c0fe500041b2417050",
+  "source_sample": {
+    "app/Config/Routes.php": {
+      "present": true,
+      "matches_deployed_commit": true
+    },
+    "app/Services/PermissionService.php": {
+      "present": true,
+      "matches_deployed_commit": true
+    },
+    "app/Filters/TenantFilter.php": {
+      "present": true,
+      "matches_deployed_commit": true
+    },
+    "app/Filters/AppApiTenant.php": {
+      "present": true,
+      "matches_deployed_commit": true
+    },
+    "app/Services/ProviderDirectoryService.php": {
+      "present": false,
+      "matches_deployed_commit": true
+    },
+    "app/Services/ScheduleImpactService.php": {
+      "present": false,
+      "matches_deployed_commit": true
+    },
+    "app/Services/ScheduleImpactAuditStore.php": {
+      "present": false,
+      "matches_deployed_commit": true
+    },
+    "composer.lock": {
+      "present": true,
+      "matches_deployed_commit": true
+    }
+  },
+  "hostinger": {
+    "php_cli": "8.2.34",
+    "web_php_unverified": true,
+    "database": [
+      {
+        "version": "11.8.9-MariaDB-log",
+        "sql_mode": "NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION",
+        "time_zone": "SYSTEM",
+        "system_time_zone": "UTC",
+        "max_connections": "2000",
+        "buffer_bytes": "32212254720",
+        "charset": "utf8mb4",
+        "collation_name": "utf8mb4_unicode_ci"
+      }
+    ],
+    "scheduling_schema_missing": [
+      "appointments.provider_user_id",
+      "clinic_provider_profiles"
+    ],
+    "dynamic_flags": [],
+    "charge_composite_clinic_appointment_index": false,
+    "whatsapp_engine_metadata": "InnoDB; engine-open/content integrity not tested",
+    "htaccess": "Tracked deployment override present; RewriteBase absent; root-front-controller rewrite sampled. No configuration edit."
+  },
+  "isolated_staging": {
+    "port": 3307,
+    "database_version": "10.4.32",
+    "show_create_errno": 1932,
+    "show_create_sqlstate": "42S02",
+    "dictionary_space_id": 297,
+    "file_space_id_reported_by_current_engine": 4294967294,
+    "conclusion": "Table-open failure and physical/dictionary tablespace-ID mismatch. Root cause/history not established. No destructive repair attempted."
+  },
+  "scope": "Read-only metadata only; no production writes, backup creation, app bootstrap, customer row reads, migrations or activation."
+}

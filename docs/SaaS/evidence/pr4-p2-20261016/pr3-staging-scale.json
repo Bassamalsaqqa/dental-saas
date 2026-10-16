@@ -1,0 +1,248 @@
+{
+  "after_rows": {
+    "appointments": {
+      "count": 55000,
+      "sha256": "b10abf75d84f3f3f216ef26a1f300aa11b11cc24f81dfdf3adeb07e3b990970d"
+    },
+    "clinical_charge_lines": {
+      "count": 50001,
+      "sha256": "d4b8da2a70540bea34e2c1e319ed51c84197e7e24f252dfb7710606317bc0ff4"
+    },
+    "clinical_procedures": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "examinations": {
+      "count": 1,
+      "sha256": "f928f9d00414d3626e4fd376ab4c58526608ffd4c3284be25304b2731ea98c06"
+    },
+    "finances": {
+      "count": 1,
+      "sha256": "c91de6cea2fb6316251449013fa005fef58cf907cc6ca9ef9fa9449037252947"
+    },
+    "patients": {
+      "count": 2002,
+      "sha256": "78a1d21b977c1e8b3cfe75aa40e7196d0cbdd122ac70799ac15f69ba45ea92d7"
+    }
+  },
+  "before_rows": {
+    "appointments": {
+      "count": 55000,
+      "sha256": "b10abf75d84f3f3f216ef26a1f300aa11b11cc24f81dfdf3adeb07e3b990970d"
+    },
+    "clinical_charge_lines": {
+      "count": 50001,
+      "sha256": "d4b8da2a70540bea34e2c1e319ed51c84197e7e24f252dfb7710606317bc0ff4"
+    },
+    "clinical_procedures": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "examinations": {
+      "count": 1,
+      "sha256": "f928f9d00414d3626e4fd376ab4c58526608ffd4c3284be25304b2731ea98c06"
+    },
+    "finances": {
+      "count": 1,
+      "sha256": "c91de6cea2fb6316251449013fa005fef58cf907cc6ca9ef9fa9449037252947"
+    },
+    "patients": {
+      "count": 2002,
+      "sha256": "78a1d21b977c1e8b3cfe75aa40e7196d0cbdd122ac70799ac15f69ba45ea92d7"
+    }
+  },
+  "benchmark": {
+    "lock_elapsed_seconds": 0.5568368434906006,
+    "lock_query_count": 5014,
+    "locked_preview_total_elapsed_seconds": 1.4157609939575195,
+    "memory_before_bytes": 25165824,
+    "peak_memory_bytes": 62914560,
+    "point_lock_complexity": "O(future_active_appointments)",
+    "report_elapsed_seconds": 0.8589057922363281,
+    "report_query_count": 43
+  },
+  "explain": {
+    "appointments": {
+      "plan": [
+        {
+          "Extra": "Using where; Using filesort",
+          "id": "1",
+          "key": "clinic_id",
+          "key_len": "5",
+          "possible_keys": "idx_appointment_date,idx_status,clinic_id,idx_appointments_provider_sched",
+          "ref": "const",
+          "rows": "27500",
+          "select_type": "SIMPLE",
+          "table": "appointments",
+          "type": "ref"
+        }
+      ],
+      "query_sha256": "69a73c28b9de9056406c61c707f58c8c41a3e5edcef2896f12ab730f99ffb0d2"
+    },
+    "clinical_charge_lines": {
+      "plan": [
+        {
+          "Extra": "Using temporary",
+          "id": "1",
+          "key": "idx_ccl_patient_status",
+          "key_len": "4",
+          "possible_keys": "idx_ccl_patient_status,idx_ccl_examination,idx_ccl_treatment,idx_ccl_finance,idx_ccl_source_entity,idx_ccl_provider,idx_ccl_charge_date",
+          "ref": "const",
+          "rows": "25001",
+          "select_type": "PRIMARY",
+          "table": "clinical_charge_lines",
+          "type": "ref"
+        },
+        {
+          "Extra": "Distinct",
+          "id": "1",
+          "key": "distinct_key",
+          "key_len": "4",
+          "possible_keys": "distinct_key",
+          "ref": "func",
+          "rows": "1",
+          "select_type": "PRIMARY",
+          "table": "<subquery2>",
+          "type": "eq_ref"
+        },
+        {
+          "Extra": "",
+          "id": "2",
+          "key": null,
+          "key_len": null,
+          "possible_keys": null,
+          "ref": null,
+          "rows": "4999",
+          "select_type": "MATERIALIZED",
+          "table": "<derived3>",
+          "type": "ALL"
+        },
+        {
+          "Extra": "No tables used",
+          "id": "3",
+          "key": null,
+          "key_len": null,
+          "possible_keys": null,
+          "ref": null,
+          "rows": null,
+          "select_type": "DERIVED",
+          "table": "None",
+          "type": null
+        }
+      ],
+      "query_sha256": "7b9d9b3661e8d1582affc053629c9b72d03cab3bd6145b631b826bdbb5aa83bb"
+    },
+    "clinical_procedures": {
+      "plan": [
+        {
+          "Extra": "Using where; Using index; Using temporary",
+          "id": "1",
+          "key": "idx_cp_appointment",
+          "key_len": "4",
+          "possible_keys": "uq_cp_treatment,uq_cp_contract_item,uq_cp_charge_line,idx_cp_patient_status,idx_cp_examination,idx_cp_appointment,idx_cp_provider,idx_cp_scheduled_appointment",
+          "ref": "const",
+          "rows": "1",
+          "select_type": "PRIMARY",
+          "table": "clinical_procedures",
+          "type": "ref"
+        },
+        {
+          "Extra": "Distinct; FirstMatch(clinical_procedures)",
+          "id": "1",
+          "key": "key0",
+          "key_len": "4",
+          "possible_keys": "key0",
+          "ref": "democa_dental_saas_test.clinical_procedures.appointment_id",
+          "rows": "49",
+          "select_type": "PRIMARY",
+          "table": "<derived3>",
+          "type": "ref"
+        },
+        {
+          "Extra": "No tables used",
+          "id": "3",
+          "key": null,
+          "key_len": null,
+          "possible_keys": null,
+          "ref": null,
+          "rows": null,
+          "select_type": "DERIVED",
+          "table": "None",
+          "type": null
+        }
+      ],
+      "query_sha256": "b65cccb0cdbc4b9512875cac2b30889ca5b26eb3f9e538312d0bd40b6010350f"
+    },
+    "examinations": {
+      "plan": [
+        {
+          "Extra": "Using where; Using index; Using temporary",
+          "id": "1",
+          "key": "idx_examinations_clinic_appointment",
+          "key_len": "5",
+          "possible_keys": "clinic_id,idx_examinations_clinic_appointment",
+          "ref": "const",
+          "rows": "1",
+          "select_type": "PRIMARY",
+          "table": "examinations",
+          "type": "ref"
+        },
+        {
+          "Extra": "Using where; Distinct; FirstMatch(examinations)",
+          "id": "1",
+          "key": "key0",
+          "key_len": "4",
+          "possible_keys": "key0",
+          "ref": "democa_dental_saas_test.examinations.appointment_id",
+          "rows": "49",
+          "select_type": "PRIMARY",
+          "table": "<derived3>",
+          "type": "ref"
+        },
+        {
+          "Extra": "No tables used",
+          "id": "3",
+          "key": null,
+          "key_len": null,
+          "possible_keys": null,
+          "ref": null,
+          "rows": null,
+          "select_type": "DERIVED",
+          "table": "None",
+          "type": null
+        }
+      ],
+      "query_sha256": "3858163a67bdb762f0375133933834e2397c2c588a4d1f4cc4c0d940b58e7304"
+    },
+    "patients": {
+      "plan": [
+        {
+          "Extra": "",
+          "id": "1",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "possible_keys": "PRIMARY,clinic_id",
+          "ref": "const",
+          "rows": "1",
+          "select_type": "SIMPLE",
+          "table": "patients",
+          "type": "const"
+        }
+      ],
+      "query_sha256": "e1c35918e57e44c78923a0e57bbfba0c2c9c426dee20d40d5deddf78b998c9cf"
+    }
+  },
+  "fixture": {
+    "encounter_charges": 1,
+    "future_appointments": 5000,
+    "historical_appointments": 50000,
+    "historical_charges": 50000,
+    "patients": 2002,
+    "providers": 4
+  },
+  "report_summary": {
+    "omitted_elapsed_count": 1,
+    "reported_items_count": 4999,
+    "total_future_visits": 4999
+  }
+}
