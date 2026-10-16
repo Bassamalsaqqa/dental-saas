@@ -14,9 +14,8 @@ This runbook defines the isolated staging certification procedure for PR #3 (Dyn
 
 ### 1.1 Verified Test Suites in Repository
 The test suite structure for PR #3 staging certification consists of:
-1. **`tests/unit/PR3StagingCertificationTest.php`** (AGY Harness):
-   - `testRepresentativeSyntheticScaleBenchmarkAndHistoricalPreservation`: 50,000 historical + 5,000 future appointments + 50,000 charges + 2,002 patients. 4,999 active items reported (omits 07:00 elapsed; classifies 07:45 ongoing as non-reschedulable). Byte-identical snapshot hash across 6 tables.
-   - `testChargeQueryExplainAndScanAssessment`: EXPLAIN plan assessment of batch charge query against populated 50k-charge fixture. SHOW INDEX inventory without hard assertions on missing composite index.
+1. **`tests/unit/PR3StagingCertificationTest.php`** (AGY harness, four grouped tests):
+   - `testRepresentativeSyntheticScaleBenchmarkAndChargeQueryExplain`: Explicitly grouped scale benchmark (50,000 historical + 5,000 future appointments + 50,000 charges + 2,002 patients; 4,999 active items reported omitting 07:00 elapsed and classifying 07:45 ongoing as non-reschedulable; byte-identical snapshot hash across 6 tables) and EXPLAIN plan assessment of the batch charge query against the populated fixture via private helper `assessChargeQueryExplainAndScan()`. Removes ordering and same-process dependence; passes under filtered or random-order execution without duplicate fixture setup or fake IDs.
    - `testAuditReconstructionAndSyntheticRestoreRehearsal`: 320 affected appointments with long Arabic reasons (>64 KiB bundle). Full export of compact pointer + all part rows to JSON file with SHA256. Loss simulation (deletion of pointer + all parts) confirms fail-closed `null`. Complete restore under checked transaction verifies bit-for-bit SHA-256 equality.
    - `testRollbackRehearsalConfigurationFailureAndOperationalPreservation`: Second-part audit failure fault injection triggers full rollback (`transDepth = 0`) with preserved proof token for retry. Operational rollback verifies `cannotDisable` protection when provider appointments exist.
    - `testLegacyReadinessUnresolvedProvidersAndDisambiguation`: Direct non-overlapping seeding; verifies NULL provider retains NULL and chair snapshot without auto-backfilling; duplicate doctors disambiguated by numeric ID; completed visit is non-reschedulable (`reschedulable = false`).
@@ -207,18 +206,21 @@ Automated testing cannot replace clinic operator judgment:
 
 ### 8.1 Status of Certification Checks
 
-Final Codex run: **41 PHP tests / 643 assertions**, plus **198 EN/AR mobile Chromium assertions**. The five-test AGY class independently passed 106 assertions after corrections. Measurements, artifact hashes, scope and blockers: [production-readiness report](PRODUCTION_READINESS_2026-10-16.md) and [evidence JSON](evidence/PR3_STAGING_2026-10-16.json).
+Final Codex run: **41 PHP tests / 643 assertions**, plus **198 EN/AR mobile Chromium assertions**. The AGY harness class `PR3StagingCertificationTest.php` has been corrected to 4 independent, self-contained tests (106 assertions in final suite; benchmark + EXPLAIN assessment grouped into a single test), eliminating static state and ordering dependence. Measurements, artifact hashes, scope and blockers: [production-readiness report](PRODUCTION_READINESS_2026-10-16.md) and [evidence JSON](evidence/PR3_STAGING_2026-10-16.json).
+
+> [!NOTE]
+> All test measurements are documented as Codex-executed; reviewer static approval does not constitute executed certification. Root independently runs tests and reviews evidence.
 
 | Category | Check Description | Certification Status | Responsible Reviewer |
 | :--- | :--- | :--- | :--- |
-| **Harness Code** | PR3StagingCertificationTest syntax & structure | **VERIFIED (PHP -l clean)** | AGY (Implementer) |
+| **Harness Code** | PR3StagingCertificationTest syntax & structure (4 independent tests) | **VERIFIED (PHP -l clean)** | AGY (Implementer) |
 | **Concurrency Suite** | 8 concurrent workers shared/disjoint | **VERIFIED (2 tests, 159 assertions)** | Codex (Runner) |
 | **Hours Restoration** | Previous-hours restoration & default-off | **VERIFIED (2 tests, 22 assertions)** | Codex (Runner) |
-| **Scale Benchmark** | 50k historical + 5k future locked preview execution | **PASSED in final focused suite** | Codex (Runner) |
-| **Charge Index Scan** | EXPLAIN plan on populated clinical_charge_lines | **PASSED in final focused suite** | Codex (Runner) |
+| **Scale Benchmark & Plan** | 50k historical + 5k future preview + charge EXPLAIN | **PASSED in final focused suite** | Codex (Runner) |
 | **Audit Rehearsal** | Multipart restore & corrupt part rejection | **PASSED in final focused suite** | Codex (Runner) |
 | **Rollback Rehearsal**| Second-part fault injection & cannotDisable | **PASSED in final focused suite** | Codex (Runner) |
 | **Legacy Readiness** | Unresolved NULL providers & name disambiguation | **PASSED in final focused suite** | Codex (Runner) |
+| **Evidence Capture Tool** | stdlib capture/verification tool & SHA256 manifest | **VERIFIED (self-tests pass)** | AGY (Implementer) / Root (Runner) |
 | **Hostinger Parity** | Production runtime, extensions, & MariaDB match | **UNVERIFIED (Gated)** | Ops / Staging Gate |
 | **Operator Pilot** | Clinic staff walkthrough & Arabic UI sign-off | **UNVERIFIED (Gated)** | Clinic Operator |
 | **Communications** | Patient messaging & reminder queue integration | **UNVERIFIED (Gated)** | Staff Pilot Gate |
@@ -232,15 +234,93 @@ Approval of PR #3 is limited strictly to scheduling impact and provider profile 
 
 ---
 
-## 9. Test Execution Instructions (For Codex)
+## 9. Test Execution Instructions (For Codex & Root Runner)
 
-Codex must execute the certification harness on the dedicated test runner without coverage logging:
+Codex and Root execute the certification harness on the dedicated test runner without coverage logging:
 ```bash
-php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result tests/unit/PR3StagingCertificationTest.php
+# Full staging certification suite
+C:/xampp/php/php.exe scripts/safe_test_runner.php -c phpunit.staging-certification.xml --no-coverage --no-logging --do-not-cache-result > tmp/staging-final-php.log 2>&1
+
+# Mobile EN/AR Chromium rendering suite
+node tests/js/ScheduleImpactMobileTest.cjs > tmp/staging-final-mobile.log 2>&1
 ```
 
-### Expected Output Artifacts
+### Order-Independence Demonstrations
+Root will independently run filtered and randomized invocations to demonstrate test order independence:
+```bash
+# 1. Filtered single grouped test invocation (benchmark + EXPLAIN)
+C:/xampp/php/php.exe scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result --filter testRepresentativeSyntheticScaleBenchmarkAndChargeQueryExplain tests/unit/PR3StagingCertificationTest.php
+
+# 2. Randomized test order invocation across the class
+C:/xampp/php/php.exe scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result --order-by=random tests/unit/PR3StagingCertificationTest.php
+```
+
+### Expected Intermediate Artifacts in `tmp/`
+- `tmp/staging-final-php.log`: Full stdout log from safe test runner.
+- `tmp/staging-final-mobile.log`: Full stdout log from mobile Chromium test.
 - `tmp/pr3-staging-scale.json`: Scale metrics, query counts, memory usage, and EXPLAIN plans.
 - `tmp/pr3-charge-index-assessment.json`: Charge-query index scan analysis and migration assessment.
-- `tmp/pr3-staging-audit-export.json`: Exported fixture audit parts with SHA-256 verification hash.
-- `tmp/agy-staging-findings.md`: Summary of implementer verification and open staging gates.
+- `tmp/pr3-staging-audit-export.json`: Exported fixture audit parts with SHA-256 verification hash (internal test fixture; not committed).
+
+---
+
+## 10. Committed Evidence Capture & Verification Procedure (P2 Follow-Up)
+
+To make staging execution evidence accessible, auditable, and hash-linked in GitHub, PR #4 provides `scripts/capture_pr3_staging_evidence.py`.
+
+### 10.1 Capture Tool Constraints and Limits
+- **Standard Library Only:** Zero third-party dependencies (pure Python 3.12 stdlib).
+- **Execution Provenance (`execution-record.json`):** Requires a root-produced execution record (schema 1) binding ordered execution steps (`final-php`, `final-mobile`), command arguments, exit codes (`0`), stdout files with SHA-256 digests, and intermediate artifact digests (`pr3-staging-scale.json`, `pr3-charge-index-assessment.json`). Binds scale and charge assessment files directly to the execution run to reject mismatched source/log/metric records.
+- **Strict Field Projection (Privacy by Construction):** Raw JSON artifacts are never copied wholesale. The tool projects a strict safe schema:
+  - Scale: fixture volumes (50k historical, 5k future, 50k charges, 2,002 patients), timing budgets, row counts and hashes across all 6 core tables, and EXPLAIN plan row definitions.
+  - Excluded from output: SQL statement text, `query_prefix`, `explain_query_prefix`, worker point-lock logs, actor/patient/clinic IDs, review IDs, and canaries.
+  - Optional metrics: concurrency projected to worker counts and elapsed seconds only; rollback projected to booleans only.
+- **Path Integrity & Safety:**
+  - Destination output directory must be empty or newly created; non-empty destinations are strictly refused.
+  - Input and output directories must not overlap or be subdirectories of each other.
+  - Symlinks in input or output are strictly rejected.
+  - Verifier artifact names must be exact fixed basenames with no directory separators or `../` traversal.
+  - `manifest.sha256` and `manifest.json` require the exact same set of artifacts with identical SHA-256 digests.
+- **Canonical LF Source Integrity:** Hashes the fixed allowlist of relevant test, fixture, runner, preflight, and scheduling service source files using canonical LF-normalized UTF-8 (`\r\n` converted to `\n`), guaranteeing that git checkout line ending differences do not cause spurious source drift.
+- **Six-Table Preservation & Volume Verification:** Insists on all 6 core tables (`appointments` 55,000, `clinical_charge_lines` 50,001, `patients` 2,002, `examinations` 1, `finances` 1, `clinical_procedures` 0) matching identical before and after byte hashes.
+- **Plan Provenance Binding:** Validates that `query_sha256` and plan rows in `pr3-charge-index-assessment.json` bit-for-bit match the scale report's `explain['clinical_charge_lines']`.
+
+### 10.2 Procedure for Codex / Root Execution
+
+1. **Run test suites and generate `execution-record.json`:**
+   Root executes the test runner commands, captures stdout logs into `tmp/`, and outputs `tmp/execution-record.json` with step metadata, zero exit codes, and source before/after canonical hashes:
+   ```bash
+   C:/xampp/php/php.exe scripts/safe_test_runner.php -c phpunit.staging-certification.xml --no-coverage --no-logging --do-not-cache-result > tmp/staging-final-php.log 2>&1
+   node tests/js/ScheduleImpactMobileTest.cjs > tmp/staging-final-mobile.log 2>&1
+   ```
+
+2. **Capture, project, and bind evidence:**
+   ```bash
+   python scripts/capture_pr3_staging_evidence.py capture --input-dir tmp --output-dir docs/SaaS/evidence/staging_pr3
+   ```
+   > [!NOTE]
+   > Real root-run capture occurs after review; AGY does not execute database tests or claim passes. Root will independently verify actual evidence and run the tool.
+
+3. **Verify captured evidence:**
+   ```bash
+   # Verify committed artifact integrity and provenance
+   python scripts/capture_pr3_staging_evidence.py verify --evidence-dir docs/SaaS/evidence/staging_pr3
+
+   # Optionally verify working tree source match against declared digests
+   python scripts/capture_pr3_staging_evidence.py verify --evidence-dir docs/SaaS/evidence/staging_pr3 --verify-source
+   ```
+
+4. **Run tool self-tests:**
+   ```bash
+   python scripts/capture_pr3_staging_evidence.py --test
+   ```
+
+This is an unsigned, executor-declared hash-linked record committed for review. Hashes detect mismatches; they do not establish a trusted timestamp, independent test execution or a cryptographic operator attestation. The committed sanitized logs and metrics can be inspected and reproduced without exposing raw fixture audit bundles.
+
+### 10.3 Corrected execution record
+
+The P2 follow-up passed **40 PHP tests / 642 assertions**, **198 mobile assertions**, and **17 capture-tool self-tests**. The grouped scale+EXPLAIN test passed filtered alone (1/28) and in randomized class order (4/105, seed 416). The original 41-test result belongs to the previously approved source; one public test is now grouped, preserving its EXPLAIN assertions.
+
+Inspect committed [sanitized stdout and metrics](evidence/pr4-p2-20261016/manifest.json). Verify with `python scripts/capture_pr3_staging_evidence.py verify --evidence-dir docs/SaaS/evidence/pr4-p2-20261016 --verify-source`.
+
+The [exact root-run wrapper](evidence/p2_capture_runner.py.txt) is published as documentation, byte-identical to the wrapper executed from `tmp/run_final_p2.py`. It records the independently verified disposable MariaDB 10.4.32 version; do not reuse that environment declaration on another instance without an ownership/identity/version check. To reproduce, use a fresh isolated checkout and a separately authorized, already-provisioned owned test DB; copy the documented wrapper to `tmp/run_final_p2.py`, execute it from the repository root, then capture from `tmp/p2-capture-source` into a **new empty destination**. It does not provision, repair or migrate any database. Existing committed evidence must never be overwritten to imply it came from a later run.

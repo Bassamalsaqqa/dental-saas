@@ -1,0 +1,30 @@
+from pathlib import Path
+import importlib.util,subprocess,time,datetime,json,hashlib,shutil
+root=Path.cwd()
+spec=importlib.util.spec_from_file_location('capture',root/'scripts/capture_pr3_staging_evidence.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+before=m.compute_all_source_digests(root)
+steps=[]
+for name,exe,filename in [('final-php','C:/xampp/php/php.exe','staging-final-php.log'),('final-mobile','node','staging-final-mobile.log')]:
+ cmd=[exe]+m.EXPECTED_COMMAND_ARGS[name]
+ start_ns=time.time_ns();start=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.perf_counter()
+ r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180)
+ end_ns=time.time_ns();end=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ path=root/'tmp'/filename;path.write_bytes(r.stdout)
+ steps.append({'name':name,'argv':cmd,'exit_code':r.returncode,'started_at':start,'finished_at':end,'elapsed_seconds':time.perf_counter()-t,'stdout_file':filename,'output_sha256':m.sha256_file(path)})
+ print(name,r.returncode,r.stdout.decode('utf8',errors='replace')[-450:],flush=True)
+ if r.returncode:raise SystemExit(r.returncode)
+ if name=='final-php':
+  m.validate_php_log(r.stdout.decode('utf8'))
+  php_start_ns=start_ns;php_end_ns=end_ns
+ else:m.validate_mobile_log(r.stdout.decode('utf8'))
+after=m.compute_all_source_digests(root)
+if before!=after:raise RuntimeError('Source changed during final execution')
+artifacts=['pr3-staging-scale.json','pr3-charge-index-assessment.json','pr3-staging-concurrency.json','pr3-staging-rollback.json']
+for name in artifacts:
+ path=root/'tmp'/name
+ if not php_start_ns<=path.stat().st_mtime_ns<=php_end_ns:raise RuntimeError('Stale artifact: '+name)
+record={'schema_version':1,'target_pr_sha':m.DEFAULT_TARGET_PR_SHA,'environment':{'php_version':subprocess.check_output(['C:/xampp/php/php.exe','-r','echo PHP_VERSION;']).decode(),'mariadb_version':'10.4.32'},'ordered_steps':steps,'source_before_hashes':before,'source_after_hashes':after,'artifact_hashes':{n:m.sha256_file(root/'tmp'/n) for n in artifacts},'metrics_fresh_within_final_php_run':True}
+(root/'tmp/execution-record.json').write_bytes((json.dumps(record,indent=2)+'\n').encode('utf8'))
+stage=root/'tmp/p2-capture-source';stage.mkdir(exist_ok=False)
+for name in artifacts+['staging-final-php.log','staging-final-mobile.log','execution-record.json']:shutil.copy2(root/'tmp'/name,stage/name)
+print('Final execution source/log/metric provenance bound; narrow capture inputs staged.',flush=True)

@@ -28,7 +28,6 @@ use Tests\Support\PhaseBFixture;
  */
 final class PR3StagingCertificationTest extends PhaseBFixture
 {
-    private static ?array $scaleEvidence = null;
 
     protected function tearDown(): void
     {
@@ -50,7 +49,7 @@ final class PR3StagingCertificationTest extends PhaseBFixture
     }
 
     /**
-     * 1. Representative synthetic scale benchmark & historical byte-preservation:
+     * 1. Representative synthetic scale benchmark & historical byte-preservation with charge-query EXPLAIN assessment:
      * - 50,000 historical appointments + 5,000 future appointments.
      * - 50,000 historical charges + 1 active encounter charge dependency.
      * - 2,002 synthetic patients (1 base + 1 historical + 2,000 generated) + 4 providers.
@@ -62,8 +61,10 @@ final class PR3StagingCertificationTest extends PhaseBFixture
      * - Benchmark locked preview (lockState + generateReport) on same connection owned transaction.
      * - Separate lock phase query count: point locks scale O(future appointments); no claim of O(1) locks.
      * - Byte-identical snapshot hash/count across appointments, patients, exams, charges, procedures, finances.
+     * - Invokes assessChargeQueryExplainAndScan() as private helper with same populated fixture & metrics,
+     *   eliminating inter-test ordering / static state dependence.
      */
-    public function testRepresentativeSyntheticScaleBenchmarkAndHistoricalPreservation(): void
+    public function testRepresentativeSyntheticScaleBenchmarkAndChargeQueryExplain(): void
     {
         $now = new DateTimeImmutable('2030-01-07 06:00:00', new DateTimeZone('UTC'));
         Time::setTestNow(Time::parse('2030-01-07 06:00:00', 'UTC'));
@@ -453,19 +454,20 @@ final class PR3StagingCertificationTest extends PhaseBFixture
 
         // Configurable finite budget check
         $this->assertLessThan(60.0, $previewElapsed, '5,000 future visits with 50,000 historical visits must complete within finite budget.');
-        self::$scaleEvidence = $metrics;
+
+        // Assess charge-query EXPLAIN plan and indexes using the populated fixture metrics in-process
+        $this->assessChargeQueryExplainAndScan($metrics);
     }
 
     /**
-     * 2. Charge-query EXPLAIN assessment & index scan verification:
+     * Charge-query EXPLAIN assessment & index scan verification:
      * - Inspect existing indexes on clinical_charge_lines.
-     * - Uses the actual populated scale appointments from test 1 (or query real horizon appointment IDs).
-     * - Runs EXPLAIN on the real batch charge check query against populated 50,000 charges.
+     * - Evaluates optimizer plan for batch charge check on populated 50,001 clinical_charge_lines.
      * - Records optimizer selected key, estimated rows, and scan behavior.
      * - Does NOT hard-assert absence of composite index (allows future additive index without failing).
      * - Documents index proposal as separately reviewed future migration; do not mutate schema here.
      */
-    public function testChargeQueryExplainAndScanAssessment(): void
+    private function assessChargeQueryExplainAndScan(array $scale): void
     {
         $indexes = $this->db->query('SHOW INDEX FROM clinical_charge_lines')->getResultArray();
         $indexColumns = [];
@@ -475,12 +477,9 @@ final class PR3StagingCertificationTest extends PhaseBFixture
             $indexColumns[$keyName][] = $colName;
         }
 
-        // PHPUnit recreates fixtures per method. Consume only the populated plan captured
-        // in this run's scale method; never EXPLAIN an empty fresh clinic or invented IDs.
-        $scale = self::$scaleEvidence;
-        $this->assertNotNull($scale, 'Run the complete certification class: populated scale evidence must pass in this PHP process.');
         $this->assertSame(50001, $scale['before_rows']['clinical_charge_lines']['count']);
         $this->assertSame($scale['before_rows'], $scale['after_rows']);
+        $this->assertArrayHasKey('clinical_charge_lines', $scale['explain'] ?? []);
         $captured = $scale['explain']['clinical_charge_lines'];
         $plan = $captured['plan'];
         $this->assertNotEmpty($plan);
@@ -519,7 +518,7 @@ final class PR3StagingCertificationTest extends PhaseBFixture
     }
 
     /**
-     * 3. Audit reconstruction + synthetic restore rehearsal:
+     * 2. Audit reconstruction + synthetic restore rehearsal:
      * - configureHours with proof and >=300 affected visits + long Arabic reasons (>64 KiB multipart bundle).
      * - Export exact own compact pointer row + ALL own bundle part rows to JSON file with SHA256.
      * - Loss simulation: delete ALL own bundle parts and compact pointer row, commit txn; verify both read null.
@@ -704,7 +703,7 @@ final class PR3StagingCertificationTest extends PhaseBFixture
     }
 
     /**
-     * 4. Rollback rehearsal:
+     * 3. Rollback rehearsal:
      * - Subtype fault injection on 2nd audit part throws exception.
      * - Transaction rollback must restore settings and appointments, transDepth = 0.
      * - Proof token preserved in session, retry without fault succeeds.
@@ -853,7 +852,7 @@ final class PR3StagingCertificationTest extends PhaseBFixture
     }
 
     /**
-     * 5. EN/AR and legacy readiness:
+     * 4. EN/AR and legacy readiness:
      * - Cites existing tests for routed EN/AR preview/apply/recheck & mobile viewport checks:
      *   * ScheduleImpactWorkflowTest::testRealRoutedEnglishArabicPreviewApplyAndRecheckWithCsrfAndPermissionChecks
      *   * ScheduleImpactWorkflowTest::testLosslessArabicBundleOver64KiBHasByteBoundedPartsAndCompactPointer

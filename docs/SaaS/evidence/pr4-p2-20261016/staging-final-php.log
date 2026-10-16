@@ -1,0 +1,10 @@
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: [WORKSPACE_ROOT]\phpunit.staging-certification.xml
+
+........................................                          40 / 40 (100%)
+
+Time: 00:37.770, Memory: 64.00 MB
+
+OK (40 tests, 642 assertions)

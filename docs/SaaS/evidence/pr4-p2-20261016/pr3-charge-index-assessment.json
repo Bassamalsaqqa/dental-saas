@@ -1,0 +1,72 @@
+{
+  "assessment_summary": {
+    "limits": "EXPLAIN estimates only; no DDL or production capacity certification."
+  },
+  "composite_clinic_appointment_index_present": false,
+  "indexes_present": [
+    "PRIMARY",
+    "idx_ccl_patient_status",
+    "idx_ccl_examination",
+    "idx_ccl_treatment",
+    "idx_ccl_finance",
+    "idx_ccl_source_entity",
+    "idx_ccl_provider",
+    "idx_ccl_charge_date"
+  ],
+  "optimizer_selected_key": "idx_ccl_patient_status",
+  "plan": [
+    {
+      "Extra": "Using temporary",
+      "id": "1",
+      "key": "idx_ccl_patient_status",
+      "key_len": "4",
+      "possible_keys": "idx_ccl_patient_status,idx_ccl_examination,idx_ccl_treatment,idx_ccl_finance,idx_ccl_source_entity,idx_ccl_provider,idx_ccl_charge_date",
+      "ref": "const",
+      "rows": "25001",
+      "select_type": "PRIMARY",
+      "table": "clinical_charge_lines",
+      "type": "ref"
+    },
+    {
+      "Extra": "Distinct",
+      "id": "1",
+      "key": "distinct_key",
+      "key_len": "4",
+      "possible_keys": "distinct_key",
+      "ref": "func",
+      "rows": "1",
+      "select_type": "PRIMARY",
+      "table": "<subquery2>",
+      "type": "eq_ref"
+    },
+    {
+      "Extra": "",
+      "id": "2",
+      "key": null,
+      "key_len": null,
+      "possible_keys": null,
+      "ref": null,
+      "rows": "4999",
+      "select_type": "MATERIALIZED",
+      "table": "<derived3>",
+      "type": "ALL"
+    },
+    {
+      "Extra": "No tables used",
+      "id": "3",
+      "key": null,
+      "key_len": null,
+      "possible_keys": null,
+      "ref": null,
+      "rows": null,
+      "select_type": "DERIVED",
+      "table": "None",
+      "type": null
+    }
+  ],
+  "plan_estimated_rows": "25001",
+  "populated_charge_rows": 50001,
+  "query_sha256": "7b9d9b3661e8d1582affc053629c9b72d03cab3bd6145b631b826bdbb5aa83bb",
+  "source": "current-run populated scale report query",
+  "table": "clinical_charge_lines"
+}
