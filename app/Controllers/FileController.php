@@ -117,6 +117,9 @@ class FileController extends BaseController
      */
     public function inline($id)
     {
+        // Apply before authorization so controller-produced denial responses also
+        // prevent retaining clinical content across logout or clinic changes.
+        $this->response->noCache();
         $auth = $this->authorizeAttachmentAccess((int) $id, 'inline');
         if ($auth instanceof \CodeIgniter\HTTP\ResponseInterface) {
             return $auth;

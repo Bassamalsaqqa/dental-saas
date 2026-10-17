@@ -201,6 +201,7 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
         $downloadRes->assertStatus(200);
         $this->assertInstanceOf(\CodeIgniter\HTTP\DownloadResponse::class, $downloadRes->response());
         $downloadRes->response()->buildHeaders(); // Feature requests defer the framework send phase.
+        $this->assertNoStore($downloadRes);
         $downloadRes->assertHeader('Content-Type', 'application/pdf; charset=UTF-8');
         $downloadRes->assertHeader('X-Content-Type-Options', 'nosniff');
         $this->assertStringContainsString('attachment', (string) $downloadRes->response()->getHeaderLine('Content-Disposition'));
@@ -209,6 +210,7 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
         // Test Inline
         $inlineRes = $this->withSession($session)->get('/file/inline/' . $attachmentId);
         $inlineRes->assertStatus(200);
+        $this->assertNoStore($inlineRes);
         $inlineRes->assertHeader('Content-Type', 'application/pdf');
         $inlineRes->assertHeader('X-Content-Type-Options', 'nosniff');
         $inlineRes->assertHeader('Content-Security-Policy', "default-src 'none'; base-uri 'none'; sandbox");
@@ -229,6 +231,7 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
         $downloadRes->assertStatus(200);
         $this->assertInstanceOf(\CodeIgniter\HTTP\DownloadResponse::class, $downloadRes->response());
         $downloadRes->response()->buildHeaders();
+        $this->assertNoStore($downloadRes);
         $downloadRes->assertHeader('Content-Type', 'image/png; charset=UTF-8');
         $downloadRes->assertHeader('X-Content-Type-Options', 'nosniff');
         $this->assertStringContainsString('attachment', (string) $downloadRes->response()->getHeaderLine('Content-Disposition'));
@@ -236,6 +239,7 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
         // Test Inline in Arabic locale
         $inlineRes = $this->withSession($session)->get('/file/inline/' . $attachmentId);
         $inlineRes->assertStatus(200);
+        $this->assertNoStore($inlineRes);
         $inlineRes->assertHeader('Content-Type', 'image/png');
         $inlineRes->assertHeader('X-Content-Type-Options', 'nosniff');
         $inlineRes->assertHeader('Content-Security-Policy', "default-src 'none'; base-uri 'none'; sandbox");
@@ -284,6 +288,7 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
 
         $inlineRes = $this->withSession($session)->get('/file/inline/' . $attachmentId);
         $inlineRes->assertStatus(403);
+        $this->assertNoStore($inlineRes);
     }
 
     // =========================================================================
@@ -447,6 +452,7 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
         // Inline viewing must detect actual HTML and reject with 403 Forbidden
         $inlineRes = $this->withSession($session)->get('/file/inline/' . $forgedId);
         $inlineRes->assertStatus(403);
+        $this->assertNoStore($inlineRes);
 
         // Download serves untrusted active type safely as application/octet-stream with nosniff
         $downloadRes = $this->withSession($session)->get('/file/download/' . $forgedId);
@@ -1318,5 +1324,11 @@ final class ClinicalFileAuthorizationTest extends CIUnitTestCase
             return;
         }
         $this->db->table($table)->whereIn('id', $ids)->delete();
+    }
+
+    private function assertNoStore(\CodeIgniter\Test\TestResponse $result): void
+    {
+        $directives = array_map('trim', explode(',', strtolower($result->response()->getHeaderLine('Cache-Control'))));
+        $this->assertContains('no-store', $directives, 'Clinical delivery and controller denials must not be cached');
     }
 }
