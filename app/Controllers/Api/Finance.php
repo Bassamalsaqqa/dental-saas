@@ -172,15 +172,28 @@ class Finance extends ResourceController
             return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
         }
 
-        $existing = $this->model->where('clinic_id', $clinicId)->find($id);
-        if (!$existing) {
+        $actorId = (int) (\App\Libraries\ApiRuntimeContext::getUserId() ?? 0);
+        if ($actorId <= 0) {
+            return $this->failUnauthorized('Authentication required');
+        }
+
+        if ($id === null || !is_scalar($id) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)) {
             return $this->failNotFound('Invoice not found');
         }
 
-        if (!$this->model->where('clinic_id', $clinicId)->delete($id)) {
+        try {
+            $service = new \App\Services\FinanceMutationService(\Config\Database::connect());
+            $service->deleteUnused((int) $clinicId, [(int) $id], $actorId);
+            return $this->respondDeleted(['id' => (int) $id]);
+        } catch (\DomainException $e) {
+            $message = $e->getMessage();
+            if (str_contains($message, 'not found')) {
+                return $this->failNotFound('Invoice not found');
+            }
+            return $this->fail($message, 400);
+        } catch (\Throwable $e) {
+            log_message('error', 'API Finance delete error: ' . $e->getMessage());
             return $this->failServerError('Failed to delete finance entry');
         }
-
-        return $this->respondDeleted(['id' => (int) $id]);
     }
 }

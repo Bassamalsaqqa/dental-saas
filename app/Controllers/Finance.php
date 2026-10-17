@@ -16,6 +16,7 @@ use App\Models\UserModel;
 use App\Services\ActivityLogger;
 use App\Services\ClinicalChargeLineService;
 use App\Services\FinanceTreasuryService;
+use App\Services\FinanceMutationService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
 use App\Libraries\ApiRuntimeContext;
@@ -36,6 +37,7 @@ class Finance extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected $financeTreasuryService;
+    protected FinanceMutationService $financeMutationService;
     protected $planGuard;
     protected $db;
     protected ClinicalChargeLineService $chargeLineService;
@@ -59,6 +61,7 @@ class Finance extends BaseController
         $this->financeTreasuryService = new FinanceTreasuryService();
         $this->planGuard = new PlanGuard();
         $this->db = \Config\Database::connect();
+        $this->financeMutationService = new FinanceMutationService($this->db, $this->financeTreasuryService);
         $this->chargeLineService = new ClinicalChargeLineService();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
@@ -593,7 +596,8 @@ class Finance extends BaseController
     private function upsertProviderPayouts(int $clinicId, int $financeId, int $patientId, float $grossAmount): void
     {
         $payloads = $this->normalizeProviderSplitPayloads($clinicId, $grossAmount);
-        $existingRows = $this->providerPayoutModel->getRowsByFinanceId($clinicId, $financeId);
+        // Cooperate with same parent -> payout ordering, locking current payment rows
+        $existingRows = $this->financeMutationService->lockPayouts($clinicId, $financeId);
         $existingById = [];
         foreach ($existingRows as $row) {
             $existingById[(int) $row['id']] = $row;
@@ -601,13 +605,19 @@ class Finance extends BaseController
 
         if (empty($payloads)) {
             foreach ($existingRows as $existing) {
-                $paidTotal = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, (int) $existing['id']);
-                if ($paidTotal > 0) {
+                $existingId = (int) $existing['id'];
+                $payments = $this->financeMutationService->payoutPayments($clinicId, $existingId);
+                $ledgerPaid = round(array_sum(array_column($payments, 'amount')), 2);
+                $cachedPaid = round((float) ($existing['provider_paid_amount'] ?? 0), 2);
+                $actualPaid = round(max($ledgerPaid, $cachedPaid), 2);
+                if ($payments !== [] || $actualPaid > 0) {
                     throw new \RuntimeException('Cannot disable clinical provider compensation after payout payments are recorded.');
                 }
             }
             foreach ($existingRows as $existing) {
-                $this->providerPayoutModel->delete((int) $existing['id']);
+                if (!$this->providerPayoutModel->delete((int) $existing['id'])) {
+                    throw new \RuntimeException('Failed to delete provider allocation.');
+                }
             }
             return;
         }
@@ -641,50 +651,91 @@ class Finance extends BaseController
                     throw new \RuntimeException('A provider allocation could not be matched for update.');
                 }
 
-                $paidTotal = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, $payoutId);
-                if ($paidTotal > $payload['provider_share_amount']) {
-                    throw new \RuntimeException('Provider share cannot be lower than payout already recorded.');
+                $payments = $this->financeMutationService->payoutPayments($clinicId, $payoutId);
+                $ledgerPaid = round(array_sum(array_column($payments, 'amount')), 2);
+                $cachedPaid = round((float) ($existing['provider_paid_amount'] ?? 0), 2);
+                $actualPaid = round(max($ledgerPaid, $cachedPaid), 2);
+
+                if ($payments !== [] || $actualPaid > 0) {
+                    if ((int) ($existing['patient_id'] ?? 0) !== $patientId
+                        || $existing['provider_type'] !== $payload['provider_type']
+                        || (int) ($existing['provider_user_id'] ?? 0) !== (int) ($payload['provider_user_id'] ?? 0)) {
+                        throw new \RuntimeException('Cannot reassign provider allocation after payout payments are recorded.');
+                    }
+                    if ($existing['provider_type'] === 'guest'
+                        && trim((string) ($existing['provider_name_snapshot'] ?? '')) !== trim((string) ($payload['provider_name_snapshot'] ?? ''))) {
+                        throw new \RuntimeException('Cannot reassign provider allocation after payout payments are recorded.');
+                    }
+                    if ((string) ($existing['currency'] ?? '') !== (string) ($payload['currency'] ?? '')) {
+                        throw new \RuntimeException('Cannot change currency of a provider allocation after payout payments are recorded.');
+                    }
+                    if ($payload['provider_share_amount'] < $actualPaid) {
+                        throw new \RuntimeException('Provider share cannot be lower than payout already recorded.');
+                    }
                 }
 
                 $additionalPaymentAmount = round((float) ($payload['provider_paid_amount'] ?? 0), 2);
-                $remainingBeforeInlinePayment = round(max(0, $payload['provider_share_amount'] - $paidTotal), 2);
+                $remainingBeforeInlinePayment = round(max(0, $payload['provider_share_amount'] - $actualPaid), 2);
                 if ($additionalPaymentAmount > $remainingBeforeInlinePayment) {
                     throw new \RuntimeException('Provider payment cannot exceed the remaining provider balance.');
                 }
 
                 if ($additionalPaymentAmount > 0) {
                     $inlineMethod = $payload['provider_payment_method'] ?? 'cash';
-                    $this->providerPayoutPaymentModel->insert([
+                    if (!in_array($inlineMethod, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
+                        $inlineMethod = 'cash';
+                    }
+                    $inlineAccount = $this->normalizeLiquidityAccountInput($inlineMethod, 'out', 'provider_payout');
+                    $paidDate = $payload['provider_paid_date'] ?? date('Y-m-d');
+
+                    if (!$this->providerPayoutPaymentModel->insert([
+                        'clinic_id' => $clinicId,
                         'provider_payout_id' => $payoutId,
                         'amount' => $additionalPaymentAmount,
                         'payment_method' => $inlineMethod,
-                        'liquidity_account' => $this->normalizeLiquidityAccountInput($inlineMethod, 'out', 'provider_payout'),
-                        'paid_date' => $payload['provider_paid_date'] ?? date('Y-m-d'),
+                        'liquidity_account' => $inlineAccount,
+                        'paid_date' => $paidDate,
                         'notes' => 'Paid while updating transaction',
                         'created_by' => $this->resolveActorUserId(),
-                    ]);
+                    ])) {
+                        throw new \RuntimeException('Failed to record provider payout payment.');
+                    }
 
-                    $paidTotal += $additionalPaymentAmount;
+                    $actualPaid = round($actualPaid + $additionalPaymentAmount, 2);
                 }
 
-                $payoutData['provider_paid_amount'] = round($paidTotal, 2);
-                $payoutData['provider_balance_due'] = round(max(0, $payload['provider_share_amount'] - $paidTotal), 2);
-                $payoutData['status'] = $payoutData['provider_balance_due'] <= 0 ? 'paid' : ($paidTotal > 0 ? 'partial' : 'unpaid');
-                $this->providerPayoutModel->update($payoutId, $payoutData);
+                $payoutData['provider_paid_amount'] = $actualPaid;
+                $payoutData['provider_balance_due'] = round(max(0, $payload['provider_share_amount'] - $actualPaid), 2);
+                $payoutData['status'] = $payoutData['provider_balance_due'] <= 0 ? 'paid' : ($actualPaid > 0 ? 'partial' : 'unpaid');
+                if (!$this->providerPayoutModel->update($payoutId, $payoutData)) {
+                    throw new \RuntimeException('Failed to update provider allocation.');
+                }
             } else {
-                $this->providerPayoutModel->insert($payoutData);
+                if (!$this->providerPayoutModel->insert($payoutData)) {
+                    throw new \RuntimeException('Failed to insert provider allocation.');
+                }
                 $payoutId = (int) $this->providerPayoutModel->getInsertID();
+                if ($payoutId <= 0) {
+                    throw new \RuntimeException('Failed to retrieve provider allocation ID.');
+                }
                 if ($payload['provider_paid_amount'] > 0) {
                     $inlineMethod = $payload['provider_payment_method'] ?? 'cash';
-                    $this->providerPayoutPaymentModel->insert([
+                    if (!in_array($inlineMethod, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
+                        $inlineMethod = 'cash';
+                    }
+                    $inlineAccount = $this->normalizeLiquidityAccountInput($inlineMethod, 'out', 'provider_payout');
+                    if (!$this->providerPayoutPaymentModel->insert([
+                        'clinic_id' => $clinicId,
                         'provider_payout_id' => $payoutId,
                         'amount' => $payload['provider_paid_amount'],
                         'payment_method' => $inlineMethod,
-                        'liquidity_account' => $this->normalizeLiquidityAccountInput($inlineMethod, 'out', 'provider_payout'),
+                        'liquidity_account' => $inlineAccount,
                         'paid_date' => $payload['provider_paid_date'] ?? date('Y-m-d'),
                         'notes' => 'Paid at transaction creation',
                         'created_by' => $this->resolveActorUserId(),
-                    ]);
+                    ])) {
+                        throw new \RuntimeException('Failed to record provider payout payment.');
+                    }
                 }
             }
 
@@ -697,11 +748,16 @@ class Finance extends BaseController
             if (in_array($existingId, $keptIds, true)) {
                 continue;
             }
-            $paidTotal = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, $existingId);
-            if ($paidTotal > 0) {
+            $payments = $this->financeMutationService->payoutPayments($clinicId, $existingId);
+            $ledgerPaid = round(array_sum(array_column($payments, 'amount')), 2);
+            $cachedPaid = round((float) ($existing['provider_paid_amount'] ?? 0), 2);
+            $actualPaid = round(max($ledgerPaid, $cachedPaid), 2);
+            if ($payments !== [] || $actualPaid > 0) {
                 throw new \RuntimeException('Cannot remove a provider allocation after payout payments are recorded.');
             }
-            $this->providerPayoutModel->delete($existingId);
+            if (!$this->providerPayoutModel->delete($existingId)) {
+                throw new \RuntimeException('Failed to delete provider allocation.');
+            }
         }
     }
 
@@ -712,23 +768,28 @@ class Finance extends BaseController
             return;
         }
 
-        $totalPaid = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, $payoutId);
+        $payments = $this->financeMutationService->payoutPayments($clinicId, $payoutId);
+        $totalPaid = round(array_sum(array_column($payments, 'amount')), 2);
+        $cachedPaid = round((float) ($payout['provider_paid_amount'] ?? 0), 2);
+        $effectivePaid = round(max($totalPaid, $cachedPaid), 2);
         $share = floatval($payout['provider_share_amount'] ?? 0);
-        $balance = max(0, round($share - $totalPaid, 2));
+        $balance = max(0, round($share - $effectivePaid, 2));
 
         $status = 'unpaid';
         if ($share <= 0 || $balance <= 0) {
             $status = 'paid';
-        } elseif ($totalPaid > 0) {
+        } elseif ($effectivePaid > 0) {
             $status = 'partial';
         }
 
         $this->providerPayoutModel->setValidationRules([]);
-        $this->providerPayoutModel->update($payoutId, [
-            'provider_paid_amount' => round($totalPaid, 2),
+        if (!$this->providerPayoutModel->update($payoutId, [
+            'provider_paid_amount' => $effectivePaid,
             'provider_balance_due' => $balance,
             'status' => $status,
-        ]);
+        ])) {
+            throw new \RuntimeException('Failed to sync provider payout status.');
+        }
     }
 
     public function index()
@@ -1771,56 +1832,43 @@ class Finance extends BaseController
                 return redirect()->to('/clinic/select');
             }
 
-            $finance = $this->financeModel->findByClinic($clinicId, $id);
-
-            if (!$finance) {
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
                 if ($this->request->isAJAX()) {
-                    return $this->response->setJSON(['success' => false, 'message' => 'Financial transaction not found']);
-                } else {
-                    return redirect()->back()->with('error', 'Financial transaction not found');
+                    return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.']);
                 }
+                return redirect()->to('/login');
             }
 
-            if ($this->financeModel->delete($id)) {
-                // Get patient name for the activity log (scoped)
-                $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
-                $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
+            $this->financeMutationService->deleteUnused((int) $clinicId, [$id], $actorId);
 
-                // Calculate total amount for the activity log
-                $totalAmount = floatval($finance['amount']) - floatval($finance['discount_amount'] ?? 0) + floatval($finance['tax_amount'] ?? 0);
-
-                // Log the finance deletion activity
-                $this->activityLogger->logFinanceActivity(
-                    'delete',
-                    $id,
-                    "Financial transaction deleted for {$patientName} - {$finance['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2)
-                );
-
-                if ($this->request->isAJAX()) {
-                    return $this->response->setJSON(['success' => true, 'message' => 'Financial transaction has been deleted successfully!']);
-                } else {
-                    $returnTo = $this->sanitizeInternalReturnTo(
-                        (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
-                        ['patient', 'patients', 'finance']
-                    );
-                    if ($returnTo) {
-                        return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been deleted successfully!');
-                    }
-                    return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been deleted successfully!');
-                }
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Financial transaction has been deleted successfully!']);
             } else {
-                if ($this->request->isAJAX()) {
-                    return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete transaction. Please try again.']);
-                } else {
-                    return redirect()->back()->with('error', 'Failed to delete transaction. Please try again.');
+                $returnTo = $this->sanitizeInternalReturnTo(
+                    (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
+                    ['patient', 'patients', 'finance']
+                );
+                if ($returnTo) {
+                    return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been deleted successfully!');
                 }
+                return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been deleted successfully!');
             }
-        } catch (\Exception $e) {
+        } catch (\DomainException $e) {
+            $message = $e->getMessage();
+            if (str_contains($message, 'not found')) {
+                $message = 'Financial transaction not found';
+            }
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => $message]);
+            }
+            return redirect()->back()->with('error', $message);
+        } catch (\Throwable $e) {
             log_message('error', 'Exception in delete - ID: ' . $id . ', Error: ' . $e->getMessage());
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete transaction. Please try again.']);
             } else {
-                return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Failed to delete transaction. Please try again.');
             }
         }
     }
@@ -2745,50 +2793,56 @@ class Finance extends BaseController
                 return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            $payout = $this->providerPayoutModel->findByClinic((int) $clinicId, (int) $id);
-            if (!$payout || ($payout['status'] ?? '') === 'void') {
-                return $this->response->setJSON(['success' => false, 'message' => 'Provider payout not found.']);
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
+                return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.', 'csrf_token' => csrf_hash()]);
             }
 
-            $amount = floatval($this->request->getPost('amount') ?? 0);
+            if (!is_scalar($id) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Provider payout not found.', 'csrf_token' => csrf_hash()]);
+            }
+
+            $rawAmount = $this->request->getPost('amount');
+            if ($rawAmount === null || $rawAmount === '' || !is_numeric($rawAmount)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Payment amount must be greater than 0.', 'csrf_token' => csrf_hash()]);
+            }
+            $amount = floatval($rawAmount);
+            if (!is_finite($amount) || $amount <= 0 || round($amount, 2) <= 0) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Payment amount must be greater than 0.', 'csrf_token' => csrf_hash()]);
+            }
+
             $method = (string) ($this->request->getPost('payment_method') ?? 'cash');
+            $account = (string) ($this->request->getPost('liquidity_account') ?? '');
             $paidDate = (string) ($this->normalizePostedDateOnly('paid_date') ?: date('Y-m-d'));
             $notes = trim((string) ($this->request->getPost('notes') ?? ''));
 
-            if ($amount <= 0) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Payment amount must be greater than 0.']);
-            }
-            if (!in_array($method, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
-                $method = 'cash';
-            }
-
-            $remaining = floatval($payout['provider_balance_due'] ?? 0);
-            if ($amount > $remaining) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Payment exceeds provider balance due.']);
-            }
-
-            $this->providerPayoutPaymentModel->insert([
-                'provider_payout_id' => (int) $id,
-                'amount' => round($amount, 2),
-                'payment_method' => $method,
-                'liquidity_account' => $this->normalizeLiquidityAccountInput($method, 'out', 'provider_payout'),
-                'paid_date' => $paidDate,
-                'notes' => $notes,
-                'created_by' => $this->resolveActorUserId(),
-            ]);
-
-            $this->syncProviderPayoutStatus((int) $clinicId, (int) $id);
+            $result = $this->financeMutationService->recordPayout(
+                (int) $clinicId,
+                (int) $id,
+                $actorId,
+                $amount,
+                $method,
+                $account,
+                $paidDate,
+                $notes
+            );
 
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Provider payout payment recorded successfully.',
                 'csrf_token' => csrf_hash(),
             ]);
+        } catch (\DomainException $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'csrf_token' => csrf_hash(),
+            ]);
         } catch (\Throwable $e) {
             log_message('error', 'Provider payout payment error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Unable to record provider payout payment. Please try again.',
                 'csrf_token' => csrf_hash(),
             ]);
         }
@@ -2802,43 +2856,53 @@ class Finance extends BaseController
                 return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            $payout = $this->providerPayoutModel->findByClinic((int) $clinicId, (int) $id);
-            if (!$payout || ($payout['status'] ?? '') === 'void') {
-                return $this->response->setJSON(['success' => false, 'message' => 'Provider payout not found.']);
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
+                return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.', 'csrf_token' => csrf_hash()]);
             }
 
-            $remaining = floatval($payout['provider_balance_due'] ?? 0);
-            if ($remaining <= 0) {
-                return $this->response->setJSON(['success' => true, 'message' => 'Provider payout is already fully paid.', 'csrf_token' => csrf_hash()]);
+            if (!is_scalar($id) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Provider payout not found.', 'csrf_token' => csrf_hash()]);
             }
 
             $method = (string) ($this->request->getPost('payment_method') ?? 'cash');
-            if (!in_array($method, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
-                $method = 'cash';
+            $account = (string) ($this->request->getPost('liquidity_account') ?? '');
+
+            $result = $this->financeMutationService->recordPayout(
+                (int) $clinicId,
+                (int) $id,
+                $actorId,
+                null,
+                $method,
+                $account,
+                date('Y-m-d'),
+                'Marked fully paid'
+            );
+
+            if ($result['already_paid']) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Provider payout is already fully paid.',
+                    'csrf_token' => csrf_hash(),
+                ]);
             }
-
-            $this->providerPayoutPaymentModel->insert([
-                'provider_payout_id' => (int) $id,
-                'amount' => round($remaining, 2),
-                'payment_method' => $method,
-                'liquidity_account' => $this->normalizeLiquidityAccountInput($method, 'out', 'provider_payout'),
-                'paid_date' => date('Y-m-d'),
-                'notes' => 'Marked fully paid',
-                'created_by' => $this->resolveActorUserId(),
-            ]);
-
-            $this->syncProviderPayoutStatus((int) $clinicId, (int) $id);
 
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Provider payout marked as paid.',
                 'csrf_token' => csrf_hash(),
             ]);
+        } catch (\DomainException $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'csrf_token' => csrf_hash(),
+            ]);
         } catch (\Throwable $e) {
             log_message('error', 'Mark provider payout paid error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Unable to record provider payout payment. Please try again.',
                 'csrf_token' => csrf_hash(),
             ]);
         }
@@ -4261,22 +4325,33 @@ class Finance extends BaseController
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            $input = json_decode($this->request->getBody(), true);
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
+                return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.']);
+            }
+
+            $input = json_decode((string) $this->request->getBody(), true);
             $ids = $input['ids'] ?? [];
 
-            if (empty($ids)) {
+            if (empty($ids) || !is_array($ids)) {
                 return $this->response->setJSON(['success' => false, 'message' => 'No transactions selected']);
             }
 
-            $this->financeModel->whereIn('id', $ids)->where('clinic_id', $clinicId)->delete();
+            $deletedCount = $this->financeMutationService->deleteUnused((int) $clinicId, $ids, $actorId);
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => count($ids) . ' transactions deleted successfully'
+                'message' => $deletedCount . ' transactions deleted successfully'
             ]);
-        } catch (\Exception $e) {
+        } catch (\DomainException $e) {
+            $message = $e->getMessage();
+            if (str_contains($message, 'not found')) {
+                $message = 'Financial transaction not found';
+            }
+            return $this->response->setJSON(['success' => false, 'message' => $message]);
+        } catch (\Throwable $e) {
             log_message('error', 'Bulk delete error: ' . $e->getMessage());
-            return $this->response->setJSON(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return $this->response->setJSON(['success' => false, 'message' => 'Unable to process bulk delete. Please try again.']);
         }
     }
 }
