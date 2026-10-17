@@ -65,6 +65,17 @@ class FinancePaymentModel extends TenantAwareModel
         return $this->getNetSettledAmount((int) $clinicId, (int) $financeId);
     }
 
+    public function getNetCashPaidTotal(int $clinicId, int $financeId): float
+    {
+        $row = $this->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+            ->where('clinic_id', $clinicId)
+            ->where('finance_id', $financeId)
+            ->get()
+            ->getRow();
+
+        return $row ? max(0.0, floatval($row->total_amount ?? 0)) : 0.0;
+    }
+
     public function hasSettlementEntries(int $clinicId, int $financeId): bool
     {
         return $this->where('clinic_id', $clinicId)
