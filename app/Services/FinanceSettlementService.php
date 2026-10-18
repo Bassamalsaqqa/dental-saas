@@ -64,15 +64,26 @@ class FinanceSettlementService
 
     /**
      * Current locking read of ledger entries (never a stale repeatable-read snapshot).
+     * Only retrieves id, amount, and type to ensure compatibility with legacy schemas.
      */
     public function lockSettlementPayments(int $clinicId, int $financeId): array
     {
         return $this->db->query(
-            'SELECT id, amount, type, currency, amount_original, exchange_rate, payment_method, liquidity_account, payment_date FROM '
+            'SELECT id, amount, type FROM '
             . $this->table('finance_payments')
             . ' WHERE clinic_id = ? AND finance_id = ? ORDER BY id FOR UPDATE',
             [$clinicId, $financeId]
         )->getResultArray();
+    }
+
+    /**
+     * Checks whether finance_payments schema supports foreign exchange fields.
+     */
+    public function supportsFinancePaymentExchangeFields(): bool
+    {
+        return $this->db->fieldExists('currency', 'finance_payments')
+            && $this->db->fieldExists('amount_original', 'finance_payments')
+            && $this->db->fieldExists('exchange_rate', 'finance_payments');
     }
 
     /**
@@ -388,9 +399,6 @@ class FinanceSettlementService
                     'clinic_id' => $clinicId,
                     'finance_id' => $id,
                     'amount' => $amountBase,
-                    'currency' => $currency,
-                    'amount_original' => $amountOriginal,
-                    'exchange_rate' => $rate,
                     'type' => 'payment',
                     'payment_method' => $method,
                     'liquidity_account' => $account,
@@ -400,6 +408,12 @@ class FinanceSettlementService
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ];
+
+                if ($this->supportsFinancePaymentExchangeFields()) {
+                    $paymentPayload['currency'] = $currency;
+                    $paymentPayload['amount_original'] = $amountOriginal;
+                    $paymentPayload['exchange_rate'] = $rate;
+                }
 
                 if (!$this->db->table('finance_payments')->insert($paymentPayload) || $this->db->affectedRows() !== 1) {
                     throw new \RuntimeException('Failed to record settlement payment for transaction #' . $id . '.');

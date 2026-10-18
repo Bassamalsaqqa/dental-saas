@@ -254,4 +254,170 @@ class FinanceSettlementServiceTest extends CIUnitTestCase
         $this->assertSame('bank', $this->treasury->defaultLiquidityAccount('check', 'out', 'expense'));
         $this->assertSame('bank', $this->treasury->defaultLiquidityAccount('card', 'out', 'expense'));
     }
+
+    public function test_lock_settlement_payments_queries_only_id_amount_type(): void
+    {
+        $mockDb = $this->createMock(\CodeIgniter\Database\BaseConnection::class);
+        $mockDb->method('prefixTable')->with('finance_payments')->willReturn('db_finance_payments');
+        $mockDb->method('escapeIdentifiers')->with('db_finance_payments')->willReturn('`db_finance_payments`');
+
+        $mockResult = $this->createMock(\CodeIgniter\Database\BaseResult::class);
+        $mockResult->method('getResultArray')->willReturn([
+            ['id' => 1, 'amount' => 50.00, 'type' => 'payment'],
+        ]);
+
+        $executedSql = '';
+        $mockDb->expects($this->once())
+            ->method('query')
+            ->willReturnCallback(function (string $sql, array $binds) use (&$executedSql, $mockResult) {
+                $executedSql = $sql;
+                return $mockResult;
+            });
+
+        $service = new FinanceSettlementService($mockDb, $this->treasury);
+        $payments = $service->lockSettlementPayments(1, 100);
+
+        $this->assertCount(1, $payments);
+        $this->assertStringContainsString('SELECT id, amount, type FROM', $executedSql);
+        $this->assertStringNotContainsString('currency', $executedSql);
+        $this->assertStringNotContainsString('amount_original', $executedSql);
+        $this->assertStringNotContainsString('exchange_rate', $executedSql);
+        $this->assertStringNotContainsString('liquidity_account', $executedSql);
+        $this->assertStringNotContainsString('payment_method', $executedSql);
+        $this->assertStringNotContainsString('payment_date', $executedSql);
+    }
+
+    public function test_supports_finance_payment_exchange_fields_checks_complete_trio(): void
+    {
+        // 1. All 3 present -> true
+        $mockDbFull = $this->createMock(\CodeIgniter\Database\BaseConnection::class);
+        $mockDbFull->method('fieldExists')->willReturnCallback(function (string $field, string $table) {
+            $this->assertSame('finance_payments', $table);
+            return in_array($field, ['currency', 'amount_original', 'exchange_rate'], true);
+        });
+        $serviceFull = new FinanceSettlementService($mockDbFull, $this->treasury);
+        $this->assertTrue($serviceFull->supportsFinancePaymentExchangeFields());
+
+        // 2. currency missing -> false
+        $mockDbNoCurrency = $this->createMock(\CodeIgniter\Database\BaseConnection::class);
+        $mockDbNoCurrency->method('fieldExists')->willReturnCallback(function (string $field, string $table) {
+            return in_array($field, ['amount_original', 'exchange_rate'], true);
+        });
+        $serviceNoCurrency = new FinanceSettlementService($mockDbNoCurrency, $this->treasury);
+        $this->assertFalse($serviceNoCurrency->supportsFinancePaymentExchangeFields());
+
+        // 3. exchange_rate missing -> false
+        $mockDbNoFxRate = $this->createMock(\CodeIgniter\Database\BaseConnection::class);
+        $mockDbNoFxRate->method('fieldExists')->willReturnCallback(function (string $field, string $table) {
+            return in_array($field, ['currency', 'amount_original'], true);
+        });
+        $serviceNoFxRate = new FinanceSettlementService($mockDbNoFxRate, $this->treasury);
+        $this->assertFalse($serviceNoFxRate->supportsFinancePaymentExchangeFields());
+    }
+
+    public function test_schema_aware_insert_intent_in_bulk_settle(): void
+    {
+        $settings = $this->createMock(\App\Services\SettingsService::class);
+        $settings->method('get')->willReturn('ILS');
+        \Config\Services::injectMock('settings', $settings);
+        helper('settings');
+
+        $mockBuilder = $this->createMock(\CodeIgniter\Database\BaseBuilder::class);
+        $mockBuilder->method('where')->willReturnSelf();
+        $mockBuilder->method('update')->willReturn(true);
+
+        $mockDb = $this->createMock(\CodeIgniter\Database\BaseConnection::class);
+        $mockDb->method('transStatus')->willReturn(true);
+        $mockDb->method('transBegin')->willReturn(true);
+        $mockDb->method('transCommit')->willReturn(true);
+        $mockDb->method('affectedRows')->willReturn(1);
+        $mockDb->method('table')->willReturn($mockBuilder);
+
+        // Case A: Legacy schema (supportsFinancePaymentExchangeFields = false)
+        $serviceLegacy = new IntentSpySettlementService($mockDb, $this->treasury);
+        $serviceLegacy->mockSupportsFx = false;
+        $serviceLegacy->mockFinanceRow = [
+            'id' => 10,
+            'clinic_id' => 1,
+            'transaction_type' => 'invoice',
+            'payment_status' => 'pending',
+            'total_amount' => 100.00,
+            'amount_paid' => 0.00,
+            'payment_method' => 'cash',
+            'currency' => 'ILS',
+        ];
+
+        $capturedPayload = null;
+        $mockBuilder->expects($this->any())
+            ->method('insert')
+            ->willReturnCallback(function (array $data) use (&$capturedPayload) {
+                $capturedPayload = $data;
+                return true;
+            });
+
+        $resLegacy = $serviceLegacy->bulkSettle(1, [10], 1);
+        $this->assertSame(1, $resLegacy['settled_count']);
+
+        // Assert: Insert payload does NOT contain FX fields on legacy schema
+        $this->assertNotNull($capturedPayload);
+        $this->assertArrayNotHasKey('currency', $capturedPayload);
+        $this->assertArrayNotHasKey('amount_original', $capturedPayload);
+        $this->assertArrayNotHasKey('exchange_rate', $capturedPayload);
+        // But ALWAYS persists liquidity_account and required fields
+        $this->assertSame('safe_cash', $capturedPayload['liquidity_account']);
+        $this->assertSame(100.00, $capturedPayload['amount']);
+        $this->assertSame('payment', $capturedPayload['type']);
+        $this->assertSame('cash', $capturedPayload['payment_method']);
+
+        // Assert: Checked audit metadata STILL retains currency, rate, original
+        $this->assertNotNull($serviceLegacy->capturedAuditMetadata);
+        $this->assertSame('ILS', $serviceLegacy->capturedAuditMetadata['currency']);
+        $this->assertSame(100.00, $serviceLegacy->capturedAuditMetadata['amount_original']);
+        $this->assertSame(1.0, $serviceLegacy->capturedAuditMetadata['exchange_rate']);
+        $this->assertSame('safe_cash', $serviceLegacy->capturedAuditMetadata['liquidity_account']);
+
+        // Case B: Full FX schema (supportsFinancePaymentExchangeFields = true)
+        $capturedPayload = null;
+        $serviceFull = new IntentSpySettlementService($mockDb, $this->treasury);
+        $serviceFull->mockSupportsFx = true;
+        $serviceFull->mockFinanceRow = $serviceLegacy->mockFinanceRow;
+
+        $resFull = $serviceFull->bulkSettle(1, [10], 1);
+        $this->assertSame(1, $resFull['settled_count']);
+
+        // Assert: Insert payload DOES contain FX fields on full schema
+        $this->assertNotNull($capturedPayload);
+        $this->assertArrayHasKey('currency', $capturedPayload);
+        $this->assertArrayHasKey('amount_original', $capturedPayload);
+        $this->assertArrayHasKey('exchange_rate', $capturedPayload);
+        $this->assertSame('ILS', $capturedPayload['currency']);
+        $this->assertSame('safe_cash', $capturedPayload['liquidity_account']);
+    }
+}
+
+class IntentSpySettlementService extends FinanceSettlementService
+{
+    public bool $mockSupportsFx = true;
+    public ?array $capturedAuditMetadata = null;
+    public ?array $mockFinanceRow = null;
+
+    public function supportsFinancePaymentExchangeFields(): bool
+    {
+        return $this->mockSupportsFx;
+    }
+
+    public function lockFinance(int $clinicId, int $financeId): ?array
+    {
+        return $this->mockFinanceRow;
+    }
+
+    public function lockSettlementPayments(int $clinicId, int $financeId): array
+    {
+        return [];
+    }
+
+    protected function audit(int $clinicId, int $actorId, string $action, int $financeId, string $description, array $metadata): void
+    {
+        $this->capturedAuditMetadata = $metadata;
+    }
 }
