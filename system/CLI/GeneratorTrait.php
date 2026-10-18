@@ -96,14 +96,14 @@ trait GeneratorTrait
      *
      * @internal
      *
-     * @var array<int|string, string|null>
+     * @var array<array-key, string|null>
      */
     private $params = [];
 
     /**
      * Execute the command.
      *
-     * @param array<int|string, string|null> $params
+     * @param array<array-key, string|null> $params
      *
      * @deprecated use generateClass() instead
      */
@@ -115,7 +115,7 @@ trait GeneratorTrait
     /**
      * Generates a class file from an existing template.
      *
-     * @param array<int|string, string|null> $params
+     * @param array<array-key, string|null> $params
      */
     protected function generateClass(array $params): void
     {
@@ -138,8 +138,8 @@ trait GeneratorTrait
     /**
      * Generate a view file from an existing template.
      *
-     * @param string                         $view   namespaced view name that is generated
-     * @param array<int|string, string|null> $params
+     * @param string                        $view   namespaced view name that is generated
+     * @param array<array-key, string|null> $params
      */
     protected function generateView(string $view, array $params): void
     {
@@ -303,9 +303,7 @@ trait GeneratorTrait
 
         $component = singular($this->component);
 
-        /**
-         * @see https://regex101.com/r/a5KNCR/2
-         */
+        /** @see https://regex101.com/r/a5KNCR/2 */
         $pattern = sprintf('/([a-z][a-z0-9_\/\\\\]+)(%s)$/i', $component);
 
         if (preg_match($pattern, $class, $matches) === 1) {

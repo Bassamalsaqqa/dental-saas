@@ -70,7 +70,7 @@ class Encryption
     /**
      * Map of drivers to handler classes, in preference order
      *
-     * @var array
+     * @var list<string>
      */
     protected $drivers = [
         'OpenSSL',
@@ -93,7 +93,7 @@ class Encryption
 
         $this->key    = $config->key;
         $this->driver = $config->driver;
-        $this->digest = $config->digest ?? 'SHA512';
+        $this->digest = $config->digest;
 
         $this->handlers = [
             'OpenSSL' => extension_loaded('openssl'),
@@ -118,10 +118,10 @@ class Encryption
         if ($config instanceof EncryptionConfig) {
             $this->key    = $config->key;
             $this->driver = $config->driver;
-            $this->digest = $config->digest ?? 'SHA512';
+            $this->digest = $config->digest;
         }
 
-        if (empty($this->driver)) {
+        if ($this->driver === null || $this->driver === '') {
             throw EncryptionException::forNoDriverRequested();
         }
 
@@ -129,7 +129,7 @@ class Encryption
             throw EncryptionException::forUnKnownHandler($this->driver);
         }
 
-        if (empty($this->key)) {
+        if (in_array($this->key, [null, '', '0'], true)) {
             throw EncryptionException::forNeedsStarterKey();
         }
 
@@ -137,6 +137,16 @@ class Encryption
 
         $handlerName     = 'CodeIgniter\\Encryption\\Handlers\\' . $this->driver . 'Handler';
         $this->encrypter = new $handlerName($config);
+
+        // (array) '' is [''], not [], so the unset default must be filtered out here.
+        $previousKeys = array_values(array_filter(
+            (array) ($config->previousKeys ?? []),
+            static fn ($key): bool => $key !== '',
+        ));
+
+        if ($previousKeys !== []) {
+            $this->encrypter = new KeyRotationDecorator($this->encrypter, $previousKeys);
+        }
 
         return $this->encrypter;
     }
@@ -158,7 +168,7 @@ class Encryption
      *
      * @param string $key Property name
      *
-     * @return array|string|null
+     * @return list<string>|string|null
      */
     public function __get($key)
     {

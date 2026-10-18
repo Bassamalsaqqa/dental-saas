@@ -84,6 +84,7 @@ final class FileLocatorCached implements FileLocatorInterface
      */
     public function deleteCache(): void
     {
+        $this->cache        = [];
         $this->cacheUpdated = false;
         $this->cacheHandler->delete($this->cacheKey);
     }
@@ -163,14 +164,16 @@ final class FileLocatorCached implements FileLocatorInterface
 
     public function locateFile(string $file, ?string $folder = null, string $ext = 'php'): false|string
     {
-        if (isset($this->cache['locateFile'][$file][$folder][$ext])) {
-            return $this->cache['locateFile'][$file][$folder][$ext];
+        $folderKey = $folder ?? '';
+
+        if (isset($this->cache['locateFile'][$file][$folderKey][$ext])) {
+            return $this->cache['locateFile'][$file][$folderKey][$ext];
         }
 
         $files = $this->locator->locateFile($file, $folder, $ext);
 
-        $this->cache['locateFile'][$file][$folder][$ext] = $files;
-        $this->cacheUpdated                              = true;
+        $this->cache['locateFile'][$file][$folderKey][$ext] = $files;
+        $this->cacheUpdated                                 = true;
 
         return $files;
     }

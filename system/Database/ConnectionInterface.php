@@ -17,8 +17,8 @@ namespace CodeIgniter\Database;
  * @template TConnection
  * @template TResult
  *
- * @property      false|object|resource $connID
  * @property-read string                $DBDriver
+ * @property      false|object|resource $connID
  */
 interface ConnectionInterface
 {
@@ -78,7 +78,7 @@ interface ConnectionInterface
      * Must return this format: ['code' => string|int, 'message' => string]
      * intval(code) === 0 means "no error".
      *
-     * @return array<string, int|string>
+     * @return array{code: int|string|null, message: string|null}
      */
     public function error(): array;
 
@@ -100,7 +100,7 @@ interface ConnectionInterface
      * Should automatically handle different connections for read/write
      * queries if needed.
      *
-     * @param array|string|null $binds
+     * @param array<array-key, mixed>|string|null $binds
      *
      * @return BaseResult<TConnection, TResult>|bool|Query
      */
@@ -118,7 +118,7 @@ interface ConnectionInterface
     /**
      * Returns an instance of the query builder for this connection.
      *
-     * @param array|string $tableName Table name.
+     * @param array<array-key, string>|string $tableName Table name.
      *
      * @return BaseBuilder Builder.
      */
@@ -137,9 +137,9 @@ interface ConnectionInterface
      * Escapes data based on type.
      * Sets boolean and null types.
      *
-     * @param array|bool|float|int|object|string|null $str
+     * @param mixed $str
      *
-     * @return ($str is array ? array : float|int|string)
+     * @return ($str is array ? array<array-key, mixed> : float|int|string)
      */
     public function escape($str);
 
@@ -147,9 +147,9 @@ interface ConnectionInterface
      * Allows for custom calls to the database engine that are not
      * supported through our database layer.
      *
-     * @param array ...$params
+     * @param mixed ...$params
      *
-     * @return array|bool|float|int|object|resource|string|null
+     * @return mixed
      */
     public function callFunction(string $functionName, ...$params);
 

@@ -26,7 +26,7 @@ class JSONFormatter implements FormatterInterface
     /**
      * Takes the given data and formats it.
      *
-     * @param array<array-key, mixed>|object|string $data
+     * @param mixed $data
      *
      * @return false|non-empty-string
      */
@@ -41,7 +41,7 @@ class JSONFormatter implements FormatterInterface
             $options |= JSON_PRETTY_PRINT;
         }
 
-        $result = json_encode($data, $options, 512);
+        $result = json_encode($data, $options, $config->jsonEncodeDepth);
 
         if (! in_array(json_last_error(), [JSON_ERROR_NONE, JSON_ERROR_RECURSION], true)) {
             throw FormatException::forInvalidJSON(json_last_error_msg());

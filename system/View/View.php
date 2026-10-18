@@ -201,6 +201,20 @@ class View implements RendererInterface
 
         $this->renderVars['file'] = $this->viewPath . $this->renderVars['view'];
 
+        if (str_contains($this->renderVars['view'], '\\')) {
+            $appOverridesFolder = $this->config->appOverridesFolder ?? 'overrides'; // @phpstan-ignore nullCoalesce.property
+
+            $overrideFolder = $appOverridesFolder !== ''
+                 ? trim($appOverridesFolder, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+                 : '';
+
+            $this->renderVars['file'] = $this->viewPath
+            . $overrideFolder
+            . ltrim(str_replace('\\', DIRECTORY_SEPARATOR, $this->renderVars['view']), DIRECTORY_SEPARATOR);
+        } else {
+            $this->renderVars['file'] = $this->viewPath . $this->renderVars['view'];
+        }
+
         if (! is_file($this->renderVars['file'])) {
             $this->renderVars['file'] = $this->loader->locateFile(
                 $this->renderVars['view'],
@@ -225,7 +239,7 @@ class View implements RendererInterface
             ob_start();
             include $this->renderVars['file'];
 
-            return ob_get_clean() ?: '';
+            return (string) ob_get_clean();
         })();
 
         // Get back current vars
@@ -312,12 +326,15 @@ class View implements RendererInterface
         $saveData ??= $this->saveData;
         $this->prepareTemplateData($saveData);
 
-        $output = (function (string $view): string {
+        // The parameter is variadic on purpose: func_get_arg() returns the current
+        // value of a named parameter, which extract() could overwrite with view data.
+        $output = (function (string ...$view): string {
+            $view = $view[0]; // Keep $view available inside the view as before.
             extract($this->tempData);
             ob_start();
-            eval('?>' . $view);
+            eval('?>' . func_get_arg(0));
 
-            return ob_get_clean() ?: '';
+            return (string) ob_get_clean();
         })($view);
 
         $this->logPerformance($start, microtime(true), $this->excerpt($view));

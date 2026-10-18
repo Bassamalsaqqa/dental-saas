@@ -17,6 +17,7 @@ use CodeIgniter\Exceptions\BadMethodCallException;
 use CodeIgniter\Exceptions\InvalidArgumentException;
 use CodeIgniter\HTTP\Exceptions\HTTPException;
 use Config\App;
+use SensitiveParameter;
 use Stringable;
 
 /**
@@ -181,9 +182,9 @@ class URI implements Stringable
         }
 
         if ((string) $path !== '') {
-            $uri .= ! str_ends_with($uri, '/')
-                ? '/' . ltrim($path, '/')
-                : ltrim($path, '/');
+            $uri .= str_ends_with($uri, '/')
+                ? ltrim($path, '/')
+                : '/' . ltrim($path, '/');
         }
 
         if ((string) $query !== '') {
@@ -540,7 +541,7 @@ class URI implements Stringable
      */
     public function getFragment(): string
     {
-        return $this->fragment ?? '';
+        return $this->fragment;
     }
 
     /**
@@ -628,7 +629,7 @@ class URI implements Stringable
     /**
      * Formats the URI as a string.
      *
-     * Warning: For backwards-compatability this method
+     * Warning: For backwards-compatibility this method
      * assumes URIs with the same host as baseURL should
      * be relative to the project's configuration.
      * This aspect of __toString() is deprecated and should be avoided.
@@ -696,9 +697,7 @@ class URI implements Stringable
     {
         $parts = parse_url($str);
 
-        if (! isset($parts['path'])) {
-            $parts['path'] = $this->getPath();
-        }
+        $parts['path'] ??= $this->getPath();
 
         if (! isset($parts['host']) && $parts['path'] !== '') {
             $parts['host'] = $parts['path'];
@@ -768,7 +767,7 @@ class URI implements Stringable
      *
      * @TODO PSR-7: Should be `withUserInfo($user, $password = null)`.
      */
-    public function setUserInfo(string $user, string $pass)
+    public function setUserInfo(string $user, #[SensitiveParameter] string $pass)
     {
         $this->user     = trim($user);
         $this->password = trim($pass);
@@ -916,9 +915,10 @@ class URI implements Stringable
      * A convenience method to pass an array of items in as the Query
      * portion of the URI.
      *
-     * @return URI
-     *
      * @TODO: PSR-7: Should be `withQueryParams(array $query)`
+     * @param array<string, mixed> $query
+     *
+     * @return URI
      */
     public function setQueryArray(array $query)
     {

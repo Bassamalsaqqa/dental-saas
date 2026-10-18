@@ -30,14 +30,14 @@ class Email
     /**
      * Properties from the last successful send.
      *
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     public $archive;
 
     /**
      * Properties to be added to the next archive.
      *
-     * @var array
+     * @var array<string, list<string>|string>
      */
     protected $tmpArchive = [];
 
@@ -197,7 +197,7 @@ class Email
      *
      * @see http://www.ietf.org/rfc/rfc822.txt
      *
-     * @var "\r\n"|"n"
+     * @var "\n"|"\r\n"
      */
     public $CRLF = "\r\n";
 
@@ -282,6 +282,11 @@ class Email
     protected $SMTPAuth = false;
 
     /**
+     * Which SMTP authentication method to use: login, plain
+     */
+    protected string $SMTPAuthMethod = 'login';
+
+    /**
      * Whether to send a Reply-To header
      *
      * @var bool
@@ -293,7 +298,7 @@ class Email
      *
      * @see Email::printDebugger()
      *
-     * @var array
+     * @var list<string>
      */
     protected $debugMessage = [];
 
@@ -307,35 +312,42 @@ class Email
     /**
      * Recipients
      *
-     * @var array|string
+     * @var list<string>
      */
     protected $recipients = [];
 
     /**
      * CC Recipients
      *
-     * @var array
+     * @var list<string>
      */
     protected $CCArray = [];
 
     /**
      * BCC Recipients
      *
-     * @var array
+     * @var list<string>
      */
     protected $BCCArray = [];
 
     /**
      * Message headers
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $headers = [];
 
     /**
      * Attachment data
      *
-     * @var array
+     * @var list<array{
+     *     name: array{0: string, 1: string|null},
+     *     disposition: string,
+     *     type: string,
+     *     content: string,
+     *     multipart: 'mixed'|'related',
+     *     cid?: string,
+     * }>
      */
     protected $attachments = [];
 
@@ -400,21 +412,19 @@ class Email
     protected static $func_overload;
 
     /**
-     * @param array|\Config\Email|null $config
+     * @param array<string, mixed>|\Config\Email|null $config
      */
     public function __construct($config = null)
     {
         $this->initialize($config);
 
-        if (! isset(static::$func_overload)) {
-            static::$func_overload = extension_loaded('mbstring') && ini_get('mbstring.func_overload');
-        }
+        static::$func_overload ??= extension_loaded('mbstring') && ini_get('mbstring.func_overload');
     }
 
     /**
      * Initialize preferences
      *
-     * @param array|\Config\Email|null $config
+     * @param array<string, mixed>|\Config\Email|null $config
      *
      * @return $this
      */
@@ -549,7 +559,7 @@ class Email
     }
 
     /**
-     * @param array|string $to
+     * @param list<string>|string $to
      *
      * @return $this
      */
@@ -688,7 +698,7 @@ class Email
 
         $this->attachments[] = [
             'name'        => $namesAttached,
-            'disposition' => empty($disposition) ? 'attachment' : $disposition,
+            'disposition' => $disposition === '' ? 'attachment' : $disposition,
             // Can also be 'inline'  Not sure if it matters
             'type'      => $mime,
             'content'   => chunk_split(base64_encode($fileContent)),
@@ -839,7 +849,7 @@ class Email
      */
     public function setCRLF($CRLF = "\n")
     {
-        $this->CRLF = ! in_array($CRLF, ["\n", "\r\n", "\r"], true) ? "\n" : $CRLF;
+        $this->CRLF = in_array($CRLF, ["\n", "\r\n", "\r"], true) ? $CRLF : "\n";
 
         return $this;
     }
@@ -928,7 +938,7 @@ class Email
     }
 
     /**
-     * @param array|string $email
+     * @param list<string>|string $email
      *
      * @return bool
      */
@@ -967,9 +977,9 @@ class Email
     }
 
     /**
-     * @param array|string $email
+     * @param list<string>|string $email
      *
-     * @return array|string
+     * @return ($email is array ? list<string> : string)
      */
     public function cleanEmail($email)
     {
@@ -1330,89 +1340,6 @@ class Email
      */
     protected function prepQuotedPrintable($str)
     {
-        // ASCII code numbers for "safe" characters that can always be
-        // used literally, without encoding, as described in RFC 2049.
-        // http://www.ietf.org/rfc/rfc2049.txt
-        static $asciiSafeChars = [
-            // ' (  )   +   ,   -   .   /   :   =   ?
-            39,
-            40,
-            41,
-            43,
-            44,
-            45,
-            46,
-            47,
-            58,
-            61,
-            63,
-            // numbers
-            48,
-            49,
-            50,
-            51,
-            52,
-            53,
-            54,
-            55,
-            56,
-            57,
-            // upper-case letters
-            65,
-            66,
-            67,
-            68,
-            69,
-            70,
-            71,
-            72,
-            73,
-            74,
-            75,
-            76,
-            77,
-            78,
-            79,
-            80,
-            81,
-            82,
-            83,
-            84,
-            85,
-            86,
-            87,
-            88,
-            89,
-            90,
-            // lower-case letters
-            97,
-            98,
-            99,
-            100,
-            101,
-            102,
-            103,
-            104,
-            105,
-            106,
-            107,
-            108,
-            109,
-            110,
-            111,
-            112,
-            113,
-            114,
-            115,
-            116,
-            117,
-            118,
-            119,
-            120,
-            121,
-            122,
-        ];
-
         // We are intentionally wrapping so mail servers will encode characters
         // properly and MUAs will behave, so {unwrap} must go!
         $str = str_replace(['{unwrap}', '{/unwrap}'], '', $str);
@@ -1433,46 +1360,55 @@ class Email
             $str = str_replace(["\r\n", "\r"], "\n", $str);
         }
 
-        $escape = '=';
+        static $asciiSafeChars;
+        if ($asciiSafeChars === null) {
+            $safeChars      = [39, 40, 41, 43, 44, 45, 46, 47, 58, 61, 63];
+            $safeChars      = array_merge($safeChars, range(48, 57), range(65, 90), range(97, 122));
+            $asciiSafeChars = array_fill_keys($safeChars, true);
+        }
+
         $output = '';
 
         foreach (explode("\n", $str) as $line) {
-            $length = static::strlen($line);
-            $temp   = '';
+            $length  = static::strlen($line);
+            $temp    = '';
+            $tempLen = 0;
 
             // Loop through each character in the line to add soft-wrap
             // characters at the end of a line " =\r\n" and add the newly
             // processed line(s) to the output (see comment on $crlf class property)
             for ($i = 0; $i < $length; $i++) {
-                // Grab the next character
-                $char  = $line[$i];
-                $ascii = ord($char);
+                $char    = $line[$i];
+                $ascii   = ord($char);
+                $charLen = 1;
 
                 // Convert spaces and tabs but only if it's the end of the line
                 if ($ascii === 32 || $ascii === 9) {
                     if ($i === ($length - 1)) {
-                        $char = $escape . sprintf('%02s', dechex($ascii));
+                        $char    = sprintf('=%02X', $ascii);
+                        $charLen = 3;
                     }
                 }
                 // DO NOT move this below the $ascii_safe_chars line!
                 //
                 // = (equals) signs are allowed by RFC2049, but must be encoded
                 // as they are the encoding delimiter!
-                elseif ($ascii === 61) {
-                    $char = $escape . strtoupper(sprintf('%02s', dechex($ascii)));  // =3D
-                } elseif (! in_array($ascii, $asciiSafeChars, true)) {
-                    $char = $escape . strtoupper(sprintf('%02s', dechex($ascii)));
+                elseif ($ascii === 61 || ! isset($asciiSafeChars[$ascii])) {
+                    $char    = sprintf('=%02X', $ascii);
+                    $charLen = 3;
                 }
 
                 // If we're at the character limit, add the line to the output,
                 // reset our temp variable, and keep on chuggin'
-                if ((static::strlen($temp) + static::strlen($char)) >= 76) {
-                    $output .= $temp . $escape . $this->CRLF;
-                    $temp = '';
+                if (($tempLen + $charLen) >= 76) {
+                    $output .= $temp . '=' . $this->CRLF;
+                    $temp    = '';
+                    $tempLen = 0;
                 }
 
                 // Add the character to our temporary line
                 $temp .= $char;
+                $tempLen += $charLen;
             }
 
             // Add our completed line to the output
@@ -1523,10 +1459,7 @@ class Email
             }
         }
 
-        // We might already have this set for UTF-8
-        if (! isset($chars)) {
-            $chars = static::strlen($str);
-        }
+        $chars ??= static::strlen($str);
 
         $output = '=?' . $this->charset . '?Q?';
 
@@ -1557,7 +1490,7 @@ class Email
      */
     public function send($autoClear = true)
     {
-        if (! isset($this->headers['From']) && ! empty($this->fromEmail)) {
+        if (! isset($this->headers['From']) && $this->fromEmail !== null && $this->fromEmail !== '') {
             $this->setFrom($this->fromEmail, $this->fromName);
         }
 
@@ -1572,8 +1505,8 @@ class Email
         }
 
         if (
-            empty($this->recipients) && ! isset($this->headers['To'])
-            && empty($this->BCCArray) && ! isset($this->headers['Bcc'])
+            $this->recipients === [] && ! isset($this->headers['To'])
+            && $this->BCCArray === [] && ! isset($this->headers['Bcc'])
             && ! isset($this->headers['Cc'])
         ) {
             $this->setErrorMessage(lang('Email.noRecipients'));
@@ -1703,7 +1636,7 @@ class Email
             $success = $this->{$method}();
         } catch (ErrorException $e) {
             $success = false;
-            log_message('error', 'Email: ' . $method . ' throwed ' . $e);
+            log_message('error', 'Email: ' . $method . ' threw ' . $e);
         }
 
         if (! $success) {
@@ -2025,45 +1958,72 @@ class Email
             return true;
         }
 
-        if ($this->SMTPUser === '' && $this->SMTPPass === '') {
+        // If no username or password is set
+        if ($this->SMTPUser === '' || $this->SMTPPass === '') {
             $this->setErrorMessage(lang('Email.noSMTPAuth'));
 
             return false;
         }
 
-        $this->sendData('AUTH LOGIN');
+        // normalize in case user entered capital words LOGIN/PLAIN
+        $this->SMTPAuthMethod = strtolower($this->SMTPAuthMethod);
+
+        // Validate supported authentication methods
+        if (! in_array($this->SMTPAuthMethod, ['login', 'plain'], true)) {
+            $this->setErrorMessage(lang('Email.invalidSMTPAuthMethod', [$this->SMTPAuthMethod]));
+
+            return false;
+        }
+
+        $upperAuthMethod = strtoupper($this->SMTPAuthMethod);
+        // send initial 'AUTH' command
+        $this->sendData('AUTH ' . $upperAuthMethod);
         $reply = $this->getSMTPData();
 
         if (str_starts_with($reply, '503')) {    // Already authenticated
             return true;
         }
 
+        // if 'AUTH' command is unsuported by the server
         if (! str_starts_with($reply, '334')) {
-            $this->setErrorMessage(lang('Email.failedSMTPLogin', [$reply]));
+            $this->setErrorMessage(lang('Email.failureSMTPAuthMethod', [$upperAuthMethod]));
 
             return false;
         }
 
-        $this->sendData(base64_encode($this->SMTPUser));
-        $reply = $this->getSMTPData();
+        switch ($this->SMTPAuthMethod) {
+            case 'login':
+                $this->sendData(base64_encode($this->SMTPUser));
+                $reply = $this->getSMTPData();
 
-        if (! str_starts_with($reply, '334')) {
-            $this->setErrorMessage(lang('Email.SMTPAuthUsername', [$reply]));
+                if (! str_starts_with($reply, '334')) {
+                    $this->setErrorMessage(lang('Email.SMTPAuthUsername', [$reply]));
 
-            return false;
+                    return false;
+                }
+
+                $this->sendData(base64_encode($this->SMTPPass));
+                break;
+
+            case 'plain':
+                // send credentials as the single second command
+                $authString = "\0" . $this->SMTPUser . "\0" . $this->SMTPPass;
+
+                $this->sendData(base64_encode($authString));
+                break;
         }
 
-        $this->sendData(base64_encode($this->SMTPPass));
         $reply = $this->getSMTPData();
+        if (! str_starts_with($reply, '235')) {  // Authentication failed
+            $errorMessage = $this->SMTPAuthMethod === 'plain' ? 'Email.SMTPAuthCredentials' : 'Email.SMTPAuthPassword';
 
-        if (! str_starts_with($reply, '235')) {
-            $this->setErrorMessage(lang('Email.SMTPAuthPassword', [$reply]));
+            $this->setErrorMessage(lang($errorMessage, [$reply]));
 
             return false;
         }
 
         if ($this->SMTPKeepAlive) {
-            $this->SMTPAuth = false;
+            $this->SMTPAuth = false; // Prevent re-authentication for keep-alive sessions
         }
 
         return true;
@@ -2163,8 +2123,8 @@ class Email
     }
 
     /**
-     * @param array|string $include List of raw data chunks to include in the output
-     *                              Valid options are: 'headers', 'subject', 'body'
+     * @param list<string>|string $include List of raw data chunks to include in the output
+     *                                     Valid options are: 'headers', 'subject', 'body'
      *
      * @return string
      */
@@ -2222,7 +2182,7 @@ class Email
     {
         $mime = Mimes::guessTypeFromExtension(strtolower($ext));
 
-        return ! empty($mime) ? $mime : 'application/x-unknown-content-type';
+        return $mime ?? 'application/x-unknown-content-type';
     }
 
     public function __destruct()
@@ -2233,7 +2193,7 @@ class Email
             } catch (ErrorException $e) {
                 $protocol = $this->getProtocol();
                 $method   = 'sendWith' . ucfirst($protocol);
-                log_message('error', 'Email: ' . $method . ' throwed ' . $e);
+                log_message('error', 'Email: ' . $method . ' threw ' . $e);
             }
         }
     }
@@ -2271,7 +2231,7 @@ class Email
     /**
      * Determines the values that should be stored in $archive.
      *
-     * @return array The updated archive values
+     * @return array<string, mixed> The updated archive values
      */
     protected function setArchiveValues(): array
     {

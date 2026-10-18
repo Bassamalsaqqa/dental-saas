@@ -42,10 +42,10 @@ class Boot
     public static function bootWeb(Paths $paths): int
     {
         static::definePathConstants($paths);
-        if (!defined('APP_NAMESPACE')) {
+        if (! defined('APP_NAMESPACE')) {
             static::loadConstants();
         }
-        //        static::checkMissingExtensions();
+        static::checkMissingExtensions();
 
         static::loadDotEnv($paths);
         static::defineEnvironment();
@@ -74,6 +74,39 @@ class Boot
         // Exits the application, setting the exit code for CLI-based
         // applications that might be watching.
         return EXIT_SUCCESS;
+    }
+
+    /**
+     * Bootstrap for FrankenPHP worker mode.
+     *
+     * This method performs one-time initialization for worker mode,
+     * loading everything except the CodeIgniter instance, which should
+     * be created fresh for each request.
+     *
+     * @used-by `public/frankenphp-worker.php`
+     */
+    public static function bootWorker(Paths $paths): CodeIgniter
+    {
+        static::definePathConstants($paths);
+        if (! defined('APP_NAMESPACE')) {
+            static::loadConstants();
+        }
+        static::checkMissingExtensions();
+
+        static::loadDotEnv($paths);
+        static::defineEnvironment();
+        static::loadEnvironmentBootstrap($paths);
+
+        static::loadCommonFunctions();
+        static::loadAutoloader();
+        static::setExceptionHandler();
+        static::initializeKint();
+
+        static::checkOptimizationsForWorker();
+
+        static::autoloadHelpers();
+
+        return Boot::initializeCodeIgniter();
     }
 
     /**
@@ -112,10 +145,10 @@ class Boot
     public static function bootSpark(Paths $paths): int
     {
         static::definePathConstants($paths);
-        if (!defined('APP_NAMESPACE')) {
+        if (! defined('APP_NAMESPACE')) {
             static::loadConstants();
         }
-        //        static::checkMissingExtensions();
+        static::checkMissingExtensions();
 
         static::loadDotEnv($paths);
         static::defineEnvironment();
@@ -144,7 +177,9 @@ class Boot
         static::loadDotEnv($paths);
         static::loadEnvironmentBootstrap($paths, false);
 
+        static::loadCommonFunctionsMock();
         static::loadCommonFunctions();
+
         static::loadAutoloader();
         static::setExceptionHandler();
         static::initializeKint();
@@ -170,12 +205,13 @@ class Boot
     protected static function loadDotEnv(Paths $paths): void
     {
         require_once $paths->systemDirectory . '/Config/DotEnv.php';
-        (new DotEnv($paths->appDirectory . '/../'))->load();
+        $envDirectory = $paths->envDirectory ?? $paths->appDirectory . '/../'; // @phpstan-ignore nullCoalesce.property
+        (new DotEnv($envDirectory))->load();
     }
 
     protected static function defineEnvironment(): void
     {
-        if (!defined('ENVIRONMENT')) {
+        if (! defined('ENVIRONMENT')) {
             // @phpstan-ignore-next-line
             $env = $_ENV['CI_ENVIRONMENT'] ?? $_SERVER['CI_ENVIRONMENT']
                 ?? getenv('CI_ENVIRONMENT')
@@ -209,22 +245,22 @@ class Boot
     protected static function definePathConstants(Paths $paths): void
     {
         // The path to the application directory.
-        if (!defined('APPPATH')) {
+        if (! defined('APPPATH')) {
             define('APPPATH', realpath(rtrim($paths->appDirectory, '\\/ ')) . DIRECTORY_SEPARATOR);
         }
 
         // The path to the project root directory. Just above APPPATH.
-        if (!defined('ROOTPATH')) {
+        if (! defined('ROOTPATH')) {
             define('ROOTPATH', realpath(APPPATH . '../') . DIRECTORY_SEPARATOR);
         }
 
         // The path to the system directory.
-        if (!defined('SYSTEMPATH')) {
+        if (! defined('SYSTEMPATH')) {
             define('SYSTEMPATH', realpath(rtrim($paths->systemDirectory, '\\/ ')) . DIRECTORY_SEPARATOR);
         }
 
         // The path to the writable directory.
-        if (!defined('WRITEPATH')) {
+        if (! defined('WRITEPATH')) {
             $writePath = realpath(rtrim($paths->writableDirectory, '\\/ '));
 
             if ($writePath === false) {
@@ -238,7 +274,7 @@ class Boot
         }
 
         // The path to the tests directory
-        if (!defined('TESTPATH')) {
+        if (! defined('TESTPATH')) {
             define('TESTPATH', realpath(rtrim($paths->testsDirectory, '\\/ ')) . DIRECTORY_SEPARATOR);
         }
     }
@@ -259,6 +295,11 @@ class Boot
         require_once SYSTEMPATH . 'Common.php';
     }
 
+    protected static function loadCommonFunctionsMock(): void
+    {
+        require_once SYSTEMPATH . 'Test/Mock/MockCommon.php';
+    }
+
     /**
      * The autoloader allows all the pieces to work together in the framework.
      * We have to load it here, though, so that the config files can use the
@@ -266,7 +307,7 @@ class Boot
      */
     protected static function loadAutoloader(): void
     {
-        if (!class_exists(Autoload::class, false)) {
+        if (! class_exists(Autoload::class, false)) {
             require_once SYSTEMPATH . 'Config/AutoloadConfig.php';
             require_once APPPATH . 'Config/Autoload.php';
             require_once SYSTEMPATH . 'Modules/Modules.php';
@@ -303,10 +344,9 @@ class Boot
 
         foreach ([
             'intl',
-            'json',
             'mbstring',
         ] as $extension) {
-            if (!extension_loaded($extension)) {
+            if (! extension_loaded($extension)) {
                 $missingExtensions[] = $extension;
             }
         }
@@ -324,6 +364,20 @@ class Boot
         echo $message;
 
         exit(EXIT_ERROR);
+    }
+
+    protected static function checkOptimizationsForWorker(): void
+    {
+        if (class_exists(Optimize::class)) {
+            $optimize = new Optimize();
+
+            if ($optimize->configCacheEnabled || $optimize->locatorCacheEnabled) {
+                echo 'Optimization settings (configCacheEnabled, locatorCacheEnabled) '
+                    . 'must be disabled in Config\Optimize when running in Worker Mode.';
+
+                exit(EXIT_ERROR);
+            }
+        }
     }
 
     protected static function initializeKint(): void
@@ -372,9 +426,11 @@ class Boot
     {
         $console = new Console();
 
+        $args = $_SERVER['argv'] ?? []; // @phpstan-ignore codeigniter.superglobalsOffsetAccess (reads live $_SERVER, not the snapshot service)
+
         // Show basic information before we do anything else.
-        if (is_int($suppress = array_search('--no-header', $_SERVER['argv'], true))) {
-            unset($_SERVER['argv'][$suppress]);
+        if (is_int($suppress = array_search('--no-header', $args, true))) {
+            unset($args[$suppress]);
             $suppress = true;
         }
 

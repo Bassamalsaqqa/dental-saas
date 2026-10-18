@@ -24,9 +24,9 @@ use Config\App;
  *
  * @see \CodeIgniter\HTTP\SiteURIFactoryTest
  */
-final class SiteURIFactory
+final readonly class SiteURIFactory
 {
-    public function __construct(private readonly App $appConfig, private readonly Superglobals $superglobals)
+    public function __construct(private App $appConfig, private Superglobals $superglobals)
     {
     }
 
@@ -227,7 +227,7 @@ final class SiteURIFactory
      */
     private function getHost(): ?string
     {
-        $httpHostPort = $this->superglobals->server('HTTP_HOST') ?? null;
+        $httpHostPort = $this->superglobals->server('HTTP_HOST');
 
         if ($httpHostPort !== null) {
             [$httpHost] = explode(':', $httpHostPort, 2);
