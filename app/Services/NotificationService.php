@@ -127,7 +127,7 @@ class NotificationService
         $this->planGuard->assertQuota($clinicId, $metricKey, count($recipients));
 
         // 2. Load Channel Registry
-        $channel = $this->channelModel->where('clinic_id', $clinicId)
+        $channel = $this->channelModel->withoutTenantScope()->where('clinic_id', $clinicId)
                                       ->where('channel_type', $channelType)
                                       ->first();
 
@@ -167,7 +167,8 @@ class NotificationService
                     }
                 } elseif ($type === 'patient') {
                     // Check if patient belongs to clinic
-                    $patient = $this->patientModel->findByClinic($clinicId, $id);
+                    $patient = (is_int($id) || is_string($id)) && preg_match('/^[1-9][0-9]*$/D', (string) $id)
+                        ? $this->patientModel->withoutTenantScope()->where('clinic_id', $clinicId)->find($id) : null;
                     if (!$patient) {
                         $status = 'blocked';
                         $reason = 'RECIPIENT_PATIENT_NOT_FOUND';

@@ -116,8 +116,88 @@ class FinanceModel extends TenantAwareModel
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
-    protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId'];
-    protected $beforeUpdate = ['enforceTenantScope', 'calculateTotals'];
+    protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId', 'lockInvoiceCreationIdentity'];
+    protected $beforeUpdate = ['enforceTenantScope', 'protectInvoiceDocument', 'calculateTotals'];
+    protected $beforeDelete = ['enforceTenantScope', 'preventUnmanagedFinanceDeletion'];
+
+    /** Physical deletion is exclusively performed by the audited, locked mutation service. */
+    protected function preventUnmanagedFinanceDeletion(array $data): array
+    {
+        throw new \DomainException('Direct finance model deletion is unsupported. Use the audited financial mutation service.');
+    }
+
+    protected function lockInvoiceCreationIdentity(array $data): array
+    {
+        $row = $data['data'] ?? [];
+        if (($row['transaction_type'] ?? '') !== 'invoice') { return $data; }
+        if ((int) $this->db->transDepth < 1 || !$this->db->transStatus()) {
+            throw new \DomainException('Invoice creation requires an active transaction.');
+        }
+        $clinicId = (int) ($row['clinic_id'] ?? 0);
+        $patientId = $row['patient_id'] ?? null;
+        if ($clinicId !== $this->resolveActiveClinicId()) { throw new \DomainException('Invoice creation clinic does not match the active context.'); }
+        if ($clinicId <= 0 || (!is_int($patientId) && !is_string($patientId)) || !preg_match('/^[1-9][0-9]*$/D', (string) $patientId)) {
+            throw new \DomainException('Invoice patient and clinic are required.');
+        }
+        foreach ([['clinics', $clinicId, false], ['patients', (int) $patientId, true]] as [$table, $id, $scoped]) {
+            $sql = 'SELECT id FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable($table)) . ' WHERE id = ?'
+                . ($scoped ? ' AND clinic_id = ?' : '') . ' FOR UPDATE';
+            $params = $scoped ? [$id, $clinicId] : [$id];
+            if (!$this->db->query($sql, $params)->getRowArray()) { throw new \DomainException('Invoice parent identity is not available in this clinic.'); }
+        }
+        if (!empty($row['examination_id'])) {
+            if ((!is_int($row['examination_id']) && !is_string($row['examination_id'])) || !preg_match('/^[1-9][0-9]*$/D', (string) $row['examination_id'])) { throw new \DomainException('Invalid invoice examination.'); }
+            $exam = $this->db->query('SELECT id, patient_id FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable('examinations'))
+                . ' WHERE clinic_id = ? AND id = ? FOR UPDATE', [$clinicId, $row['examination_id']])->getRowArray();
+            if (!$exam || (int) $exam['patient_id'] !== (int) $patientId) { throw new \DomainException('Invoice examination does not belong to its patient.'); }
+        }
+        return $data;
+    }
+
+    protected function protectInvoiceDocument(array $data): array
+    {
+        $protected = array_merge(\App\Services\InvoiceLifecyclePolicy::STRICT_IMMUTABLE_FIELDS,
+            \App\Services\InvoiceLifecyclePolicy::INVOICE_PROTECTED_BASIS_FIELDS, ['tax_amount', 'total_amount']);
+        $touched = array_intersect(array_keys($data['data'] ?? []), $protected);
+        if ($touched === []) { return $data; }
+        $ids = $data['id'] ?? null;
+        $ids = is_array($ids) ? $ids : [$ids];
+        if ($ids === [] || count($ids) > 500) { throw new \DomainException('Explicit invoice targets are required.'); }
+        foreach ($ids as $id) {
+            if ((!is_int($id) && !is_string($id)) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)) { throw new \DomainException('Invalid invoice target.'); }
+        }
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        sort($ids, SORT_NUMERIC);
+        $clinicId = $this->resolveActiveClinicId();
+        $invoiceSeen = false;
+        foreach ($ids as $id) {
+            $row = $this->db->query('SELECT * FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable('finances'))
+                . ' WHERE id = ? FOR UPDATE', [$id])->getRowArray();
+            if (!$row) { continue; }
+            if (($row['transaction_type'] ?? '') !== 'invoice') {
+                if (($data['data']['transaction_type'] ?? '') === 'invoice') {
+                    throw new \DomainException('New invoices must use the audited creation workflow.');
+                }
+                continue;
+            }
+            if ((int) $row['clinic_id'] !== $clinicId) {
+                throw new \DomainException('Invoice document mutation does not match the active clinic.');
+            }
+            if ((int) $this->db->transDepth < 1 || !$this->db->transStatus()) { throw new \DomainException('Invoice document edits require an active transaction.'); }
+            $invoiceSeen = true;
+            foreach ($touched as $field) {
+                if (!\App\Services\InvoiceLifecyclePolicy::sameValue($field, $data['data'][$field], $row[$field] ?? null)) {
+                    throw new \DomainException('Persisted invoice document values are protected; issuance is not proven unissued.');
+                }
+            }
+        }
+        if ($invoiceSeen) {
+            if (count($ids) !== 1) { throw new \DomainException('Invoice document mass updates are not supported.'); }
+            // Identical roundtrips must not recompute historical monetary values.
+            foreach ($touched as $field) { unset($data['data'][$field]); }
+        }
+        return $data;
+    }
 
     private function documentDateExpr(string $alias = 'finances'): string
     {

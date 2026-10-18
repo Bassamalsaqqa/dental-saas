@@ -97,16 +97,15 @@ final class InvoiceReminderService
         if (!$patient) { return false; }
         $vars = $this->payload($note)['template_vars'] ?? null;
         if (!is_array($vars)) { return false; }
-        // Dispatcher CLI may have no tenant session, or a cached formatter from another clinic.
-        $values = [];
-        foreach ($this->query('SELECT setting_key, setting_value FROM ' . $this->table('settings') . " WHERE clinic_id = ? AND setting_key IN ('currency', 'date_format')", [$clinicId])->getResultArray() as $setting) {
-            $values[$setting['setting_key']] = $setting['setting_value'];
+        try {
+            $formatter = new InvoiceReminderFormatter($this->db);
+            $expectedAmount = $formatter->formatAmount($clinicId, (float) $finance['balance_due']);
+            $expectedDueDate = $formatter->formatDueDate($clinicId, !empty($finance['due_date']) ? (string) $finance['due_date'] : null);
+        } catch (\Throwable $e) {
+            return false;
         }
-        $formatter = new class($values) extends SettingsService {
-            public function __construct(array $values) { $this->settings = $values; }
-        };
-        return ($vars['amount'] ?? null) === $formatter->getCurrencySymbol() . number_format((float) $finance['balance_due'], 2)
-            && ($vars['due_date'] ?? null) === (!empty($finance['due_date']) ? $formatter->formatDate((string) $finance['due_date']) : '')
+        return ($vars['amount'] ?? null) === $expectedAmount
+            && ($vars['due_date'] ?? null) === $expectedDueDate
             && ($vars['invoice_number'] ?? null) === (string) ($finance['transaction_id'] ?? ('INV-' . $finance['id']));
     }
     /** Returns the exact claimed current row, or false. Caller must not own a transaction. */

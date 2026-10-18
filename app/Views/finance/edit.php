@@ -98,6 +98,10 @@
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>
+                        <?php if (($finance['transaction_type'] ?? '') === 'invoice'): ?>
+                            <p class="text-sm text-amber-800"><?= esc(lang('Finance.invoiceDocumentProtected')) ?></p>
+                            <fieldset disabled class="space-y-8">
+                        <?php endif; ?>
                         <!-- Patient and Transaction Type -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
@@ -470,6 +474,14 @@
                             </div>
                         </div>
 
+                        <?php if (($finance['transaction_type'] ?? '') === 'invoice'): ?>
+                            </fieldset>
+                            <div>
+                                <label for="invoiceInternalNote" class="block text-sm font-bold"><?= esc(lang('Finance.internalNote')) ?></label>
+                                <textarea id="invoiceInternalNote" name="internal_note" maxlength="5000" rows="3" class="w-full border rounded-xl p-3"><?= esc(old('internal_note', '')) ?></textarea>
+                                <p class="text-xs text-gray-500"><?= esc(lang('Finance.internalNoteHelp')) ?></p>
+                            </div>
+                        <?php endif; ?>
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
                             <a href="<?= esc(workflow_cancel('finance/' . $finance['id'], $return_to ?? ('finance/' . $finance['id']))) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">

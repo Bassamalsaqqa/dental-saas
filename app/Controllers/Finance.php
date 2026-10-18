@@ -1186,8 +1186,13 @@ class Finance extends BaseController
             'created_by' => $this->resolveActorUserId()
         ];
 
+        $transactionStarted = false;
         try {
-            $this->db->transBegin();
+            if ($transactionType === 'invoice' && (!$this->isTransactionContextSafe() || $this->resolveActorUserId() <= 0)) {
+                throw new \RuntimeException('Invoice creation requires its own authenticated transaction.');
+            }
+            $transactionStarted = $this->db->transBegin();
+            if ($transactionType === 'invoice' && !$transactionStarted) { throw new \RuntimeException('Unable to start invoice creation.'); }
 
             if ($this->financeModel->insert($financeData)) {
             $financeId = $this->financeModel->getInsertID();
@@ -1208,7 +1213,9 @@ class Finance extends BaseController
             }
 
             if ($transactionType === 'invoice') {
-                $this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'));
+                if (!$this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'))) {
+                    throw new \RuntimeException('Unable to initialize invoice settlement status.');
+                }
             }
 
             if ($usingClinicalChargeLines && !$this->chargeLineService->markInvoiced((int) $clinicId, $selectedChargeLineIds, (int) $financeId)) {
@@ -1228,17 +1235,21 @@ class Finance extends BaseController
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
 
             // Log the finance creation activity
-            $this->activityLogger->logFinanceActivity(
+            $createdAudit = $this->activityLogger->logFinanceActivity(
                 'create',
                 $financeId,
                 "New {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2) . " created for {$patientName}"
             );
 
+            if ($transactionType === 'invoice' && !$createdAudit) { throw new \RuntimeException('Unable to audit invoice creation.'); }
+
             if ($this->db->transStatus() === false) {
                 $this->db->transRollback();
                 return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction.');
             }
-            $this->db->transCommit();
+            $committed = $this->db->transCommit();
+            if ($transactionType === 'invoice' && !$committed) { throw new \RuntimeException('Unable to commit invoice creation.'); }
+            $transactionStarted = false;
 
             if ($transactionType === 'invoice' && $balanceDue > 0) {
                 try {
@@ -1272,7 +1283,7 @@ class Finance extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction. Please check your input and try again.');
             }
         } catch (\Throwable $e) {
-            $this->db->transRollback();
+            if ($transactionStarted) { $this->db->transRollback(); }
             log_message('error', 'Finance create failed with provider split: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
@@ -1535,6 +1546,34 @@ class Finance extends BaseController
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
+        }
+
+        if (($finance['transaction_type'] ?? '') === 'invoice') {
+            try {
+                $payload = [];
+                $transport = [config('Security')->tokenName, 'return_to'];
+                foreach ($this->request->getPost() as $field => $value) {
+                    if (in_array($field, $transport, true)) { continue; }
+                    if (!in_array($field, \App\Services\FinanceApiMutationService::ALLOWED_PAYLOAD_FIELDS, true)) {
+                        throw new \DomainException('Invoice financial and provider changes require an approved correction workflow.');
+                    }
+                    if ($field === 'internal_note' && is_string($value) && trim($value) === '') { continue; }
+                    $payload[$field] = $value;
+                }
+                $check = $this->request->getFile('check_scan');
+                if ($check && $check->getError() !== UPLOAD_ERR_NO_FILE) {
+                    throw new \DomainException('Existing invoice check documents cannot be replaced through document editing.');
+                }
+                (new \App\Services\FinanceApiMutationService($this->db, $this->financeModel))
+                    ->updateFinance((int) $clinicId, (int) $id, $payload, $this->resolveActorUserId(), true);
+                return $this->redirectAfterWorkflow('finance/' . $id, ['patient', 'patients', 'finance'])
+                    ->with('success', lang('Finance.internalNoteSaved'));
+            } catch (\DomainException|\InvalidArgumentException $e) {
+                return redirect()->back()->withInput()->with('error', lang('Finance.invoiceChangeRejected'));
+            } catch (\Throwable $e) {
+                log_message('error', 'Invoice addendum failed: ' . $e->getMessage());
+                return redirect()->back()->withInput()->with('error', lang('Finance.internalNoteFailed'));
+            }
         }
 
         $rules = [

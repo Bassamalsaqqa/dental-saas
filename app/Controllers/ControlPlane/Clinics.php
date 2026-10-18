@@ -644,30 +644,56 @@ class Clinics extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
-        // Hard Delete Logic
+        $guard = new \App\Services\FinancialParentDeletionGuard($clinicModel->db);
+
         try {
-            // 1. Delete Subscriptions
-            $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-            $subscriptionModel->where('clinic_id', $id)->delete();
+            $guard->deleteClinic($id, function () use ($id, $clinicModel, $clinic) {
+                // 1. Delete Subscriptions
+                $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+                $subResult = $subscriptionModel->where('clinic_id', $id)->delete();
+                if ($subResult === false) {
+                    return false;
+                }
 
-            // 2. Delete Memberships (Users remain, but clinic association is gone)
-            $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
-            $clinicUserModel->where('clinic_id', $id)->delete();
+                // 2. Delete Memberships (Users remain, but clinic association is gone)
+                $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
+                $membershipResult = $clinicUserModel->where('clinic_id', $id)->delete();
+                if ($membershipResult === false) {
+                    return false;
+                }
 
-            // 3. Delete Clinic
-            $clinicModel->delete($id);
-        } catch (\Exception $e) {
+                // 3. Delete Clinic
+                $clinicDeleteResult = $clinicModel->delete($id);
+                if (!$clinicDeleteResult || $clinicModel->db->affectedRows() !== 1) {
+                    return false;
+                }
+
+                // 4. Audit inside transaction before checked commit
+                $auditSuccess = $this->auditService->logEvent('clinic_delete', [
+                    'route' => '/controlplane/clinics/' . $id . '/delete',
+                    'method' => 'POST',
+                    'metadata' => ['clinic_id' => $id, 'name' => $clinic['name'] ?? 'Unknown'],
+                ], true);
+                if ($auditSuccess === false) {
+                    return false;
+                }
+
+                return true;
+            });
+        } catch (\App\Services\FinancialParentDeletionException $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(409)->setJSON([
+                    'success' => false,
+                    'message' => 'Could not delete clinic. Clinic has financial history.',
+                ]);
+            }
+            return redirect()->back()->with('error', 'Could not delete clinic. Clinic has financial history.');
+        } catch (\Throwable $e) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Could not delete clinic. Database constraints may be preventing hard deletion.']);
             }
             return redirect()->back()->with('error', 'Could not delete clinic. Database constraints may be preventing hard deletion.');
         }
-
-        $this->auditService->logEvent('clinic_delete', [
-            'route' => '/controlplane/clinics/' . $id . '/delete',
-            'method' => 'POST',
-            'metadata' => ['clinic_id' => $id, 'name' => $clinic['name'] ?? 'Unknown'],
-        ]);
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON(['success' => true, 'message' => 'Clinic deleted successfully.']);

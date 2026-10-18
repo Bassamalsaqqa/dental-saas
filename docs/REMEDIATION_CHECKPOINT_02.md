@@ -1,41 +1,40 @@
-# Remediation checkpoint 02 — source integration evidence
+# Stage 0 / remediation checkpoint 02 — corrected integration evidence
 
-Production is preserved at `97cd12c67b3f426997d5f80f769031fa35a9f0c0`, tree `0f2b978af72a5ec31788b7294043d527b309a266`. This checkpoint does not authorize integration or deployment. Dynamic scheduling remains OFF. No migrations, production writes, GitHub Actions, or original-checkout edits were performed.
+This supersedes the old PR #12 composition at `221b61af`. No integration or deployment is authorized. Production is preserved at `97cd12c67b3f426997d5f80f769031fa35a9f0c0`, tree `0f2b978af72a5ec31788b7294043d527b309a266`; scheduling OFF. No migrations, dependency changes, customer-data writes or GitHub Actions.
 
-## Exact component heads
+## Pinned source and review boundaries
 
-| PR | HEAD | Review status at preparation |
-| --- | --- | --- |
-| #9 framework | `c1d2218370e45dbca498a9230467846e4539d2a6` | Bounded COMMENTED review; formal approval requested |
-| #10 reporting | `f5a15c775c6a986062eb2002b02751fede17844b` | Reproducible SQL fixture added; fresh review requested |
-| #11 settlement | `27b333ac40c1361d88bdac6415733dbed54a3737` | Optional-FX correction pushed; fresh review required to clear prior CHANGES_REQUESTED |
+- PR #9 `c1d2218370e45dbca498a9230467846e4539d2a6`: bounded COMMENTED result; formal exact-head decision requested using existing provenance/runtime evidence.
+- PR #10 `f5a15c775c6a986062eb2002b02751fede17844b`: scoped independent APPROVED, unchanged.
+- PR #11 `27b333ac40c1361d88bdac6415733dbed54a3737`: scoped independent APPROVED, unchanged; obsolete FX thread resolved.
+- Core review branch `ceb58f88625aa64814501597b0a6c23e0d42b507`, tree `7192c4b575c266e5271f1aee5207b4fadb9c6e74`. Object-only sequential merge-tree of those exact component heads cleanly reproduces this tree. No ref/source merge performed.
+- This PR remains stacked on that core; its final exact SHA/tree are recorded in the GitHub review handoff. Component approval does not approve the composed release.
 
-Core composition commit `ceb58f88625aa64814501597b0a6c23e0d42b507`, tree `7192c4b575c266e5271f1aee5207b4fadb9c6e74`, has those three exact heads as parents. This stacked correction adds only the bounded finance API/reminder containment and its verification sources. It introduces no dependencies, migrations, configuration changes or scheduled jobs.
+## Three reviewer findings corrected
 
-## Existing defects and bounded containment
+1. `InvoiceReminderFormatter` is the authoritative explicit-clinic currency/date/timezone formatter used by the real payment reminder producer and claim validator. Calendar DATE values do not shift across timezones; background due dates and default workflow suffix use the clinic's local day. Notification enqueue reads retain explicit clinic predicates without ambient session scoping.
+2. Payment status never establishes issuance. Production has no positive unissued-draft evidence, so all persisted invoice financial basis, patient/clinical identity, document fields and printed notes are protected. API and browser edits use the same locked service; model callbacks reject direct bypasses, foreign unscoped edits and expense-to-invoice conversion, and preserve identical legacy totals. New invoice creation serializes clinic/patient/examination identity. Legitimate receipt, refund, receipt-void, write-off and expense paths remain distinct.
+3. No persisted invoice may be physically deleted without proven unissued status; that proof does not currently exist. Queue/history is preserved, not erased to manufacture eligibility. Direct finance-model deletion fails closed. Clinic/patient/examination deletion guards protect invoice links and financial history, including the production clinic FK cascade. Parent guards lock clinic then identity, then take their first nonlocking history snapshot to avoid reversing settlement/audit lock order.
 
-Both release-sensitive defects were independently reproduced against the baseline behavior with new synthetic fixtures; neither was introduced by PR #11.
+Safe metadata is an append-only `internal_note` in existing attributed activity audit, never an overwrite of printed invoice notes or financial values. Existing edit authorization applies; EN/AR edit forms display protected fields disabled and expose the separate note. Audit persistence is mandatory and atomic.
 
-- Finance API update could convert a paid invoice into an unpaid expense while retaining its real receipt. Updates now own a transaction, lock the clinic-owned parent before related current reads, reject direct computed/type/status/history changes, preserve identical roundtrips and paid metadata edits, and audit successful corrections atomically. Truly unpaid, unlinked document basis edits still use the actual model totals. Explicit FX inputs retain their validation meaning and six-decimal rate precision. Invoice creation rejects fabricated settlement history; direct-payment and paid-expense creation retain their existing paths.
-- Unused invoice deletion could leave a claimable payment reminder. Deletion now reconciles unsent reminders in the same parent-owned transaction and retained audit; processing, sent or attempted demand history blocks deletion. Claims lock parent before targeted queue row, reject missing/foreign/settled/stale demands, validate clinic-specific formatting without session/cache dependence, and pass the freshly claimed payload to transport. Payloads and attempt history are retained.
+## Focused independent execution
 
-Ordinary receipts remain available. A receipt committed after a valid reminder claim cannot recall an external message already being sent; validation guarantees apply at claim time. No database locks span transport.
+Private non-webserved CLI application, PHP8.3.35 / MariaDB11.8.9, restricted identity-marked synthetic database. All17 changed runtime file hashes match the candidate. Public staging and production applications were not changed.
 
-## Focused independent verification
+- 45 real SQL lifecycle/API assertions: pending/overdue/communicated/legacy protection, direct-model/foreign-context bypasses, printed notes, audit-only addenda, rollback, expense/FX compatibility and exact legacy totals.
+- 40 real SQL reminder assertions, including actual `WhatsAppWorkflowService::queueInvoicePaymentReminder` and actual `NotificationService` enqueue for new clinic B while clinic A is active with conflicting settings; pending enqueue then successful claim. Only plan/registry policy gates are doubled; no external sends. Stale/forged/foreign demands reject.
+- 26 real SQL parent-deletion assertions: clinic/patient/examination financial history, indirect billed charge, orphan finance audit, tenant/nested transaction rejection, callback/audit rollback and empty-parent compatibility.
+- 34 actual API/browser-controller EN/AR assertions: audited API creation/server actor, computed totals, forged-paid/foreign-patient rejection, internal-note append and protected-value rejection. UI evidence is source/translation inspection; this is not routed authentication or browser transport certification.
+- Two deterministic SQL races: blocked invoice deletion versus valid reminder claim; actual model invoice creation holding parent identity locks versus patient deletion waiting and then rejecting committed history.
+- 34 standalone lifecycle policy assertions; changed PHP parses and whitespace checks pass. AGY cascade package also passed17 focused unit tests/45assertions. Completed framework/reporting/settlement evidence is reused; PR #10 reporting source and PR #11 settlement source remain unchanged.
 
-Executed with PHP 8.3.35 / MariaDB 11.8.9 in the non-webserved private CLI copy using only the identity-marked synthetic staging database and its restricted owner. Production and the public staging installation were not changed.
+All320 pre-existing synthetic rows and68 schemas remain unchanged;97 newly owned synthetic rows retained. Original tracked dirty files/head/main are untouched. Historical preservation baseline matches23 existing files; `_audit_bundle.txt` was already absent when this operation checked it and was neither restored nor removed. All238 corrupted staging metadata entries and affected table hashes remain unchanged.
 
-- PR #11: 26 actual SQL assertions across full-FX and temporary no-FX schemas, including attribution, idempotency, tenant rejection and audit-failure rollback; 10 focused unit tests / 78 assertions.
-- API: 17 actual SQL assertions covering unpaid recalculation, conflicting/coherent FX inputs, six-decimal precision, protected history, metadata preservation, identical roundtrip, foreign-clinic rejection and audit rollback.
-- Actual API controller: JSON 409 for the reproduced paid-history tamper, exact parent/receipt preservation, and rejection of forged invoice settlement creation.
-- Reminders: 29 actual SQL assertions covering cancellation/history, batch rollback, stale/missing/foreign claims, malformed keys, clinic-local formatting, transaction ownership and unaffected unrelated email claims. No transport was invoked.
-- Two deterministic concurrent SQL cases: deletion versus claim, and settlement versus API basis edit. The contender waited on the parent lock and rejected after the first transaction committed. Settlement retained one payment and its audit.
-- Reused completed framework provenance/security/runtime checks and the 23-assertion reporting SQL golden fixture. Reporting implementation is unchanged from the previously verified composition: patient cash 138; external inflow 160, outflow 47, net 113. Transfers remain balanced treasury legs. These cash measures are not universal profit or salary accounting.
+## Compatibility, limitations and authorization gates
 
-Reproduction requires an explicit private bootstrap. `scripts/verify_finance_release_guards_sql.php` checks canonical paths, exact DB/user/host/port, marker, authenticated grants and scheduling OFF. `--verify-isolation` performs only the guard checks; without a bootstrap it exits 2 before connecting. Its two fixture classes were independently executed; concurrency helpers are separate to avoid broad repeated suites.
+Hostinger MCP confirms PHP8.3.35 with required extensions; Git auto-deployment settings are all null. Production protected `.env`, root/public `.htaccess` hashes remain unchanged. No schema or migration impact. Source-only rollback would restore the prior runtime while retaining all data/configuration/storage; actual rollout still requires a fresh consistent off-host backup and verified recovery checkpoint.
 
-## Preservation and release gates
+A true draft/issue/cancel/credit-note/rebill lifecycle and historical invoice patient snapshot are absent. This release contains unsafe edits/deletes; it does not invent accounting semantics or claim `closeInvoiceBalance` is universal cancellation. Internal notes do not correct financial basis. Owner product rules are needed for that later workflow. Historical print regeneration still uses the current patient profile; ordinary patient profile edits are not blocked. Existing noninvoice financial edit behavior remains outside this bounded invoice-issuance correction. A payment after a valid committed reminder claim cannot recall an external message already being sent.
 
-Before/after verification preserves all 275 baseline synthetic rows and 68 table schemas; only newly owned synthetic fixtures were added/removed. Production `.env`, root/public `.htaccess` hashes remain unchanged. The original 24 dirty files and 238 corrupted-staging metadata entries remain unchanged.
-
-Required next steps: exact-head independent approvals for the corrected components and this stacked integration result, then separate Owner release authorization with a fresh verified recovery checkpoint. No merge or deployment is authorized by this evidence. The original unapproved historical-data reconciliation, commission changes and salary product decisions remain outside this release.
+Release remains NO-GO until fresh exact-head independent PR #12 approval, formal PR #9 decision, final composed-tree review and separate Owner source/release authorization. No later roadmap stage starts before that decision. Scheduling pilot authorization remains separate.

@@ -117,14 +117,15 @@ class FinanceMutationService
                 $rows[] = $row;
             }
             foreach ($rows as $row) {
+                InvoiceLifecyclePolicy::assertCanPhysicallyDelete($row);
+
                 $id = (int) $row['id'];
                 $type = (string) ($row['transaction_type'] ?? '');
                 $status = (string) ($row['payment_status'] ?? '');
 
-                $isDraftInvoice = ($type === 'invoice' && in_array($status, ['pending', 'overdue'], true));
                 $isDraftExpense = ($type === 'expense' && $status === 'pending');
 
-                if (!$isDraftInvoice && !$isDraftExpense
+                if (!$isDraftExpense
                     || (float) ($row['amount_paid'] ?? 0) != 0.0
                     || !empty($row['paid_date'])
                     || !empty($row['source_entity_type'])

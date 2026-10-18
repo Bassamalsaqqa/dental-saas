@@ -1461,19 +1461,38 @@ class Patient extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
-        if ($this->patientModel->delete($id)) {
-            // Log the patient deletion activity
-            $this->activityLogger->logPatientActivity(
-                'delete',
-                $id,
-                "Patient '{$patient['first_name']} {$patient['last_name']}' deleted from the system"
-            );
-            
+        $guard = new \App\Services\FinancialParentDeletionGuard($this->patientModel->db);
+
+        try {
+            $guard->deletePatient((int) $clinicId, (int) $id, function () use ($id, $patient) {
+                $deleted = $this->patientModel->delete($id);
+                if (!$deleted || $this->patientModel->db->affectedRows() !== 1) {
+                    return false;
+                }
+
+                // Log the patient deletion activity inside transaction before checked commit
+                $auditSuccess = $this->activityLogger->logPatientActivity(
+                    'delete',
+                    $id,
+                    "Patient '{$patient['first_name']} {$patient['last_name']}' deleted from the system"
+                );
+                if ($auditSuccess === false) {
+                    return false;
+                }
+
+                return true;
+            });
+
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => true]);
             }
             return redirect()->to('/patient')->with('success', 'Patient has been deleted successfully!');
-        } else {
+        } catch (\App\Services\FinancialParentDeletionException $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(409)->setJSON(['error' => 'Cannot delete patient with linked financial records']);
+            }
+            return redirect()->back()->with('error', 'Cannot delete patient with linked financial records.');
+        } catch (\Throwable $e) {
             if ($this->request->isAJAX()) {
                 return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to delete patient']);
             }

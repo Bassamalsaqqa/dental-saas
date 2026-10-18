@@ -129,17 +129,50 @@ class Finance extends ResourceController
             return $this->failValidationErrors($ownershipErrors);
         }
 
+        $db = $this->model->db;
+        $ownedInvoiceTransaction = false;
         try {
+            $invoice = $payload['transaction_type'] === 'invoice';
+            $actorId = (int) (\App\Libraries\ApiRuntimeContext::getUserId() ?? 0);
+            if ($invoice) {
+                if ($actorId <= 0) { return $this->failUnauthorized('Authentication required'); }
+                if ((int) $db->transDepth !== 0 || !$db->transStatus() || !$db->transBegin()) {
+                    throw new \RuntimeException('Unable to start invoice creation transaction.');
+                }
+                $ownedInvoiceTransaction = true;
+                $payload['created_by'] = $actorId;
+            }
             if (!$this->model->insert($payload)) {
+                if ($ownedInvoiceTransaction) { $db->transRollback(); $ownedInvoiceTransaction = false; }
                 return $this->failValidationErrors($this->model->errors());
             }
-        } catch (\InvalidArgumentException $e) {
-            return $this->failValidationErrors(['amount' => $e->getMessage()]);
+            $id = (int) $this->model->getInsertID();
+            $row = $this->model->where('clinic_id', $clinicId)->find($id);
+            if ($invoice) {
+                // No historical reclassification: this is the just-inserted, unpaid invoice.
+                if (!$db->table('finances')->where('clinic_id', $clinicId)->where('id', $id)
+                    ->update(['balance_due' => $row['total_amount']])) {
+                    throw new \RuntimeException('Unable to persist new invoice balance.');
+                }
+                $row = $this->model->where('clinic_id', $clinicId)->find($id);
+                if (!$db->table('activity_logs')->insert([
+                    'clinic_id'=>$clinicId,'user_id'=>$actorId,'action'=>'create','entity_type'=>'finance','entity_id'=>$id,
+                    'description'=>'Invoice created through API; issuance is not proven unissued.',
+                    'metadata'=>json_encode(['finance_after'=>$row], JSON_THROW_ON_ERROR),'created_at'=>date('Y-m-d H:i:s'),
+                ]) || !$db->transStatus() || !$db->transCommit()) {
+                    throw new \RuntimeException('Unable to commit audited invoice creation.');
+                }
+                $ownedInvoiceTransaction = false;
+            }
+            return $this->respondCreated($row);
+        } catch (\InvalidArgumentException|\DomainException $e) {
+            if ($ownedInvoiceTransaction) { $db->transRollback(); }
+            return $this->failValidationErrors(['invoice'=>$e->getMessage()]);
+        } catch (\Throwable $e) {
+            if ($ownedInvoiceTransaction) { $db->transRollback(); }
+            log_message('error', 'API Finance creation failed: ' . $e->getMessage());
+            return $this->failServerError('Failed to create finance entry');
         }
-
-        $id = (int) $this->model->getInsertID();
-        $row = $this->model->where('clinic_id', $clinicId)->find($id);
-        return $this->respondCreated($row);
     }
 
     public function update($id = null)

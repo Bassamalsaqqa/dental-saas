@@ -36,6 +36,7 @@ class FinanceApiMutationService
 {
     public const ALLOWED_PAYLOAD_FIELDS = [
         // Metadata fields (editable on paid/linked records)
+        'internal_note',
         'description',
         'notes',
         'service_type',
@@ -112,6 +113,7 @@ class FinanceApiMutationService
         'payment_status',
     ];
 
+    private ?string $internalNote = null;
     private BaseConnection $db;
     private FinanceModel $model;
     private FinanceTreasuryService $treasury;
@@ -198,8 +200,9 @@ class FinanceApiMutationService
                 'action'      => 'update',
                 'entity_type' => 'finance',
                 'entity_id'   => $id,
-                'description' => 'Finance record updated via API; history preserved.',
+                'description' => $this->internalNote !== null ? 'Internal invoice note: ' . $this->internalNote : 'Finance record updated; history preserved.',
                 'metadata'    => json_encode([
+                    'internal_note' => $this->internalNote,
                     'finance_before' => $existing,
                     'finance_after'  => $finalRow,
                 ], JSON_THROW_ON_ERROR),
@@ -212,8 +215,9 @@ class FinanceApiMutationService
 
     }
 
-    public function updateFinance(int $clinicId, int $id, array $payload, ?int $actorId = null): array
+    public function updateFinance(int $clinicId, int $id, array $payload, ?int $actorId = null, bool $browserContext = false): array
     {
+        $this->internalNote = null;
         if ($clinicId <= 0) {
             throw new FinanceForbiddenException('Tenant context required.');
         }
@@ -227,13 +231,19 @@ class FinanceApiMutationService
             throw new FinanceValidationException(['id' => 'Invalid transaction ID.']);
         }
 
-        if (ApiRuntimeContext::getClinicId() !== $clinicId || ApiRuntimeContext::getUserId() !== $actorId) {
+        if ((!$browserContext && (ApiRuntimeContext::getClinicId() !== $clinicId || ApiRuntimeContext::getUserId() !== $actorId))
+            || ($browserContext && (ApiRuntimeContext::getClinicId() !== null || ApiRuntimeContext::getUserId() !== null
+                || (int) session()->get('active_clinic_id') !== $clinicId || (int) session()->get('user_id') !== $actorId))) {
             throw new FinanceForbiddenException('Request context does not match the active actor and clinic.');
         }
         foreach ($payload as $field => $value) {
             if (!is_string($field) || is_bool($value) || ($value !== null && !is_string($value) && !is_int($value) && !is_float($value))) {
                 throw new FinanceValidationException(['payload' => 'Fields must contain scalar values or null.']);
             }
+        }
+        if (array_key_exists('internal_note', $payload)) {
+            $this->internalNote = InvoiceLifecyclePolicy::validateInternalNote($payload['internal_note']);
+            unset($payload['internal_note']);
         }
         $unknownFields = array_diff(array_keys($payload), self::ALLOWED_PAYLOAD_FIELDS);
         if (!empty($unknownFields)) {
@@ -271,19 +281,22 @@ class FinanceApiMutationService
                 }
             }
             if ($payload === []) {
+                if ($this->internalNote !== null) { $this->recordAudit($clinicId, $actorId, $id, $existing, $existing); }
                 $this->commit();
                 return $existing;
             }
+
+            InvoiceLifecyclePolicy::assertCanUpdate($existing, array_keys($payload));
+
             $isHistorySensitiveChange = array_intersect(array_keys($payload), self::HISTORY_SENSITIVE_FIELDS) !== [];
 
             if ($isHistorySensitiveChange) {
                 $type = (string) ($existing['transaction_type'] ?? '');
                 $status = (string) ($existing['payment_status'] ?? '');
 
-                $isDraftInvoice = ($type === 'invoice' && in_array($status, ['pending', 'overdue'], true));
                 $isDraftExpense = ($type === 'expense' && $status === 'pending');
 
-                if (!$isDraftInvoice && !$isDraftExpense) {
+                if (!$isDraftExpense) {
                     throw new FinanceConflictException('This entry has financial or payment status and cannot be modified. Use the existing reversal or correction workflow.');
                 }
 
