@@ -19,6 +19,7 @@ class DispatchService
     protected EmailDriver $emailDriver;
     protected WhatsAppDriver $whatsAppDriver;
     protected int $staleLockMinutes;
+    private array $claimedReminderRows = [];
 
     public function __construct()
     {
@@ -101,6 +102,10 @@ class DispatchService
                 continue;
             }
 
+            if (isset($this->claimedReminderRows[(int) $note['id']])) {
+                $note = $this->claimedReminderRows[(int) $note['id']];
+                unset($this->claimedReminderRows[(int) $note['id']]);
+            }
             $summary['claimed']++;
 
             $finalized = false;
@@ -182,6 +187,15 @@ class DispatchService
      */
     public function claimNotification(int $notificationId, int $clinicId, string $dispatcherId, string $channelType): bool
     {
+        $candidate = $this->db->table('notifications')->where('id', $notificationId)->where('clinic_id', $clinicId)->where('channel_type', $channelType)->get()->getRowArray();
+        if (!$candidate) { return false; }
+        $reminders = new InvoiceReminderService($this->db);
+        if ($reminders->isPaymentReminder($candidate)) {
+            $claimed = $reminders->claim($candidate, $clinicId, $dispatcherId, $channelType, $this->staleLockMinutes);
+            if ($claimed === false) { return false; }
+            $this->claimedReminderRows[$notificationId] = $claimed;
+            return true;
+        }
         $builder = $this->db->table('notifications');
 
         $builder->set('status', 'processing');

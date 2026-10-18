@@ -138,9 +138,11 @@ class FinanceMutationService
                     throw new \DomainException('This entry has financial or clinical history and cannot be deleted. Use the existing reversal or correction workflow.');
                 }
             }
+            $reminders = new InvoiceReminderService($this->db);
             foreach ($rows as $row) {
                 $id = (int) $row['id'];
-                $this->audit($clinicId, $actorId, 'delete', $id, 'Unused financial entry deleted; history preserved in audit.', ['finance_before' => $row]);
+                $reconciliation = $reminders->reconcileForDeletion($clinicId, $id);
+                $this->audit($clinicId, $actorId, 'delete', $id, 'Unused financial entry deleted; history preserved in audit.', ['finance_before' => $row, 'invoice_reminders' => $reconciliation]);
                 if (!$this->db->table('finances')->where('clinic_id', $clinicId)->where('id', $id)->delete() || $this->db->affectedRows() !== 1) {
                     throw new \RuntimeException('Unable to delete unused financial entry.');
                 }
