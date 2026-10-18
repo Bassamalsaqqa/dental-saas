@@ -120,8 +120,12 @@ class Finance extends ResourceController
             return $this->failValidationErrors($ownershipErrors);
         }
 
-        if (!$this->model->insert($payload)) {
-            return $this->failValidationErrors($this->model->errors());
+        try {
+            if (!$this->model->insert($payload)) {
+                return $this->failValidationErrors($this->model->errors());
+            }
+        } catch (\InvalidArgumentException $e) {
+            return $this->failValidationErrors(['amount' => $e->getMessage()]);
         }
 
         $id = (int) $this->model->getInsertID();
@@ -157,8 +161,12 @@ class Finance extends ResourceController
             return $this->failValidationErrors($ownershipErrors);
         }
 
-        if (!$this->model->update($id, $payload)) {
-            return $this->failValidationErrors($this->model->errors());
+        try {
+            if (!$this->model->update($id, $payload)) {
+                return $this->failValidationErrors($this->model->errors());
+            }
+        } catch (\InvalidArgumentException $e) {
+            return $this->failValidationErrors(['amount' => $e->getMessage()]);
         }
 
         $row = $this->model->where('clinic_id', $clinicId)->find($id);

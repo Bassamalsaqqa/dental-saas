@@ -116,7 +116,7 @@ class FinanceModel extends TenantAwareModel
     protected $cleanValidationRules = true;
 
     protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId'];
-    protected $beforeUpdate = ['calculateTotals'];
+    protected $beforeUpdate = ['enforceTenantScope', 'calculateTotals'];
 
     private function documentDateExpr(string $alias = 'finances'): string
     {
@@ -133,24 +133,219 @@ class FinanceModel extends TenantAwareModel
         return $data;
     }
 
+    /**
+     * Guards monetary basis inputs and calculates tax and total amounts.
+     * Recomputes totals only when monetary basis (amount, discount_amount, tax_percentage) is touched.
+     * Merges persisted original basis on partial updates, preserving legacy values on status-only updates.
+     */
     protected function calculateTotals(array $data)
     {
-        if (isset($data['data']['amount'])) {
-            $amount = floatval($data['data']['amount']);
-            $discount = floatval($data['data']['discount_amount'] ?? 0);
-            $taxPercent = floatval($data['data']['tax_percentage'] ?? 0);
-            $taxableBase = max(0, $amount - $discount);
-            $tax = $taxableBase * ($taxPercent / 100);
+        $hasAmount = array_key_exists('amount', $data['data'] ?? []);
+        $hasDiscount = array_key_exists('discount_amount', $data['data'] ?? []);
+        $hasTaxPercent = array_key_exists('tax_percentage', $data['data'] ?? []);
 
-            $data['data']['tax_amount'] = $tax;
-            $total = $amount - $discount + $tax;
+        // Status-only updates must preserve legacy amounts untouched
+        if (!$hasAmount && !$hasDiscount && !$hasTaxPercent) {
+            return $data;
+        }
 
-            // Only set total_amount if the field exists in the table
-            if ($this->db->fieldExists('total_amount', 'finances')) {
-                $data['data']['total_amount'] = $total;
+        $isUpdate = array_key_exists('id', $data);
+
+        if (!$isUpdate) {
+            // Insertion flow: basis values come from provided payload or standard defaults
+            $rawAmount = $data['data']['amount'] ?? null;
+            if ($rawAmount === null) {
+                return $data;
+            }
+            $rawDiscount = $data['data']['discount_amount'] ?? 0;
+            $rawTax = $data['data']['tax_percentage'] ?? 0;
+
+            [$amount, $discount, $taxPercent, $taxAmount, $totalAmount] = $this->computeGuardedTotals($rawAmount, $rawDiscount, $rawTax);
+
+            $data['data']['amount'] = $amount;
+            if ($hasDiscount) {
+                $data['data']['discount_amount'] = $discount;
+            }
+            if ($hasTaxPercent) {
+                $data['data']['tax_percentage'] = $taxPercent;
+            }
+            $data['data']['tax_amount'] = $taxAmount;
+            if ($this->hasTotalAmountField()) {
+                $data['data']['total_amount'] = $totalAmount;
+            }
+
+            return $data;
+        }
+
+        // Update flow: target ID is required for monetary basis updates
+        $rawId = $data['id'] ?? null;
+        if ($rawId === null || $rawId === [] || $rawId === '') {
+            throw new \InvalidArgumentException('Ambiguous mass update: target transaction ID is required to calculate totals.');
+        }
+
+        $targetIds = is_array($rawId) ? $rawId : [$rawId];
+        $sanitizedIds = [];
+        foreach ($targetIds as $tid) {
+            if (!is_scalar($tid) || !preg_match('/^[1-9][0-9]*$/D', (string) $tid)) {
+                throw new \InvalidArgumentException('Invalid target transaction ID for monetary update.');
+            }
+            $sanitizedIds[] = (int) $tid;
+        }
+        $sanitizedIds = array_values(array_unique($sanitizedIds));
+
+        // If updating multiple rows, ambiguous mass recalculation must be rejected
+        if (count($sanitizedIds) > 1) {
+            $persistedRows = $this->fetchTargetRowsForTotals($sanitizedIds);
+            if (count($persistedRows) !== count($sanitizedIds)) {
+                throw new \InvalidArgumentException('One or more financial transactions not found for basis recalculation.');
+            }
+            $firstComputed = null;
+            foreach ($persistedRows as $pRow) {
+                $rAmount = $hasAmount ? $data['data']['amount'] : ($pRow['amount'] ?? 0);
+                $rDiscount = $hasDiscount ? $data['data']['discount_amount'] : ($pRow['discount_amount'] ?? 0);
+                $rTax = $hasTaxPercent ? $data['data']['tax_percentage'] : ($pRow['tax_percentage'] ?? 0);
+
+                $computed = $this->computeGuardedTotals($rAmount, $rDiscount, $rTax);
+                if ($firstComputed === null) {
+                    $firstComputed = $computed;
+                } elseif ($firstComputed[3] !== $computed[3] || $firstComputed[4] !== $computed[4]) {
+                    throw new \InvalidArgumentException('Ambiguous mass update: updating monetary basis for multiple rows with different amounts is not supported.');
+                }
+            }
+
+            $data['data']['tax_amount'] = $firstComputed[3];
+            if ($this->hasTotalAmountField()) {
+                $data['data']['total_amount'] = $firstComputed[4];
+            }
+            return $data;
+        }
+
+        // Single target update
+        $targetId = $sanitizedIds[0];
+        $persisted = null;
+        if (!$hasAmount || !$hasDiscount || !$hasTaxPercent) {
+            $persisted = $this->fetchTargetRowForTotals($targetId);
+            if (!$persisted) {
+                throw new \InvalidArgumentException('Financial transaction not found for basis recalculation.');
             }
         }
+
+        $rawAmount = $hasAmount ? $data['data']['amount'] : ($persisted['amount'] ?? 0);
+        $rawDiscount = $hasDiscount ? $data['data']['discount_amount'] : ($persisted['discount_amount'] ?? 0);
+        $rawTax = $hasTaxPercent ? $data['data']['tax_percentage'] : ($persisted['tax_percentage'] ?? 0);
+
+        [$amount, $discount, $taxPercent, $taxAmount, $totalAmount] = $this->computeGuardedTotals($rawAmount, $rawDiscount, $rawTax);
+
+        if ($hasAmount) {
+            $data['data']['amount'] = $amount;
+        }
+        if ($hasDiscount) {
+            $data['data']['discount_amount'] = $discount;
+        }
+        if ($hasTaxPercent) {
+            $data['data']['tax_percentage'] = $taxPercent;
+        }
+        $data['data']['tax_amount'] = $taxAmount;
+        if ($this->hasTotalAmountField()) {
+            $data['data']['total_amount'] = $totalAmount;
+        }
+
         return $data;
+    }
+
+    /**
+     * Validates and rounds monetary basis inputs and calculates tax and total amounts.
+     * Rejects malformed/nonfinite/negative inputs, discounts exceeding amount, and invalid tax percentages.
+     *
+     * @return array{0: float, 1: float, 2: float, 3: float, 4: float}
+     */
+    protected function computeGuardedTotals(mixed $rawAmount, mixed $rawDiscount, mixed $rawTax): array
+    {
+        if (!is_numeric($rawAmount) || !is_finite((float) $rawAmount) || (float) $rawAmount < 0) {
+            throw new \InvalidArgumentException('Amount must be a non-negative finite number.');
+        }
+
+        if (!is_numeric($rawDiscount) || !is_finite((float) $rawDiscount) || (float) $rawDiscount < 0) {
+            throw new \InvalidArgumentException('Discount amount must be a non-negative finite number.');
+        }
+
+        if (!is_numeric($rawTax) || !is_finite((float) $rawTax) || (float) $rawTax < 0 || (float) $rawTax > 100) {
+            throw new \InvalidArgumentException('Tax percentage must be a finite number between 0 and 100.');
+        }
+
+        $amount = round((float) $rawAmount, 2);
+        $discount = round((float) $rawDiscount, 2);
+        $taxPercent = round((float) $rawTax, 2);
+
+        if ($discount > $amount) {
+            throw new \InvalidArgumentException('Discount amount cannot exceed amount.');
+        }
+
+        $taxableBase = round($amount - $discount, 2);
+        $taxAmount = round($taxableBase * ($taxPercent / 100.0), 2);
+        $totalAmount = round($taxableBase + $taxAmount, 2);
+
+        return [$amount, $discount, $taxPercent, $taxAmount, $totalAmount];
+    }
+
+    protected function hasTotalAmountField(): bool
+    {
+        try {
+            return $this->db->fieldExists('total_amount', 'finances');
+        } catch (\Throwable $e) {
+            return true;
+        }
+    }
+
+    protected function resolveActiveClinicId(): int
+    {
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
+        if (!$clinicId && function_exists('session')) {
+            try {
+                $clinicId = session()->get('active_clinic_id');
+            } catch (\Throwable $e) {
+                $clinicId = null;
+            }
+        }
+        if (!$clinicId) {
+            log_message('error', "TENANT_CONTEXT_MISSING: Active clinic is required for tenant-scoped operations on {$this->table}.");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Tenant context required.");
+        }
+        return (int) $clinicId;
+    }
+
+    protected function fetchTargetRowForTotals(int $id): ?array
+    {
+        try {
+            $clinicId = $this->resolveActiveClinicId();
+            return $this->db->table($this->table)
+                ->select('id, amount, discount_amount, tax_percentage, tax_amount, total_amount')
+                ->where('clinic_id', $clinicId)
+                ->where('id', $id)
+                ->get()
+                ->getRowArray();
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    protected function fetchTargetRowsForTotals(array $ids): array
+    {
+        try {
+            $clinicId = $this->resolveActiveClinicId();
+            return $this->db->table($this->table)
+                ->select('id, amount, discount_amount, tax_percentage, tax_amount, total_amount')
+                ->where('clinic_id', $clinicId)
+                ->whereIn('id', $ids)
+                ->get()
+                ->getResultArray();
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
