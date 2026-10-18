@@ -354,9 +354,9 @@ $bucketLabels = [
                         <h2 class="text-xl font-black"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-100 ring-1 ring-white/20"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.eventsLabel') ?></span>
-                        <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 ring-1 ring-emerald-200/20"><?= lang('Finance.inflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
-                        <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.outflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? 0) ?></span>
+                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-100 ring-1 ring-white/20"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.externalCashEvents') ?></span>
+                        <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 ring-1 ring-emerald-200/20"><?= lang('Finance.externalInflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
+                        <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.externalOutflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? 0) ?></span>
                     </div>
                 </div>
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition group-open:rotate-180">
@@ -400,6 +400,8 @@ $bucketLabels = [
                                     'provider_payout_payment' => lang('Finance.providerPayout'),
                                     'transfer_in' => lang('Finance.transferIn'),
                                     'transfer_out' => lang('Finance.transferOut'),
+                                    'vendor_refund', 'supplier_refund' => lang('Finance.vendorRefund'),
+                                    'adjustment' => lang('Finance.adjustment'),
                                     default => ucfirst(str_replace('_', ' ', (string) ($row['event_type'] ?? ''))),
                                 };
                                 $paymentMethodKey = (string) ($row['payment_method'] ?? '');

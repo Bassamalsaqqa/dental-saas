@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Libraries\ApiRuntimeContext;
 
 class FinanceModel extends TenantAwareModel
 {
@@ -123,6 +124,31 @@ class FinanceModel extends TenantAwareModel
         return "COALESCE({$alias}.transaction_date, {$alias}.paid_date, DATE({$alias}.created_at))";
     }
 
+    private function resolveReportingClinicId($clinicId): int
+    {
+        // An explicit invalid ID fails closed; Bearer context takes precedence over cookies.
+        return (int) ($clinicId ?? ApiRuntimeContext::getClinicId() ?? session()->get('active_clinic_id') ?? 0);
+    }
+
+    private function invoicePaymentReceiptsBuilder(int $clinicId, ?string $startDate = null, ?string $endDate = null)
+    {
+        // Settlement amount is already persisted in the clinic base currency.
+        $builder = $this->db->table('finance_payments fp')
+            ->join('finances f', 'f.id = fp.finance_id AND f.clinic_id = fp.clinic_id', 'inner')
+            ->where('fp.clinic_id', $clinicId)
+            ->where('f.transaction_type', 'invoice')
+            ->whereIn('fp.type', ['payment', 'refund', 'void']);
+
+        if ($startDate !== null && $startDate !== '') {
+            $builder->where('fp.payment_date >=', $startDate);
+        }
+        if ($endDate !== null && $endDate !== '') {
+            $builder->where('fp.payment_date <=', $endDate);
+        }
+
+        return $builder;
+    }
+
     protected function generateTransactionId(array $data)
     {
         if (!isset($data['data']['transaction_id'])) {
@@ -206,6 +232,24 @@ class FinanceModel extends TenantAwareModel
     public function getFinanceStatsByClinic($clinicId, $startDate = null, $endDate = null)
     {
         try {
+            $clinicId = (int) $clinicId;
+            if ($clinicId <= 0) {
+                return [
+                    'total_revenue' => 0,
+                    'total_invoices' => 0,
+                    'pending_payments' => 0,
+                    'pending_amount' => 0,
+                    'overdue_payments' => 0,
+                    'monthly_revenue' => 0,
+                    'outstanding_invoices' => 0,
+                    'total_expenses' => 0,
+                    'net_income' => 0,
+                    'total_transactions' => 0,
+                    'average_transaction' => 0,
+                    'transaction_summary' => []
+                ];
+            }
+
             $builder = $this->db->table('finances')->where('clinic_id', $clinicId);
 
             if ($startDate) {
@@ -223,15 +267,8 @@ class FinanceModel extends TenantAwareModel
             $refunds = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'refund')->get()->getRow()->total_amount ?? 0;
             $totalTransactions = (clone $builder)->countAllResults();
 
-            $paymentBuilder = $this->db->table('finance_payments')->where('clinic_id', $clinicId);
-            if ($startDate) {
-                $paymentBuilder->where('payment_date >=', $startDate);
-            }
-            if ($endDate) {
-                $paymentBuilder->where('payment_date <=', $endDate);
-            }
-            $invoicePayments = $paymentBuilder
-                ->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+            $invoicePayments = $this->invoicePaymentReceiptsBuilder($clinicId, $startDate, $endDate)
+                ->select("SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund','void') THEN -fp.amount ELSE 0 END) AS total_amount", false)
                 ->get()
                 ->getRow()
                 ->total_amount ?? 0;
@@ -260,7 +297,7 @@ class FinanceModel extends TenantAwareModel
 
             $monthStart = date('Y-m-01');
             $monthEnd = date('Y-m-t');
-            $monthlyRevenue = $this->db->table('finances')
+            $monthlyStandalonePayments = $this->db->table('finances')
                 ->selectSum($sumField, 'total_amount')
                 ->where('clinic_id', $clinicId)
                 ->where('transaction_type', 'payment')
@@ -269,14 +306,21 @@ class FinanceModel extends TenantAwareModel
                 ->get()
                 ->getRow()
                 ->total_amount ?? 0;
-            $monthlyInvoicePayments = $this->db->table('finance_payments')
-                ->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+            $monthlyStandaloneRefunds = $this->db->table('finances')
+                ->selectSum($sumField, 'total_amount')
                 ->where('clinic_id', $clinicId)
-                ->where('payment_date >=', date('Y-m-01'))
-                ->where('payment_date <=', date('Y-m-t'))
+                ->where('transaction_type', 'refund')
+                ->where($this->documentDateExpr('finances') . ' >= ' . $this->db->escape($monthStart), null, false)
+                ->where($this->documentDateExpr('finances') . ' <= ' . $this->db->escape($monthEnd), null, false)
                 ->get()
                 ->getRow()
                 ->total_amount ?? 0;
+            $monthlyInvoicePayments = $this->invoicePaymentReceiptsBuilder($clinicId, $monthStart, $monthEnd)
+                ->select("SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund','void') THEN -fp.amount ELSE 0 END) AS total_amount", false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
+            $monthlyRevenue = floatval($monthlyStandalonePayments) - floatval($monthlyStandaloneRefunds) + floatval($monthlyInvoicePayments);
 
             $summaryBuilder = $this->db->table('finances')
                 ->select('transaction_type, COUNT(*) as count, SUM(' . $sumField . ') as total_amount')
@@ -300,7 +344,49 @@ class FinanceModel extends TenantAwareModel
                 ];
             }
 
-            $expenses = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'expense')->get()->getRow()->total_amount ?? 0;
+            // Signed cash expense settlements (payment - refund/void)
+            $expenseSettlementsBuilder = $this->db->table('finance_payments fp')
+                ->join('finances f', 'f.id = fp.finance_id AND f.clinic_id = fp.clinic_id', 'inner')
+                ->where('fp.clinic_id', $clinicId)
+                ->where('f.transaction_type', 'expense')
+                ->whereIn('fp.type', ['payment', 'refund', 'void']);
+            if ($startDate) {
+                $expenseSettlementsBuilder->where('fp.payment_date >=', $startDate);
+            }
+            if ($endDate) {
+                $expenseSettlementsBuilder->where('fp.payment_date <=', $endDate);
+            }
+            $expenseSettlements = $expenseSettlementsBuilder
+                ->select("SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund', 'void') THEN -fp.amount ELSE 0 END) AS total_amount", false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
+
+            // Legacy paid/partial expense fallback only if no ledger exists and category not inventory_cogs
+            $legacyExpenseBuilder = $this->db->table('finances f')
+                ->where('f.clinic_id', $clinicId)
+                ->where('f.transaction_type', 'expense')
+                ->groupStart()
+                    ->where('f.expense_category', null)
+                    ->orWhere('f.expense_category !=', 'inventory_cogs')
+                ->groupEnd()
+                ->where('COALESCE(f.amount_paid, 0) >', 0)
+                ->where('NOT EXISTS (SELECT 1 FROM finance_payments fp WHERE fp.clinic_id = f.clinic_id AND fp.finance_id = f.id)', null, false);
+            $expenseDateExpr = "COALESCE(f.paid_date, f.transaction_date, DATE(f.created_at))";
+            if ($startDate) {
+                $legacyExpenseBuilder->where($expenseDateExpr . ' >= ' . $this->db->escape($startDate), null, false);
+            }
+            if ($endDate) {
+                $legacyExpenseBuilder->where($expenseDateExpr . ' <= ' . $this->db->escape($endDate), null, false);
+            }
+            $legacyExpensePaidExpr = "LEAST(" . $sumField . ", COALESCE(f.amount_paid, 0))";
+            $legacyExpenses = $legacyExpenseBuilder
+                ->select("SUM({$legacyExpensePaidExpr}) AS total_amount", false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
+
+            $expenses = floatval($expenseSettlements) + floatval($legacyExpenses);
             $totalRevenue = floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds);
             $netIncome = $totalRevenue - floatval($expenses);
             $averageTransaction = $totalTransactions > 0 ? ($netIncome / $totalTransactions) : 0;
@@ -312,7 +398,7 @@ class FinanceModel extends TenantAwareModel
                 // Legacy alias used by finance/reports view
                 'pending_amount' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
-                'monthly_revenue' => floatval($monthlyRevenue) + floatval($monthlyInvoicePayments),
+                'monthly_revenue' => $monthlyRevenue,
                 'outstanding_invoices' => intval($outstandingInvoices),
                 'total_expenses' => floatval($expenses),
                 'net_income' => $netIncome,
@@ -342,6 +428,10 @@ class FinanceModel extends TenantAwareModel
     public function getMonthlyRevenueByClinic($clinicId, $year = null)
     {
         try {
+            $clinicId = (int) $clinicId;
+            if ($clinicId <= 0) {
+                return [];
+            }
             $year = $year ?? date('Y');
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
@@ -354,11 +444,10 @@ class FinanceModel extends TenantAwareModel
                 ->orderBy('month', 'ASC')
                 ->findAll();
 
-            $invoicePayments = $this->db->table('finance_payments')
-                ->select("MONTH(payment_date) as month, SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) as total_amount", false)
-                ->where('clinic_id', $clinicId)
-                ->where('YEAR(payment_date)', $year)
-                ->groupBy('MONTH(payment_date)')
+            $invoicePayments = $this->invoicePaymentReceiptsBuilder($clinicId)
+                ->select("MONTH(fp.payment_date) as month, SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund','void') THEN -fp.amount ELSE 0 END) as total_amount", false)
+                ->where('YEAR(fp.payment_date)', $year)
+                ->groupBy('MONTH(fp.payment_date)')
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();
@@ -406,6 +495,10 @@ class FinanceModel extends TenantAwareModel
     public function getMonthlyRevenueByClinicRange(int $clinicId, string $startDate, string $endDate): array
     {
         try {
+            $clinicId = (int) $clinicId;
+            if ($clinicId <= 0) {
+                return [];
+            }
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
             $dateExpr = $this->documentDateExpr('finances');
 
@@ -419,12 +512,9 @@ class FinanceModel extends TenantAwareModel
                 ->get()
                 ->getResultArray();
 
-            $invoicePayments = $this->db->table('finance_payments')
-                ->select("DATE_FORMAT(payment_date, '%Y-%m') AS month_key, SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
-                ->where('clinic_id', $clinicId)
-                ->where('payment_date >=', $startDate)
-                ->where('payment_date <=', $endDate)
-                ->groupBy("DATE_FORMAT(payment_date, '%Y-%m')", false)
+            $invoicePayments = $this->invoicePaymentReceiptsBuilder($clinicId, $startDate, $endDate)
+                ->select("DATE_FORMAT(fp.payment_date, '%Y-%m') AS month_key, SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund','void') THEN -fp.amount ELSE 0 END) AS total_amount", false)
+                ->groupBy("DATE_FORMAT(fp.payment_date, '%Y-%m')", false)
                 ->get()
                 ->getResultArray();
 
@@ -489,6 +579,10 @@ class FinanceModel extends TenantAwareModel
             ->join('patients', 'patients.id = finances.patient_id')
             ->where('finances.patient_id', $patientId)
             ->where('patients.clinic_id = finances.clinic_id') // Join guard
+            ->groupStart()
+                ->where('finances.expense_category', null)
+                ->orWhere('finances.expense_category !=', 'inventory_cogs')
+            ->groupEnd()
             ->orderBy('transaction_date', 'DESC')
             ->orderBy('created_at', 'DESC')
             ->findAll();
@@ -504,7 +598,7 @@ class FinanceModel extends TenantAwareModel
     public function getFinanceStats($startDate = null, $endDate = null, $clinicId = null)
     {
         try {
-            $resolvedClinicId = $clinicId ? (int) $clinicId : (int) (session()->get('active_clinic_id') ?? 0);
+            $resolvedClinicId = $this->resolveReportingClinicId($clinicId);
             if ($resolvedClinicId <= 0) {
                 log_message('warning', 'FinanceModel::getFinanceStats called without clinic context. Returning empty summary.');
                 return [
@@ -540,14 +634,17 @@ class FinanceModel extends TenantAwareModel
 
     public function getPaymentMethodsStats($startDate = null, $endDate = null, $clinicId = null)
     {
+        $clinicId = $this->resolveReportingClinicId($clinicId);
+        if ($clinicId <= 0) {
+            return [];
+        }
+
         $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
         $standaloneBuilder = $this->db->table('finances')
             ->select("payment_method, SUM(CASE WHEN transaction_type = 'payment' THEN {$sumField} WHEN transaction_type = 'refund' THEN -{$sumField} ELSE 0 END) as total_amount, COUNT(*) as transaction_count", false)
+            ->where('clinic_id', $clinicId)
             ->whereIn('transaction_type', ['payment', 'refund']);
-        if ($clinicId) {
-            $standaloneBuilder->where('clinic_id', $clinicId);
-        }
         if ($startDate) {
             $standaloneBuilder->where($this->documentDateExpr('finances') . ' >= ' . $this->db->escape($startDate), null, false);
         }
@@ -556,18 +653,11 @@ class FinanceModel extends TenantAwareModel
         }
         $standalone = $standaloneBuilder->groupBy('payment_method')->get()->getResultArray();
 
-        $invoiceBuilder = $this->db->table('finance_payments')
-            ->select("payment_method, SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) as total_amount, COUNT(*) as transaction_count", false);
-        if ($clinicId) {
-            $invoiceBuilder->where('clinic_id', $clinicId);
-        }
-        if ($startDate) {
-            $invoiceBuilder->where('payment_date >=', $startDate);
-        }
-        if ($endDate) {
-            $invoiceBuilder->where('payment_date <=', $endDate);
-        }
-        $invoicePayments = $invoiceBuilder->groupBy('payment_method')->get()->getResultArray();
+        $invoicePayments = $this->invoicePaymentReceiptsBuilder($clinicId, $startDate, $endDate)
+            ->select("fp.payment_method, SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund','void') THEN -fp.amount ELSE 0 END) as total_amount, COUNT(*) as transaction_count", false)
+            ->groupBy('fp.payment_method')
+            ->get()
+            ->getResultArray();
 
         $merged = [];
         foreach ($standalone as $row) {
@@ -749,40 +839,37 @@ class FinanceModel extends TenantAwareModel
     public function getMonthlyRevenue($year = null, $clinicId = null)
     {
         try {
+            $clinicId = $this->resolveReportingClinicId($clinicId);
+            if ($clinicId <= 0) {
+                return [];
+            }
             $year = $year ?? date('Y');
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
             $dateExpr = $this->documentDateExpr('finances');
-            $standaloneBuilder = $this->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
+            $standalone = $this->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
+                ->where('clinic_id', $clinicId)
                 ->where("YEAR({$dateExpr})", $year, false)
-                ->where('transaction_type', 'payment');
-            if ($clinicId) {
-                $standaloneBuilder->where('clinic_id', $clinicId);
-            }
-            $standalone = $standaloneBuilder->groupBy("MONTH({$dateExpr})", false)
+                ->where('transaction_type', 'payment')
+                ->groupBy("MONTH({$dateExpr})", false)
                 ->orderBy('month', 'ASC')
                 ->findAll();
 
-            $invoiceBuilder = $this->db->table('finance_payments')
-                ->select('MONTH(payment_date) as month, SUM(amount) as total_amount')
-                ->where('YEAR(payment_date)', $year);
-            if ($clinicId) {
-                $invoiceBuilder->where('clinic_id', $clinicId);
-            }
-            $invoicePayments = $invoiceBuilder->groupBy('MONTH(payment_date)')
+            $invoicePayments = $this->invoicePaymentReceiptsBuilder($clinicId)
+                ->select("MONTH(fp.payment_date) as month, SUM(CASE WHEN fp.type = 'payment' THEN fp.amount WHEN fp.type IN ('refund','void') THEN -fp.amount ELSE 0 END) as total_amount", false)
+                ->where('YEAR(fp.payment_date)', $year)
+                ->groupBy('MONTH(fp.payment_date)')
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();
 
-            $refundBuilder = $this->db->table('finances')
+            $refunds = $this->db->table('finances')
                 ->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
+                ->where('clinic_id', $clinicId)
                 ->where("YEAR({$dateExpr})", $year, false)
-                ->where('transaction_type', 'refund');
-            if ($clinicId) {
-                $refundBuilder->where('clinic_id', $clinicId);
-            }
-            $refunds = $refundBuilder->groupBy("MONTH({$dateExpr})", false)
+                ->where('transaction_type', 'refund')
+                ->groupBy("MONTH({$dateExpr})", false)
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();

@@ -1900,8 +1900,8 @@ class Finance extends BaseController
             $this->buildFinancialLedger((int) $clinicId, null, $endDate)['treasury_rows']
         );
 
-        $moneyIn = (float) ($stats['gross_collections'] ?? 0);
-        $moneyOut = (float) (($stats['refunds_total'] ?? 0) + ($stats['expenses_paid'] ?? 0) + ($stats['provider_paid_cash_total'] ?? 0));
+        $moneyIn = (float) ($ledger['summary']['inflow_total'] ?? 0);
+        $moneyOut = (float) ($ledger['summary']['outflow_total'] ?? 0);
         $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
         $expensePayables = (float) ($apAgingSummary['total_balance_due'] ?? 0);
         $providerPayables = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
@@ -2105,6 +2105,10 @@ class Finance extends BaseController
             $amountBase = isset($row['amount_base']) ? floatval($row['amount_base']) : 0.0;
             $type = (string) ($row['transaction_type'] ?? '');
             if ($type === 'expense') {
+                $category = (string) ($row['expense_category'] ?? '');
+                if ($category === 'inventory_cogs') {
+                    continue;
+                }
                 $settlementCount = (int) ($row['settlement_count'] ?? 0);
                 $legacyPaidAmount = round(floatval($row['amount_paid'] ?? 0), 2);
                 if ($settlementCount > 0 || $legacyPaidAmount <= 0) {
@@ -2197,28 +2201,46 @@ class Finance extends BaseController
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
 
             if ($financeTransactionType === 'expense') {
-                $signedAmount = in_array($type, ['refund', 'void'], true) ? $amountBase : -$amountBase;
-                $normalizedType = 'expense';
+                if ($type === 'adjustment') {
+                    $signedAmount = 0.0;
+                    $normalizedType = 'adjustment';
+                } elseif (in_array($type, ['refund', 'void'], true)) {
+                    $signedAmount = $amountBase;
+                    $normalizedType = 'vendor_refund';
+                } else {
+                    $signedAmount = -$amountBase;
+                    $normalizedType = 'expense';
+                }
                 $eventSource = 'expense_settlement';
                 $reference = (string) (($row['invoice_transaction_id'] ?? 'Expense') . ' / EXP-' . ($row['id'] ?? ''));
                 $counterparty = $row['counterparty_name'] ?? null;
                 $patientLabel = null;
                 $patientNumber = null;
+                $sourceLabel = in_array($type, ['refund', 'void'], true) ? 'Vendor refund' : 'Expense settlement';
             } else {
-                $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
-                $normalizedType = $type === 'void' ? 'void' : $type;
+                if ($type === 'adjustment') {
+                    $signedAmount = 0.0;
+                    $normalizedType = 'adjustment';
+                } elseif (in_array($type, ['refund', 'void'], true)) {
+                    $signedAmount = -$amountBase;
+                    $normalizedType = $type === 'void' ? 'void' : 'refund';
+                } else {
+                    $signedAmount = $amountBase;
+                    $normalizedType = 'payment';
+                }
                 $eventSource = 'invoice_settlement';
                 $reference = (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? ''));
                 $counterparty = null;
                 $patientLabel = $patientName !== '' ? $patientName : null;
                 $patientNumber = $row['patient_number'] ?? null;
+                $sourceLabel = 'Invoice settlement';
             }
 
             $rows[] = [
                 'finance_id' => (int) ($row['finance_id'] ?? 0),
                 'provider_payout_id' => null,
                 'event_source' => $eventSource,
-                'source_label' => $financeTransactionType === 'expense' ? 'Expense settlement' : 'Invoice settlement',
+                'source_label' => $sourceLabel,
                 'event_type' => $normalizedType,
                 'event_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
                 'report_date' => (string) ($row['payment_date'] ?? ''),
@@ -2385,7 +2407,14 @@ class Finance extends BaseController
         $inflow = 0.0;
         $outflow = 0.0;
         $net = 0.0;
+        $operatingCount = 0;
         foreach ($rows as $row) {
+            $eventType = (string) ($row['event_type'] ?? '');
+            $eventSource = (string) ($row['event_source'] ?? '');
+            if ($eventSource === 'liquidity_transfer' || in_array($eventType, ['transfer_in', 'transfer_out', 'adjustment'], true)) {
+                continue;
+            }
+            $operatingCount++;
             $signed = floatval($row['signed_amount_base'] ?? 0);
             $net += $signed;
             if ($signed >= 0) {
@@ -2401,7 +2430,7 @@ class Finance extends BaseController
             'rows' => $rows,
             'treasury_rows' => $treasuryRows,
             'summary' => [
-                'count' => count($rows),
+                'count' => $operatingCount,
                 'inflow_total' => $inflow,
                 'outflow_total' => $outflow,
                 'net_total' => $net,
@@ -2415,23 +2444,36 @@ class Finance extends BaseController
             'gross_collections' => 0.0,
             'refunds_total' => 0.0,
             'expenses_paid' => 0.0,
+            'supplier_refunds' => 0.0,
             'provider_paid_cash_total' => 0.0,
             'net_clinic_cash' => 0.0,
             'safe_cash_in' => 0.0,
             'safe_cash_out' => 0.0,
             'safe_cash_net' => 0.0,
-            'total_transactions' => count($rows),
+            'total_transactions' => 0,
             'average_transaction' => 0.0,
             'transaction_summary' => [],
         ];
 
         $summary = [];
+        $externalTransactionsCount = 0;
+        $absoluteExternalCash = 0.0;
 
         foreach ($rows as $row) {
             $type = (string) ($row['event_type'] ?? '');
             $source = (string) ($row['event_source'] ?? '');
             $amountBase = floatval($row['amount_base'] ?? 0);
+            $signedAmount = floatval($row['signed_amount_base'] ?? 0);
+            $liquidityAccount = (string) ($row['liquidity_account'] ?? '');
             $paymentMethod = strtolower((string) ($row['payment_method'] ?? ''));
+
+            // Exclude nonexternal rows: transfers and noncash adjustments
+            if ($source === 'liquidity_transfer' || in_array($type, ['transfer_in', 'transfer_out', 'adjustment'], true)) {
+                continue;
+            }
+
+            $externalTransactionsCount++;
+            $absoluteExternalCash += abs($signedAmount);
 
             if ($type === 'payment') {
                 $stats['gross_collections'] += $amountBase;
@@ -2439,15 +2481,26 @@ class Finance extends BaseController
                 $stats['refunds_total'] += $amountBase;
             } elseif ($type === 'expense') {
                 $stats['expenses_paid'] += $amountBase;
+            } elseif (in_array($type, ['vendor_refund', 'supplier_refund'], true)) {
+                $stats['expenses_paid'] -= $amountBase;
+                $stats['supplier_refunds'] += $amountBase;
             } elseif ($source === 'provider_payout_payment') {
                 $stats['provider_paid_cash_total'] += $amountBase;
             }
 
-            if ($paymentMethod === 'cash') {
-                if ($type === 'payment') {
-                    $stats['safe_cash_in'] += $amountBase;
-                } elseif (in_array($type, ['refund', 'void', 'expense'], true) || $source === 'provider_payout_payment') {
-                    $stats['safe_cash_out'] += $amountBase;
+            // Preserve the legacy cash fallback only when no account was recorded.
+            $isSafeCash = false;
+            if ($liquidityAccount === 'safe_cash') {
+                $isSafeCash = true;
+            } elseif ($liquidityAccount === '' && $paymentMethod === 'cash') {
+                $isSafeCash = true;
+            }
+
+            if ($isSafeCash) {
+                if ($signedAmount > 0) {
+                    $stats['safe_cash_in'] += $signedAmount;
+                } elseif ($signedAmount < 0) {
+                    $stats['safe_cash_out'] += abs($signedAmount);
                 }
             }
 
@@ -2462,7 +2515,7 @@ class Finance extends BaseController
             }
 
             $summary[$summaryKey]['count']++;
-            $summary[$summaryKey]['total_amount'] += abs(floatval($row['signed_amount_base'] ?? 0));
+            $summary[$summaryKey]['total_amount'] += abs($signedAmount);
         }
 
         foreach ($summary as &$row) {
@@ -2473,9 +2526,11 @@ class Finance extends BaseController
 
         usort($summary, static fn(array $a, array $b): int => strcmp((string) $a['transaction_type'], (string) $b['transaction_type']));
 
+        $stats['total_transactions'] = $externalTransactionsCount;
         $stats['gross_collections'] = round($stats['gross_collections'], 2);
         $stats['refunds_total'] = round($stats['refunds_total'], 2);
         $stats['expenses_paid'] = round($stats['expenses_paid'], 2);
+        $stats['supplier_refunds'] = round($stats['supplier_refunds'], 2);
         $stats['provider_paid_cash_total'] = round($stats['provider_paid_cash_total'], 2);
         $stats['safe_cash_in'] = round($stats['safe_cash_in'], 2);
         $stats['safe_cash_out'] = round($stats['safe_cash_out'], 2);
@@ -2485,7 +2540,7 @@ class Finance extends BaseController
             2
         );
         $stats['average_transaction'] = $stats['total_transactions'] > 0
-            ? round(($stats['gross_collections'] + $stats['refunds_total'] + $stats['expenses_paid'] + $stats['provider_paid_cash_total']) / $stats['total_transactions'], 2)
+            ? round($absoluteExternalCash / $stats['total_transactions'], 2)
             : 0.0;
         $stats['transaction_summary'] = $summary;
 
