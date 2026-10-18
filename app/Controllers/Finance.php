@@ -17,6 +17,7 @@ use App\Services\ActivityLogger;
 use App\Services\ClinicalChargeLineService;
 use App\Services\FinanceTreasuryService;
 use App\Services\FinanceMutationService;
+use App\Services\FinanceSettlementService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
 use App\Libraries\ApiRuntimeContext;
@@ -38,6 +39,7 @@ class Finance extends BaseController
     protected $storageService;
     protected $financeTreasuryService;
     protected FinanceMutationService $financeMutationService;
+    protected FinanceSettlementService $financeSettlementService;
     protected $planGuard;
     protected $db;
     protected ClinicalChargeLineService $chargeLineService;
@@ -62,6 +64,7 @@ class Finance extends BaseController
         $this->planGuard = new PlanGuard();
         $this->db = \Config\Database::connect();
         $this->financeMutationService = new FinanceMutationService($this->db, $this->financeTreasuryService);
+        $this->financeSettlementService = new FinanceSettlementService($this->db, $this->financeTreasuryService);
         $this->chargeLineService = new ClinicalChargeLineService();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
@@ -271,22 +274,40 @@ class Finance extends BaseController
 
     private function normalizeFinanceSettlementInput(array $finance, ?float $maxBaseAmount = null): array
     {
-        $baseCurrency = (string) settings()->get('currency', 'ILS');
-        $currency = strtoupper((string) ($this->request->getPost('currency') ?: $baseCurrency));
-        if (!in_array($currency, $this->getFinanceCurrencyOptions(), true)) {
-            throw new \RuntimeException('Invalid settlement currency.');
-        }
-
         $rawAmountOriginal = $this->request->getPost('amount_original');
         if ($rawAmountOriginal === null || $rawAmountOriginal === '') {
             $rawAmountOriginal = $this->request->getPost('amount');
         }
-        $amountOriginal = round(floatval($rawAmountOriginal ?? 0), 2);
+        if (!is_numeric($rawAmountOriginal) || !is_finite((float) $rawAmountOriginal)) {
+            throw new \DomainException('Settlement amount must be a finite number.');
+        }
+        $amountOriginal = round((float) $rawAmountOriginal, 2);
         if ($amountOriginal <= 0) {
-            throw new \RuntimeException('Settlement amount must be greater than 0.');
+            throw new \DomainException('Settlement amount must be greater than 0.');
         }
 
-        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        $rawPaymentMethod = $this->request->getPost('payment_method');
+        $paymentMethod = ($rawPaymentMethod !== null && $rawPaymentMethod !== '') ? $rawPaymentMethod : ($finance['payment_method'] ?? 'cash');
+        if (!is_string($paymentMethod) || !in_array($paymentMethod, ['cash', 'card', 'bank_transfer', 'check', 'insurance', 'other'], true)) {
+            throw new \DomainException('Invalid payment method.');
+        }
+
+        $rawExchangeRate = $this->request->getPost('exchange_rate');
+        if ($rawExchangeRate !== null && $rawExchangeRate !== ''
+            && (!is_numeric($rawExchangeRate) || !is_finite((float) $rawExchangeRate) || (float) $rawExchangeRate <= 0)) {
+            throw new \DomainException('Exchange rate must be a finite positive number.');
+        }
+
+        $baseCurrency = (string) settings()->get('currency', 'ILS');
+        $rawCurrency = $this->request->getPost('currency');
+        if ($rawCurrency === null || $rawCurrency === '') {
+            $rawCurrency = $baseCurrency;
+        }
+        if (!is_string($rawCurrency) || !in_array(strtoupper($rawCurrency), $this->getFinanceCurrencyOptions(), true)) {
+            throw new \DomainException('Invalid settlement currency.');
+        }
+        $currency = strtoupper($rawCurrency);
+        $exchangeRate = (float) ($rawExchangeRate ?? 0);
         if ($currency === $baseCurrency) {
             $exchangeRate = 1.0;
         } elseif ($exchangeRate <= 0) {
@@ -294,8 +315,8 @@ class Finance extends BaseController
         }
 
         $amountBase = $this->normalizeSettlementAmount($amountOriginal, $exchangeRate);
-        if ($amountBase <= 0) {
-            throw new \RuntimeException('Settlement amount must be greater than 0.');
+        if (!is_finite($amountBase) || $amountBase <= 0) {
+            throw new \DomainException('Settlement amount must be a finite number greater than 0.');
         }
 
         if ($maxBaseAmount !== null && $amountBase - $maxBaseAmount > 0.0001) {
@@ -307,7 +328,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'amount_base' => $amountBase,
-            'payment_method' => (string) ($this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash')),
+            'payment_method' => $paymentMethod,
             'payment_date' => $this->normalizePostedDateOnly('payment_date') ?: date('Y-m-d'),
             'notes' => $this->request->getPost('notes'),
         ];
@@ -895,6 +916,7 @@ class Finance extends BaseController
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'payment_status' => 'permit_empty|in_list[pending,partial,paid]',
             'amount_paid' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'discount_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
             'transaction_date' => 'permit_empty|valid_date',
             'paid_date' => 'permit_empty|valid_date',
@@ -920,7 +942,16 @@ class Finance extends BaseController
         }
 
         $amount = $amountOriginal * $exchangeRate;
-        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $rawDiscount = $this->request->getPost('discount_amount');
+        if ($rawDiscount !== null && $rawDiscount !== '') {
+            if (!is_numeric($rawDiscount) || !is_finite((float) $rawDiscount) || (float) $rawDiscount < 0) {
+                return redirect()->back()->withInput()->with('error', 'Discount amount must be a non-negative number.');
+            }
+        }
+        $discountAmount = floatval($rawDiscount ?? 0);
+        if ($discountAmount > $amount) {
+            return redirect()->back()->withInput()->with('error', 'Discount amount cannot exceed the total amount.');
+        }
         $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
@@ -1043,6 +1074,7 @@ class Finance extends BaseController
             'currency' => ($usingClinicalChargeLines ? 'permit_empty|in_list[ILS,USD,JOD,EUR,GBP]' : 'required|in_list[ILS,USD,JOD,EUR,GBP]'),
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
+            'discount_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
             'transaction_date' => 'permit_empty|valid_date',
         ];
@@ -1088,7 +1120,16 @@ class Finance extends BaseController
         }
 
         $amount = $amountOriginal * $exchangeRate;
-        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $rawDiscount = $this->request->getPost('discount_amount');
+        if ($rawDiscount !== null && $rawDiscount !== '') {
+            if (!is_numeric($rawDiscount) || !is_finite((float) $rawDiscount) || (float) $rawDiscount < 0) {
+                return redirect()->back()->withInput()->with('error', 'Discount amount must be a non-negative number.');
+            }
+        }
+        $discountAmount = floatval($rawDiscount ?? 0);
+        if ($discountAmount > $amount) {
+            return redirect()->back()->withInput()->with('error', 'Discount amount cannot exceed the total amount.');
+        }
         $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
@@ -1503,6 +1544,7 @@ class Finance extends BaseController
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
+            'discount_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
             'transaction_date' => 'permit_empty|valid_date',
         ];
@@ -1533,7 +1575,16 @@ class Finance extends BaseController
         }
 
         $amount = $amountOriginal * $exchangeRate;
-        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $rawDiscount = $this->request->getPost('discount_amount');
+        if ($rawDiscount !== null && $rawDiscount !== '') {
+            if (!is_numeric($rawDiscount) || !is_finite((float) $rawDiscount) || (float) $rawDiscount < 0) {
+                return redirect()->back()->withInput()->with('error', 'Discount amount must be a non-negative number.');
+            }
+        }
+        $discountAmount = floatval($rawDiscount ?? 0);
+        if ($discountAmount > $amount) {
+            return redirect()->back()->withInput()->with('error', 'Discount amount cannot exceed the total amount.');
+        }
         $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
@@ -1666,6 +1717,7 @@ class Finance extends BaseController
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'payment_status' => 'permit_empty|in_list[pending,partial,paid]',
             'amount_paid' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'discount_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
             'transaction_date' => 'permit_empty|valid_date',
             'paid_date' => 'permit_empty|valid_date',
@@ -1697,7 +1749,16 @@ class Finance extends BaseController
         }
 
         $amount = $amountOriginal * $exchangeRate;
-        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $rawDiscount = $this->request->getPost('discount_amount');
+        if ($rawDiscount !== null && $rawDiscount !== '') {
+            if (!is_numeric($rawDiscount) || !is_finite((float) $rawDiscount) || (float) $rawDiscount < 0) {
+                return redirect()->back()->withInput()->with('error', 'Discount amount must be a non-negative number.');
+            }
+        }
+        $discountAmount = floatval($rawDiscount ?? 0);
+        if ($discountAmount > $amount) {
+            return redirect()->back()->withInput()->with('error', 'Discount amount cannot exceed the total amount.');
+        }
         $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
@@ -1900,8 +1961,8 @@ class Finance extends BaseController
             $this->buildFinancialLedger((int) $clinicId, null, $endDate)['treasury_rows']
         );
 
-        $moneyIn = (float) ($stats['gross_collections'] ?? 0);
-        $moneyOut = (float) (($stats['refunds_total'] ?? 0) + ($stats['expenses_paid'] ?? 0) + ($stats['provider_paid_cash_total'] ?? 0));
+        $moneyIn = (float) ($ledger['summary']['inflow_total'] ?? 0);
+        $moneyOut = (float) ($ledger['summary']['outflow_total'] ?? 0);
         $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
         $expensePayables = (float) ($apAgingSummary['total_balance_due'] ?? 0);
         $providerPayables = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
@@ -2105,6 +2166,10 @@ class Finance extends BaseController
             $amountBase = isset($row['amount_base']) ? floatval($row['amount_base']) : 0.0;
             $type = (string) ($row['transaction_type'] ?? '');
             if ($type === 'expense') {
+                $category = (string) ($row['expense_category'] ?? '');
+                if ($category === 'inventory_cogs') {
+                    continue;
+                }
                 $settlementCount = (int) ($row['settlement_count'] ?? 0);
                 $legacyPaidAmount = round(floatval($row['amount_paid'] ?? 0), 2);
                 if ($settlementCount > 0 || $legacyPaidAmount <= 0) {
@@ -2197,28 +2262,46 @@ class Finance extends BaseController
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
 
             if ($financeTransactionType === 'expense') {
-                $signedAmount = in_array($type, ['refund', 'void'], true) ? $amountBase : -$amountBase;
-                $normalizedType = 'expense';
+                if ($type === 'adjustment') {
+                    $signedAmount = 0.0;
+                    $normalizedType = 'adjustment';
+                } elseif (in_array($type, ['refund', 'void'], true)) {
+                    $signedAmount = $amountBase;
+                    $normalizedType = 'vendor_refund';
+                } else {
+                    $signedAmount = -$amountBase;
+                    $normalizedType = 'expense';
+                }
                 $eventSource = 'expense_settlement';
                 $reference = (string) (($row['invoice_transaction_id'] ?? 'Expense') . ' / EXP-' . ($row['id'] ?? ''));
                 $counterparty = $row['counterparty_name'] ?? null;
                 $patientLabel = null;
                 $patientNumber = null;
+                $sourceLabel = in_array($type, ['refund', 'void'], true) ? 'Vendor refund' : 'Expense settlement';
             } else {
-                $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
-                $normalizedType = $type === 'void' ? 'void' : $type;
+                if ($type === 'adjustment') {
+                    $signedAmount = 0.0;
+                    $normalizedType = 'adjustment';
+                } elseif (in_array($type, ['refund', 'void'], true)) {
+                    $signedAmount = -$amountBase;
+                    $normalizedType = $type === 'void' ? 'void' : 'refund';
+                } else {
+                    $signedAmount = $amountBase;
+                    $normalizedType = 'payment';
+                }
                 $eventSource = 'invoice_settlement';
                 $reference = (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? ''));
                 $counterparty = null;
                 $patientLabel = $patientName !== '' ? $patientName : null;
                 $patientNumber = $row['patient_number'] ?? null;
+                $sourceLabel = 'Invoice settlement';
             }
 
             $rows[] = [
                 'finance_id' => (int) ($row['finance_id'] ?? 0),
                 'provider_payout_id' => null,
                 'event_source' => $eventSource,
-                'source_label' => $financeTransactionType === 'expense' ? 'Expense settlement' : 'Invoice settlement',
+                'source_label' => $sourceLabel,
                 'event_type' => $normalizedType,
                 'event_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
                 'report_date' => (string) ($row['payment_date'] ?? ''),
@@ -2385,7 +2468,14 @@ class Finance extends BaseController
         $inflow = 0.0;
         $outflow = 0.0;
         $net = 0.0;
+        $operatingCount = 0;
         foreach ($rows as $row) {
+            $eventType = (string) ($row['event_type'] ?? '');
+            $eventSource = (string) ($row['event_source'] ?? '');
+            if ($eventSource === 'liquidity_transfer' || in_array($eventType, ['transfer_in', 'transfer_out', 'adjustment'], true)) {
+                continue;
+            }
+            $operatingCount++;
             $signed = floatval($row['signed_amount_base'] ?? 0);
             $net += $signed;
             if ($signed >= 0) {
@@ -2401,7 +2491,7 @@ class Finance extends BaseController
             'rows' => $rows,
             'treasury_rows' => $treasuryRows,
             'summary' => [
-                'count' => count($rows),
+                'count' => $operatingCount,
                 'inflow_total' => $inflow,
                 'outflow_total' => $outflow,
                 'net_total' => $net,
@@ -2415,23 +2505,36 @@ class Finance extends BaseController
             'gross_collections' => 0.0,
             'refunds_total' => 0.0,
             'expenses_paid' => 0.0,
+            'supplier_refunds' => 0.0,
             'provider_paid_cash_total' => 0.0,
             'net_clinic_cash' => 0.0,
             'safe_cash_in' => 0.0,
             'safe_cash_out' => 0.0,
             'safe_cash_net' => 0.0,
-            'total_transactions' => count($rows),
+            'total_transactions' => 0,
             'average_transaction' => 0.0,
             'transaction_summary' => [],
         ];
 
         $summary = [];
+        $externalTransactionsCount = 0;
+        $absoluteExternalCash = 0.0;
 
         foreach ($rows as $row) {
             $type = (string) ($row['event_type'] ?? '');
             $source = (string) ($row['event_source'] ?? '');
             $amountBase = floatval($row['amount_base'] ?? 0);
+            $signedAmount = floatval($row['signed_amount_base'] ?? 0);
+            $liquidityAccount = (string) ($row['liquidity_account'] ?? '');
             $paymentMethod = strtolower((string) ($row['payment_method'] ?? ''));
+
+            // Exclude nonexternal rows: transfers and noncash adjustments
+            if ($source === 'liquidity_transfer' || in_array($type, ['transfer_in', 'transfer_out', 'adjustment'], true)) {
+                continue;
+            }
+
+            $externalTransactionsCount++;
+            $absoluteExternalCash += abs($signedAmount);
 
             if ($type === 'payment') {
                 $stats['gross_collections'] += $amountBase;
@@ -2439,15 +2542,26 @@ class Finance extends BaseController
                 $stats['refunds_total'] += $amountBase;
             } elseif ($type === 'expense') {
                 $stats['expenses_paid'] += $amountBase;
+            } elseif (in_array($type, ['vendor_refund', 'supplier_refund'], true)) {
+                $stats['expenses_paid'] -= $amountBase;
+                $stats['supplier_refunds'] += $amountBase;
             } elseif ($source === 'provider_payout_payment') {
                 $stats['provider_paid_cash_total'] += $amountBase;
             }
 
-            if ($paymentMethod === 'cash') {
-                if ($type === 'payment') {
-                    $stats['safe_cash_in'] += $amountBase;
-                } elseif (in_array($type, ['refund', 'void', 'expense'], true) || $source === 'provider_payout_payment') {
-                    $stats['safe_cash_out'] += $amountBase;
+            // Preserve the legacy cash fallback only when no account was recorded.
+            $isSafeCash = false;
+            if ($liquidityAccount === 'safe_cash') {
+                $isSafeCash = true;
+            } elseif ($liquidityAccount === '' && $paymentMethod === 'cash') {
+                $isSafeCash = true;
+            }
+
+            if ($isSafeCash) {
+                if ($signedAmount > 0) {
+                    $stats['safe_cash_in'] += $signedAmount;
+                } elseif ($signedAmount < 0) {
+                    $stats['safe_cash_out'] += abs($signedAmount);
                 }
             }
 
@@ -2462,7 +2576,7 @@ class Finance extends BaseController
             }
 
             $summary[$summaryKey]['count']++;
-            $summary[$summaryKey]['total_amount'] += abs(floatval($row['signed_amount_base'] ?? 0));
+            $summary[$summaryKey]['total_amount'] += abs($signedAmount);
         }
 
         foreach ($summary as &$row) {
@@ -2473,9 +2587,11 @@ class Finance extends BaseController
 
         usort($summary, static fn(array $a, array $b): int => strcmp((string) $a['transaction_type'], (string) $b['transaction_type']));
 
+        $stats['total_transactions'] = $externalTransactionsCount;
         $stats['gross_collections'] = round($stats['gross_collections'], 2);
         $stats['refunds_total'] = round($stats['refunds_total'], 2);
         $stats['expenses_paid'] = round($stats['expenses_paid'], 2);
+        $stats['supplier_refunds'] = round($stats['supplier_refunds'], 2);
         $stats['provider_paid_cash_total'] = round($stats['provider_paid_cash_total'], 2);
         $stats['safe_cash_in'] = round($stats['safe_cash_in'], 2);
         $stats['safe_cash_out'] = round($stats['safe_cash_out'], 2);
@@ -2485,7 +2601,7 @@ class Finance extends BaseController
             2
         );
         $stats['average_transaction'] = $stats['total_transactions'] > 0
-            ? round(($stats['gross_collections'] + $stats['refunds_total'] + $stats['expenses_paid'] + $stats['provider_paid_cash_total']) / $stats['total_transactions'], 2)
+            ? round($absoluteExternalCash / $stats['total_transactions'], 2)
             : 0.0;
         $stats['transaction_summary'] = $summary;
 
@@ -2924,130 +3040,66 @@ class Finance extends BaseController
 
     public function markAsPaid($id)
     {
-        $transactionStarted = false;
         try {
             $clinicId = session()->get('active_clinic_id');
             if (!$clinicId) {
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            if (!$this->isTransactionContextSafe()) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Unable to mark the transaction as paid. Please try again.',
-                    'csrf_token' => csrf_hash()
-                ]);
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
+                return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.']);
             }
 
-            if (!$this->db->transBegin()) {
-                throw new \RuntimeException('Unable to start settlement transaction.');
-            }
-            $transactionStarted = true;
-
-            $finance = $this->lockOwnedFinanceRow((int) $clinicId, (int) $id);
-
-            if (!$finance) {
-                $this->db->transRollback();
+            if (!is_scalar($id) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)) {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Financial transaction not found',
-                    'csrf_token' => csrf_hash()
+                    'csrf_token' => csrf_hash(),
                 ]);
             }
 
-            if (!in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
-                $this->db->transRollback();
+            $row = $this->financeModel->where('clinic_id', (int) $clinicId)->find((int) $id);
+            if (!$row) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Only invoices and expenses support settlement tracking.',
-                    'csrf_token' => csrf_hash()
+                    'message' => 'Financial transaction not found',
+                    'csrf_token' => csrf_hash(),
                 ]);
             }
+            $isExpense = ($row['transaction_type'] ?? '') === 'expense';
 
-            $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-            $settledTotal = $this->financePaymentModel->getNetSettledAmount((int) $clinicId, (int) $finance['id']);
-            $remaining = max(0.0, $totalAmount - $settledTotal);
+            $result = $this->financeSettlementService->bulkSettle((int) $clinicId, [(int) $id], $actorId);
 
-            if ($remaining <= 0) {
-                $this->db->transRollback();
+            if ($result['skipped_count'] > 0) {
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => ($finance['transaction_type'] === 'expense') ? 'Expense already fully paid.' : 'Invoice already fully paid.',
-                    'csrf_token' => csrf_hash()
+                    'message' => $isExpense ? 'Expense already fully paid.' : 'Invoice already fully paid.',
+                    'csrf_token' => csrf_hash(),
                 ]);
             }
-
-            $paymentData = [
-                'finance_id' => $finance['id'],
-                'amount' => $remaining,
-                'type' => 'payment',
-                'payment_method' => $finance['payment_method'] ?? 'cash',
-                'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'payment'),
-                'payment_date' => date('Y-m-d'),
-                'notes' => ($finance['transaction_type'] === 'expense') ? 'Full payment via Mark as Paid' : 'Full payment via Mark as Paid',
-                'created_by' => $this->resolveActorUserId()
-            ];
-            if ($this->supportsFinancePaymentExchangeFields()) {
-                $rate = max(0.0001, (float) ($finance['exchange_rate'] ?? 1));
-                $paymentData['currency'] = $finance['currency'] ?? settings()->get('currency', 'ILS');
-                $paymentData['amount_original'] = round($remaining / $rate, 2);
-                $paymentData['exchange_rate'] = $rate;
-            }
-
-            if (!$this->financePaymentModel->insert($paymentData)) {
-                $this->db->transRollback();
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to record payment.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
-            if (!$this->syncFinanceSettlementStatus((int) $finance['id'], (int) $clinicId)) {
-                $this->db->transRollback();
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to update settlement status.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
-            if (!$this->activityLogger->logFinanceActivity(
-                'payment',
-                (int) $finance['id'],
-                "Full payment of " . number_format($remaining, 2) . " recorded via mark as paid for " . ($finance['transaction_id'] ?? $finance['id'])
-            )) {
-                throw new \RuntimeException('Failed to record settlement audit.');
-            }
-
-            if ($this->db->transStatus() === false) {
-                $this->db->transRollback();
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Transaction failure during mark as paid.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
-            if (!$this->db->transCommit()) {
-                throw new \RuntimeException('Failed to commit settlement transaction.');
-            }
-            $transactionStarted = false;
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => ($finance['transaction_type'] === 'expense') ? 'Expense marked as paid.' : 'Invoice marked as paid.',
-                'csrf_token' => csrf_hash()
+                'message' => $isExpense ? 'Expense marked as paid.' : 'Invoice marked as paid.',
+                'csrf_token' => csrf_hash(),
+            ]);
+        } catch (\DomainException $e) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, 'not found') || str_contains($msg, 'No valid transactions')) {
+                $msg = 'Financial transaction not found';
+            }
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $msg,
+                'csrf_token' => csrf_hash(),
             ]);
         } catch (\Throwable $e) {
-            if ($transactionStarted) {
-                $this->db->transRollback();
-            }
             log_message('error', 'Exception in markAsPaid - ID: ' . $id . ', Error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Unable to mark the transaction as paid. Please try again.',
-                'csrf_token' => csrf_hash()
+                'csrf_token' => csrf_hash(),
             ]);
         }
     }
@@ -3059,6 +3111,11 @@ class Finance extends BaseController
             $clinicId = session()->get('active_clinic_id');
             if (!$clinicId) {
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
+                return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.']);
             }
 
             if (!$this->isTransactionContextSafe()) {
@@ -3084,12 +3141,22 @@ class Finance extends BaseController
                 ]);
             }
 
-            $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-            $settledTotal = $this->financePaymentModel->getNetSettledAmount((int) $clinicId, (int) $finance['id']);
-            $remaining = max(0.0, $totalAmount - $settledTotal);
+            $state = $this->financeSettlementService->getLockedSettlementState((int) $clinicId, $finance);
+            $remaining = $state['remaining_base'];
+
+            if ($remaining <= 0.0) {
+                $this->db->transRollback();
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => (($finance['transaction_type'] ?? '') === 'expense') ? 'Expense already fully paid.' : 'Invoice already fully paid.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
             $settlement = $this->normalizeFinanceSettlementInput($finance, $remaining);
 
             $paymentData = [
+                'clinic_id' => (int) $clinicId,
                 'finance_id' => $finance['id'],
                 'amount' => $settlement['amount_base'],
                 'type' => 'payment',
@@ -3097,7 +3164,7 @@ class Finance extends BaseController
                 'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'payment'),
                 'payment_date' => $settlement['payment_date'],
                 'notes' => $settlement['notes'],
-                'created_by' => $this->resolveActorUserId()
+                'created_by' => $actorId,
             ];
             if ($this->supportsFinancePaymentExchangeFields()) {
                 $paymentData['currency'] = $settlement['currency'];
@@ -3114,7 +3181,7 @@ class Finance extends BaseController
                 ]);
             }
 
-            if (!$this->syncFinanceSettlementStatus((int) $finance['id'], (int) $clinicId)) {
+            if (!$this->syncFinanceSettlementStatus((int) $finance['id'], (int) $clinicId, $finance)) {
                 $this->db->transRollback();
                 return $this->response->setJSON([
                     'success' => false,
@@ -3148,6 +3215,15 @@ class Finance extends BaseController
             return $this->response->setJSON([
                 'success' => true,
                 'message' => (($finance['transaction_type'] ?? '') === 'expense') ? 'Expense payment recorded successfully.' : 'Payment added successfully.',
+                'csrf_token' => csrf_hash()
+            ]);
+        } catch (\DomainException $e) {
+            if ($transactionStarted) {
+                $this->db->transRollback();
+            }
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $e->getMessage(),
                 'csrf_token' => csrf_hash()
             ]);
         } catch (\Throwable $e) {
@@ -3601,23 +3677,34 @@ class Finance extends BaseController
         }
     }
 
-    private function syncFinanceSettlementStatus(int $financeId, int $clinicId): bool
+    private function syncFinanceSettlementStatus(int $financeId, int $clinicId, ?array $lockedFinance = null): bool
     {
-        $finance = $this->financeModel->findByClinic($clinicId, $financeId);
+        $finance = $lockedFinance ?? $this->lockOwnedFinanceRow($clinicId, $financeId);
         if (!$finance || !in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
             return false;
         }
 
-        $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-        $settledTotal = $this->financePaymentModel->getNetSettledAmount($clinicId, (int) $finance['id']);
-        $balanceDue = max(0, $totalAmount - $settledTotal);
+        $totalAmount = round((float) ($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount'])), 2);
+        $lockedPayments = $this->financeSettlementService->lockSettlementPayments($clinicId, $financeId);
+        $settledTotal = 0.0;
+        foreach ($lockedPayments as $p) {
+            $amt = (float) ($p['amount'] ?? 0);
+            $type = (string) ($p['type'] ?? 'payment');
+            if ($type === 'payment' || $type === 'adjustment') {
+                $settledTotal += $amt;
+            } elseif ($type === 'refund' || $type === 'void') {
+                $settledTotal -= $amt;
+            }
+        }
+        $settledTotal = round($settledTotal, 2);
+        $balanceDue = round(max(0.0, $totalAmount - $settledTotal), 2);
 
         $status = 'pending';
-        if ($balanceDue <= 0) {
+        if ($balanceDue <= 0.0) {
             $status = 'paid';
         } elseif (!empty($finance['due_date']) && strtotime($finance['due_date']) < strtotime(date('Y-m-d'))) {
             $status = 'overdue';
-        } elseif ($settledTotal > 0 && $balanceDue > 0) {
+        } elseif ($settledTotal > 0.0 && $balanceDue > 0.0) {
             $status = 'partial';
         }
 
@@ -3625,14 +3712,17 @@ class Finance extends BaseController
             'amount_paid' => $settledTotal,
             'balance_due' => $balanceDue,
             'payment_status' => $status,
+            'updated_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($status === 'paid' && empty($finance['paid_date'])) {
             $updateData['paid_date'] = date('Y-m-d');
         }
 
-        $this->financeModel->setValidationRules([]);
-        return (bool) $this->financeModel->update($finance['id'], $updateData);
+        return (bool) $this->db->table('finances')
+            ->where('clinic_id', $clinicId)
+            ->where('id', $financeId)
+            ->update($updateData);
     }
 
     private function syncInvoicePaymentStatus($invoiceId, $clinicId): bool
@@ -4144,11 +4234,15 @@ class Finance extends BaseController
 
     public function bulkMarkAsPaid()
     {
-        $transactionStarted = false;
         try {
             $clinicId = session()->get('active_clinic_id');
             if (!$clinicId) {
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $actorId = $this->resolveActorUserId();
+            if ($actorId <= 0) {
+                return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Authentication required.']);
             }
 
             $input = json_decode((string) $this->request->getBody(), true);
@@ -4158,143 +4252,11 @@ class Finance extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'No transactions selected']);
             }
 
-            $sanitizedIds = [];
-            foreach ($ids as $rawId) {
-                $idInt = (int) $rawId;
-                if ($idInt > 0) {
-                    $sanitizedIds[] = $idInt;
-                }
-            }
-            $sanitizedIds = array_values(array_unique($sanitizedIds));
-            sort($sanitizedIds, SORT_NUMERIC);
+            $overrides = array_diff_key($input, ['ids' => true]);
 
-            if (empty($sanitizedIds)) {
-                return $this->response->setJSON(['success' => false, 'message' => 'No valid transactions found']);
-            }
-
-            if (!$this->isTransactionContextSafe()) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Unable to process bulk mark as paid. Please try again.'
-                ]);
-            }
-
-            if (!$this->db->transBegin()) {
-                throw new \RuntimeException('Unable to start bulk settlement transaction.');
-            }
-            $transactionStarted = true;
-
-            $finances = [];
-            foreach ($sanitizedIds as $financeId) {
-                $row = $this->lockOwnedFinanceRow((int) $clinicId, $financeId);
-                if ($row) {
-                    $finances[] = $row;
-                }
-            }
-
-            if (empty($finances)) {
-                $this->db->transRollback();
-                return $this->response->setJSON(['success' => false, 'message' => 'No valid transactions found']);
-            }
-
-            $updated = 0;
-            $skipped = 0;
-            $today = date('Y-m-d');
-
-            foreach ($finances as $finance) {
-                $financeId = (int) ($finance['id'] ?? 0);
-                $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
-
-                if (($finance['transaction_type'] ?? '') === 'invoice') {
-                    $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice((int) $clinicId, $financeId);
-                    $remaining = max(0.0, $totalAmount - $paidTotal);
-
-                    if ($remaining <= 0) {
-                        $skipped++;
-                        continue;
-                    }
-
-                    $paymentData = [
-                        'finance_id' => $financeId,
-                        'amount' => $remaining,
-                        'type' => 'payment',
-                        'payment_method' => $finance['payment_method'] ?? 'cash',
-                        'payment_date' => $today,
-                        'notes' => 'Bulk mark as paid',
-                        'created_by' => $this->resolveActorUserId()
-                    ];
-                    if ($this->supportsFinancePaymentExchangeFields()) {
-                        $baseCurrency = settings()->get('currency', 'ILS');
-                        $paymentData['currency'] = $baseCurrency;
-                        $paymentData['amount_original'] = $remaining;
-                        $paymentData['exchange_rate'] = 1;
-                    }
-
-                    if (!$this->financePaymentModel->insert($paymentData)) {
-                        $this->db->transRollback();
-                        return $this->response->setJSON([
-                            'success' => false,
-                            'message' => 'Failed to record payment in bulk mark as paid.'
-                        ]);
-                    }
-
-                    if (!$this->syncInvoicePaymentStatus($financeId, (int) $clinicId)) {
-                        $this->db->transRollback();
-                        return $this->response->setJSON([
-                            'success' => false,
-                            'message' => 'Failed to update settlement status in bulk mark as paid.'
-                        ]);
-                    }
-
-                    if (!$this->activityLogger->logFinanceActivity(
-                        'payment',
-                        $financeId,
-                        "Bulk payment of " . number_format($remaining, 2) . " recorded via mark as paid for " . ($finance['transaction_id'] ?? $financeId)
-                    )) {
-                        throw new \RuntimeException('Failed to record settlement audit in bulk mark as paid.');
-                    }
-
-                    $updated++;
-                    continue;
-                }
-
-                $this->financeModel->setValidationRules([]);
-                if (!$this->financeModel->update($financeId, [
-                    'payment_status' => 'paid',
-                    'paid_date' => $today,
-                    'amount_paid' => $totalAmount,
-                    'balance_due' => 0
-                ])) {
-                    $this->db->transRollback();
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Failed to update transaction in bulk mark as paid.'
-                    ]);
-                }
-
-                if (!$this->activityLogger->logFinanceActivity(
-                    'payment',
-                    $financeId,
-                    "Transaction marked as paid in bulk for " . ($finance['transaction_id'] ?? $financeId)
-                )) {
-                    throw new \RuntimeException('Failed to record settlement audit in bulk mark as paid.');
-                }
-
-                $updated++;
-            }
-
-            if ($this->db->transStatus() === false) {
-                $this->db->transRollback();
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Transaction failure during bulk mark as paid.'
-                ]);
-            }
-
-            if (!$this->db->transCommit()) {
-                throw new \RuntimeException('Failed to commit bulk mark as paid transaction.');
-            }
-            $transactionStarted = false;
+            $result = $this->financeSettlementService->bulkSettle((int) $clinicId, $ids, $actorId, $overrides);
+            $updated = $result['settled_count'];
+            $skipped = $result['skipped_count'];
 
             $message = $updated . ' transaction(s) marked as paid successfully';
             if ($skipped > 0) {
@@ -4303,16 +4265,22 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => $message
+                'message' => $message,
+            ]);
+        } catch (\DomainException $e) {
+            $message = $e->getMessage();
+            if (str_contains($message, 'not found') || str_contains($message, 'No valid transactions')) {
+                $message = 'No valid transactions found';
+            }
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $message,
             ]);
         } catch (\Throwable $e) {
-            if ($transactionStarted) {
-                $this->db->transRollback();
-            }
             log_message('error', 'Bulk mark as paid error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Unable to process bulk mark as paid. Please try again.'
+                'message' => 'Unable to process bulk mark as paid. Please try again.',
             ]);
         }
     }
