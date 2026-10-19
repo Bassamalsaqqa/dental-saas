@@ -8,7 +8,7 @@ $renderPatientCreate = !in_array($currentUri, ['patient', 'patients', 'patient/c
 $renderExaminationCreate = !in_array($currentUri, ['patient', 'patients', 'examination', 'examinations', 'examination/create', 'examinations/create'], true)
     && !preg_match('#^patients?/\d+$#', $currentUri)
     && !preg_match('#^appointments?/\d+$#', $currentUri);
-$renderAppointmentCreate = !in_array($currentUri, ['appointment', 'appointments', 'appointment/create', 'appointments/create'], true)
+$renderAppointmentCreate = !in_array($currentUri, ['appointment', 'appointments', 'appointment/create', 'appointments/create', 'appointment/calendar', 'appointments/calendar'], true)
     && !preg_match('#^examinations?/\d+$#', $currentUri);
 ?>
 
