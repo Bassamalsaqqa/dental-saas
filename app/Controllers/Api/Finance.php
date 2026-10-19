@@ -130,20 +130,19 @@ class Finance extends ResourceController
         }
 
         $db = $this->model->db;
-        $ownedInvoiceTransaction = false;
+        $ownedTransaction = false;
         try {
             $invoice = $payload['transaction_type'] === 'invoice';
             $actorId = (int) (\App\Libraries\ApiRuntimeContext::getUserId() ?? 0);
-            if ($invoice) {
-                if ($actorId <= 0) { return $this->failUnauthorized('Authentication required'); }
-                if ((int) $db->transDepth !== 0 || !$db->transStatus() || !$db->transBegin()) {
-                    throw new \RuntimeException('Unable to start invoice creation transaction.');
-                }
-                $ownedInvoiceTransaction = true;
-                $payload['created_by'] = $actorId;
+            if ($actorId <= 0) { return $this->failUnauthorized('Authentication required'); }
+            if ((int) $db->transDepth !== 0 || !$db->transStatus() || !$db->transBegin()) {
+                throw new \RuntimeException($invoice ? 'Unable to start invoice creation transaction.' : 'Unable to start finance creation transaction.');
             }
+            $ownedTransaction = true;
+            $payload['created_by'] = $actorId;
+
             if (!$this->model->insert($payload)) {
-                if ($ownedInvoiceTransaction) { $db->transRollback(); $ownedInvoiceTransaction = false; }
+                if ($ownedTransaction && (int) $db->transDepth > 0) { $db->transRollback(); $ownedTransaction = false; }
                 return $this->failValidationErrors($this->model->errors());
             }
             $id = (int) $this->model->getInsertID();
@@ -159,17 +158,21 @@ class Finance extends ResourceController
                     'clinic_id'=>$clinicId,'user_id'=>$actorId,'action'=>'create','entity_type'=>'finance','entity_id'=>$id,
                     'description'=>'Invoice created through API; issuance is not proven unissued.',
                     'metadata'=>json_encode(['finance_after'=>$row], JSON_THROW_ON_ERROR),'created_at'=>date('Y-m-d H:i:s'),
-                ]) || !$db->transStatus() || !$db->transCommit()) {
-                    throw new \RuntimeException('Unable to commit audited invoice creation.');
+                ])) {
+                    throw new \RuntimeException('Unable to audit invoice creation.');
                 }
-                $ownedInvoiceTransaction = false;
             }
+            if (!$db->transStatus() || !$db->transCommit()) {
+                throw new \RuntimeException($invoice ? 'Unable to commit audited invoice creation.' : 'Unable to commit finance creation.');
+            }
+            $ownedTransaction = false;
             return $this->respondCreated($row);
         } catch (\InvalidArgumentException|\DomainException $e) {
-            if ($ownedInvoiceTransaction) { $db->transRollback(); }
-            return $this->failValidationErrors(['invoice'=>$e->getMessage()]);
+            if ($ownedTransaction && (int) $db->transDepth > 0) { $db->transRollback(); }
+            $key = $invoice ? 'invoice' : 'finance';
+            return $this->failValidationErrors([$key => $e->getMessage()]);
         } catch (\Throwable $e) {
-            if ($ownedInvoiceTransaction) { $db->transRollback(); }
+            if ($ownedTransaction && (int) $db->transDepth > 0) { $db->transRollback(); }
             log_message('error', 'API Finance creation failed: ' . $e->getMessage());
             return $this->failServerError('Failed to create finance entry');
         }

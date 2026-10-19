@@ -991,10 +991,19 @@ class Finance extends BaseController
             'created_by' => $this->resolveActorUserId(),
         ];
 
+        $transactionStarted = false;
         try {
-            $this->db->transBegin();
+            if (!$this->isTransactionContextSafe() || $this->resolveActorUserId() <= 0) {
+                throw new \RuntimeException('Expense creation requires its own authenticated transaction.');
+            }
+            $transactionStarted = $this->db->transBegin();
+            if (!$transactionStarted) {
+                throw new \RuntimeException('Unable to start expense creation transaction.');
+            }
+
             if (!$this->financeModel->insert($financeData)) {
                 $this->db->transRollback();
+                $transactionStarted = false;
                 return redirect()->back()->withInput()->with('error', implode(', ', $this->financeModel->errors()));
             }
 
@@ -1017,6 +1026,7 @@ class Finance extends BaseController
                 }
                 if (!$this->financePaymentModel->insert($paymentData)) {
                     $this->db->transRollback();
+                    $transactionStarted = false;
                     return redirect()->back()->withInput()->with('error', 'Failed to record the initial expense payment.');
                 }
             }
@@ -1026,6 +1036,7 @@ class Finance extends BaseController
                 $validation = $this->validateFinanceAttachment($attachmentFile);
                 if ($validation !== null) {
                     $this->db->transRollback();
+                    $transactionStarted = false;
                     return redirect()->back()->withInput()->with('error', $validation);
                 }
                 $financeRecord = $this->financeModel->find($financeId) ?: ['id' => $financeId, 'paid_date' => ($expensePaymentState['paid_date'] ?: date('Y-m-d'))];
@@ -1044,15 +1055,21 @@ class Finance extends BaseController
 
             if ($this->db->transStatus() === false) {
                 $this->db->transRollback();
+                $transactionStarted = false;
                 return redirect()->back()->withInput()->with('error', 'Failed to create expense.');
             }
-            $this->db->transCommit();
+            if (!$this->db->transCommit()) {
+                throw new \RuntimeException('Unable to commit expense creation.');
+            }
+            $transactionStarted = false;
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
             return $this->redirectAfterWorkflow($returnTo ?: 'finance/' . $financeId, ['finance', 'finance/payables', 'inventory/suppliers'])
                 ->with('success', 'Expense has been recorded successfully.');
         } catch (\Throwable $e) {
-            $this->db->transRollback();
+            if ($transactionStarted && (int) $this->db->transDepth > 0) {
+                $this->db->transRollback();
+            }
             log_message('error', 'Expense create failed: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
@@ -1188,11 +1205,17 @@ class Finance extends BaseController
 
         $transactionStarted = false;
         try {
-            if ($transactionType === 'invoice' && (!$this->isTransactionContextSafe() || $this->resolveActorUserId() <= 0)) {
-                throw new \RuntimeException('Invoice creation requires its own authenticated transaction.');
+            if (!$this->isTransactionContextSafe() || $this->resolveActorUserId() <= 0) {
+                throw new \RuntimeException($transactionType === 'invoice'
+                    ? 'Invoice creation requires its own authenticated transaction.'
+                    : 'Finance creation requires its own authenticated transaction.');
             }
             $transactionStarted = $this->db->transBegin();
-            if ($transactionType === 'invoice' && !$transactionStarted) { throw new \RuntimeException('Unable to start invoice creation.'); }
+            if (!$transactionStarted) {
+                throw new \RuntimeException($transactionType === 'invoice'
+                    ? 'Unable to start invoice creation.'
+                    : 'Unable to start finance creation.');
+            }
 
             if ($this->financeModel->insert($financeData)) {
             $financeId = $this->financeModel->getInsertID();
@@ -1245,10 +1268,15 @@ class Finance extends BaseController
 
             if ($this->db->transStatus() === false) {
                 $this->db->transRollback();
+                $transactionStarted = false;
                 return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction.');
             }
             $committed = $this->db->transCommit();
-            if ($transactionType === 'invoice' && !$committed) { throw new \RuntimeException('Unable to commit invoice creation.'); }
+            if (!$committed) {
+                throw new \RuntimeException($transactionType === 'invoice'
+                    ? 'Unable to commit invoice creation.'
+                    : 'Unable to commit financial transaction.');
+            }
             $transactionStarted = false;
 
             if ($transactionType === 'invoice' && $balanceDue > 0) {
@@ -1276,14 +1304,19 @@ class Finance extends BaseController
                 return $this->redirectAfterWorkflow('finance', ['patient', 'patients', 'finance', 'examination', 'treatment', 'treatments'], null, false)
                     ->with('success', 'Financial transaction has been created successfully!');
             } else {
-                $this->db->transRollback();
+                if ($transactionStarted && (int) $this->db->transDepth > 0) {
+                    $this->db->transRollback();
+                    $transactionStarted = false;
+                }
                 $errors = $this->financeModel->errors();
                 log_message('error', 'Finance creation failed: ' . json_encode($errors));
                 log_message('error', 'Finance data that failed: ' . json_encode($financeData));
                 return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction. Please check your input and try again.');
             }
         } catch (\Throwable $e) {
-            if ($transactionStarted) { $this->db->transRollback(); }
+            if ($transactionStarted && (int) $this->db->transDepth > 0) {
+                $this->db->transRollback();
+            }
             log_message('error', 'Finance create failed with provider split: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
@@ -1787,7 +1820,7 @@ class Finance extends BaseController
             return redirect()->back()->withInput()->with('error', 'Exchange rate is required for non-default currency.');
         }
 
-        $amount = $amountOriginal * $exchangeRate;
+        $amount = round($amountOriginal * $exchangeRate, 2);
         $rawDiscount = $this->request->getPost('discount_amount');
         if ($rawDiscount !== null && $rawDiscount !== '') {
             if (!is_numeric($rawDiscount) || !is_finite((float) $rawDiscount) || (float) $rawDiscount < 0) {
@@ -1819,18 +1852,18 @@ class Finance extends BaseController
         );
 
         $update = [
-            'patient_id' => null,
-            'examination_id' => null,
+            'patient_id' => $finance['patient_id'] ?? null,
+            'examination_id' => $finance['examination_id'] ?? null,
             'transaction_type' => 'expense',
             'amount' => $amount,
             'currency' => $currency,
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
-            'liquidity_account' => null,
+            'liquidity_account' => $finance['liquidity_account'] ?? null,
             'payment_status' => $expensePaymentState['payment_status'],
             'description' => $this->request->getPost('description'),
-            'service_type' => 'other',
+            'service_type' => $finance['service_type'] ?? 'other',
             'expense_category' => $this->request->getPost('expense_category'),
             'counterparty_name' => $counterpartyName,
             'supplier_id' => $supplierId,

@@ -116,9 +116,16 @@ class FinanceModel extends TenantAwareModel
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
-    protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId', 'lockInvoiceCreationIdentity'];
-    protected $beforeUpdate = ['enforceTenantScope', 'protectInvoiceDocument', 'calculateTotals'];
+    protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId', 'lockFinanceCreationIdentity'];
+    protected $beforeUpdate = ['enforceTenantScope', 'protectInvoiceDocument', 'protectExpenseHistory', 'calculateTotals'];
     protected $beforeDelete = ['enforceTenantScope', 'preventUnmanagedFinanceDeletion'];
+    protected $beforeInsertBatch = ['preventUnmanagedFinanceBatchMutation'];
+    protected $beforeUpdateBatch = ['preventUnmanagedFinanceBatchMutation'];
+
+    protected function preventUnmanagedFinanceBatchMutation(array $data): array
+    {
+        throw new \DomainException('Finance batch writes bypass per-record parent and history guards and are unsupported.');
+    }
 
     /** Physical deletion is exclusively performed by the audited, locked mutation service. */
     protected function preventUnmanagedFinanceDeletion(array $data): array
@@ -126,30 +133,83 @@ class FinanceModel extends TenantAwareModel
         throw new \DomainException('Direct finance model deletion is unsupported. Use the audited financial mutation service.');
     }
 
+    protected function lockFinanceCreationIdentity(array $data): array
+    {
+        $row = $data['data'] ?? [];
+        if (($row['transaction_type'] ?? '') === 'invoice') {
+            return $this->lockInvoiceCreationIdentity($data);
+        }
+        $data['data'] = (new \App\Services\FinanceCreationGuard($this->db))->validateAndLock(
+            $row,
+            $this->resolveActiveClinicId(),
+            false
+        );
+        return $data;
+    }
+
     protected function lockInvoiceCreationIdentity(array $data): array
     {
         $row = $data['data'] ?? [];
         if (($row['transaction_type'] ?? '') !== 'invoice') { return $data; }
+        $data['data'] = (new \App\Services\FinanceCreationGuard($this->db))->validateAndLock(
+            $row,
+            $this->resolveActiveClinicId(),
+            true
+        );
+        return $data;
+    }
+
+    protected function protectExpenseHistory(array $data): array
+    {
+        $sensitive = \App\Services\InvoiceLifecyclePolicy::EXPENSE_HISTORY_SENSITIVE_FIELDS;
+        $touched = array_intersect(array_keys($data['data'] ?? []), $sensitive);
+        if ($touched === []) {
+            return $data;
+        }
+
+        $clinicId = $this->resolveActiveClinicId();
+
         if ((int) $this->db->transDepth < 1 || !$this->db->transStatus()) {
-            throw new \DomainException('Invoice creation requires an active transaction.');
+            throw new \DomainException('Expense history edits require an active transaction.');
         }
-        $clinicId = (int) ($row['clinic_id'] ?? 0);
-        $patientId = $row['patient_id'] ?? null;
-        if ($clinicId !== $this->resolveActiveClinicId()) { throw new \DomainException('Invoice creation clinic does not match the active context.'); }
-        if ($clinicId <= 0 || (!is_int($patientId) && !is_string($patientId)) || !preg_match('/^[1-9][0-9]*$/D', (string) $patientId)) {
-            throw new \DomainException('Invoice patient and clinic are required.');
+
+        $ids = $data['id'] ?? null;
+        $ids = is_array($ids) ? $ids : [$ids];
+        if (count($ids) !== 1 || (!is_int(reset($ids)) && !is_string(reset($ids)))
+            || !preg_match('/^[1-9][0-9]*$/D', (string) reset($ids))
+            || strlen((string) reset($ids)) > 10 || (float) reset($ids) > 2147483647) {
+            throw new \DomainException('Explicit single expense target is required.');
         }
-        foreach ([['clinics', $clinicId, false], ['patients', (int) $patientId, true]] as [$table, $id, $scoped]) {
-            $sql = 'SELECT id FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable($table)) . ' WHERE id = ?'
-                . ($scoped ? ' AND clinic_id = ?' : '') . ' FOR UPDATE';
-            $params = $scoped ? [$id, $clinicId] : [$id];
-            if (!$this->db->query($sql, $params)->getRowArray()) { throw new \DomainException('Invoice parent identity is not available in this clinic.'); }
+        $id = (int) reset($ids);
+
+        $row = $this->db->query(
+            'SELECT * FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable('finances'))
+            . ' WHERE clinic_id = ? AND id = ? FOR UPDATE',
+            [$clinicId, $id]
+        )->getRowArray();
+
+        if (!$row) {
+            throw new \DomainException('Expense history target does not belong to the active clinic.');
         }
-        if (!empty($row['examination_id'])) {
-            if ((!is_int($row['examination_id']) && !is_string($row['examination_id'])) || !preg_match('/^[1-9][0-9]*$/D', (string) $row['examination_id'])) { throw new \DomainException('Invalid invoice examination.'); }
-            $exam = $this->db->query('SELECT id, patient_id FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable('examinations'))
-                . ' WHERE clinic_id = ? AND id = ? FOR UPDATE', [$clinicId, $row['examination_id']])->getRowArray();
-            if (!$exam || (int) $exam['patient_id'] !== (int) $patientId) { throw new \DomainException('Invoice examination does not belong to its patient.'); }
+        if (($row['transaction_type'] ?? '') !== 'expense') {
+            return $data;
+        }
+
+        (new \App\Services\ExpenseHistoryGuard($this->db))->assertChangedFieldsAllowed($clinicId, $row, $data['data']);
+
+        // An unchanged form must not recompute legacy totals from historical basis.
+        $basisFields = ['amount', 'discount_amount', 'tax_percentage'];
+        $basisChanged = false;
+        foreach ($basisFields as $field) {
+            if (array_key_exists($field, $data['data'])
+                && !\App\Services\InvoiceLifecyclePolicy::sameValue($field, $data['data'][$field], $row[$field] ?? null)) {
+                $basisChanged = true;
+            }
+        }
+        if (!$basisChanged) {
+            foreach (array_merge($basisFields, ['tax_amount', 'total_amount']) as $field) {
+                unset($data['data'][$field]);
+            }
         }
         return $data;
     }

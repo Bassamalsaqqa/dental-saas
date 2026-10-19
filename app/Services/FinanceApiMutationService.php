@@ -35,14 +35,9 @@ class FinanceForbiddenException extends \RuntimeException {}
 class FinanceApiMutationService
 {
     public const ALLOWED_PAYLOAD_FIELDS = [
-        // Metadata fields (editable on paid/linked records)
+        // Safe metadata fields
         'internal_note',
-        'description',
         'notes',
-        'service_type',
-        'service_details',
-        'due_date',
-        'counterparty_name',
 
         // History-sensitive fields (editable ONLY when genuinely unpaid/unlinked)
         'amount',
@@ -58,6 +53,11 @@ class FinanceApiMutationService
         'payment_method',
         'liquidity_account',
         'transaction_date',
+        'counterparty_name',
+        'due_date',
+        'description',
+        'service_details',
+        'service_type',
 
         // Computed / immutable fields (accepted ONLY if identical roundtrip; direct mutation rejected)
         'transaction_type',
@@ -77,20 +77,11 @@ class FinanceApiMutationService
         'payment_status',
     ];
 
-    public const HISTORY_SENSITIVE_FIELDS = [
-        'amount',
-        'discount_amount',
-        'tax_percentage',
-        'currency',
-        'amount_original',
-        'exchange_rate',
-        'patient_id',
-        'examination_id',
-        'supplier_id',
-        'expense_category',
-        'payment_method',
-        'liquidity_account',
-        'transaction_date',
+    public const HISTORY_SENSITIVE_FIELDS = InvoiceLifecyclePolicy::EXPENSE_HISTORY_SENSITIVE_FIELDS;
+
+    /** Existing direct payment/refund metadata editing remains compatible; expense history is stricter. */
+    public const NON_EXPENSE_METADATA_FIELDS = [
+        'counterparty_name', 'due_date', 'description', 'service_details', 'service_type',
     ];
 
     public const STRICT_IMMUTABLE_FIELDS = [
@@ -156,24 +147,6 @@ class FinanceApiMutationService
         if ($this->db->transStatus() === false || !$this->db->transCommit()) {
             throw new \RuntimeException('Unable to commit finance transaction.');
         }
-    }
-
-    private function hasLinkedRow(string $table, string $column, int $clinicId, int $financeId): bool
-    {
-        if (!$this->hasTable($table)) {
-            return false;
-        }
-        $sql = 'SELECT id FROM ' . $this->table($table) . ' WHERE clinic_id = ? AND ' . $this->db->escapeIdentifiers($column) . ' = ? ORDER BY id LIMIT 1 FOR UPDATE';
-        return $this->db->query($sql, [$clinicId, $financeId])->getRowArray() !== null;
-    }
-
-    private function hasLinkedAttachment(int $clinicId, int $financeId): bool
-    {
-        if (!$this->hasTable('file_attachments')) {
-            return false;
-        }
-        $sql = 'SELECT id FROM ' . $this->table('file_attachments') . ' WHERE clinic_id = ? AND entity_type = \'finance\' AND entity_id = ? ORDER BY id LIMIT 1 FOR UPDATE';
-        return $this->db->query($sql, [$clinicId, $financeId])->getRowArray() !== null;
     }
 
     private function sameValue(string $field, mixed $new, mixed $old): bool
@@ -288,42 +261,14 @@ class FinanceApiMutationService
 
             InvoiceLifecyclePolicy::assertCanUpdate($existing, array_keys($payload));
 
-            $isHistorySensitiveChange = array_intersect(array_keys($payload), self::HISTORY_SENSITIVE_FIELDS) !== [];
+            $historyFields = self::HISTORY_SENSITIVE_FIELDS;
+            if (in_array((string) ($existing['transaction_type'] ?? ''), ['payment', 'refund'], true)) {
+                $historyFields = array_diff($historyFields, self::NON_EXPENSE_METADATA_FIELDS);
+            }
+            $isHistorySensitiveChange = array_intersect(array_keys($payload), $historyFields) !== [];
 
             if ($isHistorySensitiveChange) {
-                $type = (string) ($existing['transaction_type'] ?? '');
-                $status = (string) ($existing['payment_status'] ?? '');
-
-                $isDraftExpense = ($type === 'expense' && $status === 'pending');
-
-                if (!$isDraftExpense) {
-                    throw new FinanceConflictException('This entry has financial or payment status and cannot be modified. Use the existing reversal or correction workflow.');
-                }
-
-                $cachedPaid = round((float) ($existing['amount_paid'] ?? 0), 2);
-                if ($cachedPaid != 0.0 || !empty($existing['paid_date'])) {
-                    throw new FinanceConflictException('This entry has payment history and cannot be modified.');
-                }
-
-                if (!empty($existing['source_entity_type']) || !empty($existing['source_entity_id']) || !empty($existing['examination_id'])) {
-                    throw new FinanceConflictException('This entry is linked to clinical history and cannot be modified.');
-                }
-
-                if ($this->hasLinkedRow('finance_payments', 'finance_id', $clinicId, $id)) {
-                    throw new FinanceConflictException('This entry has linked payments and cannot be modified.');
-                }
-                if ($this->hasLinkedRow('provider_payouts', 'finance_id', $clinicId, $id)) {
-                    throw new FinanceConflictException('This entry has linked provider payouts and cannot be modified.');
-                }
-                if ($this->hasLinkedRow('clinical_charge_lines', 'finance_id', $clinicId, $id)) {
-                    throw new FinanceConflictException('This entry has linked clinical charges and cannot be modified.');
-                }
-                if ($this->hasLinkedRow('finance_liquidity_transfers', 'related_finance_id', $clinicId, $id)) {
-                    throw new FinanceConflictException('This entry has linked liquidity transfers and cannot be modified.');
-                }
-                if ($this->hasLinkedAttachment($clinicId, $id)) {
-                    throw new FinanceConflictException('This entry has attached files and cannot be modified.');
-                }
+                (new ExpenseHistoryGuard($this->db))->assertChangedFieldsAllowed($clinicId, $existing, $payload);
             }
 
             if ($isHistorySensitiveChange) {

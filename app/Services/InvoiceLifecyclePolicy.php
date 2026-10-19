@@ -90,6 +90,9 @@ class InvoiceLifecyclePolicy
         'due_date',
         'description',
         'service_details',
+        'patient_id',
+        'examination_id',
+        'service_type',
     ];
 
     /**
