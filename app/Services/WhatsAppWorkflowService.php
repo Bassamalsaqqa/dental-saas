@@ -190,11 +190,14 @@ class WhatsAppWorkflowService
             return $this->skipped('PATIENT_NOT_FOUND');
         }
 
-        $workflowKey = sprintf(
-            'payment_reminder:%d:%s',
-            $financeId,
-            $workflowSuffix ?: date('Y-m-d')
-        );
+        try {
+            $formatter = new InvoiceReminderFormatter($this->db);
+            $workflowKey = sprintf('payment_reminder:%d:%s', $financeId, $workflowSuffix ?: $formatter->currentDate($clinicId));
+            $amountFormatted = $formatter->formatAmount($clinicId, $balanceDue);
+            $dueDateFormatted = $formatter->formatDueDate($clinicId, !empty($finance['due_date']) ? (string) $finance['due_date'] : null);
+        } catch (\Throwable $e) {
+            return $this->skipped('INVALID_CLINIC_SETTINGS');
+        }
 
         return $this->enqueueWorkflowTemplate(
             $clinicId,
@@ -202,8 +205,8 @@ class WhatsAppWorkflowService
             'payment_reminder',
             [
                 'patient_name' => trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''))),
-                'amount' => $this->formatMoney($balanceDue),
-                'due_date' => !empty($finance['due_date']) ? formatDate((string) $finance['due_date']) : '',
+                'amount' => $amountFormatted,
+                'due_date' => $dueDateFormatted,
                 'invoice_number' => (string) ($finance['transaction_id'] ?? ('INV-' . $financeId)),
             ] + $this->buildClinicTemplateVars($clinicId),
             $workflowKey,
@@ -276,10 +279,12 @@ class WhatsAppWorkflowService
     {
         $clinicIds = $this->resolveClinicIds($clinicId);
         $summary = ['clinics' => 0, 'scanned' => 0, 'queued' => 0, 'skipped' => 0];
-        $today = date('Y-m-d');
+        $formatter = new InvoiceReminderFormatter($this->db);
 
         foreach ($clinicIds as $currentClinicId) {
             $summary['clinics']++;
+            try { $today = $formatter->currentDate($currentClinicId); }
+            catch (\DomainException $e) { $summary['skipped']++; continue; }
 
             $rows = $this->db->query(
                 'SELECT id

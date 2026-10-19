@@ -115,22 +115,67 @@ class Finance extends ResourceController
             $payload['balance_due'] = 0;
         }
 
+        // An invoice cannot acquire fabricated settlement history through document creation.
+        // Paid expenses and direct-payment creation retain their existing workflow.
+        if ($payload['transaction_type'] === 'invoice'
+            && (!in_array($payload['payment_status'], ['pending', 'overdue'], true)
+                || !is_numeric($payload['amount_paid']) || (float) $payload['amount_paid'] !== 0.0
+                || !empty($payload['paid_date']))) {
+            return $this->failValidationErrors(['payment_status' => 'Create an unpaid invoice, then use the settlement workflow.']);
+        }
+
         $ownershipErrors = $this->validateOwnedReferences($clinicId, $payload);
         if ($ownershipErrors !== []) {
             return $this->failValidationErrors($ownershipErrors);
         }
 
+        $db = $this->model->db;
+        $ownedTransaction = false;
         try {
+            $invoice = $payload['transaction_type'] === 'invoice';
+            $actorId = (int) (\App\Libraries\ApiRuntimeContext::getUserId() ?? 0);
+            if ($actorId <= 0) { return $this->failUnauthorized('Authentication required'); }
+            if ((int) $db->transDepth !== 0 || !$db->transStatus() || !$db->transBegin()) {
+                throw new \RuntimeException($invoice ? 'Unable to start invoice creation transaction.' : 'Unable to start finance creation transaction.');
+            }
+            $ownedTransaction = true;
+            $payload['created_by'] = $actorId;
+
             if (!$this->model->insert($payload)) {
+                if ($ownedTransaction && (int) $db->transDepth > 0) { $db->transRollback(); $ownedTransaction = false; }
                 return $this->failValidationErrors($this->model->errors());
             }
-        } catch (\InvalidArgumentException $e) {
-            return $this->failValidationErrors(['amount' => $e->getMessage()]);
+            $id = (int) $this->model->getInsertID();
+            $row = $this->model->where('clinic_id', $clinicId)->find($id);
+            if ($invoice) {
+                // No historical reclassification: this is the just-inserted, unpaid invoice.
+                if (!$db->table('finances')->where('clinic_id', $clinicId)->where('id', $id)
+                    ->update(['balance_due' => $row['total_amount']])) {
+                    throw new \RuntimeException('Unable to persist new invoice balance.');
+                }
+                $row = $this->model->where('clinic_id', $clinicId)->find($id);
+                if (!$db->table('activity_logs')->insert([
+                    'clinic_id'=>$clinicId,'user_id'=>$actorId,'action'=>'create','entity_type'=>'finance','entity_id'=>$id,
+                    'description'=>'Invoice created through API; issuance is not proven unissued.',
+                    'metadata'=>json_encode(['finance_after'=>$row], JSON_THROW_ON_ERROR),'created_at'=>date('Y-m-d H:i:s'),
+                ])) {
+                    throw new \RuntimeException('Unable to audit invoice creation.');
+                }
+            }
+            if (!$db->transStatus() || !$db->transCommit()) {
+                throw new \RuntimeException($invoice ? 'Unable to commit audited invoice creation.' : 'Unable to commit finance creation.');
+            }
+            $ownedTransaction = false;
+            return $this->respondCreated($row);
+        } catch (\InvalidArgumentException|\DomainException $e) {
+            if ($ownedTransaction && (int) $db->transDepth > 0) { $db->transRollback(); }
+            $key = $invoice ? 'invoice' : 'finance';
+            return $this->failValidationErrors([$key => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            if ($ownedTransaction && (int) $db->transDepth > 0) { $db->transRollback(); }
+            log_message('error', 'API Finance creation failed: ' . $e->getMessage());
+            return $this->failServerError('Failed to create finance entry');
         }
-
-        $id = (int) $this->model->getInsertID();
-        $row = $this->model->where('clinic_id', $clinicId)->find($id);
-        return $this->respondCreated($row);
     }
 
     public function update($id = null)
@@ -140,37 +185,48 @@ class Finance extends ResourceController
             return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
         }
 
-        $existing = $this->model->where('clinic_id', $clinicId)->find($id);
-        if (!$existing) {
-            return $this->failNotFound('Invoice not found');
+        $actorId = (int) (\App\Libraries\ApiRuntimeContext::getUserId() ?? 0);
+        if ($actorId <= 0) {
+            return $this->failUnauthorized('Authentication required');
         }
+
+        if ($id === null || (!is_int($id) && !is_string($id)) || !preg_match('/^[1-9][0-9]*$/D', (string) $id) || strlen((string) $id) > 10 || (float) $id > 2147483647) {
+            return $this->failValidationErrors(['id' => 'Invalid transaction ID.']);
+        }
+        $id = (int) $id;
 
         $payload = (array) $this->request->getJSON(true);
         if (empty($payload)) {
             $payload = (array) $this->request->getRawInput();
         }
 
-        unset($payload['clinic_id']);
         if (empty($payload)) {
             return $this->failValidationErrors(['payload' => 'No data provided']);
         }
 
-        $candidate = array_merge($existing, $payload);
-        $ownershipErrors = $this->validateOwnedReferences($clinicId, $candidate);
-        if ($ownershipErrors !== []) {
-            return $this->failValidationErrors($ownershipErrors);
-        }
-
         try {
-            if (!$this->model->update($id, $payload)) {
-                return $this->failValidationErrors($this->model->errors());
-            }
+            $service = new \App\Services\FinanceApiMutationService($this->model->db, $this->model);
+            $row = $service->updateFinance($clinicId, $id, $payload, $actorId);
+            return $this->respond($row);
+        } catch (\App\Services\FinanceNotFoundException $e) {
+            return $this->failNotFound($e->getMessage());
+        } catch (\App\Services\FinanceConflictException $e) {
+            return $this->fail($e->getMessage(), 409, 'CONFLICT');
+        } catch (\App\Services\FinanceValidationException $e) {
+            $errors = $e->getErrors();
+            return !empty($errors) ? $this->failValidationErrors($errors) : $this->fail($e->getMessage(), 400);
+        } catch (\App\Services\FinanceUnauthorizedException $e) {
+            return $this->failUnauthorized($e->getMessage());
+        } catch (\App\Services\FinanceForbiddenException $e) {
+            return $this->failForbidden($e->getMessage());
         } catch (\InvalidArgumentException $e) {
             return $this->failValidationErrors(['amount' => $e->getMessage()]);
+        } catch (\DomainException $e) {
+            return $this->fail($e->getMessage(), 409);
+        } catch (\Throwable $e) {
+            log_message('error', 'API Finance update error: ' . $e->getMessage());
+            return $this->failServerError('Failed to update finance entry');
         }
-
-        $row = $this->model->where('clinic_id', $clinicId)->find($id);
-        return $this->respond($row);
     }
 
     public function delete($id = null)
@@ -185,7 +241,7 @@ class Finance extends ResourceController
             return $this->failUnauthorized('Authentication required');
         }
 
-        if ($id === null || !is_scalar($id) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)) {
+        if ($id === null || (!is_int($id) && !is_string($id)) || !preg_match('/^[1-9][0-9]*$/D', (string) $id) || strlen((string) $id) > 10 || (float) $id > 2147483647) {
             return $this->failNotFound('Invoice not found');
         }
 

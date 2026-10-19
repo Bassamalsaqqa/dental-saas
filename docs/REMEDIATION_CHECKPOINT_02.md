@@ -1,0 +1,67 @@
+# Stage 0 / remediation checkpoint 02 — corrected integration evidence
+
+This supersedes the old PR #12 composition at `221b61af`. No integration or deployment is authorized. Production is preserved at `97cd12c67b3f426997d5f80f769031fa35a9f0c0`, tree `0f2b978af72a5ec31788b7294043d527b309a266`; scheduling OFF. No migrations, dependency changes, customer-data writes or GitHub Actions.
+
+## Pinned source and review boundaries
+
+- PR #9 `c1d2218370e45dbca498a9230467846e4539d2a6`: independent formal exact-head APPROVED on 2026-10-19; existing provenance/runtime evidence reused.
+- PR #10 `f5a15c775c6a986062eb2002b02751fede17844b`: scoped independent APPROVED, unchanged.
+- PR #11 `27b333ac40c1361d88bdac6415733dbed54a3737`: scoped independent APPROVED, unchanged; obsolete FX thread resolved.
+- Core review branch `ceb58f88625aa64814501597b0a6c23e0d42b507`, tree `7192c4b575c266e5271f1aee5207b4fadb9c6e74`. Object-only sequential merge-tree of those exact component heads cleanly reproduces this tree. No ref/source merge performed.
+- This PR remains stacked on that core; its final exact SHA/tree are recorded in the GitHub review handoff. Component approval does not approve the composed release.
+
+## Three reviewer findings corrected
+
+1. `InvoiceReminderFormatter` is the authoritative explicit-clinic currency/date/timezone formatter used by the real payment reminder producer and claim validator. Calendar DATE values do not shift across timezones; background due dates and default workflow suffix use the clinic's local day. Notification enqueue reads retain explicit clinic predicates without ambient session scoping.
+2. Payment status never establishes issuance. Production has no positive unissued-draft evidence, so all persisted invoice financial basis, patient/clinical identity, document fields and printed notes are protected. API and browser edits use the same locked service; model callbacks reject direct bypasses, foreign unscoped edits and expense-to-invoice conversion, and preserve identical legacy totals. New invoice creation serializes clinic/patient/examination identity. Legitimate receipt, refund, receipt-void, write-off and expense paths remain distinct.
+3. No persisted invoice may be physically deleted without proven unissued status; that proof does not currently exist. Queue/history is preserved, not erased to manufacture eligibility. Direct finance-model deletion fails closed. Clinic/patient/examination deletion guards protect invoice links and financial history, including the production clinic FK cascade. Parent guards lock clinic then identity, then take their first nonlocking history snapshot to avoid reversing settlement/audit lock order.
+
+Safe metadata is an append-only `internal_note` in existing attributed activity audit, never an overwrite of printed invoice notes or financial values. Existing edit authorization applies; EN/AR edit forms display protected fields disabled and expose the separate note. Audit persistence is mandatory and atomic.
+
+## Focused independent execution
+
+Private non-webserved CLI application, PHP8.3.35 / MariaDB11.8.9, restricted identity-marked synthetic database. All17 changed runtime file hashes match the candidate. Public staging and production applications were not changed.
+
+- 45 real SQL lifecycle/API assertions: pending/overdue/communicated/legacy protection, direct-model/foreign-context bypasses, printed notes, audit-only addenda, rollback, expense/FX compatibility and exact legacy totals.
+- 40 real SQL reminder assertions, including actual `WhatsAppWorkflowService::queueInvoicePaymentReminder` and actual `NotificationService` enqueue for new clinic B while clinic A is active with conflicting settings; pending enqueue then successful claim. Only plan/registry policy gates are doubled; no external sends. Stale/forged/foreign demands reject.
+- 26 real SQL parent-deletion assertions: clinic/patient/examination financial history, indirect billed charge, orphan finance audit, tenant/nested transaction rejection, callback/audit rollback and empty-parent compatibility.
+- 34 actual API/browser-controller EN/AR assertions: audited API creation/server actor, computed totals, forged-paid/foreign-patient rejection, internal-note append and protected-value rejection. UI evidence is source/translation inspection; this is not routed authentication or browser transport certification.
+- Two deterministic SQL races: blocked invoice deletion versus valid reminder claim; actual model invoice creation holding parent identity locks versus patient deletion waiting and then rejecting committed history.
+- 34 standalone lifecycle policy assertions; changed PHP parses and whitespace checks pass. AGY cascade package also passed17 focused unit tests/45assertions. Completed framework/reporting/settlement evidence is reused; PR #10 reporting source and PR #11 settlement source remain unchanged.
+
+All320 pre-existing synthetic rows and68 schemas remain unchanged;97 newly owned synthetic rows retained. Original tracked dirty files/head/main are untouched. Historical preservation baseline matches23 existing files; `_audit_bundle.txt` was already absent when this operation checked it and was neither restored nor removed. All238 corrupted staging metadata entries and affected table hashes remain unchanged.
+
+## Compatibility, limitations and authorization gates
+
+Hostinger MCP confirms PHP8.3.35 with required extensions; Git auto-deployment settings are all null. Production protected `.env`, root/public `.htaccess` hashes remain unchanged. No schema or migration impact. Source-only rollback would restore the prior runtime while retaining all data/configuration/storage; actual rollout still requires a fresh consistent off-host backup and verified recovery checkpoint.
+
+A true draft/issue/cancel/credit-note/rebill lifecycle and historical invoice patient snapshot are absent. This release contains unsafe edits/deletes; it does not invent accounting semantics or claim `closeInvoiceBalance` is universal cancellation. Internal notes do not correct financial basis. Owner product rules are needed for that later workflow. Historical print regeneration still uses the current patient profile; ordinary patient profile edits are not blocked. Existing payment/refund metadata editing remains available. Expense history now follows the shared guarded policy described below. A payment after a valid committed reminder claim cannot recall an external message already being sent.
+
+Release remains NO-GO until fresh exact-head independent PR #12 approval, remaining exact-head composed-result review, final composed-tree review and separate Owner source/release authorization. No later roadmap stage starts before that decision. Scheduling pilot authorization remains separate.
+
+## Final review corrections A/B ? 2026-10-19
+
+The `962ddb3f` review identified two additional blockers. AGY implemented bounded corrections; Codex independently reviewed the changed code and executed the following focused evidence on private PHP 8.3.35 / MariaDB 11.8.9 synthetic staging. No broad suites were repeated.
+
+- Expense history uses the authoritative `InvoiceLifecyclePolicy` field set through a shared guard in API and model/browser paths. Paid or financially linked payee, due date, description and service details are protected. Pending unlinked edits, identical roundtrips, attributed internal addenda and existing payment/refund metadata edits remain supported.
+- All four actual finance insert paths (API, both browser creation paths, inventory COGS) require protected parent validation. Clinic locks precede patient and examination locks; child parents use NOWAIT so existing finance/clinical writers acquiring the clinic audit FK cannot create a new waiting cycle. Non-invoice payments, refunds and expenses with patient references are covered. Empty optional references normalize to NULL; examination references require the same clinic-owned patient.
+- API/browser creation owns and checks its transaction, rejecting nested ownership without closing a caller transaction. COGS owns or deliberately joins a healthy caller transaction. Batch model writes fail closed because they bypass per-record callbacks. No actual batch caller exists. Joined callers must obey parent-first ordering and roll back on failure; failed framework strict status is not silently cleared.
+- COGS identical semantic reposts retain the existing ID without rewriting history. Conflicting or ambiguous historical source records require an authorized correction; no automatic repair/backfill occurs. Existing inventory usage still commits stock before best-effort COGS posting, with posting failures logged. This existing reliability limitation is not represented as an atomic stock/accounting guarantee.
+- Read-only production FK evidence confirms only `finances.clinic_id -> clinics.id ON DELETE CASCADE`; finance patient/examination FKs are absent. The application guards therefore provide necessary protection rather than assuming FK enforcement.
+
+Focused results: 49 expense-history SQL checks; 35 actual API/ledger compatibility checks; six deterministic parent-deletion races (patient/payment, examination/refund, clinic/expense, each winning order); three independent-connection NOWAIT cases with 22 assertions; 15 actual browser-controller EN/AR checks for paid FX roundtrips and rejected payee tampering. Browser evidence is controller execution, not routed authentication or browser transport certification. Existing receipts and patient/treasury/service attribution survive unchanged forms; FX conversion is rounded to persisted cents.
+
+All 417 pre-existing synthetic rows and 68 schemas remain unchanged. New fixtures/audits are retained; race deletions affect only newly owned empty synthetic parents. Reviewed runtime/test hashes are recorded in the final GitHub handoff. PR #10 and #11 heads remain unchanged and approved; framework/reporting/settlement evidence above is reused. No runtime configuration, dependency, schema or migration changes are introduced by these final corrections. Production remains at the pinned `97cd12c` base with protected file hashes unchanged and scheduling OFF.
+
+Final status: source corrections verified, integration/release blocked pending fresh exact-head PR #12 approval, composed-result approval and separate Owner authorization. Busy creation is fail-closed and may require retry. Financial correction/cancellation product semantics remain a separate legitimate workflow limitation. No source integration or deployment occurred.
+
+
+## Final COGS idempotency correction ? 2026-10-19
+
+The independent review at `ffcdd9ef` accepted the direction of the expense-history and creation-locking corrections but identified missing accounting comparisons in COGS reposts. The final correction compares total_amount, payment_status, amount_paid, balance_due, paid_date, payment_method and liquidity_account, alongside the existing monetary/source/identity/document basis. Total derivation reuses FinanceModel's unchanged guarded calculator (two helper methods become public; no calculation changes). Optional total-column absence is distinguished from a present NULL; present NULL rejects. Decimal storage formats are equivalent only when numeric values are equal; the former epsilon no longer hides six-decimal FX differences. Noncash NULL and empty account values represent absent attribution, while any nonempty account conflicts.
+
+New postings explicitly populate the schema-supported transaction_date from a valid usage date. Actual schema is NOT NULL with no default; prior omitted inserts could acquire zero dates under the observed non-strict SQL mode. Existing zero/different dates, non-NULL supplier attribution and inactive/deleted history reject rather than being silently normalized. No existing COGS record, posting date or ledger cache is changed. Actor, generated transaction ID and creation/update timestamps remain retry metadata, not accounting equivalence criteria.
+
+AGY produced the initial two-file runtime change before its bounded print timeout; Codex reviewed and completed the remaining narrow corrections and verifier. Focused execution: 28 assertions PASS on actual PHP8.3.35/MariaDB11.8.9. Twenty-five actual-SQL assertions cover each reported omitted field, date, exact FX difference, inactive history, present-NULL total, equivalent repost with a different actor, NULL/empty noncash account equivalence and unchanged finance/payment/audit/notification histories. Three explicitly labelled comparator-only checks cover malformed FX, supplier mismatch and zero date. Optional absent-total schema behavior was inspected but not SQL-executed; no schema was altered to manufacture it. Completed concurrency/framework/reporting/settlement suites were not repeated because their logic and lock ordering are unchanged.
+
+PR #9 `c1d22183`, #10 `f5a15c77` and #11 `27b333ac` remain independently exact-head APPROVED and unchanged. Fresh PR #12 exact-head decision is required; source identity, composed tree and test hashes are in the GitHub handoff. Source integration and production rollout still require separate Owner authorization and a fresh verified production recovery checkpoint. Scheduling remains OFF. Existing inconsistent historical COGS requires an explicit later correction workflow, never an automatic rewrite; current inventory usage retains its previously documented best-effort accounting-post limitation.

@@ -573,4 +573,10 @@ return [
     'linkedExamination' => 'Linked Examination',
     'serviceDate' => 'Service Date',
     'tooth' => 'Tooth',
+    'internalNote' => 'Internal note',
+    'internalNoteHelp' => 'Appended to the activity log; invoice content remains unchanged.',
+    'internalNoteSaved' => 'Invoice preserved. Any supplied internal note was saved to the activity log.',
+    'invoiceDocumentProtected' => 'Invoice values and printed notes are protected. Add an internal note below.',
+    'invoiceChangeRejected' => 'Invoice document values are protected. Add only a valid internal note of up to 5000 characters.',
+    'internalNoteFailed' => 'Unable to save the internal note. The invoice has been preserved.',
 ];

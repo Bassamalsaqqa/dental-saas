@@ -1050,14 +1050,25 @@ class Examination extends BaseController
                     'message' => lang('Examination.signed_note_delete_blocked'),
                 ]);
             }
-            
-            if ($this->examinationModel->delete($id)) {
-                return $this->response->setJSON(['success' => true, 'message' => 'Examination deleted successfully']);
-            } else {
-                $errors = $this->examinationModel->errors();
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete examination: ' . implode(', ', $errors)]);
-            }
-        } catch (\Exception $e) {
+
+            $guard = new \App\Services\FinancialParentDeletionGuard($this->examinationModel->db);
+            $guard->deleteExamination((int) $clinicId, (int) $id, function () use ($id) {
+                $deleted = $this->examinationModel->delete($id);
+                if (!$deleted || $this->examinationModel->db->affectedRows() !== 1) {
+                    $errors = $this->examinationModel->errors();
+                    $msg = !empty($errors) ? ('Failed to delete examination: ' . implode(', ', $errors)) : 'Failed to delete examination';
+                    throw new \RuntimeException($msg);
+                }
+                return true;
+            });
+
+            return $this->response->setJSON(['success' => true, 'message' => 'Examination deleted successfully']);
+        } catch (\App\Services\FinancialParentDeletionException $e) {
+            return $this->response->setStatusCode(409)->setJSON([
+                'success' => false,
+                'message' => 'Cannot delete examination with linked financial records',
+            ]);
+        } catch (\Throwable $e) {
             log_message('error', 'Exception in delete examination - ID: ' . $id . ', Error: ' . $e->getMessage());
             return $this->response->setJSON(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
         }
