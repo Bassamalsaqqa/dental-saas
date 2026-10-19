@@ -32,6 +32,10 @@ class FinanceLedgerService
         }
 
         $usageDate = (string) ($usageRow['usage_date'] ?? date('Y-m-d'));
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $usageDate);
+        if (!$date || $date->format('Y-m-d') !== $usageDate || $usageDate < '1000-01-01') {
+            throw new \DomainException('COGS usage date must be a valid accounting date.');
+        }
         $notes = trim((string) ($usageRow['notes'] ?? ''));
         $treatmentId = isset($usageRow['treatment_id']) ? (int) $usageRow['treatment_id'] : null;
 
@@ -81,6 +85,9 @@ class FinanceLedgerService
         ];
 
         $db = $this->financeModel->db;
+        if ($db->fieldExists('transaction_date', 'finances')) {
+            $payload['transaction_date'] = $usageDate;
+        }
         $hasCallerTx = ((int) $db->transDepth >= 1);
         $ownsTx = false;
 
@@ -158,17 +165,79 @@ class FinanceLedgerService
 
     private function assertCogsPayloadMatchesExisting(array $existing, array $payload): void
     {
-        $floatClose = static fn (mixed $a, mixed $b): bool => abs((float) $a - (float) $b) < 0.0001;
+        $isFiniteNumeric = static fn (mixed $v): bool => $v !== null && is_numeric($v) && is_finite((float) $v);
+        $decimalMatches = static function (mixed $a, mixed $b) use ($isFiniteNumeric): bool {
+            if (!$isFiniteNumeric($a) || !$isFiniteNumeric($b)) {
+                return false;
+            }
+            return (float) $a === (float) $b;
+        };
 
-        if (!$floatClose($existing['amount'] ?? 0, $payload['amount'] ?? 0)
-            || !$floatClose($existing['amount_original'] ?? 0, $payload['amount_original'] ?? 0)
+        // 1. Monetary basis, foreign exchange, and tax fields
+        if (!$decimalMatches($existing['amount'] ?? null, $payload['amount'] ?? null)
+            || !$decimalMatches($existing['amount_original'] ?? null, $payload['amount_original'] ?? null)
             || (string) ($existing['currency'] ?? '') !== (string) ($payload['currency'] ?? '')
-            || !$floatClose($existing['exchange_rate'] ?? 0, $payload['exchange_rate'] ?? 0)
-            || !$floatClose($existing['tax_percentage'] ?? 0, $payload['tax_percentage'] ?? 0)
-            || !$floatClose($existing['tax_amount'] ?? 0, $payload['tax_amount'] ?? 0)
-            || !$floatClose($existing['discount_amount'] ?? 0, $payload['discount_amount'] ?? 0)
+            || !$decimalMatches($existing['exchange_rate'] ?? null, $payload['exchange_rate'] ?? null)
+            || !$decimalMatches($existing['tax_percentage'] ?? null, $payload['tax_percentage'] ?? null)
+            || !$decimalMatches($existing['tax_amount'] ?? null, $payload['tax_amount'] ?? null)
+            || !$decimalMatches($existing['discount_amount'] ?? null, $payload['discount_amount'] ?? null)) {
+            throw new \DomainException('Existing COGS expense row is immutable; differing payload requires explicit correction.');
+        }
+
+        // 2. Settlement and payment state (reported omissions: payment_status, amount_paid, balance_due, paid_date, payment_method)
+        if ((string) ($existing['payment_status'] ?? '') !== (string) ($payload['payment_status'] ?? 'paid')
+            || !$decimalMatches($existing['amount_paid'] ?? null, $payload['amount_paid'] ?? null)
+            || !$decimalMatches($existing['balance_due'] ?? null, $payload['balance_due'] ?? 0.0)
+            || (string) ($existing['payment_method'] ?? '') !== (string) ($payload['payment_method'] ?? 'other')
+            || ((string) ($existing['paid_date'] ?? '') ?: null) !== ((string) ($payload['paid_date'] ?? '') ?: null)) {
+            throw new \DomainException('Existing COGS expense row is immutable; differing payload requires explicit correction.');
+        }
+
+        // 3. Liquidity account (reported omission): canonical COGS payload omits liquidity_account (SQL default NULL).
+        // Must never infer bank/safe_cash or waive account differences.
+        $existingLiquidity = ($existing['liquidity_account'] ?? null) !== null && (string) $existing['liquidity_account'] !== ''
+            ? (string) $existing['liquidity_account']
+            : null;
+        $payloadLiquidity = (isset($payload['liquidity_account']) && $payload['liquidity_account'] !== null && (string) $payload['liquidity_account'] !== '')
+            ? (string) $payload['liquidity_account']
+            : null;
+        if ($existingLiquidity !== $payloadLiquidity) {
+            throw new \DomainException('Existing COGS expense row is immutable; differing payload requires explicit correction.');
+        }
+
+        // 4. Total amount (reported omission): follows FinanceModel::computeGuardedTotals rounding.
+        // Optional total_amount absent: compare derived semantic fallback only if column actually absent from schema.
+        // Column present NULL is not a missing-schema waiver and must be rejected.
+        [$cAmount, $cDiscount, $cTaxPercent, $cTaxAmount, $expectedTotal] = $this->financeModel->computeGuardedTotals(
+            $payload['amount'] ?? 0,
+            $payload['discount_amount'] ?? 0,
+            $payload['tax_percentage'] ?? 0
+        );
+        if ($this->financeModel->hasTotalAmountField()) {
+            if (!array_key_exists('total_amount', $existing)
+                || $existing['total_amount'] === null
+                || !$decimalMatches($existing['total_amount'], $expectedTotal)) {
+                throw new \DomainException('Existing COGS expense row is immutable; differing payload requires explicit correction.');
+            }
+        }
+
+        // Transaction dates affect report attribution. Zero dates are not equivalent to usage date.
+        if ($this->financeModel->db->fieldExists('transaction_date', 'finances')
+            && (!array_key_exists('transaction_date', $existing)
+                || (string) $existing['transaction_date'] !== (string) $payload['transaction_date'])) {
+            throw new \DomainException('Existing COGS accounting date differs; explicit correction is required.');
+        }
+        if ($this->financeModel->db->fieldExists('deleted_at', 'finances')
+            && ($existing['deleted_at'] ?? null) !== null) {
+            throw new \DomainException('Inactive COGS history cannot be reused as an active posting.');
+        }
+
+        // 5. Patient, clinic, examination, and counterparty relationships (including supplier_id classification)
+        if ((int) ($existing['clinic_id'] ?? 0) !== (int) ($payload['clinic_id'] ?? 0)
+            || (string) ($existing['transaction_type'] ?? '') !== (string) ($payload['transaction_type'] ?? 'expense')
             || ((int) ($existing['patient_id'] ?? 0) ?: null) !== ((int) ($payload['patient_id'] ?? 0) ?: null)
             || ((int) ($existing['examination_id'] ?? 0) ?: null) !== ((int) ($payload['examination_id'] ?? 0) ?: null)
+            || ($existing['supplier_id'] ?? null) !== null
             || (string) ($existing['source_entity_type'] ?? '') !== (string) ($payload['source_entity_type'] ?? '')
             || (int) ($existing['source_entity_id'] ?? 0) !== (int) ($payload['source_entity_id'] ?? 0)
             || (string) ($existing['expense_category'] ?? '') !== (string) ($payload['expense_category'] ?? '')
@@ -180,6 +249,7 @@ class FinanceLedgerService
             throw new \DomainException('Existing COGS expense row is immutable; differing payload requires explicit correction.');
         }
 
+        // 6. Service details payload equivalence
         $exDetails = json_decode((string) ($existing['service_details'] ?? ''), true);
         $plDetails = json_decode((string) ($payload['service_details'] ?? ''), true);
         if (is_array($exDetails) && is_array($plDetails)) {

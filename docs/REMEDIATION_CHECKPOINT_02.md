@@ -4,7 +4,7 @@ This supersedes the old PR #12 composition at `221b61af`. No integration or depl
 
 ## Pinned source and review boundaries
 
-- PR #9 `c1d2218370e45dbca498a9230467846e4539d2a6`: bounded COMMENTED result; formal exact-head decision requested using existing provenance/runtime evidence.
+- PR #9 `c1d2218370e45dbca498a9230467846e4539d2a6`: independent formal exact-head APPROVED on 2026-10-19; existing provenance/runtime evidence reused.
 - PR #10 `f5a15c775c6a986062eb2002b02751fede17844b`: scoped independent APPROVED, unchanged.
 - PR #11 `27b333ac40c1361d88bdac6415733dbed54a3737`: scoped independent APPROVED, unchanged; obsolete FX thread resolved.
 - Core review branch `ceb58f88625aa64814501597b0a6c23e0d42b507`, tree `7192c4b575c266e5271f1aee5207b4fadb9c6e74`. Object-only sequential merge-tree of those exact component heads cleanly reproduces this tree. No ref/source merge performed.
@@ -37,7 +37,7 @@ Hostinger MCP confirms PHP8.3.35 with required extensions; Git auto-deployment s
 
 A true draft/issue/cancel/credit-note/rebill lifecycle and historical invoice patient snapshot are absent. This release contains unsafe edits/deletes; it does not invent accounting semantics or claim `closeInvoiceBalance` is universal cancellation. Internal notes do not correct financial basis. Owner product rules are needed for that later workflow. Historical print regeneration still uses the current patient profile; ordinary patient profile edits are not blocked. Existing payment/refund metadata editing remains available. Expense history now follows the shared guarded policy described below. A payment after a valid committed reminder claim cannot recall an external message already being sent.
 
-Release remains NO-GO until fresh exact-head independent PR #12 approval, formal PR #9 decision, final composed-tree review and separate Owner source/release authorization. No later roadmap stage starts before that decision. Scheduling pilot authorization remains separate.
+Release remains NO-GO until fresh exact-head independent PR #12 approval, remaining exact-head composed-result review, final composed-tree review and separate Owner source/release authorization. No later roadmap stage starts before that decision. Scheduling pilot authorization remains separate.
 
 ## Final review corrections A/B ? 2026-10-19
 
@@ -53,4 +53,15 @@ Focused results: 49 expense-history SQL checks; 35 actual API/ledger compatibili
 
 All 417 pre-existing synthetic rows and 68 schemas remain unchanged. New fixtures/audits are retained; race deletions affect only newly owned empty synthetic parents. Reviewed runtime/test hashes are recorded in the final GitHub handoff. PR #10 and #11 heads remain unchanged and approved; framework/reporting/settlement evidence above is reused. No runtime configuration, dependency, schema or migration changes are introduced by these final corrections. Production remains at the pinned `97cd12c` base with protected file hashes unchanged and scheduling OFF.
 
-Final status: source corrections verified, integration/release blocked pending fresh exact-head PR #12 approval, PR #9 formal review decision, composed-result approval and separate Owner authorization. Busy creation is fail-closed and may require retry. Financial correction/cancellation product semantics remain a separate legitimate workflow limitation. No source integration or deployment occurred.
+Final status: source corrections verified, integration/release blocked pending fresh exact-head PR #12 approval, composed-result approval and separate Owner authorization. Busy creation is fail-closed and may require retry. Financial correction/cancellation product semantics remain a separate legitimate workflow limitation. No source integration or deployment occurred.
+
+
+## Final COGS idempotency correction ? 2026-10-19
+
+The independent review at `ffcdd9ef` accepted the direction of the expense-history and creation-locking corrections but identified missing accounting comparisons in COGS reposts. The final correction compares total_amount, payment_status, amount_paid, balance_due, paid_date, payment_method and liquidity_account, alongside the existing monetary/source/identity/document basis. Total derivation reuses FinanceModel's unchanged guarded calculator (two helper methods become public; no calculation changes). Optional total-column absence is distinguished from a present NULL; present NULL rejects. Decimal storage formats are equivalent only when numeric values are equal; the former epsilon no longer hides six-decimal FX differences. Noncash NULL and empty account values represent absent attribution, while any nonempty account conflicts.
+
+New postings explicitly populate the schema-supported transaction_date from a valid usage date. Actual schema is NOT NULL with no default; prior omitted inserts could acquire zero dates under the observed non-strict SQL mode. Existing zero/different dates, non-NULL supplier attribution and inactive/deleted history reject rather than being silently normalized. No existing COGS record, posting date or ledger cache is changed. Actor, generated transaction ID and creation/update timestamps remain retry metadata, not accounting equivalence criteria.
+
+AGY produced the initial two-file runtime change before its bounded print timeout; Codex reviewed and completed the remaining narrow corrections and verifier. Focused execution: 28 assertions PASS on actual PHP8.3.35/MariaDB11.8.9. Twenty-five actual-SQL assertions cover each reported omitted field, date, exact FX difference, inactive history, present-NULL total, equivalent repost with a different actor, NULL/empty noncash account equivalence and unchanged finance/payment/audit/notification histories. Three explicitly labelled comparator-only checks cover malformed FX, supplier mismatch and zero date. Optional absent-total schema behavior was inspected but not SQL-executed; no schema was altered to manufacture it. Completed concurrency/framework/reporting/settlement suites were not repeated because their logic and lock ordering are unchanged.
+
+PR #9 `c1d22183`, #10 `f5a15c77` and #11 `27b333ac` remain independently exact-head APPROVED and unchanged. Fresh PR #12 exact-head decision is required; source identity, composed tree and test hashes are in the GitHub handoff. Source integration and production rollout still require separate Owner authorization and a fresh verified production recovery checkpoint. Scheduling remains OFF. Existing inconsistent historical COGS requires an explicit later correction workflow, never an automatic rewrite; current inventory usage retains its previously documented best-effort accounting-post limitation.

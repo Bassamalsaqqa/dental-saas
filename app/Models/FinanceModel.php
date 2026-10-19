@@ -425,7 +425,7 @@ class FinanceModel extends TenantAwareModel
      *
      * @return array{0: float, 1: float, 2: float, 3: float, 4: float}
      */
-    protected function computeGuardedTotals(mixed $rawAmount, mixed $rawDiscount, mixed $rawTax): array
+    public function computeGuardedTotals(mixed $rawAmount, mixed $rawDiscount, mixed $rawTax): array
     {
         if (!is_numeric($rawAmount) || !is_finite((float) $rawAmount) || (float) $rawAmount < 0) {
             throw new \InvalidArgumentException('Amount must be a non-negative finite number.');
@@ -454,7 +454,7 @@ class FinanceModel extends TenantAwareModel
         return [$amount, $discount, $taxPercent, $taxAmount, $totalAmount];
     }
 
-    protected function hasTotalAmountField(): bool
+    public function hasTotalAmountField(): bool
     {
         try {
             return $this->db->fieldExists('total_amount', 'finances');
