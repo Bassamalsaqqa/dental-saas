@@ -94,7 +94,7 @@
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.visit')) ?> #</th>
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.date')) ?> / <?= esc(lang('DoctorScheduleSettings.time')) ?></th>
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.providers')) ?></th>
-                            <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.afterStatus')) ?></th>
+                            <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.beforeStatus')) ?></th>
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.retainReason')) ?></th>
                         </tr>
                     </thead>

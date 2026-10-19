@@ -66,7 +66,7 @@ return [
     'completedPreserved' => 'Completed (Preserved)',
     'communicationGate' => 'Existing visits remain booked at their original times. Confirm patient and doctor communication through the clinic workflow. Reschedule first, then refresh this report; a pending reschedule is not a resolution.',
     'reviewCurrent' => 'Review and acknowledge the current schedule',
-    'auditUnavailable' => 'Verified acknowledgment evidence is unavailable. Complete a fresh review before the pilot.',
+    'auditUnavailable' => 'Verified schedule review is unavailable. Review and acknowledge the current schedule to record a fresh review.',
     'acknowledgedBy' => 'Acknowledged by',
     'unresolvedVisit' => 'Unresolved impact: review required',
     'noConflicts' => 'No future appointment conflicts were found in this preview. Review and confirm the proposed change.',
