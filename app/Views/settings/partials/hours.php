@@ -1,13 +1,14 @@
                 <div id="hours-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
-                            <div class="flex items-center space-x-4">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-4 sm:p-8">
+                            <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-clock text-orange-400 text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white"><?= lang('UI.settingsOperations') ?></h3><p class="text-slate-300"><?= lang('UI.settingsOperationsDesc') ?></p></div>
+                                <div><h3 class="text-2xl font-bold text-white"><?= esc(lang('DoctorScheduleSettings.pageTitle')) ?></h3><p class="text-slate-300"><?= esc(lang('DoctorScheduleSettings.pageHelp')) ?></p></div>
                             </div>
                         </div>
-                        <div class="p-8">
-                            <p class="mb-6"><a class="text-blue-700 underline" href="<?= esc(base_url('settings/schedule-impact-recheck'), 'attr') ?>"><?= esc(lang('DoctorScheduleSettings.recheckReport')) ?></a></p>
+                        <div class="p-4 sm:p-8">
+                            <p class="mb-4 text-sm text-slate-700"><?= esc(lang('DoctorScheduleSettings.workflowHelp')) ?></p>
+                            <p class="mb-6"><a class="text-blue-700 underline" href="<?= esc(base_url('settings/schedule-impact-recheck'), 'attr') ?>"><?= esc(lang('DoctorScheduleSettings.currentSchedule')) ?></a></p>
                             <form action="<?= base_url('settings/preview-schedule-impact') ?>" method="POST">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="target_type" value="clinic_hours">
@@ -17,6 +18,7 @@
                                     <input type="checkbox" id="dynamicDoctorScheduling" name="dynamic_doctor_scheduling_enabled" value="1" <?= $dynamicScheduling ? 'checked' : '' ?> <?= empty($provider_settings['schema_ready']) ? 'disabled' : '' ?> class="mt-1">
                                     <span><strong><?= esc(lang('DoctorScheduleSettings.enabled')) ?></strong><span class="mt-1 block text-sm text-slate-600"><?= esc(lang('DoctorScheduleSettings.enabledHelp')) ?></span></span>
                                 </label>
+                                <?php if (!$dynamicScheduling): ?><p class="mb-4 text-sm text-slate-700"><?= esc(lang('DoctorScheduleSettings.modeOffHelp')) ?></p><?php endif; ?>
                                 <?php if (empty($provider_settings['schema_ready'])): ?><p class="mb-4 text-sm text-amber-800"><?= esc(lang('DoctorScheduleSettings.schemaMissing')) ?></p><?php endif; ?>
                                 <?php
                                     $appointmentDurationOptions = [30, 45, 60, 90, 120, 180];
@@ -55,7 +57,7 @@
                                         <p class="text-xs text-gray-500 mt-1 mb-3"><?= lang('UI.settingsHoursWorkingDaysHelp') ?></p>
                                         <div class="flex flex-wrap gap-2">
                                             <?php foreach ($dayKeys as $dayKey): ?>
-                                                <label class="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center border-2 rounded-xl cursor-pointer transition-all duration-200 text-xs sm:text-sm font-semibold <?= in_array($dayKey, $workingDays, true) ? 'border-orange-500 bg-orange-50 text-orange-800 shadow-sm' : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/50' ?>">
+                                                <label class="flex min-h-12 items-center justify-center px-3 py-3 border-2 rounded-xl cursor-pointer transition-all duration-200 text-sm font-semibold <?= in_array($dayKey, $workingDays, true) ? 'border-orange-500 bg-orange-50 text-orange-800 shadow-sm' : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/50' ?>">
                                                     <input type="checkbox" name="working_days[]" value="<?= esc($dayKey) ?>" <?= in_array($dayKey, $workingDays, true) ? 'checked' : '' ?> class="sr-only">
                                                     <span class="leading-none text-center"><?= esc($dayLabels[$dayKey]) ?></span>
                                                 </label>
@@ -78,6 +80,7 @@
                                     </div>
                                     <fieldset data-legacy-scheduling class="md:col-span-2" <?= $dynamicScheduling ? 'disabled hidden' : '' ?>>
                                         <legend class="mb-2 font-semibold"><?= esc(lang('DoctorScheduleSettings.legacyResources')) ?></legend>
+                                        <p class="mb-4 text-sm text-slate-600"><?= esc(lang('DoctorScheduleSettings.legacyHelp')) ?></p>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label>
                                         <input type="number" id="bookingChairCount" name="booking_chair_count" value="<?= $selectedChairCount ?>" min="1" max="<?= esc($maxChairCount) ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required>
                                         <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p>
@@ -101,7 +104,7 @@
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-eye mx-2"></i><?= esc(lang('DoctorScheduleSettings.previewChanges')) ?></button></div>
                             </form>
                             <?= view('settings/partials/provider_schedules', ['provider_settings' => $provider_settings ?? ['schema_ready' => false, 'members' => []]]) ?>
                         </div>

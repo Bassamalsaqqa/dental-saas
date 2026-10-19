@@ -356,6 +356,11 @@ class Settings extends BaseController
         );
     }
 
+    public function scheduleImpactEntry()
+    {
+        return redirect()->to(base_url('settings?tab=hours'));
+    }
+
     public function previewScheduleImpact()
     {
         $clinicId = (int) session('active_clinic_id');

@@ -1,21 +1,21 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<style>.impact-recheck{width:100%;max-width:1100px;margin:auto;padding:16px;box-sizing:border-box;overflow-wrap:anywhere}.impact-recheck *{min-width:0;box-sizing:border-box}.impact-recheck .overflow-x-auto{width:100%;overflow-x:auto}.impact-recheck table{min-width:850px}.impact-recheck td,.impact-recheck th{padding:12px}</style>
+<style>.impact-recheck{width:100%;max-width:1100px;margin:auto;padding:16px;box-sizing:border-box;overflow-wrap:anywhere}.impact-recheck *{min-width:0;box-sizing:border-box}.impact-recheck .overflow-x-auto{width:100%;overflow-x:auto}.impact-recheck table{text-align:start;min-width:850px}.impact-recheck td,.impact-recheck th{padding:12px}</style>
 <div class="impact-recheck max-w-6xl mx-auto px-4 py-8" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
     <!-- Top breadcrumb and title -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
             <a href="<?= base_url('settings?tab=hours') ?>" class="text-sm font-medium text-orange-600 hover:text-orange-700 flex items-center gap-1">
                 <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
-                <span><?= esc(lang('UI.settingsOperations')) ?></span>
+                <span><?= esc(lang('DoctorScheduleSettings.backToHours')) ?></span>
             </a>
             <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-2"><?= esc(lang('DoctorScheduleSettings.recheckReport')) ?></h1>
             <p class="text-sm text-slate-600 mt-1"><?= esc(lang('DoctorScheduleSettings.recheckReportHelp')) ?></p>
         </div>
         <div class="inline-flex items-center gap-2">
             <a href="<?= base_url('settings?tab=hours') ?>" class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-medium text-sm transition-colors shadow-sm">
-                <i class="fas fa-cog mr-1"></i> <?= esc(lang('UI.settingsOperations')) ?>
+                <i class="fas fa-cog mr-1"></i> <?= esc(lang('DoctorScheduleSettings.backToHours')) ?>
             </a>
         </div>
     </div>
@@ -31,8 +31,8 @@
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                 <div>
-                    <span class="block text-xs text-blue-600"><?= esc(lang('DoctorScheduleSettings.providers')) ?>:</span>
-                    <span class="font-semibold"><?= esc(ucfirst((string) ($latest_audit['target_type'] ?? ''))) ?><?= !empty($latest_audit['target_id']) ? ' #' . esc((string) $latest_audit['target_id']) : '' ?></span>
+                    <span class="block text-xs text-blue-600"><?= esc(lang('DoctorScheduleSettings.changedSetting')) ?>:</span>
+                    <span class="font-semibold"><?= esc(lang('DoctorScheduleSettings.' . (($latest_audit['target_type'] ?? '') === 'provider_profile' ? 'doctorAvailability' : 'clinicHours'))) ?><?= !empty($latest_audit['target_id']) ? ' #' . esc((string) $latest_audit['target_id']) : '' ?></span>
                 </div>
                 <div>
                     <span class="block text-xs text-blue-600"><?= esc(lang('DoctorScheduleSettings.retainedExceptionsCount')) ?>:</span>
@@ -46,7 +46,7 @@
                 </div>
                 <div>
                     <span class="block text-xs text-blue-600"><?= esc(lang('ActivityLog.user')) ?>:</span>
-                    <span class="font-medium" dir="ltr">Actor #<?= esc((string) ($latest_audit['actor_user_id'] ?? '')) ?></span>
+                    <span class="font-medium" dir="ltr"><?= esc(lang('DoctorScheduleSettings.actor')) ?> #<?= esc((string) ($latest_audit['actor_user_id'] ?? '')) ?></span>
                 </div>
             </div>
         </div>
@@ -78,7 +78,7 @@
     <!-- Report Table -->
     <div class="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
         <div class="border-b border-slate-100 bg-slate-50 px-6 py-4 flex items-center justify-between">
-            <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.recheckReport')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
+            <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.reviewedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
             <span class="text-xs text-slate-500" dir="ltr"><?= esc(date('Y-m-d H:i:s')) ?></span>
         </div>
 
@@ -88,11 +88,11 @@
             </div>
         <?php else: ?>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
+                <table class="w-full text-start border-collapse text-sm">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                            <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.window')) ?> #</th>
-                            <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.date')) ?> / Time</th>
+                            <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.visit')) ?> #</th>
+                            <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.date')) ?> / <?= esc(lang('DoctorScheduleSettings.time')) ?></th>
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.providers')) ?></th>
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.afterStatus')) ?></th>
                             <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.retainReason')) ?></th>
@@ -114,7 +114,7 @@
                                 </td>
                                 <td class="py-3 px-4 whitespace-nowrap">
                                     <div class="font-medium text-slate-800" dir="ltr"><?= esc($item['appointment_date']) ?></div>
-                                    <div class="text-xs text-slate-500" dir="ltr"><?= esc($item['appointment_time']) ?> – <?= esc($item['end_time']) ?> (<?= esc((string) $item['duration']) ?>m)</div>
+                                    <div class="text-xs text-slate-500" dir="ltr"><?= esc($item['appointment_time']) ?> – <?= esc($item['end_time']) ?> (<?= esc((string) $item['duration']) ?> <?= esc(lang('DoctorScheduleSettings.minutes')) ?>)</div>
                                 </td>
                                 <td class="py-3 px-4">
                                     <div class="font-medium text-slate-800"><?= esc($item['provider_name'] ?? $item['chair_name'] ?? '—') ?></div>
@@ -129,7 +129,7 @@
                                         </span>
                                     <?php else: ?>
                                         <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800" title="<?= esc($item['after_outcome']['reason']) ?>">
-                                            <i class="fas fa-exclamation text-[10px]"></i> <?= esc($item['after_outcome']['code']) ?>
+                                            <i class="fas fa-exclamation text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.needsReview')) ?>
                                         </span>
                                         <span class="block text-xs text-amber-700 mt-1"><?= esc($item['after_outcome']['reason']) ?></span>
                                     <?php endif; ?>
@@ -162,6 +162,6 @@
 <form method="post" action="<?= esc(base_url('settings/preview-schedule-impact'), 'attr') ?>" class="impact-recheck">
 <?= csrf_field() ?><input type="hidden" name="target_type" value="clinic_hours"><input type="hidden" name="refresh_preview" value="1">
 <input type="hidden" name="proposed_dto_json" value="<?= esc(json_encode($current_dto, JSON_THROW_ON_ERROR), 'attr') ?>">
-<button type="submit"><?= esc(lang('DoctorScheduleSettings.reviewCurrent')) ?></button></form>
+<button class="rounded-xl bg-blue-700 px-5 py-3 font-semibold text-white" type="submit"><?= esc(lang('DoctorScheduleSettings.reviewCurrent')) ?></button></form>
 <?php endif; ?>
 <?= $this->endSection() ?>

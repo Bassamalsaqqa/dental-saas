@@ -1,23 +1,73 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<style>.impact-page{width:100%;max-width:1100px;margin:auto;padding:16px;box-sizing:border-box;overflow-wrap:anywhere}.impact-page *{min-width:0;box-sizing:border-box}.impact-page .overflow-x-auto{display:block;width:100%;overflow-x:auto}.impact-page table{min-width:950px}.impact-page td,.impact-page th{padding:12px}.impact-page textarea{width:100%;min-width:180px}.impact-page button{white-space:normal}.impact-page form{width:100%}</style>
+<style>.impact-page{width:100%;max-width:1100px;margin:auto;padding:16px;box-sizing:border-box;overflow-wrap:anywhere}.impact-page *{min-width:0;box-sizing:border-box}.impact-page .overflow-x-auto{display:block;width:100%;overflow-x:auto}.impact-page table{text-align:start;min-width:950px}.impact-page td,.impact-page th{padding:12px}.impact-page textarea{width:100%;min-width:180px}.impact-page button{white-space:normal}.impact-page form{width:100%}</style>
 <div class="impact-page max-w-6xl mx-auto px-4 py-8" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
     <!-- Top breadcrumb and title -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
             <a href="<?= base_url('settings?tab=hours') ?>" class="text-sm font-medium text-orange-600 hover:text-orange-700 flex items-center gap-1">
                 <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
-                <span><?= esc(lang('UI.settingsOperations')) ?></span>
+                <span><?= esc(lang('DoctorScheduleSettings.backToHours')) ?></span>
             </a>
             <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-2"><?= esc(lang('DoctorScheduleSettings.impactReport')) ?></h1>
             <p class="text-sm text-slate-600 mt-1"><?= esc(lang('DoctorScheduleSettings.impactReportHelp')) ?></p>
         </div>
         <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('DoctorScheduleSettings.providers')) ?>:</span>
-            <span class="font-semibold text-slate-800"><?= esc($target_label) ?></span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('DoctorScheduleSettings.changedSetting')) ?>:</span>
+            <span class="font-semibold text-slate-800"><?= $target_type === 'clinic_hours' ? esc(lang('DoctorScheduleSettings.clinicHours')) : esc($target_label) ?></span>
         </div>
     </div>
+
+    <div class="mb-6 space-y-2 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-950" role="status">
+        <p class="font-semibold"><?= esc(lang('DoctorScheduleSettings.pendingPreview')) ?></p>
+        <p class="text-sm"><?= esc(lang('DoctorScheduleSettings.previewHelp')) ?></p>
+        <p class="text-sm"><?= esc(lang('DoctorScheduleSettings.previewExpiryHelp')) ?></p>
+    </div>
+    <?php $proposal = json_decode($proposed_dto_json, true, 512, JSON_THROW_ON_ERROR); ?>
+    <section class="mb-6 rounded-xl border border-slate-200 bg-white p-4 sm:p-6" aria-labelledby="proposed-settings-heading" data-proposed-settings>
+        <h2 id="proposed-settings-heading" class="mb-4 text-lg font-bold text-slate-900"><?= esc(lang('DoctorScheduleSettings.proposedSettings')) ?></h2>
+        <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+        <?php if ($target_type === 'clinic_hours'): ?>
+            <div><dt class="font-semibold"><?= esc(lang('DoctorScheduleSettings.clinicHours')) ?></dt><dd dir="ltr"><?= esc($proposal['working_hours_start']) ?> – <?= esc($proposal['working_hours_end']) ?></dd></div>
+            <div><dt class="font-semibold"><?= esc(lang('UI.settingsHoursWorkingDays')) ?></dt><dd><?= $proposal['working_days'] ? esc(implode(!empty($is_rtl) ? '، ' : ', ', array_map(static fn ($day) => lang('DoctorScheduleSettings.' . $day), $proposal['working_days']))) : esc(lang('DoctorScheduleSettings.noWorkingDays')) ?></dd></div>
+            <div><dt class="font-semibold"><?= esc(lang('UI.settingsHoursAppointmentDuration')) ?></dt><dd><?= esc($proposal['appointment_duration']) ?> <?= esc(lang('DoctorScheduleSettings.minutes')) ?></dd></div>
+            <div><dt class="font-semibold"><?= esc(lang('DoctorScheduleSettings.bookingMode')) ?></dt><dd><?= esc(lang('DoctorScheduleSettings.' . ($proposal['dynamic_doctor_scheduling_enabled'] === '1' ? 'doctorMode' : 'manualMode'))) ?></dd></div>
+            <?php if ($proposal['dynamic_doctor_scheduling_enabled'] === '0'): ?>
+            <div class="sm:col-span-2"><dt class="font-semibold"><?= esc(lang('DoctorScheduleSettings.legacyResources')) ?> (<?= esc($proposal['booking_chair_count']) ?>)</dt><dd><?= esc(implode(!empty($is_rtl) ? '، ' : ', ', $proposal['booking_chair_names'])) ?></dd></div>
+            <?php endif; ?>
+        <?php else: ?>
+            <?php foreach (['is_bookable' => 'bookable', 'is_clinician' => 'qualified'] as $field => $label): ?>
+            <div><dt class="font-semibold"><?= esc(lang('DoctorScheduleSettings.' . $label)) ?></dt><dd><?= esc(lang('DoctorScheduleSettings.' . ($proposal[$field] ? 'yes' : 'no'))) ?></dd></div>
+            <?php endforeach; ?>
+            <div class="sm:col-span-2"><dt class="mb-2 font-semibold"><?= esc(lang('DoctorScheduleSettings.weeklyHours')) ?></dt><dd>
+                <?php if ($proposal['weekly_hours'] === null): ?>
+                    <?= esc(lang('DoctorScheduleSettings.clinicHoursApply')) ?>
+                <?php else: ?>
+                    <ul class="space-y-1">
+                    <?php foreach ($proposal['weekly_hours'] as $day => $windows): ?>
+                        <li><?= esc(lang('DoctorScheduleSettings.' . $day)) ?>:
+                        <?php if (!$windows): ?><?= esc(lang('DoctorScheduleSettings.unavailableDay')) ?><?php endif; ?>
+                        <?php foreach ($windows as $window): ?><span class="inline-block" dir="ltr"><?= esc($window['start']) ?> – <?= esc($window['end']) ?></span> <?php endforeach; ?>
+                        </li>
+                    <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </dd></div>
+            <div class="sm:col-span-2"><dt class="mb-2 font-semibold"><?= esc(lang('DoctorScheduleSettings.exceptions')) ?></dt><dd>
+                <?php if (!$proposal['exceptions']): ?><?= esc(lang('DoctorScheduleSettings.noDateExceptions')) ?><?php endif; ?>
+                <ul class="space-y-1">
+                <?php foreach (($proposal['exceptions'] ?? []) as $date => $windows): ?>
+                    <li><span dir="ltr"><?= esc($date) ?></span>:
+                    <?php if (!$windows): ?><?= esc(lang('DoctorScheduleSettings.leave')) ?><?php endif; ?>
+                    <?php foreach ($windows as $window): ?><span class="inline-block" dir="ltr"><?= esc($window['start']) ?> – <?= esc($window['end']) ?></span> <?php endforeach; ?>
+                    </li>
+                <?php endforeach; ?>
+                </ul>
+            </dd></div>
+        <?php endif; ?>
+        </dl>
+    </section>
 
     <!-- Summary Metrics Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8">
@@ -40,11 +90,11 @@
             <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.auditReference')) ?></div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.proofReference')) ?></div>
             <div class="text-xs font-mono text-slate-700 truncate mt-2" dir="ltr" title="<?= esc($report['state_digest']) ?>">
                 <?= esc(substr($report['state_digest'], 0, 12)) ?>...
             </div>
-            <span class="text-xs text-slate-400">SHA-256 Digest</span>
+
         </div>
     </div>
 
@@ -64,7 +114,7 @@
                 <i class="fas fa-check-circle text-emerald-500 text-2xl mt-0.5"></i>
                 <div>
                     <h3 class="font-bold text-lg"><?= esc(lang('DoctorScheduleSettings.noConflicts')) ?></h3>
-                    <p class="text-sm text-emerald-800 mt-1"><?= esc(lang('DoctorScheduleSettings.recheckReportClean')) ?></p>
+                    <p class="text-sm text-emerald-800 mt-1"><?= esc(lang('DoctorScheduleSettings.previewClean')) ?></p>
                 </div>
             </div>
         <?php else: ?>
@@ -80,22 +130,22 @@
         <!-- Appointments List -->
         <div class="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
             <div class="border-b border-slate-100 bg-slate-50 px-6 py-4 flex items-center justify-between">
-                <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
-                <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.recheckReportHelp')) ?></span>
+                <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.reviewedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
+                <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.previewExpiryHelp')) ?></span>
             </div>
 
             <?php if (empty($report['items'])): ?>
                 <div class="p-8 text-center text-slate-500">
-                    <?= esc(lang('DoctorScheduleSettings.recheckReportClean')) ?>
+                    <?= esc(lang('DoctorScheduleSettings.previewClean')) ?>
                 </div>
             <?php else: ?>
                 <!-- Desktop Table View -->
                 <div class="block overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="w-full text-start border-collapse text-sm">
                         <thead>
                             <tr class="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.window')) ?> #</th>
-                                <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.date')) ?> / Time</th>
+                                <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.visit')) ?> #</th>
+                                <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.date')) ?> / <?= esc(lang('DoctorScheduleSettings.time')) ?></th>
                                 <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.providers')) ?></th>
                                 <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.beforeStatus')) ?></th>
                                 <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.afterStatus')) ?></th>
@@ -118,7 +168,7 @@
                                     </td>
                                     <td class="py-3 px-4 whitespace-nowrap">
                                         <div class="font-medium text-slate-800" dir="ltr"><?= esc($item['appointment_date']) ?></div>
-                                        <div class="text-xs text-slate-500" dir="ltr"><?= esc($item['appointment_time']) ?> – <?= esc($item['end_time']) ?> (<?= esc((string) $item['duration']) ?>m)</div>
+                                        <div class="text-xs text-slate-500" dir="ltr"><?= esc($item['appointment_time']) ?> – <?= esc($item['end_time']) ?> (<?= esc((string) $item['duration']) ?> <?= esc(lang('DoctorScheduleSettings.minutes')) ?>)</div>
                                     </td>
                                     <td class="py-3 px-4">
                                         <div class="font-medium text-slate-800"><?= esc($item['provider_name'] ?? $item['chair_name'] ?? '—') ?></div>
@@ -133,7 +183,7 @@
                                             </span>
                                         <?php else: ?>
                                             <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800" title="<?= esc($item['before_outcome']['reason']) ?>">
-                                                <i class="fas fa-exclamation text-[10px]"></i> <?= esc($item['before_outcome']['code']) ?>
+                                                <i class="fas fa-exclamation text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.needsReview')) ?>
                                             </span>
                                             <span class="block text-xs text-amber-700 mt-1 max-w-xs"><?= esc($item['before_outcome']['reason']) ?></span>
                                         <?php endif; ?>
@@ -145,7 +195,7 @@
                                             </span>
                                         <?php else: ?>
                                             <span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800" title="<?= esc($item['after_outcome']['reason']) ?>">
-                                                <i class="fas fa-times text-[10px]"></i> <?= esc($item['after_outcome']['code']) ?>
+                                                <i class="fas fa-times text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.needsReview')) ?>
                                             </span>
                                             <span class="block text-xs text-rose-700 mt-1 max-w-xs font-medium"><?= esc($item['after_outcome']['reason']) ?></span>
                                         <?php endif; ?>
@@ -188,11 +238,11 @@
             </div>
 
         <p><?= esc(lang('DoctorScheduleSettings.communicationGate')) ?></p>
-        <button type="submit" name="refresh_preview" value="1" formaction="<?= esc(base_url('settings/preview-schedule-impact'), 'attr') ?>" formnovalidate><?= esc(lang('DoctorScheduleSettings.refreshReport')) ?></button>
+        <button class="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700" type="submit" name="refresh_preview" value="1" formaction="<?= esc(base_url('settings/preview-schedule-impact'), 'attr') ?>" formnovalidate><?= esc(lang('DoctorScheduleSettings.refreshReport')) ?></button>
         <!-- Action Buttons -->
         <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200">
             <a href="<?= base_url('settings?tab=hours') ?>" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-sm transition-colors">
-                <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?> mr-1"></i> <?= esc(lang('UI.settingsOperations')) ?>
+                <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?> mr-1"></i> <?= esc(lang('DoctorScheduleSettings.backToHours')) ?>
             </a>
             <div class="flex items-center gap-3">
                 <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold shadow-lg shadow-orange-500/20 hover:from-orange-600 hover:to-amber-700 transition-all text-sm flex items-center gap-2">

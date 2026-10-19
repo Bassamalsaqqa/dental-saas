@@ -642,6 +642,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings,edit']);
     $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings,edit']);
     $routes->post('update-provider-schedule', 'Settings::updateProviderSchedule', ['filter' => 'permission:settings,edit']);
+    $routes->get('preview-schedule-impact', 'Settings::scheduleImpactEntry', ['filter' => 'permission:settings,edit']);
     $routes->post('preview-schedule-impact', 'Settings::previewScheduleImpact', ['filter' => 'permission:settings,edit']);
     $routes->post('apply-schedule-impact', 'Settings::applyScheduleImpact', ['filter' => 'permission:settings,edit']);
     $routes->get('schedule-impact-recheck', 'Settings::scheduleImpactReport', ['filter' => 'permission:settings,view']);
