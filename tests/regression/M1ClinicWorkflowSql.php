@@ -10,8 +10,8 @@ $identity=$db->query('SELECT guid,domain,synthetic_only FROM _denta_stage_identi
 if(($identity['guid']??'')!=='b60809432ec1d915b0b975aef8484e43'||($identity['domain']??'')!=='dentastaging.palsync.net'||(int)($identity['synthetic_only']??0)!==1)throw new RuntimeException('Synthetic identity rejected');
 $db->query('SET SESSION innodb_lock_wait_timeout=5');
 $sourceFile=APPPATH.'Services/ClinicWorkflowClaimService.php';$source=file_get_contents($sourceFile);
-$expectedSourceHash='a14a0540ac457c9f674fd7859581b6999545c1d1a20124ebea2c3cefbcb8773f';
-if(hash('sha256',$source)!==$expectedSourceHash)throw new RuntimeException('Frozen claim source differs');
+$expectedSourceHash='533d16d70d2892e4dfdcb2a66d94e202dd90378bd7df6b697b74d8753c85da43';
+if(hash('sha256',str_replace("\r\n","\n",$source))!==$expectedSourceHash)throw new RuntimeException('Frozen claim source differs');
 // Only the registry read dependency is a fixture; actual application claim/dispatch source is loaded unchanged.
 if(class_exists('App\\Services\\WhatsAppTemplateRegistryService',false))throw new RuntimeException('Registry already loaded; cannot isolate synthetic config');
 final class M1FixtureTemplateRegistry {
