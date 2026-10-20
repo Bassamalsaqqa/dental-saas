@@ -294,49 +294,28 @@ class Inventory extends BaseController
             'created_by' => $currentUserId,
         ];
 
-        if ($this->inventoryModel->insert($inventoryData)) {
-            $inventoryId = $this->inventoryModel->getInsertID();
-            $this->upsertSupplierLinkFromRequest($clinicId, (int) $inventoryId, $supplierId, $currentUserId);
-            $initialQty = (int) ($inventoryData['quantity'] ?? 0);
-            if ($initialQty > 0) {
-                $this->recordStockMovementSafe(
-                    $clinicId,
-                    (int) $inventoryId,
-                    'initial_stock',
-                    $initialQty,
-                    0,
-                    $initialQty,
-                    (float) ($inventoryData['unit_price'] ?? 0),
-                    'inventory_item',
-                    (int) $inventoryId,
-                    'Initial quantity on item creation',
-                    $currentUserId
-                );
-            }
-            
-            // Log the inventory creation activity
-            $this->activityLogger->logInventoryActivity(
-                'create',
-                $inventoryId,
-                "New inventory item '{$inventoryData['item_name']}' added - Category: {$inventoryData['category']}, Quantity: {$inventoryData['quantity']}, Price: " . settings()->getCurrencySymbol() . number_format($inventoryData['unit_price'], 2)
-            );
-            
+        try {
+            $stock = new \App\Services\InventoryStockService();
+            $stock->transaction($clinicId,function () use ($clinicId,$inventoryData,$supplierId,$currentUserId) {
+                $initialQty = \App\Services\InventoryStockService::integer($inventoryData['quantity'],true);
+                if (!$this->inventoryModel->insert($inventoryData)) {
+                    throw new \RuntimeException('Failed to add item: '.implode(', ',$this->inventoryModel->errors()));
+                }
+                $inventoryId = (int)$this->inventoryModel->getInsertID();
+                $this->upsertSupplierLinkFromRequest($clinicId,$inventoryId,$supplierId,$currentUserId);
+                if ($initialQty > 0) {
+                    (new InventoryMovementService())->record($clinicId,$inventoryId,'initial_stock',$initialQty,0,$initialQty,(float)$inventoryData['unit_price'],'inventory_item',$inventoryId,'Initial quantity on item creation',$currentUserId);
+                }
+                $this->activityLogger->logInventoryActivity('create',$inventoryId,"New inventory item '{$inventoryData['item_name']}' added - Category: {$inventoryData['category']}, Quantity: {$initialQty}, Price: ".settings()->getCurrencySymbol().number_format((float)$inventoryData['unit_price'],2));
+            });
             $returnTo = $this->workflowReturnTo(['inventory']) ?? 'inventory';
-
-            return $this->redirectAfterWorkflow($returnTo, ['inventory'])->with('success', 'Item added successfully!');
-        } else {
-            $errors = $this->inventoryModel->errors();
-            log_message('error', 'Inventory creation failed: ' . json_encode($errors));
-            log_message('error', 'Inventory data that failed: ' . json_encode($inventoryData));
+            return $this->redirectAfterWorkflow($returnTo,['inventory'])->with('success','Item added successfully!');
+        } catch (\Throwable $e) {
+            log_message('error','Inventory creation failed: '.$e->getMessage());
             if ($this->request->getPost('source_modal') === 'inventory_quick_create') {
-                $returnTo = $this->workflowReturnTo(['inventory']) ?? 'inventory';
-
-                return redirect()->to(base_url($returnTo))
-                    ->withInput()
-                    ->with('error', 'Failed to add item: ' . implode(', ', $errors));
+                return redirect()->to(base_url($this->workflowReturnTo(['inventory'])??'inventory'))->withInput()->with('error',\App\Services\InventoryStockService::failureMessage($e));
             }
-
-            return redirect()->back()->withInput()->with('error', 'Failed to add item: ' . implode(', ', $errors));
+            return redirect()->back()->withInput()->with('error',\App\Services\InventoryStockService::failureMessage($e));
         }
     }
 
@@ -455,142 +434,105 @@ class Inventory extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        if ($this->inventoryModel->update($id, $inventoryData)) {
-            $this->upsertSupplierLinkFromRequest((int) $clinicId, (int) $id, $supplierId, (int) (session()->get('user_id') ?? 0));
-            // Log the inventory update activity
-            $this->activityLogger->logInventoryActivity(
-                'update',
-                $id,
-                "Inventory item '{$inventoryData['item_name']}' updated - Category: {$inventoryData['category']}, Quantity: {$inventoryData['quantity']}, Status: {$inventoryData['status']}"
-            );
-            
-            return $this->redirectAfterWorkflow('inventory/' . (int) $id, ['inventory'])->with('success', 'Item updated successfully!');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update item. Please try again.');
+        try {
+            $stock = new \App\Services\InventoryStockService();
+            $stock->transaction((int)$clinicId,function () use ($stock,$clinicId,$id,$inventoryData,$supplierId) {
+                $itemId = \App\Services\InventoryStockService::integer($id);
+                $row = $stock->lockRow((int)$clinicId,$itemId);
+                $quantity = \App\Services\InventoryStockService::integer($inventoryData['quantity'],true);
+                $expected = $this->request->getPost('expected_quantity');
+                if ($expected !== null && $expected !== '') {
+                    if (\App\Services\InventoryStockService::integer($expected,true) !== (int)$row['quantity']) {
+                        throw new \DomainException(lang('Inventory.stockChangedRefresh'));
+                    }
+                } elseif ($quantity !== (int)$row['quantity']) {
+                    throw new \DomainException(lang('Inventory.stockChangedRefresh'));
+                }
+                if (!$this->inventoryModel->where('clinic_id',(int)$clinicId)->update($itemId,$inventoryData)) {
+                    throw new \RuntimeException('Failed to update inventory item.');
+                }
+                $actor = (int)(session()->get('user_id')??0);
+                $this->upsertSupplierLinkFromRequest((int)$clinicId,$itemId,$supplierId,$actor);
+                $delta = $quantity-(int)$row['quantity'];
+                if ($delta !== 0) {
+                    (new InventoryMovementService())->record((int)$clinicId,$itemId,$delta>0?'manual_adjust_in':'manual_adjust_out',$delta,(int)$row['quantity'],$quantity,(float)$inventoryData['unit_price'],'inventory_item',$itemId,'Quantity correction from item edit',$actor?:null);
+                }
+                $this->activityLogger->logInventoryActivity('update',$itemId,"Inventory item '{$inventoryData['item_name']}' updated - Category: {$inventoryData['category']}, Quantity: {$quantity}, Status: {$inventoryData['status']}");
+            });
+            return $this->redirectAfterWorkflow('inventory/'.(int)$id,['inventory'])->with('success','Item updated successfully!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error',\App\Services\InventoryStockService::failureMessage($e));
         }
     }
 
     public function delete($id)
     {
+        $expectsJson = $this->request->isAJAX() || stripos((string)$this->request->getHeaderLine('Accept'),'application/json') !== false;
+        $clinicId = (int)(session()->get('active_clinic_id')??0);
+        if (!$clinicId) {
+            return $expectsJson ? $this->response->setStatusCode(403)->setJSON(['error'=>'TENANT_CONTEXT_REQUIRED']) : redirect()->to(base_url('inventory'))->with('error','Clinic context is required.');
+        }
         try {
-            $acceptHeader = (string) $this->request->getHeaderLine('Accept');
-            $expectsJson = $this->request->isAJAX() || stripos($acceptHeader, 'application/json') !== false;
-            
-            $clinicId = session()->get('active_clinic_id');
-            if (!$clinicId) {
-                if ($expectsJson) {
-                    return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            $id = \App\Services\InventoryStockService::integer($id);
+            $stock = new \App\Services\InventoryStockService();
+            $stock->transaction($clinicId,function () use ($stock,$clinicId,$id) {
+                $row = $stock->lockRow($clinicId,$id);
+                if ((int)$row['quantity'] !== 0) {
+                    throw new \DomainException('This item has stock. Mark it inactive instead of deleting it.');
                 }
-
-                return redirect()->to(base_url('inventory'))->with('error', 'Clinic context is required.');
-            }
-
-            $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
-            
-            if (!$item) {
-                if ($expectsJson) {
-                    return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
+                // Preserve receipts, supplier/reorder links and usage/financial history.
+                foreach (['inventory_stock_movements','inventory_batches','inventory_supplier_links','inventory_reorder_items'] as $table) {
+                    if ($this->db->tableExists($table) && $this->db->table($table)->where('clinic_id',$clinicId)->where('inventory_id',$id)->countAllResults() > 0) {
+                        throw new \DomainException('This item has history. Mark it inactive instead of deleting it.');
+                    }
                 }
-
-                return redirect()->to(base_url('inventory'))->with('error', 'Item not found.');
-            }
-
-            if ($this->inventoryModel->delete($id)) {
-                // Log the inventory deletion activity
-                $this->activityLogger->logInventoryActivity(
-                    'delete',
-                    $id,
-                    "Inventory item '{$item['item_name']}' deleted - Category: {$item['category']}, Quantity was: {$item['quantity']}"
+                $usageTable = $this->db->escapeIdentifiers($this->db->prefixTable('inventory_usage'));
+                $idListPattern = '^[[:space:]]*\\[([[:space:]]*("[1-9][0-9]*"|[1-9][0-9]*)[[:space:]]*(,[[:space:]]*("[1-9][0-9]*"|[1-9][0-9]*)[[:space:]]*)*)?\\][[:space:]]*$';
+                $history = $this->db->query(
+                    'SELECT id FROM '.$usageTable.' WHERE clinic_id = ? AND CASE '
+                    . 'WHEN items_used IS NULL OR JSON_VALID(items_used) = 0 THEN 1 '
+                    . "WHEN JSON_TYPE(items_used) <> 'ARRAY' THEN 1 "
+                    . "WHEN JSON_LENGTH(items_used) <> COALESCE(JSON_LENGTH(JSON_EXTRACT(items_used, '$[*].item_id')), 0) THEN 1 "
+                    . "WHEN COALESCE(JSON_EXTRACT(items_used, '$[*].item_id'), '[]') NOT REGEXP ? THEN 1 "
+                    . "ELSE JSON_CONTAINS(items_used, JSON_OBJECT('item_id', ?), '$') OR JSON_CONTAINS(items_used, JSON_OBJECT('item_id', CAST(? AS CHAR)), '$') END = 1 LIMIT 1",
+                    [$clinicId,$idListPattern,$id,$id]
                 );
-                
-                log_message('info', "Inventory item {$id} deleted successfully");
-
-                if ($expectsJson) {
-                    return $this->response->setJSON(['success' => true, 'message' => 'Item deleted successfully']);
+                if ($history === false || $history->getRowArray()) {
+                    throw new \DomainException('This item may have usage history. Mark it inactive instead of deleting it.');
                 }
-
-                return redirect()->to(base_url('inventory'))->with('success', 'Item deleted successfully.');
-            } else {
-                log_message('error', "Failed to delete inventory item {$id}");
-                if ($expectsJson) {
-                    return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete item']);
+                if (!$this->inventoryModel->where('clinic_id',$clinicId)->delete($id)) {
+                    throw new \RuntimeException('Failed to delete item.');
                 }
-
-                return redirect()->to(base_url('inventory'))->with('error', 'Failed to delete item.');
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Inventory delete error: ' . $e->getMessage());
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'An error occurred while deleting the item']);
-            }
-
-            return redirect()->to(base_url('inventory'))->with('error', 'An error occurred while deleting the item.');
+                $this->activityLogger->logInventoryActivity('delete',$id,"Unused inventory item '{$row['item_name']}' deleted");
+            });
+            return $expectsJson ? $this->response->setJSON(['success'=>true,'message'=>'Item deleted successfully']) : redirect()->to(base_url('inventory'))->with('success','Item deleted successfully.');
+        } catch (\Throwable $e) {
+            return $expectsJson ? $this->response->setJSON(['success'=>false,'message'=>\App\Services\InventoryStockService::failureMessage($e)]) : redirect()->to(base_url('inventory'))->with('error',\App\Services\InventoryStockService::failureMessage($e));
         }
     }
 
     public function adjust($id)
     {
         $this->response->setContentType('application/json');
-        
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
         if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            return $this->response->setStatusCode(403)->setJSON(['error'=>'TENANT_CONTEXT_REQUIRED']);
         }
-
-        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
-        
-        if (!$item) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
-        }
-
-        // Get data from JSON input
-        $input = json_decode($this->request->getBody(), true);
-        $adjustment = $input['adjustment'] ?? null;
-        $reason = $input['reason'] ?? 'Manual adjustment';
-        $type = $input['type'] ?? 'add'; // 'add' or 'subtract'
-
-        if (!is_numeric($adjustment) || $adjustment <= 0) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Invalid adjustment amount']);
-        }
-
-        $newQuantity = $type === 'add' 
-            ? $item['quantity'] + $adjustment 
-            : $item['quantity'] - $adjustment;
-
-        if ($newQuantity < 0) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Insufficient quantity for adjustment']);
-        }
-
-        $updateData = [
-            'quantity' => $newQuantity,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if ($this->inventoryModel->update($id, $updateData)) {
-            // Log the adjustment
-            $this->logAdjustment($id, $adjustment, $type, $reason);
-            $quantityChange = $type === 'add' ? (int) $adjustment : (int) -$adjustment;
-            $this->recordStockMovementSafe(
-                (int) $clinicId,
-                (int) $id,
-                $type === 'add' ? 'manual_adjust_in' : 'manual_adjust_out',
-                $quantityChange,
-                (int) $item['quantity'],
-                (int) $newQuantity,
-                isset($item['unit_price']) ? (float) $item['unit_price'] : null,
-                'inventory_adjustment',
-                (int) $id,
-                $reason,
-                (int) ($this->getCurrentUser()->id ?? 0)
-            );
-            
-            return $this->response->setJSON([
-                'success' => true, 
-                'message' => 'Inventory adjusted successfully',
-                'new_quantity' => $newQuantity
-            ]);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to adjust inventory']);
+        try {
+            $input = json_decode($this->request->getBody(),true,512,JSON_THROW_ON_ERROR);
+            if (!is_array($input) || !is_string($input['type']??'add')) {
+                throw new \DomainException('Invalid adjustment payload.');
+            }
+            $reason = trim((string)($input['reason']??'Manual adjustment'));
+            $stock = new \App\Services\InventoryStockService();
+            $after = $stock->transaction($clinicId,function () use ($stock,$clinicId,$id,$input,$reason) {
+                $after = $stock->adjust($clinicId,$id,$input['adjustment']??null,$input['type']??'add',$reason,(int)(session()->get('user_id')??0)?:null);
+                $this->logAdjustment($id,$input['adjustment'],$input['type']??'add',$reason);
+                return $after;
+            });
+            return $this->response->setJSON(['success'=>true,'message'=>'Inventory adjusted successfully','new_quantity'=>$after]);
+        } catch (\Throwable $e) {
+            return $this->response->setJSON(['success'=>false,'message'=>\App\Services\InventoryStockService::failureMessage($e)]);
         }
     }
 
@@ -1082,96 +1024,56 @@ class Inventory extends BaseController
     public function receiveStock($id)
     {
         $this->response->setContentType('application/json');
-        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        $clinicId = (int)(session()->get('active_clinic_id')??0);
         if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+            return $this->response->setStatusCode(403)->setJSON(['success'=>false,'message'=>'TENANT_CONTEXT_REQUIRED']);
         }
-
-        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
-        if (!$item) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
-        }
-
-        $input = json_decode($this->request->getBody(), true);
-        $quantity = (int) ($input['quantity'] ?? 0);
-        $unitCost = isset($input['unit_cost']) && $input['unit_cost'] !== '' ? (float) $input['unit_cost'] : (float) ($item['unit_price'] ?? 0);
-        $reason = trim((string) ($input['reason'] ?? 'Stock received'));
-        $lotNumber = trim((string) ($input['lot_number'] ?? ''));
-        $batchExpiry = $this->normalizeDateOnly((string) ($input['batch_expiry_date'] ?? ''));
-        $batchCurrency = $this->sanitizeSupplierLinkCurrency((string) ($input['batch_currency'] ?? 'ILS'));
-
-        if ($quantity <= 0) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Quantity must be greater than 0']);
-        }
-        if ($unitCost < 0) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Unit cost cannot be negative']);
-        }
-        if (($input['batch_expiry_date'] ?? '') !== '' && !$batchExpiry) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Invalid batch expiry date']);
-        }
-
-        $beforeQty = (int) ($item['quantity'] ?? 0);
-        $afterQty = $beforeQty + $quantity;
-        $updateData = [
-            'quantity' => $afterQty,
-            'unit_price' => $unitCost, // latest cost snapshot
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if (!$this->inventoryModel->update($id, $updateData)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to receive stock']);
-        }
-
-        $this->activityLogger->logInventoryActivity(
-            'receive_stock',
-            (int) $id,
-            "Stock received for '{$item['item_name']}' - Qty: {$quantity}, Unit Cost: " . settings()->getCurrencySymbol() . number_format($unitCost, 2) . ($reason !== '' ? ", Ref: {$reason}" : '')
-        );
-
-        $movementId = $this->recordStockMovementSafe(
-            $clinicId,
-            (int) $id,
-            'receive_stock',
-            $quantity,
-            $beforeQty,
-            $afterQty,
-            $unitCost,
-            'inventory_receive',
-            (int) $id,
-            $reason,
-            (int) (session()->get('user_id') ?? 0)
-        );
-        $movementId = (int) ($movementId ?? 0);
-
-        $batchId = null;
-        if ($lotNumber !== '' || $batchExpiry) {
-            $batchPayload = [
-                'clinic_id' => $clinicId,
-                'inventory_id' => (int) $id,
-                'lot_number' => $lotNumber !== '' ? $lotNumber : null,
-                'expiry_date' => $batchExpiry ?: null,
-                'received_qty' => $quantity,
-                'remaining_qty' => $quantity,
-                'unit_cost' => $unitCost,
-                'currency' => $batchCurrency,
-                'source_movement_id' => $movementId ?: null,
-                'notes' => $reason !== '' ? $reason : null,
-                'created_by' => (int) (session()->get('user_id') ?? 0) ?: null,
-            ];
-            if ($this->batchModel->insert($batchPayload)) {
-                $batchId = (int) $this->batchModel->getInsertID();
-                if ($movementId > 0) {
-                    (new InventoryStockMovementModel())->update($movementId, ['batch_id' => $batchId]);
-                }
+        try {
+            $input = json_decode($this->request->getBody(),true,512,JSON_THROW_ON_ERROR);
+            if (!is_array($input)) {
+                throw new \DomainException('Invalid receipt payload.');
             }
+            $id = \App\Services\InventoryStockService::integer($id);
+            $quantity = \App\Services\InventoryStockService::integer($input['quantity']??null);
+            $reason = trim((string)($input['reason']??'Stock received'));
+            $lotNumber = trim((string)($input['lot_number']??''));
+            $expiry = $this->normalizeDateOnly((string)($input['batch_expiry_date']??''));
+            if (($input['batch_expiry_date']??'') !== '' && !$expiry) {
+                throw new \DomainException('Invalid batch expiry date.');
+            }
+            $currency = $this->sanitizeSupplierLinkCurrency((string)($input['batch_currency']??'ILS'));
+            $actor = (int)(session()->get('user_id')??0)?:null;
+            $stock = new \App\Services\InventoryStockService();
+            $result = $stock->transaction($clinicId,function () use ($stock,$clinicId,$id,$quantity,$reason,$lotNumber,$expiry,$currency,$actor,$input) {
+                $row = $stock->lockRow($clinicId,$id);
+                $cost = $input['unit_cost']??$row['unit_price'];
+                if ($cost === '') $cost = $row['unit_price'];
+                if (!is_scalar($cost) || is_bool($cost) || !is_numeric($cost) || !is_finite((float)$cost) || (float)$cost < 0 || (float)$cost > 99999999.99) {
+                    throw new \DomainException('Invalid unit cost.');
+                }
+                $cost = round((float)$cost,2);
+                $before = (int)$row['quantity'];
+                $after = $before+$quantity;
+                \App\Services\InventoryStockService::integer($after,true);
+                $stock->writeQuantity($clinicId,$row,$after,['unit_price'=>$cost]);
+                $movement = (new InventoryMovementService())->record($clinicId,$id,'receive_stock',$quantity,$before,$after,$cost,'inventory_receive',$id,$reason,$actor);
+                $batchId = null;
+                if ($lotNumber !== '' || $expiry) {
+                    if (!$this->batchModel->insert(['clinic_id'=>$clinicId,'inventory_id'=>$id,'lot_number'=>$lotNumber!==''?$lotNumber:null,'expiry_date'=>$expiry?:null,'received_qty'=>$quantity,'remaining_qty'=>$quantity,'unit_cost'=>$cost,'currency'=>$currency,'source_movement_id'=>$movement,'notes'=>$reason!==''?$reason:null,'created_by'=>$actor])) {
+                        throw new \RuntimeException('Failed to record received batch: '.implode(', ',$this->batchModel->errors()));
+                    }
+                    $batchId = (int)$this->batchModel->getInsertID();
+                    if (!(new InventoryStockMovementModel())->where('clinic_id',$clinicId)->update($movement,['batch_id'=>$batchId])) {
+                        throw new \RuntimeException('Failed to link receipt movement to batch.');
+                    }
+                }
+                $this->activityLogger->logInventoryActivity('receive_stock',$id,"Stock received for '{$row['item_name']}' - Qty: {$quantity}, Unit Cost: ".settings()->getCurrencySymbol().number_format($cost,2).($reason!==''?", Ref: {$reason}":''));
+                return ['new_quantity'=>$after,'batch_id'=>$batchId];
+            });
+            return $this->response->setJSON(array_merge(['success'=>true,'message'=>'Stock received successfully'],$result));
+        } catch (\Throwable $e) {
+            return $this->response->setJSON(['success'=>false,'message'=>\App\Services\InventoryStockService::failureMessage($e)]);
         }
-
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Stock received successfully',
-            'new_quantity' => $afterQty,
-            'batch_id' => $batchId,
-        ]);
     }
 
     public function usage()
@@ -1192,7 +1094,7 @@ class Inventory extends BaseController
         $treatmentModel = new \App\Models\TreatmentModel();
         
         // Get treatments with patients (scoped)
-        $treatments = $treatmentModel->join('patients', 'patients.id = treatments.patient_id')
+        $treatments = $treatmentModel->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id')
             ->select('treatments.*, patients.first_name, patients.last_name')
             ->where('treatments.clinic_id', $clinicId) // Scope treatments
             ->orderBy('treatments.start_date', 'DESC')
@@ -1962,10 +1864,11 @@ class Inventory extends BaseController
 
         $this->supplierLinkModel->clearPreferredForInventory($clinicId, $inventoryId);
         $existing = $this->supplierLinkModel->findLink($clinicId, $inventoryId, $supplierId);
-        if ($existing) {
-            $this->supplierLinkModel->update((int) $existing['id'], $payload);
-        } else {
-            $this->supplierLinkModel->insert($payload);
+        $saved = $existing
+            ? $this->supplierLinkModel->update((int) $existing['id'], $payload)
+            : $this->supplierLinkModel->insert($payload);
+        if (!$saved) {
+            throw new \DomainException('Invalid supplier link details. Check SKU, pack label and notes.');
         }
     }
 
@@ -1998,38 +1901,4 @@ class Inventory extends BaseController
         return preg_match('/^[A-Z]{3,10}$/', $currency) ? $currency : 'ILS';
     }
 
-    private function recordStockMovementSafe(
-        int $clinicId,
-        int $inventoryId,
-        string $movementType,
-        int $quantityChange,
-        int $quantityBefore,
-        int $quantityAfter,
-        ?float $unitCost = null,
-        ?string $referenceType = null,
-        ?int $referenceId = null,
-        ?string $notes = null,
-        ?int $createdBy = null,
-        ?int $batchId = null
-    ): ?int {
-        try {
-            return (new InventoryMovementService())->record(
-                $clinicId,
-                $inventoryId,
-                $movementType,
-                $quantityChange,
-                $quantityBefore,
-                $quantityAfter,
-                $unitCost,
-                $referenceType,
-                $referenceId,
-                $notes,
-                $createdBy,
-                $batchId
-            );
-        } catch (\Throwable $e) {
-            log_message('error', 'Inventory movement logging failed: ' . $e->getMessage());
-            return null;
-        }
-    }
 }

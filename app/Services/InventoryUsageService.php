@@ -2,228 +2,127 @@
 
 namespace App\Services;
 
-use App\Models\InventoryModel;
 use App\Models\InventoryUsageModel;
-use App\Models\PatientModel;
-use App\Models\TreatmentModel;
 use Config\Database;
 
 class InventoryUsageService
 {
-    private InventoryModel $inventoryModel;
     private InventoryUsageModel $usageModel;
-    private TreatmentModel $treatmentModel;
-    private PatientModel $patientModel;
     private InventoryMovementService $movementService;
     private FinanceLedgerService $financeLedgerService;
     private \CodeIgniter\Database\BaseConnection $db;
 
     public function __construct()
     {
-        $this->inventoryModel = new InventoryModel();
         $this->usageModel = new InventoryUsageModel();
-        $this->treatmentModel = new TreatmentModel();
-        $this->patientModel = new PatientModel();
         $this->movementService = new InventoryMovementService();
         $this->financeLedgerService = new FinanceLedgerService();
         $this->db = Database::connect();
     }
 
-    public function record(
-        int $clinicId,
-        array $payload,
-        ?int $actorUserId,
-        array $options = []
-    ): array {
-        if ($clinicId <= 0) {
-            return ['success' => false, 'message' => 'Clinic context is required.'];
-        }
-
-        $usageDate = (string) ($payload['usage_date'] ?? '');
-        $notes = trim((string) ($payload['notes'] ?? ''));
-        $treatmentId = !empty($payload['treatment_id']) ? (int) $payload['treatment_id'] : null;
-        $items = $this->normalizeItems($payload['items'] ?? []);
-        $movementNote = trim((string) ($options['movement_note'] ?? 'Inventory usage recorded'));
-
-        if ($usageDate === '') {
-            return ['success' => false, 'message' => 'Usage date is required.'];
-        }
-
-        if (empty($items)) {
-            return ['success' => false, 'message' => 'Please select at least one inventory item to record usage.'];
-        }
-
-        $treatment = null;
-        if ($treatmentId) {
-            $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($treatmentId);
-            if (!$treatment) {
-                return ['success' => false, 'message' => 'Treatment not found in this clinic.'];
+    public function record(int $clinicId, array $payload, ?int $actorUserId, array $options = []): array
+    {
+        try {
+            $date = $payload['usage_date'] ?? null;
+            $parsed = is_string($date) ? \DateTimeImmutable::createFromFormat('!Y-m-d', $date) : false;
+            if (!$parsed || $parsed->format('Y-m-d') !== $date || $date < '1000-01-01') {
+                throw new \DomainException('Usage date must be a valid accounting date.');
             }
-        }
-
-        $usageData = [];
-        $totalCost = 0.0;
-        foreach ($items as $item) {
-            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($item['item_id']);
-            if (!$inventoryItem) {
-                return ['success' => false, 'message' => 'Invalid inventory item selected.'];
-            }
-
-            if ((int) ($inventoryItem['quantity'] ?? 0) < $item['quantity']) {
-                return [
-                    'success' => false,
-                    'message' => "Insufficient stock for {$inventoryItem['item_name']}. Available: {$inventoryItem['quantity']}, Requested: {$item['quantity']}",
-                ];
-            }
-
-            $lineTotal = round((float) ($inventoryItem['unit_price'] ?? 0) * $item['quantity'], 2);
-            $usageData[] = [
-                'item_id' => (int) $item['item_id'],
-                'item_name' => (string) $inventoryItem['item_name'],
-                'quantity_used' => (int) $item['quantity'],
-                'unit_cost' => (float) ($inventoryItem['unit_price'] ?? 0),
-                'total_cost' => $lineTotal,
-            ];
-            $totalCost += $lineTotal;
-        }
-        $totalCost = round($totalCost, 2);
-
-        $usageId = 0;
-        $this->db->transStart();
-
-        $usageInsert = [
-            'clinic_id' => $clinicId,
-            'treatment_id' => $treatmentId,
-            'usage_date' => $usageDate,
-            'items_used' => json_encode($usageData),
-            'total_cost' => $totalCost,
-            'notes' => $notes !== '' ? $notes : null,
-            'recorded_by' => $actorUserId ?: 0,
-            'created_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if (!$this->usageModel->insert($usageInsert)) {
-            $this->db->transRollback();
-            return ['success' => false, 'message' => 'Failed to record usage: ' . implode(', ', $this->usageModel->errors())];
-        }
-
-        $usageId = (int) $this->usageModel->getInsertID();
-
-        foreach ($usageData as $usage) {
-            $inventoryRow = $this->inventoryModel->where('clinic_id', $clinicId)->find((int) $usage['item_id']);
-            if (!$inventoryRow) {
-                $this->db->transRollback();
-                return ['success' => false, 'message' => 'Inventory item disappeared during usage recording.'];
-            }
-
-            $beforeQty = (int) ($inventoryRow['quantity'] ?? 0);
-            $afterQty = $beforeQty - (int) $usage['quantity_used'];
-            if ($afterQty < 0) {
-                $this->db->transRollback();
-                return ['success' => false, 'message' => "Insufficient stock for {$inventoryRow['item_name']}."];
-            }
-
-            if (!$this->inventoryModel->update((int) $usage['item_id'], [
-                'quantity' => $afterQty,
-                'updated_at' => date('Y-m-d H:i:s'),
-            ])) {
-                $this->db->transRollback();
-                return ['success' => false, 'message' => 'Failed to update inventory balances.'];
-            }
-
-            try {
-                $this->movementService->record(
-                    $clinicId,
-                    (int) $usage['item_id'],
-                    'usage_consume',
-                    (int) -$usage['quantity_used'],
-                    $beforeQty,
-                    $afterQty,
-                    isset($usage['unit_cost']) ? (float) $usage['unit_cost'] : null,
-                    'inventory_usage',
-                    $usageId,
-                    $movementNote,
-                    $actorUserId
-                );
-            } catch (\Throwable $e) {
-                $this->db->transRollback();
-                return ['success' => false, 'message' => 'Failed to record stock movement.'];
-            }
-        }
-
-        $this->db->transComplete();
-        if (!$this->db->transStatus()) {
-            return ['success' => false, 'message' => 'Inventory usage transaction failed.'];
-        }
-
-        $patientId = null;
-        $patientName = null;
-        $treatmentLabel = null;
-        if ($treatment) {
-            $patientId = !empty($treatment['patient_id']) ? (int) $treatment['patient_id'] : null;
-            $treatmentLabel = (string) ($treatment['treatment_id'] ?? ('#' . $treatment['id']));
-            if ($patientId) {
-                $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
-                if ($patient) {
-                    $patientName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
+            $notes = trim((string) ($payload['notes'] ?? ''));
+            $treatmentId = ($payload['treatment_id'] ?? null) !== null && ($payload['treatment_id'] ?? '') !== ''
+                ? InventoryStockService::integer($payload['treatment_id']) : null;
+            $items = $this->normalizeItems($payload['items'] ?? []);
+            $stock = new InventoryStockService();
+            return $stock->transaction($clinicId, function () use ($clinicId,$date,$notes,$treatmentId,$items,$actorUserId,$options,$stock) {
+                $patientId = null;
+                $patientName = null;
+                $treatmentLabel = null;
+                if ($treatmentId !== null) {
+                    // Clinic is locked before discovery; then lock canonical parents before treatment.
+                    $treatment = $this->db->table('treatments')->where('clinic_id',$clinicId)->where('id',$treatmentId)->get()->getRowArray();
+                    if (!$treatment) {
+                        throw new \DomainException('Treatment not found in this clinic.');
+                    }
+                    $patientId = InventoryStockService::integer($treatment['patient_id']);
+                    $examId = !empty($treatment['examination_id']) ? InventoryStockService::integer($treatment['examination_id']) : null;
+                    (new FinanceCreationGuard($this->db))->lockParents($clinicId,$patientId,$examId);
+                    $query = $this->db->query('SELECT id, patient_id, examination_id, treatment_id FROM '.$this->db->escapeIdentifiers($this->db->prefixTable('treatments')).' WHERE clinic_id = ? AND id = ? FOR UPDATE NOWAIT',[$clinicId,$treatmentId]);
+                    if ($query === false) {
+                        throw new \DomainException('Treatment is busy. Refresh and retry.');
+                    }
+                    $locked = $query->getRowArray();
+                    if (!$locked || (int)$locked['patient_id'] !== $patientId || ((int)($locked['examination_id']??0)) !== (int)($examId??0)) {
+                        throw new \DomainException('Treatment changed. Refresh and retry.');
+                    }
+                    $treatmentLabel = (string) ($locked['treatment_id'] ?: '#'.$treatmentId);
+                    $patient = $this->db->table('patients')->select('first_name,last_name')->where('clinic_id',$clinicId)->where('id',$patientId)->get()->getRowArray();
+                    $patientName = trim(($patient['first_name']??'').' '.($patient['last_name']??''));
                 }
-            }
+                $rows = [];
+                $usageData = [];
+                $totalCost = 0.0;
+                foreach ($items as $id=>$quantity) {
+                    $row = $stock->lockRow($clinicId,$id);
+                    if ((int)$row['quantity'] < $quantity) {
+                        throw new \DomainException('Insufficient stock for '. $row['item_name'].'.');
+                    }
+                    $cost = $row['unit_price'] ?? null;
+                    if (!is_numeric($cost) || !is_finite((float)$cost) || (float)$cost < 0 || (float)$cost > 99999999.99) {
+                        throw new \DomainException('Inventory unit cost is invalid; correct the item before recording usage.');
+                    }
+                    $rows[$id] = $row;
+                    $lineCost = round((float)$cost*$quantity,2);
+                    if (!is_finite($lineCost) || $lineCost > 99999999.99 || $totalCost+$lineCost > 99999999.99) {
+                        throw new \DomainException('Inventory usage cost exceeds the supported accounting range.');
+                    }
+                    $usageData[] = ['item_id'=>$id,'item_name'=>(string)$row['item_name'],'quantity_used'=>$quantity,'unit_cost'=>(float)$row['unit_price'],'total_cost'=>$lineCost];
+                    $totalCost += $lineCost;
+                }
+                $totalCost = round($totalCost,2);
+                $usage = ['clinic_id'=>$clinicId,'treatment_id'=>$treatmentId,'usage_date'=>$date,'items_used'=>json_encode($usageData,JSON_THROW_ON_ERROR),'total_cost'=>$totalCost,'notes'=>$notes!==''?$notes:null,'recorded_by'=>$actorUserId?:0,'created_at'=>date('Y-m-d H:i:s')];
+                if (!$this->usageModel->insert($usage)) {
+                    throw new \RuntimeException('Failed to record inventory usage: '.implode(', ',$this->usageModel->errors()));
+                }
+                $usageId = (int)$this->usageModel->getInsertID();
+                foreach ($usageData as $line) {
+                    $row = $rows[$line['item_id']];
+                    $before = (int)$row['quantity'];
+                    $after = $before-$line['quantity_used'];
+                    $stock->writeQuantity($clinicId,$row,$after);
+                    $this->movementService->record($clinicId,$line['item_id'],'usage_consume',-$line['quantity_used'],$before,$after,$line['unit_cost'],'inventory_usage',$usageId,trim((string)($options['movement_note']??'Inventory usage recorded')),$actorUserId);
+                }
+                if ((int)settings()->get('finance_auto_post_inventory_cogs',1) === 1) {
+                    // FinanceLedgerService joins this transaction. A failure cannot leave stock committed.
+                    $this->financeLedgerService->upsertInventoryUsageCogsExpense($clinicId,$usageId,$usage,$patientId,$actorUserId,['patient_name'=>$patientName,'treatment_label'=>$treatmentLabel]);
+                }
+                return ['success'=>true,'usage_id'=>$usageId,'usage_data'=>$usageData,'total_cost'=>$totalCost,'patient_name'=>$patientName,'treatment_label'=>$treatmentLabel,'message'=>'Inventory usage recorded.'];
+            });
+        } catch (\Throwable $e) {
+            // The transaction wrapper rolls back only its own transaction; Treatment owns its rollback.
+            log_message('error','Inventory usage failed: '.$e->getMessage());
+            return ['success'=>false,'message'=>InventoryStockService::failureMessage($e)];
         }
-
-        if ((int) settings()->get('finance_auto_post_inventory_cogs', 1) === 1) {
-            try {
-                $this->financeLedgerService->upsertInventoryUsageCogsExpense(
-                    $clinicId,
-                    $usageId,
-                    [
-                        'treatment_id' => $treatmentId,
-                        'usage_date' => $usageDate,
-                        'items_used' => json_encode($usageData),
-                        'total_cost' => $totalCost,
-                        'notes' => $notes,
-                    ],
-                    $patientId,
-                    $actorUserId,
-                    [
-                        'patient_name' => $patientName,
-                        'treatment_label' => $treatmentLabel,
-                    ]
-                );
-            } catch (\Throwable $financePostError) {
-                log_message('error', 'Inventory usage finance posting failed: ' . $financePostError->getMessage());
-            }
-        }
-
-        return [
-            'success' => true,
-            'usage_id' => $usageId,
-            'usage_data' => $usageData,
-            'total_cost' => $totalCost,
-            'patient_name' => $patientName,
-            'treatment_label' => $treatmentLabel,
-            'message' => 'Inventory usage recorded.',
-        ];
     }
 
     private function normalizeItems($items): array
     {
-        if (!is_array($items)) {
-            return [];
+        if (!is_array($items) || $items === []) {
+            throw new \DomainException('Please select at least one inventory item.');
         }
-
         $normalized = [];
         foreach ($items as $item) {
-            $itemId = is_array($item) ? (int) ($item['item_id'] ?? 0) : 0;
-            $quantity = is_array($item) ? (int) ($item['quantity'] ?? 0) : 0;
-            if ($itemId <= 0 || $quantity <= 0) {
-                continue;
+            if (!is_array($item)) {
+                throw new \DomainException('Invalid inventory item.');
             }
-            $normalized[] = [
-                'item_id' => $itemId,
-                'quantity' => $quantity,
-            ];
+            $id = InventoryStockService::integer($item['item_id']??null);
+            $quantity = InventoryStockService::integer($item['quantity']??null);
+            $sum = ($normalized[$id]??0)+$quantity;
+            if ($sum > 2147483647) {
+                throw new \DomainException('Inventory quantity exceeds the supported range.');
+            }
+            $normalized[$id] = $sum;
         }
-
+        ksort($normalized,SORT_NUMERIC);
         return $normalized;
     }
 }
