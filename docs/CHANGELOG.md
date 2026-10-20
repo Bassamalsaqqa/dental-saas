@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-20 - M0 current release reconciliation (unintegrated engineering candidate)
+
+- Reconciled live/GitHub release `8499042` and tree `bcfa202`; corrected obsolete pre-alpha, main-deployment and blanket-migration guidance.
+- Recorded Stage0/settings fixes as deployed; scheduling remains OFF with its pending migration excluded.
+- Preserved read-only production metadata and prior recovery evidence outside source. Existing guardrail drift, missing recent logs and unavailable cron/MCP inspection remain explicit limitations.
+- M1 work is isolated and has no production, migration or source-integration authorization.
+
 ## 2026-10-15 - Pre-pilot schedule impact review workflow
 
 - Merge independently approved PR #2 at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04`, matching approved HEAD `3bf46f96a653d266870d2aa6a783dcc96f493415` exactly. No deployment or activation.

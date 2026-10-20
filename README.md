@@ -26,6 +26,8 @@ Binding contracts are indexed in [docs/START_HERE.md](docs/START_HERE.md).
 
 Requirements: PHP 8.2+ (`intl`, `mbstring`, `json`, `mysqli`, `xml`, `curl`, `gd`), Composer, Node/npm, MySQL/MariaDB, and Apache/XAMPP on Windows.
 
+For a new, empty, isolated development database only. Configure `.env` to that dedicated database before running setup; never migrate the existing `democa_dental_saas` business database or production as a setup step.
+
 ```powershell
 composer install
 npm.cmd install
@@ -60,11 +62,12 @@ Known local baseline test issues are tracked in `docs/PROJECT_STATE.md`; do not 
 
 ## Deployment
 
-1. Pull the reviewed commit.
-2. Configure production `.env`.
-3. Run `php spark migrate` when migrations changed.
-4. Run/build assets when source CSS or frontend assets changed.
-5. On Hostinger, use `RewriteBase /` and import the UTF-8 SQL dump without `CREATE DATABASE` when a dump is required.
+Production is pinned to `release/production-20261017`, not `main`. See [current state](docs/PROJECT_STATE.md) and obtain separate Owner release authorization.
+
+1. Verify the exact installed SHA/tree and approved candidate, independent review and recoverable checkpoint.
+2. Enumerate migration differences explicitly. Do not run blanket migrations: dynamic scheduling is OFF and its pending migration is deliberately excluded.
+3. Apply the reviewed pinned source-only procedure while preserving production `.env`, both `.htaccess` files, writable storage and uploads. Never import a local dump over customer data.
+4. Verify source/ref parity, protected-file hashes, essential HTTP assets and data integrity. Use the exact source-only rollback checkpoint on failure; never restore the customer database automatically.
 
 Operational commands and the canonical dump command are in [docs/OPERATIONS_RUNBOOK.md](docs/OPERATIONS_RUNBOOK.md).
 
