@@ -27,9 +27,11 @@ class WhatsAppWorkflowService
     protected PlanGuard $planGuard;
     protected \CodeIgniter\Database\BaseConnection $db;
     protected array $policyCache = [];
+    protected ?\DateTimeImmutable $clock = null;
 
-    public function __construct()
+    public function __construct(?\DateTimeImmutable $clock = null)
     {
+        $this->clock = $clock;
         $this->notificationService = new NotificationService();
         $this->notificationModel = new NotificationModel();
         $this->appointmentModel = new AppointmentModel();
@@ -76,11 +78,13 @@ class WhatsAppWorkflowService
             (string) ($appointment['appointment_time'] ?? '')
         );
 
+        try { $templateVars = $this->buildAppointmentTemplateVars($patient, $appointment); }
+        catch (\DomainException $e) { return $this->skipped('INVALID_CLINIC_SETTINGS_OR_DATE'); }
         return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'appointment_confirmation',
-            $this->buildAppointmentTemplateVars($patient, $appointment),
+            $templateVars,
             $workflowKey,
             $actorUserId
         );
@@ -110,16 +114,15 @@ class WhatsAppWorkflowService
             return $this->skipped('PATIENT_NOT_FOUND');
         }
 
+        try { $templateVars = ClinicWorkflowFormatter::forClinic($this->db, $clinicId)->examinationVars($patient, $examination, $this->buildClinicTemplateVars($clinicId)); }
+        catch (\DomainException $e) { return $this->skipped('INVALID_CLINIC_SETTINGS_OR_DATE'); }
         $workflowKey = sprintf('follow_up:%d', $examinationId);
 
         return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'follow_up',
-            [
-                'patient_name' => trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''))),
-                'examination_date' => formatDate((string) ($examination['examination_date'] ?? '')),
-            ] + $this->buildClinicTemplateVars($clinicId),
+            $templateVars,
             $workflowKey,
             $actorUserId
         );
@@ -149,13 +152,17 @@ class WhatsAppWorkflowService
             return $this->skipped('PATIENT_NOT_FOUND');
         }
 
-        $workflowKey = sprintf('no_show_follow_up:%d:%s', $appointmentId, date('Y-m-d'));
+        try { $today = ClinicWorkflowFormatter::forClinic($this->db, $clinicId)->currentDate($this->clock); }
+        catch (\DomainException $e) { return $this->skipped('INVALID_CLINIC_SETTINGS'); }
+        $workflowKey = sprintf('no_show_follow_up:%d:%s', $appointmentId, $today);
 
+        try { $templateVars = $this->buildAppointmentTemplateVars($patient, $appointment); }
+        catch (\DomainException $e) { return $this->skipped('INVALID_CLINIC_SETTINGS_OR_DATE'); }
         return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'no_show_follow_up',
-            $this->buildAppointmentTemplateVars($patient, $appointment),
+            $templateVars,
             $workflowKey,
             $actorUserId
         );
@@ -226,20 +233,25 @@ class WhatsAppWorkflowService
             }
 
             $leadMinutes = $this->resolveReminderLeadMinutes($currentClinicId);
-            $windowStart = date('Y-m-d H:i:s');
-            $windowEnd = date('Y-m-d H:i:s', time() + ($leadMinutes * 60));
+            try {
+                $formatter = ClinicWorkflowFormatter::forClinic($this->db, $currentClinicId);
+                [$windowStart, $windowEnd] = $formatter->discoveryDates($leadMinutes, $this->clock);
+            } catch (\DomainException $e) { $summary['skipped']++; continue; }
 
             $rows = $this->db->query(
                 'SELECT id, clinic_id, patient_id, appointment_date, appointment_time, status
                  FROM appointments
                  WHERE clinic_id = ?
                    AND status = ?
-                   AND TIMESTAMP(appointment_date, appointment_time) BETWEEN ? AND ?',
+                   AND appointment_date BETWEEN ? AND ?',
                 [$currentClinicId, 'scheduled', $windowStart, $windowEnd]
             )->getResultArray();
 
             foreach ($rows as $row) {
                 $summary['scanned']++;
+                try {
+                    if (!$formatter->reminderEligible($row, $leadMinutes, $this->clock)) { $summary['skipped']++; continue; }
+                } catch (\DomainException $e) { $summary['skipped']++; continue; }
                 $patient = $this->patientModel->withoutTenantScope()
                     ->where('clinic_id', $currentClinicId)
                     ->find((int) ($row['patient_id'] ?? 0));
@@ -377,11 +389,8 @@ class WhatsAppWorkflowService
 
     private function buildAppointmentTemplateVars(array $patient, array $appointment): array
     {
-        return [
-            'patient_name' => trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''))),
-            'appointment_date' => formatDate((string) ($appointment['appointment_date'] ?? '')),
-            'appointment_time' => formatTime((string) ($appointment['appointment_time'] ?? '')),
-        ] + $this->buildClinicTemplateVars((int) ($appointment['clinic_id'] ?? 0));
+        $clinicId = (int) ($appointment['clinic_id'] ?? 0);
+        return ClinicWorkflowFormatter::forClinic($this->db, $clinicId)->appointmentVars($patient, $appointment, $this->buildClinicTemplateVars($clinicId));
     }
 
     private function buildClinicTemplateVars(int $clinicId): array
@@ -515,60 +524,7 @@ class WhatsAppWorkflowService
 
     private function buildTemplateComponents(array $triggerConfig, array $templateVars): array
     {
-        $components = [];
-
-        $headerParamKey = trim((string) ($triggerConfig['header_param_key'] ?? ''));
-        if ($headerParamKey !== '' && array_key_exists($headerParamKey, $templateVars)) {
-            $components[] = [
-                'type' => 'header',
-                'parameters' => [[
-                    'type' => 'text',
-                    'text' => (string) $templateVars[$headerParamKey],
-                ]],
-            ];
-        }
-
-        $bodyParamKeys = $triggerConfig['body_param_keys'] ?? [];
-        if (is_array($bodyParamKeys) && $bodyParamKeys !== []) {
-            $parameters = [];
-            foreach ($bodyParamKeys as $key) {
-                $cleanKey = trim((string) $key);
-                if ($cleanKey === '' || !array_key_exists($cleanKey, $templateVars)) {
-                    continue;
-                }
-
-                $parameters[] = [
-                    'type' => 'text',
-                    'text' => (string) $templateVars[$cleanKey],
-                ];
-            }
-
-            if ($parameters !== []) {
-                $components[] = [
-                    'type' => 'body',
-                    'parameters' => $parameters,
-                ];
-            }
-        }
-
-        $buttonParamKey = trim((string) ($triggerConfig['button_param_key'] ?? ''));
-        $buttonType = trim((string) ($triggerConfig['button_type'] ?? ''));
-        if ($buttonParamKey !== '' && $buttonType !== '' && array_key_exists($buttonParamKey, $templateVars)) {
-            $parameterType = $buttonType === 'url' ? 'text' : 'payload';
-            $parameter = [
-                'type' => $parameterType,
-            ];
-            $parameter[$parameterType === 'text' ? 'text' : 'payload'] = (string) $templateVars[$buttonParamKey];
-
-            $components[] = [
-                'type' => 'button',
-                'sub_type' => $buttonType,
-                'index' => ctype_digit((string) ($triggerConfig['button_index'] ?? '0')) ? (string) $triggerConfig['button_index'] : '0',
-                'parameters' => [$parameter],
-            ];
-        }
-
-        return $components;
+        return WorkflowTemplatePayload::components($triggerConfig, $templateVars);
     }
 
     private function formatMoney(float $amount): string
