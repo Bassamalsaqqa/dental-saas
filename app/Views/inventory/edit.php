@@ -102,6 +102,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div>
                             <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.currentQuantityRequired') ?></label>
+                            <input type="hidden" name="expected_quantity" value="<?= esc(old('expected_quantity', $item['quantity'])) ?>">
                             <input type="number" id="quantity" name="quantity" value="<?= old('quantity', $item['quantity']) ?>" 
                                    min="0" step="1"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 

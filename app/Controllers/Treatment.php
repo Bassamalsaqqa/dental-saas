@@ -429,6 +429,12 @@ class Treatment extends BaseController
 
         $this->db->transBegin();
         try {
+            // Shared inventory/finance parent order before the first clinical write.
+            (new \App\Services\FinanceCreationGuard($this->db))->validateAndLock([
+                'clinic_id' => (int) $clinicId,
+                'patient_id' => $treatmentData['patient_id'],
+                'examination_id' => $treatmentData['examination_id'],
+            ], (int) $clinicId);
             if (!$this->treatmentModel->insert($treatmentData)) {
                 throw new RuntimeException('Failed to create treatment. Please check your input and try again.');
             }
@@ -700,6 +706,20 @@ class Treatment extends BaseController
 
         $this->db->transBegin();
         try {
+            (new \App\Services\FinanceCreationGuard($this->db))->validateAndLock([
+                'clinic_id' => (int) $clinicId,
+                'patient_id' => $treatmentData['patient_id'],
+                'examination_id' => $treatment['examination_id'] ?? null,
+            ], (int) $clinicId);
+            $lockedQuery = $this->db->query(
+                'SELECT id, patient_id, examination_id FROM ' . $this->db->escapeIdentifiers($this->db->prefixTable('treatments'))
+                . ' WHERE clinic_id = ? AND id = ? FOR UPDATE NOWAIT', [(int) $clinicId, (int) $id]
+            );
+            $lockedTreatment = $lockedQuery === false ? null : $lockedQuery->getRowArray();
+            if (!$lockedTreatment || (int) $lockedTreatment['patient_id'] !== (int) $treatment['patient_id']
+                || (int) ($lockedTreatment['examination_id'] ?? 0) !== (int) ($treatment['examination_id'] ?? 0)) {
+                throw new RuntimeException('Treatment changed or is busy. Refresh and retry.');
+            }
             if (!$this->treatmentModel->update($id, $treatmentData)) {
                 throw new RuntimeException('Failed to update treatment. Please check your input and try again.');
             }

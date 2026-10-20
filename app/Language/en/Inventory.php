@@ -350,4 +350,6 @@ return [
     'lowStockStatus' => 'Low Stock',
     'records' => 'records',
     'items' => 'items',
+    'stockChangedRefresh' => 'Stock changed since this form was opened. Refresh the page and retry your correction.',
+    'stockOperationFailed' => 'Inventory operation could not be completed. Refresh and retry.',
 ];

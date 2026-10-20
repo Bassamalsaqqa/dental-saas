@@ -267,20 +267,14 @@ class InventoryModel extends TenantAwareModel
 
     public function adjustQuantity($id, $adjustment, $type = 'add')
     {
-        $item = $this->find($id);
-        if (!$item) {
+        $clinicId = (int) (\App\Libraries\ApiRuntimeContext::getClinicId() ?: session()->get('active_clinic_id'));
+        try {
+            (new \App\Services\InventoryStockService())->adjust($clinicId, $id, $adjustment, (string) $type, 'Manual adjustment', (int) session()->get('user_id') ?: null);
+            return true;
+        } catch (\Throwable $e) {
+            log_message('error', 'Inventory adjustment failed: ' . $e->getMessage());
             return false;
         }
-
-        $newQuantity = $type === 'add' 
-            ? $item['quantity'] + $adjustment 
-            : $item['quantity'] - $adjustment;
-
-        if ($newQuantity < 0) {
-            return false;
-        }
-
-        return $this->update($id, ['quantity' => $newQuantity]);
     }
 
     public function getMonthlyInventoryValue($year = null)
