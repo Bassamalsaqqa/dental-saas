@@ -108,7 +108,7 @@ class TreatmentModel extends TenantAwareModel
 
     public function countTreatmentsByClinic($clinicId, $searchValue = null, $status = null, $type = null)
     {
-        $builder = $this->join('patients', 'patients.id = treatments.patient_id', 'left')
+        $builder = $this->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id', 'left')
                         ->where('treatments.clinic_id', $clinicId);
 
         if (!empty($searchValue)) {
@@ -136,7 +136,7 @@ class TreatmentModel extends TenantAwareModel
     public function getTreatmentsByClinic($clinicId, $limit = 10, $offset = 0, $searchValue = null, $status = null, $type = null, $orderColumn = 'treatments.start_date', $orderDir = 'desc')
     {
         $builder = $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.gender, patients.patient_id as patient_number')
-                        ->join('patients', 'patients.id = treatments.patient_id', 'left')
+                        ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id', 'left')
                         ->where('treatments.clinic_id', $clinicId);
 
         if (!empty($searchValue)) {
@@ -217,7 +217,7 @@ class TreatmentModel extends TenantAwareModel
     public function getTreatmentWithPatientInfo($id)
     {
         return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
-                    ->join('patients', 'patients.id = treatments.patient_id')
+                    ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id')
                     ->join('users', 'users.id = treatments.created_by', 'left')
                     ->where('treatments.id', $id)
                     ->first();
@@ -344,7 +344,7 @@ class TreatmentModel extends TenantAwareModel
     public function searchTreatments($searchTerm)
     {
         return $this->select('treatments.*, patients.first_name, patients.last_name')
-                    ->join('patients', 'patients.id = treatments.patient_id')
+                    ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id')
                     ->groupStart()
                         ->like('treatments.treatment_description', $searchTerm)
                         ->orLike('treatments.treatment_type', $searchTerm)

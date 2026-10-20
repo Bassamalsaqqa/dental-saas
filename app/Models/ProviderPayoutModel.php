@@ -106,7 +106,7 @@ class ProviderPayoutModel extends TenantAwareModel
 
         // Cash view: filter by payout payment date.
         $paidCashBuilder = $this->db->table('provider_payout_payments ppp')
-            ->join('provider_payouts pp', 'pp.id = ppp.provider_payout_id', 'inner')
+            ->join('provider_payouts pp', 'pp.id = ppp.provider_payout_id AND pp.clinic_id = ppp.clinic_id', 'inner')
             ->where('pp.clinic_id', $clinicId);
 
         if (!empty($startDate)) {
@@ -147,8 +147,8 @@ class ProviderPayoutModel extends TenantAwareModel
                 u.first_name AS provider_first_name,
                 u.last_name AS provider_last_name
             ')
-            ->join('finances f', 'f.id = pp.finance_id', 'left')
-            ->join('patients p', 'p.id = pp.patient_id', 'left')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
             ->join('users u', 'u.id = pp.provider_user_id', 'left')
             ->where('pp.clinic_id', $clinicId);
 

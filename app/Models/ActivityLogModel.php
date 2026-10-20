@@ -571,7 +571,7 @@ class ActivityLogModel extends TenantAwareModel
 
         $treatment = $this->db->table('treatments t')
             ->select('t.treatment_name, t.treatment_type, p.first_name, p.last_name')
-            ->join('patients p', 'p.id = t.patient_id', 'left')
+            ->join('patients p', 'p.id = t.patient_id AND p.clinic_id = t.clinic_id', 'left')
             ->where('t.clinic_id', $clinicId)
             ->where('t.id', $treatmentId)
             ->get()
@@ -620,7 +620,7 @@ class ActivityLogModel extends TenantAwareModel
 
         $finance = $this->db->table('finances f')
             ->select('f.transaction_type, f.counterparty_name, p.first_name, p.last_name')
-            ->join('patients p', 'p.id = f.patient_id', 'left')
+            ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
             ->where('f.id', $financeId)
             ->get()
