@@ -43,7 +43,7 @@ try {
  $assert($fm->countFinancesByClinic(1,$run)===3,'Finance filtered count preserves LEFT row semantics');
  $assert($fm->countFinancesByClinic(1,$foreignName)===0 && $fm->getFinancesByClinic(1,100,0,$foreignName)===[],'Finance foreign-name search and count reveal no match');
  $assert(count($fm->getFinanceByPatient($ownPatient))===1 && $fm->getFinanceByPatient($foreignPatient)===[],'Patient finance history rejects cross-clinic parent reference');
- $overdue=array_map('intval',array_column($fm->getOverduePayments(1),'id')); 
+ $overdue=array_map('intval',array_column($fm->getOverduePayments(1),'id'));
  $assert(in_array($ownFinance,$overdue,true) && !in_array($badFinance,$overdue,true),'Overdue INNER result contains valid own document only');
  $treatment=static function(int $patient,string $suffix)use($insert,$run):int { return $insert('treatments',['clinic_id'=>1,'patient_id'=>$patient,'treatment_id'=>$run.$suffix,'treatment_name'=>'Synthetic','treatment_type'=>'other','treatment_description'=>$run,'status'=>'active','start_date'=>'2098-07-10','estimated_duration'=>10]); };
  $ownTreatment=$treatment($ownPatient,'T1'); $badTreatment=$treatment($foreignPatient,'T2');
