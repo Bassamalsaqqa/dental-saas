@@ -196,6 +196,13 @@ class DispatchService
             $this->claimedReminderRows[$notificationId] = $claimed;
             return true;
         }
+        $workflows = new ClinicWorkflowClaimService($this->db);
+        if ($workflows->handles($candidate)) {
+            $claimed = $workflows->claim($candidate, $clinicId, $dispatcherId, $channelType, $this->staleLockMinutes);
+            if ($claimed === false) { return false; }
+            $this->claimedReminderRows[$notificationId] = $claimed;
+            return true;
+        }
         $builder = $this->db->table('notifications');
 
         $builder->set('status', 'processing');
