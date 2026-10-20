@@ -61,7 +61,7 @@ class Treatment extends BaseController
             // Get treatments with patient information (scoped)
             $query = $this->treatmentModel
                 ->select('treatments.*, patients.first_name, patients.last_name, patients.phone')
-                ->join('patients', 'patients.id = treatments.patient_id', 'left')
+                ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id', 'left')
                 ->where('treatments.clinic_id', $clinicId);
             
             // Apply filters if provided

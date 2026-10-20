@@ -4071,7 +4071,7 @@ class Finance extends BaseController
             // Build query
             $query = $this->financeModel->forClinic($clinicId)
                 ->select('finances.*, patients.first_name, patients.last_name')
-                ->join('patients', 'patients.id = finances.patient_id', 'left');
+                ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id', 'left');
 
             if ($startDate && $endDate) {
                 $query->where('finances.transaction_date >=', $startDate)

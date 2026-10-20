@@ -520,7 +520,7 @@ class FinanceModel extends TenantAwareModel
     public function getFinancesByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'finances.id', $orderDir = 'desc')
     {
         $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.phone, patients.gender, patients.patient_id as patient_number')
-            ->join('patients', 'patients.id = finances.patient_id', 'left')
+            ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id', 'left')
             ->where('finances.clinic_id', $clinicId);
 
         if (!empty($search)) {
@@ -546,7 +546,7 @@ class FinanceModel extends TenantAwareModel
     public function countFinancesByClinic($clinicId, $search = '')
     {
         $builder = $this->select('finances.id')
-            ->join('patients', 'patients.id = finances.patient_id', 'left')
+            ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id', 'left')
             ->where('finances.clinic_id', $clinicId);
 
         if (!empty($search)) {
@@ -1242,7 +1242,7 @@ class FinanceModel extends TenantAwareModel
     public function getOverduePayments($clinicId = null)
     {
         $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
-            ->join('patients', 'patients.id = finances.patient_id')
+            ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id')
             ->where('finances.transaction_type', 'invoice')
             ->where('finances.due_date <', date('Y-m-d'))
             ->where('finances.balance_due >', 0);
