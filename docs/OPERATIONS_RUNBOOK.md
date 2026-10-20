@@ -2,6 +2,8 @@
 
 ## Database
 
+The commands below are for explicitly approved isolated development databases. Do not run them against production or the original local business database as part of routine verification.
+
 ```powershell
 php spark migrate
 php spark migrate:rollback
@@ -56,38 +58,24 @@ Use `.env` as runtime truth.
 ### Connection & Environment
 - **SSH Endpoint**: `ssh -p 65002 u556956644@89.116.192.222` (or via configured SSH alias `hostinger-dalel`)
 - **Remote Repository Path**: `~/domains/palsync.net/public_html/denta`
-- **Branch**: `main`
+- **Branch**: `release/production-20261017` (exact approved SHA/tree; `main` is not deployment authority)
 - **Framework**: CodeIgniter 4 (use `php spark`, **never** `php artisan`)
 - **Credentials Policy**: Never store passwords, private keys, or API secrets in repository files, logs, or commits.
 
-### Standard Deployment Workflow
-1. Verify clean working tree on production:
-   ```bash
-   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && git status -sb"
-   ```
-2. Fast-forward pull reviewed commits from origin:
-   ```bash
-   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && git pull --ff-only"
-   ```
-3. Run pending migrations:
-   ```bash
-   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && php spark migrate"
-   ```
-4. Verify migration status:
-   ```bash
-   ssh hostinger-dalel "cd ~/domains/palsync.net/public_html/denta && php spark migrate:status"
-   ```
-5. Deploy reviewed assets if UI changed: deploy `public/assets/css/tailwind.css` (or run `npm run release:hostinger` locally).
-6. Verify Apache rewrite: `RewriteBase /` is required on Hostinger (not `/dental-saas/`).
-7. Post-deploy verification & log inspection:
-   - Check `writable/logs/log-YYYY-MM-DD.log` for any errors.
-   - Smoke test key routes (`/controlplane/clinics/19`, `/controlplane/clinics/21`, `/auth/login`).
+### Controlled Production Release
+
+Owner authorizes source integration and production deployment separately. Do not execute a release from this runbook alone.
+
+1. Reconcile exact live SHA/tree with the approved release ref. Inspect hooks and deployment triggers read-only; do not assume a push is harmless.
+2. Confirm explicit Hostinger PHP runtime `/opt/alt/php83/usr/bin/php`, applied schema/history and exact pending migration list. Current dynamic scheduling migration stays unapplied and the feature OFF. No blanket `spark migrate`, dependency installation or GitHub Actions.
+3. Verify fresh recoverable off-host backup and prior isolated restore evidence. DB/files backups are not atomic; report that limitation. Save private source preimages with mode0700 directories/mode0600 files.
+4. Execute only the reviewed exact-SHA deployment helper with its release-specific authorization flag. Source checkout needs umask0022; restore private umask0077 afterward. No archive overwrite, Git reset, protected-file replacement or local SQL import.
+5. Preserve `.env`, root/public `.htaccess`, writable storage, uploads and customer records. Check source hashes, exact HEAD/tree/ref and only expected `.htaccess` dirty state.
+6. Essential postflight: authenticated tenant workflow, EN/AR critical pages, HTTP200 for JS/CSS (including `select2-init.js` and `contextual-workspace.js`), mode0644 for changed web assets, protected hashes and schema/data-preservation evidence. Do not broadly chmod unrelated files.
 
 ### Rollback Guidance
-- Identify the previous stable commit: `git log --oneline -5`.
-- Application fixes should use code commit reversion (`git revert`) and standard deployment.
-- **Do not run generic `php spark migrate:rollback` on production.** Reconciliation migrations and financial tables are non-destructive and cannot be safely rolled back automatically. Schema rollback requires a reviewed, migration-specific rollback plan and an explicit pre-rollback database backup.
-- Do not use destructive git operations (`git reset --hard`, force-push) on production.
+
+Prepare a source-only rollback commit whose parent is the candidate and whose tree is the exact previous release. Publish/install it only within the separately authorized recovery procedure; verify installed source and release ref agree. Never automatically restore or alter production DB/configuration/storage, run generic migration rollback, reset Git or force-push. A schema-changing release requires its own reviewed recovery/fix-forward design.
 
 ## Troubleshooting
 
@@ -97,7 +85,7 @@ Use `.env` as runtime truth.
 - Control-plane 404: confirm `global_mode=true`, no active tenant, and superadmin authorization.
 - Hostinger `/auth/login` 404: verify Apache rewrite support and `RewriteBase /`.
 - Missing styles: rebuild Tailwind and deploy `public/assets/css/tailwind.css`.
-- Bash `E_ACCESSDENIED` on Windows: run guardrails in CI or a working WSL/Bash environment; do not report it as a passing check.
+- Bash `E_ACCESSDENIED` on Windows: run guardrails in a working local Git Bash/WSL environment (GitHub Actions are prohibited); do not report it as a passing check.
 
 ## Documentation QA
 
