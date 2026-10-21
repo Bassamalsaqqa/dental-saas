@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-20 (M1 controlled release; M2 isolated development).
+Last verified: 2026-10-21 (M1 production source verified; M2 isolated combined candidate).
 
 ## Deployed source
 
@@ -16,11 +16,11 @@ Last verified: 2026-10-20 (M1 controlled release; M2 isolated development).
 
 M1 was integrated and deployed with separate Owner authorization. Exact-head-approved tenant reference containment, inventory stock/movement/COGS atomicity and clinic-scoped notification validation are live. Essential authenticated EN/AR, patient lookup, tenant/API isolation and preservation checks passed; no migrations or feature activation occurred.
 
-M2 is isolated, nonproduction development: idempotent contract signing with transactional consent and recoverable publication, plus draft-race protection, plus provider payout lifecycle/reconciliation correctness. Preserve signed consent, clinical evidence and all financial history. Invoice cancellation/credit-note/rebill rules require Owner product decisions before implementation. M2 integration, deployment, migrations and activation are not authorized.
+M2 is isolated, nonproduction development: idempotent contract signing with transactional consent and recoverable publication, plus draft-race protection, plus provider payout lifecycle/reconciliation correctness. Preserve signed consent, clinical evidence and all financial history. Invoice cancellation/credit-note/rebill rules require Owner product decisions before implementation. Owner has authorized combined candidate preparation and deployment after release safety gates pass. PR #19 final independent approval remains outstanding; no production source switch has occurred. Migrations and feature activation remain prohibited.
 
 The 2026-10-19 unified engineering plan supplied by Owner governs this program. Confirm source findings before implementing them; distinguish execution evidence from hypotheses. Preserve odontogram SVG/rendering/snapshots, signed records, issued invoices/payment histories and provider obligations. Staff salaries and invoice cancellation policy require separate product rules. No automatic billing from contract signing or historical data remapping.
 
-M2 review evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md). External exact-head approval and separate Owner release authorization remain required.
+M2 evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md) and [Contract consent publication/recovery](M2_CONTRACT_SIGNING_EVIDENCE_20261021.md). PR #18 is approved at `7d405af6738ee39f24b15c8be76c8e14cf52fe5a`; PR #19 remains COMMENTED at `3f157567e6cfad47a031fc2cbf8fb5c01bb2b9b1`. Submitted native browser, kiosk, protected-document and recovery evidence is retained in PR #19; its final independent decision is required before release.
 
 ## Verification and release boundaries
 
@@ -29,7 +29,7 @@ M2 review evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_
 - M0 login and two booking scripts return HTTP 200; both scripts retain mode 0644. No recent application log file after 2026-10-15 was available, so absence of recent log errors is not a health guarantee.
 - Baseline SaaS guardrails fail on six existing DOM sinks, controller-query allowlist drift and four font matches. Do not widen allowlists or call this a passing gate. IonAuth snake-case scan currently has zero matches; camel-case coverage remains incomplete.
 - Hostinger MCP is unavailable in the current tool inventory; authorized read-only checks use established SSH. Cron inspection is unavailable in the restricted shell and has not been certified.
-- No GitHub Actions. Source integration, migrations, activation and deployments require separate Owner authorization. A release must pin SHA/tree, enumerate migrations, verify recovery, protect configuration/storage and include source-only rollback when schema/data are unchanged.
+- No GitHub Actions. Owner-authorized M2 candidate preparation is isolated; production deployment remains gated on PR #19 final independent approval and final safety checks. No migrations or feature activation are authorized. A release must pin SHA/tree, enumerate migrations, verify recovery, protect configuration/storage and include source-only rollback when schema/data are unchanged.
 - M1 recovery checkpoint `denta-private-recovery-20261020T185249Z` is preserved encrypted off-host with separate keys: authenticated decryption/archive checks and 49 durable-file hashes passed; prior successful isolated restore evidence was reused, without a fresh restore. Reassess freshness before any future authorized release; DB/files backup is not atomic.
 
 ## References
@@ -43,3 +43,7 @@ M2 review evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_
 - Messaging: [WHATSAPP_CURRENT_STATE.md](WHATSAPP_CURRENT_STATE.md)
 
 Superseded development chronology and old pending-review claims remain in Git history rather than being current release instructions.
+
+## M2 durable evidence and rollback
+
+Preserve all of `writable/`, including `contract-signing/operations/`, `contract-signing/staging/` and generated signed HTML under uploads. The retained synthetic journal/artifact restoration rehearsal passed; its off-host archive hash was reverified. A fresh M2 production recovery checkpoint has not yet been captured. DB and file backup streams are non-atomic. Source-only rollback must retain new journals, signed documents, attachment links, consent and audit records; never restore or rewrite the database automatically. Legacy partial evidence and unreferenced artifacts require operator investigation, not automatic repair or deletion.
