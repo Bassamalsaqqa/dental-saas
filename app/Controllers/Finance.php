@@ -1435,7 +1435,9 @@ class Finance extends BaseController
 
             $providerPayoutSummary['provider_share_amount'] += (float) ($providerPayout['provider_share_amount'] ?? 0);
             $providerPayoutSummary['provider_paid_amount'] += (float) ($providerPayout['provider_paid_amount'] ?? 0);
-            $providerPayoutSummary['provider_balance_due'] += (float) ($providerPayout['provider_balance_due'] ?? 0);
+            if (($providerPayout['status'] ?? '') !== 'void') {
+                $providerPayoutSummary['provider_balance_due'] += (float) ($providerPayout['provider_balance_due'] ?? 0);
+            }
         }
         unset($providerPayout);
         $providerPayoutSummary['clinic_share_amount'] = max(0, round($providerPayoutSummary['gross_amount'] - $providerPayoutSummary['provider_share_amount'], 2));

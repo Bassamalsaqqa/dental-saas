@@ -1928,6 +1928,7 @@
                         </span>
                     </div>
                     <div class="finance-show-card-body space-y-5">
+                        <p class="text-sm text-slate-600"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
                             <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['collected']) ?></p>
@@ -2009,7 +2010,7 @@
                                             </div>
                                             <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
+                                                <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency(($providerPayout['status'] ?? '') === 'void' ? 0 : ($providerPayout['provider_balance_due'] ?? 0)) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -2052,7 +2053,7 @@
                                         <?php endif; ?>
                                     </div>
 
-                                    <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
+                                    <?php if (($providerPayout['status'] ?? '') !== 'void' && floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
                                         <?php $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id']; ?>
                                         <div class="finance-provider-cta flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="<?= $isRtl ? 'text-right' : 'text-left' ?>">
@@ -2646,7 +2647,7 @@
 
 <?php if ($showProviderPayoutForms): ?>
     <?php foreach ($provider_payouts as $providerPayout): ?>
-        <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) <= 0): ?>
+        <?php if (($providerPayout['status'] ?? '') === 'void' || floatval($providerPayout['provider_balance_due'] ?? 0) <= 0): ?>
             <?php continue; ?>
         <?php endif; ?>
         <?php

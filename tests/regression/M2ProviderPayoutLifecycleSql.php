@@ -29,6 +29,10 @@ $invoke=static function(int $fid,int $pid,array $post):void{
  $controller=new App\Controllers\Finance();$controller->initController($request,new CodeIgniter\HTTP\Response($config),service('logger'));
  $method=new ReflectionMethod($controller,'upsertProviderPayouts');$method->invoke($controller,1,$fid,$pid,200.0);
 };
+class M2FinanceDetailProbe extends App\Controllers\Finance {
+ public array $captured=[];
+ protected function view(string $name,array $data=[],array $options=[]):string{$this->captured=$data;return parent::view($name,$data,$options);}
+}
 $model=new App\Models\ProviderPayoutModel();
 $baseline=$model->getStatsByClinic(1);
 $baseUser=$model->getSummaryByProviderUserId(1,1);
@@ -81,6 +85,14 @@ try{
  $voidBefore=$db->table('provider_payouts')->where('id',$void)->get()->getRowArray();$paymentsBefore=$state($fid)['payments'];
  $invoke($fid,$pid,$post);
  $check($db->table('provider_payouts')->where('id',$void)->get()->getRowArray()===$voidBefore&&$state($fid)['payments']===$paymentsBefore,'Equivalent form repost leaves exact void row and payment history untouched');
+ foreach(['en','ar']as$locale){
+  $config=config('App');$request=new CodeIgniter\HTTP\IncomingRequest($config,new CodeIgniter\HTTP\SiteURI($config,'finance/'.$fid),null,new CodeIgniter\HTTP\UserAgent());
+  $request->setLocale($locale);Config\Services::injectMock('request',$request);service('language')->setLocale($locale);
+  $detail=new M2FinanceDetailProbe();$detail->initController($request,new CodeIgniter\HTTP\Response($config),service('logger'));$html=$detail->show($fid);
+  $check($near($detail->captured['provider_payout_summary']['provider_balance_due'],20),$locale.' actual finance-detail outstanding summary');
+  $check(!str_contains($html,'id="providerPayoutModal'.$void.'"'),$locale.' rendered void payment modal absent');
+  $check(str_contains($html,'id="providerPayoutModal'.$active.'"'),$locale.' rendered active payment modal retained');
+ }
  $activeAfter=$db->table('provider_payouts')->where('id',$active)->get()->getRowArray();
  $check($activeAfter['status']==='partial'&&$near($activeAfter['provider_paid_amount'],20)&&$near($activeAfter['provider_balance_due'],20),'Active allocation still writable, cached historical paid above ledger retained');
  foreach(['share','notes','inline-payment','remove','disable','wrong-parent-id']as$case){
