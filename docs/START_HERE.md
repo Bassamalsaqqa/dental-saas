@@ -27,8 +27,9 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | React/Lovable strategy | `refactor/LOVABLE_STRATEGY_CODEX.md` |
 | Dynamic doctor scheduling | `SaaS/DOCTOR_SCHEDULING_CONTRACT.md` |
 | Scheduling readiness and Owner integration | `SaaS/PRODUCTION_READINESS_2026-10-16.md`, `SaaS/STAGING_CERTIFICATION_RUNBOOK.md`, `SaaS/OWNER_INTEGRATION_AND_READINESS.md` |
-| Provider payout lifecycle and native currency (isolated M2 candidate; PR18 approved) | `M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md` |
-| Contract consent publication/recovery (isolated M2 candidate; PR19 final decision pending) | `M2_CONTRACT_SIGNING_EVIDENCE_20261021.md` |
+| Provider payout lifecycle and native currency (deployed M2; PR18 approved) | `M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md` |
+| Contract consent publication/recovery (deployed M2; final external review Owner-waived) | `M2_CONTRACT_SIGNING_EVIDENCE_20261021.md` |
+| M2-C invoice corrections: discovery and proposed policy | `M2C_INVOICE_CORRECTION_DISCOVERY.md`, `M2C_INVOICE_CORRECTION_POLICY.md` |
 | Control-plane entitlements | `SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` |
 
 

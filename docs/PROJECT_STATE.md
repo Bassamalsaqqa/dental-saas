@@ -1,36 +1,32 @@
 # Project State
 
-Last verified: 2026-10-21 (M1 production source verified; M2 isolated combined candidate).
+Last updated: 2026-10-21 (M2 deployment evidence reconciled; M2-C isolated discovery).
 
 ## Deployed source
 
-- Production and GitHub `release/production-20261017`: `6908df7c116ccd9d01941724835f071574ef17e1`.
-- Exact tree: `c1ed1da1d8fe4f002a605b04f83eb53c9f03fe58`.
-- `main` is historical integration state, not deployment authority. Do not merge old PRs or pull main into production.
-- Stage 0 financial/history/security changes and appointment/settings fixes are deployed. Do not reapply them.
-- Hostinger uses explicit `/opt/alt/php83/usr/bin/php` (8.3.35); database runtime reported MariaDB 11.8.9.
-- Production has 67 tables and 77 migration-history records. Dynamic doctor scheduling remains OFF; `2026-09-26-000001_AddDynamicDoctorScheduling` remains deliberately unapplied.
-- Production `.htaccess` has the expected protected local modification. Preserve it, `.env`, uploads and writable storage.
+- Production and GitHub `release/production-20261017`: `f86376a4a6c8f6bf0fe4471f08093af71e76e042`.
+- Exact tree: `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`. M1 and M2 are deployed; do not reapply their corrections.
+- PR #18 exact head `7d405af6738ee39f24b15c8be76c8e14cf52fe5a` was independently approved. PR #19 exact head `3f157567e6cfad47a031fc2cbf8fb5c01bb2b9b1` remained COMMENTED; final external decision was explicitly waived, not approved: `OWNER_WAIVED_PR19_FINAL_EXTERNAL_REVIEW`, https://github.com/Bassamalsaqqa/dental-saas/pull/19#issuecomment-6319034871 .
+- `main` is historical state, not deployment authority. Original dirty checkout and historical staging evidence are preserved.
+- Hostinger PHP 8.3.35 and MariaDB 11.8.9. Production source-only M2 deployment executed no migrations, dependency changes or feature activation. Scheduling remains OFF; pending scheduling migration remains unapplied. WhatsApp was not activated; existing email settings are retained.
+- M2 post-switch checks: exact source hashes/modes, 28 PHP syntax checks, 14 core/clinical table fingerprints, 67 schemas, 77 migration records and 49 durable files/configuration preserved. Public HTTP/auth denial passed. Fresh authenticated production browser smoke was unavailable because native browser transport failed; prior isolated native EN/AR/kiosk/document/recovery evidence was reused, not relabeled as live certification.
+- Verified encrypted off-host recovery checkpoint: `denta-private-recovery-20261021T164409Z`; separate private key storage. Authenticated decryption/archive checks passed; prior isolated restore reused. DB/files are non-atomic. Entire writable (journals, staging, generated HTML/uploads) must survive backup and source-only rollback; never restore/rewrite customer DB automatically.
 
-## Current engineering scope
+## Current engineering scope: M2-C
 
-M1 was integrated and deployed with separate Owner authorization. Exact-head-approved tenant reference containment, inventory stock/movement/COGS atomicity and clinic-scoped notification validation are live. Essential authenticated EN/AR, patient lookup, tenant/API isolation and preservation checks passed; no migrations or feature activation occurred.
+- Isolated development branch `m2c/invoice-corrections-discovery-20261021`, based on the exact deployed M2 source.
+- Targeted discovery and policy proposal only: immutable issued/legacy invoices, linked corrections/credit notes, refunds distinct from noncash credits, clinical/provider obligations preserved, explicit replacement document links and consistent reporting/treasury.
+- Existing invoice/payment/void/adjustment and clinical/provider infrastructure must be reused carefully. A noncash credit is not a receipt or cash refund. Existing `adjustment` settlement semantics are not adopted as a credit-note ledger by assumption.
+- Core accounting and clinic tax/document policy requires Owner decisions before implementation of financial effects. No automatic provider clawback, historical mutation, clinical unbilling or signed evidence changes.
+- No merge, deployment, migration, activation, production writes or customer-data changes without separate Owner authorization. No GitHub Actions; no broad audit/test repetition.
+- Preserve odontogram SVG/rendering/snapshots and signed clinical evidence. Salaries, broad redesign and unrelated cleanup are outside M2-C.
 
-M2 is isolated, nonproduction development: idempotent contract signing with transactional consent and recoverable publication, plus draft-race protection, plus provider payout lifecycle/reconciliation correctness. Preserve signed consent, clinical evidence and all financial history. Invoice cancellation/credit-note/rebill rules require Owner product decisions before implementation. Owner has authorized combined candidate preparation and deployment after release safety gates pass. PR #19 final independent approval remains outstanding; no production source switch has occurred. Migrations and feature activation remain prohibited.
+## Known operational limits
 
-The 2026-10-19 unified engineering plan supplied by Owner governs this program. Confirm source findings before implementing them; distinguish execution evidence from hypotheses. Preserve odontogram SVG/rendering/snapshots, signed records, issued invoices/payment histories and provider obligations. Staff salaries and invoice cancellation policy require separate product rules. No automatic billing from contract signing or historical data remapping.
-
-M2 evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md) and [Contract consent publication/recovery](M2_CONTRACT_SIGNING_EVIDENCE_20261021.md). PR #18 is approved at `7d405af6738ee39f24b15c8be76c8e14cf52fe5a`; PR #19 remains COMMENTED at `3f157567e6cfad47a031fc2cbf8fb5c01bb2b9b1`. Submitted native browser, kiosk, protected-document and recovery evidence is retained in PR #19; its final independent decision is required before release.
-
-## Verification and release boundaries
-
-- Focused SQL/concurrency tests use identity-verified synthetic databases only; no local business database or customer writes.
-- Latest deployed maintenance receipt records preserved schemas/data/configuration/uploads, 167 focused settings rendering safeguards and EN/AR synthetic browser checks. This is prior evidence, not a claim that all current workflows were retested.
-- M0 login and two booking scripts return HTTP 200; both scripts retain mode 0644. No recent application log file after 2026-10-15 was available, so absence of recent log errors is not a health guarantee.
-- Baseline SaaS guardrails fail on six existing DOM sinks, controller-query allowlist drift and four font matches. Do not widen allowlists or call this a passing gate. IonAuth snake-case scan currently has zero matches; camel-case coverage remains incomplete.
-- Hostinger MCP is unavailable in the current tool inventory; authorized read-only checks use established SSH. Cron inspection is unavailable in the restricted shell and has not been certified.
-- No GitHub Actions. Owner-authorized M2 candidate preparation is isolated; production deployment remains gated on PR #19 final independent approval and final safety checks. No migrations or feature activation are authorized. A release must pin SHA/tree, enumerate migrations, verify recovery, protect configuration/storage and include source-only rollback when schema/data are unchanged.
-- M1 recovery checkpoint `denta-private-recovery-20261020T185249Z` is preserved encrypted off-host with separate keys: authenticated decryption/archive checks and 49 durable-file hashes passed; prior successful isolated restore evidence was reused, without a fresh restore. Reassess freshness before any future authorized release; DB/files backup is not atomic.
+- Native production browser certification remains outstanding, as recorded above. No fresh power-loss or database restoration test is claimed.
+- Ambiguous/historical partial signing evidence and unreferenced artifact retention require controlled operator decisions; no automatic repair/deletion.
+- Existing guardrail drift is not a passing gate. No broad guardrail rerun for documentation-only discovery.
+- Hostinger MCP unavailable in the current tool inventory; prior authorized operations used SSH. No production operations are part of current M2-C discovery.
 
 ## References
 
@@ -43,7 +39,3 @@ M2 evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_PAYOUT_
 - Messaging: [WHATSAPP_CURRENT_STATE.md](WHATSAPP_CURRENT_STATE.md)
 
 Superseded development chronology and old pending-review claims remain in Git history rather than being current release instructions.
-
-## M2 durable evidence and rollback
-
-Preserve all of `writable/`, including `contract-signing/operations/`, `contract-signing/staging/` and generated signed HTML under uploads. The retained synthetic journal/artifact restoration rehearsal passed; its off-host archive hash was reverified. A fresh M2 production recovery checkpoint has not yet been captured. DB and file backup streams are non-atomic. Source-only rollback must retain new journals, signed documents, attachment links, consent and audit records; never restore or rewrite the database automatically. Legacy partial evidence and unreferenced artifacts require operator investigation, not automatic repair or deletion.
