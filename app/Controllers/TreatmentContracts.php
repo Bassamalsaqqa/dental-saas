@@ -15,6 +15,7 @@ use App\Services\StorageService;
 use App\Services\ActivityLogger;
 use App\Services\OdontogramSnapshotService;
 use App\Services\OdontogramSvgSnapshotService;
+use App\Services\ContractSigningService;
 
 class TreatmentContracts extends BaseController
 {
@@ -31,22 +32,25 @@ class TreatmentContracts extends BaseController
     protected $activityLogger;
     protected $odontogramSnapshotService;
     protected $odontogramSvgSnapshotService;
+    protected $contractSigningService;
 
     public function __construct()
     {
-        $this->patientModel = new PatientModel();
-        $this->contractModel = new TreatmentContractModel();
-        $this->itemModel = new TreatmentContractItemModel();
-        $this->snapshotModel = new TreatmentContractOdontogramSnapshotModel();
-        $this->signatureModel = new TreatmentContractSignatureModel();
-        $this->odontogramModel = new OdontogramModel();
-        $this->examinationModel = new ExaminationModel();
-        $this->clinicModel = new ClinicModel();
-        $this->planGuard = new PlanGuard();
+        $db = \Config\Database::connect();
+        $this->patientModel = new PatientModel($db);
+        $this->contractModel = new TreatmentContractModel($db);
+        $this->itemModel = new TreatmentContractItemModel($db);
+        $this->snapshotModel = new TreatmentContractOdontogramSnapshotModel($db);
+        $this->signatureModel = new TreatmentContractSignatureModel($db);
+        $this->odontogramModel = new OdontogramModel($db);
+        $this->examinationModel = new ExaminationModel($db);
+        $this->clinicModel = new ClinicModel($db);
+        $this->planGuard = new PlanGuard($db);
         $this->storageService = service('storage');
         $this->activityLogger = new ActivityLogger();
         $this->odontogramSnapshotService = new OdontogramSnapshotService();
         $this->odontogramSvgSnapshotService = new OdontogramSvgSnapshotService();
+        $this->contractSigningService = new ContractSigningService($db);
     }
 
     public function create($patientId)
@@ -328,18 +332,19 @@ class TreatmentContracts extends BaseController
 
         $this->planGuard->assertFeature($clinicId, 'contracts.enabled', [
             'entity_type' => 'contract',
-            'entity_id' => $contractId
+            'entity_id'   => $contractId
         ]);
 
+        // Pre-check (TOCTOU-safe: signing service re-validates under lock)
         if (($contract['status'] ?? 'draft') !== 'draft') {
             return redirect()->to(base_url('contracts/' . $contractId))->with('error', 'Only draft contracts can be edited.');
         }
 
-        $notes = trim((string) $this->request->getPost('notes'));
-        $terms = trim((string) $this->request->getPost('terms_conditions'));
+        $notes        = trim((string) $this->request->getPost('notes'));
+        $terms        = trim((string) $this->request->getPost('terms_conditions'));
         $paymentTerms = trim((string) $this->request->getPost('payment_terms'));
         $durationPlan = trim((string) $this->request->getPost('duration_plan'));
-        $costDetails = trim((string) $this->request->getPost('cost_details'));
+        $costDetails  = trim((string) $this->request->getPost('cost_details'));
         $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
         $baseCurrency = settings()->get('currency', 'ILS');
         $currency = trim((string) $this->request->getPost('currency')) ?: $baseCurrency;
@@ -347,7 +352,7 @@ class TreatmentContracts extends BaseController
             $currency = $baseCurrency;
         }
         $odontogramJson = (string) $this->request->getPost('odontogram_json');
-        $odontogramSvg = (string) $this->request->getPost('odontogram_svg');
+        $odontogramSvg  = (string) $this->request->getPost('odontogram_svg');
 
         $items = $this->request->getPost('items');
         $items = is_array($items) ? $items : [];
@@ -355,7 +360,7 @@ class TreatmentContracts extends BaseController
 
         $calculatedTotal = 0.0;
         foreach ($items as $item) {
-            $qty = isset($item['qty']) ? (int) $item['qty'] : 1;
+            $qty   = isset($item['qty'])   ? (int)   $item['qty']   : 1;
             $price = isset($item['price']) ? (float) $item['price'] : 0;
             $calculatedTotal += ($qty > 0 ? $qty : 1) * $price;
         }
@@ -363,53 +368,64 @@ class TreatmentContracts extends BaseController
         $total = ($manualTotal !== null && $manualTotal >= 0) ? $manualTotal : $calculatedTotal;
         $total = round($total, 2);
 
-        $this->contractModel->update($contractId, [
-            'currency' => $currency,
-            'total_cost' => $total,
-            'notes' => $notes ?: null,
+        // Capture mutable state before entering lock
+        $contractFields = [
+            'currency'         => $currency,
+            'total_cost'       => $total,
+            'notes'            => $notes ?: null,
             'terms_conditions' => $terms ?: null,
-            'payment_terms' => $paymentTerms ?: null,
-            'duration_plan' => $durationPlan ?: null,
-            'cost_details' => $costDetails ?: null,
-        ]);
+            'payment_terms'    => $paymentTerms ?: null,
+            'duration_plan'    => $durationPlan ?: null,
+            'cost_details'     => $costDetails ?: null,
+        ];
+        $itemsToInsert     = $items;
+        $svgEncoded        = $this->odontogramSvgSnapshotService->encode($odontogramSvg);
+        $snapshotJsonField = $odontogramJson ?: null;
+        $contractIdInt     = (int) $contractId;
+        $patientId         = $contract['patient_id'];
 
-        $this->itemModel->where('contract_id', $contractId)->delete();
-        foreach ($items as $item) {
-            $this->itemModel->insert([
-                'contract_id' => $contractId,
-                'procedure_code' => trim((string) ($item['code'] ?? '')) ?: null,
-                'tooth_no' => trim((string) ($item['tooth'] ?? '')) ?: null,
-                'description' => trim((string) ($item['description'] ?? '')) ?: null,
-                'qty' => isset($item['qty']) ? (int) $item['qty'] : 1,
-                'price' => isset($item['price']) ? (float) $item['price'] : 0,
-            ]);
+        try {
+            $this->contractSigningService->updateDraftWithLock(
+                (int) $clinicId,
+                $contractIdInt,
+                function ($db, array $locked) use ($contractIdInt, $contractFields, $itemsToInsert, $svgEncoded, $snapshotJsonField): bool {
+                    $clinicId = (int) $locked['clinic_id'];
+                    if (!$this->contractModel->update($contractIdInt, $contractFields)
+                        || !$this->itemModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->delete()) {
+                        return false;
+                    }
+                    foreach ($itemsToInsert as $item) {
+                        if (!$this->itemModel->insert([
+                            'clinic_id' => $clinicId,
+                            'contract_id' => $contractIdInt,
+                            'procedure_code' => trim((string) ($item['code'] ?? '')) ?: null,
+                            'tooth_no' => trim((string) ($item['tooth'] ?? '')) ?: null,
+                            'description' => trim((string) ($item['description'] ?? '')) ?: null,
+                            'qty' => isset($item['qty']) ? (int) $item['qty'] : 1,
+                            'price' => isset($item['price']) ? (float) $item['price'] : 0,
+                        ])) { return false; }
+                    }
+                    $existingSnapshot = $this->snapshotModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->first();
+                    $snapshot = ['svg_snapshot' => $svgEncoded, 'data_snapshot_json' => $snapshotJsonField];
+                    if ($existingSnapshot) {
+                        return $this->snapshotModel->update($existingSnapshot['id'], $snapshot) === true;
+                    }
+                    return (bool) $this->snapshotModel->insert($snapshot + ['clinic_id' => $clinicId, 'contract_id' => $contractIdInt]);
+                }
+            );
+        } catch (\RuntimeException $e) {
+            $code = explode(':', $e->getMessage())[0];
+            if ($code === 'SIGN_ERR_NOT_DRAFT') {
+                return redirect()->to(base_url('contracts/' . $contractId))->with('error', 'Only draft contracts can be edited.');
+            }
+            throw $e;
         }
 
-        $existingSnapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
-        if ($existingSnapshot) {
-            $this->snapshotModel->update($existingSnapshot['id'], [
-                'svg_snapshot' => $this->odontogramSvgSnapshotService->encode($odontogramSvg),
-                'data_snapshot_json' => $odontogramJson ?: null
-            ]);
-        } else {
-            $this->snapshotModel->insert([
-                'contract_id' => $contractId,
-                'svg_snapshot' => $this->odontogramSvgSnapshotService->encode($odontogramSvg),
-                'data_snapshot_json' => $odontogramJson ?: null
-            ]);
-        }
-
-        $this->activityLogger->logPatientActivity(
-            'contract_update',
-            $contract['patient_id'],
-            "Treatment contract #{$contractId} updated"
-        );
 
         return $this->redirectAfterWorkflow('contracts/' . $contractId, ['patient', 'patients', 'examination', 'examinations', 'contracts'])
             ->with('success', 'Contract updated.')
             ->with('contracts_flash', '1');
     }
-
     public function delete($contractId)
     {
         $clinicId = session()->get('active_clinic_id');
@@ -424,30 +440,42 @@ class TreatmentContracts extends BaseController
 
         $this->planGuard->assertFeature($clinicId, 'contracts.enabled', [
             'entity_type' => 'contract',
-            'entity_id' => $contractId
+            'entity_id'   => $contractId
         ]);
 
+        // Pre-check (re-validated under lock)
         if (($contract['status'] ?? 'draft') !== 'draft') {
             return redirect()->to(base_url('contracts/' . $contractId))->with('error', 'Signed contracts cannot be deleted.');
         }
 
-        $this->itemModel->where('contract_id', $contractId)->delete();
-        $this->snapshotModel->where('contract_id', $contractId)->delete();
-        $this->signatureModel->where('contract_id', $contractId)->delete();
-        $this->contractModel->delete($contractId);
+        $contractIdInt = (int) $contractId;
+        $patientId     = $contract['patient_id'];
 
-        $this->activityLogger->logPatientActivity(
-            'contract_delete',
-            $contract['patient_id'],
-            "Treatment contract #{$contractId} deleted"
-        );
+        try {
+            $this->contractSigningService->deleteDraftWithLock(
+                (int) $clinicId,
+                $contractIdInt,
+                function ($db, array $locked) use ($contractIdInt): bool {
+                    $clinicId = (int) $locked['clinic_id'];
+                    return $this->itemModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->delete() === true
+                        && $this->snapshotModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->delete() === true
+                        && $this->contractModel->delete($contractIdInt) === true;
+                }
+            );
+        } catch (\RuntimeException $e) {
+            $code = explode(':', $e->getMessage())[0];
+            if ($code === 'SIGN_ERR_NOT_DRAFT') {
+                return redirect()->to(base_url('contracts/' . $contractId))->with('error', 'Signed contracts cannot be deleted.');
+            }
+            throw $e;
+        }
+
 
         return redirect()
-            ->to(base_url('patient/' . $contract['patient_id']))
+            ->to(base_url('patient/' . $patientId))
             ->with('success', 'Contract deleted.')
             ->with('contracts_flash', '1');
     }
-
     public function show($contractId)
     {
         $clinicId = session()->get('active_clinic_id');
@@ -514,101 +542,54 @@ class TreatmentContracts extends BaseController
 
         $this->planGuard->assertFeature($clinicId, 'contracts.enabled', [
             'entity_type' => 'contract',
-            'entity_id' => $contractId
+            'entity_id'   => $contractId
         ]);
         $this->planGuard->assertFeature($clinicId, 'contracts.signature.enabled', [
             'entity_type' => 'contract',
-            'entity_id' => $contractId
+            'entity_id'   => $contractId
         ]);
 
-        if (($contract['status'] ?? 'draft') !== 'draft') {
-            return redirect()->back()->with('error', 'Contract is already signed.');
-        }
-
         $signatureData = trim((string) $this->request->getPost('signature_data'));
-        $signerName = trim((string) $this->request->getPost('signer_name'));
+        $signerName    = trim((string) $this->request->getPost('signer_name'));
 
         if ($signatureData === '' || $signerName === '') {
             return redirect()->back()->with('error', 'Signature and name are required.');
         }
 
-        $now = date('Y-m-d H:i:s');
-        $userAgent = substr((string) $this->request->getUserAgent(), 0, 255);
+        $staffUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+        $patientId   = (int) $contract['patient_id'];
 
-        $signatureId = $this->signatureModel->insert([
-            'contract_id' => $contractId,
-            'signer_name' => $signerName,
-            'signer_role' => 'patient',
-            'signature_data' => $signatureData,
-            'ip_address' => $this->request->getIPAddress(),
-            'user_agent' => $userAgent,
-            'signed_at' => $now
-        ]);
-
-        $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
-        if ($snapshot) {
-            $snapshot['svg_snapshot'] = $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? null);
+        try {
+            $result = $this->contractSigningService->sign(
+                (int) $clinicId,
+                (int) $contractId,
+                $patientId,
+                $signerName,
+                $signatureData,
+                ContractSigningService::ACTOR_STAFF,
+                $staffUserId,
+                (string) $this->request->getIPAddress(),
+                substr((string) $this->request->getUserAgent(), 0, 255),
+                function (array $viewData): string {
+                    return view('contracts/print', $viewData);
+                },
+                !empty($contract['examination_id']) ? (int) $contract['examination_id'] : null
+            );
+        } catch (\RuntimeException $e) {
+            $code = explode(':', $e->getMessage())[0];
+            if ($code === 'SIGN_ERR_MISSING_INPUT') {
+                return redirect()->back()->with('error', 'Signature and name are required.');
+            }
+            if ($code === 'SIGN_ERR_PARTIAL_STATE') {
+                return redirect()->back()->with('error', 'Contract has inconsistent signed state. Please contact support.');
+            }
+            // Fail closed for all other signing errors
+            log_message('error', 'ContractSigningService::sign failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Contract signing failed. Please try again or contact support.');
         }
-        $items = $this->itemModel->where('contract_id', $contractId)->findAll();
-
-        $signatureHash = hash('sha256', json_encode([
-            'contract' => $contractId,
-            'signature' => $signatureData,
-            'name' => $signerName,
-            'snapshot' => $snapshot,
-            'items' => $items,
-            'notes' => $contract['notes'] ?? null
-        ]));
-
-        $this->contractModel->update($contractId, [
-            'status' => 'signed',
-            'signed_at' => $now,
-            'signature_hash' => $signatureHash,
-            'signature_meta_json' => json_encode([
-                'signer_name' => $signerName,
-                'signature_id' => $signatureId
-            ])
-        ]);
-
-        $patient = $this->patientModel->findByClinic($clinicId, $contract['patient_id']);
-        $contractForPrint = $this->contractModel
-            ->select('treatment_contracts.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
-            ->join('users', 'users.id = treatment_contracts.created_by', 'left')
-            ->where('treatment_contracts.clinic_id', $clinicId)
-            ->where('treatment_contracts.id', $contractId)
-            ->first();
-        $html = view('contracts/print', [
-            'contract' => $contractForPrint ?? $contract,
-            'patient' => $patient,
-            'clinic' => $this->clinicModel->find($clinicId),
-            'items' => $items,
-            'snapshot' => $snapshot,
-            'signature' => $this->signatureModel->find($signatureId)
-        ]);
-
-        $fileName = 'contract_' . ($patient['patient_id'] ?? $contract['patient_id']) . '_' . date('Y-m-d') . '.html';
-        $attachment = $this->storageService->storeGenerated(
-            $html,
-            $fileName,
-            'text/html',
-            $clinicId,
-            'contract',
-            $contractId,
-            'contract_pdf'
-        );
-
-        $this->contractModel->update($contractId, [
-            'signed_attachment_id' => $attachment['id']
-        ]);
-
-        $this->activityLogger->logPatientActivity(
-            'contract_sign',
-            $contract['patient_id'],
-            "Treatment contract #{$contractId} signed"
-        );
 
         $returnTo = $this->request->getGet('return') ?: $this->request->getPost('return');
-        if ($returnTo && preg_match('#^examination/\\d+$#', $returnTo)) {
+        if ($returnTo && preg_match('#^examination/\d+$#', $returnTo)) {
             return redirect()
                 ->to(base_url($returnTo))
                 ->with('success', 'Contract signed successfully.')
@@ -620,7 +601,6 @@ class TreatmentContracts extends BaseController
             ->with('success', 'Contract signed successfully.')
             ->with('contracts_flash', '1');
     }
-
     public function print($contractId)
     {
         $clinicId = session()->get('active_clinic_id');

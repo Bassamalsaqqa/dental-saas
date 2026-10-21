@@ -15,6 +15,7 @@ use App\Models\TreatmentContractSignatureModel;
 use App\Services\OdontogramSvgSnapshotService;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
+use App\Services\ContractSigningService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class Kiosk extends BaseController
@@ -31,6 +32,7 @@ class Kiosk extends BaseController
     protected OdontogramSvgSnapshotService $odontogramSvgSnapshotService;
     protected PlanGuard $planGuard;
     protected StorageService $storageService;
+    protected ContractSigningService $contractSigningService;
 
     public function __construct()
     {
@@ -46,6 +48,7 @@ class Kiosk extends BaseController
         $this->odontogramSvgSnapshotService = new OdontogramSvgSnapshotService();
         $this->planGuard = new PlanGuard();
         $this->storageService = new StorageService();
+        $this->contractSigningService = new ContractSigningService();
         $this->localeResolver = service('localeResolver');
     }
 
@@ -416,13 +419,16 @@ class Kiosk extends BaseController
             return $this->respondKioskError($clinic, $this->tr('msgEnterPinFirst'));
         }
 
+        // Plan guard (preserved)
         $this->planGuard->assertFeature((int) $clinic['id'], 'contracts.enabled');
         $this->planGuard->assertFeature((int) $clinic['id'], 'contracts.signature.enabled');
 
         $contractId = (int) $this->request->getPost('contract_id');
-        $patientId = (int) $this->request->getPost('patient_id');
+        $patientId  = (int) $this->request->getPost('patient_id');
+
+        // Allowlist check (preserved: kiosk only allows contracts shown after lookup)
         $allowedContracts = session()->get('kiosk_allowed_contracts') ?? [];
-        $allowedPatients = session()->get('kiosk_allowed_patients') ?? [];
+        $allowedPatients  = session()->get('kiosk_allowed_patients') ?? [];
 
         if (!$contractId || !in_array($contractId, $allowedContracts, true)) {
             return $this->respondKioskError($clinic, $this->tr('msgInvalidContract'));
@@ -431,91 +437,53 @@ class Kiosk extends BaseController
             return $this->respondKioskError($clinic, $this->tr('msgInvalidPatient'));
         }
 
-        $contract = $this->contractModel->findByClinic((int) $clinic['id'], $contractId);
-        if (!$contract || (int) $contract['patient_id'] !== $patientId) {
-            return $this->respondKioskError($clinic, $this->tr('msgContractNotFound'));
-        }
-        if (($contract['status'] ?? 'draft') !== 'draft') {
-            return $this->respondKioskError($clinic, $this->tr('msgContractAlreadySigned'));
-        }
-
         $signatureData = trim((string) $this->request->getPost('signature_data'));
-        $signerName = trim((string) $this->request->getPost('signer_name'));
+        $signerName    = trim((string) $this->request->getPost('signer_name'));
         if ($signatureData === '' || $signerName === '') {
             return $this->respondKioskError($clinic, $this->tr('msgSignatureRequired'));
         }
 
-        $now = date('Y-m-d H:i:s');
-        $userAgent = substr((string) $this->request->getUserAgent(), 0, 255);
+        try {
+            // Actor = kiosk; staffUserId = null (kiosk is not a staff user)
+            $this->contractSigningService->sign(
+                (int) $clinic['id'],
+                $contractId,
+                $patientId,
+                $signerName,
+                $signatureData,
+                ContractSigningService::ACTOR_KIOSK,
+                null,  // kiosk has no staff user_id; never impersonates creator
+                (string) $this->request->getIPAddress(),
+                substr((string) $this->request->getUserAgent(), 0, 255),
+                function (array $viewData): string {
+                    return view('contracts/print', $viewData);
+                }
+            );
+        } catch (\RuntimeException $e) {
+            $code = explode(':', $e->getMessage())[0];
 
-        $signatureId = $this->contractSignatureModel->insert([
-            'contract_id' => $contractId,
-            'signer_name' => $signerName,
-            'signer_role' => 'patient',
-            'signature_data' => $signatureData,
-            'ip_address' => $this->request->getIPAddress(),
-            'user_agent' => $userAgent,
-            'signed_at' => $now
-        ]);
-
-        $snapshot = $this->contractSnapshotModel->where('contract_id', $contractId)->first();
-        $items = $this->contractItemModel->where('contract_id', $contractId)->findAll();
-
-        $signatureHash = hash('sha256', json_encode([
-            'contract' => $contractId,
-            'signature' => $signatureData,
-            'name' => $signerName,
-            'snapshot' => $snapshot,
-            'items' => $items,
-            'notes' => $contract['notes'] ?? null
-        ]));
-
-        $this->contractModel->update($contractId, [
-            'status' => 'signed',
-            'signed_at' => $now,
-            'signature_hash' => $signatureHash,
-            'signature_meta_json' => json_encode([
-                'signer_name' => $signerName,
-                'signature_id' => $signatureId
-            ])
-        ]);
-
-        $patient = $this->patientModel->findByClinic((int) $clinic['id'], $contract['patient_id']);
-        $contractForPrint = $this->contractModel
-            ->select('treatment_contracts.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
-            ->join('users', 'users.id = treatment_contracts.created_by', 'left')
-            ->where('treatment_contracts.clinic_id', (int) $clinic['id'])
-            ->where('treatment_contracts.id', $contractId)
-            ->first();
-        $html = view('contracts/print', [
-            'contract' => $contractForPrint ?? $contract,
-            'patient' => $patient,
-            'clinic' => $this->clinicModel->find((int) $clinic['id']),
-            'items' => $items,
-            'snapshot' => $snapshot,
-            'signature' => $this->contractSignatureModel->find($signatureId)
-        ]);
-
-        $fileName = 'contract_' . ($patient['patient_id'] ?? $contract['patient_id']) . '_' . date('Y-m-d') . '.html';
-        $attachment = $this->storageService->storeGenerated(
-            $html,
-            $fileName,
-            'text/html',
-            (int) $clinic['id'],
-            'contract',
-            $contractId,
-            'contract_pdf'
-        );
-
-        $this->contractModel->update($contractId, [
-            'signed_attachment_id' => $attachment['id']
-        ]);
+            if ($code === 'SIGN_ERR_MISSING_INPUT') {
+                return $this->respondKioskError($clinic, $this->tr('msgSignatureRequired'));
+            }
+            if ($code === 'SIGN_ERR_NOT_FOUND' || $code === 'SIGN_ERR_PATIENT_MISMATCH') {
+                return $this->respondKioskError($clinic, $this->tr('msgContractNotFound'));
+            }
+            if ($code === 'SIGN_ERR_PARTIAL_STATE') {
+                return $this->respondKioskError($clinic, $this->tr('msgContractPartialState'));
+            }
+            if ($code === 'SIGN_ERR_RECONCILIATION') {
+                return $this->respondKioskError($clinic, $this->tr('msgContractPublishFailed'));
+            }
+            // Idempotent retry: already signed returns existing result (no error thrown)
+            // All other failures: fail closed
+            log_message('error', 'Kiosk::signContract ContractSigningService failed: ' . $e->getMessage());
+            return $this->respondKioskError($clinic, $this->tr('msgContractSignFailed'));
+        }
 
         return $this->respondKioskSuccess($clinic, $this->tr('msgContractSigned'), [
-            'contract_id' => $contractId
+            'contract_id' => $contractId,
         ]);
     }
-
     private function resolveClinic(string $clinicUuid): array
     {
         $clinic = $this->clinicModel

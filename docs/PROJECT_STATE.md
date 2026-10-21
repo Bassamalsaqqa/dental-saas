@@ -18,6 +18,8 @@ M0 baseline reconciliation is read-only. M1 candidates are developed in isolated
 
 The 2026-10-19 unified engineering plan supplied by Owner governs this program. Confirm source findings before implementing them; distinguish execution evidence from hypotheses. Preserve odontogram SVG/rendering/snapshots, signed records, issued invoices/payment histories and provider obligations. Staff salaries and invoice cancellation policy require separate product rules. No automatic billing from contract signing or historical data remapping.
 
+M2 review evidence: [Contract consent publication/recovery](M2_CONTRACT_SIGNING_EVIDENCE_20261021.md). External exact-head approval and separate Owner release authorization remain required.
+
 ## Verification and release boundaries
 
 - Focused SQL/concurrency tests use identity-verified synthetic databases only; no local business database or customer writes.
