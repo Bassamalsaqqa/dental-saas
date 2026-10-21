@@ -52,6 +52,20 @@ class Finance extends ResourceController
         return $errors;
     }
 
+    private function correctionBalances(array $rows, int $clinicId): array
+    {
+        $rows = $this->model->withInvoiceCorrectionBalances($rows, $clinicId);
+        foreach ($rows as &$row) {
+            if (isset($row['correction_position'])) {
+                $position=$row['correction_position'];
+                $row['invoice_correction'] = array_intersect_key($position,array_flip(['credited_base','remaining_base','patient_credit_base','incoming_base','outgoing_base','net_cash_base']));
+                // Never expose full internal invoice, payments, approval snapshots or ledger rows.
+                unset($row['correction_position'],$row['original_balance_due']);
+            }
+        }
+        unset($row); return $rows;
+    }
+
     public function index()
     {
         $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
@@ -64,7 +78,7 @@ class Finance extends ResourceController
                             ->where('clinic_id', $clinicId)
                             ->orderBy('created_at', 'DESC')
                             ->findAll(100);
-        return $this->respond($data);
+        return $this->respond($this->correctionBalances($data, (int) $clinicId));
     }
 
     public function show($id = null)
@@ -82,7 +96,7 @@ class Finance extends ResourceController
             return $this->failNotFound('Invoice not found');
         }
 
-        return $this->respond($data);
+        return $this->respond($this->correctionBalances([$data], (int) $clinicId)[0]);
     }
 
     public function create()

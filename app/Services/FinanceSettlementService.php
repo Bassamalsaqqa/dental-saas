@@ -95,6 +95,15 @@ class FinanceSettlementService
     public function getLockedSettlementState(int $clinicId, array $row): array
     {
         $id = (int) $row['id'];
+        // Parent finance row is already locked by every settlement writer. The
+        // correction projection performs current reads without acquiring another
+        // invoice parent, preserving ascending multi-invoice lock ordering.
+        if (($row['transaction_type'] ?? '') === 'invoice') {
+            $corrections = new InvoiceCorrectionService($this->db);
+            if ($corrections->hasEffects($clinicId, $id)) {
+                return $corrections->position($clinicId, $id, true);
+            }
+        }
         $totalAmount = (float) ($row['total_amount'] ?? (
             (float) ($row['amount'] ?? 0) - (float) ($row['discount_amount'] ?? 0) + (float) ($row['tax_amount'] ?? 0)
         ));
@@ -421,7 +430,7 @@ class FinanceSettlementService
 
                 // Synchronize parent status
                 $newPaid = round($baseSettledBeforeThis + $amountBase, 2);
-                $newBalance = round(max(0.0, $totalAmount - $newPaid), 2);
+                $newBalance = round(max(0.0, (float) $remainingBase - $amountBase), 2);
                 $newStatus = $newBalance <= 0.0 ? 'paid' : ($newPaid > 0.0 ? 'partial' : 'pending');
 
                 $parentUpdate = [

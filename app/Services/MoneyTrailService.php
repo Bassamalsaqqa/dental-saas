@@ -326,11 +326,26 @@ class MoneyTrailService
             }
         }
 
+        // Display current receivables and credits without altering original charge
+        // values, payment history, or provider obligations.
+        if ($financeRows !== []) {
+            $clinicId = (int) ($financeRows[0]['clinic_id'] ?? 0);
+            $model = new \App\Models\FinanceModel($this->db);
+            $financeRows = $model->withInvoiceCorrectionBalances($financeRows, $clinicId);
+        }
+        $summary['credited'] = 0.0;
+        $summary['patient_credit'] = 0.0;
+        $summary['credit_applied_in'] = 0.0;
+        $summary['credit_applied_out'] = 0.0;
         foreach ($financeRows as $row) {
             $type = strtolower((string) ($row['transaction_type'] ?? ''));
             $amount = $this->financeTotal($row);
             if ($type === 'invoice') {
                 $summary['charged'] += $amount;
+                $summary['credited'] += (float) ($row['correction_position']['credited_base'] ?? 0);
+                $summary['patient_credit'] += (float) ($row['correction_position']['patient_credit_base'] ?? 0);
+                $summary['credit_applied_in'] += (float) ($row['correction_position']['incoming_base'] ?? 0);
+                $summary['credit_applied_out'] += (float) ($row['correction_position']['outgoing_base'] ?? 0);
                 $summary['balance_due'] += max(0, (float) ($row['balance_due'] ?? 0));
             } elseif (in_array($type, ['payment', 'adjustment'], true)) {
                 $summary['paid'] += $amount;
@@ -349,6 +364,7 @@ class MoneyTrailService
             }
         }
 
+        $summary['net_charged'] = round($summary['charged'] - $summary['credited'], 2);
         $providerSummary = ProviderCurrencySummary::summarize($payoutRows);
         foreach (['provider_share', 'provider_paid', 'provider_remaining'] as $key) { $summary[$key] = $providerSummary[$key]; }
         $summary['provider_currency_summary'] = $providerSummary;

@@ -1614,6 +1614,13 @@
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
+                        <?php if ($isInvoice && config('InvoiceCorrections')->enabled === true): ?>
+                        <div class="grid gap-2 sm:grid-cols-1">
+                            <a href="<?= esc(site_url('finance/' . (int) $finance['id'] . '/corrections'), 'attr') ?>" class="patient-hero-tool-button">
+                                <i class="fas fa-file-invoice" aria-hidden="true"></i><span><?= esc(lang('InvoiceCorrections.title')) ?></span>
+                            </a>
+                        </div>
+                        <?php endif; ?>
                         <div class="grid gap-2 sm:grid-cols-1">
                             <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="patient-hero-tool-button">
                                 <i class="fas fa-file-pdf"></i>

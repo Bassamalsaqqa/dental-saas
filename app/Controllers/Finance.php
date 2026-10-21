@@ -1374,6 +1374,9 @@ class Finance extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
         }
 
+        $projectedRows = $this->financeModel->withInvoiceCorrectionBalances([$finance], (int) $clinicId);
+        $finance = $projectedRows[0];
+
         $patient = !empty($finance['patient_id'])
             ? $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id'])
             : null;
@@ -2751,9 +2754,12 @@ class Finance extends BaseController
             ? 'f.total_amount'
             : '(f.amount - COALESCE(f.discount_amount, 0) + COALESCE(f.tax_amount, 0))';
 
-        $rows = $this->db->table('finances f')
+        $hasCorrections = $this->financeModel->hasInvoiceCorrections($clinicId);
+        $builder = $this->db->table('finances f')
             ->select("
                 f.id,
+                f.clinic_id,
+                f.patient_id,
                 f.transaction_id,
                 {$sumField} AS total_amount,
                 f.due_date,
@@ -2780,16 +2786,20 @@ class Finance extends BaseController
             ->where('f.clinic_id', $clinicId)
             ->where('f.transaction_type', 'invoice')
             ->where('f.created_at <=', $asOfDateTime)
-            ->having('total_amount - paid_total >', 0, false)
-            ->orderBy('f.due_date', 'ASC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
+            ->orderBy('f.due_date', 'ASC');
+        if (!$hasCorrections) { $builder->having('total_amount - paid_total >', 0, false)->limit($limit); }
+        $rows = $builder->get()->getResultArray();
 
+        foreach ($rows as &$row) { $row['balance_due'] = max(0, (float) $row['total_amount'] - (float) $row['paid_total']); }
+        unset($row);
+        $rows = array_slice(array_values(array_filter(
+            $this->financeModel->withInvoiceCorrectionBalances($rows, $clinicId, $asOfDate),
+            static fn(array $row): bool => (float) ($row['balance_due'] ?? 0) > 0
+        )), 0, $limit);
         foreach ($rows as &$row) {
             $totalAmount = floatval($row['total_amount'] ?? 0);
             $paidTotal = floatval($row['paid_total'] ?? 0);
-            $balanceDue = max(0, $totalAmount - $paidTotal);
+            $balanceDue = (float) $row['balance_due'];
             $dueDate = !empty($row['due_date'])
                 ? (string) $row['due_date']
                 : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
@@ -3378,7 +3388,7 @@ class Finance extends BaseController
                 ]);
             }
 
-            $globalCashRemaining = $this->financePaymentModel->getNetCashPaidTotal((int) $clinicId, (int) $finance['id']);
+            $globalCashRemaining = $this->refundableInvoiceCash((int) $clinicId, $finance);
             if ($globalCashRemaining <= 0) {
                 $this->db->transRollback();
                 return $this->response->setJSON([
@@ -3566,7 +3576,7 @@ class Finance extends BaseController
             }
 
             // Cap void by BOTH selected receipt un-reversed remainder AND invoice net actual cash remaining
-            $globalCashRemaining = $this->financePaymentModel->getNetCashPaidTotal((int) $clinicId, (int) $finance['id']);
+            $globalCashRemaining = $this->refundableInvoiceCash((int) $clinicId, $finance);
             $voidAmount = min($receiptRemaining, $globalCashRemaining);
             if ($voidAmount <= 0) {
                 $this->db->transRollback();
@@ -3686,9 +3696,8 @@ class Finance extends BaseController
                 ]);
             }
 
-            $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice((int) $clinicId, (int) $finance['id']);
-            $remaining = max(0.0, $totalAmount - $paidTotal);
+            $state = $this->financeSettlementService->getLockedSettlementState((int) $clinicId, $finance);
+            $remaining = (float) $state['remaining_base'];
 
             if ($remaining <= 0) {
                 $this->db->transRollback();
@@ -3779,6 +3788,16 @@ class Finance extends BaseController
         }
     }
 
+    /** Caller owns the invoice lock; cash history itself remains untouched. */
+    private function refundableInvoiceCash(int $clinicId, array $finance): float
+    {
+        $service = new \App\Services\InvoiceCorrectionService($this->db);
+        if ($service->supportsSchema()) {
+            return (float) $service->position($clinicId, (int) $finance['id'], true)['refundable_base'];
+        }
+        return $this->financePaymentModel->getNetCashPaidTotal($clinicId, (int) $finance['id']);
+    }
+
     private function syncFinanceSettlementStatus(int $financeId, int $clinicId, ?array $lockedFinance = null): bool
     {
         $finance = $lockedFinance ?? $this->lockOwnedFinanceRow($clinicId, $financeId);
@@ -3800,6 +3819,13 @@ class Finance extends BaseController
         }
         $settledTotal = round($settledTotal, 2);
         $balanceDue = round(max(0.0, $totalAmount - $settledTotal), 2);
+        if (($finance['transaction_type'] ?? '') === 'invoice') {
+            $corrections = new \App\Services\InvoiceCorrectionService($this->db);
+            if ($corrections->supportsSchema()) {
+                $position = $corrections->position($clinicId, $financeId, true);
+                $balanceDue = (float) $position['remaining_base'];
+            }
+        }
 
         $status = 'pending';
         if ($balanceDue <= 0.0) {
@@ -3817,7 +3843,7 @@ class Finance extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        if ($status === 'paid' && empty($finance['paid_date'])) {
+        if ($status === 'paid' && $settledTotal > 0.0 && empty($finance['paid_date'])) {
             $updateData['paid_date'] = date('Y-m-d');
         }
 

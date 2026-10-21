@@ -535,9 +535,8 @@ class FinanceModel extends TenantAwareModel
                 ->groupEnd();
         }
 
-        return $builder->orderBy($orderColumn, $orderDir)
-            ->limit($limit, $offset)
-            ->find();
+        $rows = $builder->orderBy($orderColumn, $orderDir)->limit($limit, $offset)->find();
+        return $this->withInvoiceCorrectionBalances($rows, (int) $clinicId);
     }
 
     /**
@@ -629,6 +628,29 @@ class FinanceModel extends TenantAwareModel
                 ->where('transaction_type', 'invoice')
                 ->where($balanceField . ' >', 0, false)
                 ->countAllResults();
+
+            $creditedInvoices = 0.0;
+            $patientCreditLiability = 0.0;
+            if ($this->hasInvoiceCorrections($clinicId)) {
+                $invoiceRows = (clone $builder)->where('transaction_type', 'invoice')->get()->getResultArray();
+                $invoiceRows = $this->withInvoiceCorrectionBalances($invoiceRows, $clinicId);
+                $pendingPayments = 0.0;
+                $overduePayments = 0.0;
+                $outstandingInvoices = 0;
+                $creditedInvoices = 0.0;
+                $patientCreditLiability = 0.0;
+                foreach ($invoiceRows as $invoiceRow) {
+                    $due = (float) ($invoiceRow['balance_due'] ?? 0);
+                    if (($invoiceRow['payment_status'] ?? '') !== 'cancelled' && $due > 0) {
+                        $pendingPayments += $due;
+                        $outstandingInvoices++;
+                        if (!empty($invoiceRow['due_date']) && $invoiceRow['due_date'] < date('Y-m-d')) { $overduePayments += $due; }
+                    }
+                    $creditedInvoices += (float) ($invoiceRow['correction_position']['credited_base'] ?? 0);
+                    $patientCreditLiability += (float) ($invoiceRow['correction_position']['patient_credit_base'] ?? 0);
+            }
+
+            }
 
             $monthStart = date('Y-m-01');
             $monthEnd = date('Y-m-t');
@@ -729,6 +751,9 @@ class FinanceModel extends TenantAwareModel
             return [
                 'total_revenue' => $totalRevenue,
                 'total_invoices' => floatval($totalInvoices),
+                'credited_invoice_total' => round($creditedInvoices, 2),
+                'net_invoice_total' => round(floatval($totalInvoices) - $creditedInvoices, 2),
+                'patient_credit_liability' => round($patientCreditLiability, 2),
                 'pending_payments' => floatval($pendingPayments),
                 // Legacy alias used by finance/reports view
                 'pending_amount' => floatval($pendingPayments),
@@ -910,7 +935,7 @@ class FinanceModel extends TenantAwareModel
 
     public function getFinanceByPatient($patientId)
     {
-        return $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+        $rows = $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id')
             ->where('finances.patient_id', $patientId)
             ->where('patients.clinic_id = finances.clinic_id') // Join guard
@@ -921,13 +946,15 @@ class FinanceModel extends TenantAwareModel
             ->orderBy('transaction_date', 'DESC')
             ->orderBy('created_at', 'DESC')
             ->findAll();
+        return $this->withInvoiceCorrectionBalances($rows, $this->resolveReportingClinicId(null));
     }
 
     public function getFinanceByExamination($examinationId)
     {
-        return $this->where('examination_id', $examinationId)
+        $rows = $this->where('examination_id', $examinationId)
             ->orderBy('created_at', 'DESC')
             ->findAll();
+        return $this->withInvoiceCorrectionBalances($rows, $this->resolveReportingClinicId(null));
     }
 
     public function getFinanceStats($startDate = null, $endDate = null, $clinicId = null)
@@ -1019,6 +1046,53 @@ class FinanceModel extends TenantAwareModel
         return array_values($merged);
     }
 
+    public function hasInvoiceCorrections(int $clinicId): bool
+    {
+        if ($clinicId <= 0) { return false; }
+        $service = new \App\Services\InvoiceCorrectionService($this->db);
+        return $service->supportsSchema()
+            && ($this->db->table('invoice_corrections')->select('id')->where('clinic_id', $clinicId)->limit(1)->get()->getRowArray() !== null
+                || $this->db->table('invoice_credit_applications')->select('id')->where('clinic_id', $clinicId)->limit(1)->get()->getRowArray() !== null);
+    }
+
+    /**
+     * Overlay derived correction balances without rewriting immutable invoice data.
+     * Only invoices actually referenced by the correction ledger need projection;
+     * unchanged legacy rows retain their existing representation and query behavior.
+     */
+    public function withInvoiceCorrectionBalances(array $rows, int $clinicId, ?string $asOf = null): array
+    {
+        if ($clinicId <= 0 || $rows === []) { return $rows; }
+        $service = new \App\Services\InvoiceCorrectionService($this->db);
+        if (!$service->supportsSchema()) { return $rows; }
+        $ids = [];
+        foreach ($rows as $row) {
+            if (($row['transaction_type'] ?? 'invoice') === 'invoice' && (int) ($row['id'] ?? 0) > 0) {
+                $ids[] = (int) $row['id'];
+            }
+        }
+        $affected = [];
+        foreach (array_chunk(array_values(array_unique($ids)), 500) as $chunk) {
+            foreach ([['invoice_corrections', 'finance_id'], ['invoice_credit_applications', 'source_finance_id'], ['invoice_credit_applications', 'target_finance_id']] as [$table, $column]) {
+                $builder = $this->db->table($table)->select($column)->where('clinic_id', $clinicId)->whereIn($column, $chunk);
+                if ($asOf !== null) { $builder->where($table === 'invoice_corrections' ? 'issued_at <=' : 'created_at <=', $asOf . ' 23:59:59'); }
+                foreach ($builder->distinct()->get()->getResultArray() as $reference) { $affected[(int) $reference[$column]] = true; }
+            }
+        }
+        foreach ($rows as &$row) {
+            if (!isset($affected[(int) ($row['id'] ?? 0)])) { continue; }
+            $position = $service->position($clinicId, (int) $row['id'], false, $asOf);
+            $row['original_balance_due'] = $row['balance_due'] ?? null;
+            $row['balance_due'] = $position['remaining_base'];
+            $row['correction_position'] = $position;
+            $row['payment_status'] = (float) $position['remaining_base'] <= 0 ? 'paid'
+                : ((!empty($row['due_date']) && $row['due_date'] < ($asOf ?? date('Y-m-d'))) ? 'overdue'
+                    : ((float) $position['ledger_settled'] > 0 || (float) $position['incoming_base'] > 0 ? 'partial' : 'pending'));
+        }
+        unset($row);
+        return $rows;
+    }
+
     public function getAccountsReceivableAgingSummaryByClinic(int $clinicId, ?string $asOfDate = null): array
     {
         $asOfDate = $asOfDate ?: date('Y-m-d');
@@ -1054,17 +1128,20 @@ class FinanceModel extends TenantAwareModel
         $asOfDate = $asOfDate ?: date('Y-m-d');
         $limit = max(1, min($limit, 10000));
 
-        $rows = $this->db->table('finances')
+        $hasCorrections = $this->hasInvoiceCorrections($clinicId);
+        $builder = $this->db->table('finances')
             ->select('finances.id, finances.patient_id, finances.transaction_id, finances.total_amount, finances.balance_due, finances.payment_status, finances.due_date, finances.transaction_date, finances.created_at, patients.first_name, patients.last_name, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id', 'left')
             ->where('finances.clinic_id', $clinicId)
             ->where('finances.transaction_type', 'invoice')
-            ->where('finances.balance_due >', 0)
             ->whereNotIn('finances.payment_status', ['cancelled'])
-            ->orderBy('finances.due_date', 'ASC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
+            ->orderBy('finances.due_date', 'ASC');
+        if (!$hasCorrections) { $builder->where('finances.balance_due >', 0)->limit($limit); }
+        $rows = $builder->get()->getResultArray();
+        $rows = array_slice(array_values(array_filter(
+            $this->withInvoiceCorrectionBalances($rows, $clinicId),
+            static fn(array $row): bool => (float) ($row['balance_due'] ?? 0) > 0
+        )), 0, $limit);
 
         foreach ($rows as &$row) {
             $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : (string) ($row['transaction_date'] ?? substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
@@ -1241,18 +1318,23 @@ class FinanceModel extends TenantAwareModel
 
     public function getOverduePayments($clinicId = null)
     {
+        $resolvedClinic = (int) ($clinicId ?? $this->resolveActiveClinicId());
+        $hasCorrections = $this->hasInvoiceCorrections($resolvedClinic);
         $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id')
             ->where('finances.transaction_type', 'invoice')
             ->where('finances.due_date <', date('Y-m-d'))
-            ->where('finances.balance_due >', 0);
+            ;
 
         if ($clinicId) {
             $builder->where('finances.clinic_id', $clinicId)
                 ->where('patients.clinic_id', $clinicId);
         }
 
-        return $builder->orderBy('due_date', 'ASC')->findAll();
+        if (!$hasCorrections) { $builder->where('finances.balance_due >', 0); }
+        $rows = $builder->orderBy('due_date', 'ASC')->findAll();
+        return array_values(array_filter($this->withInvoiceCorrectionBalances($rows, $resolvedClinic),
+            static fn(array $row): bool => (float) ($row['balance_due'] ?? 0) > 0));
     }
 
     public function getServiceTypeStats($startDate = null, $endDate = null, $clinicId = null)

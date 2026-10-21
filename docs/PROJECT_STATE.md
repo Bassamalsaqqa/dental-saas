@@ -15,9 +15,9 @@ Last updated: 2026-10-21 (M2 deployment evidence reconciled; M2-C isolated disco
 ## Current engineering scope: M2-C
 
 - Isolated development branch `m2c/invoice-corrections-discovery-20261021`, based on the exact deployed M2 source.
-- Targeted discovery and policy proposal only: immutable issued/legacy invoices, linked corrections/credit notes, refunds distinct from noncash credits, clinical/provider obligations preserved, explicit replacement document links and consistent reporting/treasury.
+- Owner-approved isolated implementation: immutable issued/legacy invoices, linked corrections/credit notes, refunds distinct from noncash credits, clinical/provider obligations preserved, explicit replacement document links and consistent reporting/treasury.
 - Existing invoice/payment/void/adjustment and clinical/provider infrastructure must be reused carefully. A noncash credit is not a receipt or cash refund. Existing `adjustment` settlement semantics are not adopted as a credit-note ledger by assumption.
-- Core accounting and clinic tax/document policy requires Owner decisions before implementation of financial effects. No automatic provider clawback, historical mutation, clinical unbilling or signed evidence changes.
+- Implementation is a default-OFF unaccepted draft; see [focused evidence and remaining acceptance blockers](M2C_IMPLEMENTATION_EVIDENCE_20261021.md). Core accounting policies approved: explicit same-patient/clinic/currency replacement applications or refunds, manager approval for provider-linked issuance, operational-only documents; fiscal mode requires separate accountant validation. No automatic provider clawback, historical mutation, clinical unbilling or signed evidence changes.
 - No merge, deployment, migration, activation, production writes or customer-data changes without separate Owner authorization. No GitHub Actions; no broad audit/test repetition.
 - Preserve odontogram SVG/rendering/snapshots and signed clinical evidence. Salaries, broad redesign and unrelated cleanup are outside M2-C.
 

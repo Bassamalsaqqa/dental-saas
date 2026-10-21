@@ -351,6 +351,15 @@ $routes->group('finance', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->get('transfers', 'Finance::transfers', ['filter' => 'permission:finance,view']);
     $routes->post('transfers/store', 'Finance::storeTransfer', ['filter' => 'permission:finance,create']);
     $routes->get('payables', 'Finance::payables', ['filter' => 'permission:finance,view']);
+    // Operational corrections are also fail-closed behind InvoiceCorrections::enabled.
+    $routes->get('(:num)/corrections', 'InvoiceCorrections::index/$1', ['filter' => 'permission:finance,view']);
+    $routes->post('(:num)/corrections/preview', 'InvoiceCorrections::preview/$1', ['filter' => 'permission:finance,edit']);
+    $routes->post('(:num)/corrections/approve', 'InvoiceCorrections::approve/$1', ['filter' => 'permission:finance,approve_corrections']);
+    $routes->post('(:num)/corrections/issue', 'InvoiceCorrections::issue/$1', ['filter' => 'permission:finance,edit']);
+    $routes->post('(:num)/corrections/link-replacement', 'InvoiceCorrections::linkReplacement/$1', ['filter' => 'permission:finance,edit']);
+    $routes->get('corrections/(:num)', 'InvoiceCorrections::show/$1', ['filter' => 'permission:finance,view']);
+    $routes->post('corrections/(:num)/allocate', 'InvoiceCorrections::allocate/$1', ['filter' => 'permission:finance,edit']);
+    $routes->post('corrections/(:num)/applications/(:num)/return', 'InvoiceCorrections::returnApplication/$1/$2', ['filter' => 'permission:finance,edit']);
     $routes->get('(:num)/invoice', 'Finance::generateInvoice/$1', ['filter' => 'permission:finance,view']);
     $routes->get('(:num)', 'Finance::show/$1', ['filter' => 'permission:finance,view']);
     $routes->get('(:num)/edit', 'Finance::edit/$1', ['filter' => 'permission:finance,edit']);

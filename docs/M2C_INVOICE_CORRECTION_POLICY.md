@@ -1,6 +1,6 @@
 # M2-C invoice corrections: proposed policy and architecture
 
-Status: PROPOSAL_ONLY ? Owner accounting-policy decisions pending. No runtime/schema change or migration. Base f86376a4a6c8f6bf0fe4471f08093af71e76e042 / tree4f12c340f8869b4b8f8aff57881c4b29ee98a72c. Original checkout and production untouched.
+Status: OWNER_POLICY_APPROVED ? isolated implementation in progress; no release acceptance. No runtime/schema change or migration. Base f86376a4a6c8f6bf0fe4471f08093af71e76e042 / tree4f12c340f8869b4b8f8aff57881c4b29ee98a72c. Original checkout and production untouched.
 
 ## Existing behavior confirmed by Codex
 
@@ -46,11 +46,11 @@ Primary sources checked2026-10-21:
 - Official law PDF: https://mjr.ogb.gov.ps/Decrees/Download/?d=%D9%82%D8%B1%D8%A7%D8%B1-%D8%A8%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%B1%D9%82%D9%85-26-%D9%84%D8%B3%D9%86%D8%A9-2024-%D9%85-%D9%81%D9%84%D8%B3%D8%B7%D9%8A%D9%86&p=e6078fbb-948a-4721-a2cd-48550faba4e0.pdf
 - Official amendment11/2026: https://mjr.ogb.gov.ps/Decrees/Details/34270/ (full four-page text checked). This research does not establish clinic-specific compliance or approved implementation instructions.
 
-## Essential Owner decisions before financial-effect implementation
+## Owner decisions adopted 2026-10-21
 
-1. Customer funds: proposed default credits stay tied to the same original invoice/patient and can be refunded explicitly; no general transferable wallet, automatic cash refund, automatic receipt movement or cross-patient credit. Replacement credit application, if desired, must be explicit and auditable. Confirm whether v1 needs same-patient application to replacements or refund-only is sufficient.
-2. Provider obligations: proposed default preserve all paid obligations and stop provider-linked correction issuance for authorized review; never automatically claw back or reduce unpaid earned obligations. Decide whether v1 must include separately approved provider-adjustment documents; this requires the commission agreement rules.
-3. Document profile: are clinic invoices operational clinic documents or accountant-approved tax/exempt documents? Supply applicable clinic registration/service treatment and currently approved number/form requirements (no patient examples needed). Proposed default no new legal/tax compliance claim; tax-document issuance remains gated.
+1. APPROVED: explicit same-patient, same-clinic, initially same-currency credit applications to linked replacement invoices or separate refund; immutable audited applications, no automatic transfers, over-credit/double refund/allocation, unapplied cash-backed credit tracked as patient liability.
+2. APPROVED: provider-linked issuance requires manager approval bound to current locked financial state and displayed impact. Existing allocations/payments untouched; payable changes require separate explicit process, no automatic clawbacks or compensation reductions.
+3. CONDITIONALLY APPROVED: operational-first documents; no official tax/exempt credit-note claim. Future fiscal configuration requires accountant validation of clinic classification/form/sequence/treatment, no invented VAT or blanket dental exemption.
 
 Posting dates default to current clinic business date; original dates/tax/FX remain snapshots. No backdating/reopening closed periods or transfer between currencies. Issued credits capped by original uncredited gross; no new patient wallet/commission policy without Owner adoption.
 
