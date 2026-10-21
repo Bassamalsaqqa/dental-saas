@@ -9,6 +9,19 @@ use Config\Database;
 class InvoiceCorrectionService
 {
     private BaseConnection $db;
+    /** Test clock seam only; no request input can set it. */
+    public $clock = null;
+    private function instant(): \DateTimeImmutable
+    {
+        $instant = $this->clock ? ($this->clock)() : new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        if (!$instant instanceof \DateTimeImmutable) { throw new \RuntimeException('Invalid operational correction clock.'); }
+        return $instant;
+    }
+    private function businessNow(int $clinic): \DateTimeImmutable
+    {
+        return $this->instant()->setTimezone((new ClinicSchedulingSettings($this->db))->timezone($clinic));
+    }
+
     public function __construct(?BaseConnection $db = null) { $this->db = $db ?? Database::connect(); }
     private function table(string $table): string { return $this->db->escapeIdentifiers($this->db->prefixTable($table)); }
     private function rows(string $table, array $where, bool $locked = false, ?string $asOf = null, string $date = 'created_at'): array
@@ -228,7 +241,7 @@ class InvoiceCorrectionService
     }
     private function audit(int $clinic, int $actor, string $action, int $invoice, array $metadata): void
     {
-        $this->insert('activity_logs', ['clinic_id' => $clinic, 'user_id' => $actor, 'action' => $action, 'entity_type' => 'finance', 'entity_id' => $invoice, 'description' => 'Operational invoice correction', 'metadata' => json_encode($metadata, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), 'created_at' => date('Y-m-d H:i:s')]);
+        $this->insert('activity_logs', ['clinic_id' => $clinic, 'user_id' => $actor, 'action' => $action, 'entity_type' => 'finance', 'entity_id' => $invoice, 'description' => 'Operational invoice correction', 'metadata' => json_encode($metadata, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s')]);
     }
     private function assertSource(array $input, string $actual): void
     {
@@ -240,14 +253,14 @@ class InvoiceCorrectionService
         return $this->transaction(function () use ($clinic, $invoice, $actor, $input) {
             $this->lockInvoices($clinic, [$invoice]); $this->authorize($clinic, $actor, 'approve_corrections'); $preview = $this->previewState($clinic, $invoice, $this->payload($input), true); $this->assertSource($input, $preview['source_hash']);
             if (!$preview['requires_manager_approval']) { throw new \DomainException('This correction does not require provider approval.'); }
-            $id = $this->insert('invoice_correction_approvals', ['clinic_id' => $clinic, 'finance_id' => $invoice, 'patient_id' => $preview['invoice']['patient_id'], 'manager_id' => $actor, 'request_hash' => $preview['request_hash'], 'source_hash' => $preview['source_hash'], 'created_at' => date('Y-m-d H:i:s'), 'expires_at' => date('Y-m-d H:i:s', time() + 900)]);
+            $id = $this->insert('invoice_correction_approvals', ['clinic_id' => $clinic, 'finance_id' => $invoice, 'patient_id' => $preview['invoice']['patient_id'], 'manager_id' => $actor, 'request_hash' => $preview['request_hash'], 'source_hash' => $preview['source_hash'], 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s'), 'expires_at' => $this->instant()->setTimezone(new \DateTimeZone('UTC'))->modify('+15 minutes')->format('Y-m-d H:i:s')]);
             $this->audit($clinic, $actor, 'invoice_correction_approved', $invoice, ['approval_id' => $id, 'source_hash' => $preview['source_hash'], 'request_hash' => $preview['request_hash']]);
             return ['approval_id' => $id, 'source_hash' => $preview['source_hash']];
         });
     }
     private function nextNumber(int $clinic): string
     {
-        $year = (int) date('Y');
+        $year = (int) $this->businessNow($clinic)->format('Y');
         $sql = 'INSERT INTO ' . $this->table('invoice_correction_sequences') . ' (clinic_id, sequence_year, next_value) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE next_value = next_value';
         if ($this->db->query($sql, [$clinic, $year]) === false) { throw new \RuntimeException('Unable to lock operational document sequence.'); }
         $q = $this->db->query('SELECT next_value FROM ' . $this->table('invoice_correction_sequences') . ' WHERE clinic_id = ? AND sequence_year = ? FOR UPDATE', [$clinic, $year]);
@@ -269,11 +282,11 @@ class InvoiceCorrectionService
             if ($preview['requires_manager_approval']) {
                 $approvalId = filter_var($input['approval_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                 $approval = $approvalId ? ($this->rows('invoice_correction_approvals', ['clinic_id' => $clinic, 'id' => $approvalId, 'finance_id' => $invoice], true)[0] ?? null) : null;
-                if (!$approval || $approval['expires_at'] < date('Y-m-d H:i:s') || !hash_equals($approval['source_hash'], $preview['source_hash']) || !hash_equals($approval['request_hash'], $preview['request_hash'])) { throw new \DomainException('Current manager approval is required for this provider-linked correction.'); }
+                if (!$approval || $approval['expires_at'] < $this->instant()->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s') || !hash_equals($approval['source_hash'], $preview['source_hash']) || !hash_equals($approval['request_hash'], $preview['request_hash'])) { throw new \DomainException('Current manager approval is required for this provider-linked correction.'); }
                 $approvedBy = (int) $approval['manager_id'];
                 $this->assertCurrentRolePermission($clinic, $approvedBy, 'approve_corrections');
             }
-            $now = date('Y-m-d H:i:s'); $number = $this->nextNumber($clinic); $row = $preview['invoice'];
+            $now = $this->businessNow($clinic)->format('Y-m-d H:i:s'); $number = $this->nextNumber($clinic); $row = $preview['invoice'];
             $id = $this->insert('invoice_corrections', ['clinic_id' => $clinic, 'finance_id' => $invoice, 'patient_id' => $row['patient_id'], 'document_number' => $number, 'amount_base' => $preview['amount_base'], 'amount_original' => $payload['amount_original'], 'currency' => $row['currency'], 'exchange_rate' => $this->rate($row), 'reason' => $payload['reason'], 'idempotency_key' => $payload['idempotency_key'], 'request_hash' => $preview['request_hash'], 'source_hash' => $preview['source_hash'], 'snapshot_json' => json_encode(['invoice' => $row, 'provider_impact' => $preview['provider_impact'], 'position_before' => $preview['position'], 'clinical_lines' => $preview['clinical_lines'], 'document_mode' => 'operational', 'tax_notice' => 'Not a validated fiscal credit note'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), 'document_mode' => 'operational', 'created_by' => $actor, 'approved_by' => $approvedBy, 'approval_id' => $approvalId, 'issued_at' => $now, 'created_at' => $now]);
             $lines = $payload['lines'] ?: [['description' => $payload['reason'], 'amount_original' => $payload['amount_original']]];
             foreach ($lines as $line) { $this->insert('invoice_correction_lines', ['clinic_id' => $clinic, 'correction_id' => $id, 'clinical_charge_line_id' => empty($line['clinical_charge_line_id']) ? null : (int) $line['clinical_charge_line_id'], 'description' => trim($line['description']), 'amount_original' => InvoiceCorrectionMoney::decimal(InvoiceCorrectionMoney::cents($line['amount_original'])), 'amount_base' => InvoiceCorrectionMoney::decimal($this->toBase(InvoiceCorrectionMoney::cents($line['amount_original']), $this->rate($row))), 'tax_base' => '0.00', 'tax_original' => '0.00', 'created_at' => $now]); }
@@ -308,7 +321,7 @@ class InvoiceCorrectionService
             $rows = $this->lockInvoices($clinic, [$source, $target]); $this->authorize($clinic, $actor, 'edit'); $this->authorize($clinic, $actor, 'create'); $this->assertMatching($rows[$source], $rows[$target]);
             $existing = $this->rows('invoice_replacement_links', ['clinic_id' => $clinic, 'target_finance_id' => $target], true)[0] ?? null;
             if ($existing) { if ((int) $existing['source_finance_id'] !== $source) { throw new \DomainException('Replacement already belongs to another original invoice.'); } return $existing; }
-            $id = $this->insert('invoice_replacement_links', ['clinic_id' => $clinic, 'source_finance_id' => $source, 'target_finance_id' => $target, 'patient_id' => $rows[$source]['patient_id'], 'currency' => $rows[$source]['currency'], 'created_by' => $actor, 'created_at' => date('Y-m-d H:i:s')]);
+            $id = $this->insert('invoice_replacement_links', ['clinic_id' => $clinic, 'source_finance_id' => $source, 'target_finance_id' => $target, 'patient_id' => $rows[$source]['patient_id'], 'currency' => $rows[$source]['currency'], 'created_by' => $actor, 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s')]);
             $this->audit($clinic, $actor, 'invoice_replacement_linked', $source, ['replacement_link_id' => $id, 'target_finance_id' => $target]);
             return ['id' => $id, 'target_finance_id' => $target];
         });
@@ -339,7 +352,7 @@ class InvoiceCorrectionService
             $used = $this->activeApplications($clinic, $this->rows('invoice_credit_applications', ['clinic_id' => $clinic, 'correction_id' => $correctionId], true), true);
             if ($base > $sourceState['position']['refundable_base_cents']) { throw new \DomainException('Incoming credit funding must be explicitly returned before onward application.'); }
             if ($base > $sourceState['position']['patient_credit_base_cents'] || $base > $targetPosition['remaining_base_cents'] || $amount > InvoiceCorrectionMoney::cents($correction['amount_original']) - $this->sumRows($used, 'amount_original') || $base > InvoiceCorrectionMoney::cents($correction['amount_base']) - $this->sumRows($used, 'amount_base')) { throw new \DomainException('Application exceeds available cash-backed credit or replacement balance.'); }
-            $id = $this->insert('invoice_credit_applications', ['clinic_id' => $clinic, 'correction_id' => $correctionId, 'source_finance_id' => $source, 'target_finance_id' => $target, 'patient_id' => $rows[$source]['patient_id'], 'currency' => $rows[$source]['currency'], 'amount_base' => InvoiceCorrectionMoney::decimal($base), 'amount_original' => InvoiceCorrectionMoney::decimal($amount), 'exchange_rate' => $this->rate($rows[$source]), 'idempotency_key' => $key, 'request_hash' => $hash, 'created_by' => $actor, 'created_at' => date('Y-m-d H:i:s')]);
+            $id = $this->insert('invoice_credit_applications', ['clinic_id' => $clinic, 'correction_id' => $correctionId, 'source_finance_id' => $source, 'target_finance_id' => $target, 'patient_id' => $rows[$source]['patient_id'], 'currency' => $rows[$source]['currency'], 'amount_base' => InvoiceCorrectionMoney::decimal($base), 'amount_original' => InvoiceCorrectionMoney::decimal($amount), 'exchange_rate' => $this->rate($rows[$source]), 'idempotency_key' => $key, 'request_hash' => $hash, 'created_by' => $actor, 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s')]);
             $this->audit($clinic, $actor, 'invoice_credit_applied', $source, ['application_id' => $id, 'target_finance_id' => $target, 'amount_base' => InvoiceCorrectionMoney::decimal($base)]);
             return ['id' => $id, 'position' => $this->position($clinic, $source, true), 'target_position' => $this->position($clinic, $target, true), 'idempotent' => false];
         });
@@ -374,7 +387,7 @@ class InvoiceCorrectionService
             $targetPosition = $this->position($clinic, $target, true);
             if ($amount > $targetPosition['incoming_base_cents']) { throw new \DomainException('Application funding is unavailable for explicit return.'); }
             // Full return reopens target AR; never changes clinical records or creates cash.
-            $id = $this->insert('invoice_credit_application_reversals', ['clinic_id' => $clinic, 'application_id' => $applicationId, 'reason' => trim($reason), 'idempotency_key' => $key, 'request_hash' => $hash, 'created_by' => $actor, 'created_at' => date('Y-m-d H:i:s')]);
+            $id = $this->insert('invoice_credit_application_reversals', ['clinic_id' => $clinic, 'application_id' => $applicationId, 'reason' => trim($reason), 'idempotency_key' => $key, 'request_hash' => $hash, 'created_by' => $actor, 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s')]);
             $this->audit($clinic, $actor, 'invoice_credit_application_returned', $source, ['reversal_id' => $id, 'application_id' => $applicationId, 'target_finance_id' => $target, 'amount_base' => $application['amount_base']]);
             return ['id' => $id, 'position' => $this->position($clinic, $source, true), 'target_position' => $this->position($clinic, $target, true), 'idempotent' => false];
         });
