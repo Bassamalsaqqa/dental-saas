@@ -89,7 +89,7 @@ class ProviderPayoutModel extends TenantAwareModel
             ->select('
                 SUM(pp.provider_share_amount) AS total_provider_share,
                 SUM(pp.provider_paid_amount) AS total_provider_paid,
-                SUM(pp.provider_balance_due) AS total_provider_balance
+                SUM(CASE WHEN pp.status = \'void\' THEN 0 ELSE pp.provider_balance_due END) AS total_provider_balance
             ')
             ->get()
             ->getRowArray();
@@ -197,7 +197,7 @@ class ProviderPayoutModel extends TenantAwareModel
         }
 
         $rows = $builder
-            ->select('pp.status, COUNT(*) AS payout_count, SUM(pp.provider_share_amount) AS provider_share_total, SUM(pp.provider_balance_due) AS balance_due_total')
+            ->select('pp.status, COUNT(*) AS payout_count, SUM(pp.provider_share_amount) AS provider_share_total, SUM(CASE WHEN pp.status = \'void\' THEN 0 ELSE pp.provider_balance_due END) AS balance_due_total')
             ->groupBy('pp.status')
             ->get()
             ->getResultArray();
@@ -239,7 +239,7 @@ class ProviderPayoutModel extends TenantAwareModel
                 SUM(pp.gross_amount) AS gross_amount_total,
                 SUM(pp.provider_share_amount) AS provider_share_total,
                 SUM(pp.provider_paid_amount) AS provider_paid_total,
-                SUM(pp.provider_balance_due) AS provider_balance_total
+                SUM(CASE WHEN pp.status = 'void' THEN 0 ELSE pp.provider_balance_due END) AS provider_balance_total
             ", false)
             ->groupBy('pp.provider_name_snapshot, pp.provider_user_id')
             ->orderBy('provider_share_total', 'DESC')
@@ -289,7 +289,7 @@ class ProviderPayoutModel extends TenantAwareModel
     public function getSummaryByProviderUserId(int $clinicId, int $userId): array
     {
         $row = $this->db->table('provider_payouts')
-            ->select('COUNT(*) AS payout_count, SUM(gross_amount) AS gross_amount_total, SUM(provider_share_amount) AS provider_share_total, SUM(provider_paid_amount) AS provider_paid_total, SUM(provider_balance_due) AS provider_balance_total')
+            ->select('COUNT(*) AS payout_count, SUM(gross_amount) AS gross_amount_total, SUM(provider_share_amount) AS provider_share_total, SUM(provider_paid_amount) AS provider_paid_total, SUM(CASE WHEN status = \'void\' THEN 0 ELSE provider_balance_due END) AS provider_balance_total')
             ->where('clinic_id', $clinicId)
             ->where('provider_type', 'user')
             ->where('provider_user_id', $userId)
@@ -410,7 +410,7 @@ class ProviderPayoutModel extends TenantAwareModel
                 SUM(pp.gross_amount) AS gross_amount_total,
                 SUM(pp.provider_share_amount) AS provider_share_total,
                 SUM(pp.provider_paid_amount) AS provider_paid_total,
-                SUM(pp.provider_balance_due) AS provider_balance_total,
+                SUM(CASE WHEN pp.status = 'void' THEN 0 ELSE pp.provider_balance_due END) AS provider_balance_total,
                 MAX(pp.created_at) AS latest_payout_date,
                 MAX(u.first_name) AS first_name,
                 MAX(u.last_name) AS last_name,
@@ -458,7 +458,7 @@ class ProviderPayoutModel extends TenantAwareModel
         END";
 
         $row = $this->db->table('provider_payouts')
-            ->select("COUNT(DISTINCT {$providerKey}) AS total, SUM(provider_balance_due) AS outstanding", false)
+            ->select("COUNT(DISTINCT {$providerKey}) AS total, SUM(CASE WHEN status = 'void' THEN 0 ELSE provider_balance_due END) AS outstanding", false)
             ->where('clinic_id', $clinicId)
             ->get()
             ->getRowArray();

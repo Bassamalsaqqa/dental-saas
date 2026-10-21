@@ -174,6 +174,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
             </div>
         </section>
 
+        <p class="mb-3 text-xs text-slate-600"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
         <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <?php
             $cards = [

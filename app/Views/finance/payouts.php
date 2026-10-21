@@ -205,6 +205,7 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
                         <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_provider_balance'] ?? 0) ?></p>
+                        <p class="mt-2 text-xs text-rose-50/90"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
                         <i class="fas fa-triangle-exclamation text-lg"></i>

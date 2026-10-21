@@ -1,6 +1,8 @@
 ﻿<?php
 
 return [
+    'voidProviderAllocationProtected' => 'A void allocation cannot be changed, removed or paid. Retain its original values and use an approved correction workflow.',
+    'providerVoidBalanceHelp' => 'Outstanding provider balances exclude void allocations. Historical shares and payments remain visible.',
     'accruedProviderEntitlement' => 'Total provider share from patient payments',
     'actions' => 'Actions',
     'active' => 'Active',

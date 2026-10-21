@@ -101,6 +101,10 @@ $toneClasses = [
             <?php endforeach; ?>
         </div>
 
+        <?php if ($payoutRows !== []): ?>
+            <p class="mt-2 text-xs text-slate-500"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
+        <?php endif; ?>
+
         <?php if (!$hasRecords): ?>
             <div class="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
                 <i class="fas fa-route mb-2 text-2xl text-slate-300"></i>

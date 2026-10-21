@@ -352,7 +352,10 @@ class MoneyTrailService
         foreach ($payoutRows as $row) {
             $summary['provider_share'] += max(0, (float) ($row['provider_share_amount'] ?? 0));
             $summary['provider_paid'] += max(0, (float) ($row['provider_paid_amount'] ?? 0));
-            $summary['provider_remaining'] += max(0, (float) ($row['provider_balance_due'] ?? 0));
+            // Void history remains visible, but cannot be an amount still payable.
+            if (($row['status'] ?? '') !== 'void') {
+                $summary['provider_remaining'] += max(0, (float) ($row['provider_balance_due'] ?? 0));
+            }
         }
 
         foreach ($inventoryUsageRows as $row) {

@@ -627,6 +627,9 @@ class Finance extends BaseController
         if (empty($payloads)) {
             foreach ($existingRows as $existing) {
                 $existingId = (int) $existing['id'];
+                if (($existing['status'] ?? '') === 'void') {
+                    throw new \DomainException(lang('Finance.voidProviderAllocationProtected'));
+                }
                 $payments = $this->financeMutationService->payoutPayments($clinicId, $existingId);
                 $ledgerPaid = round(array_sum(array_column($payments, 'amount')), 2);
                 $cachedPaid = round((float) ($existing['provider_paid_amount'] ?? 0), 2);
@@ -670,6 +673,13 @@ class Finance extends BaseController
                 $existing = $existingById[$payoutId] ?? null;
                 if (!$existing) {
                     throw new \RuntimeException('A provider allocation could not be matched for update.');
+                }
+
+                if (($existing['status'] ?? '') === 'void') {
+                    $this->assertVoidProviderAllocationRoundtrip($existing, $payoutData);
+                    // Exact form roundtrips may update unrelated metadata, never void history.
+                    $keptIds[] = $payoutId;
+                    continue;
                 }
 
                 $payments = $this->financeMutationService->payoutPayments($clinicId, $payoutId);
@@ -769,6 +779,9 @@ class Finance extends BaseController
             if (in_array($existingId, $keptIds, true)) {
                 continue;
             }
+            if (($existing['status'] ?? '') === 'void') {
+                throw new \DomainException(lang('Finance.voidProviderAllocationProtected'));
+            }
             $payments = $this->financeMutationService->payoutPayments($clinicId, $existingId);
             $ledgerPaid = round(array_sum(array_column($payments, 'amount')), 2);
             $cachedPaid = round((float) ($existing['provider_paid_amount'] ?? 0), 2);
@@ -782,10 +795,39 @@ class Finance extends BaseController
         }
     }
 
+    /** Void rows are retained verbatim; form normalization is not a cancellation workflow. */
+    private function assertVoidProviderAllocationRoundtrip(array $existing, array $proposed): void
+    {
+        $reject = static function (): void {
+            throw new \DomainException(lang('Finance.voidProviderAllocationProtected'));
+        };
+        if ((float) ($proposed['provider_paid_amount'] ?? 0) !== 0.0) {
+            $reject();
+        }
+        foreach (['finance_id', 'patient_id', 'provider_user_id'] as $field) {
+            if ((int) ($existing[$field] ?? 0) !== (int) ($proposed[$field] ?? 0)) {
+                $reject();
+            }
+        }
+        foreach (['provider_type', 'provider_name_snapshot', 'split_mode', 'currency', 'notes'] as $field) {
+            if (trim((string) ($existing[$field] ?? '')) !== trim((string) ($proposed[$field] ?? ''))) {
+                $reject();
+            }
+        }
+        foreach (['split_value', 'gross_amount', 'provider_share_amount', 'clinic_share_amount'] as $field) {
+            $old = $existing[$field] ?? null;
+            $new = $proposed[$field] ?? null;
+            if (!is_numeric($old) || !is_numeric($new) || !is_finite((float) $old) || !is_finite((float) $new)
+                || round((float) $old, 2) !== round((float) $new, 2)) {
+                $reject();
+            }
+        }
+    }
+
     private function syncProviderPayoutStatus(int $clinicId, int $payoutId): void
     {
         $payout = $this->providerPayoutModel->findByClinic($clinicId, $payoutId);
-        if (!$payout) {
+        if (!$payout || ($payout['status'] ?? '') === 'void') {
             return;
         }
 
