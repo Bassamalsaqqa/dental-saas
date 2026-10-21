@@ -144,7 +144,8 @@ class Providers extends BaseController
                 $resolvedName = $snapshot !== '' ? $snapshot : ($userId > 0 ? 'User #' . $userId : lang('Provider.guestProvider'));
             }
 
-            $outstanding = (float) ($p['provider_balance_total'] ?? 0);
+            $outstanding = $p['provider_balance_total'];
+            $hasDue = (bool) array_filter($p['currency_buckets'], static fn(array $b): bool => $b['provider_balance_total'] > 0);
             $isUserProvider = $userId > 0 && $providerType === 'user';
 
             $merged[] = [
@@ -156,9 +157,9 @@ class Providers extends BaseController
                 'activity_count' => (int) ($p['payout_count'] ?? 0),
                 'activity_label' => lang('Provider.providerActivity', ['cases' => (int) ($p['payout_count'] ?? 0)]),
                 'outstanding' => $outstanding,
-                'outstanding_label' => number_format($outstanding, 2),
-                'status' => $outstanding > 0 ? 'balance_due' : 'settled',
-                'status_label' => $outstanding > 0 ? lang('Provider.statusDue') : lang('Provider.statusSettled'),
+                'outstanding_label' => \App\Services\ProviderCurrencySummary::format($p, 'provider_balance_total'),
+                'status' => $hasDue ? 'balance_due' : 'settled',
+                'status_label' => $hasDue ? lang('Provider.statusDue') : lang('Provider.statusSettled'),
                 'last_activity' => $p['latest_payout_date'] ?? '',
                 'link' => $isUserProvider ? base_url('users/' . $userId) : base_url('finance/payouts'),
                 'link_label' => $isUserProvider ? lang('Provider.viewProvider') : lang('Provider.viewPayouts'),
@@ -227,6 +228,8 @@ class Providers extends BaseController
                 'active_suppliers' => $canViewInventory ? $supplierStats['active'] : 0,
                 'total_providers' => $canViewFinance ? $providerStats['total'] : 0,
                 'outstanding_balance' => $canViewFinance ? $providerStats['outstanding_balance'] : 0,
+                'outstanding_label' => $canViewFinance ? \App\Services\ProviderCurrencySummary::format($providerStats, 'outstanding_balance') : '',
+                'currency_buckets' => $canViewFinance ? $providerStats['currency_buckets'] : [],
                 'total_combined' => ($canViewInventory ? $supplierStats['total'] : 0) + ($canViewFinance ? $providerStats['total'] : 0),
             ]);
         } catch (\Throwable $e) {

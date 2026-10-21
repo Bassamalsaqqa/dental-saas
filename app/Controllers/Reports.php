@@ -1101,9 +1101,10 @@ class Reports extends BaseController
         $moneyOut = (float) (($ledgerSummary['refund_total'] ?? 0) + ($ledgerSummary['expense_total'] ?? 0) + ($ledgerSummary['provider_paid_cash'] ?? 0));
         $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
         $expensePayables = (float) ($apAgingSummary['total_balance_due'] ?? 0);
-        $providerPayables = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
-        $weOweOthers = $expensePayables + $providerPayables;
-        $netPosition = $moneyIn - $moneyOut + $customersOweUs - $weOweOthers;
+        $providerCompatible = \App\Services\ProviderCurrencySummary::baseCompatible($providerPayoutStats, (string) settings()->get('currency', 'ILS'));
+        $providerPayables = $providerCompatible ? (float) ($providerPayoutStats['total_provider_balance'] ?? 0) : null;
+        $weOweOthers = $providerPayables !== null ? $expensePayables + $providerPayables : null;
+        $netPosition = $weOweOthers !== null && !($ledgerSummary['provider_currency_unavailable'] ?? false) ? $moneyIn - $moneyOut + $customersOweUs - $weOweOthers : null;
 
         $result = [
             'transactions' => $transactions,
@@ -1135,10 +1136,10 @@ class Reports extends BaseController
                 'money_in' => round($moneyIn, 2),
                 'money_out' => round($moneyOut, 2),
                 'customers_owe_us' => round($customersOweUs, 2),
-                'we_owe_others' => round($weOweOthers, 2),
+                'we_owe_others' => $weOweOthers !== null ? round($weOweOthers, 2) : null,
                 'expense_payables' => round($expensePayables, 2),
-                'provider_payables' => round($providerPayables, 2),
-                'net_position' => round($netPosition, 2),
+                'provider_payables' => $providerPayables !== null ? round($providerPayables, 2) : null,
+                'net_position' => $netPosition !== null ? round($netPosition, 2) : null,
                 'as_of_date' => $endDate,
             ],
         ];
@@ -1171,6 +1172,14 @@ class Reports extends BaseController
             ];
         }
 
+        $result['provider_currency_summary'] = $providerPayoutStats;
+        if ($ledgerSummary['provider_currency_unavailable']) {
+            foreach (['provider_paid_cash', 'operating_result_cash', 'net_clinic_revenue_cash', 'money_out', 'net_position'] as $key) { $result['summary'][$key] = null; }
+            $result['monthly_revenue'] = []; $result['transaction_type_mix'] = [];
+        }
+        if (isset($result['comparison']) && (!\App\Services\ProviderCurrencySummary::baseCompatible($compareProviderStats, (string) settings()->get('currency', 'ILS')) || $compareSummary['provider_currency_unavailable'])) {
+            foreach (['money_out', 'we_owe_others', 'net_position'] as $key) { $result['comparison']['summary'][$key] = null; }
+        }
         return $result;
     }
 
@@ -1397,6 +1406,7 @@ class Reports extends BaseController
                 ppp.paid_date,
                 ppp.notes,
                 pp.patient_id,
+                pp.currency AS provider_currency,
                 pp.provider_user_id,
                 pp.provider_name_snapshot,
                 pp.finance_id,
@@ -1437,7 +1447,9 @@ class Reports extends BaseController
                 $providerLabel = (string) ($row['provider_name_snapshot'] ?? ('Provider #' . (string) ($row['provider_user_id'] ?? '0')));
             }
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $amountBase = floatval($row['amount'] ?? 0);
+            $nativeAmount = floatval($row['amount'] ?? 0);
+            $nativeCurrency = \App\Services\ProviderCurrencySummary::currency($row['provider_currency'] ?? null);
+            $amountBase = $nativeCurrency === \App\Services\ProviderCurrencySummary::currency($baseCurrency) ? $nativeAmount : null;
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
@@ -1454,11 +1466,11 @@ class Reports extends BaseController
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? 'Provider payout cash payment',
                 'counterparty_name' => $providerLabel,
-                'currency' => $baseCurrency,
-                'exchange_rate' => 1.0,
-                'amount_original' => $amountBase,
+                'currency' => $nativeCurrency,
+                'exchange_rate' => $amountBase !== null ? 1.0 : null,
+                'amount_original' => $nativeAmount,
                 'amount_base' => $amountBase,
-                'signed_amount_base' => -$amountBase,
+                'signed_amount_base' => $amountBase !== null ? -$amountBase : null,
                 'report_date' => (string) ($row['paid_date'] ?? ''),
                 'created_at' => ((string) ($row['paid_date'] ?? '')) . ' 00:00:00',
                 'event_at' => ((string) ($row['paid_date'] ?? '')) . ' 00:00:00',
@@ -1512,16 +1524,20 @@ class Reports extends BaseController
             }
         }
 
+        $unconverted = array_filter($rows, static fn(array $r): bool => ($r['transaction_type'] ?? '') === 'provider_payout' && $r['amount_base'] === null);
+        $nativeCash = \App\Services\ProviderCurrencySummary::summarize([], array_map(static fn(array $r): array => ['currency' => $r['currency'], 'amount' => $r['amount_original']], array_values(array_filter($rows, static fn(array $r): bool => ($r['transaction_type'] ?? '') === 'provider_payout'))));
         return [
+            'provider_currency_unavailable' => (bool) $unconverted,
+            'provider_cash_summary' => $nativeCash,
             'count' => count($rows),
             'gross_collections' => round($grossCollections, 2),
             'expense_total' => round($expenseTotal, 2),
-            'provider_paid_cash' => round($providerPaidCash, 2),
+            'provider_paid_cash' => $unconverted ? null : round($providerPaidCash, 2),
             'refund_count' => $refundCount,
             'refund_total' => round($refundTotal, 2),
             'safe_cash_in' => round($safeCashIn, 2),
-            'safe_cash_out' => round($safeCashOut, 2),
-            'safe_cash_net' => round($safeCashIn - $safeCashOut, 2),
+            'safe_cash_out' => $unconverted ? null : round($safeCashOut, 2),
+            'safe_cash_net' => $unconverted ? null : round($safeCashIn - $safeCashOut, 2),
         ];
     }
 
@@ -2241,7 +2257,7 @@ class Reports extends BaseController
             
             foreach ($data['reports']['summary'] as $key => $value) {
                 $label = ucwords(str_replace('_', ' ', (string) $key));
-                $displayValue = is_numeric($value) ? number_format((float) $value, 2) : (string) $value;
+                $displayValue = $value === null ? lang('Finance.providerCurrencyUnavailable') : (is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : (is_numeric($value) ? number_format((float) $value, 2) : (string) $value));
                 $html .= '<div class="summary-item">
                     <h3>' . $this->html($label) . '</h3>
                     <p>' . $this->html($displayValue) . '</p>
@@ -2369,7 +2385,7 @@ class Reports extends BaseController
                     <td>' . $this->html($this->localizeFinanceTransactionType((string) ($transaction['transaction_type'] ?? ''))) . '</td>
                     <td>' . $this->html($this->localizeFinanceSourceLabel((string) ($transaction['source_label'] ?? ''), (string) ($transaction['event_source'] ?? 'finance'))) . '</td>
                     <td>' . $this->html($this->localizeFinancePaymentMethod((string) ($transaction['payment_method'] ?? ''))) . '</td>
-                    <td>' . $this->html(number_format((float) ($transaction['signed_amount_base'] ?? $transaction['total_amount'] ?? 0), 2)) . '</td>
+                    <td>' . $this->html(($transaction['event_source'] ?? '') === 'provider_payout' ? \App\Services\ProviderCurrencySummary::native(-($transaction['amount_original'] ?? 0), $transaction['currency'] ?? null) : number_format((float) ($transaction['signed_amount_base'] ?? $transaction['total_amount'] ?? 0), 2)) . '</td>
                 </tr>';
             }
             
@@ -2475,7 +2491,7 @@ class Reports extends BaseController
                     $this->localizeFinanceTransactionType((string) ($transaction['transaction_type'] ?? '')),
                     $this->localizeFinanceSourceLabel((string) ($transaction['source_label'] ?? ''), (string) ($transaction['event_source'] ?? 'finance')),
                     $this->localizeFinancePaymentMethod((string) ($transaction['payment_method'] ?? '')),
-                    $transaction['signed_amount_base'] ?? ($transaction['total_amount'] ?? ''),
+                    ($transaction['event_source'] ?? '') === 'provider_payout' ? \App\Services\ProviderCurrencySummary::native(-($transaction['amount_original'] ?? 0), $transaction['currency'] ?? null) : ($transaction['signed_amount_base'] ?? ($transaction['total_amount'] ?? '')),
                 ]);
             }
         }
@@ -2520,7 +2536,7 @@ class Reports extends BaseController
 
         if (isset($data['reports']['provider_payout_breakdown']) && is_array($data['reports']['provider_payout_breakdown'])) {
             $csv .= "\n" . $this->csvLine(['PROVIDER PAYOUT BREAKDOWN']);
-            $csv .= $this->csvLine(['Provider', 'Payout Count', 'Gross', 'Provider Share', 'Provider Paid', 'Provider Balance']);
+            $csv .= $this->csvLine(['Provider', 'Payout Count', 'Gross', 'Provider Share', 'Provider Paid', 'Provider Balance', 'Currency']);
             foreach ($data['reports']['provider_payout_breakdown'] as $row) {
                 $csv .= $this->csvLine([
                     $row['provider_label'] ?? 'Unknown',
@@ -2528,14 +2544,15 @@ class Reports extends BaseController
                     $row['gross_amount_total'] ?? 0,
                     $row['provider_share_total'] ?? 0,
                     $row['provider_paid_total'] ?? 0,
-                    $row['provider_balance_total'] ?? 0,
+                    $row['provider_balance_total'] ?? null,
+                    $row['currency'] ?? 'UNKNOWN',
                 ]);
             }
         }
 
         if (isset($data['reports']['provider_payout_rows']) && is_array($data['reports']['provider_payout_rows'])) {
             $csv .= "\n" . $this->csvLine(['PROVIDER PAYOUT ROWS']);
-            $csv .= $this->csvLine(['Transaction', 'Patient #', 'Patient', 'Provider', 'Status', 'Gross', 'Provider Share', 'Paid', 'Balance']);
+            $csv .= $this->csvLine(['Transaction', 'Patient #', 'Patient', 'Provider', 'Status', 'Gross', 'Provider Share', 'Paid', 'Balance', 'Currency']);
             foreach ($data['reports']['provider_payout_rows'] as $row) {
                 $csv .= $this->csvLine([
                     $row['transaction_id'] ?? '',
@@ -2546,7 +2563,8 @@ class Reports extends BaseController
                     $row['gross_amount'] ?? 0,
                     $row['provider_share_amount'] ?? 0,
                     $row['provider_paid_amount'] ?? 0,
-                    $row['provider_balance_due'] ?? 0,
+                    $row['provider_balance_due'] ?? null,
+                    $row['currency'] ?? 'UNKNOWN',
                 ]);
             }
         }

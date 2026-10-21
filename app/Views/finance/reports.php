@@ -1,8 +1,9 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php
-$formatMoney = static fn($amount) => formatCurrency((float) $amount);
+$formatMoney = static fn($amount) => $amount === null ? esc(lang('Finance.providerCurrencyUnavailable')) : formatCurrency((float) $amount);
 $ownerSummary = $owner_summary ?? [];
 $treasuryMovement = $treasury_movement ?? [];
 $treasuryClosing = $treasury_closing ?? [];
@@ -143,17 +144,17 @@ $bucketLabels = [
                 <?php
                 $summaryCards = [
                     ['icon' => 'fa-arrow-down-wide-short', 'title' => lang('Finance.moneyIn'), 'value' => $ownerSummary['money_in'] ?? 0, 'accent' => 'green'],
-                    ['icon' => 'fa-arrow-up-wide-short', 'title' => lang('Finance.moneyOut'), 'value' => $ownerSummary['money_out'] ?? 0, 'accent' => 'rose'],
+                    ['icon' => 'fa-arrow-up-wide-short', 'title' => lang('Finance.moneyOut'), 'value' => $ownerSummary['money_out'] ?? null, 'accent' => 'rose'],
                     ['icon' => 'fa-file-invoice-dollar', 'title' => lang('Finance.customersOweUs'), 'value' => $ownerSummary['customers_owe_us'] ?? 0, 'accent' => 'amber'],
-                    ['icon' => 'fa-hand-holding-dollar', 'title' => lang('Finance.weOweOthers'), 'value' => $ownerSummary['we_owe_others'] ?? 0, 'accent' => 'indigo'],
-                    ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? 0, 'accent' => 'slate'],
+                    ['icon' => 'fa-hand-holding-dollar', 'title' => lang('Finance.weOweOthers'), 'value' => $ownerSummary['we_owe_others'] ?? null, 'accent' => 'indigo'],
+                    ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? null, 'accent' => 'slate'],
                 ];
                 $accentMap = [
                     'green' => ['card' => 'bg-gradient-to-br from-emerald-600 to-teal-800 shadow-emerald-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-emerald-50/90'],
                     'rose' => ['card' => 'bg-gradient-to-br from-rose-600 to-pink-800 shadow-rose-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-rose-50/90'],
                     'amber' => ['card' => 'bg-gradient-to-br from-amber-500 to-orange-700 shadow-amber-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-amber-50/95'],
                     'indigo' => ['card' => 'bg-gradient-to-br from-indigo-600 to-blue-900 shadow-indigo-500/25', 'badge' => 'bg-white/20 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-indigo-50/90'],
-                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'bg-gradient-to-br from-slate-700 to-slate-950 shadow-slate-500/25' : 'bg-gradient-to-br from-rose-700 to-slate-950 shadow-rose-500/25', 'badge' => 'bg-white/10 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-slate-100/90'],
+                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? null)) >= 0 ? 'bg-gradient-to-br from-slate-700 to-slate-950 shadow-slate-500/25' : 'bg-gradient-to-br from-rose-700 to-slate-950 shadow-rose-500/25', 'badge' => 'bg-white/10 text-white ring-white/20', 'value' => 'text-white', 'label' => 'text-slate-100/90'],
                 ];
                 ?>
                 <?php foreach ($summaryCards as $card): ?>
@@ -230,19 +231,19 @@ $bucketLabels = [
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($liquidityLabels['safe_cash'] ?? lang('Finance.liquidityAccount.safe_cash')) ?></p>
-                    <p class="mt-2 text-3xl font-black text-emerald-950"><?= $formatMoney($treasuryClosing['safe_cash'] ?? 0) ?></p>
+                    <p class="mt-2 text-3xl font-black text-emerald-950"><?= $formatMoney($treasuryClosing['safe_cash'] ?? null) ?></p>
                 </div>
                 <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-blue-700"><?= esc($liquidityLabels['bank'] ?? lang('Finance.liquidityAccount.bank')) ?></p>
-                    <p class="mt-2 text-3xl font-black text-blue-950"><?= $formatMoney($treasuryClosing['bank'] ?? 0) ?></p>
+                    <p class="mt-2 text-3xl font-black text-blue-950"><?= $formatMoney($treasuryClosing['bank'] ?? null) ?></p>
                 </div>
                 <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= esc($liquidityLabels['undeposited_checks'] ?? lang('Finance.liquidityAccount.undeposited_checks')) ?></p>
-                    <p class="mt-2 text-3xl font-black text-amber-950"><?= $formatMoney($treasuryClosing['undeposited_checks'] ?? 0) ?></p>
+                    <p class="mt-2 text-3xl font-black text-amber-950"><?= $formatMoney($treasuryClosing['undeposited_checks'] ?? null) ?></p>
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.totalLiquidFunds') ?></p>
-                    <p class="mt-2 text-3xl font-black text-slate-950"><?= $formatMoney($treasuryClosing['total_liquid_funds'] ?? 0) ?></p>
+                    <p class="mt-2 text-3xl font-black text-slate-950"><?= $formatMoney($treasuryClosing['total_liquid_funds'] ?? null) ?></p>
                 </div>
             </div>
             <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -264,15 +265,15 @@ $bucketLabels = [
                         <div class="mt-4 grid grid-cols-3 gap-3">
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['in']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.inflow') ?></p>
-                                <p class="mt-2 text-lg font-black text-emerald-950"><?= $formatMoney($bucket['in'] ?? 0) ?></p>
+                                <p class="mt-2 text-lg font-black text-emerald-950"><?= $formatMoney($bucket['in'] ?? null) ?></p>
                             </div>
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['out']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.outflow') ?></p>
-                                <p class="mt-2 text-lg font-black text-rose-950"><?= $formatMoney($bucket['out'] ?? 0) ?></p>
+                                <p class="mt-2 text-lg font-black text-rose-950"><?= $formatMoney($bucket['out'] ?? null) ?></p>
                             </div>
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['net']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.net') ?></p>
-                                <p class="mt-2 text-lg font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? 0) ?></p>
+                                <p class="mt-2 text-lg font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></p>
                             </div>
                         </div>
                     </div>
@@ -285,15 +286,15 @@ $bucketLabels = [
                     <div class="mt-4 grid grid-cols-3 gap-3">
                         <div class="rounded-lg bg-white/10 p-3">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-200"><?= lang('Finance.inflow') ?></p>
-                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['in'] ?? 0) ?></p>
+                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['in'] ?? null) ?></p>
                         </div>
                         <div class="rounded-lg bg-white/10 p-3">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-rose-200"><?= lang('Finance.outflow') ?></p>
-                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['out'] ?? 0) ?></p>
+                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['out'] ?? null) ?></p>
                         </div>
                         <div class="rounded-lg bg-white/10 p-3">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-200"><?= lang('Finance.net') ?></p>
-                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['net'] ?? 0) ?></p>
+                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['net'] ?? null) ?></p>
                         </div>
                     </div>
                 </div>
@@ -356,7 +357,7 @@ $bucketLabels = [
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                         <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-100 ring-1 ring-white/20"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.externalCashEvents') ?></span>
                         <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 ring-1 ring-emerald-200/20"><?= lang('Finance.externalInflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
-                        <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.externalOutflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? 0) ?></span>
+                        <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.externalOutflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? null) ?></span>
                     </div>
                 </div>
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition group-open:rotate-180">
@@ -444,7 +445,7 @@ $bucketLabels = [
                                         <?php else: ?>-<?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 text-right font-semibold <?= $signed >= 0 ? 'text-emerald-700' : 'text-rose-700' ?>">
-                                        <?= ($signed >= 0 ? '+' : '-') . formatCurrency(abs($signed)) ?>
+                                        <?= ($row['event_source'] ?? '') === 'provider_payout_payment' ? esc('-' . \App\Services\ProviderCurrencySummary::native($row['amount_original'], $row['currency'])) : ($signed >= 0 ? '+' : '-') . formatCurrency(abs($signed)) ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -470,8 +471,8 @@ $bucketLabels = [
                     <div class="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-600 to-teal-800 p-4 text-white shadow-lg shadow-emerald-500/20"><p class="text-sm font-black text-emerald-50/90"><?= lang('Finance.grossCollections') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p></div>
                     <div class="rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-600 to-pink-800 p-4 text-white shadow-lg shadow-rose-500/20"><p class="text-sm font-black text-rose-50/90"><?= lang('Finance.refunds') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p></div>
                     <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-500 to-orange-700 p-4 text-white shadow-lg shadow-amber-500/20"><p class="text-sm font-black text-amber-50/95"><?= lang('Finance.expensesPaid') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p></div>
-                    <div class="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-600 to-blue-900 p-4 text-white shadow-lg shadow-indigo-500/20"><p class="text-sm font-black text-indigo-50/90"><?= lang('Finance.providerPaidCash') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['provider_paid_cash_total'] ?? 0) ?></p></div>
-                    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-700 to-slate-950 p-4 text-white shadow-lg shadow-slate-500/20"><p class="text-sm font-black text-slate-100/90"><?= lang('Finance.netClinicCash') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['net_clinic_cash'] ?? 0) ?></p></div>
+                    <div class="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-600 to-blue-900 p-4 text-white shadow-lg shadow-indigo-500/20"><p class="text-sm font-black text-indigo-50/90"><?= lang('Finance.providerPaidCash') ?></p><p class="mt-2 text-2xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats['provider_cash_summary'] ?? [], 'total_provider_paid_cash')) ?></p></div>
+                    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-700 to-slate-950 p-4 text-white shadow-lg shadow-slate-500/20"><p class="text-sm font-black text-slate-100/90"><?= lang('Finance.netClinicCash') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['net_clinic_cash'] ?? null) ?></p></div>
                 </div>
                 <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
                     <section class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/85 to-white p-5 shadow-lg shadow-emerald-100/50">
@@ -482,9 +483,9 @@ $bucketLabels = [
                                 <div class="rounded-xl border border-white/80 bg-white/90 p-4 shadow-sm">
                                     <p class="text-sm font-black text-slate-900"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></p>
                                     <div class="mt-3 space-y-2 text-sm">
-                                        <div class="flex items-center justify-between"><span class="text-emerald-700"><?= lang('Finance.inflow') ?></span><span class="font-semibold text-emerald-950"><?= $formatMoney($bucket['in'] ?? 0) ?></span></div>
-                                        <div class="flex items-center justify-between"><span class="text-rose-700"><?= lang('Finance.outflow') ?></span><span class="font-semibold text-rose-950"><?= $formatMoney($bucket['out'] ?? 0) ?></span></div>
-                                        <div class="flex items-center justify-between border-t border-gray-100 pt-2"><span class="text-gray-600"><?= lang('Finance.net') ?></span><span class="font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? 0) ?></span></div>
+                                        <div class="flex items-center justify-between"><span class="text-emerald-700"><?= lang('Finance.inflow') ?></span><span class="font-semibold text-emerald-950"><?= $formatMoney($bucket['in'] ?? null) ?></span></div>
+                                        <div class="flex items-center justify-between"><span class="text-rose-700"><?= lang('Finance.outflow') ?></span><span class="font-semibold text-rose-950"><?= $formatMoney($bucket['out'] ?? null) ?></span></div>
+                                        <div class="flex items-center justify-between border-t border-gray-100 pt-2"><span class="text-gray-600"><?= lang('Finance.net') ?></span><span class="font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></span></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -511,7 +512,7 @@ $bucketLabels = [
                             </div>
                             <div class="rounded-xl border border-blue-200 bg-white p-4 shadow-sm">
                                 <p class="text-xs font-semibold uppercase tracking-wide text-blue-700"><?= lang('Finance.providerPayables') ?></p>
-                                <p class="mt-2 text-xl font-black text-blue-950"><?= $formatMoney($ownerSummary['provider_payables'] ?? 0) ?></p>
+                                <p class="mt-2 text-xl font-black text-blue-950"><?= esc(\App\Services\ProviderCurrencySummary::format($ownerSummary['provider_currency_summary'] ?? [], 'total_provider_balance')) ?></p>
                             </div>
                         </div>
                     </div>

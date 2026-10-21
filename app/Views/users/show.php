@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php
     $isRtl = !empty($is_rtl);
     $viewedUser = $viewed_user ?? null;
@@ -1766,12 +1767,12 @@
                     </div>
                     <div class="user-snapshot-card">
                         <p class="user-snapshot-label"><?= esc(lang('Finance.providerShareTotal')) ?></p>
-                        <p class="user-snapshot-value" dir="ltr"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
-                        <p class="user-snapshot-meta"><?= esc(lang('Finance.paidToProvider')) ?>: <span dir="ltr"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></span></p>
+                        <p class="user-snapshot-value" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_share_total')) ?></p>
+                        <p class="user-snapshot-meta"><?= esc(lang('Finance.paidToProvider')) ?>: <span dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_paid_total')) ?></span></p>
                     </div>
                     <div class="user-snapshot-card">
                         <p class="user-snapshot-label"><?= esc(lang('Finance.balance')) ?></p>
-                        <p class="user-snapshot-value" dir="ltr"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                        <p class="user-snapshot-value" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_balance_total')) ?></p>
                         <p class="user-snapshot-meta"><?= esc(lang('Finance.providerPayoutCount')) ?>: <?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
                     </div>
                 </div>
@@ -1911,15 +1912,15 @@
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-percent text-indigo-500"></i><?= esc(lang('Finance.providerShareTotal')) ?></p>
-                                <p class="user-info-value"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
+                                <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_share_total')) ?></p>
                             </div>
                             <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
-                                <p class="user-info-value"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
+                                <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_paid_total')) ?></p>
                             </div>
                             <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
-                                <p class="user-info-value"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                                <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_balance_total')) ?></p>
                             </div>
                             <div class="user-info-tile user-finance-tile">
                                 <p class="user-info-label"><i class="fas fa-receipt text-slate-500"></i><?= esc(lang('Finance.providerPayoutCount')) ?></p>
@@ -1957,7 +1958,7 @@
                                                     </span>
                                                 </span>
                                                 <span class="user-payment-summary-meta">
-                                                    <span class="user-payment-summary-amount"><?= formatCurrency($row['amount'] ?? 0) ?></span>
+                                                    <span class="user-payment-summary-amount"><?= esc(\App\Services\ProviderCurrencySummary::native($row['amount'] ?? 0, $row['currency'] ?? null)) ?></span>
                                                     <span class="user-payment-summary-date"><?= !empty($row['paid_date']) ? esc(formatDate((string) $row['paid_date'])) : esc(lang('Finance.notAvailable')) ?></span>
                                                 </span>
                                             </a>
@@ -1977,11 +1978,11 @@
                                 <div class="space-y-3">
                                     <div class="user-info-tile user-finance-tile">
                                         <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
-                                        <p class="user-info-value"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
+                                        <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_paid_total')) ?></p>
                                     </div>
                                     <div class="user-info-tile user-finance-tile">
                                         <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
-                                        <p class="user-info-value"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                                        <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_balance_total')) ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -2087,9 +2088,9 @@
                                             </td>
                                             <td>
                                                 <div class="inline-flex max-w-full items-center gap-1.5 whitespace-nowrap">
-                                                    <span class="font-semibold text-indigo-700"><?= formatCurrency($row['provider_share_amount'] ?? 0) ?></span>
-                                                    <span class="text-emerald-700"><?= esc(lang('Finance.paid')) ?> <?= formatCurrency($row['provider_paid_amount'] ?? 0) ?></span>
-                                                    <span class="text-rose-700"><?= esc(lang('Finance.balance')) ?> <?= formatCurrency($row['provider_balance_due'] ?? 0) ?></span>
+                                                    <span class="font-semibold text-indigo-700"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_share_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
+                                                    <span class="text-emerald-700"><?= esc(lang('Finance.paid')) ?> <?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_paid_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
+                                                    <span class="text-rose-700"><?= esc(lang('Finance.balance')) ?> <?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_balance_due'] ?? 0, $row['currency'] ?? null)) ?></span>
                                                 </div>
                                             </td>
                                             <td>
@@ -2104,7 +2105,7 @@
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <?php if ($canSettlePayout): ?>
-                                                        <button type="button" data-row-action="true" onclick="openPayoutModal(<?= (int) $row['id'] ?>, <?= esc(number_format((float) ($row['provider_balance_due'] ?? 0), 2, '.', '')) ?>)" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= esc(lang('Finance.recordPaymentFromLedger')) ?>">
+                                                        <button type="button" data-row-action="true" onclick="openPayoutModal(<?= (int) $row['id'] ?>, <?= esc(number_format((float) ($row['provider_balance_due'] ?? 0), 2, '.', '')) ?>, <?= esc(json_encode(\App\Services\ProviderCurrencySummary::currency($row['currency'] ?? null)), 'attr') ?>)" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= esc(lang('Finance.recordPaymentFromLedger')) ?>">
                                                             <i class="fas fa-money-bill-wave"></i>
                                                         </button>
                                                         <button type="button" data-row-action="true" onclick="markPayoutPaid(<?= (int) $row['id'] ?>)" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= esc(lang('Finance.markFullyPaid')) ?>">
@@ -2422,13 +2423,15 @@ function closePayoutModal() {
     document.getElementById('recordPayoutForm').reset();
 }
 
-function openPayoutModal(id, maxAmount) {
+let payoutModalCurrency = "UNKNOWN";
+function openPayoutModal(id, maxAmount, currency) {
+    payoutModalCurrency = currency || "UNKNOWN";
     mountUserModal('recordPayoutModal');
     payoutModalMaxAmount = Number(maxAmount || 0);
     document.getElementById('payoutIdInput').value = String(id);
     document.getElementById('payoutAmountInput').value = payoutModalMaxAmount > 0 ? payoutModalMaxAmount.toFixed(2) : '';
     document.getElementById('payoutDateInput').value = new Date().toISOString().split('T')[0];
-    document.getElementById('payoutAmountHelp').textContent = `<?= esc(lang('Finance.maximumPayable')) ?>: ${formatCurrencyValue(payoutModalMaxAmount)}`;
+    document.getElementById('payoutAmountHelp').textContent = `<?= esc(lang('Finance.maximumPayable')) ?>: ${formatCurrencyValue(payoutModalMaxAmount)} ${payoutModalCurrency}`;
     syncPayoutLiquidityField();
     document.getElementById('recordPayoutModal').classList.remove('hidden');
 }
@@ -2520,7 +2523,7 @@ document.getElementById('recordPayoutForm')?.addEventListener('submit', function
     const notes = document.getElementById('payoutNotesInput').value || '';
 
     if (!Number.isFinite(amount) || amount <= 0 || amount > payoutModalMaxAmount) {
-        notify('error', <?= json_encode(lang('Finance.invalidAmount')) ?>, `<?= esc(lang('Finance.amountValidationMessage')) ?> ${formatCurrencyValue(payoutModalMaxAmount)}.`);
+        notify('error', <?= json_encode(lang('Finance.invalidAmount')) ?>, `<?= esc(lang('Finance.amountValidationMessage')) ?> ${formatCurrencyValue(payoutModalMaxAmount)} ${payoutModalCurrency}.`);
         return;
     }
 

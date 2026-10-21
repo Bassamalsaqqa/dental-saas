@@ -61,6 +61,7 @@ class ProviderPayoutPaymentModel extends TenantAwareModel
                 ppp.paid_date,
                 ppp.notes,
                 pp.finance_id,
+                pp.currency,
                 pp.provider_type,
                 f.transaction_id,
                 f.transaction_type,

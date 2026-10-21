@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php $isRtl = !empty($is_rtl); ?>
 
 <style>
@@ -192,7 +193,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-indigo-50/90"><?= lang('Finance.providerShareTotal') ?></p>
-                        <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_provider_share'] ?? 0) ?></p>
+                        <p class="mt-3 text-3xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_share')) ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
                         <i class="fas fa-percent text-lg"></i>
@@ -204,7 +205,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
-                        <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_provider_balance'] ?? 0) ?></p>
+                        <p class="mt-3 text-3xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_balance')) ?></p>
                         <p class="mt-2 text-xs text-rose-50/90"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
@@ -217,7 +218,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.clinicShareTotal') ?></p>
-                        <p class="mt-3 text-3xl font-black"><?= formatCurrency($stats['total_clinic_share'] ?? 0) ?></p>
+                        <p class="mt-3 text-3xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_clinic_share')) ?></p>
                     </div>
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
                         <i class="fas fa-building text-lg"></i>
@@ -333,6 +334,7 @@
 <script>
 let payoutsTable = null;
 let payoutModalMaxAmount = 0;
+let payoutModalCurrency = null;
 const payoutCurrencySymbol = '<?= esc($currency_symbol ?? '$') ?>';
 const payoutCurrencyPosition = '<?= esc($currency_position ?? 'before') ?>';
 const payoutStatusLabels = {
@@ -365,13 +367,14 @@ function getTransactionTypeMeta(type) {
     return map[normalized] || { icon: 'fas fa-tag', iconColor: 'text-slate-600' };
 }
 
-function formatCurrency(value) {
+function formatCurrency(value, currency = null) {
     const amount = Number(value || 0);
     const normalized = Number.isFinite(amount) ? amount : 0;
     const formatted = normalized.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+    if (currency) return `${formatted} ${currency}`;
     return payoutCurrencyPosition === 'after' ? `${formatted} ${payoutCurrencySymbol}` : `${payoutCurrencySymbol}${formatted}`;
 }
 
@@ -401,13 +404,14 @@ function closePayoutModal() {
     document.getElementById('recordPayoutForm').reset();
 }
 
-function openPayoutModal(id, maxAmount) {
+function openPayoutModal(id, maxAmount, currency) {
+    payoutModalCurrency = currency;
     payoutModalMaxAmount = Number(maxAmount || 0);
     document.getElementById('recordPayoutForm').reset();
     document.getElementById('payoutIdInput').value = String(id);
     document.getElementById('payoutAmountInput').value = payoutModalMaxAmount > 0 ? payoutModalMaxAmount.toFixed(2) : '';
     document.getElementById('payoutDateInput').value = new Date().toISOString().split('T')[0];
-    document.getElementById('payoutAmountHelp').textContent = `<?= lang('Finance.maximumPayable') ?>: ${formatCurrency(payoutModalMaxAmount)}`;
+    document.getElementById('payoutAmountHelp').textContent = `<?= lang('Finance.maximumPayable') ?>: ${formatCurrency(payoutModalMaxAmount, payoutModalCurrency)}`;
     syncPayoutLiquidityField();
     document.getElementById('recordPayoutModal').classList.remove('hidden');
 }
@@ -500,9 +504,9 @@ $(document).ready(function () {
                         <div class="space-y-1">
                             <div class="flex items-center gap-2 text-sm font-black text-blue-800">
                                 <i class="fas fa-arrow-down text-rose-500 text-xs"></i>
-                                <span>${formatCurrency(value)}</span>
+                                <span>${formatCurrency(value, row.currency)}</span>
                             </div>
-                            <div class="text-xs font-semibold text-slate-500"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0)}</div>
+                            <div class="text-xs font-semibold text-slate-500"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0, row.currency)}</div>
                         </div>`;
                 }
             },
@@ -513,10 +517,10 @@ $(document).ready(function () {
                         <div class="space-y-1">
                             <div class="flex items-center gap-2 text-sm font-black text-emerald-700">
                                 <i class="fas fa-arrow-up text-emerald-500 text-xs"></i>
-                                <span>${formatCurrency(value)}</span>
+                                <span>${formatCurrency(value, row.currency)}</span>
                             </div>
                             <div class="text-xs font-bold ${Number(row.provider_balance_due || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}">
-                                <?= lang('Finance.balance') ?>: ${formatCurrency(row.provider_balance_due || 0)}
+                                <?= lang('Finance.balance') ?>: ${formatCurrency(row.provider_balance_due || 0, row.currency)}
                             </div>
                         </div>`;
                 }
@@ -546,7 +550,7 @@ $(document).ready(function () {
                     let actions = '<div class="flex items-center gap-2">';
                     actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition hover:bg-blue-100" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
                     if (canSettle) {
-                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
+                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)}, '${row.currency}')" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
                         actions += `<button type="button" onclick="markPayoutPaid(${id})" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 ring-1 ring-teal-100 transition hover:bg-teal-100" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
                     }
                     actions += '</div>';
@@ -593,7 +597,7 @@ $(document).ready(function () {
         const notes = document.getElementById('payoutNotesInput').value || '';
 
         if (!Number.isFinite(amount) || amount <= 0 || amount > payoutModalMaxAmount) {
-            notify('error', '<?= lang('Finance.invalidAmount') ?>', `<?= lang('Finance.amountValidationMessage') ?> ${formatCurrency(payoutModalMaxAmount)}.`);
+            notify('error', '<?= lang('Finance.invalidAmount') ?>', `<?= lang('Finance.amountValidationMessage') ?> ${formatCurrency(payoutModalMaxAmount, payoutModalCurrency)}.`);
             return;
         }
         submitPayoutPayment(id, amount, method, liquidityAccount, paidDate, notes);

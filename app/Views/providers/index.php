@@ -541,7 +541,7 @@ document.addEventListener('keydown', function(e) {
                 $('#totalCombined').text(data.total_combined || 0);
                 $('#activeSuppliers').text(data.active_suppliers || 0);
                 $('#totalProviders').text(data.total_providers || 0);
-                $('#outstandingBalance').text(Number(data.outstanding_balance || 0).toFixed(2));
+                $('#outstandingBalance').text(data.outstanding_label || '?');
             })
             .fail(function() {
                 $('#totalCombined, #activeSuppliers, #totalProviders, #outstandingBalance').text('0');

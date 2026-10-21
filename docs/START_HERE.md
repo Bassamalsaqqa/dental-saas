@@ -27,7 +27,9 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | React/Lovable strategy | `refactor/LOVABLE_STRATEGY_CODEX.md` |
 | Dynamic doctor scheduling | `SaaS/DOCTOR_SCHEDULING_CONTRACT.md` |
 | Scheduling readiness and Owner integration | `SaaS/PRODUCTION_READINESS_2026-10-16.md`, `SaaS/STAGING_CERTIFICATION_RUNBOOK.md`, `SaaS/OWNER_INTEGRATION_AND_READINESS.md` |
+| Provider payout lifecycle and native currency (unintegrated M2 review) | `M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md` |
 | Control-plane entitlements | `SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` |
+
 
 ## Assistant Guides
 

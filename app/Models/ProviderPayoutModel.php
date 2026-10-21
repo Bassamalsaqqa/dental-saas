@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\ProviderCurrencySummary;
+
 class ProviderPayoutModel extends TenantAwareModel
 {
     protected $table = 'provider_payouts';
@@ -85,24 +87,13 @@ class ProviderPayoutModel extends TenantAwareModel
             $accrualBuilder->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false);
         }
 
-        $row = (clone $accrualBuilder)
-            ->select('
-                SUM(pp.provider_share_amount) AS total_provider_share,
-                SUM(pp.provider_paid_amount) AS total_provider_paid,
-                SUM(CASE WHEN pp.status = \'void\' THEN 0 ELSE pp.provider_balance_due END) AS total_provider_balance
-            ')
-            ->get()
-            ->getRowArray();
-
-        $financeLevelSubquery = (clone $accrualBuilder)
-            ->select('pp.finance_id, MAX(pp.gross_amount) AS gross_amount, MAX(pp.gross_amount) - SUM(pp.provider_share_amount) AS clinic_share_amount', false)
-            ->groupBy('pp.finance_id')
-            ->getCompiledSelect();
-
-        $financeLevelTotals = $this->db->table("({$financeLevelSubquery}) finance_provider_rollup")
-            ->select('SUM(gross_amount) AS total_gross_amount, SUM(clinic_share_amount) AS total_clinic_share')
-            ->get()
-            ->getRowArray();
+        $allocationRows = (clone $accrualBuilder)->select("pp.finance_id, pp.currency,
+            MAX(pp.gross_amount) AS gross_amount, COUNT(DISTINCT pp.gross_amount) AS gross_variant_count,
+            SUM(pp.provider_share_amount) AS provider_share_amount,
+            SUM(pp.provider_paid_amount) AS provider_paid_amount,
+            SUM(CASE WHEN pp.status='void' THEN 0 ELSE pp.provider_balance_due END) AS provider_balance_due,
+            COUNT(*) AS allocation_count, 'partial' AS status", false)
+            ->groupBy('pp.finance_id, pp.currency')->get()->getResultArray();
 
         // Cash view: filter by payout payment date.
         $paidCashBuilder = $this->db->table('provider_payout_payments ppp')
@@ -116,19 +107,8 @@ class ProviderPayoutModel extends TenantAwareModel
             $paidCashBuilder->where('ppp.paid_date <=', $endDate);
         }
 
-        $paidCash = $paidCashBuilder
-            ->selectSum('ppp.amount', 'total_paid_cash')
-            ->get()
-            ->getRowArray();
-
-        return [
-            'total_provider_share' => floatval($row['total_provider_share'] ?? 0),
-            'total_provider_paid' => floatval($row['total_provider_paid'] ?? 0),
-            'total_provider_paid_cash' => floatval($paidCash['total_paid_cash'] ?? 0),
-            'total_provider_balance' => floatval($row['total_provider_balance'] ?? 0),
-            'total_clinic_share' => floatval($financeLevelTotals['total_clinic_share'] ?? 0),
-            'total_gross_amount' => floatval($financeLevelTotals['total_gross_amount'] ?? 0),
-        ];
+        $cashRows = $paidCashBuilder->select('SUM(ppp.amount) AS amount, pp.currency')->groupBy('pp.currency')->get()->getResultArray();
+        return ProviderCurrencySummary::summarize($allocationRows, $cashRows);
     }
 
     public function getDataTableByClinic(int $clinicId, int $start, int $length, string $search = '', string $statusFilter = ''): array
@@ -197,14 +177,15 @@ class ProviderPayoutModel extends TenantAwareModel
         }
 
         $rows = $builder
-            ->select('pp.status, COUNT(*) AS payout_count, SUM(pp.provider_share_amount) AS provider_share_total, SUM(CASE WHEN pp.status = \'void\' THEN 0 ELSE pp.provider_balance_due END) AS balance_due_total')
-            ->groupBy('pp.status')
+            ->select('pp.currency, pp.status, COUNT(*) AS payout_count, SUM(pp.provider_share_amount) AS provider_share_total, SUM(CASE WHEN pp.status = \'void\' THEN 0 ELSE pp.provider_balance_due END) AS balance_due_total')
+            ->groupBy('pp.status, pp.currency')
             ->get()
             ->getResultArray();
 
         return array_map(static function (array $row): array {
             return [
                 'status' => (string) ($row['status'] ?? 'unknown'),
+                'currency' => ProviderCurrencySummary::currency($row['currency'] ?? null),
                 'payout_count' => (int) ($row['payout_count'] ?? 0),
                 'provider_share_total' => (float) ($row['provider_share_total'] ?? 0),
                 'balance_due_total' => (float) ($row['balance_due_total'] ?? 0),
@@ -235,13 +216,14 @@ class ProviderPayoutModel extends TenantAwareModel
                     NULLIF(pp.provider_name_snapshot, ''),
                     CONCAT('User #', COALESCE(pp.provider_user_id, 0))
                 ) AS provider_label,
+                pp.currency,
                 COUNT(*) AS payout_count,
                 SUM(pp.gross_amount) AS gross_amount_total,
                 SUM(pp.provider_share_amount) AS provider_share_total,
                 SUM(pp.provider_paid_amount) AS provider_paid_total,
                 SUM(CASE WHEN pp.status = 'void' THEN 0 ELSE pp.provider_balance_due END) AS provider_balance_total
             ", false)
-            ->groupBy('pp.provider_name_snapshot, pp.provider_user_id')
+            ->groupBy('pp.provider_name_snapshot, pp.provider_user_id, pp.currency')
             ->orderBy('provider_share_total', 'DESC')
             ->limit($limit)
             ->get()
@@ -253,7 +235,7 @@ class ProviderPayoutModel extends TenantAwareModel
         $limit = max(1, min($limit, 1000));
 
         $builder = $this->db->table('provider_payouts pp')
-            ->select('pp.id, pp.status, pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot, pp.gross_amount, pp.provider_share_amount, pp.provider_paid_amount, pp.provider_balance_due, pp.created_at, f.transaction_id, p.patient_id AS patient_number, p.first_name AS patient_first_name, p.last_name AS patient_last_name, u.first_name AS provider_first_name, u.last_name AS provider_last_name')
+            ->select('pp.currency, pp.id, pp.status, pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot, pp.gross_amount, pp.provider_share_amount, pp.provider_paid_amount, pp.provider_balance_due, pp.created_at, f.transaction_id, p.patient_id AS patient_number, p.first_name AS patient_first_name, p.last_name AS patient_last_name, u.first_name AS provider_first_name, u.last_name AS provider_last_name')
             ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
             ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
             ->join('users u', 'u.id = pp.provider_user_id', 'left')
@@ -288,21 +270,12 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getSummaryByProviderUserId(int $clinicId, int $userId): array
     {
-        $row = $this->db->table('provider_payouts')
-            ->select('COUNT(*) AS payout_count, SUM(gross_amount) AS gross_amount_total, SUM(provider_share_amount) AS provider_share_total, SUM(provider_paid_amount) AS provider_paid_total, SUM(CASE WHEN status = \'void\' THEN 0 ELSE provider_balance_due END) AS provider_balance_total')
-            ->where('clinic_id', $clinicId)
-            ->where('provider_type', 'user')
-            ->where('provider_user_id', $userId)
-            ->get()
-            ->getRowArray();
-
-        return [
-            'payout_count' => (int) ($row['payout_count'] ?? 0),
-            'gross_amount_total' => (float) ($row['gross_amount_total'] ?? 0),
-            'provider_share_total' => (float) ($row['provider_share_total'] ?? 0),
-            'provider_paid_total' => (float) ($row['provider_paid_total'] ?? 0),
-            'provider_balance_total' => (float) ($row['provider_balance_total'] ?? 0),
-        ];
+        $rows = $this->db->table('provider_payouts')->select("finance_id, currency, SUM(gross_amount) AS gross_amount,
+            SUM(provider_share_amount) AS provider_share_amount, SUM(provider_paid_amount) AS provider_paid_amount,
+            SUM(CASE WHEN status='void' THEN 0 ELSE provider_balance_due END) AS provider_balance_due,
+            COUNT(*) AS allocation_count, 'partial' AS status", false)->where('clinic_id', $clinicId)
+            ->where('provider_type', 'user')->where('provider_user_id', $userId)->groupBy('finance_id, currency')->get()->getResultArray();
+        return ProviderCurrencySummary::summarize($rows);
     }
 
     public function getRowsByProviderUserId(int $clinicId, int $userId, int $limit = 25): array
@@ -318,6 +291,7 @@ class ProviderPayoutModel extends TenantAwareModel
         $rows = $this->db->table('provider_payouts pp')
             ->select("
                 pp.id,
+                pp.currency,
                 pp.finance_id,
                 pp.status,
                 pp.gross_amount,
@@ -395,43 +369,30 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getDirectoryProvidersByClinic(int $clinicId, string $search = ''): array
     {
-        $providerKey = "CASE
-            WHEN pp.provider_type = 'user' AND pp.provider_user_id IS NOT NULL THEN CONCAT('user:', pp.provider_user_id)
-            ELSE CONCAT('guest:', LOWER(TRIM(COALESCE(NULLIF(pp.provider_name_snapshot, ''), 'Guest Provider'))))
-        END";
-
-        $builder = $this->db->table('provider_payouts pp')
-            ->select("
-                {$providerKey} AS directory_key,
-                pp.provider_type,
-                MAX(pp.provider_user_id) AS provider_user_id,
-                MAX(pp.provider_name_snapshot) AS provider_name_snapshot,
-                COUNT(*) AS payout_count,
-                SUM(pp.gross_amount) AS gross_amount_total,
-                SUM(pp.provider_share_amount) AS provider_share_total,
-                SUM(pp.provider_paid_amount) AS provider_paid_total,
-                SUM(CASE WHEN pp.status = 'void' THEN 0 ELSE pp.provider_balance_due END) AS provider_balance_total,
-                MAX(pp.created_at) AS latest_payout_date,
-                MAX(u.first_name) AS first_name,
-                MAX(u.last_name) AS last_name,
-                MAX(u.phone) AS phone,
-                MAX(u.email) AS email
-            ", false)
-            ->join('users u', 'u.id = pp.provider_user_id', 'left')
-            ->where('pp.clinic_id', $clinicId)
-            ->groupBy($providerKey, false)
-            ->groupBy('pp.provider_type');
-
-        if ($search !== '') {
-            $builder->groupStart()
-                ->like('pp.provider_name_snapshot', $search)
-                ->orLike("CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))", $search)
-                ->orLike('u.phone', $search)
-                ->orLike('u.email', $search)
-                ->groupEnd();
+        $providerKey = "CASE WHEN pp.provider_type='user' AND pp.provider_user_id IS NOT NULL THEN CONCAT('user:', pp.provider_user_id) ELSE CONCAT('guest:', LOWER(TRIM(COALESCE(NULLIF(pp.provider_name_snapshot,''),'Guest Provider')))) END";
+        $rows = $this->db->table('provider_payouts pp')->select("pp.finance_id, pp.currency, pp.provider_type,
+            MAX(pp.provider_user_id) AS provider_user_id, MAX(pp.provider_name_snapshot) AS provider_name_snapshot,
+            SUM(pp.gross_amount) AS gross_amount, SUM(pp.provider_share_amount) AS provider_share_amount,
+            SUM(pp.provider_paid_amount) AS provider_paid_amount,
+            SUM(CASE WHEN pp.status='void' THEN 0 ELSE pp.provider_balance_due END) AS provider_balance_due,
+            COUNT(*) AS allocation_count, 'partial' AS status, MAX(pp.created_at) AS created_at,
+            MAX(u.first_name) AS first_name, MAX(u.last_name) AS last_name, MAX(u.phone) AS phone, MAX(u.email) AS email", false)
+            ->join('users u', 'u.id=pp.provider_user_id', 'left')->where('pp.clinic_id', $clinicId)
+            ->groupBy($providerKey, false)->groupBy('pp.provider_type, pp.finance_id, pp.currency')->get()->getResultArray();
+        $groups = [];
+        foreach ($rows as $row) {
+            $key = $row['provider_type'] === 'user' && $row['provider_user_id']
+                ? 'user:' . $row['provider_user_id'] : 'guest:' . strtolower(trim($row['provider_name_snapshot'] ?: 'Guest Provider'));
+            $groups[$key][] = $row;
         }
-
-        return $builder->orderBy('provider_share_total', 'DESC')->get()->getResultArray();
+        $result = [];
+        foreach ($groups as $key => $allocations) {
+            $identity = $allocations[0];
+            if ($search !== '' && stripos(implode(' ', [$identity['provider_name_snapshot'], $identity['first_name'], $identity['last_name'], $identity['phone'], $identity['email']]), $search) === false) { continue; }
+            $summary = ProviderCurrencySummary::summarize($allocations);
+            $result[] = $summary + ['directory_key' => $key, 'latest_payout_date' => max(array_column($allocations, 'created_at'))] + $identity;
+        }
+        return $result;
     }
 
     public function getDirectoryProviderCount(int $clinicId): int
@@ -452,20 +413,6 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getDirectoryProviderStats(int $clinicId): array
     {
-        $providerKey = "CASE
-            WHEN provider_type = 'user' AND provider_user_id IS NOT NULL THEN CONCAT('user:', provider_user_id)
-            ELSE CONCAT('guest:', LOWER(TRIM(COALESCE(NULLIF(provider_name_snapshot, ''), 'Guest Provider'))))
-        END";
-
-        $row = $this->db->table('provider_payouts')
-            ->select("COUNT(DISTINCT {$providerKey}) AS total, SUM(CASE WHEN status = 'void' THEN 0 ELSE provider_balance_due END) AS outstanding", false)
-            ->where('clinic_id', $clinicId)
-            ->get()
-            ->getRowArray();
-
-        return [
-            'total' => (int) ($row['total'] ?? 0),
-            'outstanding_balance' => (float) ($row['outstanding'] ?? 0),
-        ];
+        return $this->getStatsByClinic($clinicId) + ['total' => $this->getDirectoryProviderCount($clinicId)];
     }
 }

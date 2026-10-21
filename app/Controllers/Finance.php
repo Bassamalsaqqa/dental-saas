@@ -588,6 +588,7 @@ class Finance extends BaseController
                 'provider_name_snapshot' => $providerNameSnapshot,
                 'split_mode' => $splitMode,
                 'split_value' => $splitValue,
+                'split_value_input' => $this->requestArrayValue('provider_split_value', $index, null),
                 'gross_amount' => round($grossAmount, 2),
                 'provider_share_amount' => round($providerShareAmount, 2),
                 'clinic_share_amount' => 0.0,
@@ -676,7 +677,7 @@ class Finance extends BaseController
                 }
 
                 if (($existing['status'] ?? '') === 'void') {
-                    $this->assertVoidProviderAllocationRoundtrip($existing, $payoutData);
+                    $this->assertVoidProviderAllocationRoundtrip($existing, $payoutData, $payload['split_value_input'] ?? null);
                     // Exact form roundtrips may update unrelated metadata, never void history.
                     $keptIds[] = $payoutId;
                     continue;
@@ -796,32 +797,9 @@ class Finance extends BaseController
     }
 
     /** Void rows are retained verbatim; form normalization is not a cancellation workflow. */
-    private function assertVoidProviderAllocationRoundtrip(array $existing, array $proposed): void
+    private function assertVoidProviderAllocationRoundtrip(array $existing, array $proposed, mixed $rawSplitValue = null): void
     {
-        $reject = static function (): void {
-            throw new \DomainException(lang('Finance.voidProviderAllocationProtected'));
-        };
-        if ((float) ($proposed['provider_paid_amount'] ?? 0) !== 0.0) {
-            $reject();
-        }
-        foreach (['finance_id', 'patient_id', 'provider_user_id'] as $field) {
-            if ((int) ($existing[$field] ?? 0) !== (int) ($proposed[$field] ?? 0)) {
-                $reject();
-            }
-        }
-        foreach (['provider_type', 'provider_name_snapshot', 'split_mode', 'currency', 'notes'] as $field) {
-            if (trim((string) ($existing[$field] ?? '')) !== trim((string) ($proposed[$field] ?? ''))) {
-                $reject();
-            }
-        }
-        foreach (['split_value', 'gross_amount', 'provider_share_amount', 'clinic_share_amount'] as $field) {
-            $old = $existing[$field] ?? null;
-            $new = $proposed[$field] ?? null;
-            if (!is_numeric($old) || !is_numeric($new) || !is_finite((float) $old) || !is_finite((float) $new)
-                || round((float) $old, 2) !== round((float) $new, 2)) {
-                $reject();
-            }
-        }
+        \App\Services\ProviderAllocationRoundtripPolicy::assertEquivalent($existing, $proposed, $rawSplitValue);
     }
 
     private function syncProviderPayoutStatus(int $clinicId, int $payoutId): void
@@ -1409,13 +1387,7 @@ class Finance extends BaseController
         $paidTotal = 0;
         $financeGrossAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
         $providerPayouts = $this->providerPayoutModel->getRowsByFinanceId((int) $clinicId, (int) $id);
-        $providerPayoutSummary = [
-            'gross_amount' => $financeGrossAmount,
-            'provider_share_amount' => 0.0,
-            'provider_paid_amount' => 0.0,
-            'provider_balance_due' => 0.0,
-            'clinic_share_amount' => 0.0,
-        ];
+        $providerPayoutSummary = \App\Services\ProviderCurrencySummary::summarize($providerPayouts);
         foreach ($providerPayouts as &$providerPayout) {
             if (!empty($providerPayout['provider_user_id'])) {
                 $providerUser = $this->userModel
@@ -1433,14 +1405,8 @@ class Finance extends BaseController
                 ->orderBy('id', 'DESC')
                 ->findAll();
 
-            $providerPayoutSummary['provider_share_amount'] += (float) ($providerPayout['provider_share_amount'] ?? 0);
-            $providerPayoutSummary['provider_paid_amount'] += (float) ($providerPayout['provider_paid_amount'] ?? 0);
-            if (($providerPayout['status'] ?? '') !== 'void') {
-                $providerPayoutSummary['provider_balance_due'] += (float) ($providerPayout['provider_balance_due'] ?? 0);
-            }
         }
         unset($providerPayout);
-        $providerPayoutSummary['clinic_share_amount'] = max(0, round($providerPayoutSummary['gross_amount'] - $providerPayoutSummary['provider_share_amount'], 2));
 
         if (in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
             $payments = $this->financePaymentModel
@@ -2077,13 +2043,18 @@ class Finance extends BaseController
             $this->buildFinancialLedger((int) $clinicId, null, $endDate)['treasury_rows']
         );
 
+        $treasuryMovement = \App\Services\ProviderCurrencySummary::guardBaseSummary($treasuryMovement, $ledger['treasury_rows']);
+        $closingLedger = $this->buildFinancialLedger((int) $clinicId, null, $endDate);
+        $treasuryClosing = \App\Services\ProviderCurrencySummary::guardBaseSummary($treasuryClosing, $closingLedger['treasury_rows']);
+
         $moneyIn = (float) ($ledger['summary']['inflow_total'] ?? 0);
         $moneyOut = (float) ($ledger['summary']['outflow_total'] ?? 0);
         $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
         $expensePayables = (float) ($apAgingSummary['total_balance_due'] ?? 0);
-        $providerPayables = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
-        $weOweOthers = $expensePayables + $providerPayables;
-        $netPosition = $moneyIn - $moneyOut + $customersOweUs - $weOweOthers;
+        $providerCompatible = \App\Services\ProviderCurrencySummary::baseCompatible($providerPayoutStats, (string) settings()->get('currency', 'ILS'));
+        $providerPayables = $providerCompatible ? (float) ($providerPayoutStats['total_provider_balance'] ?? 0) : null;
+        $weOweOthers = $providerPayables !== null ? $expensePayables + $providerPayables : null;
+        $netPosition = $weOweOthers !== null && !($ledger['summary']['provider_currency_unavailable'] ?? false) ? $moneyIn - $moneyOut + $customersOweUs - $weOweOthers : null;
 
         $data = [
             'title' => 'Financial Reports',
@@ -2103,12 +2074,13 @@ class Finance extends BaseController
             'ap_aging_detail' => $apAgingDetail,
             'owner_summary' => [
                 'money_in' => round($moneyIn, 2),
-                'money_out' => round($moneyOut, 2),
+                'money_out' => ($ledger['summary']['provider_currency_unavailable'] ?? false) ? null : round($moneyOut, 2),
                 'customers_owe_us' => round($customersOweUs, 2),
-                'we_owe_others' => round($weOweOthers, 2),
+                'we_owe_others' => $weOweOthers !== null ? round($weOweOthers, 2) : null,
                 'expense_payables' => round($expensePayables, 2),
-                'provider_payables' => round($providerPayables, 2),
-                'net_position' => round($netPosition, 2),
+                'provider_currency_summary' => $providerPayoutStats,
+                'provider_payables' => $providerPayables !== null ? round($providerPayables, 2) : null,
+                'net_position' => $netPosition !== null ? round($netPosition, 2) : null,
                 'as_of_date' => $endDate,
             ],
             'currency_position' => settings()->get('currency_position', 'before'),
@@ -2448,6 +2420,7 @@ class Finance extends BaseController
                 ppp.liquidity_account,
                 ppp.paid_date,
                 ppp.notes,
+                pp.currency AS provider_currency,
                 pp.provider_user_id,
                 pp.provider_name_snapshot,
                 f.transaction_id,
@@ -2478,7 +2451,9 @@ class Finance extends BaseController
                 $providerLabel = (string) ($row['provider_name_snapshot'] ?? ('Provider #' . (string) ($row['provider_user_id'] ?? '0')));
             }
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $amountBase = floatval($row['amount'] ?? 0);
+            $nativeAmount = floatval($row['amount'] ?? 0);
+            $nativeCurrency = \App\Services\ProviderCurrencySummary::currency($row['provider_currency'] ?? null);
+            $amountBase = $nativeCurrency === \App\Services\ProviderCurrencySummary::currency($baseCurrency) ? $nativeAmount : null;
 
             $rows[] = [
                 'finance_id' => (int) ($row['finance_id'] ?? 0),
@@ -2498,11 +2473,11 @@ class Finance extends BaseController
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? 'Provider payout cash payment',
                 'category' => 'provider_payout_cash',
-                'currency' => $baseCurrency,
-                'exchange_rate' => 1.0,
-                'amount_original' => null,
+                'currency' => $nativeCurrency,
+                'exchange_rate' => $amountBase !== null ? 1.0 : null,
+                'amount_original' => $nativeAmount,
                 'amount_base' => $amountBase,
-                'signed_amount_base' => -$amountBase,
+                'signed_amount_base' => $amountBase !== null ? -$amountBase : null,
             ];
         }
 
@@ -2585,6 +2560,8 @@ class Finance extends BaseController
         $outflow = 0.0;
         $net = 0.0;
         $operatingCount = 0;
+        $unconverted = array_filter($rows, static fn(array $r): bool => ($r['event_source'] ?? '') === 'provider_payout_payment' && $r['amount_base'] === null);
+        $nativeCash = \App\Services\ProviderCurrencySummary::summarize([], array_map(static fn(array $r): array => ['currency' => $r['currency'], 'amount' => $r['amount_original']], array_values(array_filter($rows, static fn(array $r): bool => ($r['event_source'] ?? '') === 'provider_payout_payment'))));
         foreach ($rows as $row) {
             $eventType = (string) ($row['event_type'] ?? '');
             $eventSource = (string) ($row['event_source'] ?? '');
@@ -2609,8 +2586,10 @@ class Finance extends BaseController
             'summary' => [
                 'count' => $operatingCount,
                 'inflow_total' => $inflow,
-                'outflow_total' => $outflow,
-                'net_total' => $net,
+                'outflow_total' => $unconverted ? null : $outflow,
+                'provider_currency_unavailable' => (bool) $unconverted,
+                'provider_cash_currency_buckets' => $nativeCash['currency_buckets'],
+                'net_total' => $unconverted ? null : $net,
             ],
         ];
     }
@@ -2721,6 +2700,11 @@ class Finance extends BaseController
             : 0.0;
         $stats['transaction_summary'] = $summary;
 
+        $unconverted = array_filter($rows, static fn(array $r): bool => ($r['event_source'] ?? '') === 'provider_payout_payment' && $r['amount_base'] === null);
+        $nativeCash = \App\Services\ProviderCurrencySummary::summarize([], array_map(static fn(array $r): array => ['currency' => $r['currency'], 'amount' => $r['amount_original']], array_values(array_filter($rows, static fn(array $r): bool => ($r['event_source'] ?? '') === 'provider_payout_payment'))));
+        $stats['provider_cash_summary'] = $nativeCash;
+        $stats['provider_currency_unavailable'] = (bool) $unconverted;
+        if ($unconverted) { foreach (['provider_paid_cash_total', 'net_clinic_cash', 'safe_cash_out', 'safe_cash_net', 'average_transaction'] as $key) { $stats[$key] = null; } $stats['transaction_summary'] = []; }
         return $stats;
     }
 
@@ -2894,13 +2878,14 @@ class Finance extends BaseController
 
         $response = [
             'gross_collections' => $stats['gross_collections'],
-            'gross_collections_formatted' => formatCurrency($stats['gross_collections']),
+            'gross_collections_formatted' => ($stats['gross_collections'] === null ? lang('Finance.providerCurrencyUnavailable') : formatCurrency($stats['gross_collections'])),
             'provider_paid_cash_total' => $stats['provider_paid_cash_total'],
-            'provider_paid_cash_total_formatted' => formatCurrency($stats['provider_paid_cash_total']),
+            'provider_paid_cash_total_formatted' => \App\Services\ProviderCurrencySummary::format($stats['provider_cash_summary'], 'total_provider_paid_cash'),
+            'provider_cash_currency_summary' => $stats['provider_cash_summary'],
             'expenses_paid' => $stats['expenses_paid'],
-            'expenses_paid_formatted' => formatCurrency($stats['expenses_paid']),
+            'expenses_paid_formatted' => ($stats['expenses_paid'] === null ? lang('Finance.providerCurrencyUnavailable') : formatCurrency($stats['expenses_paid'])),
             'net_clinic_cash' => $stats['net_clinic_cash'],
-            'net_clinic_cash_formatted' => formatCurrency($stats['net_clinic_cash']),
+            'net_clinic_cash_formatted' => ($stats['net_clinic_cash'] === null ? lang('Finance.providerCurrencyUnavailable') : formatCurrency($stats['net_clinic_cash'])),
             'outstanding_invoices' => count($openInvoices),
             'outstanding_invoices_balance' => round($openInvoicesBalance, 2),
             'outstanding_invoices_balance_formatted' => formatCurrency($openInvoicesBalance),
@@ -2988,6 +2973,7 @@ class Finance extends BaseController
                     'patient_gender' => $row['patient_gender'] ?? null,
                     'provider_name' => $providerName,
                     'provider_type' => $row['provider_type'],
+                    'currency' => \App\Services\ProviderCurrencySummary::currency($row['currency'] ?? null),
                     'gross_amount' => floatval($row['gross_amount'] ?? 0),
                     'provider_share_amount' => floatval($row['provider_share_amount'] ?? 0),
                     'clinic_share_amount' => floatval($row['clinic_share_amount'] ?? 0),

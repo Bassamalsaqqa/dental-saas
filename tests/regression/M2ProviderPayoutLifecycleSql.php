@@ -85,6 +85,28 @@ try{
  $voidBefore=$db->table('provider_payouts')->where('id',$void)->get()->getRowArray();$paymentsBefore=$state($fid)['payments'];
  $invoke($fid,$pid,$post);
  $check($db->table('provider_payouts')->where('id',$void)->get()->getRowArray()===$voidBefore&&$state($fid)['payments']===$paymentsBefore,'Equivalent form repost leaves exact void row and payment history untouched');
+ foreach(['30','30.0','30.00']as$rep){$candidate=$post;$candidate['provider_split_value'][1]=$rep;$invoke($fid,$pid,$candidate);$check($db->table('provider_payouts')->where('id',$void)->get()->getRowArray()===$voidBefore&&$state($fid)['payments']===$paymentsBefore,'Legitimate numeric text '.$rep.' preserves exact void row and history');}
+ foreach([
+  ['notes'=>null,'snapshot'=>null,'posted'=>''],
+  ['notes'=>'','snapshot'=>'','posted'=>'  '],
+  ['notes'=>'  source note  ','snapshot'=>' Historical display name ','posted'=>' source note ']
+ ]as$variant){
+  $db->query('SAVEPOINT equivalent_text');
+  $db->table('provider_payouts')->where('id',$void)->where('clinic_id',1)->update(['notes'=>$variant['notes'],'provider_name_snapshot'=>$variant['snapshot']]);
+  $saved=$db->table('provider_payouts')->where('id',$void)->get()->getRowArray();$history=$state($fid)['payments'];$candidate=$post;$candidate['provider_split_notes'][1]=$variant['posted'];
+  $invoke($fid,$pid,$candidate);
+  $check($db->table('provider_payouts')->where('id',$void)->get()->getRowArray()===$saved&&$state($fid)['payments']===$history,'Real SQL null/empty/boundary-space form equivalence preserves exact stored text and history');
+  $db->query('ROLLBACK TO SAVEPOINT equivalent_text');
+ }
+ foreach(['30.00001','30.0000000000000000001','3.0000000000001e1']as$raw){
+  $candidate=$post;$candidate['provider_split_value'][1]=$raw;$before=$state($fid);$db->query('SAVEPOINT unsupported_precision');$rejected=false;
+  try{$invoke($fid,$pid,$candidate);}catch(DomainException $e){$rejected=true;}
+  $db->query('ROLLBACK TO SAVEPOINT unsupported_precision');
+  $check($rejected&&$state($fid)===$before,'Real SQL unsupported raw precision '.$raw.' rejects without history mutation');
+ }
+ $candidate=$post;$candidate['provider_split_mode'][1]='fixed';$candidate['provider_split_value'][1]='60';$before=$state($fid);$db->query('SAVEPOINT material_terms');$rejected=false;
+ try{$invoke($fid,$pid,$candidate);}catch(DomainException $e){$rejected=true;}
+ $db->query('ROLLBACK TO SAVEPOINT material_terms');$check($rejected&&$state($fid)===$before,'Different split terms with identical monetary share fail closed');
  foreach(['en','ar']as$locale){
   $config=config('App');$request=new CodeIgniter\HTTP\IncomingRequest($config,new CodeIgniter\HTTP\SiteURI($config,'finance/'.$fid),null,new CodeIgniter\HTTP\UserAgent());
   $request->setLocale($locale);Config\Services::injectMock('request',$request);service('language')->setLocale($locale);

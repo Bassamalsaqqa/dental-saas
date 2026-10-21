@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php
     $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']);
     $taxPercent = $finance['tax_percentage'] ?? 0;
@@ -1923,8 +1924,8 @@
                             <h2 class="text-xl font-bold text-gray-800"><?= esc($providerPayoutUi['sectionTitle']) ?></h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
-                            <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? esc($providerPayoutUi['sectionStatusOpen']) : esc($providerPayoutUi['sectionStatusClear']) ?>
+                            <?= (bool) array_filter($provider_payout_summary['currency_buckets'] ?? [], static fn(array $b): bool => ($b['provider_balance_due'] ?? 0) > 0) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                            <?= (bool) array_filter($provider_payout_summary['currency_buckets'] ?? [], static fn(array $b): bool => ($b['provider_balance_due'] ?? 0) > 0) ? esc($providerPayoutUi['sectionStatusOpen']) : esc($providerPayoutUi['sectionStatusClear']) ?>
                         </span>
                     </div>
                     <div class="finance-show-card-body space-y-5">
@@ -1932,23 +1933,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
                             <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['collected']) ?></p>
-                                <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout_summary['gross_amount'] ?? 0) ?></p>
+                                <p class="mt-1 font-bold text-gray-900"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'gross_amount')) ?></p>
                             </div>
                             <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['doctorShare']) ?></p>
-                                <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout_summary['provider_share_amount'] ?? 0) ?></p>
+                                <p class="mt-1 font-bold text-indigo-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_share_amount')) ?></p>
                             </div>
                             <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['paid']) ?></p>
-                                <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout_summary['provider_paid_amount'] ?? 0) ?></p>
+                                <p class="mt-1 font-bold text-emerald-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_paid_amount')) ?></p>
                             </div>
                             <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['left']) ?></p>
-                                <p class="mt-1 font-bold text-rose-700"><?= formatCurrency($provider_payout_summary['provider_balance_due'] ?? 0) ?></p>
+                                <p class="mt-1 font-bold text-rose-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_balance_due')) ?></p>
                             </div>
                             <div class="finance-provider-stat rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($providerPayoutUi['clinicKeeps']) ?></p>
-                                <p class="mt-1 font-bold text-sky-700"><?= formatCurrency($provider_payout_summary['clinic_share_amount'] ?? 0) ?></p>
+                                <p class="mt-1 font-bold text-sky-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'clinic_share_amount')) ?></p>
                             </div>
                         </div>
 
@@ -2002,15 +2003,15 @@
                                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
                                             <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['doctorShare']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-indigo-700"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
+                                                <p class="mt-1 text-sm font-bold text-indigo-700"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_share_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                             <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['paid']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-emerald-700"><?= formatCurrency($providerPayout['provider_paid_amount'] ?? 0) ?></p>
+                                                <p class="mt-1 text-sm font-bold text-emerald-700"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                             <div class="finance-provider-mini-stat rounded-xl border border-slate-200 bg-white p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency(($providerPayout['status'] ?? '') === 'void' ? 0 : ($providerPayout['provider_balance_due'] ?? 0)) ?></p>
+                                                <p class="mt-1 text-sm font-bold text-rose-700"><?= esc(\App\Services\ProviderCurrencySummary::native(($providerPayout['status'] ?? '') === 'void' ? 0 : ($providerPayout['provider_balance_due'] ?? 0), $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -2041,7 +2042,7 @@
                                                             <tr class="bg-white">
                                                                 <td class="px-4 py-3 text-slate-700"><?= !empty($paymentRow['paid_date']) ? esc(formatDate($paymentRow['paid_date'])) : '-' ?></td>
                                                                 <td class="px-4 py-3 text-slate-700"><?= esc(lang('Finance.' . ($paymentRow['payment_method'] ?? 'cash'))) ?></td>
-                                                                <td class="px-4 py-3 font-semibold text-slate-900"><?= formatCurrency($paymentRow['amount'] ?? 0) ?></td>
+                                                                <td class="px-4 py-3 font-semibold text-slate-900"><?= esc(\App\Services\ProviderCurrencySummary::native($paymentRow['amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></td>
                                                                 <td class="px-4 py-3 text-slate-600"><?= !empty($paymentRow['notes']) ? esc($paymentRow['notes']) : '-' ?></td>
                                                             </tr>
                                                         <?php endforeach; ?>
@@ -2058,7 +2059,7 @@
                                         <div class="finance-provider-cta flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="<?= $isRtl ? 'text-right' : 'text-left' ?>">
                                                 <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($providerPayoutUi['balanceReady']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-slate-900"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
+                                                <p class="mt-1 text-sm font-bold text-slate-900"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_balance_due'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                             <button type="button" onclick="openFinanceModal('<?= esc($providerPayoutModalId) ?>', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
                                                 <?php if ($isRtl): ?>
@@ -2691,15 +2692,15 @@
                                 <div class="grid grid-cols-3 gap-2 text-center md:min-w-[22rem]">
                                     <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 shadow-sm">
                                         <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['doctorShare']) ?></p>
-                                        <p class="mt-1 text-sm font-bold text-indigo-700" dir="ltr"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
+                                        <p class="mt-1 text-sm font-bold text-indigo-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_share_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                     <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 shadow-sm">
                                         <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['paid']) ?></p>
-                                        <p class="mt-1 text-sm font-bold text-emerald-700" dir="ltr"><?= formatCurrency($providerPayout['provider_paid_amount'] ?? 0) ?></p>
+                                        <p class="mt-1 text-sm font-bold text-emerald-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                     <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 shadow-sm">
                                         <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500"><?= esc($providerPayoutUi['left']) ?></p>
-                                        <p class="mt-1 text-sm font-bold text-rose-700" dir="ltr"><?= formatCurrency($providerBalanceDue) ?></p>
+                                        <p class="mt-1 text-sm font-bold text-rose-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerBalanceDue, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                 </div>
                             </div>

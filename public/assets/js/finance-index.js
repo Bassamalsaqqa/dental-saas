@@ -139,8 +139,8 @@
             dataType: 'json',
             success: function (data) {
                 $('#totalRevenue').text(data.gross_collections_formatted ? formatCurrencyAbbreviated(data.gross_collections) : formatCurrencyAbbreviated(0));
-                $('#providerPaidCash').text(data.provider_paid_cash_total_formatted ? formatCurrencyAbbreviated(data.provider_paid_cash_total) : formatCurrencyAbbreviated(0));
-                $('#netClinicCash').text(data.net_clinic_cash_formatted ? formatCurrencyAbbreviated(data.net_clinic_cash) : formatCurrencyAbbreviated(0));
+                $('#providerPaidCash').text(data.provider_paid_cash_total_formatted || '?');
+                $('#netClinicCash').text(data.net_clinic_cash === null ? data.net_clinic_cash_formatted : (data.net_clinic_cash_formatted ? formatCurrencyAbbreviated(data.net_clinic_cash) : formatCurrencyAbbreviated(0)));
                 $('#outstandingInvoices').text(data.outstanding_invoices || 0);
                 $('#outstandingInvoicesBalance').text(data.outstanding_invoices_balance_formatted || '');
             },

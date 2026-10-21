@@ -581,4 +581,7 @@ return [
     'invoiceDocumentProtected' => 'Invoice values and printed notes are protected. Add an internal note below.',
     'invoiceChangeRejected' => 'Invoice document values are protected. Add only a valid internal note of up to 5000 characters.',
     'internalNoteFailed' => 'Unable to save the internal note. The invoice has been preserved.',
+    'providerCurrencyWarning' => 'Provider amounts are shown by their recorded currency. Mixed or unknown currencies cannot be combined or converted without recorded exchange rates.',
+    'providerCurrencyUnavailable' => 'Unavailable: currency mismatch',
+    'providerCurrencyUnknown' => 'Unknown currency',
 ];

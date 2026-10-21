@@ -96,13 +96,13 @@ $toneClasses = [
             <?php foreach ($stats as $stat): ?>
                 <div class="rounded-xl border p-3 <?= esc($toneClasses[$stat['tone']] ?? $toneClasses['slate']) ?>">
                     <p class="text-[0.68rem] font-semibold uppercase tracking-wide opacity-75"><?= esc($stat['label']) ?></p>
-                    <p class="mt-1 text-lg font-extrabold" dir="ltr"><?= esc($formatMoney($stat['value'])) ?></p>
+                    <p class="mt-1 text-lg font-extrabold" dir="ltr"><?= esc($stat['key'] === 'provider_remaining' ? \App\Services\ProviderCurrencySummary::format($summary['provider_currency_summary'], 'provider_remaining') : $formatMoney($stat['value'])) ?></p>
                 </div>
             <?php endforeach; ?>
         </div>
 
         <?php if ($payoutRows !== []): ?>
-            <p class="mt-2 text-xs text-slate-500"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
+            <p class="mt-2 text-xs text-slate-500"><?= esc(lang('Finance.providerVoidBalanceHelp') . ' ' . lang('Finance.providerCurrencyWarning')) ?></p>
         <?php endif; ?>
 
         <?php if (!$hasRecords): ?>
@@ -214,10 +214,10 @@ $toneClasses = [
                                     <span class="mt-1 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-bold <?= esc($providerStatusClass($row['status'] ?? '')) ?>"><?= esc($providerStatusLabel($row['status'] ?? '')) ?></span>
                                     <span class="block truncate text-xs text-slate-500"><?= esc($moneyLabel('moneyTrailProviderShare')) ?></span>
                                 </span>
-                                <span class="shrink-0 font-bold text-violet-700" dir="ltr"><?= esc($formatMoney($row['provider_share_amount'] ?? 0)) ?></span>
+                                <span class="shrink-0 font-bold text-violet-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_share_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
                                 <div class="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
-                                    <span><?= esc($moneyLabel('moneyTrailPaid')) ?>: <strong class="text-emerald-700" dir="ltr"><?= esc($formatMoney($row['provider_paid_amount'] ?? 0)) ?></strong></span>
-                                    <span><?= esc($moneyLabel('moneyTrailProviderRemaining')) ?>: <strong class="<?= ((float) ($row['provider_balance_due'] ?? 0) > 0.009) ? 'text-rose-700' : 'text-emerald-700' ?>" dir="ltr"><?= esc($formatMoney($row['provider_balance_due'] ?? 0)) ?></strong></span>
+                                    <span><?= esc($moneyLabel('moneyTrailPaid')) ?>: <strong class="text-emerald-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_paid_amount'] ?? 0, $row['currency'] ?? null)) ?></strong></span>
+                                    <span><?= esc($moneyLabel('moneyTrailProviderRemaining')) ?>: <strong class="<?= ((float) ($row['provider_balance_due'] ?? 0) > 0.009) ? 'text-rose-700' : 'text-emerald-700' ?>" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_balance_due'] ?? 0, $row['currency'] ?? null)) ?></strong></span>
                                 </div>
                                 <?php if ($providerHref !== ''): ?>
                                     <a href="<?= esc($providerHref) ?>" class="mt-2 inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100">

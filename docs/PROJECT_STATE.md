@@ -16,9 +16,11 @@ Last verified: 2026-10-20 (M1 controlled release; M2 isolated development).
 
 M1 was integrated and deployed with separate Owner authorization. Exact-head-approved tenant reference containment, inventory stock/movement/COGS atomicity and clinic-scoped notification validation are live. Essential authenticated EN/AR, patient lookup, tenant/API isolation and preservation checks passed; no migrations or feature activation occurred.
 
-M2 is isolated, nonproduction development: atomic/idempotent contract signing and draft-race protection, plus provider payout lifecycle/reconciliation correctness. Preserve signed consent, clinical evidence and all financial history. Invoice cancellation/credit-note/rebill rules require Owner product decisions before implementation. M2 integration, deployment, migrations and activation are not authorized.
+M2 is isolated, nonproduction development: idempotent contract signing with transactional consent and recoverable publication, plus draft-race protection, plus provider payout lifecycle/reconciliation correctness. Preserve signed consent, clinical evidence and all financial history. Invoice cancellation/credit-note/rebill rules require Owner product decisions before implementation. M2 integration, deployment, migrations and activation are not authorized.
 
 The 2026-10-19 unified engineering plan supplied by Owner governs this program. Confirm source findings before implementing them; distinguish execution evidence from hypotheses. Preserve odontogram SVG/rendering/snapshots, signed records, issued invoices/payment histories and provider obligations. Staff salaries and invoice cancellation policy require separate product rules. No automatic billing from contract signing or historical data remapping.
+
+M2 review evidence: [Provider payout lifecycle and native currency](M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md). External exact-head approval and separate Owner release authorization remain required.
 
 ## Verification and release boundaries
 
