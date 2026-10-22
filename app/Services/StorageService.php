@@ -110,12 +110,10 @@ class StorageService
         $uniqueName = $fileHash . '_' . $fileName;
         $fullPath = $uploadPath . DIRECTORY_SEPARATOR . $uniqueName;
 
-        // Check for idempotency/superseding
-        if ($entityType && $entityId && $purpose) {
-            $this->attachmentModel->supersedePrevious($clinicId, $entityType, $entityId, $purpose);
+        // Preserve previous exports until the new artifact and metadata exist.
+        if (file_put_contents($fullPath, $content, LOCK_EX) !== strlen($content)) {
+            throw new \RuntimeException('Export artifact could not be fully persisted.');
         }
-
-        file_put_contents($fullPath, $content);
 
         $data = [
             'clinic_id'     => $clinicId,
@@ -132,61 +130,17 @@ class StorageService
         ];
 
         $id = $this->attachmentModel->insert($data);
-        
+        if (!$id) { throw new \RuntimeException('Export metadata could not be persisted.'); }
+        $attachment = $this->attachmentModel->find($id);
+        if (!$attachment) { throw new \RuntimeException('Persisted export metadata is unavailable.'); }
+
         // Enforce retention policy after successful persistence
         if ($entityType && $entityId && $purpose) {
             $retentionService = new \App\Services\RetentionService();
             $retentionService->enforcePolicy($clinicId, $entityType, $entityId, $purpose);
         }
         
-        return $this->attachmentModel->find($id);
-    }
-
-    /**
-     * Store generated content without export feature gating.
-     */
-    public function storeGenerated($content, $fileName, $mimeType, $clinicId, $entityType = null, $entityId = null, $purpose = null)
-    {
-        $this->planGuard->assertQuota($clinicId, 'storage_gb', (int) strlen($content), [
-            'entity_type' => $entityType,
-            'entity_id' => $entityId,
-            'purpose' => $purpose,
-        ]);
-
-        $tenantPath = 'clinic_' . $clinicId;
-        $uploadPath = $this->basePath . DIRECTORY_SEPARATOR . $tenantPath;
-
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
-        }
-
-        $fileHash = md5($content);
-        $uniqueName = $fileHash . '_' . $fileName;
-        $fullPath = $uploadPath . DIRECTORY_SEPARATOR . $uniqueName;
-
-        if ($entityType && $entityId && $purpose) {
-            $this->attachmentModel->supersedePrevious($clinicId, $entityType, $entityId, $purpose);
-        }
-
-        file_put_contents($fullPath, $content);
-
-        $data = [
-            'clinic_id' => $clinicId,
-            'file_name' => $uniqueName,
-            'original_name' => $fileName,
-            'file_path' => $tenantPath . DIRECTORY_SEPARATOR . $uniqueName,
-            'mime_type' => $mimeType,
-            'file_size' => strlen($content),
-            'entity_type' => $entityType,
-            'entity_id' => $entityId,
-            'purpose' => $purpose,
-            'file_hash' => $fileHash,
-            'created_by' => session()->get('user_id') ?? 0
-        ];
-
-        $id = $this->attachmentModel->insert($data);
-
-        return $this->attachmentModel->find($id);
+        return $attachment;
     }
 
     /**
@@ -198,7 +152,7 @@ class StorageService
     }
 
     /**
-     * Delete an attachment and its physical file
+     * Retire attachment visibility; physical evidence requires an approved purge policy.
      */
     public function delete($attachmentId, $clinicId)
     {
@@ -210,12 +164,10 @@ class StorageService
             return false;
         }
 
-        $filePath = $this->getAbsolutePath($attachment);
-        
-        if (file_exists($filePath)) {
-            unlink($filePath);
+        if (($attachment['entity_type'] ?? '') === 'contract') {
+            throw new \DomainException('Contract evidence cannot be deleted through generic attachment storage.');
         }
-
+        // The model soft-deletes metadata. Retained bytes still count toward quota.
         return $this->attachmentModel->delete($attachmentId);
     }
 }

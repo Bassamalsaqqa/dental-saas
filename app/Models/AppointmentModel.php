@@ -156,7 +156,7 @@ class AppointmentModel extends TenantAwareModel
 
             return [
                 'total_appointments' => (clone $base)->countAllResults(),
-                'today_appointments' => (clone $base)->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(),
+                'today_appointments' => (clone $base)->where('appointments.appointment_date', date('Y-m-d'))->countAllResults(),
                 'upcoming_appointments' => (clone $base)->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(),
                 'completed_appointments' => (clone $base)->where('status', 'completed')->countAllResults(),
                 'cancelled_appointments' => (clone $base)->where('status', 'cancelled')->countAllResults()
@@ -198,7 +198,7 @@ class AppointmentModel extends TenantAwareModel
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('appointments.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId) // Join guard
-            ->where('DATE(appointment_date)', $date)
+            ->where('appointments.appointment_date', $date)
             ->orderBy('appointment_time', 'ASC')
             ->findAll();
     }
@@ -257,7 +257,7 @@ class AppointmentModel extends TenantAwareModel
     {
         return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
-            ->where('DATE(appointment_date)', $date)
+            ->where('appointments.appointment_date', $date)
             ->orderBy('appointment_time', 'ASC')
             ->findAll();
     }
@@ -371,7 +371,7 @@ class AppointmentModel extends TenantAwareModel
 
             return [
                 'total_appointments' => (clone $base)->countAllResults(),
-                'today_appointments' => (clone $base)->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(),
+                'today_appointments' => (clone $base)->where('appointments.appointment_date', date('Y-m-d'))->countAllResults(),
                 'upcoming_appointments' => (clone $base)->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(),
                 'completed_appointments' => (clone $base)->where('status', 'completed')->countAllResults(),
                 'cancelled_appointments' => (clone $base)->where('status', 'cancelled')->countAllResults()
@@ -425,7 +425,7 @@ class AppointmentModel extends TenantAwareModel
 
         $builder = $this->db->table('appointments');
         $builder->where('clinic_id', $clinicId);
-        $builder->where('DATE(appointment_date)', $date);
+        $builder->where('appointments.appointment_date', $date);
         $builder->where('status !=', 'cancelled');
         if ($chairName !== '') {
             $builder->where('chair_name', $chairName);

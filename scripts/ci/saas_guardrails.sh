@@ -100,6 +100,8 @@ run_group_guard() {
     {
       run_rg -F -n --no-heading --glob '!app/Helpers/**' -- 'in_group(' app || true
       run_rg -F -n --no-heading --glob '!app/Helpers/**' -- 'is_admin(' app || true
+      run_rg -n --no-heading --glob '!app/Helpers/**' -- 'ionAuth[[:space:]]*->[[:space:]]*(inGroup|isAdmin)[[:space:]]*\(' app || true
+      run_rg -n --no-heading -- '\$this[[:space:]]*->[[:space:]]*(inGroup|requireGroup|requireAdmin)[[:space:]]*\(' app/Controllers app/Views || true
     } | sort -u
   )
   compare_with_allowlist "group-auth" "Group-based auth helpers" "$matches"

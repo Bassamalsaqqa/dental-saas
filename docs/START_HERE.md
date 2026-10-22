@@ -13,7 +13,7 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | SaaS governance and tenant isolation | `SaaS/SAAS_PROGRAM.md`, `SaaS/TENANT_CONTEXT_CONTRACT.md` |
 | Public API | `API_CONTRACT.md` |
 | First-party React App API | `APP_API_CONTRACT.md`, `refactor/APP_API_ROUTE_INVENTORY.md` |
-| Modernization Program & Roadmap | `refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md` |
+| Consolidated campaign matrix, modernization program & roadmap | `refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md` |
 
 ## Module State
 

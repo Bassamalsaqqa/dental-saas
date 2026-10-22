@@ -53,18 +53,19 @@ class FileAttachmentModel extends TenantAwareModel
      */
     public function deletePermanently($id)
     {
-        return $this->db->table($this->table)->delete(['id' => $id]);
+        throw new \DomainException('Permanent attachment deletion requires an approved retention and purge policy.');
     }
 
     /**
-     * Sum file size for a clinic (bytes).
+     * Sum retained attachment metadata bytes, including soft-deleted files.
+     * This is quota accounting, not a filesystem/orphan inventory.
      */
     public function getTotalSizeByClinic(int $clinicId): int
     {
-        $row = $this->withoutTenantScope()
+        $row = $this->db->table($this->table)
             ->selectSum('file_size', 'total_size')
             ->where('clinic_id', $clinicId)
-            ->first();
+            ->get()->getRowArray();
 
         return (int) ($row['total_size'] ?? 0);
     }

@@ -1,3 +1,7 @@
-# Allowlist for existing `in_group`/`is_admin` usages outside of the helper definitions.
-# Remove entries as group-based checks are refactored away.
-# ALL CLEARED - Phase 1 S1-02
+# Exact legacy observations, never tenant authorization exceptions.
+# DebugController is not routed; its public actions first require global_mode and canonical isSuperAdmin.
+# This value only reports IonAuth identity for debugging and grants no authority.
+app/Controllers/DebugController.php:88:                $info['ionauth_admin'] = $this->ionAuth->isAdmin();
+# Unrendered IonAuth legacy view: Auth::edit_user requires platform Super Admin and redirects to controlplane/users.
+# No controller renders auth/edit_user; retained as historical template, not a tenant gate.
+app/Views/auth/edit_user.php:38:      <?php if ($ionAuth->isAdmin()): ?>

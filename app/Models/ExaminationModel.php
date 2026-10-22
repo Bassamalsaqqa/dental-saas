@@ -6,6 +6,22 @@ use CodeIgniter\Model;
 
 class ExaminationModel extends TenantAwareModel
 {
+    /** Page-scoped counts in one query; never reuse a mutable per-patient model builder. */
+    public function countByPatientIdsForClinic(int $clinicId, array $patientIds): array
+    {
+        if ($clinicId <= 0) { throw new \InvalidArgumentException('Active clinic required.'); }
+        $ids = array_values(array_unique(array_filter(array_map('intval', $patientIds), static fn(int $id): bool => $id > 0)));
+        if ($ids === []) { return []; }
+        $counts = array_fill_keys($ids, 0);
+        // Bound IN lists while preserving existing caller pagination/all-record semantics.
+        foreach (array_chunk($ids, 500) as $chunk) {
+            $rows = $this->db->table('examinations')->select('patient_id, COUNT(*) AS examination_count', false)
+                ->where('clinic_id', $clinicId)->whereIn('patient_id', $chunk)->groupBy('patient_id')->get()->getResultArray();
+            foreach ($rows as $row) { $counts[(int) $row['patient_id']] = (int) $row['examination_count']; }
+        }
+        return $counts;
+    }
+
     protected $table = 'examinations';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

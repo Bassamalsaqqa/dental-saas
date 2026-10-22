@@ -780,7 +780,7 @@ foreach (($odontogram_snapshots ?? []) as $snapshotRow) {
 
 $latestImagingAttachment = $latest_imaging_attachment ?? null;
 $latestImagingPreviewSrc = $latest_imaging_preview_src ?? null;
-$latestImagingIsPreviewable = !empty($latestImagingAttachment['mime_type']) && strpos((string) $latestImagingAttachment['mime_type'], 'image/') === 0;
+$latestImagingIsPreviewable = in_array(strtolower(trim((string) ($latestImagingAttachment['mime_type'] ?? ''))), ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'], true);
 $latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/inline/' . $latestImagingAttachment['id']) : null;
 $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/download/' . $latestImagingAttachment['id']) : null;
 ?>
@@ -1268,9 +1268,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 </div>
                                                 <div class="patient-preview-frame">
                                                     <?php if (!empty($latestImagingAttachment) && $latestImagingIsPreviewable && !empty($latestImagingPreviewSrc)): ?>
-                                                        <img src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="patient-imaging-preview-image">
-                                                    <?php elseif (!empty($latestImagingAttachment) && $latestImagingIsPreviewable): ?>
-                                                        <img src="<?= esc($latestImagingViewUrl) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="patient-imaging-preview-image">
+                                                        <img loading="lazy" decoding="async" src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="patient-imaging-preview-image">
                                                     <?php elseif (!empty($latestImagingAttachment)): ?>
                                                         <div class="patient-preview-empty">
                                                             <i class="fas fa-file-medical"></i>
@@ -2021,9 +2019,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <div class="overflow-hidden rounded-[24px] border border-slate-200 bg-slate-950">
                                                     <div class="aspect-[16/9] flex items-center justify-center">
                                                         <?php if (!empty($latestImagingAttachment) && $latestImagingIsPreviewable && !empty($latestImagingPreviewSrc)): ?>
-                                                            <img src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
-                                                        <?php elseif (!empty($latestImagingAttachment) && $latestImagingIsPreviewable): ?>
-                                                            <img src="<?= esc($latestImagingViewUrl) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
+                                                            <img loading="lazy" decoding="async" src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
                                                         <?php else: ?>
                                                             <div class="px-6 text-center text-sm text-slate-300"><?= esc(lang('UI.patientImagingPreviewUnavailable')) ?></div>
                                                         <?php endif; ?>
@@ -6594,7 +6590,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                 button.className = 'patient-table-sort';
                 button.dataset.direction = 'none';
                 const iconClass = headerIcons[index] || 'fas fa-table-columns';
-                button.innerHTML = `<span class="patient-table-sort-label"><i class="${iconClass}"></i><span>${label}</span></span><i class="fas fa-sort"></i>`;
+                const labelWrap = document.createElement('span');
+                labelWrap.className = 'patient-table-sort-label';
+                const headerIcon = document.createElement('i');
+                headerIcon.className = iconClass;
+                const labelText = document.createElement('span');
+                labelText.textContent = label;
+                const sortIcon = document.createElement('i');
+                sortIcon.className = 'fas fa-sort';
+                labelWrap.append(headerIcon, labelText);
+                button.append(labelWrap, sortIcon);
 
                 button.addEventListener('click', () => {
                     const currentDirection = button.dataset.direction === 'asc' ? 'asc' : (button.dataset.direction === 'desc' ? 'desc' : 'none');

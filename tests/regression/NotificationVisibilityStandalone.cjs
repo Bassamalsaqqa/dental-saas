@@ -1,0 +1,15 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const source = fs.readFileSync(require('node:path').join(__dirname, '../../app/Views/layouts/main_auth.php'), 'utf8');
+const start = source.indexOf('        // Hidden tabs do not poll;');
+const end = source.indexOf('        const requiredObserver', start);
+assert(start >= 0 && end > start);
+let poll, visible, calls = 0;
+const document = { hidden: true, addEventListener(name, fn) { assert.equal(name, 'visibilitychange'); visible = fn; } };
+vm.runInNewContext(source.slice(start, end), { document, loadNotifications() { calls++; }, setInterval(fn, ms) { assert.equal(ms, 30000); poll = fn; } });
+poll(); assert.equal(calls, 0);
+document.hidden = false; visible(); assert.equal(calls, 1);
+poll(); assert.equal(calls, 2);
+document.hidden = true; visible(); poll(); assert.equal(calls, 2);
+console.log(JSON.stringify({status:'PASS', checks:6, scope:'Actual layout polling block: hidden idle, visible immediate refresh and interval'}));

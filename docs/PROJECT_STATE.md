@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-10-22 (M2 protected; M2-C focused acceptance and exact-head review preparation).
+Last updated: 2026-10-22 (protected M2; consolidated autonomous development in Draft PR #20).
 
 ## Deployed source
 
@@ -12,21 +12,21 @@ Last updated: 2026-10-22 (M2 protected; M2-C focused acceptance and exact-head r
 - M2 post-switch checks: exact source hashes/modes, 28 PHP syntax checks, 14 core/clinical table fingerprints, 67 schemas, 77 migration records and 49 durable files/configuration preserved. Public HTTP/auth denial passed. Fresh authenticated production browser smoke was unavailable because native browser transport failed; prior isolated native EN/AR/kiosk/document/recovery evidence was reused, not relabeled as live certification.
 - Verified encrypted off-host recovery checkpoint: `denta-private-recovery-20261021T164409Z`; separate private key storage. Authenticated decryption/archive checks passed; prior isolated restore reused. DB/files are non-atomic. Entire writable (journals, staging, generated HTML/uploads) must survive backup and source-only rollback; never restore/rewrite customer DB automatically.
 
-## Current engineering scope: M2-C
+## Current engineering scope: consolidated roadmap campaign
 
 - Isolated development branch `m2c/invoice-corrections-discovery-20261021`, based on the exact deployed M2 source.
 - Owner-approved isolated implementation: immutable issued/legacy invoices, linked corrections/credit notes, refunds distinct from noncash credits, clinical/provider obligations preserved, explicit replacement document links and consistent reporting/treasury.
 - Existing invoice/payment/void/adjustment and clinical/provider infrastructure must be reused carefully. A noncash credit is not a receipt or cash refund. Existing `adjustment` settlement semantics are not adopted as a credit-note ledger by assumption.
 - Implementation is a default-OFF unaccepted draft; see [focused evidence and remaining acceptance blockers](M2C_IMPLEMENTATION_EVIDENCE_20261021.md). Core accounting policies approved: explicit same-patient/clinic/currency replacement applications or refunds, manager approval for provider-linked issuance, operational-only documents; fiscal mode requires separate accountant validation. No automatic provider clawback, historical mutation, clinical unbilling or signed evidence changes.
 - No merge, deployment, migration, activation, production writes or customer-data changes without separate Owner authorization. No GitHub Actions; no broad audit/test repetition.
-- Preserve odontogram SVG/rendering/snapshots and signed clinical evidence. Salaries, broad redesign and unrelated cleanup are outside M2-C.
+- Preserve odontogram SVG/rendering/snapshots and signed clinical evidence. The Owner expanded nonproduction scope to the reconciled roadmap; financial/legal/clinical policies are not invented. See the compact execution matrix in `refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md`.
 
 ## Known operational limits
 
 - Native production browser certification remains outstanding, as recorded above. No fresh power-loss or database restoration test is claimed.
 - Ambiguous/historical partial signing evidence and unreferenced artifact retention require controlled operator decisions; no automatic repair/deletion.
 - Existing guardrail drift is not a passing gate. No broad guardrail rerun for documentation-only discovery.
-- Hostinger MCP unavailable in the current tool inventory; prior authorized operations used SSH. No production operations are part of current M2-C acceptance.
+- Hostinger MCP remains unavailable; current SSH runtime/schema checks were read-only. Production SHA/tree were reconfirmed unchanged. No production writes are authorized by this campaign.
 
 ## References
 

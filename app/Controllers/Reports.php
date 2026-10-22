@@ -1766,27 +1766,27 @@ class Reports extends BaseController
         return $months;
     }
 
+    /** Aggregate the existing whole-month chart window once, preserving zero buckets. */
+    private function monthlyCounts($model, string $dateColumn, ?string $startDate, ?string $endDate, array $predicates = [], bool $timestamp = false): array
+    {
+        $clinicId = (int) session()->get('active_clinic_id');
+        if ($clinicId <= 0) { return []; }
+        $months = $this->getMonthlyBuckets($startDate, $endDate);
+        if ($months === []) { return []; }
+        $monthKey = "DATE_FORMAT({$dateColumn}, '%Y-%m')";
+        $query = $model->select($monthKey . ' AS month_key, COUNT(*) AS count', false)
+            ->where('clinic_id', $clinicId)
+            ->where($dateColumn . ' >=', $months[0] . ($timestamp ? ' 00:00:00' : ''))
+            ->where($dateColumn . ' <=', date('Y-m-t', strtotime($months[count($months) - 1])) . ($timestamp ? ' 23:59:59' : ''));
+        foreach ($predicates as $column => $value) { $query->where($column, $value); }
+        $counts = [];
+        foreach ($query->groupBy($monthKey, false)->findAll() as $row) { $counts[$row['month_key']] = (int) $row['count']; }
+        return array_map(static fn(string $month): array => ['month' => date('M Y', strtotime($month)), 'count' => $counts[substr($month, 0, 7)] ?? 0], $months);
+    }
+
     private function getMonthlyPatientsData(?string $startDate = null, ?string $endDate = null)
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return [];
-        }
-
-        $data = [];
-        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
-            $monthStart = date('Y-m-01 00:00:00', strtotime($date));
-            $monthEnd = date('Y-m-t 23:59:59', strtotime($date));
-            $count = $this->patientModel->where('clinic_id', $clinicId)
-                                      ->where('created_at >=', $monthStart)
-                                      ->where('created_at <=', $monthEnd)
-                                      ->countAllResults();
-            $data[] = [
-                'month' => date('M Y', strtotime($date)),
-                'count' => $count
-            ];
-        }
-        return $data;
+        return $this->monthlyCounts($this->patientModel, 'created_at', $startDate, $endDate, [], true);
     }
 
     private function getMonthlyRevenueData(?string $startDate = null, ?string $endDate = null)
@@ -1872,11 +1872,12 @@ class Reports extends BaseController
                 return [];
             }
 
-            $patientsQuery = $this->patientModel->select('date_of_birth')->where('clinic_id', $clinicId);
+            $patientsQuery = $this->patientModel->select('date_of_birth, COUNT(*) AS patient_count', false)->where('clinic_id', $clinicId);
             if (!empty($filters['patient_id'])) {
                 $patientsQuery->where('id', (int) $filters['patient_id']);
             }
-            $patients = $patientsQuery->findAll();
+            // Retain PHP calendar/legacy-date semantics; hydrate one row per distinct DOB, not patient.
+            $patients = $patientsQuery->groupBy('date_of_birth')->findAll();
             $ageGroups = [
                 '0-18' => 0,
                 '19-35' => 0,
@@ -1890,15 +1891,15 @@ class Reports extends BaseController
                     $age = date_diff(date_create($patient['date_of_birth']), date_create('today'))->y;
                     
                     if ($age <= 18) {
-                        $ageGroups['0-18']++;
+                        $ageGroups['0-18'] += (int) $patient['patient_count'];
                     } elseif ($age <= 35) {
-                        $ageGroups['19-35']++;
+                        $ageGroups['19-35'] += (int) $patient['patient_count'];
                     } elseif ($age <= 50) {
-                        $ageGroups['36-50']++;
+                        $ageGroups['36-50'] += (int) $patient['patient_count'];
                     } elseif ($age <= 65) {
-                        $ageGroups['51-65']++;
+                        $ageGroups['51-65'] += (int) $patient['patient_count'];
                     } else {
-                        $ageGroups['65+']++;
+                        $ageGroups['65+'] += (int) $patient['patient_count'];
                     }
                 }
             }
@@ -1958,31 +1959,10 @@ class Reports extends BaseController
 
     private function getMonthlyExaminationsData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return [];
-        }
-
-        $data = [];
-        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
-            $monthStart = date('Y-m-01', strtotime($date));
-            $monthEnd = date('Y-m-t', strtotime($date));
-            $countQuery = $this->examinationModel->where('clinic_id', $clinicId)
-                                           ->where('examination_date >=', $monthStart)
-                                           ->where('examination_date <=', $monthEnd);
-            if (!empty($filters['patient_id'])) {
-                $countQuery->where('patient_id', (int) $filters['patient_id']);
-            }
-            if (!empty($filters['examination_type'])) {
-                $countQuery->where('examination_type', (string) $filters['examination_type']);
-            }
-            $count = $countQuery->countAllResults();
-            $data[] = [
-                'month' => date('M Y', strtotime($date)),
-                'count' => $count
-            ];
-        }
-        return $data;
+        $predicates = [];
+        if (!empty($filters['patient_id'])) { $predicates['patient_id'] = (int) $filters['patient_id']; }
+        if (!empty($filters['examination_type'])) { $predicates['examination_type'] = (string) $filters['examination_type']; }
+        return $this->monthlyCounts($this->examinationModel, 'examination_date', $startDate, $endDate, $predicates);
     }
 
     private function getToothConditionsData()
@@ -2015,34 +1995,11 @@ class Reports extends BaseController
 
     private function getMonthlyAppointmentsData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return [];
-        }
-
-        $data = [];
-        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
-            $monthStart = date('Y-m-01', strtotime($date));
-            $monthEnd = date('Y-m-t', strtotime($date));
-            $countQuery = $this->appointmentModel->where('clinic_id', $clinicId)
-                                           ->where('appointment_date >=', $monthStart)
-                                           ->where('appointment_date <=', $monthEnd);
-            if (!empty($filters['patient_id'])) {
-                $countQuery->where('patient_id', (int) $filters['patient_id']);
-            }
-            if (!empty($filters['appointment_status'])) {
-                $countQuery->where('status', (string) $filters['appointment_status']);
-            }
-            if (!empty($filters['appointment_type'])) {
-                $countQuery->where('appointment_type', (string) $filters['appointment_type']);
-            }
-            $count = $countQuery->countAllResults();
-            $data[] = [
-                'month' => date('M Y', strtotime($date)),
-                'count' => $count
-            ];
-        }
-        return $data;
+        $predicates = [];
+        if (!empty($filters['patient_id'])) { $predicates['patient_id'] = (int) $filters['patient_id']; }
+        if (!empty($filters['appointment_status'])) { $predicates['status'] = (string) $filters['appointment_status']; }
+        if (!empty($filters['appointment_type'])) { $predicates['appointment_type'] = (string) $filters['appointment_type']; }
+        return $this->monthlyCounts($this->appointmentModel, 'appointment_date', $startDate, $endDate, $predicates);
     }
 
     private function getPaymentMethodsData(?string $startDate = null, ?string $endDate = null)
@@ -2107,34 +2064,11 @@ class Reports extends BaseController
 
     private function getMonthlyTreatmentsData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
-        $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return [];
-        }
-
-        $data = [];
-        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
-            $monthStart = date('Y-m-01', strtotime($date));
-            $monthEnd = date('Y-m-t', strtotime($date));
-            $countQuery = $this->treatmentModel->where('clinic_id', $clinicId)
-                                         ->where('start_date >=', $monthStart)
-                                         ->where('start_date <=', $monthEnd);
-            if (!empty($filters['patient_id'])) {
-                $countQuery->where('patient_id', (int) $filters['patient_id']);
-            }
-            if (!empty($filters['treatment_status'])) {
-                $countQuery->where('status', (string) $filters['treatment_status']);
-            }
-            if (!empty($filters['treatment_type'])) {
-                $countQuery->where('treatment_type', (string) $filters['treatment_type']);
-            }
-            $count = $countQuery->countAllResults();
-            $data[] = [
-                'month' => date('M Y', strtotime($date)),
-                'count' => $count
-            ];
-        }
-        return $data;
+        $predicates = [];
+        if (!empty($filters['patient_id'])) { $predicates['patient_id'] = (int) $filters['patient_id']; }
+        if (!empty($filters['treatment_status'])) { $predicates['status'] = (string) $filters['treatment_status']; }
+        if (!empty($filters['treatment_type'])) { $predicates['treatment_type'] = (string) $filters['treatment_type']; }
+        return $this->monthlyCounts($this->treatmentModel, 'start_date', $startDate, $endDate, $predicates);
     }
 
     private function getTreatmentStatusData(?string $startDate = null, ?string $endDate = null, array $filters = [])

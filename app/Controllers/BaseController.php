@@ -163,7 +163,7 @@ abstract class BaseController extends Controller
             }
 
             if (is_numeric($segment2) && $segment2 > 0) {
-                $label = '#' . $segment2 . ' — ' . $label;
+                $label = '#' . $segment2 . ' â€” ' . $label;
             }
 
             $nav->push($label, $currentUrl);
@@ -182,18 +182,6 @@ abstract class BaseController extends Controller
         return $this->ionAuth->loggedIn();
     }
 
-
-    /**
-     * Check if user is in specific group
-     *
-     * @param string|array $group
-     * @param int|null $userId
-     * @return bool
-     */
-    protected function inGroup($group, $userId = null)
-    {
-        return $this->ionAuth->inGroup($group, $userId);
-    }
 
     /**
      * Get current user
@@ -256,6 +244,9 @@ abstract class BaseController extends Controller
             $data['clinic'] = settings()->getClinicInfo();
         }
         
+        // View identity, rather than URL aliases, owns heavy optional vendor assets.
+        $data['loadChartJs'] ??= in_array($name, ['dashboard/index', 'reports/index', 'finance/reports'], true);
+        $data['loadFullCalendar'] ??= in_array($name, ['appointment/calendar', 'examination/calendar'], true);
         return view($name, $data, $options);
     }
 
@@ -268,35 +259,6 @@ abstract class BaseController extends Controller
     {
         if (!$this->isLoggedIn()) {
             return redirect()->to('/auth/login');
-        }
-        return null;
-    }
-
-    /**
-     * Require admin - redirect to dashboard if not admin
-     *
-     * @return \CodeIgniter\HTTP\RedirectResponse|null
-     */
-    protected function requireAdmin()
-    {
-        if (!$this->isAdmin()) {
-            $this->session->setFlashdata('error', 'You must be an administrator to access this page.');
-            return redirect()->to('/dashboard');
-        }
-        return null;
-    }
-
-    /**
-     * Require specific group membership
-     *
-     * @param string|array $group
-     * @return \CodeIgniter\HTTP\RedirectResponse|null
-     */
-    protected function requireGroup($group)
-    {
-        if (!$this->inGroup($group)) {
-            $this->session->setFlashdata('error', 'You do not have permission to access this page.');
-            return redirect()->to('/dashboard'); 
         }
         return null;
     }
@@ -466,29 +428,6 @@ abstract class BaseController extends Controller
 
         $this->initPermissionService();
         return $this->permissionService->hasAnyRole($userId, $roleSlugs);
-    }
-
-    /**
-     * Check if user is admin
-     *
-     * @param int|null $userId
-     * @return bool
-     */
-    protected function isAdmin($userId = null)
-    {
-        if (!$userId) {
-            $user = $this->getCurrentUser();
-            if (!$user) {
-                return false;
-            }
-            $userId = (int) $user->id;
-        }
-
-        $this->initPermissionService();
-        if (!$this->permissionService) {
-            return false;
-        }
-        return $this->permissionService->isAdmin($userId);
     }
 
     /**

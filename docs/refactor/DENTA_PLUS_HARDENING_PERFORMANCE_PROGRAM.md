@@ -9,6 +9,46 @@
 
 ---
 
+## 2026-10-22 consolidated execution matrix
+
+This section supersedes historical checkpoint statuses below. Development stays in Draft PR #20 on the deployed M2 ancestry; it does not authorize production integration, migrations or activation. The Owner-supplied `DENTA_PLUS_UNIFIED_MASTER_ENGINEERING_PLAN_2026-10-19.md` is reconciled against current source, not reapplied as patches.
+
+| Scope | State | Current disposition |
+|---|---|---|
+| Stage 0, M1 inventory/COGS/tenant joins and clinic messaging | DONE | Deployed M2 ancestry; reuse accepted evidence. |
+| M2 signing/publication recovery and payout preservation | DONE | Preserve immutable evidence; PR19 final external review was Owner-waived, not approved. |
+| M2-C operational corrections, explicit applications/returns | PARTIAL | Implemented and focused acceptance recorded. Cash-backing finding retracted; overall external review remains COMMENTED/CHANGES_REQUESTED, not approval. Final consolidated review required. |
+| Patient counts and report queries | DONE (development) | Explicit clinic/page aggregate replaces incorrect retained-builder N+1. Four monthly charts use one grouped query; DOB frequencies retain existing PHP calendar semantics. |
+| Static delivery and patient preview | DONE (development) | Stable metadata asset versions, consuming-view chart/calendar vendors, hidden-tab polling pause, protected lazy raster URLs instead of Base64, responsive login WebP with preserved original. |
+| Storage integrity | PARTIAL | Retained metadata quota totals fixed; newest export remains visible; publication precedes retention. User deletion retains bytes. Physical purge disabled until approved retention/legal-hold policy. Orphan/derivative physical accounting remains separate. |
+| Patient email tenancy | DONE (development) | Shared clinic validation plus targeted scoped unique index migration. Current Hostinger global unique index is confirmed; source alone does not remove it. Production migration separately authorized only. |
+| Legacy group authorization | PARTIAL | Unused controller wrappers removed; camelCase guard added. Two exact non-authorizing observations remain. Other existing guardrail categories still fail, not waived. |
+| Dynamic doctor scheduling | DONE code / BLOCKED pilot | Stable doctor identities, eligibility, availability, serialization, preserved legacy visits and impact acknowledgment already exist. Old PR4 ancestors must not be merged again. Five indexed DATE predicates optimized with SQL equivalence. Native rehearsal, roster/legacy review and separate migration/activation remain gates. |
+| Missed/cancelled visit attention | PARTIAL | Read-only last-30-calendar-day panel with all-date canonical links. Does not assert unresolved status, record contact attempts, send messages or reschedule. |
+| PHP patient workspace decomposition and paginated secondary histories | MISSING | Preserve odontogram internals, existing deep links and uncapped complete-history access; implement coherent loading boundaries rather than arbitrary truncation. |
+| Atomic invoice + initial receipt | MISSING | Existing settlement transaction ownership must be preserved; no view-side accounting or nested pseudo-atomic writes. |
+| Media derivatives | MISSING | Original evidence must remain byte-identical; bounded decoding, authorized variants and recoverable publication required. No automatic backfill/purge. |
+| React splitting / App API expansion | BLOCKED separate source | `Bassamalsaqqa/Dentacare-Shell` resolves; old `dentacare-shell-5051486e` does not resolve with current access. This repo tracks generated `public/app`, not React source. Never hand-edit compiled bundles or claim source modernization here. |
+| Clinical corrections, perio/referral depth | PARTIAL / BLOCKED semantics | Existing signed notes/addenda and procedure transitions remain. Completed procedure amendments require explicit provenance and separate financial consequences; specialized chart definitions and clinical signoff are not invented. |
+| Purchasing / receiving / supplier accounting | PARTIAL | Existing reorder, receiving and supplier links remain. New order/payable lifecycle requires explicit receiving/valuation and cancellation rules; no automatic supplier charges. |
+| Payroll, insurance, deposits and reconciliation | BLOCKED policy | Salaries remain separate from invoice commissions. Require accrual/period/approval rules; insurance responsibility/adjustment/claim rules and custody reconciliation policies before operational writes. Existing patient-credit policy is implemented, not a universal deposit policy. |
+| Patient portal / intake / self-booking | BLOCKED security/product contract | Define patient identity verification, guardian access, consent/versioning, document scope and appointment approval before exposing clinical records or granting access. Safe architecture reuses tenant services; no parallel auth/backend or public PHI endpoints. |
+| Retention/purge, fiscal documents, external payments | BLOCKED explicit validation | Require retention classes/legal holds, accountant-approved fiscal modes/numbering/tax and provider settlement rules. No silent operational defaults. |
+| Framework upgrade, old branches, blanket cleanup | OBSOLETE as written | CI4 4.7.5 and earlier fixes are already deployed. No duplicate upgrade, old PR merges, bulk locale removal or odontogram optimization. |
+
+### Measured development evidence
+
+- Actual synthetic MariaDB report parity: 19 checks. Twelve-month baseline **12 queries / 9.852 ms -> 1 query / 1.259 ms**, same results on 1,200 synthetic patients. This is local timing, not Hostinger capacity certification. DOB hydration falls to 91 distinct dates in that fixture, not constant-space buckets.
+- Patient count query-contract: 18 checks, 100 rows **100 -> 1 query**; actual SQL aggregate/tenant parity also included in report fixture.
+- Appointment DATE predicate equivalence: 12 actual SQL checks. No native EXPLAIN speedup claim.
+- Login original **6,231,977 bytes** retained; 1920-wide WebP **31,176 bytes**, mobile **3,844 bytes**. EN/AR desktop/mobile rendered acceptance passed; fallback font limitations recorded privately.
+- Fresh Hostinger read-only identity: commit `f86376a4a6c8f6bf0fe4471f08093af71e76e042`, tree `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`, PHP **8.3.35**, MariaDB **11.8.9**, 77 migration records. `appointments.appointment_date` is DATE, `finances.total_amount` exists, correction tables absent, patient email globally unique. Runtime/schema observation is not native write/concurrency certification.
+- Composer locked advisory check reports no advisories/abandoned packages. Bundled framework `system/` is outside that Composer audit; no blanket security certification.
+
+The campaign is not complete while MISSING entries remain. Continue safe implementation without intermediate external review requests. No production data, original checkout, historical staging or protected clinical evidence was changed.
+
+---
+
 ## 1. Executive Charter & Governance
 
 This document serves as the **sole active temporary implementation plan** for the end-to-end modernization, hardening, and performance refactor of the Denta+ (DentaCare) SaaS platform. It governs task order, acceptance gates, risk controls, and verified findings across all modernization stages.

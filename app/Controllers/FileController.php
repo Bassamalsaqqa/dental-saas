@@ -76,6 +76,7 @@ class FileController extends BaseController
      */
     public function download($id)
     {
+        $this->response->noCache();
         $auth = $this->authorizeAttachmentAccess((int) $id, 'download');
         if ($auth instanceof \CodeIgniter\HTTP\ResponseInterface) {
             return $auth;

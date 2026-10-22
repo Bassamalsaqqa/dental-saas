@@ -1,6 +1,6 @@
 # Finance Current State
 
-Last updated: 2026-08-02
+Last updated: 2026-10-22
 
 ## User Surfaces
 
@@ -49,3 +49,9 @@ Provider payouts are not supplier payables. Internal transfers do not change pro
 - Insurance claims, write-offs, denials, and responsibility split.
 
 Implementation sequencing is in `refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`.
+
+## Consolidated development boundary
+
+M1/M2 are deployed at `f86376a4a6c8f6bf0fe4471f08093af71e76e042`. Invoice corrections in Draft PR #20 remain default OFF and operational-only. See `M2C_INVOICE_CORRECTION_POLICY.md`, `M2C_IMPLEMENTATION_EVIDENCE_20261021.md` and `M2C_RELEASE_PROCEDURE.md`.
+
+Incoming replacement applications transfer existing backing; local refundable capacity excludes incoming amounts. The external cash-creation finding was retracted, not fixed by changing formulas, and is not final approval. Preserve original invoices, receipts and provider history. Full returns, equal-FX applications and no automatic clawbacks remain documented limits. Source-only rollback after activation cannot ignore the correction ledger.

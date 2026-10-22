@@ -671,16 +671,7 @@ class Patients extends Controller
 
     private function emailExistsInClinic(string $email, int $clinicId, ?int $patientId): bool
     {
-        $builder = (new PatientModel())
-            ->withoutTenantScope()
-            ->where('clinic_id', $clinicId)
-            ->where('email', $email);
-
-        if ($patientId !== null) {
-            $builder->where('id !=', $patientId);
-        }
-
-        return (bool) $builder->first();
+        return (new PatientModel())->emailExistsInClinic($email, $clinicId, $patientId);
     }
 
     private function findPatient(int $clinicId, int $patientId): ?array

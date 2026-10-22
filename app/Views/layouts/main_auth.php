@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <?php
+    helper('asset');
     $rawPageTitle = $pageTitle ?? $title ?? ($clinic['name'] ?? 'Denta+');
     $uri = service('uri');
     $segments = $uri->getSegments();
@@ -70,16 +71,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/app-drawer.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= esc(asset_version('assets/css/tailwind.css')) ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/app-drawer.css') ?>?v=<?= esc(asset_version('assets/css/app-drawer.css')) ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= esc(asset_version('assets/vendor/fontawesome/css/all.min.css')) ?>">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- DataTables Buttons CSS - Only load for pages that need DataTables -->
     <?php if (!isset($disableDataTables) || !$disableDataTables): ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
     <?php endif; ?>
+    <?php if ($loadChartJs ?? true): ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <?php endif; ?>
+    <?php if ($loadFullCalendar ?? true): ?>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <?php endif; ?>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- DataTables Core - Only load for pages that need DataTables -->
@@ -2563,10 +2568,13 @@
         // Handle URL search parameters
         handleUrlSearchParams();
         
-        // Refresh notifications every 30 seconds
+        // Hidden tabs do not poll; returning to the clinic workspace refreshes immediately.
         setInterval(() => {
-            loadNotifications();
+            if (!document.hidden) { loadNotifications(); }
         }, 30000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) { loadNotifications(); }
+        });
 
         const requiredObserver = new MutationObserver((mutations) => {
             if (isSyncingRequiredFieldMarkers) {
@@ -2656,7 +2664,7 @@
         while (walker.nextNode()) {
             const node = walker.currentNode;
             const original = node.nodeValue || '';
-            const updated = original.replace(/\s*(Required|مطلوب)\s*$/u, '');
+            const updated = original.replace(/\s*(Required|Ù…Ø·Ù„ÙˆØ¨)\s*$/u, '');
             if (updated !== original) {
                 replacements.push([node, updated]);
             }
@@ -2803,12 +2811,12 @@
 
 <!-- Select2 Initialization - Only load on pages that need it -->
 <?php if ((isset($loadSelect2) && $loadSelect2) || !empty($layoutRendersQuickCreateModals)): ?>
-<script src="<?= base_url('assets/js/select2-init.js') ?>?v=<?= time() ?>"></script>
+<script src="<?= base_url('assets/js/select2-init.js') ?>?v=<?= esc(asset_version('assets/js/select2-init.js')) ?>"></script>
 <?php endif; ?>
-<script src="<?= base_url('assets/js/app-modal.js') ?>?v=<?= time() ?>"></script>
-<script src="<?= base_url('assets/js/navigation-context.js') ?>?v=<?= time() ?>"></script>
-<script src="<?= base_url('assets/js/app-drawer.js') ?>?v=<?= time() ?>"></script>
-<script src="<?= base_url('assets/js/contextual-workspace.js') ?>?v=<?= time() ?>"></script>
+<script src="<?= base_url('assets/js/app-modal.js') ?>?v=<?= esc(asset_version('assets/js/app-modal.js')) ?>"></script>
+<script src="<?= base_url('assets/js/navigation-context.js') ?>?v=<?= esc(asset_version('assets/js/navigation-context.js')) ?>"></script>
+<script src="<?= base_url('assets/js/app-drawer.js') ?>?v=<?= esc(asset_version('assets/js/app-drawer.js')) ?>"></script>
+<script src="<?= base_url('assets/js/contextual-workspace.js') ?>?v=<?= esc(asset_version('assets/js/contextual-workspace.js')) ?>"></script>
 
 </body>
 </html>

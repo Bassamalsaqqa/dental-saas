@@ -56,6 +56,9 @@ class Dashboard extends BaseController
                 'clinical_documentation_queue' => has_permission('examinations', 'view')
                     ? (new ClinicalDocumentationQueueService())->summary((int) $clinicId, 4)
                     : ['ready_to_sign_count' => 0, 'overdue_draft_count' => 0, 'ready_to_sign' => [], 'overdue_drafts' => []],
+                'appointment_recovery_queue' => $canViewAppointments
+                    ? (new \App\Services\AppointmentRecoveryQueueService())->summary((int) $clinicId, 4)
+                    : ['count' => 0, 'items' => []],
                 'accepted_treatment_queue' => has_permission('treatments', 'view')
                     ? (new AcceptedTreatmentQueueService())->summary((int) $clinicId, 4)
                     : ['count' => 0, 'items' => []],

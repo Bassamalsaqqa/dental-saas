@@ -6,6 +6,18 @@ use CodeIgniter\Model;
 
 class PatientModel extends TenantAwareModel
 {
+    /** Explicit clinic lookup; equality follows the database email collation. */
+    public function emailExistsInClinic(?string $email, int $clinicId, ?int $excludePatientId = null): bool
+    {
+        if ($clinicId <= 0) { throw new \DomainException('Clinic context required.'); }
+        $email = trim((string) $email);
+        if ($email === '') { return false; }
+        $query = $this->db->table($this->table)->select('id')
+            ->where('clinic_id', $clinicId)->where('email', $email);
+        if ($excludePatientId !== null) { $query->where('id !=', $excludePatientId); }
+        return $query->limit(1)->get()->getRowArray() !== null;
+    }
+
     protected $table = 'patients';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

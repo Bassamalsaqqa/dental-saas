@@ -46,9 +46,8 @@ class RetentionService
                 
             case 'latest':
             default:
-                // Default behavior already handled by supersedePrevious in storeExport
-                // but we can call it here for completeness if needed.
-                $this->attachmentModel->supersedePrevious($clinicId, $entityType, $entityId, $purpose);
+                // Retain the newly persisted artifact; never supersede the entire scope.
+                $this->pruneToLastN($clinicId, $entityType, $entityId, $purpose, 1);
                 break;
         }
     }
@@ -58,12 +57,14 @@ class RetentionService
      */
     protected function pruneToLastN(int $clinicId, string $entityType, $entityId, string $purpose, int $n)
     {
+        $n = max(1, $n);
         $attachments = $this->attachmentModel
             ->where('clinic_id', $clinicId)
             ->where('entity_type', $entityType)
             ->where('entity_id', $entityId)
             ->where('purpose', $purpose)
             ->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
             ->findAll();
 
         if (count($attachments) > $n) {
@@ -97,22 +98,9 @@ class RetentionService
      */
     public function physicalCleanup()
     {
-        // Find only soft-deleted attachments
-        $deleted = $this->attachmentModel->onlyDeleted()->findAll();
-        $count = 0;
-        $storageService = service('storage');
-
-        foreach ($deleted as $att) {
-            $filePath = $storageService->getAbsolutePath($att);
-            if (file_exists($filePath)) {
-                if (unlink($filePath)) {
-                    $count++;
-                }
-            }
-            // Permanently remove from DB
-            $this->attachmentModel->deletePermanently($att['id']);
-        }
-
-        return $count;
+        // Soft deletion is not authorization to destroy clinical evidence.
+        // A separately approved purge contract must define retention, legal holds,
+        // signed-document protection, audit, backup and physical-file ownership.
+        throw new \DomainException('Physical attachment cleanup is disabled pending an approved retention and purge policy.');
     }
 }

@@ -811,6 +811,9 @@ $formatHumanLabel = static function (?string $value): string {
                 </div>
                 <?php endif; ?>
 
+                <?php if (!empty($can_route_appointments)): ?>
+                    <?= view('dashboard/partials/appointment_recovery', ['queue' => $appointment_recovery_queue ?? []]) ?>
+                <?php endif; ?>
                 <?php if ((int) ($acceptedTreatmentQueue['count'] ?? 0) > 0): ?>
                     <div class="dashboard-panel overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 px-5 py-4 text-white">

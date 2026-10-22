@@ -438,12 +438,13 @@ class Patient extends BaseController
             
             log_message('debug', 'Patient getData - Retrieved patients count: ' . count($patients));
             
-            // Format data
+            $examinationCounts = $this->examinationModel->countByPatientIdsForClinic(
+                (int) $clinicId, array_column($patients, 'id')
+            );
+            // Format data without per-patient queries or retained builder predicates.
             $data = [];
             foreach ($patients as $patient) {
-                // Get examination count for this patient
-                // NOTE: Examinations table should also be scoped, but for now we follow patient link
-                $examinationCount = $this->examinationModel->where('patient_id', $patient['id'])->countAllResults(false);
+                $examinationCount = $examinationCounts[(int) $patient['id']] ?? 0;
                 
                 // Format dates according to settings
                 $createdAt = $patient['created_at'] ?? '';
@@ -530,7 +531,7 @@ class Patient extends BaseController
             $rules = [
                 'first_name' => 'required|min_length[2]|max_length[50]',
                 'last_name' => 'required|min_length[2]|max_length[50]',
-                'email' => 'permit_empty|valid_email|is_unique[patients.email]',
+                'email' => 'permit_empty|valid_email',
                 'phone' => 'required|regex_match[/^\d{9,15}$/]',
                 'date_of_birth' => $this->getClinicDateValidationRule(),
                 'gender' => 'required|in_list[male,female,other]'
@@ -538,7 +539,9 @@ class Patient extends BaseController
 
             $validationMessages = $this->getPatientValidationMessages();
             
-            if (!$this->validate($rules, $validationMessages)) {
+            $validationData = $this->request->getPost();
+            $validationData['email'] = trim((string) ($validationData['email'] ?? ''));
+            if (!$this->validateData($validationData, $rules, $validationMessages)) {
                 $db->transRollback();
                 // Check if this is an AJAX request
                 if ($this->request->isAJAX()) {
@@ -558,6 +561,15 @@ class Patient extends BaseController
             $email = trim((string) $this->request->getPost('email'));
             if ($email === '') {
                 $email = null;
+            }
+
+            if ($this->patientModel->emailExistsInClinic($email, (int) $clinicId)) {
+                $db->transRollback();
+                $message = 'This email is already registered to another patient in this clinic';
+                if ($this->request->isAJAX()) {
+                    return $this->response->setJSON(['success' => false, 'message' => 'Validation failed', 'errors' => ['email' => $message]]);
+                }
+                return redirect()->back()->withInput()->with('errors', ['email' => $message])->with('error', $message);
             }
 
             $currentUser = $this->getCurrentUser();
@@ -723,7 +735,7 @@ class Patient extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'An error occurred while adding the patient: ' . $e->getMessage()
+                    'message' => 'Unable to add the patient. Please review your input or try again.'
                 ]);
             }
             return redirect()->back()->withInput()->with('error', 'An error occurred while adding the patient');
@@ -780,18 +792,11 @@ class Patient extends BaseController
             $latestImagingAttachment = !empty($imagingRecords) ? $imagingRecords[0] : null;
         }
 
-        if ($latestImagingAttachment && strpos((string) ($latestImagingAttachment['mime_type'] ?? ''), 'image/') === 0) {
-            try {
-                $absolutePath = $this->storageService->getAbsolutePath($latestImagingAttachment);
-                if (is_file($absolutePath) && filesize($absolutePath) !== false && filesize($absolutePath) <= (4 * 1024 * 1024)) {
-                    $imageBytes = file_get_contents($absolutePath);
-                    if ($imageBytes !== false) {
-                        $latestImagingPreviewSrc = 'data:' . $latestImagingAttachment['mime_type'] . ';base64,' . base64_encode($imageBytes);
-                    }
-                }
-            } catch (\Throwable $e) {
-                log_message('warning', 'Unable to prepare patient imaging preview: ' . $e->getMessage());
-            }
+        // Preview bytes are served only by the canonical tenant/permission-checked file endpoint.
+        $previewMime = strtolower(trim((string) ($latestImagingAttachment['mime_type'] ?? '')));
+        if ($latestImagingAttachment && !empty($latestImagingAttachment['id'])
+            && in_array($previewMime, ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'], true)) {
+            $latestImagingPreviewSrc = base_url('file/inline/' . (int) $latestImagingAttachment['id']);
         }
 
         $odontogramSnapshots = $this->buildPatientOdontogramSnapshots($clinicId, (int) $id, 6);
@@ -1308,7 +1313,9 @@ class Patient extends BaseController
 
         $validationMessages = $this->getPatientValidationMessages();
 
-        if (!$this->validate($rules, $validationMessages)) {
+        $validationData = $this->request->getPost();
+        $validationData['email'] = trim((string) ($validationData['email'] ?? ''));
+        if (!$this->validateData($validationData, $rules, $validationMessages)) {
             return redirect()->back()
                 ->withInput()
                 ->with('validation', $this->validator)
@@ -1316,16 +1323,9 @@ class Patient extends BaseController
                 ->with('error', 'Please review the highlighted fields and try again.');
         }
 
-        // Check email uniqueness manually for updates
         $email = trim((string) $this->request->getPost('email'));
-        if (!empty($email)) {
-            $existingPatient = $this->patientModel->where('email', $email)
-                                                ->where('clinic_id', $clinicId)
-                                                ->where('id !=', $id)
-                                                ->first();
-            if ($existingPatient) {
-                return redirect()->back()->withInput()->with('error', 'This email is already registered to another patient in this clinic');
-            }
+        if ($this->patientModel->emailExistsInClinic($email, (int) $clinicId, (int) $id)) {
+            return redirect()->back()->withInput()->with('error', 'This email is already registered to another patient in this clinic');
         }
 
         if ($email === '') {

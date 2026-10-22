@@ -1,3 +1,4 @@
+<?php helper('asset'); ?>
 <!DOCTYPE html>
 <html lang="<?= esc($locale ?? 'en') ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
 <head>
@@ -8,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= esc(asset_version('assets/css/tailwind.css')) ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= esc(asset_version('assets/vendor/fontawesome/css/all.min.css')) ?>">
     <meta name="description" content="<?= esc(lang('Auth.login_meta_description')) ?>">
     <meta name="theme-color" content="#0f172a">
     <style>
@@ -536,7 +537,11 @@
     ?>
 
     <div class="login-bg" aria-hidden="true">
-        <img src="<?= base_url('assets/images/login-background.jpg') ?>" alt="">
+        <picture>
+            <source media="(max-width: 767px)" type="image/webp" srcset="<?= base_url('assets/images/login-background-960.webp') ?>?v=<?= esc(asset_version('assets/images/login-background-960.webp')) ?>">
+            <source type="image/webp" srcset="<?= base_url('assets/images/login-background-1920.webp') ?>?v=<?= esc(asset_version('assets/images/login-background-1920.webp')) ?>">
+            <img src="<?= base_url('assets/images/login-background.jpg') ?>" alt="" decoding="async" width="5001" height="3335">
+        </picture>
     </div>
 
     <main class="login-stage">

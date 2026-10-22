@@ -144,7 +144,7 @@
 
                             function renderKioskQr() {
                                 if (!qrContainer) return;
-                                qrContainer.innerHTML = '';
+                                qrContainer.replaceChildren();
 
                                 if (!kioskReady || !kioskLink || typeof QRCode === 'undefined') {
                                     if (qrStatus) {

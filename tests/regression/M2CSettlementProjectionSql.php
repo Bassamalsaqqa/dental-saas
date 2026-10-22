@@ -19,6 +19,13 @@ try {
         if ($row['transaction_type'] !== 'invoice' || !$corrections->hasEffects($clinic, $id)) { continue; }
         $locked = $settlements->lockFinance($clinic, $id);
         $expected = $corrections->position($clinic, $id, true);
+        if (($locked['payment_status'] ?? '') === 'cancelled') {
+            try {
+                $settlements->getLockedSettlementState($clinic, $locked);
+                throw new RuntimeException('Cancelled invoice accepted for settlement.');
+            } catch (DomainException $e) { $n++; }
+            continue;
+        }
         $actual = $settlements->getLockedSettlementState($clinic, $locked);
         foreach (['remaining_base', 'ledger_settled', 'base_settled_before', 'patient_credit_base', 'refundable_base'] as $key) {
             if ($actual[$key] !== $expected[$key]) { throw new RuntimeException('Settlement adapter mismatch: ' . $key); }
