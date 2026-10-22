@@ -102,23 +102,59 @@ class ClinicalChargeLineService
         ];
     }
 
-    public function markInvoiced(int $clinicId, array $ids, int $financeId): bool
+    /** The invoice creator owns the transaction; a stale selection must roll it back. */
+    public function markInvoiced(int $clinicId, array $ids, int $financeId, ?array $expectedRows = null): bool
     {
-        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
-        if ($ids === []) {
-            return true;
+        $db = $this->chargeLineModel->db;
+        if ((int) $db->transDepth !== 1 || $db->transStatus() === false || $clinicId <= 0 || $financeId <= 0) {
+            throw new \DomainException('Clinical charge claiming requires one healthy invoice transaction.');
         }
-
-        return (bool) \Config\Database::connect()
-            ->table('clinical_charge_lines')
-            ->where('clinic_id', $clinicId)
-            ->whereIn('id', $ids)
-            ->whereNotIn('status', ['invoiced', 'voided'])
-            ->update([
-                'finance_id' => $financeId,
-                'status' => 'invoiced',
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+        foreach ($ids as $id) {
+            if ((!is_int($id) && !is_string($id)) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)
+                || strlen((string) $id) > 10 || (float) $id > 2147483647) {
+                return false;
+            }
+        }
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        sort($ids, SORT_NUMERIC);
+        if ($ids === []) { return true; }
+        $table = static fn (string $name): string => $db->escapeIdentifiers($db->prefixTable($name));
+        $invoice = $db->query('SELECT id, clinic_id, patient_id, transaction_type FROM ' . $table('finances')
+            . ' WHERE clinic_id = ? AND id = ? FOR UPDATE NOWAIT', [$clinicId, $financeId]);
+        if ($invoice === false || !($invoice = $invoice->getRowArray())
+            || $invoice['transaction_type'] !== 'invoice' || (int) $invoice['patient_id'] <= 0) {
+            return false;
+        }
+        $rows = $db->query('SELECT * FROM ' . $table('clinical_charge_lines')
+            . ' WHERE clinic_id = ? AND id IN (' . implode(',', array_fill(0, count($ids), '?')) . ') ORDER BY id FOR UPDATE NOWAIT',
+            array_merge([$clinicId], $ids));
+        if ($rows === false) { return false; }
+        $rows = $rows->getResultArray();
+        if (count($rows) !== count($ids)) { return false; }
+        $expectedById = [];
+        if ($expectedRows !== null) {
+            foreach ($expectedRows as $expected) {
+                if (!is_array($expected) || !isset($expected['id']) || isset($expectedById[(int) $expected['id']])) { return false; }
+                $expectedById[(int) $expected['id']] = $expected;
+            }
+            if (count($expectedById) !== count($ids)) { return false; }
+        }
+        foreach ($rows as $row) {
+            if ((int) $row['patient_id'] !== (int) $invoice['patient_id']
+                || !in_array($row['status'], ['planned', 'accepted', 'completed'], true)
+                || !empty($row['finance_id'])) { return false; }
+            if ($expectedRows !== null) {
+                $expected = $expectedById[(int) $row['id']] ?? null;
+                if ($expected === null) { return false; }
+                ksort($row); ksort($expected);
+                if ($row !== $expected) { return false; }
+            }
+        }
+        return (bool) $db->table('clinical_charge_lines')->where('clinic_id', $clinicId)
+            ->where('patient_id', (int) $invoice['patient_id'])->whereIn('id', $ids)
+            ->whereIn('status', ['planned', 'accepted', 'completed'])->where('finance_id', null)
+            ->update(['finance_id' => $financeId, 'status' => 'invoiced', 'updated_at' => date('Y-m-d H:i:s')])
+            && $db->affectedRows() === count($ids);
     }
 
     public function syncTreatmentChargeLine(int $clinicId, array $treatment, array $payload, ?int $userId = null): array

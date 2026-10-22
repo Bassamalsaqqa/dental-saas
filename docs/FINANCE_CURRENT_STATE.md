@@ -55,3 +55,12 @@ Implementation sequencing is in `refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`
 M1/M2 are deployed at `f86376a4a6c8f6bf0fe4471f08093af71e76e042`. Invoice corrections in Draft PR #20 remain default OFF and operational-only. See `M2C_INVOICE_CORRECTION_POLICY.md`, `M2C_IMPLEMENTATION_EVIDENCE_20261021.md` and `M2C_RELEASE_PROCEDURE.md`.
 
 Incoming replacement applications transfer existing backing; local refundable capacity excludes incoming amounts. The external cash-creation finding was retracted, not fixed by changing formulas, and is not final approval. Preserve original invoices, receipts and provider history. Full returns, equal-FX applications and no automatic clawbacks remain documented limits. Source-only rollback after activation cannot ignore the correction ledger.
+
+
+### Consolidated cashier development (default OFF)
+
+`FinanceCheckout.enabled` controls an explicit initial-receipt option on invoice creation. Existing separate invoice and payment actions remain available. The option requires both `finance:create` and `finance:edit`; no new production grants are installed. Invoice, initial receipt, replay identity, selected clinical lines, explicit provider entries and audit writes share one checked transaction. No nested settlement commit is used. The submitted receipt amount is in the invoice currency, with the existing payment method/liquidity/FX rules; base-currency checkout requires rate 1. Default receipt dates use the canonical clinic timezone.
+
+`2026-10-22-170000_CreateFinanceCheckoutRequests` is additive and requires InnoDB parents. The unique clinic/request identity is bound to the actor and exact submitted financial terms (recursively ordered object keys; decimal formatting is not silently reinterpreted). CSRF and return navigation are excluded; uploaded check-scan content identity is included. Equivalent completed retries return the original invoice/receipt, even after later refunds, and never enqueue another creation reminder. Different terms require a new explicit request. Failure rolls back the identity and all new database writes. Existing durable-file rollback limitations remain; this is not DB/filesystem atomicity.
+
+The feature is development-only until final review and separate release/schema/activation approval. No customer records or historical payment/clinical evidence are rewritten.

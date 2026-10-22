@@ -272,11 +272,11 @@ class Finance extends BaseController
         return round($amountOriginal * $exchangeRate, 2);
     }
 
-    private function normalizeFinanceSettlementInput(array $finance, ?float $maxBaseAmount = null): array
+    private function normalizeFinanceSettlementInput(array $finance, ?float $maxBaseAmount = null, ?array $input = null): array
     {
-        $rawAmountOriginal = $this->request->getPost('amount_original');
+        $rawAmountOriginal = ($input !== null ? ($input['amount_original'] ?? null) : $this->request->getPost('amount_original'));
         if ($rawAmountOriginal === null || $rawAmountOriginal === '') {
-            $rawAmountOriginal = $this->request->getPost('amount');
+            $rawAmountOriginal = ($input !== null ? ($input['amount'] ?? null) : $this->request->getPost('amount'));
         }
         if (!is_numeric($rawAmountOriginal) || !is_finite((float) $rawAmountOriginal)) {
             throw new \DomainException('Settlement amount must be a finite number.');
@@ -286,20 +286,20 @@ class Finance extends BaseController
             throw new \DomainException('Settlement amount must be greater than 0.');
         }
 
-        $rawPaymentMethod = $this->request->getPost('payment_method');
+        $rawPaymentMethod = ($input !== null ? ($input['payment_method'] ?? null) : $this->request->getPost('payment_method'));
         $paymentMethod = ($rawPaymentMethod !== null && $rawPaymentMethod !== '') ? $rawPaymentMethod : ($finance['payment_method'] ?? 'cash');
         if (!is_string($paymentMethod) || !in_array($paymentMethod, ['cash', 'card', 'bank_transfer', 'check', 'insurance', 'other'], true)) {
             throw new \DomainException('Invalid payment method.');
         }
 
-        $rawExchangeRate = $this->request->getPost('exchange_rate');
+        $rawExchangeRate = ($input !== null ? ($input['exchange_rate'] ?? null) : $this->request->getPost('exchange_rate'));
         if ($rawExchangeRate !== null && $rawExchangeRate !== ''
             && (!is_numeric($rawExchangeRate) || !is_finite((float) $rawExchangeRate) || (float) $rawExchangeRate <= 0)) {
             throw new \DomainException('Exchange rate must be a finite positive number.');
         }
 
         $baseCurrency = (string) settings()->get('currency', 'ILS');
-        $rawCurrency = $this->request->getPost('currency');
+        $rawCurrency = ($input !== null ? ($input['currency'] ?? null) : $this->request->getPost('currency'));
         if ($rawCurrency === null || $rawCurrency === '') {
             $rawCurrency = $baseCurrency;
         }
@@ -329,8 +329,8 @@ class Finance extends BaseController
             'exchange_rate' => $exchangeRate,
             'amount_base' => $amountBase,
             'payment_method' => $paymentMethod,
-            'payment_date' => $this->normalizePostedDateOnly('payment_date') ?: date('Y-m-d'),
-            'notes' => $this->request->getPost('notes'),
+            'payment_date' => $input !== null ? $input['payment_date'] : ($this->normalizePostedDateOnly('payment_date') ?: date('Y-m-d')),
+            'notes' => ($input !== null ? ($input['notes'] ?? null) : $this->request->getPost('notes')),
         ];
     }
 
@@ -891,6 +891,8 @@ class Finance extends BaseController
 
         $data = [
             'title' => 'New Financial Transaction',
+            'can_initial_receipt' => config('FinanceCheckout')->enabled && $this->permissionService->hasPermission($this->resolveActorUserId(), 'finance', 'edit'),
+            'checkout_request_key' => bin2hex(random_bytes(24)),
             'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'examinations' => [], // S4-02f: No bulk preload
             'clinic_providers' => $this->getClinicProviders((int) $clinicId),
@@ -1102,6 +1104,17 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select');
         }
 
+        $checkoutRequested = $this->request->getPost('initial_receipt') === '1';
+        $rawCheckout = $this->request->getPost('initial_receipt');
+        if ($rawCheckout !== null && $rawCheckout !== '' && $rawCheckout !== '0' && $rawCheckout !== '1') {
+            return $this->response->setStatusCode(422)->setBody(esc(lang('Finance.checkoutInvalid')));
+        }
+        if ($checkoutRequested && (!config('FinanceCheckout')->enabled
+            || !$this->permissionService->hasPermission($this->resolveActorUserId(), 'finance', 'edit')
+            || $this->request->getPost('transaction_type') !== 'invoice')) {
+            return $this->response->setStatusCode(403)->setBody(esc(lang('Finance.checkoutUnavailable')));
+        }
+
         $selectedChargeLineIds = $this->selectedClinicalChargeLineIds();
         $usingClinicalChargeLines = $this->request->getPost('transaction_type') === 'invoice' && $selectedChargeLineIds !== [];
         $rules = [
@@ -1133,6 +1146,38 @@ class Finance extends BaseController
             return redirect()->back()->withInput()->with('error', $ownershipError);
         }
 
+        $transactionStarted = false;
+        $checkoutClaim = null;
+        $checkoutService = null;
+        try {
+            if ($checkoutRequested) {
+                if (!$this->isTransactionContextSafe() || !$this->db->transBegin()) {
+                    throw new \RuntimeException('Unable to start invoice checkout.');
+                }
+                $transactionStarted = true;
+                $payload = $this->request->getPost();
+                unset($payload[config('Security')->tokenName], $payload['checkout_request_key'], $payload['return_to'], $payload['source_modal']);
+                $scan = $this->request->getFile('check_scan');
+                $payload['_check_scan_sha256'] = $scan && $scan->isValid() ? hash_file('sha256', $scan->getTempName()) : null;
+                $checkoutService = new \App\Services\FinanceCheckoutRequestService($this->db);
+                $checkoutClaim = $checkoutService->claim((int) $clinicId, $this->resolveActorUserId(),
+                    (string) ($this->request->getPost('checkout_request_key') ?? ''), $payload, $patientId, $examId ?: null);
+                // Parent locks are held; permissions are checked again before any invoice/receipt writes.
+                if (!$this->permissionService->hasPermission($this->resolveActorUserId(), 'finance', 'create')
+                    || !$this->permissionService->hasPermission($this->resolveActorUserId(), 'finance', 'edit')) {
+                    throw new \DomainException(lang('Finance.checkoutUnavailable'));
+                }
+                if ($checkoutClaim['idempotent']) {
+                    if (!$this->db->transCommit()) { throw new \RuntimeException('Unable to confirm prior checkout.'); }
+                    $transactionStarted = false;
+                    return redirect()->to(base_url('finance/' . $checkoutClaim['finance_id']))
+                        ->with('success', lang('Finance.checkoutAlreadyRecorded'));
+                }
+                $lockedOwnershipError = $this->validateOwnedFinanceReferences((int) $clinicId, $patientId ?: null, $examId ?: null);
+                if ($lockedOwnershipError !== null) { throw new \DomainException($lockedOwnershipError); }
+
+            }
+
         $clinicalChargeSelection = ['success' => true, 'rows' => [], 'total' => 0.0, 'currency' => null, 'service_details' => '', 'examination_id' => null];
         if ($usingClinicalChargeLines) {
             $clinicalChargeSelection = $this->chargeLineService->prepareInvoiceSelection((int) $clinicId, $patientId, $selectedChargeLineIds);
@@ -1149,8 +1194,13 @@ class Finance extends BaseController
             ? (string) $clinicalChargeSelection['currency']
             : ($this->request->getPost('currency') ?: settings()->get('currency', 'ILS'));
         $baseCurrency = settings()->get('currency', 'ILS');
-        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        $rawExchangeRate = $this->request->getPost('exchange_rate');
+        $exchangeRate = floatval($rawExchangeRate ?? 0);
         if ($currency === $baseCurrency) {
+            if ($checkoutRequested && $rawExchangeRate !== null && $rawExchangeRate !== ''
+                && (!is_numeric($rawExchangeRate) || !is_finite($exchangeRate) || $exchangeRate !== 1.0)) {
+                throw new \DomainException(lang('Finance.checkoutBaseRate'));
+            }
             $exchangeRate = $exchangeRate > 0 ? $exchangeRate : 1.0;
         } elseif ($exchangeRate <= 0) {
             return redirect()->back()->withInput()->with('error', 'Exchange rate is required for non-default currency.');
@@ -1174,7 +1224,9 @@ class Finance extends BaseController
         $transactionType = $this->request->getPost('transaction_type');
         $dueDate = $this->normalizePostedDateOnly('due_date');
         $paidDate = $this->normalizePostedDateOnly('paid_date');
-        $today = date('Y-m-d');
+        $today = $checkoutRequested
+            ? (new \DateTimeImmutable('now', (new \App\Services\ClinicSchedulingSettings($this->db))->timezone((int) $clinicId)))->format('Y-m-d')
+            : date('Y-m-d');
         $transactionDate = $this->resolveFinanceTransactionDate($this->normalizePostedDateOnly('transaction_date'), $paidDate ?: $today);
 
         $amountPaid = 0;
@@ -1223,14 +1275,12 @@ class Finance extends BaseController
             'created_by' => $this->resolveActorUserId()
         ];
 
-        $transactionStarted = false;
-        try {
-            if (!$this->isTransactionContextSafe() || $this->resolveActorUserId() <= 0) {
+            if ((!$transactionStarted && !$this->isTransactionContextSafe()) || $this->resolveActorUserId() <= 0) {
                 throw new \RuntimeException($transactionType === 'invoice'
                     ? 'Invoice creation requires its own authenticated transaction.'
                     : 'Finance creation requires its own authenticated transaction.');
             }
-            $transactionStarted = $this->db->transBegin();
+            if (!$transactionStarted) { $transactionStarted = $this->db->transBegin(); }
             if (!$transactionStarted) {
                 throw new \RuntimeException($transactionType === 'invoice'
                     ? 'Unable to start invoice creation.'
@@ -1261,7 +1311,23 @@ class Finance extends BaseController
                 }
             }
 
-            if ($usingClinicalChargeLines && !$this->chargeLineService->markInvoiced((int) $clinicId, $selectedChargeLineIds, (int) $financeId)) {
+            if ($checkoutRequested) {
+                $finance = $this->lockOwnedFinanceRow((int) $clinicId, (int) $financeId);
+                $state = $this->financeSettlementService->getLockedSettlementState((int) $clinicId, $finance);
+                $settlement = $this->normalizeFinanceSettlementInput($finance, (float) $state['remaining_base'], [
+                    'amount_original' => $this->request->getPost('initial_payment_amount'),
+                    'currency' => $currency,
+                    'exchange_rate' => $exchangeRate,
+                    'payment_method' => $financeData['payment_method'],
+                    'payment_date' => $this->normalizePostedDateOnly('paid_date') ?: $today,
+                    'notes' => $this->request->getPost('notes'),
+                ]);
+                $paymentId = $this->recordLockedFinancePayment((int) $clinicId, $finance, $settlement, $this->resolveActorUserId());
+                $checkoutService->finalize((int) $clinicId, (int) $checkoutClaim['request_id'], (int) $financeId, $paymentId);
+                $balanceDue = $this->financeSettlementService->getLockedSettlementState((int) $clinicId, $finance)['remaining_base'];
+            }
+
+            if ($usingClinicalChargeLines && !$this->chargeLineService->markInvoiced((int) $clinicId, $selectedChargeLineIds, (int) $financeId, $clinicalChargeSelection['rows'])) {
                 $this->db->transRollback();
                 return redirect()->back()->withInput()->with('error', 'Failed to link selected clinical charge lines to this invoice.');
             }
@@ -1330,7 +1396,7 @@ class Finance extends BaseController
                 }
                 $errors = $this->financeModel->errors();
                 log_message('error', 'Finance creation failed: ' . json_encode($errors));
-                log_message('error', 'Finance data that failed: ' . json_encode($financeData));
+                log_message('error', 'Finance create rejected: clinic={clinic}, type={type}', ['clinic' => (int) $clinicId, 'type' => (string) $transactionType]);
                 return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction. Please check your input and try again.');
             }
         } catch (\Throwable $e) {
@@ -1338,7 +1404,11 @@ class Finance extends BaseController
                 $this->db->transRollback();
             }
             log_message('error', 'Finance create failed with provider split: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $checkoutRequested && !($e instanceof \DomainException) ? lang('Finance.checkoutFailed') : $e->getMessage());
+        } finally {
+            if ($transactionStarted && (int) $this->db->transDepth > 0) {
+                $this->db->transRollback();
+            }
         }
     }
 
@@ -3221,6 +3291,44 @@ class Finance extends BaseController
         }
     }
 
+    /** The caller owns exactly one transaction and the locked finance parent. */
+    private function recordLockedFinancePayment(int $clinicId, array $finance, array $settlement, int $actorId): int
+    {
+        if ((int) $this->db->transDepth !== 1 || $this->db->transStatus() === false || $actorId <= 0
+            || (int) ($finance['clinic_id'] ?? 0) !== $clinicId) {
+            throw new \DomainException('Payment requires an owned tenant transaction.');
+        }
+        $paymentData = [
+            'clinic_id' => $clinicId,
+            'finance_id' => (int) $finance['id'],
+            'amount' => $settlement['amount_base'],
+            'type' => 'payment',
+            'payment_method' => $settlement['payment_method'],
+            'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'payment'),
+            'payment_date' => $settlement['payment_date'],
+            'notes' => $settlement['notes'],
+            'created_by' => $actorId,
+        ];
+        if ($this->supportsFinancePaymentExchangeFields()) {
+            $paymentData['currency'] = $settlement['currency'];
+            $paymentData['amount_original'] = $settlement['amount_original'];
+            $paymentData['exchange_rate'] = $settlement['exchange_rate'];
+        }
+        if (!$this->financePaymentModel->insert($paymentData)) {
+            throw new \RuntimeException('Failed to add payment.');
+        }
+        $paymentId = (int) $this->financePaymentModel->getInsertID();
+        if ($paymentId <= 0) { throw new \RuntimeException('Unable to identify recorded payment.'); }
+        if (!$this->syncFinanceSettlementStatus((int) $finance['id'], $clinicId, $finance)) {
+            throw new \RuntimeException('Failed to update invoice settlement status.');
+        }
+        if (!$this->activityLogger->logFinanceActivity('payment', (int) $finance['id'],
+            'Payment of ' . number_format((float) $settlement['amount_base'], 2) . ' added for ' . ($finance['transaction_id'] ?? $finance['id']))) {
+            throw new \RuntimeException('Failed to record settlement audit.');
+        }
+        return $paymentId;
+    }
+
     public function addInvoicePayment($id)
     {
         $transactionStarted = false;
@@ -3272,48 +3380,7 @@ class Finance extends BaseController
 
             $settlement = $this->normalizeFinanceSettlementInput($finance, $remaining);
 
-            $paymentData = [
-                'clinic_id' => (int) $clinicId,
-                'finance_id' => $finance['id'],
-                'amount' => $settlement['amount_base'],
-                'type' => 'payment',
-                'payment_method' => $settlement['payment_method'],
-                'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'payment'),
-                'payment_date' => $settlement['payment_date'],
-                'notes' => $settlement['notes'],
-                'created_by' => $actorId,
-            ];
-            if ($this->supportsFinancePaymentExchangeFields()) {
-                $paymentData['currency'] = $settlement['currency'];
-                $paymentData['amount_original'] = $settlement['amount_original'];
-                $paymentData['exchange_rate'] = $settlement['exchange_rate'];
-            }
-
-            if (!$this->financePaymentModel->insert($paymentData)) {
-                $this->db->transRollback();
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to add payment.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
-            if (!$this->syncFinanceSettlementStatus((int) $finance['id'], (int) $clinicId, $finance)) {
-                $this->db->transRollback();
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to update invoice settlement status.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
-            if (!$this->activityLogger->logFinanceActivity(
-                'payment',
-                (int) $finance['id'],
-                "Payment of " . number_format(floatval($settlement['amount_base']), 2) . " added for " . ($finance['transaction_id'] ?? $finance['id'])
-            )) {
-                throw new \RuntimeException('Failed to record settlement audit.');
-            }
+            $this->recordLockedFinancePayment((int) $clinicId, $finance, $settlement, $actorId);
 
             if ($this->db->transStatus() === false) {
                 $this->db->transRollback();

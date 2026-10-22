@@ -1,3 +1,4 @@
+<?php helper('asset'); ?>
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
@@ -400,6 +401,20 @@
                             <p class="text-xs text-gray-500 mt-2"><?= lang('Finance.totalFormulaHelp') ?></p>
                         </div>
 
+                        <?php if (!empty($can_initial_receipt)): ?>
+                            <fieldset class="rounded-xl border border-gray-200 p-4 space-y-3" data-initial-receipt-section>
+                                <legend class="text-sm font-bold text-gray-700"><?= esc(lang('Finance.checkoutTitle')) ?></legend>
+                                <input type="hidden" name="checkout_request_key" value="<?= esc(old('checkout_request_key', $checkout_request_key ?? '')) ?>">
+                                <label class="flex items-center gap-3">
+                                    <input type="checkbox" name="initial_receipt" value="1" data-initial-receipt <?= old('initial_receipt') === '1' ? 'checked' : '' ?>>
+                                    <span><?= esc(lang('Finance.checkoutTitle')) ?></span>
+                                </label>
+                                <p class="text-sm text-gray-500"><?= esc(lang('Finance.checkoutHelp')) ?></p>
+                                <label class="block text-sm font-bold text-gray-700" for="initialPaymentAmount"><?= esc(lang('Finance.checkoutAmount')) ?></label>
+                                <input id="initialPaymentAmount" type="number" inputmode="decimal" name="initial_payment_amount" min="0.01" step="0.01" value="<?= esc(old('initial_payment_amount')) ?>" class="w-full px-4 py-3 border border-gray-200 rounded-xl" data-initial-payment-amount>
+                            </fieldset>
+                        <?php endif; ?>
+
                         <?= view('finance/partials/provider_split_section', [
                             'clinic_providers' => $clinic_providers ?? [],
                             'provider_payouts' => [],
@@ -455,7 +470,7 @@
     </div>
 </div>
 
-<script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
+<script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= asset_version('assets/js/finance-calc.js') ?>"></script>
 <?= $this->endSection() ?>
 
 

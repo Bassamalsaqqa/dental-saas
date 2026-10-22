@@ -811,8 +811,10 @@ class Patient extends BaseController
                 ->findAll();
         }
 
+        // The workspace uses summary fields only. Keep complete histories and stable ordering,
+        // without fetching unused clinical-note/snapshot/material payloads for every row.
         $examinations = $this->examinationModel
-            ->select('examinations.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+            ->select('examinations.id, examinations.examination_id, examinations.examination_date, examinations.examination_type, examinations.chief_complaint, examinations.status, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
             ->join('users', 'users.id = examinations.created_by', 'left')
             ->where('examinations.clinic_id', $clinicId)
             ->where('examinations.patient_id', $id)
@@ -820,7 +822,7 @@ class Patient extends BaseController
             ->findAll();
 
         $appointments = $this->appointmentModel
-            ->select('appointments.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+            ->select('appointments.id, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.chair_name, appointments.duration, appointments.notes, appointments.status, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
             ->join('users', 'users.id = appointments.created_by', 'left')
             ->where('appointments.clinic_id', $clinicId)
             ->where('appointments.patient_id', $id)
@@ -829,7 +831,7 @@ class Patient extends BaseController
             ->findAll();
 
         $treatments = $this->treatmentModel
-            ->select('treatments.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name, ccl.id AS clinical_charge_line_id, ccl.status AS clinical_charge_status, ccl.net_production_amount AS clinical_charge_amount, ccl.currency AS clinical_charge_currency, ccl.finance_id AS clinical_charge_finance_id, f.transaction_id AS clinical_charge_invoice_number, f.payment_status AS clinical_charge_invoice_status, f.total_amount AS clinical_charge_invoice_total, f.amount_paid AS clinical_charge_invoice_paid, f.balance_due AS clinical_charge_invoice_balance')
+            ->select('treatments.id, treatments.start_date, treatments.treatment_name, treatments.treatment_type, treatments.tooth_number, treatments.treatment_description, treatments.status, users.first_name as doctor_first_name, users.last_name as doctor_last_name, ccl.id AS clinical_charge_line_id, ccl.status AS clinical_charge_status, ccl.net_production_amount AS clinical_charge_amount, ccl.currency AS clinical_charge_currency, ccl.finance_id AS clinical_charge_finance_id, f.transaction_id AS clinical_charge_invoice_number, f.payment_status AS clinical_charge_invoice_status, f.total_amount AS clinical_charge_invoice_total, f.amount_paid AS clinical_charge_invoice_paid, f.balance_due AS clinical_charge_invoice_balance')
             ->join('users', 'users.id = treatments.created_by', 'left')
             ->join('clinical_charge_lines ccl', "ccl.id = (SELECT ccl_latest.id FROM clinical_charge_lines ccl_latest WHERE ccl_latest.treatment_id = treatments.id AND ccl_latest.clinic_id = treatments.clinic_id AND ccl_latest.source_entity_type = 'treatment' AND ccl_latest.status != 'voided' ORDER BY ccl_latest.id DESC LIMIT 1)", 'left', false)
             ->join('finances f', 'f.id = ccl.finance_id AND f.clinic_id = ccl.clinic_id', 'left')

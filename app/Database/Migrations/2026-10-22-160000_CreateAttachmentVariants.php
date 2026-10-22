@@ -7,6 +7,12 @@ class CreateAttachmentVariants extends Migration
     public function up()
     {
         $this->db->resetDataCache();
+        foreach (['clinics'=>['id'], 'file_attachments'=>['id','clinic_id','file_path','mime_type','file_size','deleted_at']] as $table=>$fields) {
+            if (!$this->db->tableExists($table)) { throw new \RuntimeException('Derivative parent schema unavailable: ' . $table); }
+            foreach ($fields as $field) { if (!$this->db->fieldExists($field,$table)) { throw new \RuntimeException('Derivative parent field unavailable: ' . $table . '.' . $field); } }
+            $engine = $this->db->query('SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?', [$this->db->prefixTable($table)]);
+            if ($engine === false || strtoupper((string) ($engine->getRowArray()['ENGINE'] ?? '')) !== 'INNODB') { throw new \RuntimeException('Derivatives require transactional InnoDB parents: ' . $table); }
+        }
         if ($this->db->tableExists('attachment_variants')) { throw new \RuntimeException('Variant table already exists; verify its exact schema before continuing.'); }
         $this->forge->addField([
             'id'=>['type'=>'BIGINT','unsigned'=>true,'auto_increment'=>true],
@@ -26,7 +32,7 @@ class CreateAttachmentVariants extends Migration
         $this->forge->addUniqueKey(['clinic_id','attachment_id','kind','source_sha256'],'uq_attachment_variant_source');
         if (!$this->forge->createTable('attachment_variants',false,['ENGINE'=>'InnoDB'])) { throw new \RuntimeException('Variant schema creation failed.'); }
         $this->db->resetDataCache();
-        foreach (['clinic_id','attachment_id','source_sha256','file_sha256','relative_path','file_size'] as $field) {
+        foreach (['id','clinic_id','attachment_id','kind','source_sha256','file_sha256','relative_path','mime_type','file_size','width','height','created_at'] as $field) {
             if (!$this->db->fieldExists($field,'attachment_variants')) { throw new \RuntimeException('Variant schema verification failed.'); }
         }
     }

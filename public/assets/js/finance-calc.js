@@ -29,6 +29,10 @@
     const dueDateField = field('[data-finance-due-date-field]');
     const expenseStatusSelect = field('[data-expense-payment-status]');
 
+    const receiptSection = field('[data-initial-receipt-section]');
+    const receiptCheckbox = field('[data-initial-receipt]');
+    const receiptAmount = field('[data-initial-payment-amount]');
+
     const baseCurrency = form.getAttribute('data-base-currency') || 'ILS';
 
     const updateTotal = () => {
@@ -137,6 +141,16 @@
         });
       }
 
+      if (receiptSection) {
+        receiptSection.hidden = !isInvoice;
+        if (!isInvoice && receiptCheckbox) receiptCheckbox.checked = false;
+        if (receiptCheckbox) receiptCheckbox.disabled = !isInvoice;
+        if (receiptAmount) {
+          receiptAmount.disabled = !isInvoice || !receiptCheckbox?.checked;
+          receiptAmount.required = isInvoice && !!receiptCheckbox?.checked;
+        }
+      }
+
       const selected = selectedChargeLines();
       const total = selected.reduce((sum, checkbox) => sum + (parseFloat(checkbox.dataset.amount || '0') || 0), 0);
       const currencies = Array.from(new Set(selected.map((checkbox) => checkbox.dataset.currency || baseCurrency)));
@@ -184,6 +198,10 @@
       updateConverted();
     });
 
+    receiptCheckbox?.addEventListener('change', () => {
+      syncClinicalChargePicker();
+      toggleTransactionDates();
+    });
     methodSelect?.addEventListener('change', toggleCheck);
     transactionTypeSelect?.addEventListener('change', () => {
       syncClinicalChargePicker();

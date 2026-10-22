@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'voidProviderAllocationProtected' => 'A void allocation cannot be changed, removed or paid. Retain its original values and use an approved correction workflow.',
@@ -584,4 +584,12 @@ return [
     'providerCurrencyWarning' => 'Provider amounts are shown by their recorded currency. Mixed or unknown currencies cannot be combined or converted without recorded exchange rates.',
     'providerCurrencyUnavailable' => 'Unavailable: currency mismatch',
     'providerCurrencyUnknown' => 'Unknown currency',
+    'checkoutTitle' => 'Record an initial receipt with this invoice',
+    'checkoutHelp' => 'Create the invoice and record its initial receipt together. The payment method and liquidity account selected above are used. Provider payments remain separate explicit actions.',
+    'checkoutAmount' => 'Initial receipt amount in the invoice currency',
+    'checkoutUnavailable' => 'Invoice checkout is disabled or unavailable to this user.',
+    'checkoutInvalid' => 'The initial receipt request is invalid.',
+    'checkoutAlreadyRecorded' => 'This invoice and receipt were already recorded. No duplicate receipt was created.',
+    'checkoutBaseRate' => 'The exchange rate must be 1 when the invoice uses the clinic base currency.',
+    'checkoutFailed' => 'The invoice and initial receipt could not be confirmed. Retry the same form to check its recorded result, or contact your clinic manager.',
 ];

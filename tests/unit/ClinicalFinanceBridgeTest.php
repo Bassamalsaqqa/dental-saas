@@ -100,7 +100,9 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
 
         $secondLine = $this->captureTreatmentCharge($service, $clinicId, $treatmentId, 175.00);
         $financeId = $this->createInvoice($clinicId, (int) $secondLine['patient_id'], 175.00);
+        $this->assertTrue($this->db->transBegin());
         $this->assertTrue($service->markInvoiced($clinicId, [(int) $secondLine['id']], $financeId));
+        $this->assertTrue($this->db->transCommit());
 
         $blocked = $service->syncTreatmentChargeLine($clinicId, $this->treatment($treatmentId), [
             'charge_enabled' => '1',
@@ -139,7 +141,9 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $this->assertStringContainsString('no longer available', $crossPatient['message']);
 
         $financeId = $this->createInvoice($clinicId, $patientId, 100.00);
+        $this->assertTrue($this->db->transBegin());
         $this->assertTrue($service->markInvoiced($clinicId, [(int) $lineA['id']], $financeId));
+        $this->assertTrue($this->db->transCommit());
 
         $alreadyInvoiced = $service->prepareInvoiceSelection($clinicId, $patientId, [(int) $lineA['id']]);
         $this->assertFalse($alreadyInvoiced['success']);
@@ -157,7 +161,9 @@ final class ClinicalFinanceBridgeTest extends CIUnitTestCase
         $this->createPayment($clinicId, $financeId, 100.00);
         $this->createProviderPayout($clinicId, $financeId, $patientId, 80.00, 30.00);
 
+        $this->assertTrue($this->db->transBegin());
         $this->assertTrue($service->markInvoiced($clinicId, [(int) $line['id']], $financeId));
+        $this->assertTrue($this->db->transCommit());
 
         $billedRows = $service->getRowsForFinance($clinicId, $financeId);
         $this->assertCount(1, $billedRows);
