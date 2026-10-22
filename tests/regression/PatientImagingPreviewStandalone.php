@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 $n=0;function ck(bool$v,string$m):void{global$n;if(!$v)throw new RuntimeException($m);$n++;}function esc($v):string{return htmlspecialchars((string)$v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}function lang($key):string{return$key;}function base_url($path):string{return'https://synthetic.invalid/'.$path;}
+function config($name){return (object)['enabled'=>false];}
 $controller=file_get_contents(__DIR__.'/../../app/Controllers/Patient.php');$a=strpos($controller,'        // Preview bytes are served only');$b=strpos($controller,'        $odontogramSnapshots',$a);$snippet=substr($controller,$a,$b-$a);
 foreach(['image/jpeg','image/jpg','image/png','image/gif','image/webp']as$mime){$latestImagingAttachment=['id'=>42,'mime_type'=>$mime];$latestImagingPreviewSrc=null;eval($snippet);ck($latestImagingPreviewSrc==='https://synthetic.invalid/file/inline/42','Authorized raster URL '.$mime);}
 foreach(['image/svg+xml','image/bmp','text/html','application/pdf','']as$mime){$latestImagingAttachment=['id'=>42,'mime_type'=>$mime];$latestImagingPreviewSrc=null;eval($snippet);ck($latestImagingPreviewSrc===null,'Unsupported preview remains unavailable '.$mime);}

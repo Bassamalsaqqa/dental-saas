@@ -67,6 +67,12 @@ class FileAttachmentModel extends TenantAwareModel
             ->where('clinic_id', $clinicId)
             ->get()->getRowArray();
 
-        return (int) ($row['total_size'] ?? 0);
+        $total = (int) ($row['total_size'] ?? 0);
+        if ($this->db->tableExists('attachment_variants')) {
+            $variants = $this->db->table('attachment_variants')->selectSum('file_size', 'total_size')
+                ->where('clinic_id', $clinicId)->get()->getRowArray();
+            $total += (int) ($variants['total_size'] ?? 0);
+        }
+        return $total;
     }
 }

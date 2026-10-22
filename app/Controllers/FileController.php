@@ -162,6 +162,24 @@ class FileController extends BaseController
             ->setBody((string) file_get_contents($realFilePath));
     }
 
+    /** Serve a prebuilt verified raster only after original attachment authorization. */
+    public function preview($id, string $kind)
+    {
+        $this->response->noCache();
+        if (!in_array($kind, ['thumbnail', 'preview'], true)) { throw PageNotFoundException::forPageNotFound(); }
+        $auth = $this->authorizeAttachmentAccess((int)$id, 'inline');
+        if ($auth instanceof \CodeIgniter\HTTP\ResponseInterface) { return $auth; }
+        if (!config('MediaDerivatives')->enabled) { return $this->inline($id); }
+        try {
+            $variant = (new \App\Services\AttachmentDerivativeService())->lookup((int)$auth['attachment']['clinic_id'], (int)$id, $kind);
+        } catch (\DomainException $e) { throw PageNotFoundException::forPageNotFound(); }
+        if (!$variant) { return $this->inline($id); }
+        return $this->response->setHeader('Content-Type', $variant['mime_type'])
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setHeader('Content-Security-Policy', "default-src 'none'; base-uri 'none'; sandbox")
+            ->setBody((string)file_get_contents($variant['absolute_path']));
+    }
+
     /**
      * Authorize attachment access with fail-closed entity-specific module permission,
      * tenant scoping, object ownership, and filesystem confinement.

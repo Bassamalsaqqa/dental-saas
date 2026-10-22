@@ -797,6 +797,9 @@ class Patient extends BaseController
         if ($latestImagingAttachment && !empty($latestImagingAttachment['id'])
             && in_array($previewMime, ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'], true)) {
             $latestImagingPreviewSrc = base_url('file/inline/' . (int) $latestImagingAttachment['id']);
+            if (config('MediaDerivatives')->enabled && in_array($previewMime, ['image/jpeg','image/jpg','image/png','image/webp'], true)) {
+                $latestImagingPreviewSrc = base_url('file/preview/' . (int)$latestImagingAttachment['id'] . '/preview');
+            }
         }
 
         $odontogramSnapshots = $this->buildPatientOdontogramSnapshots($clinicId, (int) $id, 6);
