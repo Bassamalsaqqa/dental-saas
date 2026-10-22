@@ -1,6 +1,6 @@
 # M2-C focused acceptance and release boundary
 
-Status: corrected review candidate; independent exact-head decision and production release gates remain open. Production base `f86376a4a6c8f6bf0fe4471f08093af71e76e042`, tree `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`. No production access/writes, merge, release-ref change, deployment, production migration or feature activation occurred. InvoiceCorrections.enabled remains false. Scheduling and WhatsApp remain OFF.
+Status: corrected review candidate; independent exact-head decision and production release gates remain open. Production base `f86376a4a6c8f6bf0fe4471f08093af71e76e042`, tree `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`. Production inspection was read-only. No production writes, merge, release-ref change, deployment, production migration or feature activation occurred. InvoiceCorrections.enabled remains false. Scheduling and WhatsApp remain OFF.
 
 ## Implemented and independently inspected
 
@@ -122,3 +122,15 @@ Native legacy booking on the new synthetic schema also passed with scheduling OF
 ## Independent follow-up at d39f49a
 
 The external reviewer returned CHANGES_REQUESTED at d39f49ad7486df37bd472eef385ee01fce5da747: https://github.com/Bassamalsaqqa/dental-saas/pull/20#pullrequestreview-5620438986 . The concrete breadcrumb mojibake is corrected to U+2014 with five actual BaseController EN/AR encoding/rendering checks. This narrow source correction does not require rerunning unrelated SQL or UI suites. The stale PR description is being reconciled to the actual consolidated checkpoint; no earlier focused test is represented as a whole-tree suite on later code. The review's native Hostinger, guardrail, schema rehearsal and separate activation gates remain open; absence of Actions is deliberate Owner policy, not a passing CI claim. This review is not approval of later source.
+
+## Targeted combined schema rehearsal
+
+At source checkpoint d72cee44dc87dff061a979b866543d2886d0a349, five further pinned migration classes were applied only to the new captured-schema synthetic database: correction ledger, scoped email uniqueness, attachment variants, checkout requests and the charge appointment index. Contact notes and scheduling expansion already had separate verified checkpoints there. **80 combined schema/preservation checks** pass: every existing original-table row is identical, all new operational ledgers remain empty, one approval permission identity is registered with no grants, and corrections/checkout/derivatives/manual contacts/scheduling remain OFF. Each file SHA and stage is recorded in the private local manifest; no unrestricted MigrationRunner or production migration-history write was used.
+
+This closes the local exact-structure rehearsal gap for those classes. It does not establish Hostinger11.8 online DDL/load/headroom behavior, native filesystem/power-loss recovery or final whole-candidate acceptance. Those are still release gates, not waived by local success. Database histories and optional feature states are not rewritten to make tests pass.
+
+## Representative checkout / correction interaction
+
+On the captured-production-schema synthetic database after the targeted migration rehearsal, actual routed checkout default-OFF denial, initial receipt, exact replay and excessive-payment rollback pass. Ten SQL assertions verify exactly one invoice/receipt/request, original100 gross,40 cash,60 receivable, `safe_cash` attribution and unchanged appointments. Optional enablement exists only as a guarded per-request local test header; no persistent setting or production flag changes.
+
+The same newly owned checkout invoice then passed six actual routed correction interactions: default-OFF404, escaped preview, explicit operational issuance, exact retry to the same document, protected no-store document and anonymous401. Eight SQL/service projection checks verify one immutable10credit, original100invoice/40receipt retained, outstanding50 in both canonical service and aggregate, zero invented patient liability/automatic allocations, retained checkout identity and no new role grants. An initial harness assertion incorrectly compared floats strictly with integer literals; read-only values proved preservation and the test was corrected. No application accounting formula was changed.
