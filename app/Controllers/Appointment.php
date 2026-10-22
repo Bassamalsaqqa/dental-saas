@@ -464,9 +464,34 @@ class Appointment extends BaseController
             ->orderBy('item_name', 'ASC')
             ->findAll();
 
+        if (config('ClinicOperations')->manualAppointmentContacts) {
+            $this->response->setHeader('Cache-Control', 'no-store, private')->setHeader('Pragma', 'no-cache');
+        }
+        $contactBeforeRaw = $this->request->getGet('contact_before_id');
+        $contactBefore = $contactBeforeRaw === null
+            ? null
+            : \App\Services\ClinicSchedulingSettings::positiveInt($contactBeforeRaw);
+        if ($contactBeforeRaw !== null && $contactBefore === null) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Invalid contact history cursor');
+        }
+        try {
+            $contactHistory = $this->schedulingService->contactHistory(
+                (int) $clinicId,
+                (int) $appointment['id'],
+                (int) $this->ionAuth->getUserId(),
+                $contactBefore
+            );
+        } catch (\DomainException $e) {
+            return $this->response->setStatusCode($e->getMessage() === 'SCHEMA_NOT_READY' ? 503 : 403)
+                ->setHeader('Cache-Control', 'no-store, private')
+                ->setBody(esc(lang('AppointmentContact.failed')));
+        }
         $data = [
             'title' => 'Appointment Details - ' . $appointment['appointment_id'],
             'appointment' => $appointment,
+            'contact_history' => $contactHistory,
+            'contact_history_enabled' => config('ClinicOperations')->manualAppointmentContacts,
+            'contact_request_key' => bin2hex(random_bytes(24)),
             'appointment_context_patient' => $selectedPatient,
             'appointment_linked_examinations' => $linkedExaminations,
             'appointment_linked_treatments' => $linkedTreatments,
@@ -490,6 +515,36 @@ class Appointment extends BaseController
 
         return $this->view('appointment/show', $data);
     }
+
+    public function contactAttempt($id)
+    {
+        $this->response->setHeader('Cache-Control', 'no-store, private');
+        $clinicId = (int)(session()->get('active_clinic_id') ?? 0);
+        $actorId = (int)($this->ionAuth->getUserId() ?? 0);
+        $appointmentId = \App\Services\ClinicSchedulingSettings::positiveInt($id);
+        if ($clinicId <= 0 || $actorId <= 0 || $appointmentId === null) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false,'message' => lang('AppointmentContact.failed')]);
+        }
+        $result = $this->schedulingService->appendContactNote($clinicId, $appointmentId, $actorId, ['note' => $this->request->getPost('note'),'request_key' => $this->request->getPost('request_key')]);
+        $key = ($result['success'] ?? false) ? 'saved' : (($result['code'] ?? '') === 'REPLAY_CONFLICT' ? 'conflict' : 'failed');
+        if ($this->request->isAJAX()) {
+            $code = $result['code'] ?? '';
+            $status = ($result['success'] ?? false) ? 200 : match($code) {
+                'FORBIDDEN' => 403,'NOT_FOUND' => 404,'INVALID_INPUT' => 422,'SCHEMA_NOT_READY' => 503,default => 409
+            };
+            return $this->response->setStatusCode($status)->setJSON(['success' => (bool)($result['success'] ?? false),'message' => lang('AppointmentContact.'.$key)]);
+        }
+        $redirect = redirect()->to(base_url('appointment/'.$appointmentId).'#contact-history');
+        if (!($result['success'] ?? false)) {
+            $note = $this->request->getPost('note');
+            $requestKey = $this->request->getPost('request_key');
+            if (is_string($note) && preg_match('//u', $note) === 1 && mb_strlen($note) <= 2000 && is_string($requestKey) && preg_match('/^[a-f0-9]{32,64}$/D', $requestKey) === 1) {
+                session()->setFlashdata('appointment_contact_retry', ['clinic_id' => $clinicId,'actor_id' => $actorId,'appointment_id' => $appointmentId,'note' => $note,'request_key' => $requestKey]);
+            }
+        }
+        return $redirect->with(($result['success'] ?? false) ? 'success' : 'error', lang('AppointmentContact.'.$key));
+    }
+
 
     public function edit($id)
     {

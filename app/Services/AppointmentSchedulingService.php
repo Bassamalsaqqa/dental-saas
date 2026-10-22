@@ -75,6 +75,138 @@ class AppointmentSchedulingService
         return $this->localizeResult($this->processBooking($clinicId, $validId, $input, $actorId, $context));
     }
 
+    /** Manual factual history only: no messaging, consent inference or appointment mutation. */
+    public function appendContactNote(int $clinicId, int $appointmentId, int $actorId, array $input, string $context = 'session'): array
+    {
+        $fail = static fn (string $code): array => ['success' => false,'code' => $code];
+        if (!config('ClinicOperations')->manualAppointmentContacts) {
+            return $fail('DISABLED');
+        }
+        $note = $input['note'] ?? null;
+        $key = $input['request_key'] ?? null;
+        if ($clinicId <= 0 || $appointmentId <= 0 || $actorId <= 0 || !is_string($note) || !is_string($key)
+            || preg_match('//u', $note) !== 1 || trim($note) === '' || mb_strlen($note) > 2000
+            || preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $note)
+            || preg_match('/^[a-f0-9]{32,64}$/D', $key) !== 1) {
+            return $fail('INVALID_INPUT');
+        }
+        if (!in_array($context, ['session','bearer'], true)) {
+            return $fail('FORBIDDEN');
+        }
+        if (($error = $this->validateContextAuth($clinicId, $actorId, $context)) !== null) {
+            return $fail('FORBIDDEN');
+        }
+        if (!$this->permissionService->hasPermission($actorId, 'appointments', 'edit')) {
+            return $fail('FORBIDDEN');
+        }
+        if ($this->checkSubscriptionStanding($clinicId) !== null) {
+            return $fail('FORBIDDEN');
+        }
+        if (!$this->db->tableExists('appointment_contact_notes')) {
+            return $fail('SCHEMA_NOT_READY');
+        }
+        if ((int)$this->db->transDepth !== 0 || !$this->db->transStatus()) {
+            return $fail('TRANSACTION_OWNERSHIP');
+        }
+        $owns = false;
+        try {
+            if (!$this->db->transBegin()) {
+                throw new \RuntimeException('Contact transaction start failed.');
+            }
+            $owns = true;
+            $clinic = $this->db->query('SELECT id,status FROM '.$this->db->escapeIdentifiers($this->db->prefixTable('clinics')).' WHERE id=? FOR UPDATE', [$clinicId])->getRowArray();
+            if (!$clinic || $clinic['status'] !== 'active' || $this->revalidateActorUnderLock($clinicId, $actorId, 'edit') !== null
+                || $this->checkSubscriptionStanding($clinicId) !== null) {
+                throw new DomainException('FORBIDDEN');
+            }
+            $probe = $this->db->table('appointments')->select('patient_id')->where('id', $appointmentId)->where('clinic_id', $clinicId)->get()->getRowArray();
+            if (!$probe) {
+                throw new DomainException('NOT_FOUND');
+            }
+            $patientId = (int)$probe['patient_id'];
+            $patientSql = 'SELECT id FROM '.$this->db->escapeIdentifiers($this->db->prefixTable('patients')).' WHERE id=? AND clinic_id=?';
+            if ($this->db->fieldExists('deleted_at', 'patients')) {
+                $patientSql .= ' AND deleted_at IS NULL';
+            }
+            $patient = $this->db->query($patientSql.' FOR UPDATE NOWAIT', [$patientId,$clinicId])->getRowArray();
+            $appointmentSql = 'SELECT id,patient_id FROM '.$this->db->escapeIdentifiers($this->db->prefixTable('appointments')).' WHERE id=? AND clinic_id=?';
+            if ($this->db->fieldExists('deleted_at', 'appointments')) {
+                $appointmentSql .= ' AND deleted_at IS NULL';
+            }
+            $appointment = $this->db->query($appointmentSql.' FOR UPDATE NOWAIT', [$appointmentId,$clinicId])->getRowArray();
+            if (!$patient || !$appointment || (int)$appointment['patient_id'] !== $patientId) {
+                throw new DomainException('NOT_FOUND');
+            }
+            $hash = hash('sha256', json_encode([$clinicId,$patientId,$appointmentId,$actorId,$note], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            $existing = $this->db->table('appointment_contact_notes')->where('clinic_id', $clinicId)->where('request_key', $key)->get()->getRowArray();
+            if ($existing) {
+                if (!hash_equals((string)$existing['request_hash'], $hash)) {
+                    throw new DomainException('REPLAY_CONFLICT');
+                }
+                if ((int)$this->db->transDepth !== 1 || !$this->db->transStatus() || !$this->db->transCommit()) {
+                    throw new \RuntimeException('Contact replay commit failed.');
+                }
+                $owns = false;
+                return ['success' => true,'id' => (int)$existing['id'],'replayed' => true];
+            }
+            $now = gmdate('Y-m-d H:i:s');
+            if (!$this->db->table('appointment_contact_notes')->insert(['clinic_id' => $clinicId,'patient_id' => $patientId,'appointment_id' => $appointmentId,'actor_id' => $actorId,'request_key' => $key,'request_hash' => $hash,'note' => $note,'created_at' => $now])) {
+                throw new \RuntimeException('Contact insert failed.');
+            }
+            $id = (int)$this->db->insertID();
+            if ($id <= 0) {
+                throw new \RuntimeException('Contact identity unavailable.');
+            }
+            // Never copy factual text into notification-readable activity data.
+            $this->writeActivityLog($clinicId, $actorId, 'contact_note', $appointmentId, 'Manual contact record #'.$id.' appended.', $now);
+            if ((int)$this->db->transDepth !== 1 || !$this->db->transStatus() || !$this->db->transCommit()) {
+                throw new \RuntimeException('Contact commit failed.');
+            }
+            $owns = false;
+            return ['success' => true,'id' => $id,'replayed' => false];
+        } catch (Throwable $e) {
+            if ($owns) {
+                $this->db->transRollback();
+            }
+            return $fail($e instanceof DomainException ? $e->getMessage() : 'RETRY_REQUIRED');
+        }
+    }
+
+    /** All retained records are traversable; no factual text enters general activity feeds. */
+    public function contactHistory(int $clinicId, int $appointmentId, int $actorId, ?int $beforeId = null, string $context = 'session'): array
+    {
+        if (!config('ClinicOperations')->manualAppointmentContacts) {
+            return ['items' => [],'next' => null];
+        }
+        if ($clinicId <= 0 || $appointmentId <= 0 || ($beforeId !== null && $beforeId <= 0)) {
+            throw new \InvalidArgumentException('Invalid contact cursor.');
+        }
+        if ($actorId <= 0 || !in_array($context, ['session','bearer'], true) || $this->validateContextAuth($clinicId, $actorId, $context) !== null || !$this->permissionService->hasPermission($actorId, 'appointments', 'view') || $this->checkSubscriptionStanding($clinicId) !== null) {
+            throw new DomainException('FORBIDDEN');
+        }
+        if (!$this->db->tableExists('appointment_contact_notes')) {
+            throw new DomainException('SCHEMA_NOT_READY');
+        }
+        $query = $this->db->table('appointment_contact_notes n')->select('n.id,n.actor_id,n.note,n.created_at')
+            ->join('appointments a', 'a.id=n.appointment_id AND a.clinic_id=n.clinic_id AND a.patient_id=n.patient_id')
+            ->join('patients p', 'p.id=n.patient_id AND p.clinic_id=n.clinic_id')
+            ->where('n.clinic_id', $clinicId)->where('n.appointment_id', $appointmentId);
+        if ($this->db->fieldExists('deleted_at', 'appointments')) {
+            $query->where('a.deleted_at', null);
+        }
+        if ($this->db->fieldExists('deleted_at', 'patients')) {
+            $query->where('p.deleted_at', null);
+        }
+        if ($beforeId !== null) {
+            $query->where('n.id <', $beforeId);
+        }
+        $rows = $query->orderBy('n.id', 'DESC')->limit(26)->get()->getResultArray();
+        $more = count($rows) > 25;
+        $rows = array_slice($rows,0,25);
+        return ['items' => $rows,'next' => $more ? (int)$rows[count($rows) - 1]['id'] : null];
+    }
+
+
     private function localizeResult(array $result): array
     {
         $code=$result['code']??'';

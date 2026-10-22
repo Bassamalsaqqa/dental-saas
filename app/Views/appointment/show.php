@@ -481,6 +481,8 @@ $visitStageLabels = [
     </div>
 </div>
 
+<?= view('appointment/partials/contact_history', ['appointment'=>$appointment,'contact_history'=>$contact_history??[],'contact_history_enabled'=>$contact_history_enabled??false,'contact_request_key'=>$contact_request_key??'']) ?>
+
 <?= view('examination/partials/quick_create_modal', [
     'is_rtl' => $isRtl,
     'return_to' => $returnToContext,

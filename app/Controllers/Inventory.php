@@ -1160,8 +1160,8 @@ class Inventory extends BaseController
         }
 
         $usageModel = new \App\Models\InventoryUsageModel();
-        $usageHistory = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
-            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+        $usageHistory = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id AND treatments.clinic_id = inventory_usage.clinic_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = inventory_usage.clinic_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->join(
                 'finances f',
@@ -1192,8 +1192,8 @@ class Inventory extends BaseController
         }
 
         $usageModel = new \App\Models\InventoryUsageModel();
-        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
-            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id AND treatments.clinic_id = inventory_usage.clinic_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = inventory_usage.clinic_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->join(
                 'finances f',
@@ -1229,8 +1229,8 @@ class Inventory extends BaseController
         }
 
         $usageModel = new \App\Models\InventoryUsageModel();
-        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
-            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id AND treatments.clinic_id = inventory_usage.clinic_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = inventory_usage.clinic_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->join(
                 'finances f',
@@ -1440,8 +1440,8 @@ class Inventory extends BaseController
         $usageModel = new \App\Models\InventoryUsageModel();
         
         $baseBuilder = $usageModel->builder()
-            ->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
-            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+            ->join('treatments', 'treatments.id = inventory_usage.treatment_id AND treatments.clinic_id = inventory_usage.clinic_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = inventory_usage.clinic_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->join(
                 'finances f',

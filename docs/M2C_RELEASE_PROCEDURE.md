@@ -44,3 +44,9 @@ This source candidate intentionally denies physical global-user and clinic delet
 Language return URLs depend on the existing explicit `app.baseURL`; preserve it exactly. GET language switching changes personal session state only. Clinic-default persistence is confined to an authorized, CSRF-protected POST/settings workflow. No permissions are granted.
 
 On source rollback, preserve all new schema/history and note that M2 restores its earlier destructive account/clinic routes. The rollback procedure is not permission to purge or to disregard correction balances. Revalidate protected files and use a reviewed incident access restriction or fix forward where historical accounting requires it.
+
+## Optional manual appointment contact history (default OFF)
+
+2026-10-22-180000_CreateAppointmentContactNotes adds one append-only scoped ledger with restrictive parent foreign keys and clinic/request uniqueness. It verifies InnoDB and actual parent INT signedness before DDL, refuses incompatible existing tables, and refuses populated down. No backfill, permission grants, notification dispatch, appointment status change, consent inference or automatic recovery-queue removal occurs. ClinicOperations.manualAppointmentContacts remains false. Existing appointment-view/edit authority is reused; application source provides no modification/deletion operation for saved notes.
+
+Back up this table consistently with its clinic/patient/appointment/actor parents. Source rollback must retain notes and restrictive FKs; old source cannot display the ledger and must not purge referenced parents. An operational rollout requires separately approved schema and activation plus full representative page/role acceptance. A presentation fixture is not evidence of a successful routed appointment details GET.

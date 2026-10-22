@@ -1,6 +1,8 @@
-# Dynamic Doctor Scheduling ? Phase B
+# Dynamic Doctor Scheduling ? implementation and pilot contract
 
-Status: Phase B PR #2 independently approved at `3bf46f96a653d266870d2aa6a783dcc96f493415` and merged at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04`; pre-pilot workflow is a separate review PR. No production migration, backfill, assignment change or deployment is authorized by this document.
+Current reconciliation: the protected deployed M2 ancestry already contains the reviewed doctor-identity booking and pre-pilot schedule-impact workflow. Historical PR #2/#3/#4 source must not be merged again. The current consolidated campaign verifies and preserves these implementations; it does not activate scheduling, assign historical appointments, apply its pending migration or authorize a pilot.
+
+Dynamic scheduling remains OFF. Code readiness is distinct from operational certification: actual Hostinger schema compatibility, roster/legacy appointment review, clinic-local availability and impact acknowledgment, isolated representative booking/concurrency and operator acceptance remain release/pilot evidence gates. See the current campaign matrix in `../refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md` and the exact protected release in `../PROJECT_STATE.md`.
 
 ## Identity and eligibility
 
