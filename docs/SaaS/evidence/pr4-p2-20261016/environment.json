@@ -1,0 +1,87 @@
+{
+  "certification_statement": "Measurements recorded from local staging execution by Codex. Reviewer static approval does not constitute executed certification.",
+  "execution_record_steps": [
+    {
+      "argv": [
+        "php",
+        "scripts/safe_test_runner.php",
+        "-c",
+        "phpunit.staging-certification.xml",
+        "--no-coverage",
+        "--no-logging",
+        "--do-not-cache-result"
+      ],
+      "exit_code": 0,
+      "finished_at": "2026-10-16T06:23:42.911181+00:00",
+      "name": "final-php",
+      "output_sha256": "4e47c0311a9a53a39d00c68912463063c74714546c290d435a62a2452db1a2c1",
+      "started_at": "2026-10-16T06:22:56.632058+00:00",
+      "stdout_file": "staging-final-php.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/js/ScheduleImpactMobileTest.cjs"
+      ],
+      "exit_code": 0,
+      "finished_at": "2026-10-16T06:23:46.234071+00:00",
+      "name": "final-mobile",
+      "output_sha256": "68808bb17627e3501b6fc2a4a2d8f5d6925995687cfbc294b205e048cae39a53",
+      "started_at": "2026-10-16T06:23:42.925016+00:00",
+      "stdout_file": "staging-final-mobile.log"
+    }
+  ],
+  "executor_role": "Codex-executed",
+  "platform": {
+    "machine": "AMD64",
+    "python_version": "3.12.10",
+    "release": "11",
+    "system": "Windows"
+  },
+  "raw_execution_record_sha256": "587a2604d986cb01969facd372ab8a66f25c74e46772ddfde113152bc9a3d210",
+  "raw_metric_sha256": {
+    "pr3-charge-index-assessment.json": "2d754b65806dec81f580ce454f8f02a016a206543cbc9014004bb089b0783b35",
+    "pr3-staging-concurrency.json": "a8cd769bfa61691086fabbaa1c0ca1d058eb1608858f1e61803318be7e2fcb57",
+    "pr3-staging-rollback.json": "534300b8230ab28185f7317c797ec781a63ee6af3fff6bbef73b5196336e2346",
+    "pr3-staging-scale.json": "ec9ffa25718cecc3281cf6198c173e7593357288563808a0b3e72beaf548e51b"
+  },
+  "root_runtime_environment": {
+    "mariadb_version": "10.4.32",
+    "php_version": "8.2.12"
+  },
+  "source_canonical_lf_digests": {
+    "app/Config/Database.php": "e73e5621a0da7ed8bae09484ef1e67f80e483a89dad169eadf5a01b3ca534a92",
+    "app/Config/Routes.php": "fc78c253bddb43023aabab3993e4dc2b8538030cefe3f70ca64618bbc7a8c4da",
+    "app/Services/AppointmentReschedulabilityService.php": "024e5bf0ed9b45ca16f5737b94379d229540c6f22eedab49acddb0243e2a7118",
+    "app/Services/AppointmentSchedulingService.php": "e1a12686d4d6564e5c3dbf940e0ff7a9b0338c4e496ad515e28750c6851dc9c7",
+    "app/Services/AppointmentSlotEditContext.php": "e6f3df141040f1c8b73937e47cf985c9186fec847cf03e3029846d83b6d97ddc",
+    "app/Services/ClinicScheduleAvailabilityService.php": "56b28854804f6cd09c049f587f6fc88beab0f7cf32c4cceeb12b0dd566d9ccc9",
+    "app/Services/ClinicSchedulingConfigurationService.php": "c0b57892eb3ebaa9f48018b7bf704eba6136c44f08859d5bb5ea26ec4c6cb348",
+    "app/Services/ClinicSchedulingSettings.php": "b4111b9a617b5245da15a63816c7c56684472b1a3aef16f526284ceaede194d2",
+    "app/Services/ClinicTemporalPolicyService.php": "3d54148f06fa598cd3239b4039463a2ee1a4254ffade03ddd4fbbadb2ea9f017",
+    "app/Services/ProviderDirectoryService.php": "abdb94168e2c674cff9e6299e57ee5a1aa1df8739d02e0c3af7a86fb4ac269d9",
+    "app/Services/ProviderScheduleService.php": "cc9d64cd8aee20d018c94ff017cc9643d038a4cd036a0090a27590c02babdffe",
+    "app/Services/ScheduleImpactAuditStore.php": "6fcd9be8fabc78facbdb57f245dba4ffc2779862a78a9824072c3bfa392b1b1c",
+    "app/Services/ScheduleImpactService.php": "6455b8000a2f67fafb92e7d93041098d82edb30f9d8b68445d0d5bc3dc4558e5",
+    "app/Services/SchedulingAuthorityLocks.php": "72cd89ec099fc8ad53d610207851c5350766dccc3a7818ead1c78d134ea590bb",
+    "phpunit.staging-certification.xml": "931f7287f9cb7f19f7d8dc343014dced58f70ed170a4a5a357875d73405dd7a9",
+    "scripts/TestDatabasePreflight.php": "b6318038d2a18f892d0689bfb59f46203fd761c12af509c164cbc2fbb7a2ada9",
+    "scripts/capture_pr3_staging_evidence.py": "357c176a5ac3fb8bb9c1bde9b9b2184636bd01d566ec30113af36d2e125a84c7",
+    "scripts/safe_test_runner.php": "76c6231d1556c011e69d16335757f2b3872cfc2c4bbe70100d41c0bdd02647ec",
+    "system/Test/bootstrap.php": "d2c5bac4edc90f33e44867038586cee954aa069d22bfbf9630dac1b731232d1e",
+    "tests/_support/PhaseBFixture.php": "efc70685913e261c0ba52d7a4be2b3a197e16714ea1f425538457ac411f1b996",
+    "tests/_support/pr3_lock_order_worker.php": "6b95b487f3ecb1bfca93cbda14e52aa67d88dfab0dd30169052a41495a5efe66",
+    "tests/js/ScheduleImpactMobileTest.cjs": "1ec417a8c453836d76a0e55c361fab3fb9a7ffcb383c5257d88ab8f1acc0cd86",
+    "tests/unit/PR2SlotAdviceReviewTest.php": "0d5da233c63d608fa815fb791fcd0df7c6ac1465a2b6c10ee97de0ae500a43eb",
+    "tests/unit/PR3IndependentTemporalTest.php": "1e73c63a8dc9d021024136df63bc334f33d7df21b5d0322e84a71f30211d9081",
+    "tests/unit/PR3StagingCertificationTest.php": "b076a47f24aa9a5e8cd199629c659a4f005943ac334aa04dbe43bc13d83802d4",
+    "tests/unit/PR3StagingConcurrencyTest.php": "9a3f66c60726934050e95e532aec37209d0eb6cf3906ad599cd5403312e82f17",
+    "tests/unit/PR3StagingRollbackTest.php": "e356843d57645b0ab5dbf77ce34cb4c752528513751b04bcdf8829ace440c11f",
+    "tests/unit/ScheduleImpactIndependentReviewTest.php": "1915dd2ded58e68c2742c718104c6539900ccd602d7f686a3cd66e02d33a13cf",
+    "tests/unit/ScheduleImpactUiRenderingTest.php": "9d1b046559669ba1873955ad781bbe5df26b94ae81dee07c0eb123de2b75ac50",
+    "tests/unit/ScheduleImpactWorkflowTest.php": "dca47227c195324dbc726ac503705fc0799ee350ae2260d9d5f98b3f4b58fc7f"
+  },
+  "source_hash_definition": "SHA256 of LF-normalized UTF8 source; execution/capture binding, not a signed attestation",
+  "target_pr_sha": "ad481ebbf454ebf3a53bc09417d13a2b2f57c0d5",
+  "timestamp_utc": "2026-10-16T06:24:39Z"
+}

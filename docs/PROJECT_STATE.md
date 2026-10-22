@@ -1,6 +1,6 @@
 # Project State
 
-## 2026-10-15 ? P0 and Phase B merged; pre-pilot workflow under review
+## 2026-10-16 — P0/Phase B/PR #3 merged; PR #4 retargeted to main, corrected HEAD awaiting fresh review & Owner merge authorization
 
 P0 PR #1 merged at `8694607c4977b60be374a2b9edba0790247ab759`, including the Super Admin display correction at `e43af245e7ab61cb46515f7664b6289def903d23`. Independent code review found no blockers; the display correction and adjacent authority regressions passed 21 tests / 196 assertions. Nothing was deployed. Hostinger was last observed at `063317498e366a009357e0c0fe500041b2417050` through read-only inspection.
 
@@ -9,7 +9,9 @@ Active clinic membership is tenant role authority. Existing identities cannot be
 Phase B PR #2 was independently approved at `3bf46f96a653d266870d2aa6a783dcc96f493415` and merged at `89ccda3e65a4a091ca850db72ff7b0e4c1e56f04` with an identical tree. A separate pre-pilot PR adds full-horizon before/after reporting, attributed dispositions, verified audit bundles and current-state rechecks; final focused acceptance passed 50 tests / 524 assertions plus 198 EN/AR mobile Chromium assertions. Dynamic scheduling remains default off. Its [contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md) preserves existing appointments and requires an additive schema before explicit feature enablement. No production migration, backfill, dependency upgrade or deployment is authorized. Overall release readiness remains unapproved.
 
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
+
+PR #3 (exact approved HEAD `ad481ebbf454ebf3a53bc09417d13a2b2f57c0d5`, tree `9a7256c0591a80c8288eb41d93b60cedbdc82858`) was merged into main at `8be7ad67a4a2810daea55f23c307b206e09cfdf4` at 2026-10-16T08:47:38Z with an identical tree. PR #4 now directly targets main. Pre-correction HEAD was `0986fefea865e5e0acb858ee57eabd2e69c7a7d2` (old tree `4a178e2189dee77ee42a23400acfc13a41dd84e6`). Latest GitHub review on PR #4 was CHANGES_REQUESTED (review5550429984), superseding prior approvals. Documentation correction changes HEAD/tree; fresh independent exact-HEAD approval is REQUIRED on the resulting corrected HEAD. The corrected exact HEAD (H4) and tree (T4) are recorded in the PR discussion, keeping self-referential commit IDs out of source. PR #4 remains unmerged, auto-merge is unset, and separate Owner merge authorization is required. Owner-authorized healthy staging replacement is completed (GUID `40582f85-97ec-400f-8a65-c6632adb7e8c`, datadir `C:/xampp/htdocs/dental-saas/.ai/staging-replacement-20261016/attempt-02/mysql-data`, 70 tables, 76 migrations; latest run passed 40 PHP tests / 642 assertions, 198 mobile assertions, 2 Bearer tests / 12 assertions; all 70 schema/data hashes identical before/after; prior corrupted instance preserved historically without repair). Production readiness gates remain OPEN (blocked); local healthy synthetic evidence does not certify Hostinger. Hostinger runtime/schema drift (Web PHP 8.3.35, CLI 8.2.34, MariaDB 11.8.9, 67 tables / 77 migrations vs 70 / 76, missing migration `2026-09-26-000001` with intact OFF fallback guards, finance enum, finance tracking/lifecycle columns) and backup/security/finance/clinical/pilot blockers remain. Dynamic scheduling remains default-off; no deployment, migration, scheduling activation, pilot, or customer writes authorized.
 
 ## Status
 
@@ -53,7 +55,7 @@ Last updated: 2026-10-15
 
 ## Current Next Slice
 
-Phase B Dynamic Doctor Scheduling is prepared in a separate review PR after merged P0 PR #1. Finish independent review and staging rollout planning under the [scheduling contract](SaaS/DOCTOR_SCHEDULING_CONTRACT.md). Production remains unchanged. The feature defaults off; schema expansion, operator qualification/schedules, legacy reconciliation and explicit pilot approval precede any future enablement. Framework/dependency upgrades and other modernization checkpoints remain separate work.
+PR #3 is merged into main at `8be7ad67a4a2810daea55f23c307b206e09cfdf4`. PR #4 now targets main; pre-correction HEAD `0986fefea865e5e0acb858ee57eabd2e69c7a7d2` had prior approval superseded by GitHub CHANGES_REQUESTED (review5550429984). Address review with docs-only corrections; fresh independent exact-HEAD approval is REQUIRED on the resulting corrected HEAD (H4). PR #4 remains unmerged, auto-merge is unset, and separate Owner merge authorization is required. Owner-authorized healthy staging replacement is completed (70 tables, 76 migrations, GUID `40582f85-97ec-400f-8a65-c6632adb7e8c`, prior corrupted instance preserved historically with NO repair requirement). Production readiness gates remain OPEN (blocked); Hostinger parity not complete (Web PHP 8.3.35, CLI 8.2.34, MariaDB 11.8.9, 67 tables / 77 migrations vs 70 / 76; missing migration `2026-09-26-000001` while OFF fallback guards exist; schema differences in finance enum and finance tracking/lifecycle columns; uncertified backup restore). Production remains unchanged and dynamic scheduling remains default-off. No deployment, migration, activation, or customer writes.
 
 ## App API / React State
 
