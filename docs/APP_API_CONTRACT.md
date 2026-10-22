@@ -864,3 +864,11 @@ React and Lovable-generated code must not assume:
 ### P0 role eligibility at tenant resource entry (2026-10-15 review correction)
 
 `AppApiTenant` requires `PermissionService::getTenantRoleId()` eligibility, including active account, clinic, membership and correctly scoped active role; inactive, missing, foreign-clinic or platform-spoofing roles fail with JSON `tenant_context_forbidden` before resource controllers and clear stale tenant context. This does not add a tenant filter to bootstrap or clinic-switch discovery endpoints, nor authorize web impersonation on App API mutations.
+
+## 2026-10-22 ? Bounded patient module histories (development)
+
+`GET /app-api/v1/patients/{id}/history/{section}` accepts only `appointments`, `examinations` and `treatments`. Each route uses the existing App HTTPS/auth/tenant/subscription filters and requires `patients:view`; the controller additionally checks current `{section}:view`. Patient and related rows are clinic-scoped, with soft-deletion exclusion where the supported schema has that column. Missing/foreign patients return JSON 404. Financial records, narrative clinical notes and attachments are not exposed by this projection.
+
+Query parameters: `per_page` is an integer 1?100 (default 25), `before_id` is an optional positive record ID. Arrays, signs, fractions and overflow are rejected with JSON 422. Response data contains `section` and explicit fields in `items`; `meta.pagination` contains `per_page`, `has_more`, `next_before_id` and `order: id_desc`. This is insertion-identity ordering, not a reconstructed business-date timeline. Continue until `has_more=false`; there is no total-history truncation. Keyset navigation avoids offset shifts when newer rows arrive, but does not claim a multi-request historical snapshot. Responses are no-store.
+
+Focused acceptance: 25 real SQL checks (complete traversal, concurrent insertion, clinic/parent/soft-delete isolation), nine real routed session/validation/JSON/Bearer separation cases, seven additional module-permission/revocation/forged-input checks. These routes do not integrate or rebuild the separate React repository and do not change legacy PHP history rendering.

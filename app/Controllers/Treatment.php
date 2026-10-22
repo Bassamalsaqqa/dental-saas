@@ -58,36 +58,8 @@ class Treatment extends BaseController
             $statusFilter = $this->request->getGet('status') ?? '';
             $typeFilter = $this->request->getGet('type') ?? '';
             
-            // Get treatments with patient information (scoped)
-            $query = $this->treatmentModel
-                ->select('treatments.*, patients.first_name, patients.last_name, patients.phone')
-                ->join('patients', 'patients.id = treatments.patient_id AND patients.clinic_id = treatments.clinic_id', 'left')
-                ->where('treatments.clinic_id', $clinicId);
-            
-            // Apply filters if provided
-            if (!empty($search)) {
-                $query->groupStart()
-                    ->like('patients.first_name', $search)
-                    ->orLike('patients.last_name', $search)
-                    ->orLike('patients.phone', $search)
-                    ->orLike('treatments.treatment_type', $search)
-                    ->orLike('treatments.status', $search)
-                    ->orLike('treatments.treatment_description', $search)
-                    ->groupEnd();
-            }
-            
-            if (!empty($statusFilter)) {
-                $query->where('treatments.status', $statusFilter);
-            }
-            
-            if (!empty($typeFilter)) {
-                $query->where('treatments.treatment_type', $typeFilter);
-            }
-            
-            $treatments = $query->orderBy('treatments.created_at', 'DESC')->findAll();
-
-            // Debug logging
-            log_message('debug', 'Treatments loaded: ' . count($treatments ?? []));
+            // The DataTable owns filtered, paginated rows; do not hydrate an unused clinic history.
+            $treatmentStats = $this->treatmentModel->getTreatmentStatsByClinic((int) $clinicId);
 
             $inventoryItems = $this->inventoryModel->where('status', 'active')
                 ->where('clinic_id', $clinicId)
@@ -97,10 +69,10 @@ class Treatment extends BaseController
 
             $data = [
                 'title' => 'Treatment Management',
-                'treatments' => $treatments ?? [],
-                'total_treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->countAllResults(),
-                'active_treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
-                'completed_treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
+                'treatments' => [],
+                'total_treatments' => $treatmentStats['total'],
+                'active_treatments' => $treatmentStats['active'],
+                'completed_treatments' => $treatmentStats['completed'],
                 'search_term' => $search,
                 'selected_status' => $statusFilter,
                 'selected_type' => $typeFilter,

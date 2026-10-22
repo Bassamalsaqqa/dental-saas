@@ -16,7 +16,7 @@
     <style>
         :root {
             --app-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif;
-            --app-font-ar: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif;
+            --app-font-ar: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif;
             --login-panel: rgba(15, 23, 42, 0.74);
             --login-panel-soft: rgba(255, 255, 255, 0.095);
             --login-line: rgba(255, 255, 255, 0.16);

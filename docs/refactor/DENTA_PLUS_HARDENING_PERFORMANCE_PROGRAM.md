@@ -18,14 +18,14 @@ This section supersedes historical checkpoint statuses below. Development stays 
 | Stage 0, M1 inventory/COGS/tenant joins and clinic messaging | DONE | Deployed M2 ancestry; reuse accepted evidence. |
 | M2 signing/publication recovery and payout preservation | DONE | Preserve immutable evidence; PR19 final external review was Owner-waived, not approved. |
 | M2-C operational corrections, explicit applications/returns | PARTIAL | Implemented and focused acceptance recorded. Cash-backing finding retracted; overall external review remains COMMENTED/CHANGES_REQUESTED, not approval. Final consolidated review required. |
-| Patient counts and report queries | DONE (development) | Explicit clinic/page aggregate replaces incorrect retained-builder N+1. Four monthly charts use one grouped query; DOB frequencies retain existing PHP calendar semantics. |
+| Patient counts and report queries | DONE (development) | Explicit clinic/page aggregate replaces incorrect retained-builder N+1. Four monthly charts use one grouped query; DOB frequencies retain existing PHP calendar semantics. Unused full-clinic treatment/inventory registry loads removed; treatment stats 8 queries -> 1, inventory counters 4 -> 1, unchanged criteria. |
 | Static delivery and patient preview | DONE (development) | Stable metadata asset versions, consuming-view chart/calendar vendors, hidden-tab polling pause, protected lazy raster URLs instead of Base64, responsive login WebP with preserved original. |
 | Storage integrity | PARTIAL | Retained metadata quota totals fixed; newest export remains visible; publication precedes retention. User deletion retains bytes. Physical purge disabled until approved retention/legal-hold policy. Orphan/derivative physical accounting remains separate. |
 | Patient email tenancy | DONE (development) | Shared clinic validation plus targeted scoped unique index migration. Current Hostinger global unique index is confirmed; source alone does not remove it. Production migration separately authorized only. |
-| Legacy group authorization | PARTIAL | Unused controller wrappers removed; camelCase guard added. Two exact non-authorizing observations remain. Other existing guardrail categories still fail, not waived. |
+| Legacy group authorization | PARTIAL | Unused controller wrappers removed; camelCase guard added. Two exact non-authorizing observations remain. Font guard now passes and DOM sinks reduced from six to two without touching odontogram internals. Raw-controller-query and remaining DOM categories still fail, not waived. |
 | Dynamic doctor scheduling | DONE code / BLOCKED pilot | Stable doctor identities, eligibility, availability, serialization, preserved legacy visits and impact acknowledgment already exist. Old PR4 ancestors must not be merged again. Five indexed DATE predicates optimized with SQL equivalence. Native rehearsal, roster/legacy review and separate migration/activation remain gates. |
 | Missed/cancelled visit attention | PARTIAL | Read-only last-30-calendar-day panel with all-date canonical links. Does not assert unresolved status, record contact attempts, send messages or reschedule. |
-| PHP patient workspace decomposition and paginated secondary histories | MISSING | Preserve odontogram internals, existing deep links and uncapped complete-history access; implement coherent loading boundaries rather than arbitrary truncation. |
+| PHP patient workspace decomposition and paginated secondary histories | PARTIAL | First-party bounded module histories implemented with explicit continuation and dual permissions; legacy PHP workspace still loads full arrays. Preserve odontogram internals, deep links and complete-history access while integrating coherent loading boundaries. |
 | Atomic invoice + initial receipt | MISSING | Existing settlement transaction ownership must be preserved; no view-side accounting or nested pseudo-atomic writes. |
 | Media derivatives | MISSING | Original evidence must remain byte-identical; bounded decoding, authorized variants and recoverable publication required. No automatic backfill/purge. |
 | React splitting / App API expansion | BLOCKED separate source | `Bassamalsaqqa/Dentacare-Shell` resolves; old `dentacare-shell-5051486e` does not resolve with current access. This repo tracks generated `public/app`, not React source. Never hand-edit compiled bundles or claim source modernization here. |
@@ -39,11 +39,14 @@ This section supersedes historical checkpoint statuses below. Development stays 
 ### Measured development evidence
 
 - Actual synthetic MariaDB report parity: 19 checks. Twelve-month baseline **12 queries / 9.852 ms -> 1 query / 1.259 ms**, same results on 1,200 synthetic patients. This is local timing, not Hostinger capacity certification. DOB hydration falls to 91 distinct dates in that fixture, not constant-space buckets.
+- Registry actual SQL parity: six checks on 1,200 synthetic records per module. Treatment eight-counter baseline **8 queries / 7.783 ms -> 1 query / 1.657 ms**; inventory counters one query, preserving null/quantity/status semantics. Paginated table endpoints and quick-create options remain intact.
 - Patient count query-contract: 18 checks, 100 rows **100 -> 1 query**; actual SQL aggregate/tenant parity also included in report fixture.
 - Appointment DATE predicate equivalence: 12 actual SQL checks. No native EXPLAIN speedup claim.
 - Login original **6,231,977 bytes** retained; 1920-wide WebP **31,176 bytes**, mobile **3,844 bytes**. EN/AR desktop/mobile rendered acceptance passed; fallback font limitations recorded privately.
 - Fresh Hostinger read-only identity: commit `f86376a4a6c8f6bf0fe4471f08093af71e76e042`, tree `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`, PHP **8.3.35**, MariaDB **11.8.9**, 77 migration records. `appointments.appointment_date` is DATE, `finances.total_amount` exists, correction tables absent, patient email globally unique. Runtime/schema observation is not native write/concurrency certification.
-- Composer locked advisory check reports no advisories/abandoned packages. Bundled framework `system/` is outside that Composer audit; no blanket security certification.
+- Composer locked advisory check reports no advisories/abandoned packages; production npm audit reports zero. Compatible build-tool lockfile patches reduce full npm audit from 13 to 7 findings (5 high/2 moderate); build succeeds. Remaining Tailwind3-related dev-tool issues need reviewed remediation/containment, not `audit fix --force`. Bundled framework `system/` and separately generated React assets are outside those narrower clean audits; no blanket security certification.
+
+Generated CSS rebuilt with the compatible patched lockfile: **291,800 -> 293,388 bytes**. Retained selectors keep identical property values; five unreferenced utility selectors disappear and 29 are added for current templates. This is not a claim that every source/artifact got smaller.
 
 The campaign is not complete while MISSING entries remain. Continue safe implementation without intermediate external review requests. No production data, original checkout, historical staging or protected clinical evidence was changed.
 
@@ -258,3 +261,9 @@ This document serves as the **sole active temporary implementation plan** for th
 4. **Behavioral Route Tests Passing:**
    - 13 comprehensive tests with 91 assertions verifying registered routes fail closed for unauthenticated requests, missing tenant context, global mode, cross-clinic isolation, and privileged tenant impersonation on the verified disposable test target.
    - Tests prove non-mutation of file contents (synthetic canary SHA-256 hash and byte length) and database rows.
+
+### Resumable checkpoint after bounded history delivery
+
+Draft PR #20 checkpoint `7865eabafdefadb6d8ce6013ee9ede8f7ea39c6a` was pushed; subsequent development adds bounded App API histories, registry aggregates, localized patient errors and compatible build-dependency patches. No final external review requested during the campaign. AGY hello succeeds, substantive requests timed out; a broader source review export was rejected by automatic approval review because the recorded disclosure authorization is M2-C only. Continue locally rather than bypassing that decision or stalling.
+
+Remaining eligible code includes safe media derivatives, coherent legacy patient history loading and atomic cashier composition. Do not mark the campaign ready while those remain missing. Native Hostinger staging/capacity/recovery and product-policy gates remain separately identified above.

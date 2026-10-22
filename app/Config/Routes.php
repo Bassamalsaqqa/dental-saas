@@ -201,6 +201,9 @@ $routes->group('app-api/v1', ['filter' => 'apphttps'], function ($routes) {
     $routes->group('', ['filter' => ['appauth', 'apptenant', 'appsubscription']], function ($routes) {
         $routes->get('patients', 'AppApi\V1\Patients::index', ['filter' => 'apppermission:patients,view']);
         $routes->get('patients/(:num)', 'AppApi\V1\Patients::show/$1', ['filter' => 'apppermission:patients,view']);
+        foreach (['appointments', 'examinations', 'treatments'] as $section) {
+            $routes->get('patients/(:num)/history/' . $section, 'AppApi\V1\Patients::history/$1/' . $section, ['filter' => 'apppermission:patients,view']);
+        }
     });
 });
 

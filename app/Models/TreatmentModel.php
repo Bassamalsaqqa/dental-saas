@@ -166,22 +166,18 @@ class TreatmentModel extends TenantAwareModel
     public function getTreatmentStatsByClinic($clinicId)
     {
         try {
-            $base = $this->db->table('treatments')
-                ->where('clinic_id', $clinicId);
-
-            $monthStart = date('Y-m-01');
-            $monthEnd = date('Y-m-t');
-
-            return [
-                'total' => (clone $base)->countAllResults(),
-                'active' => (clone $base)->where('status', 'active')->countAllResults(),
-                'completed' => (clone $base)->where('status', 'completed')->countAllResults(),
-                'cancelled' => (clone $base)->where('status', 'cancelled')->countAllResults(),
-                'on_hold' => (clone $base)->where('status', 'on_hold')->countAllResults(),
-                'monthly_treatments' => (clone $base)->where('start_date >=', $monthStart)->where('start_date <=', $monthEnd)->countAllResults(),
-                'active_treatments' => (clone $base)->where('status', 'active')->countAllResults(),
-                'completed_treatments' => (clone $base)->where('status', 'completed')->countAllResults(),
-            ];
+            if ((int)$clinicId <= 0) { throw new \DomainException('Active clinic required.'); }
+            $row = $this->db->table($this->table)->select("COUNT(*) AS total,
+                COALESCE(SUM(status='active'),0) AS active,
+                COALESCE(SUM(status='completed'),0) AS completed,
+                COALESCE(SUM(status='cancelled'),0) AS cancelled,
+                COALESCE(SUM(status='on_hold'),0) AS on_hold,
+                COALESCE(SUM(start_date >= " . $this->db->escape(date('Y-m-01')) . " AND start_date <= " . $this->db->escape(date('Y-m-t')) . "),0) AS monthly_treatments", false)
+                ->where('clinic_id', (int)$clinicId)->get()->getRowArray();
+            $stats = array_map('intval', $row);
+            $stats['active_treatments'] = $stats['active'];
+            $stats['completed_treatments'] = $stats['completed'];
+            return $stats;
         } catch (\Exception $e) {
             log_message('error', 'Treatment stats error: ' . $e->getMessage());
             return [

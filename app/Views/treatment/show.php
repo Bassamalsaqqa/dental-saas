@@ -71,7 +71,7 @@ $statusTone = match ($statusRaw) {
     font-family: var(--app-font-sans, "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif);
 }
 [dir="rtl"] .treatment-page-shell {
-    font-family: var(--app-font-ar, "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif);
+    font-family: var(--app-font-ar, "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif);
 }
 .treatment-card {
     position: relative;

@@ -205,6 +205,18 @@ class InventoryModel extends TenantAwareModel
                     ->findAll();
     }
 
+    /** Same registry counters in one clinic-scoped aggregate, without loading stock rows. */
+    public function getListStatsByClinic(int $clinicId): array
+    {
+        if ($clinicId <= 0) { throw new \DomainException('Active clinic required.'); }
+        $row = $this->db->table($this->table)->select("COUNT(*) AS total_items,
+            COALESCE(SUM(status='active' AND quantity>0),0) AS in_stock_items,
+            COALESCE(SUM(quantity<=min_quantity),0) AS low_stock_items,
+            COALESCE(SUM(quantity=0),0) AS out_of_stock_items", false)
+            ->where('clinic_id', $clinicId)->get()->getRowArray();
+        return array_map('intval', $row);
+    }
+
     public function getInventoryStats()
     {
         return [

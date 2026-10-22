@@ -565,7 +565,7 @@ class Patient extends BaseController
 
             if ($this->patientModel->emailExistsInClinic($email, (int) $clinicId)) {
                 $db->transRollback();
-                $message = 'This email is already registered to another patient in this clinic';
+                $message = lang('UI.patientEmailInClinic');
                 if ($this->request->isAJAX()) {
                     return $this->response->setJSON(['success' => false, 'message' => 'Validation failed', 'errors' => ['email' => $message]]);
                 }
@@ -735,7 +735,7 @@ class Patient extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Unable to add the patient. Please review your input or try again.'
+                    'message' => lang('UI.patientSaveFailed')
                 ]);
             }
             return redirect()->back()->withInput()->with('error', 'An error occurred while adding the patient');
@@ -1325,7 +1325,7 @@ class Patient extends BaseController
 
         $email = trim((string) $this->request->getPost('email'));
         if ($this->patientModel->emailExistsInClinic($email, (int) $clinicId, (int) $id)) {
-            return redirect()->back()->withInput()->with('error', 'This email is already registered to another patient in this clinic');
+            return redirect()->back()->withInput()->with('error', lang('UI.patientEmailInClinic'));
         }
 
         if ($email === '') {

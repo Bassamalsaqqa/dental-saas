@@ -405,6 +405,14 @@ document.addEventListener('keydown', function(e) {
     let activeTypeFilter = '';
     const isRtl = <?= $isRtl ? 'true' : 'false' ?>;
 
+    function setSupplierButtonLabel(button, loading) {
+        const icon = document.createElement('i');
+        icon.className = loading ? 'fas fa-spinner fa-spin' : 'fas fa-plus text-xs';
+        const gap = document.createElement('span');
+        gap.className = '<?= $iconGap ?>';
+        button.replaceChildren(icon, gap, document.createTextNode(loading ? i18n.creatingSupplier : i18n.createSupplier));
+    }
+
     const i18n = {
         supplier: '<?= esc(lang('Provider.typeSupplier'), 'js') ?>',
         clinical: '<?= esc(lang('Provider.typeClinicalProvider'), 'js') ?>',
@@ -576,7 +584,7 @@ document.addEventListener('keydown', function(e) {
 
         const btn = this;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="<?= $iconGap ?>"></span>' + i18n.creatingSupplier;
+        setSupplierButtonLabel(btn, true);
 
         const formData = new FormData();
         formData.append('name', name);
@@ -614,7 +622,7 @@ document.addEventListener('keydown', function(e) {
         })
         .finally(function() {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-plus text-xs"></i><span class="<?= $iconGap ?>"></span>' + i18n.createSupplier;
+            setSupplierButtonLabel(btn, false);
         });
         });
     }

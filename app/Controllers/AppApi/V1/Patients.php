@@ -144,6 +144,31 @@ class Patients extends Controller
         ]);
     }
 
+    /** Read one module history without hydrating the entire patient workspace. */
+    public function history($id, string $section): ResponseInterface
+    {
+        $this->response->noCache();
+        if ((int)$id <= 0) { return $this->notFound(); }
+        $clinicId = $this->activeClinicId();
+        if ($clinicId <= 0) { return $this->error('tenant_context_missing', 'Select a clinic before continuing.', 422); }
+        if (!isset(\App\Services\PatientHistoryReadService::SECTIONS[$section])) { return $this->notFound(); }
+        $actor = $this->currentUserId();
+        if ($actor <= 0 || !(new \App\Services\PermissionService())->hasPermission($actor, $section, 'view')) {
+            return $this->error('forbidden', 'You do not have permission to access this resource.', 403);
+        }
+        $pageSize = $this->request->getGet('per_page') ?? '25';
+        $before = $this->request->getGet('before_id');
+        if (!is_string($pageSize) || !preg_match('/^[1-9][0-9]{0,2}$/D', $pageSize) || (int)$pageSize > 100
+            || ($before !== null && (!is_string($before) || !preg_match('/^[1-9][0-9]{0,9}$/D', $before) || (int)$before > 2147483647))) {
+            return $this->error('validation_failed', 'Invalid history pagination.', 422);
+        }
+        try {
+            $page = (new \App\Services\PatientHistoryReadService())->page($clinicId, (int)$id, $section, (int)$pageSize, $before === null ? null : (int)$before);
+        } catch (\DomainException $e) { return $this->notFound(); }
+        $this->response->noCache();
+        return $this->ok(['section'=>$section, 'items'=>$page['items']], ['pagination'=>$page['pagination']]);
+    }
+
     public function store(): ResponseInterface
     {
         $clinicId = $this->activeClinicId();

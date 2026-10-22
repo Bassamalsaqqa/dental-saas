@@ -1,6 +1,6 @@
 # App API Route Inventory
 
-Last updated: 2026-08-02
+Last updated: 2026-10-22
 
 Purpose: status and sequencing for the first-party React API. This file does not authorize implementation by itself.
 
@@ -26,6 +26,14 @@ Purpose: status and sequencing for the first-party React API. This file does not
 | PATCH | `/app-api/v1/patients/{id}` | Scoped update |
 
 Foundation tests: `tests/unit/AppApiFoundationTest.php`; Patients tests: `tests/unit/AppApiPatientsTest.php`.
+
+## Development additions in consolidated PR #20
+
+- `GET /app-api/v1/patients/{id}/history/appointments`
+- `GET /app-api/v1/patients/{id}/history/examinations`
+- `GET /app-api/v1/patients/{id}/history/treatments`
+
+Bounded keyset histories with both patient and module view permissions; see `APP_API_CONTRACT.md`. This is not the complete workspace aggregate or React integration.
 
 ## Not Implemented
 

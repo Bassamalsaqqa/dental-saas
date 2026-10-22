@@ -1200,4 +1200,6 @@ return [
     'subscriptionCode_not_found' => 'The subscription or request record was not found or is no longer eligible.',
     'subscriptionCode_missing_concurrency_token' => 'A required concurrency token is missing or malformed. Please refresh the page and try again.',
     'subscriptionCode_system_error' => 'An unexpected error occurred while processing the subscription request.',
+    'patientSaveFailed' => 'Unable to save the patient. Review the information and try again.',
+    'patientEmailInClinic' => 'This email is already registered to another patient in this clinic.',
 ];

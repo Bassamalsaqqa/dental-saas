@@ -69,22 +69,10 @@ class Inventory extends BaseController
                 $data['open_reorder_count'] = 0;
                 $data['error'] = 'Inventory table not found';
             } else {
-                // Get all inventory items (scoped)
-                $inventory = $this->inventoryModel->where('clinic_id', $clinicId)->findAll();
-                
-                // Get unique categories from existing items (scoped)
-                $availableCategories = $this->inventoryModel->select('category')
-                    ->distinct()
-                    ->where('category IS NOT NULL')
-                    ->where('clinic_id', $clinicId)
-                    ->findAll();
-                
-                $data['inventory'] = $inventory;
-                $data['available_categories'] = $availableCategories;
-                $data['total_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->countAllResults();
-                $data['in_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('status', 'active')->where('quantity >', 0)->countAllResults();
-                $data['low_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->countAllResults();
-                $data['out_of_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity', 0)->countAllResults();
+                // The registry is server-paginated; the view consumes no full item/category arrays.
+                $data['inventory'] = [];
+                $data['available_categories'] = [];
+                $data = array_merge($data, $this->inventoryModel->getListStatsByClinic((int) $clinicId));
                 $data['open_reorder_count'] = $this->reorderItemModel->where('clinic_id', $clinicId)->whereIn('status', ['draft', 'ordered'])->countAllResults();
             }
 

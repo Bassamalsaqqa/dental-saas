@@ -1194,4 +1194,6 @@ return [
     'subscriptionCode_not_found' => 'سجل الاشتراك أو الطلب غير موجود أو لم يعد مؤهلاً لهذا الإجراء.',
     'subscriptionCode_missing_concurrency_token' => 'رمز التزامن المطلوب مفقود أو غير صالح. يرجى تحديث الصفحة والمحاولة مرة أخرى.',
     'subscriptionCode_system_error' => 'حدث خطأ غير متوقع أثناء معالجة طلب الاشتراك.',
+    'patientSaveFailed' => 'تعذّر حفظ بيانات المريض. راجع المعلومات وحاول مرة أخرى.',
+    'patientEmailInClinic' => 'هذا البريد الإلكتروني مسجّل لمريض آخر في هذه العيادة.',
 ];
