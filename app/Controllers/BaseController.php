@@ -163,7 +163,7 @@ abstract class BaseController extends Controller
             }
 
             if (is_numeric($segment2) && $segment2 > 0) {
-                $label = '#' . $segment2 . ' â€” ' . $label;
+                $label = '#' . $segment2 . ' — ' . $label;
             }
 
             $nav->push($label, $currentUrl);
