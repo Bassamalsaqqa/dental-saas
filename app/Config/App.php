@@ -93,12 +93,13 @@ class App extends BaseConfig
     private function detectRequestHost(): ?string
     {
         $forwardedHost = $this->readForwardedHeader('HTTP_X_FORWARDED_HOST');
-        if ($forwardedHost !== null && $forwardedHost !== '') {
+        if ($forwardedHost !== null && $this->isValidRequestAuthority($forwardedHost)) {
             return $forwardedHost;
         }
 
-        if (! empty($_SERVER['HTTP_HOST'])) {
-            return trim((string) $_SERVER['HTTP_HOST']);
+        $host = $_SERVER['HTTP_HOST'] ?? null;
+        if (is_string($host) && $this->isValidRequestAuthority(trim($host))) {
+            return trim($host);
         }
 
         return null;
@@ -124,7 +125,42 @@ class App extends BaseConfig
             return null;
         }
 
+        // Do not resolve the shared request while its App configuration is being built.
+        // The lightweight Request accepts this already-initialized config and reuses
+        // the framework's canonical socket-peer/CIDR matcher without a second parser.
+        $peer = new class ($this) extends \CodeIgniter\HTTP\Request {
+            public function trustsForwardedHeaders(): bool
+            {
+                return $this->isFromTrustedProxy();
+            }
+        };
+        if (! $peer->trustsForwardedHeaders()) {
+            return null;
+        }
+
         return trim(explode(',', $value)[0]);
+    }
+
+    private function isValidRequestAuthority(string $authority): bool
+    {
+        if ($authority === '' || preg_match('/[\x00-\x20\x7f]/', $authority)
+            || strpbrk($authority, "/\\?#@") !== false) {
+            return false;
+        }
+        $parts = parse_url('http://' . $authority);
+        if (! is_array($parts) || ! isset($parts['host'])
+            || isset($parts['user']) || isset($parts['pass']) || isset($parts['path'])
+            || isset($parts['query']) || isset($parts['fragment'])
+            || (isset($parts['port']) && ($parts['port'] < 1 || $parts['port'] > 65535))) {
+            return false;
+        }
+        $host = $parts['host'];
+        if (str_starts_with($host, '[')) {
+            return str_ends_with($host, ']')
+                && filter_var(substr($host, 1, -1), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+        }
+        return filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false
+            || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false;
     }
 
     private function normalizeBaseURL(string $baseURL): string

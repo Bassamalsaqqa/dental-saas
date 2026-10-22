@@ -746,20 +746,11 @@ class ActivityLogModel extends TenantAwareModel
     /**
      * Get client IP address
      */
-    private function getClientIP()
+    private function getClientIP(): string
     {
-        $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'];
-        foreach ($ipKeys as $key) {
-            if (array_key_exists($key, $_SERVER) === true) {
-                foreach (explode(',', $_SERVER[$key]) as $ip) {
-                    $ip = trim($ip);
-                    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                        return $ip;
-                    }
-                }
-            }
-        }
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        // Reuse the same socket-peer/proxy allowlist semantics as authentication.
+        // Untrusted Client-IP/X-Forwarded-For headers must not rewrite audit attribution.
+        return \Config\Services::request()->getIPAddress();
     }
 
     /**
