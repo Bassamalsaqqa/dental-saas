@@ -304,29 +304,28 @@ class Settings extends BaseController
 
     /**
      * Quick language switch from header.
-     * Updates session locale immediately and persists per-clinic setting when available.
+     * GET changes the personal session only; CSRF-protected authorized POST may persist the clinic default.
      */
     public function switchLanguage(?string $requestedLocale = null)
     {
         $locale = strtolower(trim((string) ($requestedLocale ?? $this->request->getPost('ui_language') ?? $this->request->getGet('ui_language'))));
         if (!in_array($locale, ['en', 'ar'], true)) {
-            return redirect()->back()->with('error', 'Invalid language selection.');
+            return redirect()->to(service('navigation')->localReturnUrl(null, 'settings'))->with('error', 'Invalid language selection.');
         }
 
         session()->set('ui_locale', $locale);
 
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        if ($clinicId > 0) {
-            $this->saveSettings(['ui_language' => $locale]);
+        if ($clinicId > 0 && strtolower($this->request->getMethod()) === 'post'
+            && $this->permissionService->hasPermission((int) session()->get('user_id'), 'settings', 'edit')) {
+            if (!$this->saveSettings(['ui_language' => $locale])) {
+                return redirect()->to(service('navigation')->localReturnUrl(null, 'settings'))->with('error', lang('UI.languagePreferenceSaveFailed'));
+            }
             $this->settingsService->reloadSettings();
         }
 
-        $returnTo = trim((string) ($this->request->getPost('return_to') ?? $this->request->getGet('return_to')));
-        if ($returnTo !== '') {
-            return redirect()->to($returnTo);
-        }
-
-        return redirect()->back();
+        $returnTo = $this->request->getPost('return_to') ?? $this->request->getGet('return_to');
+        return redirect()->to(service('navigation')->localReturnUrl($returnTo, 'settings'));
     }
 
     public function updateWorkingHours()

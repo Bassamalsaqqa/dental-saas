@@ -21,33 +21,15 @@ class FinancialParentDeletionGuard
     }
 
     /**
-     * Executes guarded deletion for a clinic.
-     * Takes clinic row lock FOR UPDATE before ANY subscription, membership or clinic deletion.
-     * Fails closed if the clinic has ANY linked finance history.
-     * Rolls back all operations if any step fails or audit returns false.
+     * Rejects physical clinic deletion before transactions or destructive callbacks.
      */
     public function deleteClinic(int $clinicId, callable $operation): mixed
     {
         if ($clinicId <= 0) {
             throw new FinancialParentNotFoundException('Invalid clinic ID.');
         }
-
-        $this->begin();
-
-        try {
-            $this->assertClinicCanBeDeleted($clinicId);
-
-            $result = $operation();
-            if ($result === false) {
-                throw new \RuntimeException('Clinic deletion operation failed.');
-            }
-
-            $this->commit();
-            return $result;
-        } catch (\Throwable $e) {
-            $this->rollback();
-            throw $e;
-        }
+        // Never invoke destructive callbacks, even for apparently unused clinics.
+        throw new FinancialParentDeletionException('Physical clinic deletion is disabled; suspend the clinic instead.');
     }
 
     /**
@@ -111,65 +93,14 @@ class FinancialParentDeletionGuard
     }
 
     /**
-     * Asserts that a clinic can be physically deleted without violating financial history constraints.
-     * Lock ordering: clinic row FOR UPDATE -> first nonlocking financial-history probe.
+     * Rejects physical clinic deletion until an approved offboarding contract exists.
      */
     public function assertClinicCanBeDeleted(int $clinicId): void
     {
-        $this->requireOwnedTransaction();
         if ($clinicId <= 0) {
             throw new FinancialParentNotFoundException('Invalid clinic ID.');
         }
-
-        // 1. Lock clinic row first
-        $clinic = $this->db->query(
-            'SELECT id FROM ' . $this->table('clinics') . ' WHERE id = ? FOR UPDATE',
-            [$clinicId]
-        )->getRowArray();
-
-        if (!$clinic) {
-            throw new FinancialParentNotFoundException("Clinic {$clinicId} not found.");
-        }
-
-        // This must be the first consistent read after the clinic lock. Invoice creators
-        // take the same clinic lock, so history cannot appear before this deletion commits.
-        // Do not lock finance rows here: settlement holds finance then acquires the clinic FK
-        // when inserting its audit; the reverse order would create a lock cycle.
-        // 2. Fail closed if linked finance/history: clinic ANY finances
-        $finance = $this->db->query(
-            'SELECT id FROM ' . $this->table('finances') . ' WHERE clinic_id = ? ORDER BY id LIMIT 1',
-            [$clinicId]
-        )->getRowArray();
-
-        if ($finance !== null) {
-            throw new FinancialParentHasHistoryException("Cannot delete clinic {$clinicId} with existing financial records.");
-        }
-
-        // Legacy orphan ledgers and retained finance audits are history even without a parent.
-        foreach (['finance_payments', 'provider_payouts', 'provider_payout_payments', 'finance_liquidity_transfers', 'activity_logs'] as $historyTable) {
-            if (!$this->hasTable($historyTable)) {
-                continue;
-            }
-            $sql = 'SELECT id FROM ' . $this->table($historyTable) . ' WHERE clinic_id = ?';
-            if ($historyTable === 'activity_logs') {
-                $sql .= " AND entity_type = 'finance'";
-            }
-            if ($this->db->query($sql . ' ORDER BY id LIMIT 1', [$clinicId])->getRowArray() !== null) {
-                throw new FinancialParentHasHistoryException("Cannot delete clinic {$clinicId} with retained financial history.");
-            }
-        }
-
-        // 3. Fail closed if any linked clinical charge lines with finance_id
-        if ($this->hasTable('clinical_charge_lines')) {
-            $chargeLine = $this->db->query(
-                'SELECT id FROM ' . $this->table('clinical_charge_lines') . ' WHERE clinic_id = ? AND finance_id IS NOT NULL ORDER BY id LIMIT 1',
-                [$clinicId]
-            )->getRowArray();
-
-            if ($chargeLine !== null) {
-                throw new FinancialParentHasHistoryException("Cannot delete clinic {$clinicId} with existing financial charge lines.");
-            }
-        }
+        throw new FinancialParentDeletionException('Physical clinic deletion is disabled; suspend the clinic instead.');
     }
 
     /**

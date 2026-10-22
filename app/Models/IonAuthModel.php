@@ -1912,29 +1912,10 @@ class IonAuthModel
 	 */
 	public function deleteUser(int $id): bool
 	{
-		$this->triggerEvents('pre_delete_user');
-
-		$this->db->transBegin();
-
-		// remove user from groups
-		$this->removeFromGroup(null, $id);
-
-		// delete user from users table should be placed after remove from group
-		$this->db->table($this->tables['users'])->delete(['id' => $id]);
-
-		if ($this->db->transStatus() === false)
-		{
-			$this->db->transRollback();
-			$this->triggerEvents(['post_delete_user', 'post_delete_user_unsuccessful']);
-			$this->setError('IonAuth.delete_unsuccessful');
-			return false;
-		}
-
-		$this->db->transCommit();
-
-		$this->triggerEvents(['post_delete_user', 'post_delete_user_successful']);
-		$this->setMessage('IonAuth.delete_successful');
-		return true;
+		// Physical deletion can cascade or orphan durable attribution. Deactivation is
+		// explicit and separate; do not run hooks, remove groups or start a transaction.
+		$this->setError('IonAuth.delete_history_protected');
+		return false;
 	}
 
 	/**

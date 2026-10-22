@@ -685,6 +685,7 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                 </h3>
                 
                 <div class="flex flex-wrap gap-4">
+                        <p class="mb-3 text-sm text-slate-600" role="note"><?= esc(lang('IonAuth.clinic_delete_history_protected')) ?></p>
                     <?php if (($clinic['status'] ?? 'inactive') === 'active'): ?>
                         <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/suspend') ?>" method="post">
                             <?= csrf_field() ?>

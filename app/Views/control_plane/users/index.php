@@ -209,49 +209,11 @@ button.dt-button:hover, button.dt-button:active {
 </div>
 
 <!-- Delete Modal -->
-<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm">
-    <div class="w-full max-w-lg rounded-3xl border border-rose-200 bg-white shadow-2xl">
-        <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4 bg-rose-50 rounded-t-3xl">
-            <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-rose-600 font-bold">Irreversible Action</p>
-                <h3 class="text-lg font-bold text-rose-900">Delete User</h3>
-            </div>
-            <button type="button" class="rounded-full p-2 text-rose-400 hover:text-slate-700 hover:bg-rose-100" onclick="closeDeleteModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="px-6 py-6 space-y-4 text-sm text-slate-600">
-            <p class="font-medium text-slate-800">
-                You are about to permanently delete <span id="deleteUserName" class="font-bold text-rose-600">this user</span>.
-            </p>
-            <div class="bg-rose-50 p-4 rounded-xl text-rose-800 text-xs border border-rose-100">
-                <ul class="list-disc list-inside space-y-1">
-                    <li>This action <strong>cannot be undone</strong>.</li>
-                    <li>The user will be removed from all clinics.</li>
-                    <li>They will no longer be able to log in.</li>
-                </ul>
-            </div>
-            <p>Type <span class="font-mono font-bold text-slate-900">DELETE</span> to confirm.</p>
-            <input type="text" id="deleteConfirmInput" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500"
-                   placeholder="DELETE" oninput="updateDeleteState()">
-        </div>
-        <form id="deleteForm" method="post" class="px-6 pb-6 flex items-center justify-end gap-3">
-            <?= csrf_field() ?>
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeDeleteModal()">
-                Cancel
-            </button>
-            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 rounded-xl text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
-                <span>Permanently Delete</span>
-            </button>
-        </form>
-    </div>
-</div>
+<p class="mb-4 text-sm text-slate-600" role="note"><?= esc(lang('IonAuth.delete_history_protected')) ?></p>
 
 <script>
 let usersTable;
 const baseUrl = '<?= base_url() ?>';
-let deleteUserName = '';
-let deleteUserId = ''; // Add variable to store ID
 
 // ... (CSRF Helpers kept as is) ...
 const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
@@ -284,49 +246,6 @@ function refreshCsrfToken() {
     const cookieToken = getCookieValue(csrfCookieName);
     if (cookieToken && csrfMetaToken) {
         csrfMetaToken.setAttribute('content', cookieToken);
-    }
-}
-
-// Delete Modal Functions
-function openDeleteModal(userId, userName) {
-    const modal = document.getElementById('deleteModal');
-    const nameEl = document.getElementById('deleteUserName');
-    const inputEl = document.getElementById('deleteConfirmInput');
-    
-    deleteUserName = decodeURIComponent(userName);
-    deleteUserId = userId; // Store ID
-    
-    if (nameEl) nameEl.textContent = deleteUserName;
-    if (inputEl) inputEl.value = '';
-    
-    updateDeleteState();
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-}
-
-function closeDeleteModal() {
-    const modal = document.getElementById('deleteModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
-
-function updateDeleteState() {
-    const inputEl = document.getElementById('deleteConfirmInput');
-    const buttonEl = document.getElementById('deleteConfirmButton');
-    if (!inputEl || !buttonEl) return;
-    
-    const matches = inputEl.value === 'DELETE';
-    buttonEl.disabled = !matches;
-    if (matches) {
-        buttonEl.classList.remove('opacity-50', 'cursor-not-allowed');
-        buttonEl.classList.add('hover:bg-rose-700');
-    } else {
-        buttonEl.classList.add('opacity-50', 'cursor-not-allowed');
-        buttonEl.classList.remove('hover:bg-rose-700');
     }
 }
 
@@ -366,84 +285,6 @@ function toggleUserStatus(userId, action) {
         refreshCsrfToken(); 
     });
 }
-
-// Handle Delete Form Submission via AJAX
-document.addEventListener('DOMContentLoaded', function() {
-    function setButtonLoading(btn, label) {
-        if (!btn) {
-            return;
-        }
-        if (!btn._originalChildren) {
-            btn._originalChildren = Array.from(btn.childNodes).map(node => node.cloneNode(true));
-        }
-        const icon = document.createElement('i');
-        icon.className = 'fas fa-spinner fa-spin mr-2';
-        btn.replaceChildren(icon, document.createTextNode(label));
-    }
-
-    function restoreButton(btn) {
-        if (!btn || !btn._originalChildren) {
-            return;
-        }
-        btn.replaceChildren(...btn._originalChildren.map(node => node.cloneNode(true)));
-    }
-
-    const deleteForm = document.getElementById('deleteForm');
-    if (deleteForm) {
-        deleteForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const btn = document.getElementById('deleteConfirmButton');
-            btn.disabled = true;
-            setButtonLoading(btn, 'Deleting...');
-            
-            const formData = new FormData();
-            const csrfName = getCsrfName();
-            const csrfToken = getCsrfToken();
-            formData.append(csrfName, csrfToken);
-            
-            fetch(`${baseUrl}controlplane/users/${deleteUserId}/delete`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Success logic
-                    closeDeleteModal();
-                    // Refresh table without resetting pagination
-                    if (usersTable) {
-                        usersTable.ajax.reload(null, false);
-                    }
-                    // Show success toast (using existing toast system if available, or alert)
-                    // Assuming standard toast is not available in this view context without inclusion
-                    // But we can use a simple alert or reuse the flash message system if we reload page
-                    // Since requirement is "no full reload", we'll assume a toast function exists or alert
-                    if (typeof showToast === 'function') {
-                        showToast('success', data.message);
-                    } else {
-                        alert(data.message);
-                    }
-                } else {
-                    alert(data.message || 'Failed to delete user');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while deleting the user.');
-            })
-            .finally(() => {
-                btn.disabled = false;
-                restoreButton(btn);
-                // Refresh CSRF for next action
-                refreshCsrfToken(); 
-            });
-        });
-    }
-});
 
 $(document).ready(function() {
     usersTable = $('#usersTable').DataTable({
@@ -570,13 +411,7 @@ $(document).ready(function() {
                             </button>`;
                     }
 
-                    // Delete
-                    actions += `
-                        <button type="button" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200"
-                                onclick="openDeleteModal('${data}', '${name}')" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>`;
-                    
+                    actions += `<button type="button" disabled class="p-2 text-slate-400 cursor-not-allowed" title="<?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?>"><i class="fas fa-lock" aria-hidden="true"></i><span class="sr-only"><?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?></span></button>`;
                     actions += '</div>';
                     return actions;
                 }

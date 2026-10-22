@@ -1202,4 +1202,5 @@ return [
     'subscriptionCode_system_error' => 'An unexpected error occurred while processing the subscription request.',
     'patientSaveFailed' => 'Unable to save the patient. Review the information and try again.',
     'patientEmailInClinic' => 'This email is already registered to another patient in this clinic.',
+    'languagePreferenceSaveFailed' => 'Your session language was updated, but the clinic default could not be saved.',
 ];

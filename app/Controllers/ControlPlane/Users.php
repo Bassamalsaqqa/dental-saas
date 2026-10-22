@@ -694,25 +694,11 @@ class Users extends BaseController
             return redirect()->back()->with('error', 'Cannot delete the primary Super Admin.');
         }
 
-        if ($this->ionAuth->deleteUser($id)) {
-            $this->auditService->logEvent('user_delete', [
-                'route' => '/controlplane/users/' . $id . '/delete',
-                'method' => 'POST',
-                'metadata' => [
-                    'target_user_id' => $id,
-                    'target_email' => $user['email']
-                ],
-            ]);
-            
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => true, 'message' => 'User deleted successfully.']);
-            }
-            return redirect()->to('/controlplane/users')->with('success', 'User deleted successfully.');
-        } else {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete user.']);
-            }
-            return redirect()->back()->with('error', 'Failed to delete user.');
+        // Preserve durable attribution even where production has no enforcing FKs.
+        // Physical account purge requires a separate reviewed retention contract.
+        if ($this->request->isAJAX()) {
+            return $this->response->setStatusCode(409)->setJSON(['success' => false, 'message' => lang('IonAuth.delete_history_protected')]);
         }
+        return redirect()->back()->with('error', lang('IonAuth.delete_history_protected'));
     }
 }

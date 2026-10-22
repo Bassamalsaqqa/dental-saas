@@ -98,7 +98,7 @@ final class FinancialParentDeletionGuardTest extends CIUnitTestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('independent, healthy transaction');
-        $guard->deleteClinic(1, static fn () => true);
+        $guard->deletePatient(1, 1, static fn () => true);
     }
 
     public function testRejectsFailedTransactionStatus(): void
@@ -111,17 +111,17 @@ final class FinancialParentDeletionGuardTest extends CIUnitTestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('independent, healthy transaction');
-        $guard->deleteClinic(1, static fn () => true);
+        $guard->deletePatient(1, 1, static fn () => true);
     }
 
     public function testRollsBackWhenCallbackReturnsFalse(): void
     {
         $mockDb = $this->createMockDb();
-        $clinicResult = $this->createResultMock(['id' => 1]);
+        $clinicResult = $this->createResultMock(['id' => 1, 'clinic_id' => 1]);
         $emptyResult = $this->createResultMock(null);
 
         $mockDb->method('query')->willReturnCallback(function (string $sql) use ($clinicResult, $emptyResult) {
-            if (str_contains($sql, '`clinics`')) {
+            if (str_contains($sql, '`clinics`') || str_contains($sql, '`patients`')) {
                 return $clinicResult;
             }
             return $emptyResult;
@@ -133,18 +133,18 @@ final class FinancialParentDeletionGuardTest extends CIUnitTestCase
         $guard = new FinancialParentDeletionGuard($mockDb);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Clinic deletion operation failed.');
-        $guard->deleteClinic(1, static fn () => false);
+        $this->expectExceptionMessage('Patient deletion operation failed.');
+        $guard->deletePatient(1, 1, static fn () => false);
     }
 
     public function testRollsBackWhenCallbackThrows(): void
     {
         $mockDb = $this->createMockDb();
-        $clinicResult = $this->createResultMock(['id' => 1]);
+        $clinicResult = $this->createResultMock(['id' => 1, 'clinic_id' => 1]);
         $emptyResult = $this->createResultMock(null);
 
         $mockDb->method('query')->willReturnCallback(function (string $sql) use ($clinicResult, $emptyResult) {
-            if (str_contains($sql, '`clinics`')) {
+            if (str_contains($sql, '`clinics`') || str_contains($sql, '`patients`')) {
                 return $clinicResult;
             }
             return $emptyResult;
@@ -157,7 +157,7 @@ final class FinancialParentDeletionGuardTest extends CIUnitTestCase
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Audit service write failed.');
-        $guard->deleteClinic(1, function () {
+        $guard->deletePatient(1, 1, function () {
             throw new \LogicException('Audit service write failed.');
         });
     }
@@ -172,32 +172,19 @@ final class FinancialParentDeletionGuardTest extends CIUnitTestCase
 
         $this->expectException(FinancialParentNotFoundException::class);
         $this->expectExceptionMessage('Clinic 5 not found.');
-        $guard->deleteClinic(5, static fn () => true);
+        $guard->deletePatient(5, 1, static fn () => true);
     }
 
-    public function testFailsClosedOnClinicWithFinances(): void
+    public function testClinicDeletionDeniedBeforeAnyDatabaseOrCallback(): void
     {
         $mockDb = $this->createMockDb();
-        $clinicResult = $this->createResultMock(['id' => 5]);
-        $financeResult = $this->createResultMock(['id' => 99]);
-
-        $mockDb->method('query')->willReturnCallback(function (string $sql) use ($clinicResult, $financeResult) {
-            if (str_contains($sql, '`clinics`')) {
-                return $clinicResult;
-            }
-            if (str_contains($sql, '`finances`')) {
-                return $financeResult;
-            }
-            return $this->createResultMock(null);
-        });
-
-        $mockDb->expects($this->once())->method('transRollback');
-
+        foreach (['query', 'transBegin', 'transCommit', 'transRollback'] as $method) {
+            $mockDb->expects($this->never())->method($method);
+        }
         $guard = new FinancialParentDeletionGuard($mockDb);
-
-        $this->expectException(FinancialParentHasHistoryException::class);
-        $this->expectExceptionMessage('Cannot delete clinic 5 with existing financial records.');
-        $guard->deleteClinic(5, static fn () => true);
+        $this->expectException(FinancialParentDeletionException::class);
+        $this->expectExceptionMessage('Physical clinic deletion is disabled');
+        $guard->deleteClinic(5, static function () { throw new \LogicException('Destructive callback must not run'); });
     }
 
     public function testFailsClosedOnPatientDirectFinances(): void
@@ -322,30 +309,13 @@ final class FinancialParentDeletionGuardTest extends CIUnitTestCase
         $guard->deleteExamination(3, 20, static fn () => true);
     }
 
-    public function testSuccessfulClinicDeleteCommitsTransaction(): void
+    public function testDirectClinicAssertionAlsoDeniesWithoutDatabaseAccess(): void
     {
         $mockDb = $this->createMockDb();
-        $clinicResult = $this->createResultMock(['id' => 7]);
-
-        $mockDb->method('query')->willReturnCallback(function (string $sql) use ($clinicResult) {
-            if (str_contains($sql, '`clinics`')) {
-                return $clinicResult;
-            }
-            return $this->createResultMock(null);
-        });
-
-        $mockDb->expects($this->once())->method('transCommit')->willReturn(true);
-        $mockDb->expects($this->never())->method('transRollback');
-
+        $mockDb->expects($this->never())->method('query');
         $guard = new FinancialParentDeletionGuard($mockDb);
-        $executed = false;
-        $result = $guard->deleteClinic(7, function () use (&$executed) {
-            $executed = true;
-            return true;
-        });
-
-        $this->assertTrue($executed);
-        $this->assertTrue($result);
+        $this->expectException(FinancialParentDeletionException::class);
+        $guard->assertClinicCanBeDeleted(7);
     }
 
     public function testSuccessfulPatientDeleteCommitsTransaction(): void

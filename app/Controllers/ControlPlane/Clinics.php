@@ -644,61 +644,11 @@ class Clinics extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
-        $guard = new \App\Services\FinancialParentDeletionGuard($clinicModel->db);
-
-        try {
-            $guard->deleteClinic($id, function () use ($id, $clinicModel, $clinic) {
-                // 1. Delete Subscriptions
-                $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-                $subResult = $subscriptionModel->where('clinic_id', $id)->delete();
-                if ($subResult === false) {
-                    return false;
-                }
-
-                // 2. Delete Memberships (Users remain, but clinic association is gone)
-                $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
-                $membershipResult = $clinicUserModel->where('clinic_id', $id)->delete();
-                if ($membershipResult === false) {
-                    return false;
-                }
-
-                // 3. Delete Clinic
-                $clinicDeleteResult = $clinicModel->delete($id);
-                if (!$clinicDeleteResult || $clinicModel->db->affectedRows() !== 1) {
-                    return false;
-                }
-
-                // 4. Audit inside transaction before checked commit
-                $auditSuccess = $this->auditService->logEvent('clinic_delete', [
-                    'route' => '/controlplane/clinics/' . $id . '/delete',
-                    'method' => 'POST',
-                    'metadata' => ['clinic_id' => $id, 'name' => $clinic['name'] ?? 'Unknown'],
-                ], true);
-                if ($auditSuccess === false) {
-                    return false;
-                }
-
-                return true;
-            });
-        } catch (\App\Services\FinancialParentDeletionException $e) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setStatusCode(409)->setJSON([
-                    'success' => false,
-                    'message' => 'Could not delete clinic. Clinic has financial history.',
-                ]);
-            }
-            return redirect()->back()->with('error', 'Could not delete clinic. Clinic has financial history.');
-        } catch (\Throwable $e) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Could not delete clinic. Database constraints may be preventing hard deletion.']);
-            }
-            return redirect()->back()->with('error', 'Could not delete clinic. Database constraints may be preventing hard deletion.');
-        }
-
+        // Source-only containment: do not remove memberships, subscriptions or history.
         if ($this->request->isAJAX()) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Clinic deleted successfully.']);
+            return $this->response->setStatusCode(409)->setJSON(['success' => false, 'message' => lang('IonAuth.clinic_delete_history_protected')]);
         }
-        return redirect()->to(base_url('controlplane/clinics'))->with('success', 'Clinic and associated data deleted.');
+        return redirect()->back()->with('error', lang('IonAuth.clinic_delete_history_protected'));
     }
 
     /**

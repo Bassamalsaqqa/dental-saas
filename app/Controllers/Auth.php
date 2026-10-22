@@ -120,14 +120,8 @@ class Auth extends BaseController
 	 */
 	public function login()
 	{
-		// Debug session data
 		$session = \Config\Services::session();
-		$identity = $session->get('identity');
-		$userId = $session->get('user_id');
 		$loggedIn = $this->ionAuth->loggedIn();
-		
-		// Log debug info
-		log_message('debug', 'Login check - Identity: ' . ($identity ?: 'null') . ', User ID: ' . ($userId ?: 'null') . ', Logged In: ' . ($loggedIn ? 'true' : 'false'));
 		
 		// If user is already logged in, redirect based on current context
 		if ($loggedIn) {
@@ -223,17 +217,13 @@ class Auth extends BaseController
 	{
 		$locale = strtolower(trim((string) ($requestedLocale ?? $this->request->getGet('ui_language') ?? $this->request->getPost('ui_language'))));
 		if (!in_array($locale, ['en', 'ar'], true)) {
-			return redirect()->back()->with('message', lang('Auth.error_security'));
+			return redirect()->to(service('navigation')->localReturnUrl(null, 'auth/login'))->with('message', lang('Auth.error_security'));
 		}
 
 		$this->session->set('ui_locale', $locale);
 
-		$returnTo = trim((string) ($this->request->getGet('return_to') ?? $this->request->getPost('return_to')));
-		if ($returnTo !== '') {
-			return redirect()->to($returnTo);
-		}
-
-		return redirect()->back();
+		$returnTo = $this->request->getGet('return_to') ?? $this->request->getPost('return_to');
+		return redirect()->to(service('navigation')->localReturnUrl($returnTo, 'auth/login'));
 	}
 
 	/**

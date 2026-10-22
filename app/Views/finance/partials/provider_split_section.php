@@ -145,6 +145,101 @@ foreach (($clinic_providers ?? []) as $provider) {
         </div>
 
         <div id="<?= esc($fieldId('providerAllocationsList')) ?>" class="space-y-4"></div>
+        <template data-provider-allocation-template>
+<div class="provider-allocation-row rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm space-y-4">
+                <input type="hidden" name="provider_payout_id[]" value="">
+                <input type="hidden" name="provider_mark_paid_now[]" class="provider-mark-paid-input" value="0">
+
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-bold text-slate-900"><?= esc(lang('Finance.providerType')) ?></p>
+                        <p class="text-xs text-slate-500 provider-row-share-label"><?= esc(lang('Finance.allocationShare')) ?>: <span class="provider-row-share-value">0.00</span></p>
+                    </div>
+                    <button type="button" class="provider-remove-row inline-flex items-center rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">
+                        <i class="fas fa-trash <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.removeAllocation')) ?>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="group/field relative">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
+                        <select name="provider_type[]" data-force-select2 data-allow-clear="false" class="provider-type-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <option value="user" ><?= lang('Finance.clinicUser') ?></option>
+                            <option value="guest" ><?= lang('Finance.guestProvider') ?></option>
+                        </select>
+                    </div>
+                    <div class="provider-user-wrap group/field relative ">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
+                        <select name="provider_user_id[]" data-force-select2 data-allow-clear="false" class="provider-user-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <option value=""><?= esc(lang('Finance.selectUser')) ?></option>
+                            <?php foreach ($providerOptions as $providerOption): ?>
+                                <option value="<?= esc((string) $providerOption['id']) ?>"><?= esc($providerOption['label']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="provider-guest-wrap group/field relative hidden">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
+                        <input type="text" name="provider_name_snapshot[]" value="" class="provider-guest-input w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="group/field relative">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
+                        <select name="provider_split_mode[]" data-force-select2 data-allow-clear="false" class="provider-split-mode w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <option value="percent" ><?= lang('Finance.percentage') ?></option>
+                            <option value="fixed" ><?= lang('Finance.fixedAmount') ?></option>
+                        </select>
+                    </div>
+                    <div class="group/field relative">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
+                        <input type="number" name="provider_split_value[]" value="0" step="0.01" min="0" class="provider-split-value w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="group/field relative">
+                    <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.allocationNotes') ?></label>
+                    <textarea name="provider_split_notes[]" rows="2" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"></textarea>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 p-4 space-y-4">
+                    <label class="provider-pay-toggle ">
+                        <input type="checkbox" class="provider-paid-toggle sr-only" >
+                        <span class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative" aria-hidden="true">
+                            <span class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></span>
+                        </span>
+                        <span class="provider-pay-toggle-copy">
+                            <span class="provider-pay-toggle-title"><?= lang('Finance.markProviderPaidNow') ?></span>
+                            <span class="provider-pay-toggle-hint"><?= esc(lang('Finance.paidAmount')) ?> + <?= esc(lang('Finance.method')) ?> + <?= esc(lang('Finance.paidDate')) ?></span>
+                        </span>
+                    </label>
+
+                    <div class="provider-paid-fields grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                        <div class="group/field relative">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidAmount') ?></label>
+                            <div class="relative">
+                                <input type="number" name="provider_paid_amount[]" value="" step="0.01" min="0" class="provider-paid-amount w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none"><span class="text-gray-500 font-bold"><?= esc(getCurrencySymbol()) ?></span></div>
+                            </div>
+                        </div>
+                        <div class="group/field relative">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
+                            <select name="provider_paid_method[]" data-force-select2 data-allow-clear="false" class="provider-paid-method w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                <option value="cash" ><?= lang('Finance.cash') ?></option>
+                                <option value="card" ><?= lang('Finance.card') ?></option>
+                                <option value="bank_transfer" ><?= lang('Finance.bankTransfer') ?></option>
+                                <option value="check" ><?= lang('Finance.check') ?></option>
+                                <option value="other" ><?= lang('Finance.other') ?></option>
+                            </select>
+                        </div>
+                        <div class="group/field relative">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
+                            <input type="text" name="provider_paid_date[]" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="provider-paid-date w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
 </div>
 
@@ -167,14 +262,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const splitDot = section.querySelector('[id$="providerSplitDot"]');
     const allocationsList = section.querySelector('[id$="providerAllocationsList"]');
     const addBtn = section.querySelector('[id$="addProviderAllocationBtn"]');
+    const rowTemplate = section.querySelector('[data-provider-allocation-template]');
     const grossInput = form.querySelector('[data-finance-total], #totalAmountLive, [name="total_amount"], [name="amount"]');
     const grossPreview = section.querySelector('[id$="splitGrossPreview"]');
     const providerPreview = section.querySelector('[id$="splitProviderPreview"]');
     const clinicPreview = section.querySelector('[id$="splitClinicPreview"]');
-    const providerOptions = <?= json_encode($providerOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-    const initialRows = <?= json_encode($providerRows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-    const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
-    const currencySymbol = <?= json_encode(getCurrencySymbol(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    const initialRows = <?= json_encode($providerRows, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
     const parseNum = (val) => {
         const n = parseFloat(val || '0');
@@ -228,124 +321,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (dot) {
             window.applyToggleDotState?.(dot, active);
         }
-    };
-
-    const buildProviderOptions = (selected) => {
-        const selectedValue = String(selected || '');
-        let html = `<option value=""><?= esc(lang('Finance.selectUser')) ?></option>`;
-        providerOptions.forEach((option) => {
-            const isSelected = selectedValue === String(option.id) ? 'selected' : '';
-            html += `<option value="${option.id}" ${isSelected}>${escapeHtml(option.label)}</option>`;
-        });
-        return html;
-    };
-
-    const escapeHtml = (value) => String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-
-    const createRowHtml = (row = {}) => {
-        const providerType = row.provider_type || 'user';
-        const splitMode = row.split_mode || 'percent';
-        const markPaidNow = row.mark_paid_now ? '1' : '0';
-        const checked = markPaidNow === '1' ? 'checked' : '';
-        const paidFieldsClass = markPaidNow === '1' ? '' : 'hidden';
-        const providerLabel = <?= json_encode(lang('Finance.providerType'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-
-        return `
-            <div class="provider-allocation-row rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm space-y-4">
-                <input type="hidden" name="provider_payout_id[]" value="${escapeHtml(row.id || '')}">
-                <input type="hidden" name="provider_mark_paid_now[]" class="provider-mark-paid-input" value="${markPaidNow}">
-
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-sm font-bold text-slate-900">${providerLabel}</p>
-                        <p class="text-xs text-slate-500 provider-row-share-label"><?= esc(lang('Finance.allocationShare')) ?>: <span class="provider-row-share-value">0.00</span></p>
-                    </div>
-                    <button type="button" class="provider-remove-row inline-flex items-center rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">
-                        <i class="fas fa-trash ${isRtl ? 'ml-2' : 'mr-2'}"></i>${<?= json_encode(lang('Finance.removeAllocation'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>}
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="group/field relative">
-                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
-                        <select name="provider_type[]" data-force-select2 data-allow-clear="false" class="provider-type-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                            <option value="user" ${providerType === 'user' ? 'selected' : ''}><?= lang('Finance.clinicUser') ?></option>
-                            <option value="guest" ${providerType === 'guest' ? 'selected' : ''}><?= lang('Finance.guestProvider') ?></option>
-                        </select>
-                    </div>
-                    <div class="provider-user-wrap group/field relative ${providerType === 'user' ? '' : 'hidden'}">
-                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
-                        <select name="provider_user_id[]" data-force-select2 data-allow-clear="false" class="provider-user-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                            ${buildProviderOptions(row.provider_user_id || '')}
-                        </select>
-                    </div>
-                    <div class="provider-guest-wrap group/field relative ${providerType === 'guest' ? '' : 'hidden'}">
-                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
-                        <input type="text" name="provider_name_snapshot[]" value="${escapeHtml(row.provider_name_snapshot || '')}" class="provider-guest-input w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="group/field relative">
-                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
-                        <select name="provider_split_mode[]" data-force-select2 data-allow-clear="false" class="provider-split-mode w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                            <option value="percent" ${splitMode === 'percent' ? 'selected' : ''}><?= lang('Finance.percentage') ?></option>
-                            <option value="fixed" ${splitMode === 'fixed' ? 'selected' : ''}><?= lang('Finance.fixedAmount') ?></option>
-                        </select>
-                    </div>
-                    <div class="group/field relative">
-                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
-                        <input type="number" name="provider_split_value[]" value="${escapeHtml(row.split_value || '0')}" step="0.01" min="0" class="provider-split-value w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                    </div>
-                </div>
-
-                <div class="group/field relative">
-                    <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.allocationNotes') ?></label>
-                    <textarea name="provider_split_notes[]" rows="2" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none">${escapeHtml(row.notes || '')}</textarea>
-                </div>
-
-                <div class="rounded-xl bg-slate-50 p-4 space-y-4">
-                    <label class="provider-pay-toggle ${markPaidNow === '1' ? 'is-active' : ''}">
-                        <input type="checkbox" class="provider-paid-toggle sr-only" ${checked}>
-                        <span class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative" aria-hidden="true">
-                            <span class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></span>
-                        </span>
-                        <span class="provider-pay-toggle-copy">
-                            <span class="provider-pay-toggle-title"><?= lang('Finance.markProviderPaidNow') ?></span>
-                            <span class="provider-pay-toggle-hint"><?= esc(lang('Finance.paidAmount')) ?> + <?= esc(lang('Finance.method')) ?> + <?= esc(lang('Finance.paidDate')) ?></span>
-                        </span>
-                    </label>
-
-                    <div class="provider-paid-fields grid grid-cols-1 md:grid-cols-3 gap-4 ${paidFieldsClass}">
-                        <div class="group/field relative">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidAmount') ?></label>
-                            <div class="relative">
-                                <input type="number" name="provider_paid_amount[]" value="${escapeHtml(row.provider_paid_amount || '')}" step="0.01" min="0" class="provider-paid-amount w-full ${isRtl ? 'pr-10 pl-10' : 'pl-10 pr-10'} py-3 bg-white border-2 border-gray-200 rounded-xl">
-                                <div class="absolute inset-y-0 ${isRtl ? 'right-0 pr-4' : 'left-0 pl-4'} flex items-center pointer-events-none"><span class="text-gray-500 font-bold">${escapeHtml(currencySymbol)}</span></div>
-                            </div>
-                        </div>
-                        <div class="group/field relative">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
-                            <select name="provider_paid_method[]" data-force-select2 data-allow-clear="false" class="provider-paid-method w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
-                                <option value="cash" ${(row.provider_paid_method || 'cash') === 'cash' ? 'selected' : ''}><?= lang('Finance.cash') ?></option>
-                                <option value="card" ${(row.provider_paid_method || '') === 'card' ? 'selected' : ''}><?= lang('Finance.card') ?></option>
-                                <option value="bank_transfer" ${(row.provider_paid_method || '') === 'bank_transfer' ? 'selected' : ''}><?= lang('Finance.bankTransfer') ?></option>
-                                <option value="check" ${(row.provider_paid_method || '') === 'check' ? 'selected' : ''}><?= lang('Finance.check') ?></option>
-                                <option value="other" ${(row.provider_paid_method || '') === 'other' ? 'selected' : ''}><?= lang('Finance.other') ?></option>
-                            </select>
-                        </div>
-                        <div class="group/field relative">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
-                            <input type="text" name="provider_paid_date[]" data-clinic-date="1" value="${escapeHtml(row.provider_paid_date || '<?= esc(date('Y-m-d')) ?>')}" class="provider-paid-date w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
-                        </div>
-                    </div>
-                </div>
-            </div>`;
     };
 
     const setVisible = (el, visible) => {
@@ -471,9 +446,24 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const addRow = (row = {}) => {
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = createRowHtml(row);
-        const element = wrapper.firstElementChild;
+        const element = rowTemplate.content.firstElementChild.cloneNode(true);
+        const values = {
+            provider_payout_id: row.id || '',
+            provider_type: ['user', 'guest'].includes(row.provider_type) ? row.provider_type : 'user',
+            provider_user_id: row.provider_user_id || '',
+            provider_name_snapshot: row.provider_name_snapshot || '',
+            provider_split_mode: ['percent', 'fixed'].includes(row.split_mode) ? row.split_mode : 'percent',
+            provider_split_value: row.split_value || '0',
+            provider_split_notes: row.notes || '',
+            provider_paid_amount: row.provider_paid_amount || '',
+            provider_paid_method: ['cash', 'card', 'bank_transfer', 'check', 'other'].includes(row.provider_paid_method) ? row.provider_paid_method : 'cash',
+            provider_paid_date: row.provider_paid_date || '<?= esc(date('Y-m-d')) ?>',
+        };
+        Object.entries(values).forEach(([name, value]) => {
+            const field = element.querySelector(`[name="${name}[]"]`);
+            field.value = String(value);
+        });
+        element.querySelector('.provider-paid-toggle').checked = !!row.mark_paid_now;
         allocationsList.appendChild(element);
         bindRow(element);
         updateSummary();

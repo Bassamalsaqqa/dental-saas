@@ -35,3 +35,12 @@ Use `attachments:derive --clinic ID --report --after-id ID --limit 25` for read-
 Include the replay table in consistent backups. After use, never drop it: rollback retains invoice/receipt/audit/linkage history and request identities. Old source cannot safely accept retries of the combined workflow because it does not recognize its identity; turn the feature OFF before rollback and route operators to existing recorded invoices. Do not automatically replay requests or refund/void receipts. Preserve all check scans and private orphan artifacts under the existing durable-file recovery policy. No database restore is automatic.
 
 Reviewed migration inventory is now: correction ledger (seven tables + permission identity without grants), patient-email scoped uniqueness (constraint replacement), attachment variants (one optional metadata table), and finance checkout requests (one optional replay table). These are separate review/authorization units; do not run blanket migrations. Scheduling remains separately pending and OFF.
+
+
+## Consolidated preservation restrictions
+
+This source candidate intentionally denies physical global-user and clinic deletion, including apparently unused entities, before hooks, callbacks or data changes. Existing explicit user deactivation/clinic suspension remains available. No automatic deactivation, role change or data rewrite is included. Final Owner source approval must acknowledge the purge limitation; restoring physical offboarding requires a separately reviewed preservation/concurrency/retention contract, not an ad-hoc reference scan.
+
+Language return URLs depend on the existing explicit `app.baseURL`; preserve it exactly. GET language switching changes personal session state only. Clinic-default persistence is confined to an authorized, CSRF-protected POST/settings workflow. No permissions are granted.
+
+On source rollback, preserve all new schema/history and note that M2 restores its earlier destructive account/clinic routes. The rollback procedure is not permission to purge or to disregard correction balances. Revalidate protected files and use a reviewed incident access restriction or fix forward where historical accounting requires it.

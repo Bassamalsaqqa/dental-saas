@@ -332,12 +332,8 @@
                         Reset Password
                     </button>
 
-                    <!-- Delete Trigger -->
-                    <?php if ($userProfile['id'] != 1 && $userProfile['id'] != session()->get('user_id')): ?>
-                    <button type="button" class="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 shadow-md transition-colors" onclick="openDeleteModal()">
-                        Delete User
-                    </button>
-                    <?php endif; ?>
+                    <button type="button" disabled class="px-4 py-2 bg-slate-100 text-slate-500 text-sm rounded-lg cursor-not-allowed"><?= esc(lang('IonAuth.delete_disabled_label')) ?></button>
+                    <p class="w-full text-sm text-slate-600" role="note"><?= esc(lang('IonAuth.delete_history_protected')) ?></p>
                 </div>
             </div>
         </div>
@@ -366,33 +362,6 @@
                 <div class="flex justify-end space-x-3">
                     <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200" onclick="closePasswordResetModal()">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700">Reset Password</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Modal -->
-<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
-        <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-red-800">Permanently Delete User</h3>
-            <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-600 mb-4">
-                This will permanently delete <strong class="text-gray-900"><?= esc($userProfile['email']) ?></strong> and all their memberships. 
-                <br>Please type <strong class="text-red-600">DELETE</strong> below to confirm.
-            </p>
-            <input type="text" id="deleteConfirmInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-4" placeholder="DELETE" oninput="checkDeleteInput()">
-            
-            <form id="deleteForm" action="<?= base_url('controlplane/users/' . $userProfile['id'] . '/delete') ?>" method="post">
-                <?= csrf_field() ?>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200" onclick="closeDeleteModal()">Cancel</button>
-                    <button type="submit" id="deleteBtn" class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 opacity-50 cursor-not-allowed" disabled>Permanently Delete</button>
                 </div>
             </form>
         </div>
@@ -720,32 +689,6 @@
         hideDialog(modal);
     }
 
-    function openDeleteModal(triggerElement) {
-        const modal = document.getElementById('deleteModal');
-        showDialog(modal, triggerElement, '#deleteConfirmInput');
-    }
-
-    function closeDeleteModal() {
-        const modal = document.getElementById('deleteModal');
-        hideDialog(modal);
-        const confirmInput = document.getElementById('deleteConfirmInput');
-        if (confirmInput) confirmInput.value = '';
-        checkDeleteInput();
-    }
-
-    function checkDeleteInput() {
-        const input = document.getElementById('deleteConfirmInput').value;
-        const btn = document.getElementById('deleteBtn');
-        
-        if (input === 'DELETE') {
-            btn.disabled = false;
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        } else {
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-    }
-
     document.addEventListener('keydown', function(event) {
         if (!activeModal || activeModal.classList.contains('hidden')) return;
 
@@ -754,7 +697,6 @@
             if (activeModal.id === 'designateAdminModal') closeDesignateModal();
             else if (activeModal.id === 'restoreAdminModal') closeRestoreModal();
             else if (activeModal.id === 'passwordResetModal') closePasswordResetModal();
-            else if (activeModal.id === 'deleteModal') closeDeleteModal();
             return;
         }
 
@@ -763,7 +705,7 @@
         }
     });
 
-    ['designateAdminModal', 'restoreAdminModal', 'passwordResetModal', 'deleteModal'].forEach(function (id) {
+    ['designateAdminModal', 'restoreAdminModal', 'passwordResetModal'].forEach(function (id) {
         const modal = document.getElementById(id);
         if (modal) {
             modal.addEventListener('click', function (e) {
@@ -771,7 +713,6 @@
                     if (id === 'designateAdminModal') closeDesignateModal();
                     else if (id === 'restoreAdminModal') closeRestoreModal();
                     else if (id === 'passwordResetModal') closePasswordResetModal();
-                    else if (id === 'deleteModal') closeDeleteModal();
                 }
             });
         }

@@ -156,6 +156,59 @@ class NavigationService
         return false;
     }
 
+    /** Language switching accepts local URLs only; never trust Host or Referer. */
+    public function localReturnUrl($target, string $fallback = '/'): string
+    {
+        // App's development host detection is useful for previews, but is not redirect authority.
+        $configured = env('app.baseURL');
+        $base = is_string($configured) ? parse_url($configured) : false;
+        $fallbackUrl = '/' . ltrim($fallback, '/');
+        if ($base === false || !isset($base['scheme'], $base['host'])
+            || isset($base['user']) || isset($base['pass'])
+            || !in_array(strtolower($base['scheme']), ['http', 'https'], true)) {
+            return $fallbackUrl;
+        }
+        $scheme = config('App')->forceGlobalSecureRequests ? 'https' : strtolower($base['scheme']);
+        $origin = $scheme . '://' . $base['host'] . (isset($base['port']) ? ':' . $base['port'] : '');
+        $basePath = rtrim($base['path'] ?? '', '/');
+        $fallbackUrl = $origin . $basePath . '/' . ltrim($fallback, '/');
+        if (!is_string($target) || $target === '' || strlen($target) > 4096
+            || preg_match('/[\x00-\x20\x7f]/', $target) || str_contains($target, '\\')
+            || str_starts_with($target, '//')) {
+            return $fallbackUrl;
+        }
+        $parts = parse_url($target);
+        if ($parts === false || isset($parts['user']) || isset($parts['pass'])) { return $fallbackUrl; }
+        $port = (int) ($base['port'] ?? ($scheme === 'https' ? 443 : 80));
+        if (isset($parts['scheme']) || isset($parts['host'])) {
+            $targetScheme = strtolower($parts['scheme'] ?? '');
+            $targetPort = (int) ($parts['port'] ?? ($targetScheme === 'https' ? 443 : 80));
+            if ($targetScheme !== $scheme || strtolower($parts['host'] ?? '') !== strtolower($base['host']) || $targetPort !== $port) {
+                return $fallbackUrl;
+            }
+        }
+        $path = $parts['path'] ?? '';
+        if (!str_starts_with($path, '/')) { $path = $basePath . '/' . $path; }
+        // Browsers normalize encoded dots/slashes; reject ambiguous traversal, not just literal ../.
+        $decoded = $path;
+        for ($i = 0; $i < 5; $i++) {
+            if (preg_match('/[\x00-\x1f\x7f]/', $decoded) || str_contains($decoded, '\\')
+                || str_contains($decoded, '//') || preg_match('~(?:^|/)\.{1,2}(?:/|$)~', $decoded)) {
+                return $fallbackUrl;
+            }
+            $next = rawurldecode($decoded);
+            if ($next === $decoded) { break; }
+            if ($i === 4) { return $fallbackUrl; }
+            $decoded = $next;
+        }
+        if (($basePath !== '' && $decoded !== $basePath && !str_starts_with($decoded, $basePath . '/'))
+            || preg_match('/%(?:0[0-9a-f]|1[0-9a-f]|7f|5c)/i', $target)) {
+            return $fallbackUrl;
+        }
+        return $origin . $path . (isset($parts['query']) ? '?' . $parts['query'] : '')
+            . (isset($parts['fragment']) ? '#' . $parts['fragment'] : '');
+    }
+
     private function normalizeInternalTarget(?string $target): ?string
     {
         $target = trim((string) $target);

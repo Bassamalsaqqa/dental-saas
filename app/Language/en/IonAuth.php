@@ -51,6 +51,9 @@ return [
 	'update_successful'                   => 'Account Information Successfully Updated',
 	'update_unsuccessful'                 => 'Unable to Update Account Information',
 	'delete_successful'                   => 'User Deleted',
+	'clinic_delete_history_protected' => 'Permanent clinic deletion is disabled to preserve patient, clinical, financial and audit records. Use Suspend Clinic to restrict access. Existing records are retained.',
+	'delete_disabled_label' => 'Permanent deletion unavailable',
+	'delete_history_protected' => 'Permanent account deletion is disabled to preserve audit, clinical and financial history. Use Deactivate User to revoke access. This does not delete or change existing records.',
 	'delete_unsuccessful'                 => 'Unable to Delete User',
 
 	// Groups
