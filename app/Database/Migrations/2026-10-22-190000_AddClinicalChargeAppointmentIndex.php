@@ -35,17 +35,8 @@ class AddClinicalChargeAppointmentIndex extends Migration
 
     public function down()
     {
-        $this->assertParent();
-        $parts = $this->indexes()[self::INDEX] ?? null;
-        if ($parts === null) {
-            return;
-        }
-        if (!$this->matches($parts, true)) {
-            throw new \RuntimeException('Refusing to drop an incompatible existing index.');
-        }
-        if (!$this->db->query('ALTER TABLE ' . $this->table() . ' DROP INDEX ' . self::INDEX . ', ALGORITHM=INPLACE, LOCK=NONE')) {
-            throw new \RuntimeException('Online charge appointment index rollback failed.');
-        }
+        // up() can reuse an existing index; definition equality is not ownership.
+        throw new \RuntimeException('Charge lookup index is retained; automatic rollback refused because object ownership is unproven.');
     }
 
     private function table(): string

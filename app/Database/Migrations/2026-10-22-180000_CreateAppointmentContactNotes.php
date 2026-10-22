@@ -110,13 +110,7 @@ class CreateAppointmentContactNotes extends Migration
 
     public function down()
     {
-        if ($this->db->tableExists('appointment_contact_notes')) {
-            if ($this->db->table('appointment_contact_notes')->countAllResults() > 0) {
-                throw new \RuntimeException('Contact history is retained evidence; destructive rollback refused.');
-            }
-            if (!$this->forge->dropTable('appointment_contact_notes')) {
-                throw new \RuntimeException('Empty contact table removal failed.');
-            }
-        }
+        // Compatible pre-existing tables may have been adopted without creating them.
+        throw new \RuntimeException('Contact schema is retained evidence; automatic rollback refused because object ownership is unproven.');
     }
 }

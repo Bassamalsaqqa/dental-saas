@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-$bootstrap = getopt('', ['bootstrap:'])['bootstrap'] ?? '';
+$bootstrap = getopt('', ['bootstrap:', 'rollback-ownership-only'])['bootstrap'] ?? '';
 if (PHP_SAPI !== 'cli' || !is_file($bootstrap)) {
     exit(2);
 }require $bootstrap;
@@ -27,6 +27,16 @@ try {
     $migration->up();
 } catch (Throwable$e) {
     throw new RuntimeException($e->getMessage().' '.json_encode($test->error()).' '.(string)$test->getLastQuery());
+}
+if(array_key_exists('rollback-ownership-only',getopt('', ['bootstrap:', 'rollback-ownership-only']))){
+    $ownershipChecks=0;
+    $assert=static function(bool$ok,string$why)use(&$ownershipChecks){if(!$ok)throw new RuntimeException($why);++$ownershipChecks;};
+    $snapshot=static function()use($test):array{$out=[];foreach(['clinics','users','patients','appointments','appointment_contact_notes']as$table)$out[$table]=['ddl'=>$test->query('SHOW CREATE TABLE '.$test->escapeIdentifiers($test->prefixTable($table)))->getRowArray(),'rows'=>$test->table($table)->orderBy('id')->get()->getResultArray()];return$out;};
+    $before=$snapshot();$adopting=new App\Database\Migrations\CreateAppointmentContactNotes(Config\Database::forge($test));$adopting->up();$assert($snapshot()===$before,'Pre-existing compatible empty table accepted unchanged');
+    foreach([$migration,new App\Database\Migrations\CreateAppointmentContactNotes(Config\Database::forge($test))]as$instance){try{$instance->down();throw new LogicException('Unowned contact table rollback accepted');}catch(RuntimeException$e){$assert(str_contains($e->getMessage(),'ownership'),'Empty table rollback requires proven ownership');}$assert($snapshot()===$before,'Empty pre-existing table/FKs and all parent rows survive');}
+    if(!$test->table('appointment_contact_notes')->insert(['clinic_id'=>1,'patient_id'=>1,'appointment_id'=>1,'actor_id'=>1,'request_key'=>'synthetic_ownership_only','request_hash'=>str_repeat('a',64),'note'=>'Synthetic ownership retention','created_at'=>date('Y-m-d H:i:s')]))throw new RuntimeException('Synthetic contact insert failed');
+    $before=$snapshot();try{(new App\Database\Migrations\CreateAppointmentContactNotes(Config\Database::forge($test)))->down();throw new LogicException('Populated contact down accepted');}catch(RuntimeException$e){$assert(str_contains($e->getMessage(),'retained evidence'),'Populated evidence always retained');}$assert($snapshot()===$before,'Populated table and restrictive FKs unchanged');
+    echo json_encode(['status'=>'PASS','checks'=>$ownershipChecks,'prefix'=>$prefix,'fixtures_retained'=>true,'scope'=>'Only rollback ownership: compatible pre-existing empty/populated contact schema and parent rows survive down']),PHP_EOL;exit;
 }
 $migration->up();
 class ContactPermissionFixture extends App\Services\PermissionService

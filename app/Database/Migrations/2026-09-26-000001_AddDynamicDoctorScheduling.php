@@ -199,27 +199,8 @@ class AddDynamicDoctorScheduling extends Migration
 
     public function down()
     {
-        $state = $this->preflight();
-        if ($state['provider'] && $this->db->table('appointments')->where('provider_user_id IS NOT NULL', null, false)->countAllResults() > 0) {
-            throw new \RuntimeException('Refusing rollback: provider-linked appointments exist.');
-        }
-        if ($state['profiles'] && $this->db->table('clinic_provider_profiles')->countAllResults() > 0) {
-            throw new \RuntimeException('Refusing rollback: provider profiles exist.');
-        }
-        // Unknown provider FKs must be reviewed before any rollback DDL.
-        $foreign = $this->db->query('SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND COLUMN_NAME=? AND REFERENCED_TABLE_NAME IS NOT NULL', [$this->db->prefixTable('appointments'),'provider_user_id']);
-        if ($foreign === false || $foreign->getResultArray() !== []) {
-            throw new \RuntimeException('Provider foreign key requires explicit rollback review.');
-        }
-        if ($state['profiles'] && !$this->forge->dropTable('clinic_provider_profiles', false)) {
-            throw new \RuntimeException('Provider profile rollback failed.');
-        }
-        if ($state['indexed'] && !$this->db->query('DROP INDEX ' . self::INDEX . ' ON ' . $this->table('appointments'))) {
-            throw new \RuntimeException('Scheduling index rollback failed.');
-        }
-        if ($state['provider'] && !$this->forge->dropColumn('appointments', 'provider_user_id')) {
-            throw new \RuntimeException('Provider column rollback failed.');
-        }
-        $this->db->resetDataCache();
+        // up() deliberately accepts compatible pre-existing schema. Neither a matching
+        // definition nor empty data proves ownership across migration processes.
+        throw new \RuntimeException('Scheduling expansion is retained; automatic rollback refused because object ownership is unproven.');
     }
 }

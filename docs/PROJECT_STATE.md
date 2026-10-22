@@ -24,10 +24,14 @@ Last updated: 2026-10-23 (protected M2; consolidated nonproduction candidate in 
 
 ## Native synthetic acceptance checkpoint
 
-- Runtime-tested source: `8f426fcdbf61a6aa805285e0ac925dc47f92c610`, tree `9118bb36e08f5597580256a95497ef346861f0e0`; every exported file verified. Later documentation-only commits must retain identical application/public trees or receive affected retesting.
+- Workflow-tested source: `8f426fcdbf61a6aa805285e0ac925dc47f92c610`, tree `9118bb36e08f5597580256a95497ef346861f0e0`; every exported file was verified. Later changes are scoped and separately verified; do not relabel earlier suites as final-head reruns.
 - Seven targeted schema units: 82 preservation checks on PHP8.3.35/MariaDB11.8.9; no grants, remapping or persistent feature activation. Seventeen actual-service financial checks preserve cash/invoice history through explicit credits/application/return and retries.
 - Actual HTTPS browser checks cover EN/AR patient-finance desktop/mobile, Arabic mobile hours, and both language-switch entrypoints. The observed stale-query locale defect is corrected; 134 actual-method checks and three native language transitions pass, with zero new page errors.
 - Synthetic restore: all78 tables, their schema definitions/30FKs and four captured writable files match separate restore targets. Off-host SQL/archive retrieval is verified. This is a synthetic checkpoint, not a fresh production backup. Entire writable/configuration remains the required production coverage, including signing journals/staging/generated evidence when present.
+
+## Current exact-head review correction
+
+The review at6bb06dc returned CHANGES_REQUESTED for migration rollback ownership. Scheduling, contact and charge-index migrations may adopt pre-existing schema; their automatic down now refuses before database access, including empty objects. Up/preflight code is unchanged. Forty-six new focused real-SQL checks preserve each pre-existing/new/linked object and all rows. This is an intentional rollback restriction, not a completed external approval. AGY timed out without edits; Codex performed the correction. Final source identity/re-review is tracked on PR #20.
 
 ## Known operational limits
 

@@ -127,3 +127,8 @@ Final suite scale sample: lock acquisition **0.089 s**, complete locked preview 
 Pending migration preflight now validates actual parent identities/engines and every existing expansion object before any DDL. A named-index conflict or incompatible profile table fails without destructive replacement; exact compatible reentry preserves rows. Fifty-six focused SQL checks and twelve captured-schema synthetic checks preserve all historical fields, NULL provider assignments and default-OFF settings. No production migration or activation occurred.
 
 A separate optional charge `(clinic_id,appointment_id)` index is now proposed from actual query-plan measurements (40,500 synthetic rows, unchanged500 results, local median15.224ms to0.624ms). It is not installed on Hostinger; online DDL/headroom and representative native pilot acceptance remain distinct gates. The earlier charge-scan limitation remains true of current production until separately authorized migration.
+
+
+### Current additive-schema retention rule (2026-10-23)
+
+The pending scheduling migration may reuse compatible pre-existing provider columns/indexes/profile tables. Compatibility and emptiness do not establish ownership. Automatic down therefore always refuses before database access and retains the expansion, including newly created empty objects; source-only rollback preserves every appointment and object. Earlier expansion rollback/reapply test evidence describes the superseded behavior. Current ownership-focused checks exercise new migration instances and retain each pre-existing object unchanged. No production migration or pilot activation is authorized.

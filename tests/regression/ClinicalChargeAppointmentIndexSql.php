@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-$bootstrap=getopt('', ['bootstrap:'])['bootstrap']??'';
+$bootstrap=getopt('', ['bootstrap:', 'rollback-ownership-only'])['bootstrap']??'';
 if(PHP_SAPI!=='cli'||!is_file($bootstrap))exit(2);require $bootstrap;
 $identity=$db->query('SELECT DATABASE() db,@@port port,@@datadir datadir')->getRowArray();
 if($db->hostname!=='127.0.0.1'||$identity['db']!=='m2c_finance_acceptance'||(int)$identity['port']!==3307||!str_contains(str_replace('\\','/',$identity['datadir']),'denta-m2c-20261021/disposable-mariadb/data'))throw new RuntimeException('Owned disposable database required');
@@ -14,9 +14,22 @@ function ixFixture(string$tag,string$extra='',string$appointment='INT NULL',stri
  $test->table('clinical_charge_lines')->insert(['id'=>1,'clinic_id'=>1,'note'=>'retained original']);
  return [$test,new App\Database\Migrations\AddClinicalChargeAppointmentIndex(Config\Database::forge($test)),$table];
 }
+function ixRetainedDown($test,$table):void{
+ $ddl=$test->query('SHOW CREATE TABLE '.$table)->getRowArray();$rows=$test->table('clinical_charge_lines')->get()->getResultArray();
+ try{(new App\Database\Migrations\AddClinicalChargeAppointmentIndex(Config\Database::forge($test)))->down();throw new LogicException('Unowned index rollback accepted');}catch(RuntimeException$e){ixCheck(str_contains($e->getMessage(),'ownership'),'Rollback fails closed without ownership evidence');}
+ ixCheck($test->query('SHOW CREATE TABLE '.$table)->getRowArray()===$ddl,'Every existing index definition retained');ixCheck($test->table('clinical_charge_lines')->get()->getResultArray()===$rows,'Every existing charge row retained');
+}
+if(array_key_exists('rollback-ownership-only',getopt('', ['bootstrap:', 'rollback-ownership-only']))){
+ foreach(['named'=>'INDEX idx_ccl_clinic_appointment (clinic_id,appointment_id)','alternative'=>'INDEX existing_cover (clinic_id,appointment_id,id)','fresh'=>'']as$tag=>$extra){
+  [$test,$migration,$table]=ixFixture('owned_'.$tag,$extra);$before=$test->query('SHOW CREATE TABLE '.$table)->getRowArray();$migration->up();
+  if($extra!=='')ixCheck($test->query('SHOW CREATE TABLE '.$table)->getRowArray()===$before,'Compatible pre-existing index reused unchanged');
+  ixRetainedDown($test,$table);$test->close();
+ }
+ echo json_encode(['status'=>'PASS','checks'=>$checks,'prefix'=>$prefix,'fixtures_retained'=>true,'scope'=>'Only rollback ownership: named/alternative pre-existing and newly created indexes survive new-instance down; all rows retained']),PHP_EOL;exit;
+}
 [$test,$migration,$table]=ixFixture('good');$rows=$test->table('clinical_charge_lines')->get()->getResultArray();$migration->up();$indexes=$test->query('SHOW INDEX FROM '.$table)->getResultArray();$candidate=array_values(array_filter($indexes,static fn($r)=>$r['Key_name']==='idx_ccl_clinic_appointment'));
-ixCheck(array_column($candidate,'Column_name')===['clinic_id','appointment_id'],'Exact measured composite index created');ixCheck((int)$candidate[0]['Non_unique']===1,'No uniqueness/accounting constraint introduced');ixCheck($test->table('clinical_charge_lines')->get()->getResultArray()===$rows,'Original rows preserved');$migration->up();ixCheck($test->query('SHOW INDEX FROM '.$table)->getResultArray()===$indexes,'Exact reentry no index churn');$migration->down();ixCheck($test->table('clinical_charge_lines')->get()->getResultArray()===$rows,'Index-only down preserves populated rows');ixCheck(count($test->query('SHOW INDEX FROM '.$table)->getResultArray())===1,'Only owned index removed');
-[$test,$migration,$table]=ixFixture('cover','INDEX existing_cover (clinic_id,appointment_id,id)');$indexes=$test->query('SHOW INDEX FROM '.$table)->getResultArray();$migration->up();ixCheck($test->query('SHOW INDEX FROM '.$table)->getResultArray()===$indexes,'Existing covering index reused without duplicates');$migration->down();ixCheck($test->query('SHOW INDEX FROM '.$table)->getResultArray()===$indexes,'Rollback never removes alternative index');
+ixCheck(array_column($candidate,'Column_name')===['clinic_id','appointment_id'],'Exact measured composite index created');ixCheck((int)$candidate[0]['Non_unique']===1,'No uniqueness/accounting constraint introduced');ixCheck($test->table('clinical_charge_lines')->get()->getResultArray()===$rows,'Original rows preserved');$migration->up();ixCheck($test->query('SHOW INDEX FROM '.$table)->getResultArray()===$indexes,'Exact reentry no index churn');ixRetainedDown($test,$table);
+[$test,$migration,$table]=ixFixture('cover','INDEX existing_cover (clinic_id,appointment_id,id)');$indexes=$test->query('SHOW INDEX FROM '.$table)->getResultArray();$migration->up();ixCheck($test->query('SHOW INDEX FROM '.$table)->getResultArray()===$indexes,'Existing covering index reused without duplicates');ixRetainedDown($test,$table);
 foreach([['collision','INDEX idx_ccl_clinic_appointment (appointment_id,clinic_id)','INT NULL','InnoDB'],['unique','UNIQUE INDEX idx_ccl_clinic_appointment (clinic_id,appointment_id)','INT NULL','InnoDB'],['missing','','','InnoDB'],['wrongtype','','VARCHAR(10)','InnoDB'],['engine','','INT NULL','MyISAM']]as[$tag,$extra,$type,$engine]){
  [$test,$migration,$table]=ixFixture($tag,$extra,$type,$engine);$ddl=$test->query('SHOW CREATE TABLE '.$table)->getRowArray();$rows=$test->table('clinical_charge_lines')->get()->getResultArray();
  try{$migration->up();throw new LogicException('Unsafe migration accepted '.$tag);}catch(RuntimeException$e){ixCheck(true,'Preflight rejects '.$tag);}
