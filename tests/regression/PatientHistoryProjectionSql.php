@@ -10,8 +10,9 @@ if ($db->hostname !== '127.0.0.1' || $identity['db'] !== 'm2c_finance_acceptance
     || !str_contains(str_replace('\\', '/', $identity['datadir']), 'denta-m2c-20261021/disposable-mariadb/data')) {
     throw new RuntimeException('Owned synthetic MariaDB required');
 }
-$controller = file_get_contents(__DIR__ . '/../../app/Controllers/Patient.php');
-$view = file_get_contents(__DIR__ . '/../../app/Views/patient/show.php');
+$historyService = new App\Services\PatientWorkspaceHistoryService($db);
+$clinicalQuery = new ReflectionMethod($historyService, 'clinicalQuery');
+$view = file_get_contents(__DIR__ . '/../../app/Views/patient/show.php') . file_get_contents(__DIR__ . '/../../app/Services/PatientWorkspaceTimelinePresenter.php');
 $n = 0;
 $check = static function (bool $ok, string $why) use (&$n): void {
     if (!$ok) { throw new RuntimeException($why); }
@@ -25,9 +26,10 @@ $definitions = [
 $prefix = 'projection_' . bin2hex(random_bytes(4)) . '_';
 $metrics = [];
 foreach ($definitions as $table => [$model, $variables]) {
-    $pattern = '~\\$' . $table . ' = \\$this->' . $model . '\\s*->select\\(\'([^\']+)\'\\)~';
-    if (!preg_match($pattern, $controller, $match)) { throw new RuntimeException('Projection not found: ' . $table); }
-    $projection = $match[1];
+    $type = ['examinations' => 'examination', 'appointments' => 'appointment', 'treatments' => 'treatment'][$table];
+    $compiled = $clinicalQuery->invoke($historyService, 1, 1, $type)->getCompiledSelect();
+    if (!preg_match('~^SELECT\s+(.+?)\s+FROM\s~s', $compiled, $match)) { throw new RuntimeException('Actual projection unavailable: ' . $table); }
+    $projection = str_replace(['`', 'h.', 'u.'], ['', $table . '.', 'users.'], $match[1]);
     $check(!str_contains($projection, '*'), $table . ' explicit projection');
     $parts = array_map('trim', explode(',', $projection));
     $outputFields = [];
@@ -86,4 +88,4 @@ foreach ($definitions as $table => [$model, $variables]) {
     $metrics[$table] = ['rows' => count($narrow), 'wide_json_bytes' => $before, 'projected_json_bytes' => $after];
 }
 echo json_encode(['status' => 'PASS', 'checks' => $n, 'measurements' => $metrics,
-    'scope' => 'Actual MariaDB projection value/order/tenant parity with wide synthetic rows and all patient-view row-key coverage. Complete histories preserved; not bounded-row PHP loading or production performance certification.'], JSON_PRETTY_PRINT), PHP_EOL;
+    'scope' => 'Actual MariaDB projection value/order/tenant parity with wide synthetic rows and patient-view/presenter row-key coverage. Projection values preserved; complete bounded traversal is certified separately. Not production performance certification.'], JSON_PRETTY_PRINT), PHP_EOL;

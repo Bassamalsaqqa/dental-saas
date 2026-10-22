@@ -811,35 +811,68 @@ class Patient extends BaseController
                 ->findAll();
         }
 
-        // The workspace uses summary fields only. Keep complete histories and stable ordering,
-        // without fetching unused clinical-note/snapshot/material payloads for every row.
-        $examinations = $this->examinationModel
-            ->select('examinations.id, examinations.examination_id, examinations.examination_date, examinations.examination_type, examinations.chief_complaint, examinations.status, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
-            ->join('users', 'users.id = examinations.created_by', 'left')
-            ->where('examinations.clinic_id', $clinicId)
-            ->where('examinations.patient_id', $id)
-            ->orderBy('examinations.examination_date', 'DESC')
-            ->findAll();
-
-        $appointments = $this->appointmentModel
-            ->select('appointments.id, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.chair_name, appointments.duration, appointments.notes, appointments.status, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
-            ->join('users', 'users.id = appointments.created_by', 'left')
-            ->where('appointments.clinic_id', $clinicId)
-            ->where('appointments.patient_id', $id)
-            ->orderBy('appointments.appointment_date', 'DESC')
-            ->orderBy('appointments.appointment_time', 'ASC')
-            ->findAll();
-
-        $treatments = $this->treatmentModel
-            ->select('treatments.id, treatments.start_date, treatments.treatment_name, treatments.treatment_type, treatments.tooth_number, treatments.treatment_description, treatments.status, users.first_name as doctor_first_name, users.last_name as doctor_last_name, ccl.id AS clinical_charge_line_id, ccl.status AS clinical_charge_status, ccl.net_production_amount AS clinical_charge_amount, ccl.currency AS clinical_charge_currency, ccl.finance_id AS clinical_charge_finance_id, f.transaction_id AS clinical_charge_invoice_number, f.payment_status AS clinical_charge_invoice_status, f.total_amount AS clinical_charge_invoice_total, f.amount_paid AS clinical_charge_invoice_paid, f.balance_due AS clinical_charge_invoice_balance')
-            ->join('users', 'users.id = treatments.created_by', 'left')
-            ->join('clinical_charge_lines ccl', "ccl.id = (SELECT ccl_latest.id FROM clinical_charge_lines ccl_latest WHERE ccl_latest.treatment_id = treatments.id AND ccl_latest.clinic_id = treatments.clinic_id AND ccl_latest.source_entity_type = 'treatment' AND ccl_latest.status != 'voided' ORDER BY ccl_latest.id DESC LIMIT 1)", 'left', false)
-            ->join('finances f', 'f.id = ccl.finance_id AND f.clinic_id = ccl.clinic_id', 'left')
-            ->where('treatments.clinic_id', $clinicId)
-            ->where('treatments.patient_id', $id)
-            ->orderBy('treatments.start_date', 'DESC')
-            ->orderBy('ccl.id', 'DESC')
-            ->findAll();
+        // Bounded candidate batches preserve explicit continuation, including sparse searches.
+        $historyQuery = ['q' => '', 'start' => null, 'end' => null, 'tab' => 'details', 'before' => null];
+        foreach (['q' => 'history_q', 'start' => 'history_start', 'end' => 'history_end', 'tab' => 'tab'] as $key => $parameter) {
+            $raw = $this->request->getGet($parameter);
+            if ($raw === null || $raw === '') { continue; }
+            if (!is_string($raw) || preg_match('//u', $raw) !== 1 || mb_strlen($raw) > 200 || preg_match('/[\x00-\x1f\x7f]/', $raw)) {
+                return $this->response->setStatusCode(400)->setBody('Invalid history filter.');
+            }
+            $historyQuery[$key] = trim($raw);
+        }
+        foreach (['start', 'end'] as $key) {
+            if ($historyQuery[$key] !== null && !\App\Services\ClinicSchedulingSettings::validDate($historyQuery[$key])) {
+                return $this->response->setStatusCode(400)->setBody('Invalid history date.');
+            }
+        }
+        if ($historyQuery['start'] !== null && $historyQuery['end'] !== null && $historyQuery['start'] > $historyQuery['end']) {
+            return $this->response->setStatusCode(400)->setBody('Invalid history date range.');
+        }
+        $historyCursor = $this->request->getGet('history_before');
+        if ($historyCursor !== null) {
+            if (!is_string($historyCursor) || strlen($historyCursor) > 512 || !preg_match('/^[a-zA-Z0-9_-]+$/D', $historyCursor)
+                || !in_array($historyQuery['tab'], ['timeline', 'examinations', 'appointments', 'treatments'], true)) {
+                return $this->response->setStatusCode(400)->setBody('Invalid history cursor.');
+            }
+            $decoded = base64_decode(strtr($historyCursor, '-_', '+/'), true);
+            $historyQuery['before'] = $decoded === false ? null : json_decode($decoded, true);
+            if (!is_array($historyQuery['before'])) {
+                return $this->response->setStatusCode(400)->setBody('Invalid history cursor.');
+            }
+        }
+        $historyDb = \Config\Database::connect();
+        $historyService = new \App\Services\PatientWorkspaceHistoryService($historyDb);
+        $historyPages = []; $historyRows = [];
+        try {
+            foreach (['timeline' => null, 'examinations' => 'examination', 'appointments' => 'appointment', 'treatments' => 'treatment'] as $section => $type) {
+                $historyPages[$section] = $historyService->keys(
+                    (int) $clinicId, (int) $id, 100,
+                    $historyQuery['tab'] === $section ? $historyQuery['before'] : null,
+                    $contractsEnabled, $attachmentsEnabled,
+                    $this->getAttachmentCategoryOptions()['Dental Imaging'] ?? [], $type
+                );
+                $historyRows[$section] = $historyService->clinicalRows((int) $clinicId, (int) $id, $historyPages[$section]['items']);
+            }
+        } catch (\InvalidArgumentException $e) {
+            return $this->response->setStatusCode(400)->setBody('Invalid history selection.');
+        }
+        $examinations = $historyRows['examinations']['examinations'];
+        $appointments = $historyRows['appointments']['appointments'];
+        $treatments = $historyRows['treatments']['treatments'];
+        $clinicToday = (new \DateTimeImmutable('now', (new \App\Services\ClinicSchedulingSettings($historyDb))->timezone((int) $clinicId)))->format('Y-m-d');
+        $historySummary = $historyService->summary((int) $clinicId, (int) $id, $clinicToday);
+        $historySummary['clinic_today'] = $clinicToday;
+        $historyDates = [];
+        foreach (array_merge($appointments, $historyRows['timeline']['appointments']) as $historyAppointment) {
+            if (\App\Services\ClinicSchedulingSettings::validDate($historyAppointment['appointment_date'] ?? null)) {
+                $historyDates[] = $historyAppointment['appointment_date'];
+            }
+        }
+        $historySameDay = [];
+        foreach (array_chunk(array_values(array_unique($historyDates)), 100) as $dates) {
+            $historySameDay += $historyService->sameDay((int) $clinicId, (int) $id, $dates);
+        }
 
         $finances = $this->financeModel->getFinanceByPatient($id);
         $invoiceFinanceIds = array_map(
@@ -863,6 +896,7 @@ class Patient extends BaseController
         $data = [
             'title' => 'Patient Details - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
+            'workspace_history' => ['query' => $historyQuery, 'pages' => $historyPages, 'rows' => $historyRows, 'summary' => $historySummary, 'same_day' => $historySameDay],
             'examinations' => $examinations,
             'appointments' => $appointments,
             'finances' => $finances,

@@ -29,6 +29,8 @@ function loadInlinePatientMiniOdontogramSvg(): string
 }
 
 $isRtl = !empty($is_rtl);
+$workspaceSummary = $workspace_history['summary'];
+$historyCounts = $workspaceSummary['counts'] ?? [];
 $patientContextReturnTo = 'patient/' . (int) ($patient['id'] ?? 0);
 $fullName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
 $patientGenderMap = [
@@ -174,13 +176,13 @@ $updateLatest = static function (?string $dateValue, string $label) use (&$lates
     }
 };
 
-foreach ($appointments as $appointmentItem) {
+foreach (array_filter([$workspaceSummary['latest']['appointments'] ?? null]) as $appointmentItem) {
     $updateLatest($appointmentItem['appointment_date'] ?? null, $appointmentItem['appointment_type'] ?? lang('UI.patientAppointments'));
 }
-foreach ($examinations as $examinationItem) {
+foreach (array_filter([$workspaceSummary['latest']['examinations'] ?? null]) as $examinationItem) {
     $updateLatest($examinationItem['examination_date'] ?? null, $examinationItem['examination_type'] ?? lang('UI.patientExaminations'));
 }
-foreach ($treatments as $treatmentItem) {
+foreach (array_filter([$workspaceSummary['latest']['treatments'] ?? null]) as $treatmentItem) {
     $updateLatest($treatmentItem['start_date'] ?? null, $treatmentItem['treatment_name'] ?? lang('UI.patientTreatments'));
 }
 if ($latestTimestamp !== null) {
@@ -192,8 +194,8 @@ $lastVisitChipValue = $latestTimestamp !== null ? $lastVisitLabel : lang('UI.pat
 $nextAppointmentLabel = lang('UI.patientNoUpcomingAppointment');
 $nextAppointmentSubLabel = lang('UI.patientAppointmentScheduleState');
 $nextAppointmentTimestamp = null;
-$todayCutoff = strtotime(date('Y-m-d'));
-foreach ($appointments as $appointmentItem) {
+$todayCutoff = strtotime($workspaceSummary['clinic_today'] ?? date('Y-m-d'));
+foreach (array_filter([$workspaceSummary['next_appointment']]) as $appointmentItem) {
     $status = strtolower((string) ($appointmentItem['status'] ?? ''));
     if (in_array($status, ['cancelled', 'completed'], true)) {
         continue;
@@ -217,13 +219,7 @@ foreach ($appointments as $appointmentItem) {
 
 $nextAppointmentChipValue = $nextAppointmentTimestamp !== null ? $nextAppointmentLabel : lang('UI.patientNoneShort');
 
-$activeTreatmentsCount = 0;
-foreach ($treatments as $treatmentItem) {
-    $status = strtolower((string) ($treatmentItem['status'] ?? ''));
-    if (!in_array($status, ['completed', 'cancelled'], true)) {
-        $activeTreatmentsCount++;
-    }
-}
+$activeTreatmentsCount = (int) $workspaceSummary['active_treatments'];
 
 $financeTypeLabel = static function (?string $type): string {
     $type = trim((string) $type);
@@ -335,24 +331,10 @@ $treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatu
     ];
 };
 
-$openClinicalChargeCount = 0;
-$openClinicalChargeTotal = 0.0;
-$paidBilledTreatmentCount = 0;
-$unpaidBilledTreatmentCount = 0;
-foreach ($treatments as $treatmentItem) {
-    $billingMeta = $treatmentBillingMeta($treatmentItem);
-    if (!$billingMeta['is_billed'] && ($billingMeta['amount_raw'] ?? 0) > 0) {
-        $openClinicalChargeCount++;
-        $openClinicalChargeTotal += (float) $billingMeta['amount_raw'];
-    }
-    if ($billingMeta['is_billed']) {
-        if ($billingMeta['has_balance']) {
-            $unpaidBilledTreatmentCount++;
-        } else {
-            $paidBilledTreatmentCount++;
-        }
-    }
-}
+$openClinicalChargeCount = (int) $workspaceSummary['clinical_billing']['open_count'];
+$openClinicalChargeTotal = (float) $workspaceSummary['clinical_billing']['open_amount'];
+$paidBilledTreatmentCount = (int) $workspaceSummary['clinical_billing']['paid_count'];
+$unpaidBilledTreatmentCount = (int) $workspaceSummary['clinical_billing']['unpaid_count'];
 
 $totalCharges = 0.0;
 $totalCollected = 0.0;
@@ -405,39 +387,17 @@ $inventoryUsageSummary = static function (array $row): string {
     return implode(', ', $labels) . ($remaining > 0 ? ' +' . $remaining : '');
 };
 
-foreach ($examinations as $examRow) {
-    $examDate = !empty($examRow['examination_date']) ? substr((string) $examRow['examination_date'], 0, 10) : '';
-    if ($examDate === '') {
-        continue;
+if (isset($workspace_history)) {
+    $sameDayClinicalByDate = $workspace_history['same_day'];
+    foreach ($sameDayClinicalByDate as &$clinicalDay) {
+        foreach (['examinations' => 'examination', 'treatments' => 'treatment'] as $plural => $routeName) {
+            foreach ($clinicalDay[$plural] as &$clinicalLink) {
+                $clinicalLink['url'] = workflow_context_url($routeName . '/' . $clinicalLink['id'], $patientContextReturnTo);
+            }
+            unset($clinicalLink);
+        }
     }
-
-    if (!isset($sameDayClinicalByDate[$examDate])) {
-        $sameDayClinicalByDate[$examDate] = ['examinations' => [], 'treatments' => [], 'captured_amount' => 0.0];
-    }
-
-    $sameDayClinicalByDate[$examDate]['examinations'][] = [
-        'label' => (string) ($examRow['examination_id'] ?? lang('UI.patientClinicalExamination')),
-        'url' => workflow_context_url('examination/' . (int) ($examRow['id'] ?? 0), $patientContextReturnTo),
-    ];
-}
-
-foreach ($treatments as $treatmentRow) {
-    $treatmentDate = !empty($treatmentRow['start_date']) ? substr((string) $treatmentRow['start_date'], 0, 10) : '';
-    if ($treatmentDate === '') {
-        continue;
-    }
-
-    if (!isset($sameDayClinicalByDate[$treatmentDate])) {
-        $sameDayClinicalByDate[$treatmentDate] = ['examinations' => [], 'treatments' => [], 'captured_amount' => 0.0];
-    }
-
-    $billingMeta = $treatmentBillingMeta($treatmentRow);
-    $sameDayClinicalByDate[$treatmentDate]['treatments'][] = [
-        'label' => (string) ($treatmentRow['treatment_name'] ?? lang('UI.patientTreatment')),
-        'url' => workflow_context_url('treatment/' . (int) ($treatmentRow['id'] ?? 0), $patientContextReturnTo),
-        'amount' => (float) ($billingMeta['amount_raw'] ?? 0),
-    ];
-    $sameDayClinicalByDate[$treatmentDate]['captured_amount'] += (float) ($billingMeta['amount_raw'] ?? 0);
+    unset($clinicalDay);
 }
 
 foreach (($moneyTrailForPatient['inventory_usage_rows'] ?? []) as $usageRow) {
@@ -785,6 +745,35 @@ $latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/download/' . $latestImagingAttachment['id']) : null;
 ?>
 
+<?php
+$workspaceHistoryPages = []; $historyNavigation = [];
+if (isset($workspace_history)) {
+    $historyFilter = $workspace_history['query'];
+    $workspaceContext = get_defined_vars();
+    foreach ($workspace_history['pages'] as $section => $candidatePage) {
+        $context = array_replace($workspaceContext, $workspace_history['rows'][$section]);
+        $workspaceHistoryPages[$section] = \App\Services\PatientWorkspaceTimelinePresenter::page(
+            $context, $candidatePage['items'], $candidatePage['next'],
+            $historyFilter['q'], $historyFilter['start'], $historyFilter['end'], 25, $section !== 'timeline'
+        );
+        $parameters = ['tab' => $section];
+        foreach (['q' => 'history_q', 'start' => 'history_start', 'end' => 'history_end'] as $key => $parameter) {
+            if ($historyFilter[$key] !== null && $historyFilter[$key] !== '') { $parameters[$parameter] = $historyFilter[$key]; }
+        }
+        $historyNavigation[$section] = ['latest' => base_url('patient/' . (int) $patient['id']) . '?' . http_build_query($parameters, '', '&', PHP_QUERY_RFC3986), 'next' => null];
+        if ($workspaceHistoryPages[$section]['next'] !== null) {
+            $parameters['history_before'] = rtrim(strtr(base64_encode(json_encode($workspaceHistoryPages[$section]['next'], JSON_THROW_ON_ERROR)), '+/', '-_'), '=');
+            $historyNavigation[$section]['next'] = base_url('patient/' . (int) $patient['id']) . '?' . http_build_query($parameters, '', '&', PHP_QUERY_RFC3986);
+        }
+    }
+    foreach (['examinations', 'appointments', 'treatments'] as $section) {
+        $byId = array_column($$section, null, 'id'); $visible = [];
+        foreach ($workspaceHistoryPages[$section]['matched_keys'] as $key) { if (isset($byId[$key['id']])) { $visible[] = $byId[$key['id']]; } }
+        $$section = $visible;
+    }
+}
+?>
+
 <?= $this->section('content') ?>
 <div class="patient-view mx-auto w-full max-w-none px-2 py-6 sm:px-3 sm:py-8 xl:px-4 2xl:px-5">
     <div class="space-y-8">
@@ -1075,7 +1064,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         aria-controls="examinations-content"
                                         tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                    <i class="fas fa-stethoscope shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabExams')) ?></span> <span class="tab-count shrink-0"><?= count($examinations) ?></span>
+                                    <i class="fas fa-stethoscope shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabExams')) ?></span> <span class="tab-count shrink-0"><?= (int) ($historyCounts['examinations'] ?? count($examinations)) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('appointments', event)" 
                                         id="appointments-tab" 
@@ -1084,7 +1073,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         aria-controls="appointments-content"
                                         tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                    <i class="fas fa-calendar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAppts')) ?></span> <span class="tab-count shrink-0"><?= count($appointments) ?></span>
+                                    <i class="fas fa-calendar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAppts')) ?></span> <span class="tab-count shrink-0"><?= (int) ($historyCounts['appointments'] ?? count($appointments)) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('treatments', event)" 
                                         id="treatments-tab" 
@@ -1093,7 +1082,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         aria-controls="treatments-content"
                                         tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                    <i class="fas fa-tooth shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTreatments')) ?></span> <span class="tab-count shrink-0"><?= count($treatments) ?></span>
+                                    <i class="fas fa-tooth shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTreatments')) ?></span> <span class="tab-count shrink-0"><?= (int) ($historyCounts['treatments'] ?? count($treatments)) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('prescriptions', event)" 
                                         id="prescriptions-tab" 
@@ -1141,19 +1130,20 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                             <div id="historyControls" class="patient-filter-strip hidden">
                                 <div class="relative w-full lg:w-auto lg:min-w-[18rem]">
                                     <input type="text" 
-                                           id="historySearch" 
+                                           id="historySearch" maxlength="200" value="<?= esc($workspace_history['query']['q'] ?? '') ?>"
                                            placeholder="<?= esc(lang('UI.patientSearchHistory')) ?>" 
                                            class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
                                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
                                 </div>
                                 <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                                     <input type="text" data-clinic-date="1"
-                                           id="startDate" 
+                                           id="startDate" value="<?= esc($workspace_history['query']['start'] ?? '') ?>"
                                            class="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
                                     <input type="text" data-clinic-date="1"
-                                           id="endDate" 
+                                           id="endDate" value="<?= esc($workspace_history['query']['end'] ?? '') ?>"
                                            class="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-                                    <button onclick="clearFilters()" 
+                                    <button id="historySearchAll" type="button" onclick="applyHistoryFilters()" class="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"><?= esc(lang('PatientHistory.search')) ?></button>
+                                    <button type="button" onclick="clearFilters()"
                                             class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
                                         <i class="fas fa-undo"></i><span><?= esc(lang('UI.patientClear')) ?></span>
                                     </button>
@@ -1426,6 +1416,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Timeline Tab -->
                         <div id="timeline-content" class="tab-content hidden">
+                            <?= view('patient/partials/history_navigation', ['history_page' => $workspaceHistoryPages['timeline'] ?? null, 'history_navigation' => $historyNavigation['timeline'] ?? null]) ?>
                             <div class="patient-tab-ambient patient-timeline-workspace">
                                 <div class="patient-timeline-workspace-header">
                                     <div class="patient-timeline-heading">
@@ -1440,464 +1431,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                 </div>
                                 <ul class="patient-timeline-list">
                                     <?php 
-                                    // Combine all records into a timeline
-                                    $timeline = [];
-                                    
-                                    // Add examinations
-                                    foreach ($examinations as $exam) {
-                                        $doctorName = trim(($exam['doctor_first_name'] ?? '') . ' ' . ($exam['doctor_last_name'] ?? ''));
-                                        $examStatus = ucfirst((string) ($exam['status'] ?? lang('UI.patientUnknown')));
-                                        $examId = (int) ($exam['id'] ?? 0);
-                                        $examMeta = [];
-                                        $examMeta[] = [
-                                            'icon' => 'fas fa-stethoscope',
-                                            'text' => ucfirst((string) ($exam['examination_type'] ?? lang('UI.patientGeneral'))),
-                                        ];
-                                        if (!empty($exam['chief_complaint'])) {
-                                            $examComplaintPreview = function_exists('mb_strimwidth')
-                                                ? mb_strimwidth((string) $exam['chief_complaint'], 0, 70, '...')
-                                                : (strlen((string) $exam['chief_complaint']) > 67 ? substr((string) $exam['chief_complaint'], 0, 67) . '...' : (string) $exam['chief_complaint']);
-                                            $examMeta[] = [
-                                                'icon' => 'fas fa-comment-medical',
-                                                'text' => $examComplaintPreview,
-                                            ];
-                                        }
-                                        $examInventoryCost = 0.0;
-                                        foreach (($inventoryUsageByExaminationId[$examId] ?? []) as $usageRow) {
-                                            $examInventoryCost += max(0, (float) ($usageRow['total_cost'] ?? 0));
-                                        }
-                                        if ($examInventoryCost > 0.009) {
-                                            $examMeta[] = [
-                                                'icon' => 'fas fa-boxes-stacked',
-                                                'text' => lang('UI.moneyTrailInventoryCost') . ': ' . formatCurrency($examInventoryCost),
-                                            ];
-                                        }
-                                        $timeline[] = [
-                                            'type' => 'examination',
-                                            'date' => $exam['examination_date'],
-                                            'title' => lang('UI.patientTimelineExamTitle', ['type' => ($exam['examination_type'] ?? lang('UI.patientGeneral'))]),
-                                            'description' => $exam['chief_complaint'] ?? lang('UI.patientNoComplaintRecorded'),
-                                            'status' => $exam['status'],
-                                            'status_label' => $examStatus,
-                                            'id' => $exam['id'],
-                                            'doctor' => $doctorName ?: null,
-                                            'icon' => 'fas fa-stethoscope',
-                                            'color' => 'blue',
-                                            'url' => workflow_context_url('examination/' . $exam['id'], $patientContextReturnTo),
-                                            'meta' => $examMeta,
-                                        ];
-                                    }
-                                    
-                                    // Add appointments
-                                    foreach ($appointments as $appt) {
-                                        $doctorName = trim(($appt['doctor_first_name'] ?? '') . ' ' . ($appt['doctor_last_name'] ?? ''));
-                                        $apptStatus = ucfirst((string) ($appt['status'] ?? lang('UI.patientUnknown')));
-                                        $apptMeta = [];
-                                        $apptDateKey = !empty($appt['appointment_date']) ? substr((string) $appt['appointment_date'], 0, 10) : '';
-                                        $sameDayClinical = $apptDateKey !== '' ? ($sameDayClinicalByDate[$apptDateKey] ?? null) : null;
-                                        if (!empty($appt['appointment_time'])) {
-                                            $apptMeta[] = [
-                                                'icon' => 'fas fa-clock',
-                                                'text' => formatTime($appt['appointment_time']),
-                                            ];
-                                        }
-                                        if (!empty($appt['duration'])) {
-                                            $apptMeta[] = [
-                                                'icon' => 'fas fa-hourglass-half',
-                                                'text' => (int) $appt['duration'] . ' ' . lang('UI.patientMinutes'),
-                                            ];
-                                        }
-                                        if (!empty($appt['chair_name'])) {
-                                            $apptMeta[] = [
-                                                'icon' => 'fas fa-door-open',
-                                                'text' => $appt['chair_name'],
-                                            ];
-                                        }
-                                        if (!empty($sameDayClinical)) {
-                                            $sameDayExamCount = count($sameDayClinical['examinations'] ?? []);
-                                            $sameDayTreatmentCount = count($sameDayClinical['treatments'] ?? []);
-                                            $sameDayParts = [];
-                                            if ($sameDayExamCount > 0) {
-                                                $sameDayParts[] = $sameDayExamCount . ' ' . lang('UI.patientClinicalExamination');
-                                            }
-                                            if ($sameDayTreatmentCount > 0) {
-                                                $sameDayParts[] = $sameDayTreatmentCount . ' ' . lang('UI.patientTreatment');
-                                            }
-                                            if ($sameDayParts !== []) {
-                                                $apptMeta[] = [
-                                                    'icon' => 'fas fa-link',
-                                                    'text' => lang('UI.patientSameDayClinicalWork') . ': ' . implode(' / ', $sameDayParts),
-                                                ];
-                                            }
-                                        }
-                                        $timeline[] = [
-                                            'type' => 'appointment',
-                                            'date' => $appt['appointment_date'],
-                                            'title' => lang('UI.patientTimelineAppointmentTitle', ['type' => ($appt['appointment_type'] ?? lang('UI.patientGeneral'))]),
-                                            'description' => $appt['notes'] ?? lang('UI.patientNoNotes'),
-                                            'status' => $appt['status'],
-                                            'status_label' => $apptStatus,
-                                            'id' => $appt['id'],
-                                            'doctor' => $doctorName ?: null,
-                                            'icon' => 'fas fa-calendar',
-                                            'color' => 'green',
-                                            'url' => workflow_context_url('appointment/' . $appt['id'], $patientContextReturnTo),
-                                            'meta' => $apptMeta,
-                                        ];
-                                    }
-                                    
-                                    // Add treatments
-                                    foreach ($treatments as $treatment) {
-                                        $doctorName = trim(($treatment['doctor_first_name'] ?? '') . ' ' . ($treatment['doctor_last_name'] ?? ''));
-                                        $treatmentStatus = ucfirst((string) ($treatment['status'] ?? lang('UI.patientUnknown')));
-                                        $treatmentId = (int) ($treatment['id'] ?? 0);
-                                        $treatmentMeta = [];
-                                        if (!empty($treatment['tooth_number'])) {
-                                            $treatmentMeta[] = [
-                                                'icon' => 'fas fa-tooth',
-                                                'text' => (string) $treatment['tooth_number'],
-                                            ];
-                                        }
-                                        $treatmentBilling = $treatmentBillingMeta($treatment);
-                                        if ($treatmentBilling['amount_text'] !== lang('UI.patientNotBilledYet')) {
-                                            $treatmentMeta[] = [
-                                                'icon' => 'fas fa-dollar-sign',
-                                                'text' => $treatmentBilling['amount_text'],
-                                            ];
-                                        }
-                                        $treatmentMeta[] = [
-                                            'icon' => $treatmentBilling['is_billed'] ? 'fas fa-file-invoice-dollar' : 'fas fa-receipt',
-                                            'text' => $treatmentBilling['status_text'],
-                                        ];
-                                        if ($treatmentBilling['is_billed'] && $treatmentBilling['invoice_number'] !== '') {
-                                            $treatmentMeta[] = [
-                                                'icon' => 'fas fa-hashtag',
-                                                'text' => $treatmentBilling['invoice_number'],
-                                            ];
-                                        }
-                                        if ($treatmentBilling['is_billed']) {
-                                            $treatmentMeta[] = [
-                                                'icon' => 'fas fa-hand-holding-dollar',
-                                                'text' => lang('UI.patientPaidShort') . ': ' . $treatmentBilling['paid_text'],
-                                            ];
-                                            $treatmentMeta[] = [
-                                                'icon' => 'fas fa-scale-balanced',
-                                                'text' => lang('UI.patientBalanceShort') . ': ' . $treatmentBilling['balance_text'],
-                                            ];
-                                        }
-                                        $treatmentInventoryCost = 0.0;
-                                        foreach (($inventoryUsageByTreatmentId[$treatmentId] ?? []) as $usageRow) {
-                                            $treatmentInventoryCost += max(0, (float) ($usageRow['total_cost'] ?? 0));
-                                        }
-                                        if ($treatmentInventoryCost > 0.009) {
-                                            $treatmentMeta[] = [
-                                                'icon' => 'fas fa-boxes-stacked',
-                                                'text' => lang('UI.moneyTrailInventoryCost') . ': ' . formatCurrency($treatmentInventoryCost),
-                                            ];
-                                        }
-                                        $timeline[] = [
-                                            'type' => 'treatment',
-                                            'date' => $treatment['start_date'],
-                                            'title' => lang('UI.patientTimelineTreatmentTitle', ['name' => ($treatment['treatment_name'] ?? lang('UI.patientGeneral'))]),
-                                            'description' => $treatment['treatment_description'] ?? lang('UI.patientNoDescription'),
-                                            'status' => $treatment['status'],
-                                            'status_label' => $treatmentStatus,
-                                            'id' => $treatment['id'],
-                                            'doctor' => $doctorName ?: null,
-                                            'icon' => 'fas fa-tooth',
-                                            'color' => 'purple',
-                                            'url' => workflow_context_url('treatment/' . $treatment['id'], $patientContextReturnTo),
-                                            'meta' => $treatmentMeta,
-                                        ];
-                                    }
-                                    
-                                    // Add prescriptions
-                                    foreach ($prescriptions as $prescription) {
-                                        // Parse medication JSON data
-                                        $medicationName = lang('UI.patientUnknown');
-                                        try {
-                                            $medicines = json_decode($prescription['medication_name'], true);
-                                            if (is_array($medicines) && !empty($medicines)) {
-                                                $medicineNames = [];
-                                                foreach ($medicines as $medicine) {
-                                                    if (isset($medicine['name'])) {
-                                                        $medicineNames[] = $medicine['name'];
-                                                    }
-                                                }
-                                                $medicationName = implode(', ', $medicineNames);
-                                            } else {
-                                                $medicationName = $prescription['medication_name'] ?? lang('UI.patientUnknown');
-                                            }
-                                        } catch (Exception $e) {
-                                            $medicationName = $prescription['medication_name'] ?? lang('UI.patientUnknown');
-                                        }
-                                        $prescriptionStatus = ucfirst((string) ($prescription['status'] ?? lang('UI.patientUnknown')));
-                                        $prescriptionPreviewName = function_exists('mb_strimwidth')
-                                            ? mb_strimwidth((string) $medicationName, 0, 70, '...')
-                                            : (strlen((string) $medicationName) > 67 ? substr((string) $medicationName, 0, 67) . '...' : (string) $medicationName);
-                                        $prescriptionMeta = [];
-                                        $prescriptionMeta[] = [
-                                            'icon' => 'fas fa-pills',
-                                            'text' => $prescriptionPreviewName,
-                                        ];
-                                        if (!empty($prescription['prescribed_date'])) {
-                                            $prescriptionMeta[] = [
-                                                'icon' => 'fas fa-calendar-day',
-                                                'text' => formatDate($prescription['prescribed_date']),
-                                            ];
-                                        }
-                                        
-                                        $timeline[] = [
-                                            'type' => 'prescription',
-                                            'date' => $prescription['prescribed_date'],
-                                            'title' => lang('UI.patientTimelinePrescriptionTitle', ['name' => $medicationName]),
-                                            'description' => $prescription['instructions'] ?? lang('UI.patientNoInstructions'),
-                                            'status' => $prescription['status'],
-                                            'status_label' => $prescriptionStatus,
-                                            'id' => $prescription['id'],
-                                            'icon' => 'fas fa-prescription',
-                                            'color' => 'orange',
-                                            'url' => workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo),
-                                            'meta' => $prescriptionMeta,
-                                        ];
-                                    }
-                                    
-                                    // Add treatment plans / contracts
-                                    foreach (($contracts ?? []) as $contract) {
-                                        $contractStatus = ucfirst((string) ($contract['status'] ?? lang('UI.patientUnknown')));
-                                        $contractReference = (string) ($contract['id'] ?? '');
-                                        $contractMeta = [];
-                                        if (isset($contract['total_cost'])) {
-                                            $contractMeta[] = [
-                                                'icon' => 'fas fa-file-signature',
-                                                'text' => formatCurrency((float) $contract['total_cost']),
-                                            ];
-                                        }
-                                        if (!empty($contract['currency'])) {
-                                            $contractMeta[] = [
-                                                'icon' => 'fas fa-coins',
-                                                'text' => (string) $contract['currency'],
-                                            ];
-                                        }
-                                        $timeline[] = [
-                                            'type' => 'contract',
-                                            'date' => $contract['created_at'] ?? null,
-                                            'title' => lang('UI.patientTimelineContractTitle', ['reference' => ($contractReference !== '' ? $contractReference : lang('UI.patientUnknown'))]),
-                                            'description' => $contract['notes'] ?? lang('UI.patientTreatmentPlanTimelineDescription'),
-                                            'status' => $contract['status'] ?? null,
-                                            'status_label' => $contractStatus,
-                                            'id' => $contract['id'],
-                                            'icon' => 'fas fa-file-signature',
-                                            'color' => 'amber',
-                                            'url' => workflow_context_url('contracts/' . $contract['id'], $patientContextReturnTo),
-                                            'meta' => $contractMeta,
-                                        ];
-                                    }
+                                    $timeline = $workspaceHistoryPages['timeline']['items'] ?? \App\Services\PatientWorkspaceTimelinePresenter::build(get_defined_vars());
 
-                                    $timelineImagingCategories = $attachment_category_options['Dental Imaging'] ?? [];
-                                    foreach (($attachments ?? []) as $attachment) {
-                                        $attachmentCategory = (string) ($attachment['category'] ?? '');
-                                        if (!in_array($attachmentCategory, $timelineImagingCategories, true)) {
-                                            continue;
-                                        }
-
-                                        $timeline[] = [
-                                            'type' => 'imaging',
-                                            'date' => $attachment['created_at'] ?? null,
-                                            'title' => lang('UI.patientTimelineImagingTitle', ['name' => ($attachmentCategory !== '' ? $attachmentCategory : lang('UI.patientLatestImagingTitle'))]),
-                                            'description' => $attachment['notes'] ?? ($attachment['original_name'] ?? lang('UI.patientAttachmentFallback')),
-                                            'status' => null,
-                                            'status_label' => lang('UI.patientRecorded'),
-                                            'id' => $attachment['id'],
-                                            'icon' => 'fas fa-x-ray',
-                                            'color' => 'slate',
-                                            'url' => base_url('patient/' . $patient['id'] . '?tab=attachments'),
-                                            'meta' => [
-                                                [
-                                                    'icon' => 'fas fa-file-image',
-                                                    'text' => $attachment['original_name'] ?? lang('UI.patientAttachmentFallback'),
-                                                ],
-                                            ],
-                                        ];
-                                    }
-
-                                    // Add financial transactions
-                                    foreach ($finances as $finance) {
-                                        $financeStatus = ucfirst((string) ($finance['payment_status'] ?? lang('UI.patientUnknown')));
-                                        $financeAmount = $finance['total_amount'] ?? (($finance['amount'] ?? 0) - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0));
-                                        $financeMeta = [];
-                                        $financeMeta[] = [
-                                            'icon' => 'fas fa-dollar-sign',
-                                            'text' => formatCurrency((float) $financeAmount),
-                                        ];
-                                        if (!empty($finance['payment_method'])) {
-                                            $financeMeta[] = [
-                                                'icon' => 'fas fa-wallet',
-                                                'text' => ucfirst(str_replace('_', ' ', (string) $finance['payment_method'])),
-                                            ];
-                                        }
-                                        foreach (($clinicalSourcesByFinanceId[(int) ($finance['id'] ?? 0)] ?? []) as $clinicalSource) {
-                                            $financeMeta[] = [
-                                                'icon' => $clinicalSource['icon'] ?? 'fas fa-link',
-                                                'text' => lang('UI.patientClinicalSource') . ': ' . (string) ($clinicalSource['label'] ?? lang('UI.patientClinicalWork')),
-                                            ];
-                                        }
-                                        foreach (($providerPayoutsByFinanceId[(int) ($finance['id'] ?? 0)] ?? []) as $providerPayout) {
-                                            $financeMeta[] = [
-                                                'icon' => 'fas fa-user-doctor',
-                                                'text' => lang('UI.patientProviderCompensation') . ': ' . (string) ($providerPayout['provider_name'] ?? lang('UI.moneyTrailProvider')) . ' - ' . (string) ($providerPayout['share_text'] ?? ''),
-                                            ];
-                                        }
-                                        $timeline[] = [
-                                            'type' => 'finance',
-                                            'date' => $finance['created_at'],
-                                            'title' => lang('UI.patientTimelinePaymentTitle', ['type' => ($finance['transaction_type'] ?? lang('UI.patientUnknown'))]),
-                                            'description' => $finance['description'] ?? lang('UI.patientNoDescription'),
-                                            'status' => $finance['payment_status'],
-                                            'status_label' => $financeStatus,
-                                            'id' => $finance['id'],
-                                            'icon' => 'fas fa-dollar-sign',
-                                            'color' => 'green',
-                                            'url' => workflow_context_url('finance/' . $finance['id'], $patientContextReturnTo),
-                                            'meta' => $financeMeta,
-                                        ];
-                                    }
-
-                                    // Add invoice settlement rows recorded against patient invoices.
-                                    foreach (($moneyTrailForPatient['payment_rows'] ?? []) as $paymentRow) {
-                                        $paymentFinanceId = (int) ($paymentRow['finance_id'] ?? 0);
-                                        if ($paymentFinanceId <= 0) {
-                                            continue;
-                                        }
-
-                                        $paymentType = strtolower((string) ($paymentRow['type'] ?? 'payment'));
-                                        $paymentAmount = max(0, (float) ($paymentRow['amount'] ?? 0));
-                                        $paymentReference = trim((string) ($paymentRow['transaction_id'] ?? ('#' . $paymentFinanceId)));
-                                        $paymentMeta = [
-                                            [
-                                                'icon' => 'fas fa-dollar-sign',
-                                                'text' => formatCurrency($paymentAmount),
-                                            ],
-                                            [
-                                                'icon' => 'fas fa-file-invoice-dollar',
-                                                'text' => $paymentReference,
-                                            ],
-                                        ];
-                                        if (!empty($paymentRow['payment_method'])) {
-                                            $paymentMeta[] = [
-                                                'icon' => 'fas fa-wallet',
-                                                'text' => $financeMethodLabel((string) $paymentRow['payment_method']),
-                                            ];
-                                        }
-                                        foreach (($clinicalSourcesByFinanceId[$paymentFinanceId] ?? []) as $clinicalSource) {
-                                            $paymentMeta[] = [
-                                                'icon' => $clinicalSource['icon'] ?? 'fas fa-link',
-                                                'text' => lang('UI.patientClinicalSource') . ': ' . (string) ($clinicalSource['label'] ?? lang('UI.patientClinicalWork')),
-                                            ];
-                                        }
-
-                                        $timeline[] = [
-                                            'type' => 'finance_payment',
-                                            'date' => $paymentRow['payment_date'] ?? $paymentRow['created_at'] ?? null,
-                                            'title' => lang('UI.patientTimelinePaymentTitle', ['type' => $financeTypeLabel($paymentType)]),
-                                            'description' => $paymentRow['notes'] ?? $paymentReference,
-                                            'status' => $paymentType,
-                                            'status_label' => $financeTypeLabel($paymentType),
-                                            'id' => $paymentRow['id'] ?? null,
-                                            'icon' => 'fas fa-hand-holding-dollar',
-                                            'color' => in_array($paymentType, ['refund', 'void'], true) ? 'orange' : 'green',
-                                            'url' => workflow_context_url('finance/' . $paymentFinanceId, $patientContextReturnTo),
-                                            'meta' => $paymentMeta,
-                                        ];
-                                    }
-
-                                    // Add provider-share rows so the patient timeline shows doctor compensation impact.
-                                    foreach (($moneyTrailForPatient['provider_payouts'] ?? []) as $providerRow) {
-                                        $providerFinanceId = (int) ($providerRow['finance_id'] ?? 0);
-                                        if ($providerFinanceId <= 0) {
-                                            continue;
-                                        }
-
-                                        $providerName = $providerPayoutName($providerRow);
-                                        $providerShare = max(0, (float) ($providerRow['provider_share_amount'] ?? 0));
-                                        $providerPaid = max(0, (float) ($providerRow['provider_paid_amount'] ?? 0));
-                                        $providerBalance = max(0, (float) ($providerRow['provider_balance_due'] ?? 0));
-                                        $providerMeta = [
-                                            [
-                                                'icon' => 'fas fa-user-doctor',
-                                                'text' => $providerName,
-                                            ],
-                                            [
-                                                'icon' => 'fas fa-scale-balanced',
-                                                'text' => lang('UI.moneyTrailProviderShare') . ': ' . formatCurrency($providerShare),
-                                            ],
-                                            [
-                                                'icon' => 'fas fa-hand-holding-dollar',
-                                                'text' => lang('UI.moneyTrailPaid') . ': ' . formatCurrency($providerPaid),
-                                            ],
-                                            [
-                                                'icon' => 'fas fa-wallet',
-                                                'text' => lang('UI.moneyTrailProviderRemaining') . ': ' . formatCurrency($providerBalance),
-                                            ],
-                                        ];
-
-                                        $timeline[] = [
-                                            'type' => 'provider_payout',
-                                            'date' => $providerRow['created_at'] ?? null,
-                                            'title' => lang('Finance.providerPayout') . ' - ' . $providerName,
-                                            'description' => trim((string) ($providerRow['notes'] ?? '')) !== '' ? (string) $providerRow['notes'] : (string) ($providerRow['transaction_id'] ?? lang('Finance.providerShare')),
-                                            'status' => $providerRow['status'] ?? null,
-                                            'status_label' => $financeStatusLabel($providerRow['status'] ?? null),
-                                            'id' => $providerRow['id'] ?? null,
-                                            'icon' => 'fas fa-user-doctor',
-                                            'color' => $providerBalance > 0.009 ? 'purple' : 'green',
-                                            'url' => workflow_context_url('finance/' . $providerFinanceId, $patientContextReturnTo),
-                                            'meta' => $providerMeta,
-                                        ];
-                                    }
-
-                                    // Add material usage rows linked to patient treatments.
-                                    foreach (($moneyTrailForPatient['inventory_usage_rows'] ?? []) as $usageRow) {
-                                        $usageTreatmentId = (int) ($usageRow['treatment_id'] ?? 0);
-                                        $usageTreatmentLabel = trim((string) ($usageRow['treatment_name'] ?? $usageRow['treatment_number'] ?? ''));
-                                        $usageCost = max(0, (float) ($usageRow['total_cost'] ?? 0));
-                                        $usageMeta = [
-                                            [
-                                                'icon' => 'fas fa-boxes-stacked',
-                                                'text' => $inventoryUsageSummary($usageRow),
-                                            ],
-                                            [
-                                                'icon' => 'fas fa-dollar-sign',
-                                                'text' => formatCurrency($usageCost),
-                                            ],
-                                        ];
-                                        if ($usageTreatmentLabel !== '') {
-                                            $usageMeta[] = [
-                                                'icon' => 'fas fa-tooth',
-                                                'text' => $usageTreatmentLabel,
-                                            ];
-                                        }
-
-                                        $timeline[] = [
-                                            'type' => 'inventory_usage',
-                                            'date' => $usageRow['usage_date'] ?? $usageRow['created_at'] ?? null,
-                                            'title' => lang('UI.moneyTrailInventoryUsage'),
-                                            'description' => trim((string) ($usageRow['notes'] ?? '')) !== '' ? (string) $usageRow['notes'] : $inventoryUsageSummary($usageRow),
-                                            'status' => 'recorded',
-                                            'status_label' => lang('UI.patientRecorded'),
-                                            'id' => $usageRow['id'] ?? null,
-                                            'icon' => 'fas fa-boxes-stacked',
-                                            'color' => 'amber',
-                                            'url' => $usageTreatmentId > 0 ? workflow_context_url('treatment/' . $usageTreatmentId, $patientContextReturnTo) : '',
-                                            'meta' => $usageMeta,
-                                        ];
-                                    }
-                                    
-                                    // Sort by date
-                                    usort($timeline, function($a, $b) {
-                                        return strtotime($b['date']) - strtotime($a['date']);
-                                    });
-                                    
                                     foreach ($timeline as $index => $item): 
                                     ?>
                                     <li class="patient-timeline-node">
@@ -1972,7 +1507,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         <li>
                                             <div class="text-center py-8">
                                                 <i class="fas fa-history text-gray-400 text-4xl mb-4"></i>
-                                                <p class="text-gray-500"><?= esc(lang('UI.patientNoHistoryRecords')) ?></p>
+                                                <p class="text-gray-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoHistoryRecords')) ?></p>
                                             </div>
                                         </li>
                                     <?php endif; ?>
@@ -2266,6 +1801,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
+                            <?= view('patient/partials/history_navigation', ['history_page' => $workspaceHistoryPages['examinations'] ?? null, 'history_navigation' => $historyNavigation['examinations'] ?? null]) ?>
                             <section class="patient-tab-ambient patient-exam-workspace">
                                 <div class="patient-exam-header">
                                     <div class="patient-exam-heading">
@@ -2277,7 +1813,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                     <div class="patient-exam-header-actions">
                                         <div class="patient-exam-count">
-                                            <strong><?= count($examinations) ?></strong>
+                                            <strong><?= (int) ($historyCounts['examinations'] ?? count($examinations)) ?></strong>
                                             <span><?= esc(lang('UI.patientTabExams')) ?></span>
                                         </div>
                                         <?php if (has_permission('examinations', 'create')): ?>
@@ -2345,12 +1881,12 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     </div>
                                     <div class="patient-filter-empty hidden text-center py-10">
                                         <i class="fas fa-search text-slate-300 text-4xl mb-3"></i>
-                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoExaminations')) ?></p>
+                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoExaminations')) ?></p>
                                     </div>
                                 <?php else: ?>
                                     <div class="patient-exam-empty text-center py-10">
                                         <i class="fas fa-stethoscope text-slate-300 text-4xl mb-3"></i>
-                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoExaminations')) ?></p>
+                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoExaminations')) ?></p>
                                     </div>
                                 <?php endif; ?>
                             </section>
@@ -2358,6 +1894,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
                         <!-- Appointments Tab -->
                         <div id="appointments-content" class="tab-content hidden">
+                            <?= view('patient/partials/history_navigation', ['history_page' => $workspaceHistoryPages['appointments'] ?? null, 'history_navigation' => $historyNavigation['appointments'] ?? null]) ?>
                             <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-blue-50/65 to-emerald-50/60 shadow-xl shadow-slate-200/60">
                                 <div class="pointer-events-none absolute inset-0 opacity-90">
                                     <div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-blue-400/25 blur-3xl"></div>
@@ -2372,7 +1909,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientAppointments')) ?></h3>
-                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= count($appointments) ?> <?= esc(lang('UI.patientTabAppts')) ?></span>
+                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= (int) ($historyCounts['appointments'] ?? count($appointments)) ?> <?= esc(lang('UI.patientTabAppts')) ?></span>
                                                 </div>
                                                 <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
                                             </div>
@@ -2404,7 +1941,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                         $appointmentDateKey = !empty($apt['appointment_date']) ? substr((string) $apt['appointment_date'], 0, 10) : '';
                                                         $appointmentClinical = $appointmentDateKey !== '' ? ($sameDayClinicalByDate[$appointmentDateKey] ?? null) : null;
                                                         $appointmentClinicalCount = !empty($appointmentClinical)
-                                                            ? count($appointmentClinical['examinations'] ?? []) + count($appointmentClinical['treatments'] ?? [])
+                                                            ? (int) ($appointmentClinical['examination_count'] ?? count($appointmentClinical['examinations'] ?? [])) + (int) ($appointmentClinical['treatment_count'] ?? count($appointmentClinical['treatments'] ?? []))
                                                             : 0;
                                                         $appointmentStatusKey = strtolower((string) ($apt['status'] ?? ''));
                                                         $appointmentStatusLabel = match ($appointmentStatusKey) {
@@ -2485,7 +2022,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     <div class="relative px-6 py-8">
                                         <div class="rounded-2xl border border-dashed border-blue-200 bg-white/70 px-6 py-12 text-center shadow-inner">
                                             <i class="fas fa-calendar-times mb-3 text-4xl text-blue-200"></i>
-                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoAppointments')) ?></p>
+                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoAppointments')) ?></p>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -2493,6 +2030,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                         </div>
                         <!-- Treatments Tab -->
                         <div id="treatments-content" class="tab-content hidden">
+                            <?= view('patient/partials/history_navigation', ['history_page' => $workspaceHistoryPages['treatments'] ?? null, 'history_navigation' => $historyNavigation['treatments'] ?? null]) ?>
                             <section class="relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white via-rose-50/55 to-cyan-50/60 shadow-xl shadow-slate-200/60">
                                 <div class="pointer-events-none absolute inset-0 opacity-80">
                                     <div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-pink-300/25 blur-3xl"></div>
@@ -2507,7 +2045,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             <div>
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientTreatments')) ?></h3>
-                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= count($treatments) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
+                                                    <span class="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200/70"><?= (int) ($historyCounts['treatments'] ?? count($treatments)) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
                                                 </div>
                                                 <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientBilling')) ?> / <?= esc(lang('UI.patientStatus')) ?> / <?= esc(lang('Finance.provider')) ?></p>
                                             </div>
@@ -2672,7 +2210,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                     <div class="relative px-6 pb-8">
                                         <div class="rounded-2xl border border-dashed border-pink-200 bg-white/70 px-6 py-12 text-center shadow-inner">
                                             <i class="fas fa-tooth mb-3 text-4xl text-pink-200"></i>
-                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoTreatments')) ?></p>
+                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoTreatments')) ?></p>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -3438,7 +2976,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         toothUpdateGenericError: '<?= esc(lang('UI.patientToothUpdateGenericError'), 'js') ?>',
         unknown: '<?= esc(lang('UI.patientUnknown'), 'js') ?>'
     };
-    const patientMiniOdontogramData = <?= json_encode(array_values($odontogram ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    const patientMiniOdontogramData = <?= json_encode(array_values($odontogram ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
     function initPatientMiniOdontogramPreview() {
         const wrapper = document.querySelector('.patient-odontogram-mini-svg');
@@ -3620,6 +3158,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         
         // Add event listeners
         document.getElementById('historySearch').addEventListener('input', filterHistory);
+        document.getElementById('historySearch').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); applyHistoryFilters(); } });
         document.getElementById('startDate').addEventListener('change', filterHistory);
         document.getElementById('endDate').addEventListener('change', filterHistory);
         const patientTabs = Array.from(document.querySelectorAll('.tab-button'));
@@ -3788,6 +3327,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         }
 
         const nextUrl = new URL(window.location.href);
+        if (nextUrl.searchParams.get('tab') !== tabName) { nextUrl.searchParams.delete('history_before'); }
         if (tabName === 'details') {
             nextUrl.searchParams.delete('tab');
         } else {
@@ -3800,7 +3340,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             historyControls.classList.toggle('hidden', tabName === 'details');
         }
         
-        // Apply filters to the current tab
+        // Bounded tabs were filtered across their finite candidate batch on the server.
+        if (isBoundedHistoryTab(tabName)) {
+            return false;
+        }
         if (tabName === 'timeline') {
             filterTimeline();
         } else if (tabName !== 'details') {
@@ -3814,7 +3357,25 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         return false;
     }
 
+    function isBoundedHistoryTab(tab) {
+        return ['timeline', 'examinations', 'appointments', 'treatments'].includes(tab);
+    }
+
+    function applyHistoryFilters() {
+        if (!isBoundedHistoryTab(currentTab)) { filterHistory(); return; }
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', currentTab);
+        url.searchParams.delete('history_before');
+        const filters = {history_q: document.getElementById('historySearch').value, history_start: document.getElementById('startDate').value, history_end: document.getElementById('endDate').value};
+        for (const [key, raw] of Object.entries(filters)) {
+            const value = key === 'history_q' ? raw.trim() : (window.parseClinicDateToIso ? window.parseClinicDateToIso(raw) : raw);
+            if (value) { url.searchParams.set(key, value); } else { url.searchParams.delete(key); }
+        }
+        window.location.assign(url.toString());
+    }
+
     function filterHistory() {
+        if (isBoundedHistoryTab(currentTab)) { return; }
         if (currentTab === 'timeline') {
             filterTimeline();
         } else if (currentTab !== 'details') {
@@ -4059,6 +3620,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         document.getElementById('historySearch').value = '';
         document.getElementById('startDate').value = '';
         document.getElementById('endDate').value = '';
+        if (isBoundedHistoryTab(currentTab)) { applyHistoryFilters(); return; }
         
         if (currentTab === 'timeline') {
             filteredTimelineData = [...allTimelineData];
@@ -4254,11 +3816,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         <?php foreach ($odontogram as $tooth): ?>
         {
             tooth_number: <?= $tooth['tooth_number'] ?>,
-            condition_type: <?= json_encode((string) ($tooth['condition_type'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-            condition_description: <?= json_encode((string) ($tooth['condition_description'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-            treatment_notes: <?= json_encode((string) ($tooth['treatment_notes'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-            treatment_status: <?= json_encode((string) ($tooth['treatment_status'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-            treatment_date: <?= json_encode((string) ($tooth['treatment_date'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+            condition_type: <?= json_encode((string) ($tooth['condition_type'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            condition_description: <?= json_encode((string) ($tooth['condition_description'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            treatment_notes: <?= json_encode((string) ($tooth['treatment_notes'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            treatment_status: <?= json_encode((string) ($tooth['treatment_status'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            treatment_date: <?= json_encode((string) ($tooth['treatment_date'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
         },
         <?php endforeach; ?>
     ];

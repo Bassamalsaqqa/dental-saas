@@ -24,7 +24,7 @@ Last updated: 2026-10-22 (protected M2; consolidated autonomous development in D
 
 ## Known operational limits
 
-- Confirmed unsafe inline JSON remains inside protected odontogram data serialization. The timeline counterpart is corrected, but chart internals remain unchanged under the Owner safeguard. Specific authorization to harden that serialization boundary is required before release; this is not a waived security risk.
+- The Owner specifically authorized a JSON-serialization-only odontogram correction after a confirmed script-breakout finding. Mini/full decoded chart values, SVG assets, rendering and snapshots are preserved; focused template/browser/golden checks pass. No broader chart modification is authorized.
 - Native production browser certification remains outstanding, as recorded above. No fresh power-loss or database restoration test is claimed.
 - Ambiguous/historical partial signing evidence and unreferenced artifact retention require controlled operator decisions; no automatic repair/deletion.
 - Existing guardrail drift is not a passing gate. No broad guardrail rerun for documentation-only discovery.
