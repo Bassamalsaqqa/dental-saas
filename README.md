@@ -1,5 +1,9 @@
 # DentaCare SaaS
 
+<!-- proprietary-license-notice: Bassamalsaqqa -->
+> **License:** Proprietary. Copyright (c) 2026 Bassamalsaqqa. All rights reserved for the original application code. Third-party components retain their own licenses. See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+
 Multi-tenant dental clinic management built with CodeIgniter 4, PHP views, Tailwind CSS, jQuery/Select2, and MySQL.
 
 ## Product Surface

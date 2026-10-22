@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "dental",
   "version": "1.0.0",
   "description": "CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure. More information can be found at the [official site](https://codeigniter.com).",
@@ -20,7 +21,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/codeigniter4/framework/issues"
