@@ -9,7 +9,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 class WhatsAppClient
 {
     protected PlatformSecretModel $platformSecretModel;
-    protected CURLRequest $http;
+    protected ?CURLRequest $http;
     protected string $baseUrl;
     protected string $defaultApiVersion;
     protected int $defaultRetryDelaySeconds;
@@ -17,7 +17,7 @@ class WhatsAppClient
     public function __construct(?CURLRequest $http = null)
     {
         $this->platformSecretModel = new PlatformSecretModel();
-        $this->http = $http ?: \Config\Services::curlrequest();
+        $this->http = $http;
         $this->baseUrl = rtrim((string) (env('wa.graph_base_url') ?: 'https://graph.facebook.com'), '/');
         $this->defaultApiVersion = (string) (env('wa.graph_api_version') ?: 'v22.0');
         $this->defaultRetryDelaySeconds = 30;
@@ -198,7 +198,10 @@ class WhatsAppClient
         $sendWithPhoneNumberId = function (string $targetPhoneNumberId) use ($apiVersion, $accessToken, $timeout, $requestBody) {
             $endpoint = $this->baseUrl . '/' . $apiVersion . '/' . rawurlencode($targetPhoneNumberId) . '/messages';
 
-            return $this->http->request('POST', $endpoint, [
+            // Failed CI clients retain request options; never reuse a default client.
+            $http = $this->http ?? \Config\Services::curlrequest([], null, null, false);
+
+            return $http->request('POST', $endpoint, [
                 'http_errors' => false,
                 'timeout' => $timeout,
                 'headers' => [
