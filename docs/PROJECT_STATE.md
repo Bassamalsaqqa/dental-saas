@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-10-22 (protected M2; consolidated autonomous development in Draft PR #20).
+Last updated: 2026-10-23 (protected M2; consolidated nonproduction candidate in PR #20).
 
 ## Deployed source
 
@@ -22,13 +22,20 @@ Last updated: 2026-10-22 (protected M2; consolidated autonomous development in D
 - No merge, deployment, migration, activation, production writes or customer-data changes without separate Owner authorization. No GitHub Actions; no broad audit/test repetition.
 - Preserve odontogram SVG/rendering/snapshots and signed clinical evidence. The Owner expanded nonproduction scope to the reconciled roadmap; financial/legal/clinical policies are not invented. See the compact execution matrix in `refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md`.
 
+## Native synthetic acceptance checkpoint
+
+- Runtime-tested source: `8f426fcdbf61a6aa805285e0ac925dc47f92c610`, tree `9118bb36e08f5597580256a95497ef346861f0e0`; every exported file verified. Later documentation-only commits must retain identical application/public trees or receive affected retesting.
+- Seven targeted schema units: 82 preservation checks on PHP8.3.35/MariaDB11.8.9; no grants, remapping or persistent feature activation. Seventeen actual-service financial checks preserve cash/invoice history through explicit credits/application/return and retries.
+- Actual HTTPS browser checks cover EN/AR patient-finance desktop/mobile, Arabic mobile hours, and both language-switch entrypoints. The observed stale-query locale defect is corrected; 134 actual-method checks and three native language transitions pass, with zero new page errors.
+- Synthetic restore: all78 tables, their schema definitions/30FKs and four captured writable files match separate restore targets. Off-host SQL/archive retrieval is verified. This is a synthetic checkpoint, not a fresh production backup. Entire writable/configuration remains the required production coverage, including signing journals/staging/generated evidence when present.
+
 ## Known operational limits
 
 - The Owner specifically authorized a JSON-serialization-only odontogram correction after a confirmed script-breakout finding. Mini/full decoded chart values, SVG assets, rendering and snapshots are preserved; focused template/browser/golden checks pass. No broader chart modification is authorized.
-- Native production browser certification remains outstanding, as recorded above. No fresh power-loss or database restoration test is claimed.
+- Native production browser certification remains outstanding, as recorded above. A separate synthetic Hostinger rehearsal now has actual LiteSpeed HTTPS/EN-AR acceptance and verified database/files restore; this is not a production restore or power-loss test.
 - Ambiguous/historical partial signing evidence and unreferenced artifact retention require controlled operator decisions; no automatic repair/deletion.
 - Existing guardrail drift is not a passing gate. No broad guardrail rerun for documentation-only discovery.
-- Hostinger MCP remains unavailable; current SSH runtime/schema checks were read-only. Production SHA/tree were reconfirmed unchanged. No production writes are authorized by this campaign.
+- Hostinger MCP is authenticated after Owner reauthorization. The Owner separately authorized a cost-free isolated native rehearsal: new restricted synthetic databases, private source/storage and a new guarded dentarehearsal.palsync.net webroot. Existing production/staging installations are preserved. No production writes, migrations or deployment are authorized.
 
 ## References
 
