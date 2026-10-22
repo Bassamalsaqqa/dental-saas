@@ -1,6 +1,6 @@
 # M2-C invoice corrections: proposed policy and architecture
 
-Status: OWNER_POLICY_APPROVED ? isolated implementation in progress; no release acceptance. No runtime/schema change or migration. Base f86376a4a6c8f6bf0fe4471f08093af71e76e042 / tree4f12c340f8869b4b8f8aff57881c4b29ee98a72c. Original checkout and production untouched.
+Status: OWNER_POLICY_APPROVED; isolated implementation and focused synthetic acceptance complete pending final review/release gates. Runtime/additive schema changes exist only in the review branch and disposable synthetic schemas. Base f86376a4a6c8f6bf0fe4471f08093af71e76e042 / tree4f12c340f8869b4b8f8aff57881c4b29ee98a72c. Original checkout and production untouched.
 
 ## Existing behavior confirmed by Codex
 
@@ -26,7 +26,7 @@ Status: OWNER_POLICY_APPROVED ? isolated implementation in progress; no release 
 
 Cash-basis example (no prior noncash adjustment): issued100, cash received100, credit40 -> net charge60, AR0, refundable/customer credit40, cash still100. Explicit refund40 -> cash net60, AR0, customer credit0. Unpaid100 credited20 -> AR80, cash0. Refund without credit remains settlement reversal and can reopen AR. Gross invoice, credit amount, noncash settlements, collected cash, refunds, AR and customer credit must each be visible. Existing noncash adjustments require distinct allocation/consumption rules to prevent double relief; do not derive refundable cash from generic amount_paid. Missing/ambiguous historical FX, line allocations or payment provenance require review rather than guesses.
 
-## Proposed architecture (not implemented)
+## Architecture baseline (implementation evidence governs current status)
 
 - Add a dedicated append-only invoice correction ledger: header and item tables plus a locked per-clinic document-sequence row. Schema design must justify each column; no new general finances.transaction_type enum by default. If explicit receipt/credit/replacement application records are needed, use an additive allocation table rather than rewriting finance_payments history.
 - Header: clinic, original invoice, type/status, original document/patient/tax snapshot, reason, immutable issued number and date, currency and historical FX snapshot, canonical payload hash/idempotency identity, creator/issuer/audit references. Lines: immutable source reference (where positive evidence exists), credited subtotal/discount/tax/gross in original and base representations, explicit allocation. Precision uses canonical decimal amounts, deterministic rounding and caps in both currencies; never silently recalculate old exchange rates.

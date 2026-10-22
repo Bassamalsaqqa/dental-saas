@@ -29,7 +29,7 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | Scheduling readiness and Owner integration | `SaaS/PRODUCTION_READINESS_2026-10-16.md`, `SaaS/STAGING_CERTIFICATION_RUNBOOK.md`, `SaaS/OWNER_INTEGRATION_AND_READINESS.md` |
 | Provider payout lifecycle and native currency (deployed M2; PR18 approved) | `M2_PROVIDER_PAYOUT_EVIDENCE_20261021.md` |
 | Contract consent publication/recovery (deployed M2; final external review Owner-waived) | `M2_CONTRACT_SIGNING_EVIDENCE_20261021.md` |
-| M2-C invoice corrections: adopted policy and draft evidence | `M2C_INVOICE_CORRECTION_DISCOVERY.md`, `M2C_INVOICE_CORRECTION_POLICY.md`, `M2C_IMPLEMENTATION_EVIDENCE_20261021.md` |
+| M2-C invoice corrections: adopted policy and draft evidence | `M2C_INVOICE_CORRECTION_DISCOVERY.md`, `M2C_INVOICE_CORRECTION_POLICY.md`, `M2C_IMPLEMENTATION_EVIDENCE_20261021.md`, `M2C_RELEASE_PROCEDURE.md` |
 | Control-plane entitlements | `SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md` |
 
 

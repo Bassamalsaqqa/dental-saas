@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-10-21 (M2 deployment evidence reconciled; M2-C isolated discovery).
+Last updated: 2026-10-22 (M2 protected; M2-C focused acceptance and exact-head review preparation).
 
 ## Deployed source
 
@@ -26,7 +26,7 @@ Last updated: 2026-10-21 (M2 deployment evidence reconciled; M2-C isolated disco
 - Native production browser certification remains outstanding, as recorded above. No fresh power-loss or database restoration test is claimed.
 - Ambiguous/historical partial signing evidence and unreferenced artifact retention require controlled operator decisions; no automatic repair/deletion.
 - Existing guardrail drift is not a passing gate. No broad guardrail rerun for documentation-only discovery.
-- Hostinger MCP unavailable in the current tool inventory; prior authorized operations used SSH. No production operations are part of current M2-C discovery.
+- Hostinger MCP unavailable in the current tool inventory; prior authorized operations used SSH. No production operations are part of current M2-C acceptance.
 
 ## References
 

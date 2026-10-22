@@ -346,7 +346,9 @@ class MoneyTrailService
                 $summary['patient_credit'] += (float) ($row['correction_position']['patient_credit_base'] ?? 0);
                 $summary['credit_applied_in'] += (float) ($row['correction_position']['incoming_base'] ?? 0);
                 $summary['credit_applied_out'] += (float) ($row['correction_position']['outgoing_base'] ?? 0);
-                $summary['balance_due'] += max(0, (float) ($row['balance_due'] ?? 0));
+                if (($row['payment_status'] ?? '') !== 'cancelled') {
+                    $summary['balance_due'] += max(0, (float) ($row['balance_due'] ?? 0));
+                }
             } elseif (in_array($type, ['payment', 'adjustment'], true)) {
                 $summary['paid'] += $amount;
             } elseif ($type === 'refund') {

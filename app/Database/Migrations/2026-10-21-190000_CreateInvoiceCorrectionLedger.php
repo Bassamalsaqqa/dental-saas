@@ -8,8 +8,14 @@ class CreateInvoiceCorrectionLedger extends Migration
     public function up()
     {
         $this->db->resetDataCache();
-        if (!$this->db->tableExists('permissions') || !$this->db->fieldExists('module','permissions') || !$this->db->fieldExists('action','permissions')) throw new \RuntimeException('Canonical permission schema unavailable.');
+        if (!$this->db->tableExists('permissions')) throw new \RuntimeException('Canonical permission schema unavailable.');
+        foreach (['name', 'module', 'action', 'description'] as $column) {
+            if (!$this->db->fieldExists($column, 'permissions')) throw new \RuntimeException('Canonical permission schema unavailable.');
+        }
         foreach(self::TABLES as $table) if($this->db->tableExists($table)) throw new \RuntimeException('Correction ledger already or partially exists; inspect before migration.');
+        // Validate permission identity before any nontransactional DDL is issued.
+        $existing=$this->db->table('permissions')->where('module','finance')->where('action','approve_corrections')->countAllResults();
+        if($existing>1)throw new \RuntimeException('Ambiguous correction approval permission.');
         $defs = ['invoice_corrections'=>['fields'=>['id'=>['type'=>'BIGINT',
 'constraint'=>20,
 'unsigned'=>true,
@@ -202,16 +208,19 @@ class CreateInvoiceCorrectionLedger extends Migration
             if(!$this->forge->createTable($table,false,['ENGINE'=>'InnoDB','DEFAULT CHARSET'=>'utf8mb4','COLLATE'=>'utf8mb4_unicode_ci'])) throw new \RuntimeException('Correction ledger creation failed; DDL is not transactional, preserve evidence and inspect.');
         }
 
-        $existing=$this->db->table('permissions')->where('module','finance')->where('action','approve_corrections')->countAllResults();
-        if($existing>1)throw new \RuntimeException('Ambiguous correction approval permission.');
         if($existing===0&&!$this->db->table('permissions')->insert(['name'=>'Approve Invoice Corrections','module'=>'finance','action'=>'approve_corrections','description'=>'Approve operational provider-linked invoice corrections against current financial state']))throw new \RuntimeException('Approval permission creation failed.');
         // No permission is assigned to existing roles or users.
     }
     public function down()
     {
+        $this->db->resetDataCache();
         // Refuse before any DDL if any financial, approval, linkage or sequence history exists.
         foreach(self::TABLES as $table)if($this->db->tableExists($table)&&$this->db->table($table)->countAllResults()>0)throw new \RuntimeException('Nonempty invoice correction ledger cannot be rolled back; preserve history.');
-        foreach(array_reverse(self::TABLES)as$table)if($this->db->tableExists($table))$this->forge->dropTable($table);
+        foreach(array_reverse(self::TABLES)as$table) {
+            if($this->db->tableExists($table) && !$this->forge->dropTable($table)) {
+                throw new \RuntimeException('Empty correction ledger rollback failed; preserve partial DDL evidence and inspect.');
+            }
+        }
         // Approval permission retained: never revoke existing role permissions implicitly.
     }
 }

@@ -1,0 +1,34 @@
+<?php
+declare(strict_types=1);
+$bootstrap=getopt('',['bootstrap:'])['bootstrap']??'';if(PHP_SAPI!=='cli'||!is_file($bootstrap))exit(2);require $bootstrap;
+$i=$db->query('SELECT DATABASE() db,@@port port,@@datadir datadir,CURRENT_USER() actor')->getRowArray();
+if($db->hostname!=='127.0.0.1'||$i['db']!=='m2c_report_scale_20261022'||(int)$i['port']!==3307||!str_contains(str_replace('\\','/',$i['datadir']),'denta-m2c-20261021/disposable-mariadb/data')||!str_starts_with($i['actor'],'m2c_test@'))throw new RuntimeException('Owned synthetic instance required');
+$n=0;function check(bool$v,string$m):void{global$n;if(!$v)throw new RuntimeException($m);$n++;}
+function put(string$t,array$row):int{global$db;if(!$db->table($t)->insert($row))throw new RuntimeException('Synthetic insert failed: '.$t);return(int)$db->insertID();}
+function clinic():int{global$db;$id=random_int(100000,2000000000);put('clinics',['id'=>$id,'status'=>'active']);put('patients',['id'=>$id,'clinic_id'=>$id,'first_name'=>'Synthetic','last_name'=>'Lifecycle','patient_id'=>'SYN-'.$id]);return$id;}
+function inv(int$c,array$over=[]):int{return put('finances',array_replace(['clinic_id'=>$c,'patient_id'=>$c,'transaction_id'=>substr(bin2hex(random_bytes(12)),0,20),'transaction_type'=>'invoice','amount'=>'100.00','total_amount'=>'100.00','amount_original'=>'100.00','currency'=>'ILS','exchange_rate'=>'1.000000','payment_method'=>'cash','service_type'=>'other','amount_paid'=>'0.00','balance_due'=>'100.00','payment_status'=>'pending','transaction_date'=>'2026-10-18','due_date'=>'2026-10-18','created_at'=>'2026-10-18 12:00:00'],$over));}
+function credit(int$c,int$f,string$amount='40.00'):int{$key=bin2hex(random_bytes(12));return put('invoice_corrections',['clinic_id'=>$c,'finance_id'=>$f,'patient_id'=>$c,'document_number'=>'TEST-'.$key,'amount_base'=>$amount,'amount_original'=>$amount,'currency'=>'ILS','exchange_rate'=>'1','reason'=>'Synthetic lifecycle','idempotency_key'=>$key,'request_hash'=>str_repeat('a',64),'source_hash'=>str_repeat('a',64),'snapshot_json'=>'{}','document_mode'=>'operational','created_by'=>1,'issued_at'=>'2026-10-19 12:00:00','created_at'=>'2026-10-19 12:00:00']);}
+function receipt(int$c,int$f,string$amount,string$day):void{put('finance_payments',['clinic_id'=>$c,'finance_id'=>$f,'amount'=>$amount,'type'=>'payment','payment_method'=>'cash','liquidity_account'=>'safe_cash','payment_date'=>$day,'created_at'=>$day.' 12:00:00','updated_at'=>$day.' 12:00:00']);}
+// Widen only this already-verified disposable synthetic column; prior fixture values remain unchanged.
+$before=$db->query('SELECT COUNT(*) n,SUM(id) ids FROM finances')->getRowArray();
+if($db->query("SHOW COLUMNS FROM finances LIKE 'transaction_date'")->getRowArray()['Null']==='NO')$db->query('ALTER TABLE finances MODIFY transaction_date DATE NULL');
+check($before===$db->query('SELECT COUNT(*) n,SUM(id) ids FROM finances')->getRowArray(),'Existing synthetic rows retained across nullable compatibility DDL');
+$r=new App\Services\InvoiceCorrectionReadService($db);$model=new App\Models\FinanceModel($db);
+$c=clinic();$legacy=inv($c,['amount_paid'=>'100.00','balance_due'=>'0.00','payment_status'=>'paid']);$other=inv($c);credit($c,$other,'1.00');
+check($model->getAccountsReceivableAgingSummaryByClinic($c)['total_balance_due']===99.0,'Default current legacy-paid cache preserved');
+try{$r->summary($c,'2026-10-20');throw new RuntimeException('Undated legacy settlement accepted');}catch(DomainException$e){check(true,'Explicit historic undated legacy settlement fails closed');}
+$c2=clinic();$dated=inv($c2,['transaction_date'=>null,'paid_date'=>'2026-10-21','amount_paid'=>'100.00','balance_due'=>'0.00','payment_status'=>'paid']);receipt($c2,$dated,'100.00','2026-10-21');
+check($r->summary($c2,'2026-10-19')['pending_amount']==='100.00','Invoice exists before later paid_date');
+check($r->summary($c2,'2026-10-21')['pending_amount']==='0.00','Real payment effective on posting day');
+check($r->summary($c2,null,'2026-10-18','2026-10-18')['invoice_count']==='0','Period fallback excludes later paid-date population');
+$method=new ReflectionMethod($r,'sql');$periodRows=$db->query($method->invoke($r,$c2,null,'2026-10-21','2026-10-21'))->getResultArray();check(count($periodRows)===1&&(int)$periodRows[0]['id']===$dated,'Period fallback includes same paid-date population');
+$c3=clinic();$source=inv($c3);receipt($c3,$source,'100.00','2026-10-18');$note=credit($c3,$source);$target=inv($c3,['amount'=>'40.00','total_amount'=>'40.00','amount_original'=>'40.00','balance_due'=>'0.00','payment_status'=>'paid']);
+$key=bin2hex(random_bytes(12));$app=put('invoice_credit_applications',['clinic_id'=>$c3,'correction_id'=>$note,'source_finance_id'=>$source,'target_finance_id'=>$target,'patient_id'=>$c3,'currency'=>'ILS','amount_base'=>'40.00','amount_original'=>'40.00','exchange_rate'=>'1','idempotency_key'=>$key,'request_hash'=>str_repeat('b',64),'created_by'=>1,'created_at'=>'2026-10-20 12:00:00']);
+put('invoice_credit_application_reversals',['clinic_id'=>$c3,'application_id'=>$app,'reason'=>'Synthetic return','idempotency_key'=>bin2hex(random_bytes(12)),'request_hash'=>str_repeat('c',64),'created_by'=>1,'created_at'=>'2026-10-21 12:00:00']);
+check($r->summary($c3,'2026-10-19')['pending_amount']==='40.00','Before application target remains due');
+check($r->summary($c3,'2026-10-20')['pending_amount']==='0.00','Application closes target without cash');
+check($r->summary($c3,'2026-10-21')['pending_amount']==='40.00','Return reopens target only from return date');
+$position=$r->positions($c3,[$target]);check($position[$target]['remaining_base']==='40.00','Returned target cached paid-zero remains projected');check($position[$target]['net_cash_base']==='0.00','Returned target creates no cash');
+$c4=clinic();put('settings',['clinic_id'=>$c4,'setting_key'=>'timezone','setting_value'=>'Asia/Jerusalem']);$spring=inv($c4,['transaction_date'=>'2026-03-26','due_date'=>'2026-03-27','created_at'=>'2026-03-26 12:00:00']);credit($c4,$spring,'1.00');$old=date_default_timezone_get();date_default_timezone_set('Asia/Jerusalem');
+try{$summary=$model->getAccountsReceivableAgingSummaryByClinic($c4,'2026-03-28');$detail=$model->getAccountsReceivableAgingDetailByClinic($c4,'2026-03-28');check(count($detail)===1&&$detail[0]['days_past_due']===1&&$detail[0]['aging_bucket']==='days_1_30','DST detail uses calendar day');check($summary['days_1_30']===100.0&&$summary['current']===0.0,'DST SQL summary matches detail');}finally{date_default_timezone_set($old);}
+echo json_encode(['status'=>'PASS','checks'=>$n,'database'=>$i['db'],'new_synthetic_clinics'=>[$c,$c2,$c3,$c4],'fixtures_retained'=>true,'scope'=>'Current legacy compatibility, historical issuance/payment dates, report period population, application returns and DST aging'],JSON_PRETTY_PRINT),PHP_EOL;

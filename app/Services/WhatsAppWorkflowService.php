@@ -185,6 +185,21 @@ class WhatsAppWorkflowService
             return $this->skipped('FINANCE_NOT_INVOICE');
         }
 
+        // Corrections never rewrite the issued invoice or its cached settlement
+        // fields. Generate new reminders from the same current projection used
+        // by the claim validator; never rewrite an existing queued generation.
+        try {
+            $corrections = new InvoiceCorrectionService($this->db);
+            if ($corrections->supportsSchema()) {
+                $position = (new InvoiceCorrectionReadService($this->db))->positions($clinicId, [$financeId])[$financeId] ?? null;
+                if ($position !== null) { $finance['balance_due'] = $position['remaining_base']; }
+            }
+        } catch (\Throwable $e) {
+            return $this->skipped('INVOICE_BALANCE_REQUIRES_REVIEW');
+        }
+        if (($finance['payment_status'] ?? '') === 'cancelled') {
+            return $this->skipped('INVOICE_CANCELLED');
+        }
         $balanceDue = round(floatval($finance['balance_due'] ?? 0), 2);
         if ($balanceDue <= 0) {
             return $this->skipped('INVOICE_ALREADY_SETTLED');
@@ -298,27 +313,42 @@ class WhatsAppWorkflowService
             try { $today = $formatter->currentDate($currentClinicId); }
             catch (\DomainException $e) { $summary['skipped']++; continue; }
 
-            $rows = $this->db->query(
-                'SELECT id
-                 FROM finances
-                 WHERE clinic_id = ?
-                   AND transaction_type = ?
-                   AND balance_due > 0
-                   AND payment_status IN (?, ?, ?)
-                   AND due_date IS NOT NULL
-                   AND due_date <= ?',
-                [$currentClinicId, 'invoice', 'pending', 'partial', 'overdue', $today]
-            )->getResultArray();
-
-            foreach ($rows as $row) {
-                $summary['scanned']++;
-                $result = $this->queueInvoicePaymentReminder($currentClinicId, (int) ($row['id'] ?? 0), $actorUserId, $today);
-                if (!empty($result['queued'])) {
-                    $summary['queued']++;
-                } else {
-                    $summary['skipped']++;
-                }
+            // Retain legacy discovery and include correction-affected invoices
+            // whose immutable cached paid/zero state can conceal reopened AR.
+            // EXISTS uses clinic-scoped indexes and returns IDs, not histories.
+            $financeTable = $this->db->escapeIdentifiers($this->db->prefixTable('finances'));
+            $affected = '';
+            if ((new InvoiceCorrectionService($this->db))->supportsSchema()) {
+                $credits = $this->db->escapeIdentifiers($this->db->prefixTable('invoice_corrections'));
+                $applications = $this->db->escapeIdentifiers($this->db->prefixTable('invoice_credit_applications'));
+                $affected = " OR EXISTS (SELECT 1 FROM {$credits} c WHERE c.clinic_id=f.clinic_id AND c.finance_id=f.id)"
+                    . " OR EXISTS (SELECT 1 FROM {$applications} a WHERE a.clinic_id=f.clinic_id AND a.source_finance_id=f.id)"
+                    . " OR EXISTS (SELECT 1 FROM {$applications} a WHERE a.clinic_id=f.clinic_id AND a.target_finance_id=f.id)";
             }
+            $lastId = 0;
+            do {
+                // Keyset batches bound discovery memory without silently capping
+                // a clinic's eligible invoices or hydrating ledger histories.
+                $rows = $this->db->query(
+                    "SELECT f.id FROM {$financeTable} f
+                     WHERE f.clinic_id = ? AND f.transaction_type = ? AND f.id > ?
+                       AND f.payment_status <> 'cancelled'
+                       AND ((f.balance_due > 0 AND f.payment_status IN (?, ?, ?)){$affected})
+                       AND f.due_date IS NOT NULL AND f.due_date <= ? ORDER BY f.id LIMIT 500",
+                    [$currentClinicId, 'invoice', $lastId, 'pending', 'partial', 'overdue', $today]
+                )->getResultArray();
+
+                foreach ($rows as $row) {
+                    $lastId = (int) $row['id'];
+                    $summary['scanned']++;
+                    $result = $this->queueInvoicePaymentReminder($currentClinicId, $lastId, $actorUserId, $today);
+                    if (!empty($result['queued'])) {
+                        $summary['queued']++;
+                    } else {
+                        $summary['skipped']++;
+                    }
+                }
+            } while (count($rows) === 500);
         }
 
         return $summary;

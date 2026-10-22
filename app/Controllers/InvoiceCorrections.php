@@ -3,18 +3,26 @@
 namespace App\Controllers;
 
 use App\Services\InvoiceCorrectionService;
+use App\Services\PermissionService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 /** Stateful tenant web entrypoints; monetary policy and authorization remain service-owned. */
 class InvoiceCorrections extends BaseController
 {
+    private ?PermissionService $permissions = null;
+
+    private function permissions(): PermissionService
+    {
+        return $this->permissions ??= new PermissionService();
+    }
+
     private function context(bool $write = false, bool $approval = false): array
     {
         $config = config('InvoiceCorrections');
         if (!$config->enabled || $config->documentMode !== 'operational') {
             throw PageNotFoundException::forPageNotFound();
         }
-        $permission = service('permission');
+        $permission = $this->permissions();
         $clinicId = (int) ($permission->resolveCurrentClinicId() ?? 0);
         $actor = (int) $this->ionAuth->getUserId();
         if ($clinicId < 1 || $actor < 1 || !$permission->getTenantRoleId($actor, $clinicId)
@@ -26,6 +34,22 @@ class InvoiceCorrections extends BaseController
         }
         $this->response->setHeader('Cache-Control', 'private, no-store, max-age=0');
         return [$clinicId, $actor];
+    }
+
+    /** Conceal foreign or missing web records before rendering financial state. */
+    private function assertInvoiceVisible(int $clinicId, int $invoiceId): void
+    {
+        try { (new InvoiceCorrectionService())->assertInvoiceAvailable($clinicId, $invoiceId); }
+        catch (\DomainException $error) { throw PageNotFoundException::forPageNotFound(); }
+    }
+
+    private function visibleDocument(int $clinicId, int $correctionId): array
+    {
+        $service = new InvoiceCorrectionService();
+        try { $invoiceId = $service->documentInvoiceId($clinicId, $correctionId); }
+        catch (\DomainException $error) { throw PageNotFoundException::forPageNotFound(); }
+        $this->assertInvoiceVisible($clinicId, $invoiceId);
+        return $service->getDocument($clinicId, $correctionId);
     }
 
     private function payload(array $keys): array
@@ -52,6 +76,7 @@ class InvoiceCorrections extends BaseController
     public function index(int $invoiceId)
     {
         [$clinicId, $actor] = $this->context();
+        $this->assertInvoiceVisible($clinicId, $invoiceId);
         $service = new InvoiceCorrectionService();
         $position = $service->position($clinicId, $invoiceId);
         return view('finance/corrections/index', [
@@ -59,8 +84,8 @@ class InvoiceCorrections extends BaseController
             'invoice' => $position['original'], 'position' => $position,
             'corrections' => $service->listForInvoice($clinicId, $invoiceId),
             'idempotencyKey' => bin2hex(random_bytes(24)),
-            'canWrite' => service('permission')->hasPermission($actor, 'finance', 'edit')
-                && service('permission')->hasPermission($actor, 'finance', 'create'),
+            'canWrite' => $this->permissions()->hasPermission($actor, 'finance', 'edit')
+                && $this->permissions()->hasPermission($actor, 'finance', 'create'),
         ]);
     }
 
@@ -80,7 +105,7 @@ class InvoiceCorrections extends BaseController
     {
         return view('finance/corrections/preview', [
             'title' => lang('InvoiceCorrections.preview'), 'preview' => $preview, 'payload' => $payload,
-            'canApprove' => service('permission')->hasPermission($actor, 'finance', 'approve_corrections'),
+            'canApprove' => $this->permissions()->hasPermission($actor, 'finance', 'approve_corrections'),
         ]);
     }
 
@@ -126,12 +151,12 @@ class InvoiceCorrections extends BaseController
     public function show(int $correctionId)
     {
         [$clinicId, $actor] = $this->context();
-        $document = (new InvoiceCorrectionService())->getDocument($clinicId, $correctionId);
+        $document = $this->visibleDocument($clinicId, $correctionId);
         return view('finance/corrections/document', [
             'title' => lang('InvoiceCorrections.document'), 'document' => $document,
             'idempotencyKey' => bin2hex(random_bytes(24)),
-            'canWrite' => service('permission')->hasPermission($actor, 'finance', 'edit')
-                && service('permission')->hasPermission($actor, 'finance', 'create'),
+            'canWrite' => $this->permissions()->hasPermission($actor, 'finance', 'edit')
+                && $this->permissions()->hasPermission($actor, 'finance', 'create'),
         ]);
     }
 
@@ -139,7 +164,7 @@ class InvoiceCorrections extends BaseController
     {
         [$clinicId, $actor] = $this->context(true);
         $service = new InvoiceCorrectionService();
-        $document = $service->getDocument($clinicId, $correctionId);
+        $document = $this->visibleDocument($clinicId, $correctionId);
         $invoiceId = (int) $document['correction']['finance_id'];
         try {
             $payload = $this->payload(['target_finance_id', 'amount_original', 'idempotency_key', 'source_hash']);
@@ -173,7 +198,7 @@ class InvoiceCorrections extends BaseController
     {
         [$clinicId, $actor] = $this->context(true);
         $service = new InvoiceCorrectionService();
-        $document = $service->getDocument($clinicId, $correctionId);
+        $document = $this->visibleDocument($clinicId, $correctionId);
         try {
             $matches = array_filter($document['applications'], static fn(array $row): bool => (int) $row['id'] === $applicationId);
             if (count($matches) !== 1 || $this->request->getPost('confirm') !== '1') { throw new \InvalidArgumentException('Explicit linked application return required.'); }

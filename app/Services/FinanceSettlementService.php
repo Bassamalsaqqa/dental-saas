@@ -95,12 +95,15 @@ class FinanceSettlementService
     public function getLockedSettlementState(int $clinicId, array $row): array
     {
         $id = (int) $row['id'];
+        if (($row['payment_status'] ?? '') === 'cancelled') {
+            throw new \DomainException('Cannot settle cancelled transaction #' . $id . '.');
+        }
         // Parent finance row is already locked by every settlement writer. The
         // correction projection performs current reads without acquiring another
         // invoice parent, preserving ascending multi-invoice lock ordering.
         if (($row['transaction_type'] ?? '') === 'invoice') {
             $corrections = new InvoiceCorrectionService($this->db);
-            if ($corrections->hasEffects($clinicId, $id)) {
+            if ($corrections->hasEffects($clinicId, $id, true)) {
                 return $corrections->position($clinicId, $id, true);
             }
         }

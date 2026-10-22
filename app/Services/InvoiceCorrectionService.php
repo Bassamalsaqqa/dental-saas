@@ -42,6 +42,17 @@ class InvoiceCorrectionService
         }
         return $row;
     }
+    /** Tenant-scoped visibility checks; callers decide web/API concealment semantics. */
+    public function assertInvoiceAvailable(int $clinic, int $invoice): void
+    {
+        $this->invoice($clinic, $invoice);
+    }
+    public function documentInvoiceId(int $clinic, int $correction): int
+    {
+        $row = $this->supportsSchema() ? ($this->rows('invoice_corrections', ['clinic_id' => $clinic, 'id' => $correction])[0] ?? null) : null;
+        if (!$row) { throw new \DomainException('Correction document not available.'); }
+        return (int) $row['finance_id'];
+    }
     public function supportsSchema(): bool
     {
         foreach (['invoice_corrections', 'invoice_correction_lines', 'invoice_credit_applications', 'invoice_correction_approvals', 'invoice_correction_sequences', 'invoice_replacement_links', 'invoice_credit_application_reversals'] as $table) {
@@ -49,11 +60,13 @@ class InvoiceCorrectionService
         }
         return true;
     }
-    public function hasEffects(int $clinic, int $invoice): bool
+    public function hasEffects(int $clinic, int $invoice, bool $locked = false): bool
     {
         if (!$this->supportsSchema()) { return false; }
         foreach ([['invoice_corrections','finance_id'],['invoice_credit_applications','source_finance_id'],['invoice_credit_applications','target_finance_id']] as [$table,$column]) {
-            if ($this->db->table($table)->select('id')->where('clinic_id',$clinic)->where($column,$invoice)->limit(1)->get()->getRowArray() !== null) { return true; }
+            $q = $this->db->query('SELECT id FROM ' . $this->table($table) . ' WHERE clinic_id = ? AND ' . $this->db->escapeIdentifiers($column) . ' = ? LIMIT 1' . ($locked ? ' FOR UPDATE NOWAIT' : ''), [$clinic, $invoice]);
+            if ($q === false) { throw new \RuntimeException('Correction history is busy or unavailable.'); }
+            if ($q->getRowArray() !== null) { return true; }
         }
         return false;
     }
@@ -140,7 +153,10 @@ class InvoiceCorrectionService
         if (!$payments && $asOf === null) {
             $cached = InvoiceCorrectionMoney::nonNegative($row['amount_paid'] ?? 0);
             if ($cached > 0 && $cached >= $gross && ($row['payment_status'] ?? '') === 'paid') { $adjustments = $cached; $legacy = true; }
-            elseif ($cached > 0 || !in_array($row['payment_status'] ?? '', ['pending', 'overdue', 'unpaid'], true)) { throw new \DomainException('Unledgered historical settlement requires reconciliation.'); }
+            elseif ($cached === 0 && ($row['payment_status'] ?? '') === 'paid' && $this->hasEffects($clinic, $invoice, $locked)) {
+                // Proven credit funding may leave a stale paid/zero-cash cache. Derive below; invent no cash.
+            }
+            elseif ($cached > 0 || !in_array($row['payment_status'] ?? '', ['pending', 'overdue', 'unpaid', 'cancelled'], true)) { throw new \DomainException('Unledgered historical settlement requires reconciliation.'); }
         }
         $corrections = $outgoing = $incoming = [];
         if ($this->supportsSchema()) {
@@ -199,9 +215,17 @@ class InvoiceCorrectionService
         $clinical = $this->db->tableExists('clinical_charge_lines') ? $this->rows('clinical_charge_lines', ['clinic_id' => $clinic, 'finance_id' => $invoice], $locked) : [];
         return ['position' => $position, 'providers' => $providers, 'provider_payments' => $payments, 'clinical_lines' => $clinical];
     }
+    /** New mutations cannot revive a cancelled invoice; history and explicit returns remain readable. */
+    private function assertMutableInvoice(array $row): void
+    {
+        if (($row['payment_status'] ?? null) === 'cancelled') {
+            throw new \DomainException('Invoice is cancelled and cannot receive new corrections or credit funding.');
+        }
+    }
     private function previewState(int $clinic, int $invoice, array $payload, bool $locked): array
     {
         $state = $this->state($clinic, $invoice, $locked); $row = $state['position']['original'];
+        $this->assertMutableInvoice($row);
         $base = $this->toBase(InvoiceCorrectionMoney::cents($payload['amount_original']), $this->rate($row));
         if ($base > $state['position']['gross_cents'] - $state['position']['credits_cents']) { throw new \DomainException('Credit exceeds the original uncredited amount.'); }
         $rateParts = explode('.', $this->rate($row));
@@ -243,6 +267,13 @@ class InvoiceCorrectionService
     {
         $this->insert('activity_logs', ['clinic_id' => $clinic, 'user_id' => $actor, 'action' => $action, 'entity_type' => 'finance', 'entity_id' => $invoice, 'description' => 'Operational invoice correction', 'metadata' => json_encode($metadata, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s')]);
     }
+    private function assertReminderIdle(int $clinic, array $invoiceIds): void
+    {
+        $reminders = new InvoiceReminderService($this->db);
+        foreach (array_unique($invoiceIds) as $invoiceId) {
+            $reminders->assertNoProcessingForMutation($clinic, (int) $invoiceId);
+        }
+    }
     private function assertSource(array $input, string $actual): void
     {
         if (!is_string($input['source_hash'] ?? null) || !hash_equals($actual, $input['source_hash'])) { throw new \DomainException('Financial state changed. Refresh the preview and obtain any required approval again.'); }
@@ -278,11 +309,12 @@ class InvoiceCorrectionService
                 if ((int) $existing['finance_id'] !== $invoice || !hash_equals($existing['request_hash'], $this->hash($payload))) { throw new \DomainException('This request identity was already used for a different correction.'); }
                 return ['id' => (int) $existing['id'], 'document_number' => $existing['document_number'], 'position' => $this->position($clinic, $invoice, true), 'idempotent' => true];
             }
+            $this->assertReminderIdle($clinic, [$invoice]);
             $preview = $this->previewState($clinic, $invoice, $payload, true); $this->assertSource($input, $preview['source_hash']); $approvedBy = null; $approvalId = null;
             if ($preview['requires_manager_approval']) {
                 $approvalId = filter_var($input['approval_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                 $approval = $approvalId ? ($this->rows('invoice_correction_approvals', ['clinic_id' => $clinic, 'id' => $approvalId, 'finance_id' => $invoice], true)[0] ?? null) : null;
-                if (!$approval || $approval['expires_at'] < $this->instant()->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s') || !hash_equals($approval['source_hash'], $preview['source_hash']) || !hash_equals($approval['request_hash'], $preview['request_hash'])) { throw new \DomainException('Current manager approval is required for this provider-linked correction.'); }
+                if (!$approval || $approval['expires_at'] <= $this->instant()->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s') || !hash_equals($approval['source_hash'], $preview['source_hash']) || !hash_equals($approval['request_hash'], $preview['request_hash'])) { throw new \DomainException('Current manager approval is required for this provider-linked correction.'); }
                 $approvedBy = (int) $approval['manager_id'];
                 $this->assertCurrentRolePermission($clinic, $approvedBy, 'approve_corrections');
             }
@@ -321,6 +353,7 @@ class InvoiceCorrectionService
             $rows = $this->lockInvoices($clinic, [$source, $target]); $this->authorize($clinic, $actor, 'edit'); $this->authorize($clinic, $actor, 'create'); $this->assertMatching($rows[$source], $rows[$target]);
             $existing = $this->rows('invoice_replacement_links', ['clinic_id' => $clinic, 'target_finance_id' => $target], true)[0] ?? null;
             if ($existing) { if ((int) $existing['source_finance_id'] !== $source) { throw new \DomainException('Replacement already belongs to another original invoice.'); } return $existing; }
+            $this->assertMutableInvoice($rows[$source]); $this->assertMutableInvoice($rows[$target]);
             $id = $this->insert('invoice_replacement_links', ['clinic_id' => $clinic, 'source_finance_id' => $source, 'target_finance_id' => $target, 'patient_id' => $rows[$source]['patient_id'], 'currency' => $rows[$source]['currency'], 'created_by' => $actor, 'created_at' => $this->businessNow($clinic)->format('Y-m-d H:i:s')]);
             $this->audit($clinic, $actor, 'invoice_replacement_linked', $source, ['replacement_link_id' => $id, 'target_finance_id' => $target]);
             return ['id' => $id, 'target_finance_id' => $target];
@@ -343,6 +376,8 @@ class InvoiceCorrectionService
             $rows = $this->lockInvoices($clinic, [$source, $target]); $this->authorize($clinic, $actor, 'edit'); $this->authorize($clinic, $actor, 'create'); $this->assertMatching($rows[$source], $rows[$target]);
             $existing = $this->rows('invoice_credit_applications', ['clinic_id' => $clinic, 'idempotency_key' => $key], true)[0] ?? null;
             if ($existing) { if (!hash_equals($existing['request_hash'], $hash)) { throw new \DomainException('Application request identity was already used.'); } return $existing + ['idempotent' => true]; }
+            $this->assertMutableInvoice($rows[$source]); $this->assertMutableInvoice($rows[$target]);
+            $this->assertReminderIdle($clinic, [$source, $target]);
             $correction = $this->getDocument($clinic, $correctionId);
             $sourceState = $this->state($clinic, $source, true); $targetPosition = $this->position($clinic, $target, true);
             $this->assertSource($input, $this->hash($sourceState));
@@ -381,6 +416,7 @@ class InvoiceCorrectionService
             $this->lockInvoices($clinic, [$source, $target]); $this->authorize($clinic, $actor, 'edit'); $this->authorize($clinic, $actor, 'create');
             $existing = $this->rows('invoice_credit_application_reversals', ['clinic_id' => $clinic, 'idempotency_key' => $key], true)[0] ?? null;
             if ($existing) { if (!hash_equals($existing['request_hash'], $hash)) { throw new \DomainException('Return request identity conflict.'); } return $existing + ['idempotent' => true]; }
+            $this->assertReminderIdle($clinic, [$source, $target]);
             $application = $this->rows('invoice_credit_applications', ['clinic_id' => $clinic, 'id' => $applicationId], true)[0] ?? null;
             if (!$application || !$this->activeApplications($clinic, [$application], true)) { throw new \DomainException('Application already returned or unavailable.'); }
             $amount = InvoiceCorrectionMoney::cents($application['amount_base']);

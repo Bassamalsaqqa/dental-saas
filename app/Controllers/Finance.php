@@ -2037,7 +2037,9 @@ class Finance extends BaseController
         $stats = $this->summarizeCashReport($ledger['rows']);
         $monthlyRevenue = $this->buildMonthlyCollectionsSeries($ledger['rows'], $startDate, $endDate);
         $arAgingDetail = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 100);
-        $arAgingSummary = $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
+        $arAgingSummary = $this->financeModel->hasInvoiceCorrections((int) $clinicId)
+            ? $this->financeModel->getAccountsReceivableAgingSummaryByClinic((int) $clinicId, $endDate)
+            : $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
         $apAgingDetail = $this->financeModel->getAccountsPayableAgingDetailByClinic((int) $clinicId, $endDate, 100);
         $apAgingSummary = $this->financeModel->getAccountsPayableAgingSummaryByClinic((int) $clinicId, $endDate);
         $providerPayoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $endDate);
@@ -2748,18 +2750,18 @@ class Finance extends BaseController
 
     private function getHistoricalAccountsReceivableAgingDetail(int $clinicId, string $asOfDate, int $limit = 100): array
     {
+        if ($this->financeModel->hasInvoiceCorrections($clinicId)) {
+            return $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $asOfDate, $limit);
+        }
         $limit = max(1, min($limit, 10000));
         $asOfDateTime = $asOfDate . ' 23:59:59';
         $sumField = $this->db->fieldExists('total_amount', 'finances')
             ? 'f.total_amount'
             : '(f.amount - COALESCE(f.discount_amount, 0) + COALESCE(f.tax_amount, 0))';
 
-        $hasCorrections = $this->financeModel->hasInvoiceCorrections($clinicId);
-        $builder = $this->db->table('finances f')
+        $rows = $this->db->table('finances f')
             ->select("
                 f.id,
-                f.clinic_id,
-                f.patient_id,
                 f.transaction_id,
                 {$sumField} AS total_amount,
                 f.due_date,
@@ -2786,20 +2788,16 @@ class Finance extends BaseController
             ->where('f.clinic_id', $clinicId)
             ->where('f.transaction_type', 'invoice')
             ->where('f.created_at <=', $asOfDateTime)
-            ->orderBy('f.due_date', 'ASC');
-        if (!$hasCorrections) { $builder->having('total_amount - paid_total >', 0, false)->limit($limit); }
-        $rows = $builder->get()->getResultArray();
+            ->having('total_amount - paid_total >', 0, false)
+            ->orderBy('f.due_date', 'ASC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
 
-        foreach ($rows as &$row) { $row['balance_due'] = max(0, (float) $row['total_amount'] - (float) $row['paid_total']); }
-        unset($row);
-        $rows = array_slice(array_values(array_filter(
-            $this->financeModel->withInvoiceCorrectionBalances($rows, $clinicId, $asOfDate),
-            static fn(array $row): bool => (float) ($row['balance_due'] ?? 0) > 0
-        )), 0, $limit);
         foreach ($rows as &$row) {
             $totalAmount = floatval($row['total_amount'] ?? 0);
             $paidTotal = floatval($row['paid_total'] ?? 0);
-            $balanceDue = (float) $row['balance_due'];
+            $balanceDue = max(0, $totalAmount - $paidTotal);
             $dueDate = !empty($row['due_date'])
                 ? (string) $row['due_date']
                 : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
@@ -2886,6 +2884,13 @@ class Finance extends BaseController
             $openPayablesBalance += floatval($payable['balance_due'] ?? 0);
         }
 
+        $openInvoiceCount = count($openInvoices);
+        if ($this->financeModel->hasInvoiceCorrections((int) $clinicId)) {
+            $arSummary = $this->financeModel->getAccountsReceivableAgingSummaryByClinic((int) $clinicId, $endDate);
+            $openInvoicesBalance = (float) $arSummary['total_balance_due'];
+            $openInvoiceCount = (int) $arSummary['invoice_count'];
+        }
+
         $response = [
             'gross_collections' => $stats['gross_collections'],
             'gross_collections_formatted' => ($stats['gross_collections'] === null ? lang('Finance.providerCurrencyUnavailable') : formatCurrency($stats['gross_collections'])),
@@ -2896,7 +2901,7 @@ class Finance extends BaseController
             'expenses_paid_formatted' => ($stats['expenses_paid'] === null ? lang('Finance.providerCurrencyUnavailable') : formatCurrency($stats['expenses_paid'])),
             'net_clinic_cash' => $stats['net_clinic_cash'],
             'net_clinic_cash_formatted' => ($stats['net_clinic_cash'] === null ? lang('Finance.providerCurrencyUnavailable') : formatCurrency($stats['net_clinic_cash'])),
-            'outstanding_invoices' => count($openInvoices),
+            'outstanding_invoices' => $openInvoiceCount,
             'outstanding_invoices_balance' => round($openInvoicesBalance, 2),
             'outstanding_invoices_balance_formatted' => formatCurrency($openInvoicesBalance),
             'outstanding_payables' => count($openPayables),
@@ -3835,6 +3840,9 @@ class Finance extends BaseController
         } elseif ($settledTotal > 0.0 && $balanceDue > 0.0) {
             $status = 'partial';
         }
+
+        // Cash reversals preserve cancellation; they do not revive the invoice.
+        if (($finance['payment_status'] ?? '') === 'cancelled') { $status = 'cancelled'; }
 
         $updateData = [
             'amount_paid' => $settledTotal,

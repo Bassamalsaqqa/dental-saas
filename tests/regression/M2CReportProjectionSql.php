@@ -1,0 +1,21 @@
+<?php
+declare(strict_types=1);
+$options=getopt('',['bootstrap:']);$bootstrap=$options['bootstrap']??'';if(PHP_SAPI!=='cli'||!is_file($bootstrap))exit(2);require $bootstrap;
+$i=$db->query('SELECT DATABASE() db,@@port port,@@datadir datadir,CURRENT_USER() actor')->getRowArray();if($db->hostname!=='127.0.0.1'||$i['db']!=='m2c_report_scale_20261022'||(int)$i['port']!==3307||!str_contains(str_replace('\\','/',$i['datadir']),'denta-m2c-20261021/disposable-mariadb/data')||!str_starts_with($i['actor'],'m2c_test@'))throw new RuntimeException('Owned scale schema required');
+$n=0;function ck(bool$v,string$m):void{global$n;if(!$v)throw new RuntimeException($m);$n++;}
+$r=new App\Services\InvoiceCorrectionReadService($db);$s=new App\Services\InvoiceCorrectionService($db);
+foreach([['2026-10-17','0.00',0],['2026-10-18','1005000.00',10050],['2026-10-19','975000.00',10050],['2026-10-20','955000.00',10050]]as[$day,$expected,$count]){
+ $v=$r->summary(1,$day);ck($v['pending_amount']===$expected,'Historical business cutoff '.$day);ck((int)$v['invoice_count']===$count,'Uncapped invoice count '.$day);
+ $buckets=0;foreach(['current','days_1_30','days_31_60','days_61_90','days_91_plus']as$key)$buckets+=App\Services\InvoiceCorrectionMoney::nonNegative($v[$key]);ck($buckets===App\Services\InvoiceCorrectionMoney::nonNegative($expected),'Aging buckets partition AR '.$day);
+}
+$positions=$r->positions(1,[1,2,999,1001]);foreach([1,2,999]as$id){$expected=$s->position(1,$id);foreach(['remaining_base','credited_base','net_cash_base','patient_credit_base','ledger_settled']as$key)ck($positions[$id][$key]===$expected[$key],'Aggregate/exact-service parity '.$id.' '.$key);}
+ck(!isset($positions[1001]),'Unaffected current row retains existing representation');ck($r->summary(2)['pending_amount']==='0.00','Clinic isolation');
+$detail=$r->agingDetail(1,'2026-10-20',50);ck(count($detail)===50,'SQL detail limit');
+$model=new App\Models\FinanceModel($db);$summary=$model->getAccountsReceivableAgingSummaryByClinic(1,'2026-10-19');ck($summary['total_balance_due']===975000.0&&$summary['invoice_count']===10050,'Model historical aggregate uncapped');
+$measure=false;$queries=0;CodeIgniter\Events\Events::on('DBQuery',static function()use(&$measure,&$queries){if($measure)$queries++;});
+function measured(callable$f):array{global$measure,$queries;$queries=0;gc_collect_cycles();if(function_exists('memory_reset_peak_usage'))memory_reset_peak_usage();$memory=memory_get_usage();$start=hrtime(true);$measure=true;try{$value=$f();}finally{$measure=false;}return['milliseconds'=>round((hrtime(true)-$start)/1e6,3),'queries'=>$queries,'peak_php_bytes_above_start'=>max(0,memory_get_peak_usage()-$memory),'balance'=>$value];}
+// Reproduce the pre-correction implementation's all-invoice hydration + per-affected history reads.
+$before=measured(function()use($db,$s){$rows=$db->table('finances')->where('clinic_id',1)->where('transaction_type','invoice')->get()->getResultArray();$affected=array_column($db->table('invoice_corrections')->select('finance_id')->where('clinic_id',1)->get()->getResultArray(),'finance_id');$affected=array_fill_keys($affected,true);$total=0;foreach($rows as$row){$balance=isset($affected[$row['id']])?$s->position(1,(int)$row['id'])['remaining_base']:$row['balance_due'];$total+=App\Services\InvoiceCorrectionMoney::nonNegative($balance);}return App\Services\InvoiceCorrectionMoney::decimal($total);});
+$after=measured(fn()=>$r->summary(1)['pending_amount']);ck($before['balance']===$after['balance'],'Before/after report totals identical');ck($after['queries']<$before['queries'],'Query count reduced');ck($after['peak_php_bytes_above_start']<$before['peak_php_bytes_above_start'],'PHP history hydration removed');
+$method=new ReflectionMethod($r,'sql');$sql=$method->invoke($r,1,null,null,null,[1,2]);$explain=$db->query('EXPLAIN '.$sql)->getResultArray();
+echo json_encode(['status'=>'PASS','checks'=>$n,'synthetic_invoices'=>10050,'corrected_invoices'=>1000,'before'=>$before,'after'=>$after,'selected_invoice_explain'=>$explain,'scope'=>'Actual local MariaDB FK fixture. Read-only. Before reproduces prior hydration loop; not a Hostinger latency/capacity certification.'],JSON_PRETTY_PRINT),PHP_EOL;

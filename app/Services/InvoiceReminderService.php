@@ -117,9 +117,9 @@ final class InvoiceReminderService
         try {
             $financeId = $this->financeId($discovered);
             $finance = $financeId === null ? null : $this->query('SELECT id, clinic_id, patient_id, transaction_type, payment_status, balance_due, due_date, transaction_id FROM ' . $this->table('finances') . ' WHERE clinic_id = ? AND id = ? FOR UPDATE', [$clinicId, $financeId])->getRowArray();
-            if ($finance !== null) {
+            if ($finance !== null && ($finance['payment_status'] ?? '') !== 'cancelled') {
                 $service = new InvoiceCorrectionService($this->db);
-                if ($service->supportsSchema() && ($finance['transaction_type'] ?? '') === 'invoice') {
+                if (($finance['transaction_type'] ?? '') === 'invoice' && $service->hasEffects($clinicId, (int) $finance['id'], true)) {
                     $position = $service->position($clinicId, (int) $finance['id'], true);
                     $finance['balance_due'] = $position['remaining_base'];
                     $finance['payment_status'] = (float) $position['remaining_base'] <= 0 ? 'paid' : 'pending';
