@@ -209,6 +209,28 @@ class NavigationService
             . (isset($parts['fragment']) ? '#' . $parts['fragment'] : '');
     }
 
+    /** Keep the chosen session locale authoritative when returning from a language switch. */
+    public function languageReturnUrl($target, string $fallback = '/'): string
+    {
+        $url = $this->localReturnUrl($target, $fallback);
+        [$location, $fragment] = array_pad(explode('#', $url, 2), 2, null);
+        [$path, $query] = array_pad(explode('?', $location, 2), 2, null);
+        if ($query === null) { return $url; }
+
+        // Preserve every other encoded value, duplicate key and fragment verbatim.
+        // Match PHP's query separators/decoded keys, including encoded or array lang keys.
+        $separators = (string) ini_get('arg_separator.input') ?: '&';
+        $segments = preg_split('/[' . preg_quote($separators, '/') . ']/', $query);
+        $retained = [];
+        foreach ($segments as $segment) {
+            parse_str($segment, $parsed);
+            if (!array_key_exists('lang', $parsed)) { $retained[] = $segment; }
+        }
+        $query = implode('&', $retained);
+        return $path . ($query !== '' ? '?' . $query : '')
+            . ($fragment !== null ? '#' . $fragment : '');
+    }
+
     private function normalizeInternalTarget(?string $target): ?string
     {
         $target = trim((string) $target);

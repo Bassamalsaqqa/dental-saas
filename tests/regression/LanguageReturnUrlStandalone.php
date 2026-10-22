@@ -39,6 +39,18 @@ foreach (['https://clinic.example/','https://clinic.example/dental-saas/'] as $b
     }
     if($prefix!=='/')ck($nav->localReturnUrl('/outside','auth/login')===base_url('auth/login'),'Configured subdirectory confinement');
 }
+$base='https://clinic.example/';
+foreach ([
+ 'settings?tab=hours&lang=ar'=>'settings?tab=hours',
+ 'patient/1?lang=en&tab=finances&q=a%26b&x=1&x=2#recent'=>'patient/1?tab=finances&q=a%26b&x=1&x=2#recent',
+ 'patient/1?l%61ng=ar&lang=en&tab=visits'=>'patient/1?tab=visits',
+ 'patient/1?lang[]=ar&tab=visits'=>'patient/1?tab=visits',
+ 'patient/1?lang[locale]=ar&tab=visits'=>'patient/1?tab=visits',
+ 'patients?q=lang%3Dar&tab=all'=>'patients?q=lang%3Dar&tab=all',
+ 'settings?lang=ar#hours'=>'settings#hours',
+ 'settings?tab=hours'=>'settings?tab=hours',
+] as $input=>$expected) ck($nav->languageReturnUrl($input)===base_url($expected),'Language override removed without changing context: '.$input);
+ck($nav->languageReturnUrl('https://evil.example/?lang=ar','settings')===base_url('settings'),'Language redirect still rejects external origins');
 $base='http://127.0.0.1:57113/dental-saas/';
 ck($nav->localReturnUrl('http://127.0.0.1:57113/dental-saas/patient/1')==='http://127.0.0.1:57113/dental-saas/patient/1','Configured nondefault port');
 ck($nav->localReturnUrl('http://127.0.0.1/dental-saas/patient/1','auth/login')===base_url('auth/login'),'Different effective port denied');
@@ -61,6 +73,9 @@ foreach ([App\Controllers\Auth::class,App\Controllers\Settings::class] as $class
         ck(count($writes->rows)===($class===App\Controllers\Settings::class&&$method==='POST'&&$canEdit?1:0),'GET and unprivileged POST do not change clinic default');
         $request->values['return_to']='patient/1?tab=visits';
         ck($controller->switchLanguage('en')->url===base_url('patient/1?tab=visits'),'Actual internal roundtrip');
+        $request->values['return_to']='settings?tab=hours&lang=ar';
+        ck($controller->switchLanguage('en')->url===base_url('settings?tab=hours'),'Actual switch cannot be reversed by stale query locale');
+        ck($session->get('ui_locale')==='en','Selected language remains authoritative');
         ck($controller->switchLanguage('invalid')->url===base_url($class===App\Controllers\Auth::class?'auth/login':'settings'),'Invalid locale cannot fall back to external Referer');
     }
 }

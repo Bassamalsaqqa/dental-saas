@@ -325,7 +325,7 @@ class Settings extends BaseController
         }
 
         $returnTo = $this->request->getPost('return_to') ?? $this->request->getGet('return_to');
-        return redirect()->to(service('navigation')->localReturnUrl($returnTo, 'settings'));
+        return redirect()->to(service('navigation')->languageReturnUrl($returnTo, 'settings'));
     }
 
     public function updateWorkingHours()

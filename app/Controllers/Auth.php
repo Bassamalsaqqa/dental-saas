@@ -223,7 +223,7 @@ class Auth extends BaseController
 		$this->session->set('ui_locale', $locale);
 
 		$returnTo = $this->request->getGet('return_to') ?? $this->request->getPost('return_to');
-		return redirect()->to(service('navigation')->localReturnUrl($returnTo, 'auth/login'));
+		return redirect()->to(service('navigation')->languageReturnUrl($returnTo, 'auth/login'));
 	}
 
 	/**
