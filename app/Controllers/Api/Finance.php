@@ -44,6 +44,8 @@ class Finance extends ResourceController
             $exam = (new ExaminationModel())->where('clinic_id', $clinicId)->find($examinationId);
             if (!$exam) {
                 $errors['examination_id'] = 'Examination does not belong to the active clinic.';
+            } elseif ($patientId && $patientId > 0 && (int) ($exam['patient_id'] ?? 0) !== $patientId) {
+                $errors['examination_id'] = 'Selected examination does not belong to the selected patient.';
             }
         }
 
