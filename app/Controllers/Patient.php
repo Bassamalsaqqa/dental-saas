@@ -874,7 +874,10 @@ class Patient extends BaseController
             $historySameDay += $historyService->sameDay((int) $clinicId, (int) $id, $dates);
         }
 
-        $finances = $this->financeModel->getFinanceByPatient($id);
+        $moneyTrail = (new MoneyTrailService($historyDb))->forPatient((int) $clinicId, (int) $id);
+        // Reuse the canonical projected rows instead of loading/projecting invoices twice.
+        // The finance tab retains its existing COGS exclusion and date ordering.
+        $finances = MoneyTrailService::patientFinanceRows($moneyTrail);
         $invoiceFinanceIds = array_map(
             static fn(array $row): int => (int) ($row['id'] ?? 0),
             array_filter($finances, static fn(array $row): bool => (string) ($row['transaction_type'] ?? '') === 'invoice')
@@ -901,7 +904,7 @@ class Patient extends BaseController
             'appointments' => $appointments,
             'finances' => $finances,
             'finance_settlements' => $financeSettlements,
-            'money_trail' => (new MoneyTrailService())->forPatient((int) $clinicId, (int) $id),
+            'money_trail' => $moneyTrail,
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats($id),
             'treatments' => $treatments,

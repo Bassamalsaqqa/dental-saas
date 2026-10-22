@@ -29,6 +29,26 @@ class MoneyTrailService
         );
     }
 
+    /** Existing patient finance-tab projection, reusing already projected trail rows. */
+    public static function patientFinanceRows(array $trail): array
+    {
+        $rows = array_values(array_filter($trail['finance_rows'] ?? [], static fn (array $row): bool => ($row['expense_category'] ?? null) !== 'inventory_cogs'));
+        usort($rows, static function (array $left, array $right): int {
+            foreach (['transaction_date', 'created_at'] as $field) {
+                $a = $left[$field] ?? null;
+                $b = $right[$field] ?? null;
+                if ($a === $b) { continue; }
+                if ($a === null) { return 1; }
+                if ($b === null) { return -1; }
+                $order = strcmp((string) $b, (string) $a);
+                if ($order !== 0) { return $order; }
+            }
+            // Stable identity only resolves formerly unspecified database ties.
+            return (int) ($right['id'] ?? 0) <=> (int) ($left['id'] ?? 0);
+        });
+        return $rows;
+    }
+
     public function forExamination(int $clinicId, int $examinationId): array
     {
         $financeRows = $this->financeRows($clinicId, ['f.examination_id' => $examinationId]);
