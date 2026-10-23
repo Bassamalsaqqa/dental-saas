@@ -1,13 +1,12 @@
 {
-    "name": "codeigniter4/framework",
-    "description": "The CodeIgniter framework v4",
+    "name": "bassamalsaqqa/dental-saas",
+    "description": "Denta+ multi-tenant dental clinic management application built with CodeIgniter 4",
     "license": "proprietary",
     "type": "project",
-    "homepage": "https://codeigniter.com",
+    "homepage": "https://github.com/Bassamalsaqqa/dental-saas",
     "support": {
-        "forum": "https://forum.codeigniter.com/",
-        "source": "https://github.com/codeigniter4/CodeIgniter4",
-        "slack": "https://codeigniterchat.slack.com"
+        "source": "https://github.com/Bassamalsaqqa/dental-saas",
+        "issues": "https://github.com/Bassamalsaqqa/dental-saas/issues"
     },
     "require": {
         "php": "^8.2",
