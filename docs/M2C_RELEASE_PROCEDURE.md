@@ -102,3 +102,7 @@ Native closure evidence now includes bounded5000-invoice scale, actual same-invo
 | 2026-10-22-190000_AddClinicalChargeAppointmentIndex.php | `2ef29676adcb8a3a45903ca487ba7368edfd747b` | Optional online charge-appointment lookup index |
 
 The final manifest also records exported-file SHA256 hashes. Preserve original collation, compatible parent FK types, existing histories and default-OFF configuration; DDL partial commits and retained-schema rollback limits are explicit.
+
+## Reconciliation release-impact update
+
+The previously approved96b80cc6 package is superseded only after exact-head review of the duplicate-path quota containment. Regenerate the source hash manifest, source-only rollback parent and source artifact for that reviewed HEAD; never deploy stale96b80cc6 pins while claiming the correction is present. No migration, dependency, licensing metadata or print mutation redesign accompanies this fix. Production preflight still creates the fresh checkpoint only after separate authorization. Repeated print metadata is preserved; quota uses exact binary clinic/path with conservative maximum size and per-row missing-path fallback, including optional variant paths. Existing visit-stage concurrency and print side effects remain backlog; atomic WhatsApp workflow reservation is required before any sending activation.

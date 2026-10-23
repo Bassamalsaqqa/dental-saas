@@ -56,3 +56,7 @@ Superseded development chronology and old pending-review claims remain in Git hi
 ## Final consolidated development closure
 
 Native synthetic closure now includes5000invoices across2clinics, actual settlement race/cross-clinic independence, bounded metadata-lock timeout, process termination after publication and populated writable restore/off-host hash verification. No physical power-loss or production-load guarantee is claimed. The final acceptance matrix distinguishes fresh narrow runs from reused evidence. Source is frozen for one final exact-head review; roadmap policy/dependency boundaries remain explicit. No fresh production checkpoint is created here; it belongs to separately authorized release preflight.
+
+## Final Gemini reconciliation
+
+PR20 at96b80cc6 received formal exact-head APPROVED. The bounded five-item reconciliation confirms one changed-code release blocker: retained quota summed duplicate metadata for the same export path. The narrow fix aggregates exact clinic/path once without deleting evidence or changing print workflows;8model SQL/13retention checks pass. Existing print dedup, WhatsApp workflow uniqueness before activation, visit-stage serialization and licensing alignment remain explicit backlog/policy items. Current Select2 already routes session patient search correctly (36checks). The new correction needs one exact-head reaffirmation; prior approval is not silently transferred. No migration/production/release-ref/feature changes.
