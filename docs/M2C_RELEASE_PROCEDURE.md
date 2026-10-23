@@ -74,3 +74,31 @@ Native follow-up now verifies the actual contextual language control and a synth
 ## Rollback ownership correction after exact-head review
 
 The independent review at6bb06dc identified that compatible pre-existing scheduling objects could be dropped without ownership evidence. Scheduling, contact notes and the measured charge index all intentionally accept/reuse compatible schema; their down methods now fail closed before any database access, even if objects are empty or freshly created. No registry/new schema is introduced. Matching definitions, migration compatibility and emptiness do not establish ownership across processes. Source-only rollback retains all these expansions. Separately reviewed manual cleanup is not authorized by a migration rollback command. Unchanged up/preflight behavior reuses prior evidence; superseded empty-drop tests are replaced with ownership retention cases.
+
+## Final pinned package and separately authorized execution
+
+Development closure creates a private candidate manifest, deterministic Git source export and exact change/migration hashes. No executable script in this candidate is permission to deploy. Do not run historical deploy_changes.sh, the CSS build helper, the old M2 helper with stale pins, or a generic blanket migration. The established native source transition is checked `git merge --ff-only` of the exact reviewed release commit, not archive overwrite/reset. A source export is for reproducibility/rehearsal, never a live extraction command.
+
+After separate Owner authorization, bind CANDIDATE and TREE to the final manifest, BASE to f86376a4a6c8f6bf0fe4471f08093af71e76e042, ROOT to /home/u556956644/domains/palsync.net/public_html/denta, and PHP to /opt/alt/php83/usr/bin/php. Before any push/change: require independent exact-head acceptance, unchanged installed/remote baseline and protected .env/.htaccess/public/.htaccess/full writable/uploads, no hooks/filters/auto-deployment/Actions trigger, verified fresh consistent/off-host recovery checkpoint and current schema compatibility. Refuse a changed protected path, deletion, symlink, package-version difference or unreviewed source inventory. Record all current source preimages and durable-file fingerprints privately.
+
+The release ref update is `git push origin "$CANDIDATE:refs/heads/release/production-20261017"` only after `git merge-base --is-ancestor "$BASE" "$CANDIDATE"`; never force-push/change main. Resolve GitHub SHA/tree, then on Hostinger fetch that exact SHA, recheck HEAD/base tree and every source/protected preimage, and use `git -C "$ROOT" merge --ff-only "$CANDIDATE"` under the reviewed source-switch procedure. Verify installed HEAD/tree, manifest file hashes/modes, unchanged protected/durable fingerprints, no new migration rows and OFF switches. The brief source switch is not atomic. No composer/npm install, automatic database restore or blanket migration is included. Stop for any preflight mismatch.
+
+Default release recommendation is SOURCE ONLY with every optional feature OFF and zero production migrations. Exact schema units below require separate authorization individually. Even source-only release requires fresh backup at release preflight and essential authenticated finance/clinical/patient/tenant/EN-AR HTTP smoke, with no customer mutations. The code-review gate must not demand a fresh production checkpoint while development is still frozen.
+
+Source-only rollback uses a separately pinned recovery commit whose tree is the protected M2 tree and whose parent is the new candidate, allowing a true fast-forward without reset. This recovery object may be prepared locally but is not pushed/applied without release/incident authority. Preserve all added schema, signing journals/staging/generated HTML, payments, notes and customer histories. Once correction/checkout/contact/derivative operations have been activated, old source may not understand their history: affected-write containment or fix-forward must be authorized; do not blindly resume old financial writers. Patient-email constraint replacement is not reversible by data rewrite; retain verified expansions and the deliberately refused down methods.
+
+Native closure evidence now includes bounded5000-invoice scale, actual same-invoice/cross-clinic concurrency, one-second metadata-lock failure and populated9file recovery after owned process termination. It does not certify physical power loss, host peak capacity or production metadata-lock headroom. Reassess those limits against actual approved release scope; keep optional migrations/features gated rather than inventing a blanket production guarantee.
+
+### Exact changed migration inventory (Git blob identities)
+
+| File | Git blob | Authorization/impact |
+|---|---|---|
+| 2026-09-26-000001_AddDynamicDoctorScheduling.php | `0ca1c637f0884efd60593fe79ed105e1c80f56a7` | Pending scheduling expansion; leave unapplied/OFF |
+| 2026-10-21-190000_CreateInvoiceCorrectionLedger.php | `31c249196fcd26508008b7a6d9bcf2b03f1e09bf` | Seven correction tables and permission identity; no role grants |
+| 2026-10-22-150000_ScopePatientEmailUniqueness.php | `88ed20d5a0af9e34db43b0a0e5f043f9ed69c4e9` | Add scoped email uniqueness before removing exact global email constraints; no row rewrite |
+| 2026-10-22-160000_CreateAttachmentVariants.php | `441afa5d96211e4c45e5c056ac07d73b3a3a680e` | Optional private derivative metadata |
+| 2026-10-22-170000_CreateFinanceCheckoutRequests.php | `47cfab50ec8daed9c34ffbfa46083d7b7a8e4bc8` | Optional checkout request/replay identities |
+| 2026-10-22-180000_CreateAppointmentContactNotes.php | `4b450766db44bf751efbde2e6bf505a5f0e06fa4` | Optional append-only contact ledger |
+| 2026-10-22-190000_AddClinicalChargeAppointmentIndex.php | `2ef29676adcb8a3a45903ca487ba7368edfd747b` | Optional online charge-appointment lookup index |
+
+The final manifest also records exported-file SHA256 hashes. Preserve original collation, compatible parent FK types, existing histories and default-OFF configuration; DDL partial commits and retained-schema rollback limits are explicit.

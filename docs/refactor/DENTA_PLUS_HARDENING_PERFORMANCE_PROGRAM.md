@@ -9,9 +9,22 @@
 
 ---
 
+## Final closure classification (2026-10-23)
+
+This table is the consolidated delivery boundary; historical roadmap wording below is supporting context, not a claim of completed product scope.
+
+| Classification | Actual scope |
+|---|---|
+| DELIVERED | Operational correction ledger/application/return and manager controls; guarded settlement/report/reminder integration; bounded secondary clinical histories and query projections; native locale correction; scoped email validation/migration preflight; proxy/file/account preservation hardening; seven reviewed schema units; default-OFF contact, checkout and derivative implementations. Targeted SQL/routed/concurrency/EN-AR evidence is preserved. |
+| PARTIAL | Whole patient workspace is not constant-memory; legacy complete financial/document collections remain. Scheduling code is ready for separately authorized roster/legacy-visit/pilot review, not activated. Native medium-clinic finance/read/lock and populated file recovery pass; production peak capacity, physical power loss and activated-feature operator acceptance are not certified. Purchasing/clinical specialty depth remains existing functionality rather than a new comprehensive subsystem. |
+| DEFERRED BY POLICY | Fiscal documents/tax numbering; salaries/compensation; insurance/deposit/custody rules; automatic provider adjustments/clinical billing; purge/retention; new clinical specialty definitions; guardian/portal identity and governed external sending/payment policies. No operational semantics or grants are invented. |
+| OUT OF SCOPE | React source modernization in separate Bassamalsaqqa/Dentacare-Shell repository; reimplementation of deployed M1/M2; production checkpoint/merge/deployment/migrations/feature activation at this development gate; unrelated aesthetic redesign and blind old-branch integration. |
+
+Security closure records29 exact legitimate exceptions (28clinic-bound/raw transactional queries plus a fixed protected-chart icon), unchanged guardrail algorithm and negative tests rejecting new unsafe matches. This is a verified exception inventory, not a silent waiver. Remaining7 build-tool advisories (5high/2moderate) are developer-tool limitations; production dependency audits are narrower and do not certify every bundled asset. Tailwind/parser major upgrade is deferred to a separately scoped compatibility change; no automatic security-risk waiver for running untrusted development inputs.
+
 ## 2026-10-22 consolidated execution matrix
 
-This section supersedes historical checkpoint statuses below. Development stays in Draft PR #20 on the deployed M2 ancestry; it does not authorize production integration, migrations or activation. The Owner-supplied `DENTA_PLUS_UNIFIED_MASTER_ENGINEERING_PLAN_2026-10-19.md` is reconciled against current source, not reapplied as patches.
+This section supersedes historical checkpoint statuses below. Development stays in PR #20 on the deployed M2 ancestry; it does not authorize production integration, migrations or activation. The Owner-supplied `DENTA_PLUS_UNIFIED_MASTER_ENGINEERING_PLAN_2026-10-19.md` is reconciled against current source, not reapplied as patches.
 
 | Scope | State | Current disposition |
 |---|---|---|
@@ -60,7 +73,7 @@ Language-switch redirects are limited to the explicit configured application ori
 
 Generated CSS rebuilt with the compatible patched lockfile: **291,800 -> 293,388 bytes**. Retained selectors keep identical property values; five unreferenced utility selectors disappear and 29 are added for current templates. This is not a claim that every source/artifact got smaller.
 
-The campaign is not complete while MISSING entries remain. Continue safe implementation without intermediate external review requests. No production data, original checkout, historical staging or protected clinical evidence was changed.
+Eligible consolidated development is frozen for final independent review. The matrix below does not assert that policy-bound or separately sourced roadmap features are delivered. No production data, original checkout, historical staging or protected clinical evidence was changed.
 
 ---
 
@@ -145,7 +158,7 @@ This document serves as the **sole active temporary implementation plan** for th
     4. `ControlPlaneClinicDetailTest::testEnsureControlPlaneInvoicesTablesDownIsNonDestructive`: Provisioned physical tables `control_plane_invoices` and `control_plane_invoice_payments` in canonical baseline.
     5. `ControlPlaneClinicDetailTest::testShowWithEmptyInvoicesRendersNormalEmptyState`: Resolved by canonical invoice schema provisioning.
     6. `ControlPlaneOnboardingBehaviorTest::testCreationCommitsCompleteOnboardingWithoutTenantContext`: Added `$this->db?->resetTransStatus();` in `ControlPlaneClinicDetailTest::tearDown()` to eliminate connection state leakage across tests.
-- **SaaS Guardrails Baseline Gate (Exit Code: 1 — FAILING GATE):**
+- **SaaS Guardrails Baseline Gate (Exit Code: 1 â€” FAILING GATE):**
   - `Group-based auth helpers`: 0 matches in snake_case scan (blind spot identified above).
   - Pre-existing failing matches (3 categories):
     - `DOM sinks in app/Views`: 6 matches (`contracts/create.php:1416`, `finance/partials/provider_split_section.php:475`, `patient/show.php:6597`, `providers/index.php:578,616`, `settings/partials/kiosk.php:147`).

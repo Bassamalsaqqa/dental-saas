@@ -31,14 +31,14 @@ Last updated: 2026-10-23 (protected M2; consolidated nonproduction candidate in 
 
 ## Current exact-head review correction
 
-The review at6bb06dc returned CHANGES_REQUESTED for migration rollback ownership. Scheduling, contact and charge-index migrations may adopt pre-existing schema; their automatic down now refuses before database access, including empty objects. Up/preflight code is unchanged. Forty-six new focused real-SQL checks preserve each pre-existing/new/linked object and all rows. This is an intentional rollback restriction, not a completed external approval. AGY timed out without edits; Codex performed the correction. Final source identity/re-review is tracked on PR #20.
+The review at6bb06dc returned CHANGES_REQUESTED for migration rollback ownership. Scheduling, contact and charge-index migrations may adopt pre-existing schema; their automatic down now refuses before database access, including empty objects. Up/preflight code is unchanged. Forty-six new focused real-SQL checks preserve each pre-existing/new/linked object and all rows. This is an intentional rollback restriction, not a completed external approval. AGY timed out without edits; Codex performed the correction. The latest f754f1f independent review confirms the ownership defect corrected. Its changed PHPUnit fixture now passes2tests/15assertions. Final source identity/re-review is tracked on PR #20.
 
 ## Known operational limits
 
 - The Owner specifically authorized a JSON-serialization-only odontogram correction after a confirmed script-breakout finding. Mini/full decoded chart values, SVG assets, rendering and snapshots are preserved; focused template/browser/golden checks pass. No broader chart modification is authorized.
 - Native production browser certification remains outstanding, as recorded above. A separate synthetic Hostinger rehearsal now has actual LiteSpeed HTTPS/EN-AR acceptance and verified database/files restore; this is not a production restore or power-loss test.
 - Ambiguous/historical partial signing evidence and unreferenced artifact retention require controlled operator decisions; no automatic repair/deletion.
-- Existing guardrail drift is not a passing gate. No broad guardrail rerun for documentation-only discovery.
+- Final closure guardrails pass using evidenced exact-line exceptions, with unchanged detectors and negative probes. This is not a zero-query/zero-sink claim; see final acceptance in M2C_IMPLEMENTATION_EVIDENCE_20261021.md.
 - Hostinger MCP is authenticated after Owner reauthorization. The Owner separately authorized a cost-free isolated native rehearsal: new restricted synthetic databases, private source/storage and a new guarded dentarehearsal.palsync.net webroot. Existing production/staging installations are preserved. No production writes, migrations or deployment are authorized.
 
 ## References
@@ -52,3 +52,7 @@ The review at6bb06dc returned CHANGES_REQUESTED for migration rollback ownership
 - Messaging: [WHATSAPP_CURRENT_STATE.md](WHATSAPP_CURRENT_STATE.md)
 
 Superseded development chronology and old pending-review claims remain in Git history rather than being current release instructions.
+
+## Final consolidated development closure
+
+Native synthetic closure now includes5000invoices across2clinics, actual settlement race/cross-clinic independence, bounded metadata-lock timeout, process termination after publication and populated writable restore/off-host hash verification. No physical power-loss or production-load guarantee is claimed. The final acceptance matrix distinguishes fresh narrow runs from reused evidence. Source is frozen for one final exact-head review; roadmap policy/dependency boundaries remain explicit. No fresh production checkpoint is created here; it belongs to separately authorized release preflight.

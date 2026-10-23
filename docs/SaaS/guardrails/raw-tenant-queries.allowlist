@@ -1,3 +1,47 @@
 # Allowlist for existing raw tenant queries in the controller layer.
 # Entries must be removed when the offending code is refactored through TenantAwareModel or scoped services.
-# (Intentionally empty)
+# Exact-line exceptions below were independently inspected; no query patterns or whole files are exempt.
+
+# Evidence: docs/M2C_IMPLEMENTATION_EVIDENCE_20261021.md / Final bounded security guardrail classification.
+
+# Owned invoice creation transaction; authenticated runtime actor/clinic and clinic-id-bound new-row update/audit.
+app/Controllers/Api/Finance.php:166:                if (!$db->table('finances')->where('clinic_id', $clinicId)->where('id', $id)
+app/Controllers/Api/Finance.php:171:                if (!$db->table('activity_logs')->insert([
+
+# Authenticated global identity plus canonical tenant role, scoped attachment/entity/finance/patient/settings, entity permissions and path confinement.
+app/Controllers/FileController.php:216:        $userRow = $db->table('users')->where('id', $userId)->where('active', 1)->get()->getRowArray();
+app/Controllers/FileController.php:251:            $query = $db->table($config['table'])
+app/Controllers/FileController.php:277:                $record = $db->table('finances')
+app/Controllers/FileController.php:316:            $setting = $db->table('settings')
+app/Controllers/FileController.php:387:        return $db->table('patients')
+
+# Scoped report/history projections and clinic-id-bound settlement locks/updates under routed finance view/edit authority and checked transactions.
+app/Controllers/Finance.php:1507:            $billedInventoryUsageRows = $this->db->table('inventory_usage iu')
+app/Controllers/Finance.php:1564:        $rows = $this->db->table('provider_payout_payments ppp')
+app/Controllers/Finance.php:2283:        $financeRowsBuilder = $this->db->table('finances f')
+app/Controllers/Finance.php:2387:        $invoicePaymentRowsBuilder = $this->db->table('finance_payments fp')
+app/Controllers/Finance.php:2489:        $payoutPaymentRowsBuilder = $this->db->table('provider_payout_payments ppp')
+app/Controllers/Finance.php:2559:        $transferRowsBuilder = $this->db->table('finance_liquidity_transfers ft')
+app/Controllers/Finance.php:2832:        $rows = $this->db->table('finances f')
+app/Controllers/Finance.php:3222:        return $this->db->query(
+app/Controllers/Finance.php:3449:            $finance = $this->db->query(
+app/Controllers/Finance.php:3611:            $finance = $this->db->query(
+app/Controllers/Finance.php:3925:        return (bool) $this->db->table('finances')
+
+# Clinic/item parent locking and scoped history/receipt probes under inventory delete/view authority.
+app/Controllers/Inventory.php:473:                    if ($this->db->tableExists($table) && $this->db->table($table)->where('clinic_id',$clinicId)->where('inventory_id',$id)->countAllResults() > 0) {
+app/Controllers/Inventory.php:479:                $history = $this->db->query(
+app/Controllers/Inventory.php:633:        $paymentRows = $this->db->table('finance_payments fp')
+
+# Report authority; every base query and tenant-bearing join/subquery correlates clinic.
+app/Controllers/Reports.php:1198:        $financeRows = $this->db->table('finances f')
+app/Controllers/Reports.php:1303:        $invoicePaymentRows = $this->db->table('finance_payments fp')
+app/Controllers/Reports.php:1400:        $providerPaymentRows = $this->db->table('provider_payout_payments ppp')
+app/Controllers/Reports.php:1610:        $rows = $this->db->table('finances f')
+
+# Settings authority; canonical active clinic roster and clinic-scoped profiles.
+app/Controllers/Settings.php:579:        $rows = $db->table('clinic_users cu')->select('u.id AS user_id, u.first_name, u.last_name, u.email, r.slug AS role_slug')
+app/Controllers/Settings.php:584:        if ($ready) foreach ($db->table('clinic_provider_profiles')->where('clinic_id', $clinicId)->get()->getResultArray() as $profile) $profiles[(int) $profile['user_id']] = $profile;
+
+# Treatments-edit authority; checked parent-lock transaction and clinic/id-bound NOWAIT current identity validation.
+app/Controllers/Treatment.php:686:            $lockedQuery = $this->db->query(

@@ -2,6 +2,25 @@
 
 Status: corrected review candidate; independent exact-head decision and production release gates remain open. Production base `f86376a4a6c8f6bf0fe4471f08093af71e76e042`, tree `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`. Production inspection was read-only. No production writes, merge, release-ref change, deployment, production migration or feature activation occurred. InvoiceCorrections.enabled remains false. Scheduling and WhatsApp remain OFF.
 
+## Final consolidated closure acceptance (2026-10-23)
+
+This section is authoritative over earlier historical failing/check-only checkpoints. Exact final commit/tree and raw manual results are pinned in the PR metadata and private release manifest. Runtime source is f754f1f; the final closure changes only evidence, roadmap/release documentation and exact-line guardrail configuration. An app/public/system tree comparison is mandatory after freeze. Earlier broad evidence is reused by change provenance, not claimed rerun.
+
+| Gate | Manual acceptance and scope | Result |
+|---|---|---|
+| Changed PhaseBMigrationTest | Actual PHPUnit11.5.55/PHP8.2.12, explicit owned3307/datadir/user/schema preflight; both changed tests run | PASS:2 tests/15 assertions. Initial missing canonical synthetic doctor seed fixed in disposable DB only; not an application defect. |
+| Rollback ownership | f754 focused46 real-SQL checks plus3 native compatible-up/zero-query refused-down cases over78tables | PASS; no defect carried forward. |
+| Guardrails | Unmodified detector, independently inspected exact-line exceptions below; negative dynamic-HTML and new-query probes | PASS with29 legitimate exact exceptions, not zero raw queries/zero sinks. Negative probes both rejected; source/permissions unchanged. |
+| Native finance capacity | Retained5000 synthetic invoices,2500/clinic; five summary samples; bounded25-row aging detail | PASS:72.680/73.741/89.991ms min/median/max;14MiB peak process memory. This is a medium synthetic fixture, not a guarantee for production-sized paid histories. |
+| Native locking/isolation | Two actual bulk-settlement processes on one invoice, separate-clinic settlement while clinic1 invoice locked, metadata-lock timeout | PASS:1 receipt/1 skip,10.610ms independent clinic2 settlement,1.001s bounded metadata timeout. No production load or DDL was exercised. |
+| Query plan | EXPLAIN actual summary SQL on MariaDB11.8.9 | Captured:finance base scan estimates5036rows; child aggregates use clinic/correction/application keys; payment aggregates still use temporary/filesort. No invented index speedup or unlimited scalability claim. |
+| Publication/recovery | Kill only owned child after durable synthetic HTML publication before any signature DB linking; actual CLI read-only report; entire populated writable archive restored to fresh private directory | PASS:unreferenced artifact/journal retained,9files including journal, staging and HTML byte-identical; off-host archive SHA256397a58c7cd3ad27f670a02b4399824c7edc3108d0c064c76a0925e6dc2484a5a verified. Process crash is not physical host power-loss certification. |
+| Native DB restore | Earlier exact78tables/30FKs restore to separate synthetic restricted DB; retained evidence | PASS reused, not a new production backup or a claim the later5000fixture rows were restored. |
+| EN/AR/session/Bearer/tenant | Accepted full-shell desktop/mobile, session/API isolation, CSRF, canonical roles and native language-switch checks | Reused unchanged runtime evidence, not another broad run. |
+| Release protection | No production checkpoint created at development gate; no merge/release-ref change/production data write/migration/feature activation/Actions | Mandatory release-preflight duties remain pending. |
+
+Native harness corrections are explicit: a projected detail row intentionally lacks clinic_id, so the check uses disjoint owned/foreign IDs; recovery CLI writes stdout directly, so it is captured in a child rather than PHP output buffering. Retained fixtures were resumed without reset. No successful suite is inferred from a failed harness run. Final native result includes all successful concurrency metrics and unchanged earlier native invoice/payment rows. AGY's bounded ownership task timed out without edits; no AGY approval is claimed. A second Codex source reviewer independently classified every raw-query exception.
+
 ## Implemented and independently inspected
 
 Append-only operational correction, approval, sequence, replacement, application and full-return history; exact cents and original/base caps; immutable original invoice basis, settlements, provider obligations and clinical evidence. Provider-linked issuance revalidates manager authority, approval expiration and locked source proof. No automatic cash transfer, provider clawback, clinical unbilling or fiscal claim.
@@ -182,3 +201,22 @@ Independent CHANGES_REQUESTED at6bb06dc55e9005cea491d522d599fc898665e337 identif
 Focused real-SQL ownership cases pass **28 scheduling +11 index +7 contact checks** on new retained local3307 prefixes: each compatible pre-existing column/index/table, combined/partial states, freshly created expansions and populated/linked histories survive new-instance down with exact DDL/row snapshots. The older migration unit expectation is updated to retention; it no longer uses unsafe down to manufacture missing-schema tests. Existing independent old-schema behavior evidence remains historical, not a rerun claim. AGY's new two-minute bounded implementation attempt timed out with zero edits; Codex completed and inspected the correction. No duplicate review request was posted for6bb06dc because this decision had already arrived.
 
 The stale metadata finding is addressed by updating the PR to each actual final checkpoint after push; the earlier description update and review were concurrent. No status checks/Actions, missing fresh production checkpoint, native scale/metadata locks, populated-journal/power-loss and individual migration/feature approvals are represented as passing gates. These remain explicit release limitations, not grounds to revive the retracted cash-backing claim.
+
+## Final bounded security guardrail classification
+
+Owner directive: "Fix unsafe paths; preserve legitimate exceptions with evidence. Do not weaken the checks to manufacture a pass." No detector, regex, route permission, query or chart implementation is changed by this classification. The existing exact-line allowlist mechanism deliberately rejects modified or additional lines. These are inspected legitimate exceptions, not waived unscoped queries. A second Codex reviewer inspected all 28 controller findings independently; no unsafe tenant query was substantiated.
+
+| Exact source locations at f754f1f | Evidence supporting the exception |
+|---|---|
+| Api/Finance.php166,171 | Authenticated API runtime clinic/actor, finance-create route permission, newly inserted clinic/id predicate, audit with same actor/clinic; owned transaction rolls back either write failure. |
+| FileController.php216,251,277,316,387 | Active global user lookup validates identity (users has no clinic ownership). Canonical tenant role or validated impersonation; attachment and fixed ENTITY_MAP entity scoped to clinic, per-module permission, clinic-scoped patient/finance/settings lookups, deleted-record checks and realpath/junction confinement. |
+| Finance.php1507,1564 | Finance-view route; inventory and payout bases constrain clinic, joins correlate clinic plus owning record; user joins only label scoped history. |
+| Finance.php2283,2387,2489,2559,2832 | View/report route authority, explicit base clinic predicates and clinic-correlated payment/payout/finance/patient joins and historical subqueries; bound/escaped dates. |
+| Finance.php3222,3449,3611,3925 | Finance-edit route; clinic/id-bound lock and update; owned refund/void transaction, locked current settlement reconstruction, scoped payment lookup, rollback on failure. |
+| Inventory.php473,479,633 | Routed delete/view authority; deletion service owns transaction and locks clinic then item; clinic/id-bound history and JSON probes; receipt and finance join both correlate clinic. Invalid history fails closed. |
+| Reports.php1198,1303,1400,1610 | Reports view/export route; explicit base clinic constraints, correlated clinic joins/subqueries, bounded AR detail; global user names only label scoped provider obligations. |
+| Settings.php579,584 | Settings view/edit tenant/subscription routes; roster requires active membership/user/role and global-or-current-clinic role eligibility, excludes super-admin; profiles explicitly clinic-scoped. |
+| Treatment.php686 | Both route aliases require treatments-edit; scoped initial treatment; protected parent locking in transaction; clinic/id-bound NOWAIT lock revalidates patient/examination before treatment/stock/charge writes. |
+| contracts/create.php1416 | Exact RHS is the immutable source literal `<i class="fas fa-pen text-xs"></i>`. No interpolation, concatenation, API, database or user data reaches the sink. Surrounding tooth labels/statuses use textContent and the click handler preserves existing chart behavior. Chart internals are separately protected by Owner scope; an exact-line exception preserves them. Any payload/source-line change or new sink must fail the unchanged detector. This is not approval for dynamic HTML. |
+
+Existing focused tenant/file/finance/inventory/scheduling/checkout evidence is reused; this classification does not claim those suites reran. The two remaining group-auth observations are already documented non-authorizing observations. No file-wide exemptions or arbitrary query-pattern exemptions are justified.
