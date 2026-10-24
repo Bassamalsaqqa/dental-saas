@@ -156,7 +156,7 @@ $statusTone = match ($statusRaw) {
         </div>
     </section>
 
-    <section class="treatment-command-section mb-6 rounded-[1.6rem] border p-4 sm:p-5">
+    <section class="treatment-command-section mb-6 v3-radius border p-4 sm:p-5">
         <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] v3-text-primary"><?= esc($tr('operational_snapshot')) ?></p>

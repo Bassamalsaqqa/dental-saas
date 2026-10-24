@@ -18,7 +18,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
 <div class="v3-operational-view min-h-screen v3-surface" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="space-y-6">
-            <section class="overflow-hidden rounded-[28px] border v3-border v3-text-on-primary">
+            <section class="overflow-hidden v3-radius border v3-border v3-text-on-primary">
                 <div class="flex flex-col gap-3 p-6 sm:p-8 xl:flex-row xl:items-start xl:justify-between">
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] v3-accent-text">
@@ -86,7 +86,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
             </section>
 
             <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)]">
-                <div class="overflow-hidden rounded-[28px] border v3-border v3-surface">
+                <div class="overflow-hidden v3-radius border v3-border v3-surface">
                     <div class="border-b v3-border px-6 py-5">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
@@ -128,7 +128,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                     <?php endif; ?>
                 </div>
 
-                <div class="overflow-hidden rounded-[28px] border v3-border v3-surface">
+                <div class="overflow-hidden v3-radius border v3-border v3-surface">
                     <div class="border-b v3-border px-6 py-5">
                         <h2 class="text-lg font-bold v3-text-ink"><?= esc($tr('supplierPayablesSubtitle')) ?></h2>
                         <p class="mt-1 text-sm v3-text-muted"><?= esc($tr('linkedFinanceRecordsHelp')) ?></p>
@@ -151,7 +151,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 </div>
             </section>
 
-            <section class="overflow-hidden rounded-[28px] border v3-border v3-surface">
+            <section class="overflow-hidden v3-radius border v3-border v3-surface">
                 <div class="border-b v3-border px-6 py-5">
                     <h2 class="text-lg font-bold v3-text-ink"><?= esc($tr('supplierStatement')) ?></h2>
                     <p class="mt-1 text-sm v3-text-muted"><?= esc($tr('linkedFinanceRecordsHelp')) ?></p>

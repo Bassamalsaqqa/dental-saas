@@ -77,7 +77,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
 
 <div id="tab-whatsapp-templates" data-section-title="<?= esc(lang('V3Platform.whatsappTemplates'), 'attr') ?>" class="settings-content hidden space-y-6">
     <div id="section-whatsapp-overview" data-section-title="<?= esc(lang('V3Platform.whatsappOverview'), 'attr') ?>" class="space-y-6">
-        <div class="rounded-[1.75rem] border v3-border-default p-6">
+        <div class="v3-radius border v3-border-default p-6">
             <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                 <div class="max-w-3xl">
                     <div class="flex items-center gap-3">

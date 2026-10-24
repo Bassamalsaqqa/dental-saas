@@ -52,7 +52,7 @@
     <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
         <div class="w-full max-w-4xl max-h-full animate-card-entry">
             <div class="group relative">
-                <div class="relative glass-card border v3-border-default rounded-[2.5rem] v3-elevation-none shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
+                <div class="relative glass-card border v3-border-default v3-radius v3-elevation-none shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
 
                     <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
 
@@ -124,7 +124,7 @@
     <!-- Footer -->
     <footer class="relative z-10 w-full p-4 md:p-6 pb-6 md:pb-8 flex-shrink-0 animate-footer-entry">
         <div class="max-w-5xl mx-auto">
-            <div class="relative glass-card border v3-border-default rounded-[2rem] p-4 px-8 v3-elevation-none shadow-black/20 overflow-hidden">
+            <div class="relative glass-card border v3-border-default v3-radius p-4 px-8 v3-elevation-none shadow-black/20 overflow-hidden">
                 <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
                 <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div class="flex items-center space-x-5">

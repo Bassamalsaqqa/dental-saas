@@ -7,7 +7,7 @@
                             </div>
                         </div>
                         <div class="p-4">
-                            <div class="settings-action-panel mb-8 flex flex-col gap-5 rounded-[1.5rem] border v3-border v3-surface p-6 sm:flex-row sm:items-center">
+                            <div class="settings-action-panel mb-8 flex flex-col gap-5 v3-radius border v3-border v3-surface p-6 sm:flex-row sm:items-center">
                                 <div class="flex items-start gap-4">
                                     <div class="flex h-12 w-12 shrink-0 items-center justify-center v3-radius v3-bg-forest v3-text-warning">
                                         <i class="fas fa-shield-alt text-xl"></i>

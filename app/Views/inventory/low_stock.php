@@ -226,7 +226,7 @@ $openReorderCount = (int) ($open_reorder_count ?? 0);
 ?>
 
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.75rem] border v3-border v3-bg-forest v3-text-on-primary">
+    <section class="overflow-hidden v3-radius border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative isolate">
             <div class="absolute inset-0 v3-bg-panel"></div>
 
@@ -278,7 +278,7 @@ $openReorderCount = (int) ($open_reorder_count ?? 0);
         </div>
     </section>
 
-    <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
+    <section class="overflow-hidden v3-radius border v3-border v3-surface">
         <div class="flex flex-col gap-4 border-b v3-border px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-3">
                 <span class="flex h-11 w-11 items-center justify-center v3-radius v3-bg-warning v3-text-on-primary">
@@ -376,7 +376,7 @@ $openReorderCount = (int) ($open_reorder_count ?? 0);
     </section>
 
     <div class="grid gap-3 md:grid-cols-2">
-        <a href="<?= base_url('inventory/create') ?>" class="group flex items-center justify-between gap-4 rounded-[1.35rem] p-4 v3-text-on-primary transition">
+        <a href="<?= base_url('inventory/create') ?>" class="group flex items-center justify-between gap-4 v3-radius p-4 v3-text-on-primary transition">
             <span class="flex items-center gap-3">
                 <span class="flex h-11 w-11 items-center justify-center v3-radius v3-surface border v3-border-default"><i class="fas fa-plus"></i></span>
                 <span class="text-sm font-black"><?= esc(lang('Inventory.addNewItem')) ?></span>
@@ -384,7 +384,7 @@ $openReorderCount = (int) ($open_reorder_count ?? 0);
             <i class="fas fa-arrow-right rtl-back-icon opacity-80 transition group-hover:translate-x-0.5"></i>
         </a>
 
-        <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="group flex items-center justify-between gap-4 rounded-[1.35rem] p-4 v3-text-on-primary transition">
+        <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="group flex items-center justify-between gap-4 v3-radius p-4 v3-text-on-primary transition">
             <span class="flex items-center gap-3">
                 <span class="flex h-11 w-11 items-center justify-center v3-radius v3-surface border v3-border-default"><i class="fas fa-list"></i></span>
                 <span class="text-sm font-black"><?= esc(lang('Inventory.inventoryItems')) ?></span>
@@ -397,7 +397,7 @@ $openReorderCount = (int) ($open_reorder_count ?? 0);
 <div id="reorderQtyModal" class="fixed inset-0 z-[2147483500] hidden">
     <div class="absolute inset-0 v3-backdrop" onclick="closeReorderQtyModal()"></div>
     <div class="relative z-10 flex min-h-full items-center justify-center p-4">
-        <div class="w-full max-w-md overflow-hidden rounded-[1.65rem] border v3-border v3-surface">
+        <div class="w-full max-w-md overflow-hidden v3-radius border v3-border v3-surface">
             <div class="flex items-center justify-between gap-4 border-b v3-border px-5 py-4">
                 <div class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center v3-radius v3-bg-warning v3-text-on-primary">

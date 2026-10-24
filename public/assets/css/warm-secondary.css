@@ -13,7 +13,7 @@
 .denta-v3 .v3-command-layout>div:first-child {display:flex;align-items:center;gap:10px;}
 .denta-v3 .v3-command-layout>div:first-child> :is(.v3-icon,.settings-hero-icon) {display:none;}
 .denta-v3 .v3-command-layout h1 {font-size:24px;line-height:1.3;margin:0;color:var(--denta-ink);}
-.denta-v3 .v3-command-layout p {font-size:13px;color:var(--denta-muted);margin:4px 0;}
+.denta-v3 .v3-command-layout p {font-size:13px;color:var(--denta-ink);margin:4px 0;}
 .denta-v3 .v3-command-layout>div:last-child {display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .denta-v3 .v3-command-layout :is(a,button) {display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 12px;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-alabaster);color:var(--denta-ink);font-size:13px;font-weight:600;}
 .denta-v3 .v3-command-layout .v3-action-primary {background:var(--denta-emerald-pine);border-color:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
@@ -22,11 +22,11 @@
 .denta-v3 .v3-record-heading {min-width:0;}
 .denta-v3 .v3-record-heading h1 {font-size:23px;color:var(--denta-ink);line-height:1.3;margin:0 8px 8px 0;display:inline;}
 .denta-v3 .v3-record-heading>.inline-flex {color:var(--denta-ink)!important;font-size:12px;}
-.denta-v3 .v3-record-reference {display:block;font-size:12px;color:var(--denta-muted);margin-bottom:4px;}
+.denta-v3 .v3-record-reference {display:block;font-size:12px;color:var(--denta-ink);margin-bottom:4px;}
 .denta-v3 .v3-record-meta {display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
 .denta-v3 .v3-record-meta .patient-hero-chip {display:flex;align-items:center;gap:6px;padding:3px 8px;background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:5px;max-width:100%;}
 .denta-v3 .v3-record-meta .patient-hero-chip-text {display:flex;gap:5px;font-size:12px;line-height:1.4;white-space:normal;}
-.denta-v3 .v3-record-meta .patient-hero-chip-label {color:var(--denta-muted);font-weight:400;}
+.denta-v3 .v3-record-meta .patient-hero-chip-label {color:var(--denta-ink);font-weight:400;}
 .denta-v3 .v3-record-meta .patient-hero-chip-value {color:var(--denta-ink);font-weight:600;}
 .denta-v3 .v3-record-meta .patient-hero-chip-icon {display:none;}
 .denta-v3 .v3-record-actions {display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:440px;}
@@ -55,7 +55,7 @@
 .denta-v3 .denta-examination-workspace .exam-snapshot-card:nth-child(3) {background:var(--denta-tint-inchair);}
 .denta-v3 .denta-examination-workspace .exam-snapshot-card:nth-child(4) {background:var(--denta-tint-waiting);}
 .denta-v3 .denta-examination-workspace .exam-snapshot-value {font-size:23px;line-height:1.3;color:var(--denta-ink);}
-.denta-v3 .denta-examination-workspace .exam-snapshot-label {font-size:11px;color:var(--denta-muted);}
+.denta-v3 .denta-examination-workspace .exam-snapshot-label {font-size:11px;color:var(--denta-ink);}
 .denta-v3 .denta-examination-workspace .exam-workspace-section {padding:0;background:transparent;border:0;gap:14px;}
 .denta-v3 .denta-examination-workspace .exam-section-heading {padding:8px 0;border-bottom:1px solid var(--denta-taupe-border);background:transparent;margin-bottom:12px;}
 .denta-v3 .denta-examination-workspace .exam-section-heading :is(h2,h3,p,span) {color:var(--denta-ink);}

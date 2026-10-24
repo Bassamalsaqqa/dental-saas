@@ -260,7 +260,7 @@
             </div>
         <?php endif; ?>
 
-        <section class="control-settings-shell-card rounded-[1.75rem] p-3 sm:p-4">
+        <section class="control-settings-shell-card v3-radius p-3 sm:p-4">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-3 px-1 sm:px-2">
                 <div>
                     <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.settingsAreas')) ?></p>

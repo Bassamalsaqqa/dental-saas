@@ -15,3 +15,5 @@
 .denta-v3[data-v3-module=odontogram] :is(#toothModal,#batchModal) button :is(.fa,.fas){color:inherit}}
 
 /* Outer native-chart controls share V3; clinical SVG/condition colours stay owned by the renderer. */
+
+@media screen{.denta-v3[data-v3-module=odontogram] :is(#toothModal,#batchModal) label{color:var(--denta-ink)}.denta-v3[data-v3-module=odontogram] #workspace-content>div>div:first-child span[class*="bg-blue-"]{background:var(--denta-tint-scheduled);color:var(--denta-emerald-pine)}}

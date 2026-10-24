@@ -1522,7 +1522,7 @@ if (isset($workspace_history)) {
                                         </div>
                                         <div class="space-y-4 p-5">
                                             <?php if (!empty($latestImagingAttachment)): ?>
-                                                <div class="overflow-hidden rounded-[24px] border v3-border v3-bg-forest">
+                                                <div class="overflow-hidden v3-radius border v3-border v3-bg-forest">
                                                     <div class="aspect-[16/9] flex items-center justify-center">
                                                         <?php if (!empty($latestImagingAttachment) && $latestImagingIsPreviewable && !empty($latestImagingPreviewSrc)): ?>
                                                             <img loading="lazy" decoding="async" src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
@@ -1553,7 +1553,7 @@ if (isset($workspace_history)) {
                                                     </div>
                                                 </div>
                                             <?php else: ?>
-                                                <div class="rounded-[24px] border border-dashed v3-border v3-surface px-5 py-16 text-center">
+                                                <div class="v3-radius border border-dashed v3-border v3-surface px-5 py-16 text-center">
                                                     <i class="fas fa-x-ray v3-title-scale v3-text-muted"></i>
                                                     <p class="mt-4 text-sm v3-text-muted"><?= esc(lang('UI.patientNoImagingPreview')) ?></p>
                                                 </div>

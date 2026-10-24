@@ -125,7 +125,7 @@
 <div id="recordPayoutModal" class="fixed inset-0 z-[2147483500] hidden">
     <div class="absolute inset-0" onclick="closePayoutModal()"></div>
     <div class="relative min-h-full flex items-center justify-center p-4">
-        <div class="w-full max-w-lg overflow-hidden rounded-[1.65rem] border">
+        <div class="w-full max-w-lg overflow-hidden v3-radius border">
             <div class="flex items-center justify-between gap-4 px-5 py-4">
                 <div class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center border">

@@ -230,7 +230,7 @@ $initialActionCount = count($filters['actions'] ?? []);
             </div>
         </section>
 
-        <section class="mb-6 rounded-[1.5rem] border v3-border p-4 sm:p-5">
+        <section class="mb-6 v3-radius border v3-border p-4 sm:p-5">
             <div class="activity-snapshot-grid">
                 <div class="activity-snapshot-card activity-snapshot-total">
                     <p class="activity-snapshot-label"><?= esc($tr('recentActivities')) ?></p>

@@ -36,7 +36,7 @@ if ((int) ($filters['inventory_id'] ?? 0) > 0) {
 }
 ?>
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
+    <section class="overflow-hidden v3-radius border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
             <div class="absolute inset-0 v3-bg-panel"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
@@ -84,7 +84,7 @@ if ((int) ($filters['inventory_id'] ?? 0) > 0) {
         </div>
     </section>
 
-    <section class="rounded-[1.5rem] border v3-border v3-surface p-4 sm:p-5">
+    <section class="v3-radius border v3-border v3-surface p-4 sm:p-5">
         <form method="get" action="<?= base_url('inventory/movements') ?>" class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(13rem,.8fr)_minmax(13rem,.8fr)_10rem_10rem_9rem_auto] xl:items-end">
             <div>
                 <label class="mb-2 block text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('search')) ?></label>
@@ -129,7 +129,7 @@ if ((int) ($filters['inventory_id'] ?? 0) > 0) {
         </form>
     </section>
 
-    <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
+    <section class="overflow-hidden v3-radius border v3-border v3-surface">
         <div class="flex flex-col gap-4 border-b v3-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex min-w-0 items-center gap-3">
                 <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius v3-text-on-primary">

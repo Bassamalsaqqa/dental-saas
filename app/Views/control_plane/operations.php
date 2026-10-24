@@ -377,7 +377,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
 
         <div class="ops-workspace-section space-y-4 p-3 sm:p-4">
             <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                <nav class="overflow-x-auto rounded-[1.35rem] cp-surface p-2 border v3-border-default">
+                <nav class="overflow-x-auto v3-radius cp-surface p-2 border v3-border-default">
                     <div class="flex min-w-max gap-2">
                         <button type="button" onclick="showOpsTab('health')" id="ops-btn-health" class="ops-tab-button v3-btn v3-btn--secondary">
                             <i class="fas fa-heartbeat"></i>

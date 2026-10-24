@@ -334,7 +334,7 @@
                 <?php endforeach; ?>
             <?php else: ?>
                 <!-- Empty State -->
-                <div class="users-section-panel rounded-[2rem] border border-dashed px-6 py-14 text-center xl:col-span-2">
+                <div class="users-section-panel v3-radius border border-dashed px-6 py-14 text-center xl:col-span-2">
                     <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center">
                         <i class="fas fa-users v3-title"></i>
                     </div>

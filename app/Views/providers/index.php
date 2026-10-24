@@ -15,7 +15,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
 
 <div class="providers-page min-h-screen" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
-        <section class="mb-5 overflow-hidden rounded-[1.55rem]">
+        <section class="mb-5 overflow-hidden v3-radius">
             <div class="grid gap-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
                     <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center border">
@@ -61,7 +61,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
             <?php endforeach; ?>
         </section>
 
-        <section class="overflow-hidden rounded-[1.55rem] border">
+        <section class="overflow-hidden v3-radius border">
             <div class="border-b px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">

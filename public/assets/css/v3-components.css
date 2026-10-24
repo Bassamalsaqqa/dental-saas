@@ -12,7 +12,7 @@
 .denta-v3 :is(.v3-btn--danger,.v3-btn-danger):hover{background:var(--denta-terracotta-hover)}
 .denta-v3 :is(button,a,input,select,textarea):focus-visible{outline:2px solid var(--denta-emerald-pine);outline-offset:3px}
 .denta-v3 :is(button:disabled,input:disabled,select:disabled,textarea:disabled,[aria-disabled=true]){opacity:.55;cursor:not-allowed;box-shadow:none}
-.denta-v3 :is(.v3-input,.v3-select,.v3-textarea,input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),select,textarea){font-family:inherit;color:var(--denta-ink);background-color:var(--denta-ivory-input);border:1px solid var(--denta-taupe-border);border-radius:var(--v3-control-radius);box-shadow:none;min-height:36px;padding:7px 10px}
+.denta-v3 :is(.v3-input,.v3-select,.v3-textarea,input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),select,textarea){font-family:inherit;color:var(--denta-ink);background-color:var(--denta-ivory-input);border:1px solid var(--denta-muted);border-radius:var(--v3-control-radius);box-shadow:none;min-height:36px;padding:7px 10px}
 .denta-v3 :is(input,textarea)::placeholder{color:var(--denta-muted);opacity:1}
 .denta-v3 :is(input,textarea,select)[aria-invalid=true]{border-color:var(--denta-terracotta)}
 .denta-v3 :is(input[type=checkbox],input[type=radio]){accent-color:var(--denta-emerald-pine);color:var(--denta-emerald-pine);width:17px;height:17px;border:1.5px solid var(--denta-taupe-border);border-radius:3px;box-shadow:none}
@@ -47,13 +47,16 @@
 .denta-v3 .fc .fc-col-header-cell{background:var(--denta-table-head)}
 .denta-v3 :is(.tenant-header-dropdown,.tenant-menu-dropdown){background:var(--denta-alabaster);border:1.5px solid var(--denta-taupe-border);border-radius:9px;box-shadow:0 6px 18px rgb(22 36 33 / .12)}
 .denta-v3 [role=tooltip]{background:var(--denta-forest);color:var(--denta-ivory-input);border-radius:4px}
-.denta-v3 .v3-hover-text-muted:hover{color:var(--denta-muted)}
+.denta-v3 .v3-hover-text-muted:hover{color:var(--denta-ink)}
 .denta-v3 .v3-hover-text-on-primary:hover{color:var(--denta-ivory-input)}
 .denta-v3 .v3-hover-text-warning:hover{color:#71500A}
 .denta-v3 .v3-hover-text-chair:hover{color:#52436F}
 .denta-v3 .v3-form-section-header :is(h2,h3,h4){color:var(--denta-ink)}
 .denta-v3.login-page .login-input{padding-inline-start:2.7rem}
 .denta-v3.login-page .login-input-password{padding-inline-end:3rem}
+.denta-v3 .v3-btn :is(.fas,.far,.fab,.fa,.fa-solid,.fa-regular){color:inherit}
+.denta-v3 #kioskContractModal .v3-bg-forest .v3-text-muted{color:var(--denta-parchment)}
+.denta-v3 :is(.tenant-sidebar,.v3-platform-sidebar,.v3-bg-forest) .v3-text-muted{color:var(--denta-parchment)}
 @media(max-width:640px){.denta-v3 .v3-btn{min-height:40px}.denta-v3 :is(.v3-input,.v3-select,.v3-textarea){min-height:40px}}
 @media(prefers-reduced-motion:reduce){.denta-v3 *{scroll-behavior:auto;transition:none}}
 }

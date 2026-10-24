@@ -408,7 +408,7 @@ $guidanceText = static function ($item): string {
 
 <div class="v3-platform-workspace wa-page-shell min-h-screen">
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        <section class="wa-card overflow-hidden rounded-[2rem]">
+        <section class="wa-card overflow-hidden v3-radius">
             <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
                 <div class="flex flex-col justify-between gap-4">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -503,7 +503,7 @@ $guidanceText = static function ($item): string {
         <?php endif; ?>
 
         <div class="wa-workspace-section space-y-5 p-4 sm:p-5">
-        <nav class="overflow-x-auto rounded-[1.35rem] cp-surface p-2 border v3-border-default">
+        <nav class="overflow-x-auto v3-radius cp-surface p-2 border v3-border-default">
             <div class="flex min-w-max gap-2">
                 <?php foreach ($tabLabels as $tabKey => $tabMeta): ?>
                     <button
@@ -534,7 +534,7 @@ $guidanceText = static function ($item): string {
                         ];
                         ?>
                         <?php foreach ($kpis as $kpi): ?>
-                            <article class="wa-snapshot-card rounded-[1.45rem] p-5">
+                            <article class="wa-snapshot-card v3-radius p-5">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <p class="text-xs font-black uppercase tracking-[0.18em] v3-text-muted"><?= esc($kpi['label']) ?></p>
@@ -548,7 +548,7 @@ $guidanceText = static function ($item): string {
                         <?php endforeach; ?>
                     </div>
 
-                    <div class="wa-panel rounded-[1.6rem] overflow-hidden">
+                    <div class="wa-panel v3-radius overflow-hidden">
                         <div class="flex flex-col gap-3 border-b cp-border cp-surface p-5 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h2 class="text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.recentMessageStream')) ?></h2>
@@ -598,7 +598,7 @@ $guidanceText = static function ($item): string {
                 </div>
 
                 <aside class="space-y-5">
-                    <div class="wa-panel wa-panel-amber rounded-[1.6rem] p-5">
+                    <div class="wa-panel wa-panel-amber v3-radius p-5">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <h2 class="text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.needsAttention')) ?></h2>
@@ -633,7 +633,7 @@ $guidanceText = static function ($item): string {
                         </div>
                     </div>
 
-                    <div class="wa-panel rounded-[1.6rem] p-5">
+                    <div class="wa-panel v3-radius p-5">
                         <h2 class="text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.deliveryMix')) ?></h2>
                         <div class="mt-4 space-y-3">
                             <?php if (empty($statusBreakdown)): ?>
@@ -663,7 +663,7 @@ $guidanceText = static function ($item): string {
 
         <section id="pane-send" class="wa-pane <?= $initialTab === 'send' ? '' : 'hidden' ?>">
             <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-                <form method="post" action="<?= base_url('controlplane/whatsapp/send-test') ?>" class="wa-panel rounded-[1.7rem] p-5 lg:p-6">
+                <form method="post" action="<?= base_url('controlplane/whatsapp/send-test') ?>" class="wa-panel v3-radius p-5 lg:p-6">
                     <?= csrf_field() ?>
                     <div class="flex flex-col gap-4 border-b cp-border pb-5 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -793,7 +793,7 @@ $guidanceText = static function ($item): string {
                 </form>
 
                 <aside class="space-y-5">
-                    <div class="wa-panel wa-panel-emerald rounded-[1.6rem] p-5">
+                    <div class="wa-panel wa-panel-emerald v3-radius p-5">
                         <h3 class="text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.operatorRules')) ?></h3>
                         <div class="mt-4 space-y-3 text-sm font-semibold v3-text-ink">
                             <p><i class="fas fa-check-circle me-2 v3-text-primary"></i><?= esc(lang('V3Platform.useTestSendsForSetupAndHealthChecksOnly')) ?></p>
@@ -801,7 +801,7 @@ $guidanceText = static function ($item): string {
                             <p><i class="fas fa-check-circle me-2 v3-text-primary"></i><?= esc(lang('V3Platform.optOutsAndProviderFailuresStayVisibleInThisWorkspace')) ?></p>
                         </div>
                     </div>
-                    <div class="wa-panel rounded-[1.6rem] p-5">
+                    <div class="wa-panel v3-radius p-5">
                         <h3 class="text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.templateSettings')) ?></h3>
                         <p class="mt-2 text-sm font-semibold v3-text-muted"><?= esc(lang('V3Platform.secretRotationPolicyControlsAndTriggerTemplatesLiveInControlPlaneSettings')) ?></p>
                         <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="mt-4 inline-flex w-full items-center justify-center gap-2 cp-radius v3-bg-forest px-4 py-3 text-sm font-extrabold v3-text-on-primary transition v3-bg-forest v3-btn v3-btn--secondary">
@@ -814,7 +814,7 @@ $guidanceText = static function ($item): string {
         </section>
 
         <section id="pane-activity" class="wa-pane <?= $initialTab === 'activity' ? '' : 'hidden' ?>">
-            <div class="wa-panel overflow-hidden rounded-[1.7rem]">
+            <div class="wa-panel overflow-hidden v3-radius">
                 <div class="border-b cp-border cp-surface p-5">
                     <h2 class="text-2xl font-black v3-text-ink"><?= esc(lang('V3Platform.recentSendAttempts')) ?></h2>
                     <p class="mt-1 text-sm font-semibold v3-text-muted"><?= esc(lang('V3Platform.traceOutboundTestAndWorkflowSendsWithoutLeavingTheControlPlane')) ?></p>
@@ -886,7 +886,7 @@ $guidanceText = static function ($item): string {
         <section id="pane-webhooks" class="wa-pane <?= $initialTab === 'webhooks' ? '' : 'hidden' ?>">
             <div class="grid gap-5 lg:grid-cols-2">
                 <?php if (empty($recentEvents)): ?>
-                    <div class="wa-panel rounded-[1.7rem] cp-panel-padding text-center lg:col-span-2">
+                    <div class="wa-panel v3-radius cp-panel-padding text-center lg:col-span-2">
                         <i class="fas fa-code-branch cp-title v3-text-muted"></i>
                         <p class="mt-3 text-sm font-bold v3-text-muted"><?= esc(lang('V3Platform.noWebhookEventsRecordedYet')) ?></p>
                     </div>
@@ -900,7 +900,7 @@ $guidanceText = static function ($item): string {
                         $eventSubject = (string) ($eventSummary['subject'] ?? '');
                         $eventCode = (string) ($eventSummary['code'] ?? '');
                         ?>
-                        <article class="wa-panel rounded-[1.7rem] p-5">
+                        <article class="wa-panel v3-radius p-5">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <span class="wa-chip cp-soft-surface cp-accent border v3-border-default"><?= esc($event['event_type'] ?? 'webhook') ?></span>
@@ -929,7 +929,7 @@ $guidanceText = static function ($item): string {
         </section>
 
         <section id="pane-optouts" class="wa-pane <?= $initialTab === 'optouts' ? '' : 'hidden' ?>">
-            <div class="wa-panel overflow-hidden rounded-[1.7rem]">
+            <div class="wa-panel overflow-hidden v3-radius">
                 <div class="border-b cp-border cp-surface p-5">
                     <h2 class="text-2xl font-black v3-text-ink"><?= esc(lang('V3Platform.recentOptOuts')) ?></h2>
                     <p class="mt-1 text-sm font-semibold v3-text-muted"><?= esc(lang('V3Platform.patientsWhoShouldNotReceiveWhatsappWorkflowMessages')) ?></p>
@@ -968,17 +968,17 @@ $guidanceText = static function ($item): string {
 
         <section id="pane-reference" class="wa-pane <?= $initialTab === 'reference' ? '' : 'hidden' ?>">
             <div class="grid gap-5 lg:grid-cols-3">
-                <div class="wa-panel wa-panel-emerald rounded-[1.7rem] p-5">
+                <div class="wa-panel wa-panel-emerald v3-radius p-5">
                     <span class="flex h-12 w-12 items-center justify-center cp-radius cp-soft-surface v3-text-primary"><i class="fas fa-route"></i></span>
                     <h3 class="mt-4 text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.workflowOwnership')) ?></h3>
                     <p class="mt-2 text-sm font-semibold leading-6 v3-text-muted"><?= esc(lang('V3Platform.tenantEventsCreateWorkflowMessagesThisControlPlanePageObservesTestsAndGovernsThemWithoutBecomingATenantMessagingWorkspace')) ?></p>
                 </div>
-                <div class="wa-panel wa-panel-sky rounded-[1.7rem] p-5">
+                <div class="wa-panel wa-panel-sky v3-radius p-5">
                     <span class="flex h-12 w-12 items-center justify-center cp-radius cp-soft-surface cp-accent"><i class="fas fa-lock"></i></span>
                     <h3 class="mt-4 text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.safetyModel')) ?></h3>
                     <p class="mt-2 text-sm font-semibold leading-6 v3-text-muted"><?= esc(lang('V3Platform.secretsPolicyTogglesTemplatesAndEmergencyPauseControlsRemainCentralizedInSettingsWithExistingGuardrails')) ?></p>
                 </div>
-                <div class="wa-panel wa-panel-amber rounded-[1.7rem] p-5">
+                <div class="wa-panel wa-panel-amber v3-radius p-5">
                     <span class="flex h-12 w-12 items-center justify-center cp-radius v3-bg-waiting v3-text-warning"><i class="fas fa-list-check"></i></span>
                     <h3 class="mt-4 text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.operatorChecklist')) ?></h3>
                     <div class="mt-3 space-y-2 text-sm font-semibold v3-text-ink">

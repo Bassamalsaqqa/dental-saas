@@ -32,7 +32,7 @@ $statusClasses = [
 ];
 ?>
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
+    <section class="overflow-hidden v3-radius border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
             <div class="absolute inset-0 v3-bg-panel"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
@@ -91,7 +91,7 @@ $statusClasses = [
         </div>
     <?php endif; ?>
 
-    <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
+    <section class="overflow-hidden v3-radius border v3-border v3-surface">
         <div class="flex flex-col gap-4 border-b v3-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex min-w-0 items-center gap-3">
                 <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius v3-text-on-primary">

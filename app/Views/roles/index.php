@@ -276,7 +276,7 @@
 
     <!-- Empty State -->
     <?php if (empty($roles)): ?>
-        <div class="rounded-[2rem] border border-dashed px-6 py-14 text-center">
+        <div class="v3-radius border border-dashed px-6 py-14 text-center">
             <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center">
                 <i class="fas fa-user-tag v3-title"></i>
             </div>
