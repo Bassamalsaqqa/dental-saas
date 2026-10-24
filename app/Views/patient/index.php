@@ -16,391 +16,47 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
 <!-- Custom DataTables Styling -->
-<style>
-/* DataTables Controls Styling - More specific selectors */
-.dataTables_wrapper {
-    position: relative !important;
-}
 
-.dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    order: 1 !important;
-}
 
-.dataTables_length label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-right: 12px !important;
-}
-
-.dataTables_length select {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_length select:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-}
-
-.dataTables_length select:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin-left: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_filter label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-right: 12px !important;
-}
-
-.dataTables_filter input {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_filter input:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-}
-
-.dataTables_filter input:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_info {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #6b7280 !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-}
-
-.dataTables_paginate .paginate_button {
-    padding: 8px 12px !important;
-    margin: 0 2px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 6px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #f3f4f6 !important;
-    border-color: #9ca3af !important;
-    color: #1f2937 !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #f9fafb !important;
-    border-color: #e5e7eb !important;
-    color: #9ca3af !important;
-    cursor: not-allowed !important;
-}
-
-.dataTables_processing {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    padding: 20px !important;
-    text-align: center !important;
-}
-
-/* Ensure proper spacing and layout */
-.dataTables_wrapper .dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-right: auto !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-left: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_wrapper .dataTables_info {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-right: auto !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-left: auto !important;
-    order: 2 !important;
-}
-
-/* Ensure the top container uses flexbox */
-.dataTables_wrapper > .row:first-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-/* Ensure the bottom container uses flexbox */
-.dataTables_wrapper > .row:last-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-.patient-create-modal {
-    visibility: hidden;
-    pointer-events: none;
-    transition: visibility 0s linear 240ms;
-}
-.patient-create-modal.is-open {
-    visibility: visible;
-    pointer-events: auto;
-    transition-delay: 0s;
-}
-.patient-create-modal__backdrop {
-    opacity: 0;
-    transition: opacity 220ms ease;
-}
-.patient-create-modal.is-open .patient-create-modal__backdrop {
-    opacity: 1;
-}
-.patient-create-modal__panel {
-    display: grid !important;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    opacity: 0;
-    overflow: clip;
-    transform: scale(0.86);
-    transform-origin: center center;
-    height: min(92dvh, 52rem);
-    transition:
-        opacity 180ms ease,
-        transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
-    will-change: transform, opacity;
-}
-.patient-create-modal.is-open .patient-create-modal__panel {
-    opacity: 1;
-    transform: scale(1);
-}
-.patient-create-modal .select2-container {
-    width: 100% !important;
-}
-.patient-create-modal [data-medical-alert-item] {
-    align-self: start;
-}
-@media (prefers-reduced-motion: reduce) {
-    .patient-create-modal__backdrop,
-    .patient-create-modal__panel {
-        transition: none;
-    }
-}
-@media (max-width: 640px) {
-    .patient-create-modal__shell {
-        align-items: stretch;
-        padding: 0;
-    }
-    .patient-create-modal__panel {
-        width: 100vw;
-        height: 100dvh;
-        min-height: 100dvh;
-        max-height: 100dvh;
-        border-radius: 0;
-    }
-}
-
-.patients-page .dataTables_wrapper {
-    border-radius: 0 0 1.5rem 1.5rem;
-    overflow: hidden;
-}
-
-.patients-page .dataTables_wrapper > .dt-buttons {
-    display: none;
-}
-
-.patients-page .dataTables_wrapper .dataTables_length,
-.patients-page .dataTables_wrapper .dataTables_filter {
-    margin: 0 !important;
-}
-
-.patients-page .dataTables_wrapper .dataTables_length label,
-.patients-page .dataTables_wrapper .dataTables_filter label {
-    color: #475569 !important;
-    font-size: 0.8rem !important;
-    font-weight: 800 !important;
-}
-
-.patients-page .dataTables_wrapper .dataTables_filter input,
-.patients-page .dataTables_wrapper .dataTables_length select {
-    border-radius: 0.85rem !important;
-    border-color: #cbd5e1 !important;
-    background: #fff !important;
-    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
-}
-
-.patients-page .dataTables_wrapper .dataTables_filter input:focus,
-.patients-page .dataTables_wrapper .dataTables_length select:focus {
-    border-color: #10b981 !important;
-    box-shadow: 0 0 0 3px rgba(16,185,129,0.14) !important;
-}
-
-.patients-page #patientsTable thead th {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    color: #334155;
-}
-
-.patients-page #patientsTable tbody tr {
-    transition: background-color 0.16s ease, box-shadow 0.16s ease;
-}
-
-.patients-page #patientsTable tbody tr:hover {
-    background: linear-gradient(90deg, rgba(236,253,245,0.9), rgba(240,249,255,0.72)) !important;
-}
-
-.patients-page .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #059669, #0f766e) !important;
-    border-color: transparent !important;
-}
-
-.patients-page .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: #ecfdf5 !important;
-    border-color: #a7f3d0 !important;
-    color: #065f46 !important;
-}
-</style>
-
-<div class="patients-page min-h-screen bg-slate-50">
+<div class="patients-page min-h-screen v3-surface">
     <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
-        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-emerald-700 via-teal-700 to-slate-900 text-white shadow-2xl shadow-emerald-900/18">
-            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
-                        <i class="fas fa-users text-xl"></i>
-                    </span>
-                    <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-emerald-100"><?= esc(lang('UI.patientPatientRegistry')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc(lang('UI.patientManagementTitle')) ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-50/88"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
-                    </div>
-                </div>
-                <?php if (has_permission('patients', 'create')): ?>
-                    <a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-emerald-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+        <header class="v3-command-header">
+  <div><h1><?= esc(lang('UI.patientManagementTitle')) ?></h1><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></div>
+  <div class="v3-command-actions"><?php if (has_permission('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="v3-action v3-action-primary">
                         <i class="fas fa-user-plus"></i>
                         <?= esc(lang('UI.patientNewPatient')) ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </section>
+                    </a><?php endif; ?></div>
+</header>
 
-        <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 text-white shadow-xl shadow-emerald-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('UI.patientTotalPatients')) ?></p>
-                        <p class="mt-2 text-3xl font-black" id="totalPatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-users"></i></span>
-                </div>
-            </article>
-            <article class="rounded-2xl bg-gradient-to-br from-green-600 to-emerald-700 p-4 text-white shadow-xl shadow-green-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-green-100"><?= esc(lang('UI.patientActivePatients')) ?></p>
-                        <p class="mt-2 text-3xl font-black" id="activePatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
-                </div>
-            </article>
-            <article class="rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-700 p-4 text-white shadow-xl shadow-blue-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-blue-100"><?= esc(lang('UI.patientNewPatients')) ?></p>
-                        <p class="mt-2 text-3xl font-black" id="newPatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-user-plus"></i></span>
-                </div>
-            </article>
-            <article class="rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-700 p-4 text-white shadow-xl shadow-violet-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-violet-100"><?= esc(lang('UI.patientThisMonth')) ?></p>
-                        <p class="mt-2 text-3xl font-black" id="monthlyPatients"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-calendar-day"></i></span>
-                </div>
-            </article>
-        </section>
+        <section class="v3-metric-strip" aria-label="<?= esc(lang('UI.patientPatientRegistry')) ?>">
+<article class="v3-metric v3-metric-tone-0"><span><?= esc(lang('UI.patientTotalPatients')) ?></span><strong id="totalPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-users" aria-hidden="true"></i></article>
+<article class="v3-metric v3-metric-tone-1"><span><?= esc(lang('UI.patientActivePatients')) ?></span><strong id="activePatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-user-check" aria-hidden="true"></i></article>
+<article class="v3-metric v3-metric-tone-2"><span><?= esc(lang('UI.patientNewPatients')) ?></span><strong id="newPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-user-plus" aria-hidden="true"></i></article>
+<article class="v3-metric v3-metric-tone-3"><span><?= esc(lang('UI.patientThisMonth')) ?></span><strong id="monthlyPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-calendar-day" aria-hidden="true"></i></article>
+</section>
 
-        <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
-            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/70 px-4 py-4 sm:px-5">
+        <section id="tableView" class="v3-ledger-panel">
+            <div class="border-b v3-border v3-warm-surface px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
                             <i class="fas fa-list"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
+                            <h3 class="text-lg text-slate-950"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
                             <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-100">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 transition hover:bg-red-100">
                             <i class="fas fa-file-pdf"></i>
                             PDF
                         </button>
-                        <button onclick="printPatients()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">
+                        <button onclick="printPatients()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs text-slate-700 transition hover:bg-slate-50">
                             <i class="fas fa-print"></i>
                             <?= esc(lang('UI.patientPrint')) ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700 transition hover:bg-emerald-100">
                             <i class="fas fa-file-csv"></i>
                             CSV
                         </button>
@@ -456,7 +112,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="v3-surface divide-y divide-gray-200">
                                 <!-- Data will be loaded via DataTables -->
                             </tbody>
                         </table>
@@ -466,17 +122,17 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 </div>
 
 <?php if (has_permission('patients', 'create')): ?>
-    <div id="newPatientModal" class="app-scale-modal patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="patient-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-patient-create-modal-close></div>
-        <div class="patient-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-patient-create-modal-close>
-            <form id="newPatientQuickCreateForm" action="<?= base_url('patient/store') ?>" method="POST" class="patient-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-patient-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
+    <div id="newPatientModal" class="v3-context-drawer patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="patient-create-modal__backdrop v3-context-drawer__backdrop" data-patient-create-modal-close></div>
+        <div class="patient-create-modal__shell v3-context-drawer__shell" data-patient-create-modal-close>
+            <form id="newPatientQuickCreateForm" action="<?= base_url('patient/store') ?>" method="POST" class="patient-create-modal__panel v3-context-drawer__panel" data-patient-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="patients">
                 <input type="hidden" name="source_modal" value="patient_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+                <div class="v3-context-drawer__header">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-warm-surface">
                             <i class="fas fa-user-plus"></i>
                         </span>
                         <div>
@@ -491,9 +147,9 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                     </button>
                 </div>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                <div class="v3-context-drawer__body">
                     <?php if (session('error') && $shouldOpenPatientCreateModal): ?>
-                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -501,19 +157,19 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                     <?= view('patient/partials/create_form_fields', [
                         'validation' => $validation,
                         'is_rtl' => $isRtl,
-                        'sectionClass' => 'rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm',
+                        'sectionClass' => 'v3-flow-section',
                     ]) ?>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
-                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="v3-context-drawer__footer">
+                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-2.5 text-sm font-bold text-emerald-700 shadow-sm transition hover:bg-emerald-50 hover:shadow-md">
+                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center v3-radius border border-emerald-200 v3-surface px-5 py-2.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50">
                         <i class="fas fa-user-plus me-2"></i>
                         <?= esc(lang('UI.settingsSave')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl">
+                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
                         <i class="fas fa-calendar-plus me-2"></i>
                         <?= esc(lang('UI.patientSaveAndBookAppointment')) ?>
                     </button>
@@ -795,7 +451,7 @@ $(document).ready(function() {
         console.error('Table #patientsTable not found');
         return;
     }
-    
+
     // Initialize DataTable with server-side processing
     patientsTable = $('#patientsTable').DataTable({
         processing: true,
@@ -828,11 +484,11 @@ $(document).ready(function() {
             error: function(xhr, error, thrown) {
                 console.error('DataTables AJAX error:', error, thrown);
                 console.error('Response:', xhr.responseText);
-                
+
                 if (xhr.responseJSON && xhr.responseJSON.csrf_token && csrfMetaToken) {
                     csrfMetaToken.setAttribute('content', xhr.responseJSON.csrf_token);
                 }
-                
+
                 // Check if it's an authentication error
                 if (xhr.status === 401 || xhr.status === 403) {
                     alert(patientI18n.sessionExpired);
@@ -845,7 +501,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { 
+            {
                 data: 'patient_id',
                 name: 'patient_id',
                 render: function(data, type, row) {
@@ -857,7 +513,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'name',
                 name: 'name',
                 render: function(data, type, row) {
@@ -893,7 +549,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'phone',
                 name: 'phone',
                 render: function(data, type, row) {
@@ -905,7 +561,7 @@ $(document).ready(function() {
                     ` : `<span class="text-gray-400 text-sm">${patientI18n.noPhone}</span>`;
                 }
             },
-            { 
+            {
                 data: 'email',
                 name: 'email',
                 render: function(data, type, row) {
@@ -917,7 +573,7 @@ $(document).ready(function() {
                     ` : `<span class="text-gray-400 text-sm">${patientI18n.noEmail}</span>`;
                 }
             },
-            { 
+            {
                 data: 'status',
                 name: 'status',
                 render: function(data, type, row) {
@@ -939,7 +595,7 @@ $(document).ready(function() {
                     const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
                     const label = statusLabels[data] || patientI18n.unknown;
-                    
+
                     return `
                         <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${colorClass}">
                             <i class="${iconClass}"></i>
@@ -948,7 +604,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'created_at',
                 name: 'created_at',
                 render: function(data, type, row) {
@@ -960,7 +616,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'id',
                 name: 'id',
                 orderable: false,
@@ -1023,16 +679,16 @@ $(document).ready(function() {
                                 <i class="fas fa-briefcase-medical"></i>
                             </a>`;
                     }
-                    
+
                     // Delete button
                     if (permissions.patients.delete) {
                         actions += `
-                            <button onclick="deletePatient(${data})" 
+                            <button onclick="deletePatient(${data})"
                                     class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700 ring-1 ring-red-100 transition hover:bg-red-100" title="${patientI18n.deletePatient}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
-                    
+
                     actions += '</div>';
                     return actions;
                 }
@@ -1129,7 +785,7 @@ $(document).ready(function() {
             if (typeof $.fn.tooltip === 'function') {
                 $('[data-toggle="tooltip"]').tooltip();
             }
-            
+
             // Apply custom styling after each draw
             applyDataTablesStyling();
         }
@@ -1139,13 +795,13 @@ $(document).ready(function() {
     function applyDataTablesStyling() {
         // Style length selector
         $('.dataTables_length select').addClass('focus:ring-emerald-500 focus:border-emerald-500');
-        
+
         // Style search input
         $('.dataTables_filter input').addClass('focus:ring-emerald-500 focus:border-emerald-500');
-        
+
         // Style info text
         $('.dataTables_info').addClass('text-gray-600');
-        
+
         // Style pagination buttons
         $('.dataTables_paginate .paginate_button').each(function() {
             if ($(this).hasClass('current')) {
@@ -1154,13 +810,13 @@ $(document).ready(function() {
                 $(this).addClass('hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700');
             }
         });
-        
+
         // Style processing indicator
         $('.dataTables_processing').addClass('border-emerald-200 text-emerald-700');
-        
+
         // Style labels
         $('.dataTables_length label, .dataTables_filter label').addClass('text-gray-700 font-semibold');
-        
+
         // Style icons
         $('.dataTables_length i, .dataTables_filter i').addClass('text-emerald-600');
     }
@@ -1177,7 +833,7 @@ $(document).ready(function() {
     $('#statusFilter').on('change', function() {
         patientsTable.draw();
     });
-    
+
     // Add a fallback if the table fails to load
     setTimeout(function() {
         if (patientsTable && patientsTable.data().count() === 0) {

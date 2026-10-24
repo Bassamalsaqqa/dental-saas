@@ -1,9 +1,9 @@
 <?php
 $validation = $validation ?? session()->getFlashdata('validation');
 $isRtl = !empty($is_rtl);
-$fieldClass = 'w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 transition-all duration-300 hover:shadow-xl';
-$sectionClass = $sectionClass ?? 'relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg';
-$sectionGapClass = $sectionGapClass ?? 'space-y-8';
+$fieldClass = 'v3-field-control';
+$sectionClass = $sectionClass ?? 'v3-flow-section';
+$sectionGapClass = $sectionGapClass ?? 'v3-flow-fields';
 $iconSideClass = $isRtl ? 'left-0 pl-3' : 'right-0 pr-3';
 $fieldError = static function (string $field) use ($validation): bool {
     return $validation && $validation->hasError($field);
@@ -14,29 +14,29 @@ $errorText = static function (string $field) use ($validation): string {
 ?>
 
 <div class="<?= esc($sectionGapClass) ?>">
-    <div class="group/section relative">
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
+    <div class="relative">
+
         <div class="<?= esc($sectionClass) ?>">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-user text-white text-sm"></i>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user text-sm"></i>
                 </div>
-                <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.personalInformation') ?></h4>
+                <h4 class="text-xl font-bold"><?= lang('UserRole.personalInformation') ?></h4>
             </div>
 
-            <div class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="group/field relative">
-                        <label for="first_name" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                            <i class="fas fa-user text-blue-600"></i>
+            <div class="">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="relative">
+                        <label for="first_name" class="block text-sm font-bold mb-3 flex items-center gap-2">
+                            <i class="fas fa-user"></i>
                             <span><?= lang('UserRole.firstNameRequired') ?></span>
                         </label>
                         <div class="relative">
                             <input type="text" id="first_name" name="first_name"
-                                   class="<?= esc($fieldClass) ?> focus:ring-blue-500/20 focus:border-blue-500 <?= $fieldError('first_name') ? 'border-red-500 ring-red-500/20' : '' ?>"
+                                   class="<?= esc($fieldClass) ?> <?= $fieldError('first_name') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                    value="<?= old('first_name') ?>" placeholder="<?= lang('UserRole.enterFirstName') ?>" required>
                             <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                                <i class="fas fa-user text-gray-400"></i>
+                                <i class="fas fa-user"></i>
                             </div>
                         </div>
                         <?php if ($fieldError('first_name')): ?>
@@ -47,17 +47,17 @@ $errorText = static function (string $field) use ($validation): string {
                         <?php endif; ?>
                     </div>
 
-                    <div class="group/field relative">
-                        <label for="last_name" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                            <i class="fas fa-user text-blue-600"></i>
+                    <div class="relative">
+                        <label for="last_name" class="block text-sm font-bold mb-3 flex items-center gap-2">
+                            <i class="fas fa-user"></i>
                             <span><?= lang('UserRole.lastNameRequired') ?></span>
                         </label>
                         <div class="relative">
                             <input type="text" id="last_name" name="last_name"
-                                   class="<?= esc($fieldClass) ?> focus:ring-blue-500/20 focus:border-blue-500 <?= $fieldError('last_name') ? 'border-red-500 ring-red-500/20' : '' ?>"
+                                   class="<?= esc($fieldClass) ?> <?= $fieldError('last_name') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                    value="<?= old('last_name') ?>" placeholder="<?= lang('UserRole.enterLastName') ?>" required>
                             <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                                <i class="fas fa-user text-gray-400"></i>
+                                <i class="fas fa-user"></i>
                             </div>
                         </div>
                         <?php if ($fieldError('last_name')): ?>
@@ -69,10 +69,10 @@ $errorText = static function (string $field) use ($validation): string {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-8">
-                    <div class="group/field relative">
-                        <label for="email" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                            <i class="fas fa-envelope text-purple-600"></i>
+                <div class="grid grid-cols-1">
+                    <div class="relative">
+                        <label for="email" class="block text-sm font-bold mb-3 flex items-center gap-2">
+                            <i class="fas fa-envelope"></i>
                             <span><?= lang('UserRole.emailRequired') ?></span>
                         </label>
                         <div class="relative">
@@ -80,10 +80,10 @@ $errorText = static function (string $field) use ($validation): string {
                                    data-user-email-check
                                    data-password-targets="#password,#password_confirm"
                                    data-existing-note-target="#users-email-exists-note"
-                                   class="<?= esc($fieldClass) ?> focus:ring-purple-500/20 focus:border-purple-500 <?= $fieldError('email') ? 'border-red-500 ring-red-500/20' : '' ?>"
+                                   class="<?= esc($fieldClass) ?> <?= $fieldError('email') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                    value="<?= old('email') ?>" placeholder="<?= lang('UserRole.enterEmailAddress') ?>" required>
                             <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                                <i class="fas fa-envelope text-gray-400"></i>
+                                <i class="fas fa-envelope"></i>
                             </div>
                         </div>
                         <?php if ($fieldError('email')): ?>
@@ -95,9 +95,9 @@ $errorText = static function (string $field) use ($validation): string {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="group/field relative">
-                        <label for="phone" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="relative">
+                        <label for="phone" class="block text-sm font-bold mb-3 flex items-center gap-2">
                             <i class="fas fa-phone text-emerald-600"></i>
                             <span><?= lang('UserRole.phone') ?></span>
                         </label>
@@ -106,7 +106,7 @@ $errorText = static function (string $field) use ($validation): string {
                                    class="<?= esc($fieldClass) ?> focus:ring-emerald-500/20 focus:border-emerald-500 <?= $fieldError('phone') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                    value="<?= old('phone') ?>" placeholder="<?= lang('UserRole.enterPhoneNumber') ?>">
                             <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                                <i class="fas fa-phone text-gray-400"></i>
+                                <i class="fas fa-phone"></i>
                             </div>
                         </div>
                         <?php if ($fieldError('phone')): ?>
@@ -117,8 +117,8 @@ $errorText = static function (string $field) use ($validation): string {
                         <?php endif; ?>
                     </div>
 
-                    <div class="group/field relative">
-                        <label for="hire_date" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <div class="relative">
+                        <label for="hire_date" class="block text-sm font-bold mb-3 flex items-center gap-2">
                             <i class="fas fa-calendar text-amber-600"></i>
                             <span><?= lang('UserRole.hireDateRequired') ?></span>
                         </label>
@@ -127,7 +127,7 @@ $errorText = static function (string $field) use ($validation): string {
                                    class="<?= esc($fieldClass) ?> focus:ring-amber-500/20 focus:border-amber-500 <?= $fieldError('hire_date') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                    value="<?= old('hire_date', date('Y-m-d')) ?>" required>
                             <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                                <i class="fas fa-calendar text-gray-400"></i>
+                                <i class="fas fa-calendar"></i>
                             </div>
                         </div>
                         <?php if ($fieldError('hire_date')): ?>
@@ -142,19 +142,19 @@ $errorText = static function (string $field) use ($validation): string {
         </div>
     </div>
 
-    <div class="group/section relative">
-        <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
+    <div class="relative">
+
         <div class="<?= esc($sectionClass) ?>">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-shield-alt text-white text-sm"></i>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-sm"></i>
                 </div>
-                <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.accountSecurity') ?></h4>
+                <h4 class="text-xl font-bold"><?= lang('UserRole.accountSecurity') ?></h4>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="group/field relative">
-                    <label for="password" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <div class="relative">
+                    <label for="password" class="block text-sm font-bold mb-3 flex items-center gap-2">
                         <i class="fas fa-lock text-red-600"></i>
                         <span><?= lang('UserRole.passwordRequired') ?></span>
                     </label>
@@ -163,7 +163,7 @@ $errorText = static function (string $field) use ($validation): string {
                                class="<?= esc($fieldClass) ?> focus:ring-red-500/20 focus:border-red-500 <?= $fieldError('password') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                placeholder="<?= lang('UserRole.enterPassword') ?>" required>
                         <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-gray-400"></i>
+                            <i class="fas fa-lock"></i>
                         </div>
                     </div>
                     <p id="users-email-exists-note" class="mt-2 text-xs text-amber-600 hidden flex items-center gap-2" role="status">
@@ -178,8 +178,8 @@ $errorText = static function (string $field) use ($validation): string {
                     <?php endif; ?>
                 </div>
 
-                <div class="group/field relative">
-                    <label for="password_confirm" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <div class="relative">
+                    <label for="password_confirm" class="block text-sm font-bold mb-3 flex items-center gap-2">
                         <i class="fas fa-lock text-red-600"></i>
                         <span><?= lang('UserRole.confirmPasswordRequired') ?></span>
                     </label>
@@ -188,7 +188,7 @@ $errorText = static function (string $field) use ($validation): string {
                                class="<?= esc($fieldClass) ?> focus:ring-red-500/20 focus:border-red-500 <?= $fieldError('password_confirm') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                placeholder="<?= lang('UserRole.confirmPassword') ?>" required>
                         <div class="absolute inset-y-0 <?= esc($iconSideClass) ?> flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-gray-400"></i>
+                            <i class="fas fa-lock"></i>
                         </div>
                     </div>
                     <?php if ($fieldError('password_confirm')): ?>
@@ -202,20 +202,20 @@ $errorText = static function (string $field) use ($validation): string {
         </div>
     </div>
 
-    <div class="group/section relative">
-        <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
+    <div class="relative">
+
         <div class="<?= esc($sectionClass) ?>">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-user-shield text-white text-sm"></i>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-shield text-sm"></i>
                 </div>
-                <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.roleAndPermissions') ?></h4>
+                <h4 class="text-xl font-bold"><?= lang('UserRole.roleAndPermissions') ?></h4>
             </div>
 
-            <div class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="group/field relative" data-select2-dropdown-parent>
-                        <label for="role" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+            <div class="">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="relative" data-select2-dropdown-parent>
+                        <label for="role" class="block text-sm font-bold mb-3 flex items-center gap-2">
                             <i class="fas fa-user-tag text-green-600"></i>
                             <span><?= lang('UserRole.roleRequired') ?></span>
                         </label>
@@ -244,8 +244,8 @@ $errorText = static function (string $field) use ($validation): string {
                         <?php endif; ?>
                     </div>
 
-                    <div class="group/field relative" data-select2-dropdown-parent>
-                        <label for="department" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <div class="relative" data-select2-dropdown-parent>
+                        <label for="department" class="block text-sm font-bold mb-3 flex items-center gap-2">
                             <i class="fas fa-building text-green-600"></i>
                             <span><?= lang('UserRole.department') ?></span>
                         </label>
@@ -264,8 +264,8 @@ $errorText = static function (string $field) use ($validation): string {
                     </div>
                 </div>
 
-                <div class="group/field relative" data-select2-dropdown-parent>
-                    <label for="status" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <div class="relative" data-select2-dropdown-parent>
+                    <label for="status" class="block text-sm font-bold mb-3 flex items-center gap-2">
                         <i class="fas fa-toggle-on text-green-600"></i>
                         <span><?= lang('UserRole.statusRequired') ?></span>
                     </label>

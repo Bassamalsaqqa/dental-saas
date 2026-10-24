@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<div class="v3-operational-view">
 <?php $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar'); ?>
 
 <!-- DataTables CSS -->
@@ -8,258 +9,24 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
 <!-- Custom DataTables Styling -->
-<style>
-/* DataTables Controls Styling - More specific selectors */
-.dataTables_wrapper {
-    position: relative !important;
-}
 
-.dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    order: 1 !important;
-}
 
-.dataTables_length label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-inline-end: 12px !important;
-}
-
-.dataTables_length select {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_length select:focus {
-    border-color: #db2777 !important;
-    box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.14) !important;
-}
-
-.dataTables_length select:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_filter label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-inline-end: 12px !important;
-}
-
-.dataTables_filter input {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_filter input:focus {
-    border-color: #db2777 !important;
-    box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.14) !important;
-}
-
-.dataTables_filter input:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_info {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #6b7280 !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-}
-
-.dataTables_paginate .paginate_button {
-    padding: 8px 12px !important;
-    margin: 0 2px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 6px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #f3f4f6 !important;
-    border-color: #9ca3af !important;
-    color: #1f2937 !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #db2777 !important;
-    border-color: #db2777 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #f9fafb !important;
-    border-color: #e5e7eb !important;
-    color: #9ca3af !important;
-    cursor: not-allowed !important;
-}
-
-.dataTables_processing {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    padding: 20px !important;
-    text-align: center !important;
-}
-
-/* Ensure proper spacing and layout */
-.dataTables_wrapper .dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-end: auto !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_wrapper .dataTables_info {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-end: auto !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-/* Ensure the top container uses flexbox */
-.dataTables_wrapper > .row:first-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-/* Ensure the bottom container uses flexbox */
-.dataTables_wrapper > .row:last-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-.treatments-page .dataTables_wrapper {
-    border-radius: 0 0 1.5rem 1.5rem;
-    overflow: hidden;
-}
-
-.treatments-page .dt-buttons {
-    display: none;
-}
-
-.treatments-page .dataTables_length label,
-.treatments-page .dataTables_filter label {
-    color: #475569 !important;
-    font-size: 0.8rem !important;
-    font-weight: 800 !important;
-}
-
-.treatments-page .dataTables_filter input,
-.treatments-page .dataTables_length select {
-    border-radius: 0.85rem !important;
-    border-color: #cbd5e1 !important;
-    background: #fff !important;
-    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
-}
-
-.treatments-page .dataTables_filter input:focus,
-.treatments-page .dataTables_length select:focus {
-    border-color: #db2777 !important;
-    box-shadow: 0 0 0 3px rgba(219,39,119,0.14) !important;
-}
-
-.treatments-page #treatmentsTable thead th {
-    background: #f8fafc !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    color: #334155 !important;
-    text-align: start !important;
-    font-weight: 800 !important;
-}
-
-.treatments-page #treatmentsTable tbody tr:hover {
-    background: linear-gradient(90deg, rgba(253,242,248,0.96), rgba(250,245,255,0.62)) !important;
-}
-
-.treatments-page .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #db2777, #9333ea) !important;
-    border-color: transparent !important;
-    color: #fff !important;
-}
-
-.treatments-page .dataTables_paginate .paginate_button:hover {
-    background: #fdf2f8 !important;
-    border-color: #f9a8d4 !important;
-    color: #9d174d !important;
-}
-</style>
-
-<div class="treatments-page min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+<div class="treatments-page min-h-screen" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
-        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-pink-700 via-fuchsia-700 to-slate-950 text-white shadow-2xl shadow-pink-900/18">
-            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+        <section class="mb-5 overflow-hidden rounded-[1.55rem]">
+            <div class="grid gap-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center ring-1">
                         <i class="fas fa-procedures text-xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-pink-100"><?= lang('Treatment.treatment_registry') ?></p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= lang('Treatment.treatment_management') ?></h1>
+                        <p class="text-xs uppercase tracking-[0.22em] text-pink-100"><?= lang('Treatment.treatment_registry') ?></p>
+                        <h1 class="mt-1 v3-section-title leading-tight v3-title"><?= lang('Treatment.treatment_management') ?></h1>
                         <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-pink-50/88"><?= lang('Treatment.treatment_management_subtitle') ?></p>
                     </div>
                 </div>
                 <?php if (has_permission('treatments', 'create')): ?>
-                    <a href="<?= base_url('treatment/create') ?>" id="newTreatmentModalTrigger" data-treatment-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-pink-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-pink-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                    <a href="<?= base_url('treatment/create') ?>" id="newTreatmentModalTrigger" data-treatment-create-modal-open class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm text-pink-800 transition hover:-translate-y-0.5 hover:bg-pink-50 focus:outline-none focus:ring-4 focus:ring-white/25">
                         <i class="fas fa-plus"></i>
                         <?= lang('Treatment.new_treatment') ?>
                     </a>
@@ -268,72 +35,72 @@
         </section>
 
         <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-2xl bg-gradient-to-br from-pink-700 to-fuchsia-800 p-4 text-white shadow-xl shadow-pink-700/18">
+            <article class="p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-pink-100"><?= lang('Treatment.total_treatments') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="totalTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                        <p class="text-xs uppercase tracking-wide text-pink-100"><?= lang('Treatment.total_treatments') ?></p>
+                        <p class="mt-2 v3-title" id="totalTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-procedures"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-procedures"></i></span>
                 </div>
             </article>
-            <article class="rounded-2xl bg-gradient-to-br from-emerald-600 to-green-800 p-4 text-white shadow-xl shadow-emerald-700/18">
+            <article class="p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= lang('Treatment.active_treatments') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="activeTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                        <p class="text-xs uppercase tracking-wide text-emerald-100"><?= lang('Treatment.active_treatments') ?></p>
+                        <p class="mt-2 v3-title" id="activeTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-play-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-play-circle"></i></span>
                 </div>
             </article>
-            <article class="rounded-2xl bg-gradient-to-br from-blue-700 to-cyan-800 p-4 text-white shadow-xl shadow-blue-700/18">
+            <article class="p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-blue-100"><?= lang('Treatment.completed_treatments') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="completedTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                        <p class="text-xs uppercase tracking-wide"><?= lang('Treatment.completed_treatments') ?></p>
+                        <p class="mt-2 v3-title" id="completedTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-check-double"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-check-double"></i></span>
                 </div>
             </article>
-            <article class="rounded-2xl bg-gradient-to-br from-purple-700 to-indigo-900 p-4 text-white shadow-xl shadow-purple-700/18">
+            <article class="p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-purple-100"><?= lang('Treatment.this_month') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="monthlyTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
+                        <p class="text-xs uppercase tracking-wide"><?= lang('Treatment.this_month') ?></p>
+                        <p class="mt-2 v3-title" id="monthlyTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-calendar-day"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-calendar-day"></i></span>
                 </div>
             </article>
         </section>
 
         <?php $acceptedQueue = is_array($accepted_treatment_queue ?? null) ? $accepted_treatment_queue : ['count' => 0, 'items' => []]; ?>
         <?php if ((int) ($acceptedQueue['count'] ?? 0) > 0): ?>
-            <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 p-1 shadow-xl shadow-indigo-700/15">
-                <div class="rounded-[1.35rem] bg-white p-4 sm:p-5">
+            <section class="mb-5 overflow-hidden rounded-[1.55rem] p-1">
+                <div class="rounded-[1.35rem] p-4 sm:p-5">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div class="flex items-start gap-3">
-                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700"><i class="fas fa-calendar-plus"></i></span>
+                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center"><i class="fas fa-calendar-plus"></i></span>
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <h2 class="text-lg font-black text-slate-950"><?= esc(lang('Treatment.unscheduled_queue')) ?></h2>
-                                    <span class="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-black text-indigo-800"><?= (int) ($acceptedQueue['count'] ?? 0) ?></span>
+                                    <h2 class="text-lg"><?= esc(lang('Treatment.unscheduled_queue')) ?></h2>
+                                    <span class="px-2.5 py-1 text-xs"><?= (int) ($acceptedQueue['count'] ?? 0) ?></span>
                                 </div>
-                                <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc(lang('Treatment.unscheduled_queue_help')) ?></p>
+                                <p class="mt-1 text-sm font-semibold"><?= esc(lang('Treatment.unscheduled_queue_help')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         <?php foreach (($acceptedQueue['items'] ?? []) as $item): ?>
                             <?php $patientName = trim((string) ($item['first_name'] ?? '') . ' ' . (string) ($item['last_name'] ?? '')); ?>
-                            <article class="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+                            <article class="flex items-center justify-between gap-3 p-3 ring-1">
                                 <a href="<?= esc(workflow_context_url('treatment/' . (int) $item['treatment_id'], 'treatment')) ?>" class="min-w-0">
-                                    <p class="truncate text-sm font-black text-slate-950"><?= esc($item['procedure_name'] ?? '') ?></p>
-                                    <p class="mt-1 truncate text-xs font-bold text-slate-500"><?= esc($patientName) ?></p>
+                                    <p class="truncate text-sm"><?= esc($item['procedure_name'] ?? '') ?></p>
+                                    <p class="mt-1 truncate text-xs font-bold"><?= esc($patientName) ?></p>
                                 </a>
                                 <?php if (has_permission('appointments', 'create')): ?>
                                     <a href="<?= base_url('appointment/create?' . http_build_query(['patient_id' => (int) $item['patient_id'], 'clinical_procedure_id' => (int) $item['procedure_id'], 'appointment_type' => 'treatment', 'return_to' => 'treatment'])) ?>"
                                        data-appointment-create-modal-open data-patient-id="<?= (int) $item['patient_id'] ?>" data-clinical-procedure-id="<?= (int) $item['procedure_id'] ?>" data-appointment-type="treatment"
-                                       class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-700" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">
+                                       class="inline-flex h-10 w-10 shrink-0 items-center justify-center transition" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">
                                         <i class="fas fa-calendar-plus"></i>
                                     </a>
                                 <?php endif; ?>
@@ -344,28 +111,28 @@
             </section>
         <?php endif; ?>
 
-        <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
-            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-pink-50/80 px-4 py-4 sm:px-6">
+        <section id="tableView" class="overflow-hidden rounded-[1.55rem] border">
+            <div class="border-b px-4 py-4 sm:px-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-pink-100 text-pink-700">
+                        <span class="inline-flex h-10 w-10 items-center justify-center bg-pink-100 text-pink-700">
                             <i class="fas fa-list-check"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= lang('Treatment.treatment_registry') ?></h3>
-                            <p class="mt-1 text-xs font-bold text-slate-500"><?= lang('Treatment.treatment_management_subtitle') ?></p>
+                            <h3 class="text-lg"><?= lang('Treatment.treatment_registry') ?></h3>
+                            <p class="mt-1 text-xs font-bold"><?= lang('Treatment.treatment_management_subtitle') ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-700">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition hover:bg-red-50 hover:text-red-700">
                             <i class="fas fa-file-pdf text-red-600"></i>
                             <?= lang('Treatment.pdf') ?>
                         </button>
-                        <button onclick="printTreatments()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-950">
-                            <i class="fas fa-print text-slate-600"></i>
+                        <button onclick="printTreatments()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition">
+                            <i class="fas fa-print"></i>
                             <?= lang('Treatment.print') ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-emerald-700">
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition hover:bg-emerald-50 hover:text-emerald-700">
                             <i class="fas fa-file-csv text-emerald-600"></i>
                             <?= lang('Treatment.csv') ?>
                         </button>
@@ -377,31 +144,31 @@
                 <table id="treatmentsTable" class="w-full min-w-full">
                     <thead>
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-user text-pink-700"></i>
                                     <span><?= lang('Treatment.patient') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-procedures text-pink-700"></i>
                                     <span><?= lang('Treatment.treatment') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-info-circle text-pink-700"></i>
                                     <span><?= lang('Treatment.status') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-calendar text-pink-700"></i>
                                     <span><?= lang('Treatment.start_date') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-cogs text-pink-700"></i>
                                     <span><?= lang('Treatment.actions') ?></span>
@@ -409,7 +176,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y divide-slate-100">
                         <!-- Data will be loaded via DataTables -->
                     </tbody>
                 </table>
@@ -523,7 +290,7 @@ $(document).ready(function() {
                         cancelled: '<?= esc(lang('Treatment.status_values.cancelled'), 'js') ?>',
                         on_hold: '<?= esc(lang('Treatment.status_values.on_hold'), 'js') ?>'
                     };
-                    
+
                     return `
                         <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${colorClass}">
                             <i class="${iconClass} me-2"></i>
@@ -553,34 +320,34 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     let actions = '<div class="flex items-center gap-2">';
-                    
+
                     // View button
                     if (permissions.treatments.view) {
                         actions += `
-                            <a href="<?= base_url('treatment') ?>/${data}" 
+                            <a href="<?= base_url('treatment') ?>/${data}"
                                class="rounded-xl p-2 text-pink-700 transition-all duration-200 hover:scale-105 hover:bg-pink-50 hover:text-pink-800" title="<?= esc(lang('Treatment.view_details'), 'attr') ?>">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
-                    
+
                     // Edit button
                     if (permissions.treatments.edit) {
                         actions += `
-                            <a href="<?= base_url('treatment') ?>/${data}/edit" 
+                            <a href="<?= base_url('treatment') ?>/${data}/edit"
                                class="rounded-xl p-2 text-sky-700 transition-all duration-200 hover:scale-105 hover:bg-sky-50 hover:text-sky-800" title="<?= esc(lang('Treatment.edit_treatment'), 'attr') ?>">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
-                    
+
                     // Delete button
                     if (permissions.treatments.delete) {
                         actions += `
-                            <button onclick="deleteTreatment(${data})" 
+                            <button onclick="deleteTreatment(${data})"
                                     class="rounded-xl p-2 text-red-700 transition-all duration-200 hover:scale-105 hover:bg-red-50 hover:text-red-800" title="<?= esc(lang('Treatment.delete_treatment'), 'attr') ?>">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
-                    
+
                     actions += '</div>';
                     return actions;
                 }
@@ -699,7 +466,7 @@ $(document).ready(function() {
         });
     }
 });
-    
+
 // Load treatment statistics
 function loadTreatmentStatistics() {
     $.ajax({
@@ -747,14 +514,14 @@ function deleteTreatment(treatmentId) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '<?= base_url('treatment') ?>/' + treatmentId;
-        
+
         // Add method override for DELETE
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'DELETE';
         form.appendChild(methodInput);
-        
+
         // Add CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const csrfInput = document.createElement('input');
@@ -762,7 +529,7 @@ function deleteTreatment(treatmentId) {
         csrfInput.name = '<?= csrf_token() ?>';
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
-        
+
         document.body.appendChild(form);
         form.submit();
     }
@@ -779,4 +546,5 @@ var permissions = {
 };
 </script>
 
+</div>
 <?= $this->endSection() ?>

@@ -206,22 +206,22 @@ $initialActionCount = count($filters['actions'] ?? []);
 }
 </style>
 <!-- Activity Log Page -->
-<div class="activity-log-shell min-h-screen bg-slate-50">
+<div class="v3-operational-view activity-log-shell min-h-screen v3-surface">
     <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
         <section class="activity-hero-card mb-6">
             <div class="activity-hero-content p-6 sm:p-8">
-                <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                     <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
                         <div class="activity-hero-avatar">
-                            <i class="fas fa-history text-3xl"></i>
+                            <i class="fas fa-history v3-title-scale"></i>
                         </div>
                         <div>
-                            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] v3-accent-text">
                                 <span><?= esc($tr('recentActivities')) ?></span>
-                                <span class="h-1 w-1 rounded-full bg-blue-100"></span>
+                                <span class="h-1 w-1 rounded-full v3-soft-surface"></span>
                                 <span><?= esc($tr('activities')) ?></span>
                             </div>
-                            <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($tr('title')) ?></h1>
+                            <h1 class="mt-2 v3-title-scale font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($tr('title')) ?></h1>
                         </div>
                     </div>
                     <div class="flex flex-col gap-2 sm:flex-row xl:flex-col xl:w-[13rem]">
@@ -236,7 +236,7 @@ $initialActionCount = count($filters['actions'] ?? []);
             </div>
         </section>
 
-        <section class="mb-6 rounded-[1.5rem] border border-white/80 bg-gradient-to-br from-white via-blue-50/70 to-teal-50/60 p-4 shadow-xl shadow-slate-200/60 sm:p-5">
+        <section class="mb-6 rounded-[1.5rem] border v3-border p-4 sm:p-5">
             <div class="activity-snapshot-grid">
                 <div class="activity-snapshot-card activity-snapshot-total">
                     <p class="activity-snapshot-label"><?= esc($tr('recentActivities')) ?></p>
@@ -294,10 +294,10 @@ $initialActionCount = count($filters['actions'] ?? []);
         <!-- Activity Log Table -->
         <div class="activity-panel">
             <!-- Table Header -->
-            <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-slate-50 to-blue-50 px-5 py-4 sm:px-6">
+            <div class="border-b v3-border px-5 py-4 sm:px-6">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-teal-600 text-white shadow-lg shadow-blue-500/20">
+                        <div class="flex h-10 w-10 items-center justify-center v3-radius text-white">
                             <i class="fas fa-stream"></i>
                         </div>
                         <div>
@@ -306,7 +306,7 @@ $initialActionCount = count($filters['actions'] ?? []);
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <div class="rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-700 ring-1 ring-blue-100">
+                        <div class="rounded-full v3-soft-surface px-3 py-1 text-sm font-bold v3-accent-text ring-1 ring-blue-100">
                             <span id="total-activities">0</span> <?= esc($tr('activities')) ?>
                         </div>
                         <div class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700 ring-1 ring-emerald-100">
@@ -329,44 +329,44 @@ $initialActionCount = count($filters['actions'] ?? []);
                             <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('ipAddress')) ?></th>
                         </tr>
                     </thead>
-                    <tbody id="activitiesTableBody" class="divide-y divide-slate-100 bg-white">
+                    <tbody id="activitiesTableBody" class="divide-y divide-slate-100 v3-surface">
                         <!-- Activities will be loaded here -->
                     </tbody>
                 </table>
             </div>
 
             <!-- Loading State -->
-            <div id="loadingState" class="hidden p-8 text-center">
-                <div class="inline-flex items-center gap-3 rounded-2xl bg-blue-50 px-4 py-3 font-bold text-blue-700">
-                    <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-200 border-b-blue-700"></div>
+            <div id="loadingState" class="hidden p-4 text-center">
+                <div class="inline-flex items-center gap-3 v3-radius v3-soft-surface px-4 py-3 font-bold v3-accent-text">
+                    <div class="h-6 w-6 animate-spin rounded-full border-2 v3-border border-b-blue-700"></div>
                     <span><?= esc($tr('loadingActivities')) ?></span>
                 </div>
             </div>
 
             <!-- Empty State -->
-            <div id="emptyState" class="hidden p-8 text-center">
+            <div id="emptyState" class="hidden p-4 text-center">
                 <div class="mb-4 text-slate-400">
-                    <i class="fas fa-history text-4xl"></i>
+                    <i class="fas fa-history v3-title-scale"></i>
                 </div>
                 <h3 class="mb-2 text-lg font-black text-slate-900"><?= esc($tr('noActivitiesFound')) ?></h3>
                 <p class="font-semibold text-slate-500"><?= esc($tr('noActivitiesMatchFilters')) ?></p>
             </div>
 
             <!-- Pagination -->
-            <div id="paginationContainer" class="hidden border-t border-slate-200/80 bg-slate-50/70 px-5 py-4 sm:px-6">
+            <div id="paginationContainer" class="hidden border-t v3-border v3-surface px-5 py-4 sm:px-6">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-2">
                         <button id="prevPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50">
                             <i class="fas fa-chevron-left mr-1"></i><?= esc($tr('previous')) ?>
                         </button>
-                        <span id="pageInfo" class="rounded-full bg-white px-3 py-1 text-sm font-bold text-slate-700 ring-1 ring-slate-200"></span>
+                        <span id="pageInfo" class="rounded-full v3-surface px-3 py-1 text-sm font-bold text-slate-700 ring-1 ring-slate-200"></span>
                         <button id="nextPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50">
                             <?= esc($tr('next')) ?><i class="fas fa-chevron-right ml-1"></i>
                         </button>
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-bold text-slate-700"><?= esc($tr('show')) ?></label>
-                        <select id="pageSize" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <select id="pageSize" class="rounded-lg border v3-border v3-surface px-3 py-2 text-sm font-bold text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
                             <option value="25">25</option>
                             <option value="50" selected>50</option>
                             <option value="100">100</option>
@@ -387,21 +387,21 @@ let filteredActivities = 0;
 // Load activities on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadActivities();
-    
+
     // Add event listeners
     document.getElementById('pageSize').addEventListener('change', function() {
         pageSize = parseInt(this.value);
         currentPage = 1;
         loadActivities();
     });
-    
+
     document.getElementById('prevPage').addEventListener('click', function() {
         if (currentPage > 1) {
             currentPage--;
             loadActivities();
         }
     });
-    
+
     document.getElementById('nextPage').addEventListener('click', function() {
         const maxPage = Math.ceil(totalActivities / pageSize);
         if (currentPage < maxPage) {
@@ -413,11 +413,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadActivities() {
     showLoading();
-    
+
     const entityType = document.getElementById('entityTypeFilter').value;
     const action = document.getElementById('actionFilter').value;
     const user = document.getElementById('userFilter').value;
-    
+
     const params = new URLSearchParams({
         limit: pageSize,
         offset: (currentPage - 1) * pageSize,
@@ -425,7 +425,7 @@ function loadActivities() {
         action: action,
         user: user
     });
-    
+
     fetch(`<?= base_url('activity-log/api') ?>?${params}`)
         .then(response => response.json())
         .then(data => {
@@ -450,17 +450,17 @@ function loadActivities() {
 
 function displayActivities(activities) {
     const tbody = document.getElementById('activitiesTableBody');
-    
+
     if (activities.length === 0) {
         showEmpty();
         return;
     }
-    
+
     hideEmpty();
-    
+
     // Clear existing content safely
     tbody.textContent = '';
-    
+
     activities.forEach(activity => {
         const tr = document.createElement('tr');
         tr.className = 'activity-row';
@@ -478,16 +478,16 @@ function displayActivities(activities) {
                 navigateToEntity(activity.entity_type, activity.entity_id || 'null');
             }
         });
-        
+
         const divFlex = document.createElement('div');
         divFlex.className = 'flex items-center gap-3';
-        
+
         const divIcon = document.createElement('div');
         divIcon.className = `flex h-9 w-9 items-center justify-center rounded-xl ${getActivityIconBgClass(activity.color)}`;
         const icon = document.createElement('i');
         icon.className = `${activity.icon} ${getActivityIconClass(activity.color)} text-sm`;
         divIcon.appendChild(icon);
-        
+
         const divText = document.createElement('div');
         const divTitle = document.createElement('div');
         divTitle.className = 'text-sm font-black text-slate-900';
@@ -495,7 +495,7 @@ function displayActivities(activities) {
         const divAction = document.createElement('div');
         divAction.className = 'text-xs font-semibold text-slate-500';
         divAction.textContent = `${activity.action} • ${activity.entity_type}`;
-        
+
         divText.appendChild(divTitle);
         divText.appendChild(divAction);
         divFlex.appendChild(divIcon);
@@ -556,7 +556,7 @@ function displayActivities(activities) {
         tr.appendChild(tdDesc);
         tr.appendChild(tdTime);
         tr.appendChild(tdIp);
-        
+
         tbody.appendChild(tr);
     });
 }
@@ -591,14 +591,14 @@ function updatePagination() {
     const prevBtn = document.getElementById('prevPage');
     const nextBtn = document.getElementById('nextPage');
     const pageInfo = document.getElementById('pageInfo');
-    
+
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= maxPage;
-    
+
     pageInfo.textContent = `<?= esc($tr('pageInfo', ['current' => '{current}', 'max' => '{max}']), 'js') ?>`
         .replace('{current}', currentPage)
         .replace('{max}', maxPage);
-    
+
     if (filteredActivities > 0) {
         document.getElementById('paginationContainer').classList.remove('hidden');
     } else {
@@ -644,10 +644,10 @@ function navigateToEntity(entityType, entityId) {
         console.log('No entity ID available for navigation');
         return;
     }
-    
+
     const baseUrl = '<?= base_url() ?>';
     let url = '';
-    
+
     switch (entityType) {
         case 'patient':
             url = `${baseUrl}patient/${entityId}`;
@@ -680,7 +680,7 @@ function navigateToEntity(entityType, entityId) {
             console.log(`Unknown entity type: ${entityType}`);
             return;
     }
-    
+
     // Navigate to the entity details page
     window.location.href = url;
 }

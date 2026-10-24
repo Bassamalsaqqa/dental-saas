@@ -1,187 +1,35 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<div class="v3-operational-view">
 <p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php $isRtl = !empty($is_rtl); ?>
 
-<style>
-.finance-payouts-wrap {
-    width: 100%;
-    font-family: var(--app-font-sans);
-}
 
-[dir="rtl"] .finance-payouts-wrap {
-    font-family: var(--app-font-ar);
-}
-
-.finance-payouts-hero {
-    border-radius: 1.75rem;
-    background:
-        radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.2), transparent 29%),
-        radial-gradient(circle at 82% 6%, rgba(45, 212, 191, 0.28), transparent 32%),
-        linear-gradient(135deg, #0f766e 0%, #075985 48%, #0f172a 100%);
-    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.22);
-}
-
-[dir="rtl"] .finance-payouts-hero {
-    background:
-        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.2), transparent 29%),
-        radial-gradient(circle at 18% 6%, rgba(45, 212, 191, 0.28), transparent 32%),
-        linear-gradient(225deg, #0f766e 0%, #075985 48%, #0f172a 100%);
-}
-
-.finance-payouts-card,
-.finance-payouts-panel {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-}
-
-.finance-payouts-card {
-    border-radius: 1.5rem;
-    box-shadow: 0 20px 52px rgba(15, 23, 42, 0.13);
-}
-
-.finance-payouts-card::after {
-    content: "";
-    position: absolute;
-    inset: auto -18% -46% auto;
-    width: 72%;
-    aspect-ratio: 1;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.18);
-    z-index: -1;
-}
-
-[dir="rtl"] .finance-payouts-card::after {
-    inset-inline-start: -18%;
-    inset-inline-end: auto;
-}
-
-.finance-payouts-panel {
-    border-radius: 1.5rem;
-    border: 1px solid rgba(226, 232, 240, 0.92);
-    background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.09);
-}
-
-.finance-payouts-input {
-    border-radius: 0.9rem;
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    color: #0f172a;
-    font-size: 0.875rem;
-    font-weight: 700;
-    outline: none;
-    padding: 0.7rem 0.85rem;
-    width: 100%;
-    font-family: inherit;
-    transition: border-color 160ms ease, box-shadow 160ms ease;
-}
-
-.finance-payouts-wrap .dataTables_wrapper,
-.finance-payouts-wrap .dataTables_wrapper *,
-.finance-payouts-wrap table,
-.finance-payouts-wrap button,
-.finance-payouts-wrap input,
-.finance-payouts-wrap select,
-.finance-payouts-wrap textarea {
-    font-family: inherit !important;
-}
-
-.finance-payouts-table-shell .dataTables_wrapper .dataTables_info,
-.finance-payouts-table-shell .dataTables_wrapper .dataTables_paginate {
-    padding-block: 0.35rem;
-}
-
-.finance-payouts-input:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.14);
-}
-
-.dataTables_wrapper {
-    position: relative !important;
-}
-.dataTables_info {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #6b7280 !important;
-}
-.dataTables_paginate .paginate_button {
-    padding: 8px 12px !important;
-    margin: 0 2px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 6px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    transition: all 0.2s ease !important;
-}
-.dataTables_paginate .paginate_button:hover {
-    background-color: #f3f4f6 !important;
-    border-color: #9ca3af !important;
-    color: #1f2937 !important;
-}
-.dataTables_paginate .paginate_button.current {
-    background-color: #4f46e5 !important;
-    border-color: #4f46e5 !important;
-    color: white !important;
-}
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #f9fafb !important;
-    border-color: #e5e7eb !important;
-    color: #9ca3af !important;
-    cursor: not-allowed !important;
-}
-[dir="rtl"] .dataTables_wrapper .dataTables_filter {
-    margin-left: 0 !important;
-    margin-right: auto !important;
-}
-[dir="rtl"] .dataTables_wrapper .dataTables_length {
-    margin-right: 0 !important;
-    margin-left: auto !important;
-}
-[dir="rtl"] .dataTables_wrapper .dataTables_info {
-    margin-right: 0 !important;
-    margin-left: auto !important;
-}
-[dir="rtl"] .dataTables_wrapper .dataTables_paginate {
-    margin-left: 0 !important;
-    margin-right: auto !important;
-}
-[dir="rtl"] .dataTables_wrapper table th,
-[dir="rtl"] .dataTables_wrapper table td {
-    text-align: right !important;
-}
-[dir="rtl"] .dataTables_wrapper .dataTables_filter input {
-    margin-right: 0 !important;
-}
-</style>
 
 <div dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="finance-payouts-wrap space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-        <section class="finance-payouts-hero overflow-hidden border border-white/20 p-5 text-white sm:p-6 lg:p-7">
+        <section class="finance-payouts-hero overflow-hidden border sm:p-6 lg:p-7">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-white/15 text-white shadow-lg shadow-black/10 ring-1 ring-white/20">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center ring-1">
                         <i class="fas fa-hand-holding-dollar text-xl"></i>
                     </div>
                     <div>
-                        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-50 ring-1 ring-white/20">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 text-xs uppercase tracking-wide ring-1">
                             <i class="fas fa-user-doctor"></i>
                             <span><?= lang('Finance.providerPayouts') ?></span>
                         </div>
-                        <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl"><?= lang('Finance.providerPayouts') ?></h1>
+                        <h1 class="mt-3 v3-section-title tracking-tight v3-title lg:text-4xl"><?= lang('Finance.providerPayouts') ?></h1>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (!empty($can_access_finance_reports)): ?>
-                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center rounded-2xl bg-white/15 px-4 py-2.5 text-sm font-extrabold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold ring-1 transition">
                         <i class="fas fa-chart-bar <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.reports') ?>
                     </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2.5 text-sm font-extrabold text-teal-800 shadow-lg shadow-slate-950/20 transition hover:-translate-y-0.5">
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold text-teal-800 transition hover:-translate-y-0.5">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?>"></i><?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
@@ -189,38 +37,38 @@
         </section>
 
         <section class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="finance-payouts-card bg-gradient-to-br from-blue-700 via-indigo-700 to-slate-950 p-5 text-white shadow-blue-900/25">
+            <div class="finance-payouts-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-indigo-50/90"><?= lang('Finance.providerShareTotal') ?></p>
-                        <p class="mt-3 text-3xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_share')) ?></p>
+                        <p class="text-xs uppercase tracking-wide"><?= lang('Finance.providerShareTotal') ?></p>
+                        <p class="mt-3 v3-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_share')) ?></p>
                     </div>
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
                         <i class="fas fa-percent text-lg"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="finance-payouts-card bg-gradient-to-br from-rose-700 via-red-700 to-slate-950 p-5 text-white shadow-rose-900/25">
+            <div class="finance-payouts-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
-                        <p class="mt-3 text-3xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_balance')) ?></p>
+                        <p class="text-xs uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
+                        <p class="mt-3 v3-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_balance')) ?></p>
                         <p class="mt-2 text-xs text-rose-50/90"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
                     </div>
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
                         <i class="fas fa-triangle-exclamation text-lg"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="finance-payouts-card bg-gradient-to-br from-emerald-700 via-teal-700 to-slate-950 p-5 text-white shadow-emerald-900/25">
+            <div class="finance-payouts-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.clinicShareTotal') ?></p>
-                        <p class="mt-3 text-3xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_clinic_share')) ?></p>
+                        <p class="text-xs uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.clinicShareTotal') ?></p>
+                        <p class="mt-3 v3-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_clinic_share')) ?></p>
                     </div>
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
                         <i class="fas fa-building text-lg"></i>
                     </div>
                 </div>
@@ -228,14 +76,14 @@
         </section>
 
         <section class="finance-payouts-panel finance-payouts-table-shell">
-            <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-teal-50/80 to-sky-50/80 px-5 py-4">
+            <div class="border-b px-5 py-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-700 text-white shadow-lg shadow-teal-700/20">
+                        <span class="flex h-11 w-11 items-center justify-center bg-teal-700">
                             <i class="fas fa-list-check"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= lang('Finance.payoutLedger') ?></h3>
+                            <h3 class="text-lg"><?= lang('Finance.payoutLedger') ?></h3>
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -247,7 +95,7 @@
                             <option value="void"><?= lang('Finance.void') ?></option>
                         </select>
                         <div class="relative">
-                            <span class="absolute <?= $isRtl ? 'right-3' : 'left-3' ?> top-3 text-slate-400 text-sm"><i class="fas fa-search"></i></span>
+                            <span class="absolute <?= $isRtl ? 'right-3' : 'left-3' ?> top-3 text-sm"><i class="fas fa-search"></i></span>
                             <input id="payoutSearch" type="text" class="finance-payouts-input <?= $isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3' ?> sm:w-80" placeholder="<?= esc(lang('Finance.searchProviderPatientTxn')) ?>">
                         </div>
                     </div>
@@ -255,19 +103,19 @@
             </div>
             <div class="overflow-x-auto">
                 <table id="providerPayoutsTable" class="w-full min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                    <thead class="border-b border-slate-200 bg-slate-50/95">
+                    <thead class="border-b">
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-receipt text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-user text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-user-doctor text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-wallet text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-info-circle text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-calendar text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
-                            <th class="px-6 py-4 text-start text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fas fa-cogs text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-receipt text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-user text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-user-doctor text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-wallet text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-info-circle text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-calendar text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-cogs text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
                         </tr>
                     </thead>
-                    <tbody id="providerPayoutsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                    <tbody id="providerPayoutsTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
         </section>
@@ -275,28 +123,28 @@
 </div>
 
 <div id="recordPayoutModal" class="fixed inset-0 z-[2147483500] hidden">
-    <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" onclick="closePayoutModal()"></div>
+    <div class="absolute inset-0" onclick="closePayoutModal()"></div>
     <div class="relative min-h-full flex items-center justify-center p-4">
-        <div class="w-full max-w-lg overflow-hidden rounded-[1.65rem] bg-white shadow-2xl shadow-slate-950/25 border border-slate-200">
-            <div class="flex items-center justify-between gap-4 bg-gradient-to-r from-teal-700 via-sky-800 to-slate-950 px-5 py-4 text-white">
+        <div class="w-full max-w-lg overflow-hidden rounded-[1.65rem] border">
+            <div class="flex items-center justify-between gap-4 px-5 py-4">
                 <div class="flex items-center gap-3">
-                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
+                    <span class="flex h-11 w-11 items-center justify-center ring-1">
                         <i class="fas fa-hand-holding-dollar"></i>
                     </span>
-                    <h4 class="text-base font-black"><?= lang('Finance.recordProviderPayout') ?></h4>
+                    <h4 class="text-base"><?= lang('Finance.recordProviderPayout') ?></h4>
                 </div>
-                <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20" onclick="closePayoutModal()"><i class="fas fa-times"></i></button>
+                <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closePayoutModal()"><i class="fas fa-times"></i></button>
             </div>
-            <form id="recordPayoutForm" class="p-5 space-y-4">
+            <form id="recordPayoutForm" class="space-y-4">
                 <input type="hidden" id="payoutIdInput">
-                <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.amount') ?></label>
+                <div class="p-4 ring-1">
+                    <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.amount') ?></label>
                     <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="finance-payouts-input" required>
-                    <p id="payoutAmountHelp" class="mt-2 text-xs font-semibold text-slate-500"></p>
+                    <p id="payoutAmountHelp" class="mt-2 text-xs font-semibold"></p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paymentMethod') ?></label>
+                    <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.paymentMethod') ?></label>
                     <select id="payoutMethodInput" class="finance-payouts-input">
                         <option value="cash"><?= lang('Finance.cash') ?></option>
                         <option value="card"><?= lang('Finance.card') ?></option>
@@ -306,25 +154,25 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
+                    <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
                     <input type="date" id="payoutDateInput" class="finance-payouts-input" required>
                 </div>
                 </div>
                 <div id="payoutLiquidityAccountField" class="hidden">
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.paidFromAccount') ?></label>
+                    <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.paidFromAccount') ?></label>
                     <select id="payoutLiquidityAccountInput" class="finance-payouts-input">
                         <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                         <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                     </select>
-                    <p class="mt-2 text-xs font-semibold text-slate-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                    <p class="mt-2 text-xs font-semibold"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
                 </div>
                 <div>
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wide mb-1"><?= lang('Finance.notes') ?></label>
+                    <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.notes') ?></label>
                     <textarea id="payoutNotesInput" rows="2" class="finance-payouts-input" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closePayoutModal()" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-slate-50"><?= lang('Finance.cancel') ?></button>
-                    <button type="submit" class="rounded-xl bg-gradient-to-r from-teal-700 to-sky-800 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-teal-700/20 transition hover:-translate-y-0.5"><?= lang('Finance.recordPayment') ?></button>
+                    <button type="button" onclick="closePayoutModal()" class="border px-4 py-2.5 text-sm font-extrabold transition"><?= lang('Finance.cancel') ?></button>
+                    <button type="submit" class="px-4 py-2.5 text-sm transition hover:-translate-y-0.5"><?= lang('Finance.recordPayment') ?></button>
                 </div>
             </form>
         </div>
@@ -672,4 +520,5 @@ function markPayoutPaid(id) {
     });
 }
 </script>
+</div>
 <?= $this->endSection() ?>

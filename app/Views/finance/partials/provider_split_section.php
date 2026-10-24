@@ -104,49 +104,49 @@ foreach (($clinic_providers ?? []) as $provider) {
     color: #64748b;
 }
 </style>
-<div data-provider-split-section class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 space-y-5">
+<div data-provider-split-section class="v3-radius border v3-border v3-soft-surface p-6 space-y-5">
     <div class="flex items-center justify-between">
         <div>
-            <h4 class="text-base font-bold text-indigo-900 flex items-center gap-2">
-                <i class="fas fa-hand-holding-dollar text-indigo-600"></i>
+            <h4 class="text-base font-bold v3-accent-text flex items-center gap-2">
+                <i class="fas fa-hand-holding-dollar v3-accent-text"></i>
                 <?= lang('Finance.providerSplit') ?>
             </h4>
         </div>
         <label class="inline-flex items-center cursor-pointer">
             <input type="checkbox" id="<?= esc($fieldId('providerSplitEnabled')) ?>" name="provider_split_enabled" value="1" class="sr-only" <?= $splitEnabled ? 'checked' : '' ?>>
             <div id="<?= esc($fieldId('providerSplitTrack')) ?>" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
-                <div id="<?= esc($fieldId('providerSplitDot')) ?>" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></div>
+                <div id="<?= esc($fieldId('providerSplitDot')) ?>" class="toggle-dot absolute left-1 top-1 v3-surface w-4 h-4 rounded-full"></div>
             </div>
-            <span class="<?= !empty($is_rtl) ? 'mr-3' : 'ml-3' ?> text-sm font-semibold text-indigo-900"><?= lang('Finance.enable') ?></span>
+            <span class="<?= !empty($is_rtl) ? 'mr-3' : 'ml-3' ?> text-sm font-semibold v3-accent-text"><?= lang('Finance.enable') ?></span>
         </label>
     </div>
 
     <div id="<?= esc($fieldId('providerSplitFields')) ?>" class="<?= $splitEnabled ? 'space-y-5' : 'hidden space-y-5' ?>">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+            <div class="v3-radius border border-emerald-200 bg-emerald-50 p-4">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.grossCollected') ?></p>
                 <p class="mt-1 text-lg font-bold text-emerald-700" id="<?= esc($fieldId('splitGrossPreview')) ?>">0.00</p>
             </div>
-            <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
+            <div class="v3-radius border v3-border v3-soft-surface p-4">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.totalProviderCompensation') ?></p>
-                <p class="mt-1 text-lg font-bold text-indigo-700" id="<?= esc($fieldId('splitProviderPreview')) ?>">0.00</p>
+                <p class="mt-1 text-lg font-bold v3-accent-text" id="<?= esc($fieldId('splitProviderPreview')) ?>">0.00</p>
             </div>
-            <div class="rounded-xl border border-sky-200 bg-sky-50 p-4 shadow-sm">
+            <div class="v3-radius border border-sky-200 v3-soft-surface p-4">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.clinicNet') ?></p>
-                <p class="mt-1 text-lg font-bold text-sky-700" id="<?= esc($fieldId('splitClinicPreview')) ?>">0.00</p>
+                <p class="mt-1 text-lg font-bold v3-accent-text" id="<?= esc($fieldId('splitClinicPreview')) ?>">0.00</p>
             </div>
         </div>
 
         <div class="flex items-center justify-between gap-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-800"><?= lang('Finance.providerSplit') ?></p>
-            <button type="button" id="<?= esc($fieldId('addProviderAllocationBtn')) ?>" class="inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] v3-accent-text"><?= lang('Finance.providerSplit') ?></p>
+            <button type="button" id="<?= esc($fieldId('addProviderAllocationBtn')) ?>" class="inline-flex items-center v3-radius v3-surface px-4 py-2 text-sm font-semibold v3-accent-text border v3-border hover:bg-indigo-50">
                 <i class="fas fa-plus <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.addProviderAllocation') ?>
             </button>
         </div>
 
         <div id="<?= esc($fieldId('providerAllocationsList')) ?>" class="space-y-4"></div>
         <template data-provider-allocation-template>
-<div class="provider-allocation-row rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm space-y-4">
+<div class="provider-allocation-row v3-radius border v3-border v3-surface p-5 space-y-4">
                 <input type="hidden" name="provider_payout_id[]" value="">
                 <input type="hidden" name="provider_mark_paid_now[]" class="provider-mark-paid-input" value="0">
 
@@ -163,14 +163,14 @@ foreach (($clinic_providers ?? []) as $provider) {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
-                        <select name="provider_type[]" data-force-select2 data-allow-clear="false" class="provider-type-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <select name="provider_type[]" data-force-select2 data-allow-clear="false" class="provider-type-select w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             <option value="user" ><?= lang('Finance.clinicUser') ?></option>
                             <option value="guest" ><?= lang('Finance.guestProvider') ?></option>
                         </select>
                     </div>
-                    <div class="provider-user-wrap group/field relative ">
+                    <div class="provider-user-wrap group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
-                        <select name="provider_user_id[]" data-force-select2 data-allow-clear="false" class="provider-user-select w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <select name="provider_user_id[]" data-force-select2 data-allow-clear="false" class="provider-user-select w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             <option value=""><?= esc(lang('Finance.selectUser')) ?></option>
                             <?php foreach ($providerOptions as $providerOption): ?>
                                 <option value="<?= esc((string) $providerOption['id']) ?>"><?= esc($providerOption['label']) ?></option>
@@ -179,34 +179,34 @@ foreach (($clinic_providers ?? []) as $provider) {
                     </div>
                     <div class="provider-guest-wrap group/field relative hidden">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
-                        <input type="text" name="provider_name_snapshot[]" value="" class="provider-guest-input w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
+                        <input type="text" name="provider_name_snapshot[]" value="" class="provider-guest-input w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
-                        <select name="provider_split_mode[]" data-force-select2 data-allow-clear="false" class="provider-split-mode w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <select name="provider_split_mode[]" data-force-select2 data-allow-clear="false" class="provider-split-mode w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             <option value="percent" ><?= lang('Finance.percentage') ?></option>
                             <option value="fixed" ><?= lang('Finance.fixedAmount') ?></option>
                         </select>
                     </div>
                     <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
-                        <input type="number" name="provider_split_value[]" value="0" step="0.01" min="0" class="provider-split-value w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <input type="number" name="provider_split_value[]" value="0" step="0.01" min="0" class="provider-split-value w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                     </div>
                 </div>
 
                 <div class="group/field relative">
                     <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.allocationNotes') ?></label>
-                    <textarea name="provider_split_notes[]" rows="2" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"></textarea>
+                    <textarea name="provider_split_notes[]" rows="2" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"></textarea>
                 </div>
 
-                <div class="rounded-xl bg-slate-50 p-4 space-y-4">
-                    <label class="provider-pay-toggle ">
+                <div class="v3-radius v3-surface p-4 space-y-4">
+                    <label class="provider-pay-toggle">
                         <input type="checkbox" class="provider-paid-toggle sr-only" >
                         <span class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative" aria-hidden="true">
-                            <span class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></span>
+                            <span class="toggle-dot absolute left-1 top-1 v3-surface w-4 h-4 rounded-full"></span>
                         </span>
                         <span class="provider-pay-toggle-copy">
                             <span class="provider-pay-toggle-title"><?= lang('Finance.markProviderPaidNow') ?></span>
@@ -218,13 +218,13 @@ foreach (($clinic_providers ?? []) as $provider) {
                         <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidAmount') ?></label>
                             <div class="relative">
-                                <input type="number" name="provider_paid_amount[]" value="" step="0.01" min="0" class="provider-paid-amount w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                <input type="number" name="provider_paid_amount[]" value="" step="0.01" min="0" class="provider-paid-amount w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 v3-surface border-2 v3-border v3-radius">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none"><span class="text-gray-500 font-bold"><?= esc(getCurrencySymbol()) ?></span></div>
                             </div>
                         </div>
                         <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
-                            <select name="provider_paid_method[]" data-force-select2 data-allow-clear="false" class="provider-paid-method w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                            <select name="provider_paid_method[]" data-force-select2 data-allow-clear="false" class="provider-paid-method w-full px-4 py-3 v3-surface border-2 v3-border v3-radius">
                                 <option value="cash" ><?= lang('Finance.cash') ?></option>
                                 <option value="card" ><?= lang('Finance.card') ?></option>
                                 <option value="bank_transfer" ><?= lang('Finance.bankTransfer') ?></option>
@@ -234,7 +234,7 @@ foreach (($clinic_providers ?? []) as $provider) {
                         </div>
                         <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
-                            <input type="text" name="provider_paid_date[]" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="provider-paid-date w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                            <input type="text" name="provider_paid_date[]" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="provider-paid-date w-full px-4 py-3 v3-surface border-2 v3-border v3-radius">
                         </div>
                     </div>
                 </div>

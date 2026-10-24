@@ -133,88 +133,52 @@ $dynamicMode = !empty($bookingContext['enabled']);
 ?>
 <div class="appointment-calendar-page">
 <div class="appointment-calendar-wrap w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="appointment-calendar-hero overflow-hidden rounded-[1.65rem] border border-white/20 text-white shadow-2xl shadow-blue-900/22">
-        <div class="relative p-5 sm:p-6 lg:p-7">
-            <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(30rem,.78fr)] xl:items-center">
-                <div class="flex min-w-0 items-start gap-4">
-                    <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
-                        <i class="fas fa-calendar-days text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-200"><?= esc(lang('UI.appointmentCalendarView')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc(lang('UI.appointmentCalendarTitle')) ?></h1>
-                        <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90"><?= esc(lang('UI.appointmentCalendarSubtitle')) ?></p>
-                        <div class="mt-3 flex flex-wrap gap-2 text-[11px] font-black">
-                            <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18" dir="ltr"><?= esc($calendarWorkHoursLabel) ?></span>
-                            <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18"><?= count($calendarBusinessDays) ?> <?= esc(lang('UI.settingsHoursWorkingDays')) ?></span>
-                            <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25"><?= esc(lang('UI.appointmentTodaySchedule')) ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    <div class="appointment-calendar-hero-stat">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-blue-100"><?= esc(lang('UI.appointmentTodaySchedule')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarTodayCount ?></p>
-                    </div>
-                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--emerald">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('UI.appointmentActive')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarUpcomingCount ?></p>
-                    </div>
-                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--cyan">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-cyan-100"><?= esc(lang('UI.dashboardCompleted')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarCompletedCount ?></p>
-                    </div>
-                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--rose">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-rose-100"><?= esc(lang('UI.appointmentStatusCancelled')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarCancelledCount ?></p>
-                    </div>
-                </div>
-            </div>
-            <div class="relative mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <a href="<?= base_url('appointment') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+    <header class="v3-command-header"><div><h1><?= esc(lang('UI.appointmentCalendarTitle')) ?></h1><p><span dir="ltr"><?= esc($calendarWorkHoursLabel) ?></span> / <?= count($calendarBusinessDays) ?> <?= esc(lang('UI.settingsHoursWorkingDays')) ?></p></div><div class="v3-command-actions"><a href="<?= base_url('appointment') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
                     <i class="fas fa-list"></i>
                     <span><?= esc(lang('UI.appointmentListView')) ?></span>
                 </a>
                 <?php if (has_permission('appointments', 'create')): ?>
-                    <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-blue-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50">
+                    <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm v3-accent-text transition hover:bg-blue-50">
                         <i class="fas fa-plus"></i>
                         <span><?= esc(lang('UI.appointmentNew')) ?></span>
                     </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </section>
+                <?php endif; ?></div></header>
+<section class="v3-calendar-summary">
+ <span><?= esc(lang('UI.appointmentTodaySchedule')) ?> <strong><?= $calendarTodayCount ?></strong></span>
+ <span><?= esc(lang('UI.appointmentActive')) ?> <strong><?= $calendarUpcomingCount ?></strong></span>
+ <span><?= esc(lang('UI.dashboardCompleted')) ?> <strong><?= $calendarCompletedCount ?></strong></span>
+ <span><?= esc(lang('UI.appointmentStatusCancelled')) ?> <strong><?= $calendarCancelledCount ?></strong></span>
+</section>
 
     <section class="appointment-calendar-panel overflow-hidden">
-        <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-blue-50/90 to-cyan-50/80 p-4 sm:p-5 lg:p-6">
+        <div class="border-b v3-border v3-warm-surface p-4 sm:p-5 lg:p-6">
             <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div class="min-w-0">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-700 to-cyan-600 text-white shadow-lg shadow-blue-700/20">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-warm-surface">
                             <i class="fas fa-calendar-week"></i>
                         </span>
                         <div>
-                            <h3 class="text-xl font-black text-slate-950"><?= esc(lang('UI.appointmentCalendarView')) ?></h3>
+                            <h3 class="text-xl text-slate-950"><?= esc(lang('UI.appointmentCalendarView')) ?></h3>
                             <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc(lang('UI.appointmentCalendarHint')) ?></p>
                         </div>
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
                         <?php foreach ($calendarStatusLegend as $legendItem): ?>
-                            <span class="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 text-xs font-black text-slate-700 shadow-sm ring-1 ring-slate-200/80">
+                            <span class="inline-flex items-center gap-2 rounded-full v3-surface px-3 py-1.5 text-xs text-slate-700 ring-1 ring-slate-200/80">
                                 <span class="h-2.5 w-2.5 rounded-full <?= esc($legendItem['class']) ?>"></span>
                                 <?= esc($legendItem['label']) ?>
                             </span>
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <div id="loading-indicator" class="hidden flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700 ring-1 ring-blue-100">
-                    <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                <div id="loading-indicator" class="hidden flex items-center gap-2 rounded-full v3-soft-surface px-3 py-2 text-sm font-bold v3-accent-text ring-1 ring-blue-100">
+                    <div class="h-4 w-4 animate-spin rounded-full border-b-2 v3-border"></div>
                     <span><?= esc(lang('UI.appointmentLoadingAppointments')) ?></span>
                 </div>
             </div>
 
-            <div class="mt-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-lg shadow-slate-200/55">
+            <div class="mt-5 v3-radius border v3-border v3-surface p-4">
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
                     <div>
                         <label for="calendarSearchFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentSearch')) ?></label>
@@ -222,7 +186,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                             <input
                                 type="text"
                                 id="calendarSearchFilter"
-                                class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 <?= $isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4' ?>"
+                                class="w-full v3-radius border-2 v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 <?= $isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4' ?>"
                                 placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>"
                                 autocomplete="off"
                             >
@@ -231,7 +195,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                     </div>
                     <div>
                         <label for="calendarStatusFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentStatusLabel')) ?></label>
-                        <select id="calendarStatusFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                        <select id="calendarStatusFilter" class="w-full v3-radius border-2 v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
                             <option value=""><?= esc(lang('UI.appointmentAllStatuses')) ?></option>
                             <option value="scheduled"><?= esc(lang('UI.appointmentStatusScheduled')) ?></option>
                             <option value="confirmed"><?= esc(lang('UI.appointmentStatusConfirmed')) ?></option>
@@ -246,7 +210,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                     </div>
                     <div>
                         <label for="calendarTypeFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentTypeBadge')) ?></label>
-                        <select id="calendarTypeFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                        <select id="calendarTypeFilter" class="w-full v3-radius border-2 v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
                             <option value=""><?= esc(lang('UI.appointmentViewAll')) ?></option>
                             <option value="Consultation"><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
                             <option value="Treatment"><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
@@ -257,7 +221,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         </select>
                     </div>
                     <div class="flex items-end">
-                        <button type="button" id="calendarClearFilters" class="inline-flex w-full items-center justify-center rounded-xl border-2 border-slate-300 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-800 shadow-sm outline-none transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:ring-4 focus:ring-blue-500/15">
+                        <button type="button" id="calendarClearFilters" class="inline-flex w-full items-center justify-center v3-radius border-2 v3-border bg-slate-100 px-4 py-3 text-sm font-bold text-slate-800 outline-none transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:ring-4 focus:ring-blue-500/15">
                             <i class="fas fa-eraser me-2"></i><?= esc(lang('UI.appointmentClearAction')) ?>
                         </button>
                     </div>
@@ -265,79 +229,12 @@ $dynamicMode = !empty($bookingContext['enabled']);
             </div>
         </div>
 
-        <div class="bg-slate-50/55 p-3 sm:p-4 lg:p-5">
+        <div class="v3-surface p-3 sm:p-4 lg:p-5">
             <div id="calendar" class="appointment-calendar-shell w-full"></div>
         </div>
     </section>
 
-    <div id="appointmentCalendarDetailsModal" class="appointment-calendar-details-modal fixed inset-0 z-[2147483500] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appointmentCalendarDetailsTitle">
-        <div class="appointment-calendar-details-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-calendar-details-close></div>
-        <div class="appointment-calendar-details-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-calendar-details-close>
-            <div class="appointment-calendar-details-modal__panel grid w-full max-w-xl grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
-                <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
-                    <div class="flex min-w-0 items-center gap-3">
-                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg">
-                            <i class="fas fa-calendar-check"></i>
-                        </span>
-                        <div class="min-w-0">
-                            <h2 id="appointmentCalendarDetailsTitle" class="truncate text-lg font-bold text-slate-900"><?= esc(lang('UI.appointmentDetails')) ?></h2>
-                            <p id="appointmentCalendarDetailsSubtitle" class="mt-1 truncate text-xs font-semibold text-slate-500"></p>
-                        </div>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-calendar-details-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-                <div class="min-h-0 space-y-4 overflow-y-auto bg-slate-50/75 p-5">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p id="appointmentCalendarDetailsTime" class="text-xl font-black text-slate-900" dir="ltr"></p>
-                                <p id="appointmentCalendarDetailsDate" class="mt-1 text-sm font-semibold text-slate-500" dir="ltr"></p>
-                            </div>
-                            <span id="appointmentCalendarDetailsStatus" class="inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide"></span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentPatientInfo')) ?></p>
-                            <p id="appointmentCalendarDetailsPatient" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentTypeLabel')) ?></p>
-                            <p id="appointmentCalendarDetailsType" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDoctorLabel')) ?></p>
-                            <p id="appointmentCalendarDetailsDoctor" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDurationLabel')) ?></p>
-                            <p id="appointmentCalendarDetailsDuration" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentBookedByLabel')) ?></p>
-                        <p id="appointmentCalendarDetailsBookedBy" class="mt-2 text-sm font-bold text-slate-900"></p>
-                    </div>
-                </div>
-                <div class="flex flex-col-reverse gap-3 border-t border-slate-200 bg-white px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-calendar-details-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                        <?= esc(lang('UI.closeDrawer')) ?>
-                    </button>
-                    <a id="appointmentCalendarDetailsPatientLink" href="#" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-bold text-blue-700 transition hover:bg-blue-100">
-                        <i class="fas fa-user me-2"></i><?= esc(lang('UI.patientView')) ?>
-                    </a>
-                    <a id="appointmentCalendarDetailsEditLink" href="#" class="inline-flex items-center justify-center rounded-xl border border-purple-200 bg-purple-50 px-5 py-2.5 text-sm font-bold text-purple-700 transition hover:bg-purple-100">
-                        <i class="fas fa-edit me-2"></i><?= esc(lang('UI.appointmentEdit')) ?>
-                    </a>
-                    <a id="appointmentCalendarDetailsOpenLink" href="#" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-blue-700 hover:to-purple-700">
-                        <i class="fas fa-external-link-alt me-2"></i><?= esc(lang('UI.openFullPage')) ?>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Native HTML/CSS Doctor Dayboard Partial -->
     <?php if ($dynamicMode): ?>
@@ -349,6 +246,75 @@ $dynamicMode = !empty($bookingContext['enabled']);
     <?php endif; ?>
 
 </div>
+
+    <div id="appointmentCalendarDetailsModal" class="appointment-calendar-details-modal v3-context-drawer fixed inset-0 z-[2147483500] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appointmentCalendarDetailsTitle">
+        <div class="appointment-calendar-details-modal__backdrop v3-context-drawer__backdrop fixed inset-0 bg-slate-950/45" data-calendar-details-close></div>
+        <div class="appointment-calendar-details-modal__shell v3-context-drawer__shell" data-calendar-details-close>
+            <div class="appointment-calendar-details-modal__panel v3-context-drawer__panel" onclick="event.stopPropagation()">
+                <div class="flex items-start justify-between gap-4 border-b v3-border v3-surface px-5 py-4">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius v3-warm-surface">
+                            <i class="fas fa-calendar-check"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <h2 id="appointmentCalendarDetailsTitle" class="truncate text-lg font-bold text-slate-900"><?= esc(lang('UI.appointmentDetails')) ?></h2>
+                            <p id="appointmentCalendarDetailsSubtitle" class="mt-1 truncate text-xs font-semibold text-slate-500"></p>
+                        </div>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-calendar-details-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+                <div class="min-h-0 space-y-4 overflow-y-auto v3-surface p-5">
+                    <div class="v3-radius border v3-border v3-surface p-5">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p id="appointmentCalendarDetailsTime" class="text-xl text-slate-900" dir="ltr"></p>
+                                <p id="appointmentCalendarDetailsDate" class="mt-1 text-sm font-semibold text-slate-500" dir="ltr"></p>
+                            </div>
+                            <span id="appointmentCalendarDetailsStatus" class="inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-wide"></span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div class="v3-radius border v3-border v3-surface p-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentPatientInfo')) ?></p>
+                            <p id="appointmentCalendarDetailsPatient" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                        <div class="v3-radius border v3-border v3-surface p-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentTypeLabel')) ?></p>
+                            <p id="appointmentCalendarDetailsType" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                        <div class="v3-radius border v3-border v3-surface p-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDoctorLabel')) ?></p>
+                            <p id="appointmentCalendarDetailsDoctor" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                        <div class="v3-radius border v3-border v3-surface p-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDurationLabel')) ?></p>
+                            <p id="appointmentCalendarDetailsDuration" class="mt-2 text-sm font-bold text-slate-900"></p>
+                        </div>
+                    </div>
+                    <div class="v3-radius border v3-border v3-surface p-4">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentBookedByLabel')) ?></p>
+                        <p id="appointmentCalendarDetailsBookedBy" class="mt-2 text-sm font-bold text-slate-900"></p>
+                    </div>
+                </div>
+                <div class="flex flex-col-reverse gap-3 border-t v3-border v3-surface px-5 py-4 sm:flex-row sm:justify-end">
+                    <button type="button" data-calendar-details-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <?= esc(lang('UI.closeDrawer')) ?>
+                    </button>
+                    <a id="appointmentCalendarDetailsPatientLink" href="#" class="inline-flex items-center justify-center v3-radius border v3-border v3-soft-surface px-5 py-2.5 text-sm font-bold v3-accent-text transition hover:bg-blue-100">
+                        <i class="fas fa-user me-2"></i><?= esc(lang('UI.patientView')) ?>
+                    </a>
+                    <a id="appointmentCalendarDetailsEditLink" href="#" class="inline-flex items-center justify-center v3-radius border v3-border v3-soft-surface px-5 py-2.5 text-sm font-bold v3-accent-text transition hover:bg-purple-100">
+                        <i class="fas fa-edit me-2"></i><?= esc(lang('UI.appointmentEdit')) ?>
+                    </a>
+                    <a id="appointmentCalendarDetailsOpenLink" href="#" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
+                        <i class="fas fa-external-link-alt me-2"></i><?= esc(lang('UI.openFullPage')) ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <?= view('appointment/partials/quick_create_modal', [
     'isRtl' => $isRtl,
@@ -368,266 +334,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
 
-<style>
-    .appointment-calendar-page {
-        font-family: var(--app-font-sans);
-        background: transparent;
-    }
 
-    [dir="rtl"] .appointment-calendar-page {
-        font-family: var(--app-font-ar);
-    }
-
-    .appointment-calendar-wrap {
-        max-width: 1520px;
-        margin-inline: auto;
-    }
-
-    .appointment-calendar-hero {
-        background:
-            radial-gradient(circle at 12% 12%, rgba(34, 211, 238, 0.52), transparent 30%),
-            radial-gradient(circle at 82% 4%, rgba(16, 185, 129, 0.38), transparent 27%),
-            linear-gradient(135deg, #123d91 0%, #1757c2 44%, #0f766e 100%);
-    }
-
-    [dir="rtl"] .appointment-calendar-hero {
-        background:
-            radial-gradient(circle at 88% 12%, rgba(34, 211, 238, 0.52), transparent 30%),
-            radial-gradient(circle at 18% 4%, rgba(16, 185, 129, 0.38), transparent 27%),
-            linear-gradient(225deg, #123d91 0%, #1757c2 44%, #0f766e 100%);
-    }
-
-    .appointment-calendar-hero-stat {
-        border-radius: 1.15rem;
-        padding: 0.9rem;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        backdrop-filter: blur(12px);
-    }
-
-    .appointment-calendar-hero-stat--emerald {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.32), rgba(255, 255, 255, 0.1));
-    }
-
-    .appointment-calendar-hero-stat--cyan {
-        background: linear-gradient(135deg, rgba(6, 182, 212, 0.28), rgba(255, 255, 255, 0.1));
-    }
-
-    .appointment-calendar-hero-stat--rose {
-        background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(255, 255, 255, 0.1));
-    }
-
-    .appointment-calendar-panel {
-        border-radius: 1.5rem;
-        border: 1px solid rgba(203, 213, 225, 0.88);
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 24px 62px -42px rgba(15, 23, 42, 0.52);
-    }
-
-    .appointment-calendar-shell {
-        min-height: 0;
-    }
-
-    .appointment-calendar-shell .fc {
-        --fc-border-color: #e5e7eb;
-        --fc-today-bg-color: rgba(59, 130, 246, 0.08);
-        font-family: inherit;
-        color: #0f172a;
-    }
-
-    .appointment-calendar-shell .fc-view-harness {
-        border-radius: 1.25rem;
-        overflow: hidden;
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 16px 34px -28px rgba(15, 23, 42, 0.45);
-    }
-
-    .appointment-calendar-shell .fc-toolbar-title {
-        font-size: clamp(1rem, 1.7vw, 1.35rem);
-        font-weight: 900;
-        color: #0f172a;
-    }
-
-    .appointment-calendar-shell .fc-button {
-        border-radius: 0.75rem;
-        border-color: #d1d5db;
-        background: #f8fafc;
-        color: #334155;
-        font-weight: 800;
-        text-transform: none;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-    }
-
-    .appointment-calendar-shell .fc-button:hover,
-    .appointment-calendar-shell .fc-button-primary:not(:disabled).fc-button-active {
-        border-color: #2563eb;
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-slot {
-        height: 1.08rem;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-slot-label {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: #64748b;
-    }
-
-    .appointment-calendar-shell .fc-col-header-cell-cushion {
-        padding-block: 0.45rem;
-        font-size: 0.78rem;
-        font-weight: 900;
-    }
-
-    .appointment-calendar-shell .fc-day-today .fc-col-header-cell-cushion {
-        color: #1d4ed8;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-now-indicator-line {
-        border-color: #ef4444;
-        border-width: 2px 0 0;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-now-indicator-arrow {
-        border-color: #ef4444;
-        border-top-color: transparent;
-        border-bottom-color: transparent;
-    }
-
-    .appointment-calendar-shell .fc-event {
-        border-radius: 0.65rem;
-        border: 0;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
-        overflow: hidden;
-        cursor: pointer;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-event {
-        margin-inline: 1px;
-    }
-
-    .appointment-calendar-shell .fc-scroller {
-        scrollbar-gutter: stable;
-    }
-
-    .appointment-calendar-event {
-        display: flex;
-        flex-direction: column;
-        gap: 0.06rem;
-        padding: 0.18rem 0.34rem;
-        line-height: 1.05;
-        min-width: 0;
-    }
-
-    .appointment-calendar-event__time {
-        font-size: 0.62rem;
-        font-weight: 800;
-        opacity: 0.95;
-        direction: ltr;
-        unicode-bidi: isolate;
-    }
-
-    .appointment-calendar-event__title {
-        font-size: 0.69rem;
-        font-weight: 800;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .appointment-calendar-event__meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-        font-size: 0.62rem;
-        font-weight: 700;
-        opacity: 0.9;
-    }
-
-    .appointment-calendar-shell .fc-timeGridWeek-view .appointment-calendar-event__meta {
-        display: none;
-    }
-
-    .appointment-calendar-shell .fc-timeGridWeek-view .appointment-calendar-event__title {
-        font-size: 0.67rem;
-    }
-
-    .appointment-calendar-event__pill {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.22);
-        padding: 0.04rem 0.3rem;
-    }
-
-    .appointment-calendar-details-modal {
-        visibility: hidden;
-        pointer-events: none;
-        transition: visibility 0s linear 220ms;
-    }
-
-    .appointment-calendar-details-modal.is-open {
-        visibility: visible;
-        pointer-events: auto;
-        transition-delay: 0s;
-    }
-
-    .appointment-calendar-details-modal__backdrop {
-        opacity: 0;
-        transition: opacity 180ms ease;
-    }
-
-    .appointment-calendar-details-modal.is-open .appointment-calendar-details-modal__backdrop {
-        opacity: 1;
-    }
-
-    .appointment-calendar-details-modal__panel {
-        opacity: 0;
-        transform: scale(0.92);
-        transform-origin: center;
-        transition:
-            opacity 160ms ease,
-            transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        max-height: min(90dvh, 42rem);
-    }
-
-    .appointment-calendar-details-modal.is-open .appointment-calendar-details-modal__panel {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    @media (max-width: 640px) {
-        .appointment-calendar-shell .fc-header-toolbar {
-            align-items: stretch;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .appointment-calendar-shell .fc-toolbar-chunk {
-            display: flex;
-            justify-content: center;
-        }
-
-        .appointment-calendar-details-modal__shell {
-            align-items: stretch;
-            padding: 0;
-        }
-
-        .appointment-calendar-details-modal__panel {
-            width: 100vw;
-            max-width: none;
-            height: 100dvh;
-            max-height: 100dvh;
-            border-radius: 0;
-        }
-    }
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -676,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     let calendarDetailsTrigger = null;
-    
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: isCompactViewport ? 'timeGridDay' : 'timeGridWeek',
         locale: locale,
@@ -691,10 +398,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (loadingIndicator) {
                 loadingIndicator.classList.remove('hidden');
             }
-            
+
             const startDate = info.startStr;
             const endDate = info.endStr;
-            
+
             fetch(`<?= base_url('appointment/calendar-events') ?>?start=${startDate}&end=${endDate}`, {
                 method: 'GET',
                 headers: {
@@ -720,11 +427,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     eventsData = data;
                 } else if (typeof data === 'object' && data !== null) {
                     // Filter out csrf_token and keep only event objects
-                    eventsData = Object.values(data).filter(item => 
+                    eventsData = Object.values(data).filter(item =>
                         typeof item === 'object' && item !== null && item.hasOwnProperty('id')
                     );
                 }
-                
+
                 const events = eventsData.filter(eventMatchesCalendarFilters).map(event => ({
                     id: event.id,
                     title: event.title,
@@ -744,15 +451,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         title: event.title || ''
                     }
                 }));
-                
+
                 successCallback(events);
             })
             .catch(error => {
                 console.error('Error loading calendar events:', error);
-                
+
                 // Show error message
                 showError(appointmentI18n.loadFailed);
-                
+
                 failureCallback(error);
             })
             .finally(() => {
@@ -843,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
         slotMinTime: <?= json_encode($calendarSlotMin) ?>,
         slotMaxTime: <?= json_encode($calendarSlotMax) ?>
     });
-    
+
     calendar.render();
 
     let calendarResizeTimer;
@@ -891,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
             closeAppointmentDetailsModal();
         }
     });
-    
+
     function getStatusColor(status) {
         const colors = {
             'scheduled': '#3b82f6',
@@ -1125,21 +832,21 @@ document.addEventListener('DOMContentLoaded', function() {
             hour12: false
         });
     }
-    
+
     function showError(message) {
         // Create error notification
         const errorDiv = document.createElement('div');
         errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-        
+
         const flexContainer = document.createElement('div');
         flexContainer.className = 'flex items-center space-x-2';
-        
+
         const icon = document.createElement('i');
         icon.className = 'fas fa-exclamation-triangle';
-        
+
         const text = document.createElement('span');
         text.textContent = message;
-        
+
         const closeBtn = document.createElement('button');
         closeBtn.className = 'ml-2 text-white hover:text-gray-200';
         closeBtn.onclick = function() {
@@ -1148,14 +855,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const closeIcon = document.createElement('i');
         closeIcon.className = 'fas fa-times';
         closeBtn.appendChild(closeIcon);
-        
+
         flexContainer.appendChild(icon);
         flexContainer.appendChild(text);
         flexContainer.appendChild(closeBtn);
-        
+
         errorDiv.appendChild(flexContainer);
         document.body.appendChild(errorDiv);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             if (errorDiv.parentNode) {

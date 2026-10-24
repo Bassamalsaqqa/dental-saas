@@ -11,352 +11,26 @@
     $timezoneDisplay = (string) ($settings['timezone'] ?? 'Asia/Jerusalem');
     $languageDisplay = (string) (($settings['ui_language'] ?? 'en') === 'ar' ? 'AR' : 'EN');
 ?>
-<style>
-    .settings-page-wrap {
-        width: min(100%, 1500px);
-    }
-    .settings-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: 2rem;
-        background:
-            radial-gradient(circle at 92% 10%, rgba(20, 184, 166, 0.55), transparent 16rem),
-            radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.46), transparent 18rem),
-            linear-gradient(135deg, #0f172a 0%, #1d4ed8 52%, #0f766e 100%);
-        box-shadow: 0 30px 70px -40px rgba(15, 23, 42, 0.7);
-    }
-    .settings-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-            linear-gradient(120deg, rgba(255, 255, 255, 0.18), transparent 38%),
-            repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px);
-        pointer-events: none;
-    }
-    .settings-hero > * {
-        position: relative;
-        z-index: 1;
-    }
-    .settings-hero-icon {
-        background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12));
-        border: 1px solid rgba(255,255,255,0.28);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 18px 38px -24px rgba(0,0,0,0.55);
-    }
-    .settings-hero-chip {
-        border: 1px solid rgba(255, 255, 255, 0.20);
-        background: rgba(255, 255, 255, 0.14);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
-        backdrop-filter: blur(14px);
-    }
-    .settings-shell-card {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.10), transparent 13rem),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.90));
-        border: 1px solid rgba(255, 255, 255, 0.75);
-        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(22px);
-    }
-    .settings-shell-breadcrumb {
-        background: rgba(255, 255, 255, 0.65);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 10px 30px -24px rgba(15, 23, 42, 0.3);
-        backdrop-filter: blur(18px);
-    }
-    .settings-menu-btn {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        gap: 0.75rem;
-        padding: 0.78rem 0.9rem;
-        border-radius: 0.9rem;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        background: rgba(255, 255, 255, 0.78);
-        color: #334155;
-        font-size: 0.875rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        text-align: left;
-        box-shadow: 0 10px 25px -22px rgba(15, 23, 42, 0.3);
-        backdrop-filter: blur(14px);
-    }
-    .settings-menu-btn:hover {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
-        color: #0f172a;
-        border-color: rgba(59, 130, 246, 0.28);
-        transform: translateY(-1px);
-        box-shadow: 0 18px 36px -28px rgba(59, 130, 246, 0.35);
-    }
-    .settings-menu-btn i {
-        color: #475569;
-        transition: color 0.2s ease;
-    }
-    .settings-menu-btn span {
-        min-width: 0;
-    }
-    .settings-menu-btn.is-active {
-        background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
-        color: #fff;
-        border-color: transparent;
-        box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.5);
-    }
-    .settings-menu-btn.is-active i {
-        color: #fff;
-    }
-    .settings-nav-group {
-        border-radius: 1.25rem;
-        background:
-            radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.09), transparent 9rem),
-            rgba(248, 250, 252, 0.82);
-        border: 1px solid rgba(226, 232, 240, 0.72);
-        padding: 0.65rem;
-    }
-    .settings-nav-kicker {
-        color: #64748b;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .settings-nav-kicker::before {
-        content: '';
-        width: 0.5rem;
-        height: 0.5rem;
-        border-radius: 9999px;
-        background: linear-gradient(135deg, #2563eb, #14b8a6);
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-    }
-    #settings-tabs {
-        min-width: 0;
-    }
-    #settings-tabs .settings-tab > div:first-child {
-        border-radius: 2rem !important;
-        border: 1px solid rgba(255,255,255,0.72) !important;
-        background:
-            radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.12), transparent 16rem),
-            radial-gradient(circle at 0% 35%, rgba(59, 130, 246, 0.10), transparent 15rem),
-            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.93)) !important;
-        box-shadow: 0 28px 70px -45px rgba(15, 23, 42, 0.58) !important;
-        overflow: hidden;
-    }
-    #settings-tabs .settings-tab > div:first-child > div:first-child {
-        background:
-            radial-gradient(circle at 96% 0%, rgba(45, 212, 191, 0.42), transparent 13rem),
-            radial-gradient(circle at 4% 0%, rgba(96, 165, 250, 0.45), transparent 15rem),
-            linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0f766e 100%) !important;
-    }
-    #settings-tabs .settings-tab > div:first-child > div:first-child h3,
-    #settings-tabs .settings-tab > div:first-child > div:first-child p {
-        color: #fff !important;
-    }
-    #settings-tabs .settings-tab > div:first-child > div:first-child p {
-        opacity: 0.82;
-    }
-    #settings-tabs .settings-tab > div:first-child > div:nth-child(2) {
-        padding: 1.5rem !important;
-    }
-    @media (min-width: 768px) {
-        #settings-tabs .settings-tab > div:first-child > div:nth-child(2) {
-            padding: 2rem !important;
-        }
-    }
-    #settings-tabs .settings-tab form,
-    #settings-tabs .settings-tab section,
-    #settings-tabs .settings-tab .rounded-2xl {
-        scroll-margin-top: 1.5rem;
-    }
-    #settings-tabs .settings-tab form.bg-white,
-    #settings-tabs .settings-tab section.bg-white,
-    #settings-tabs .settings-tab div.bg-white.border,
-    #settings-tabs .settings-tab div.bg-gray-50,
-    #settings-tabs .settings-tab div.bg-slate-50 {
-        background:
-            radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.13), transparent 10rem),
-            radial-gradient(circle at 0% 100%, rgba(20, 184, 166, 0.10), transparent 10rem),
-            linear-gradient(180deg, #ffffff, #f8fafc) !important;
-        border-color: rgba(203, 213, 225, 0.72) !important;
-        box-shadow: 0 18px 45px -36px rgba(15, 23, 42, 0.35);
-    }
-    #settings-tabs label {
-        color: #1f2937;
-    }
-    #settings-tabs input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
-    #settings-tabs textarea,
-    #settings-tabs select {
-        min-height: 3.25rem;
-        background-color: rgba(255,255,255,0.92);
-        border-color: #dbe3ef !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-    }
-    #settings-tabs input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
-    #settings-tabs textarea:focus,
-    #settings-tabs select:focus {
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
-        outline: none;
-    }
-    #settings-tabs button[type="submit"],
-    #settings-tabs button[onclick^="save"],
-    #settings-tabs button[onclick^="submit"] {
-        box-shadow: 0 18px 36px -24px rgba(37, 99, 235, 0.55);
-    }
-    .settings-action-panel {
-        background:
-            radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.15), transparent 10rem),
-            radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.12), transparent 10rem),
-            linear-gradient(135deg, #ffffff, #f8fafc);
-        border: 1px solid rgba(203, 213, 225, 0.76);
-        box-shadow: 0 20px 50px -38px rgba(15, 23, 42, 0.45);
-    }
-    .settings-empty-state {
-        background:
-            radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 10rem),
-            linear-gradient(180deg, #ffffff, #f8fafc);
-        border: 1px dashed rgba(148, 163, 184, 0.65);
-    }
-    .select2-container--default .select2-selection--single {
-        height: 56px !important;
-        border: 2px solid #e5e7eb !important;
-        border-radius: 12px !important;
-        padding: 0 16px !important;
-        background-color: rgba(249, 250, 251, 0.5) !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 52px !important;
-        padding-left: 0 !important;
-        color: #374151 !important;
-        font-weight: 500 !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 52px !important;
-        right: 16px !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: #6b7280 !important;
-    }
-    .select2-container--default.select2-container--focus .select2-selection--single {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
-    }
-    .settings-tab.hidden { display: none !important; }
-    .ui-toggle {
-        appearance: none;
-        width: 44px;
-        height: 24px;
-        border-radius: 9999px;
-        background: #e5e7eb;
-        position: relative;
-        cursor: pointer;
-        transition: background 0.2s ease;
-        flex-shrink: 0;
-    }
-    .ui-toggle::before {
-        content: '';
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #fff;
-        top: 3px;
-        left: 3px;
-        transition: transform 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-    .ui-toggle:checked {
-        background: #3b82f6;
-    }
-    .ui-toggle:checked::before {
-        transform: translateX(20px);
-    }
-    [dir="rtl"] .ui-toggle::before {
-        left: auto;
-        right: 3px;
-    }
-    [dir="rtl"] .ui-toggle:checked::before {
-        transform: translateX(-20px);
-    }
-    .ui-toggle:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    [dir="rtl"] #settings-breadcrumb {
-        direction: rtl;
-    }
-    [dir="rtl"] #settings-breadcrumb .fa-chevron-right::before {
-        content: "\f053";
-    }
-    [dir="rtl"] .settings-menu-btn {
-        text-align: right;
-    }
-    [dir="rtl"] .settings-menu-btn i {
-        margin-right: 0 !important;
-        margin-left: 0.75rem !important;
-    }
-    [dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__arrow {
-        left: 16px !important;
-        right: auto !important;
-    }
-    [dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__rendered {
-        padding-left: 2rem !important;
-        padding-right: 0 !important;
-        text-align: right !important;
-    }
-    [dir="rtl"] #settings-tabs input[data-clinic-date],
-    [dir="rtl"] #settings-tabs input[type="date"] {
-        padding-left: 2.5rem !important;
-        padding-right: 1rem !important;
-    }
-    [dir="rtl"] #settings-tabs input[type="tel"],
-    [dir="rtl"] #settings-tabs input[type="email"],
-    [dir="rtl"] #settings-tabs input[type="url"] {
-        direction: ltr;
-        text-align: left;
-    }
-    [dir="rtl"] .settings-hero-chip,
-    [dir="rtl"] .settings-hero {
-        text-align: right;
-    }
-    @media (max-width: 767px) {
-        .settings-hero {
-            border-radius: 1.5rem;
-        }
-        #settings-tabs .settings-tab > div:first-child {
-            border-radius: 1.5rem !important;
-        }
-    }
-</style>
+
 
 <div>
-    <div class="settings-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <section class="settings-hero mb-5 p-5 sm:p-6 lg:p-7 text-white">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                <div class="flex items-start gap-4">
-                    <div class="settings-hero-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white">
-                        <i class="fas fa-cog text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/90"><?= lang('UI.menuSettings') ?></p>
-                        <h1 class="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl"><?= lang('UI.systemSettings') ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-blue-50/90"><?= lang('UI.settingsConfigureSystem') ?></p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
-                    <div class="settings-hero-chip rounded-2xl px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsClinicProfile') ?></p>
+    <div class="denta-settings-workspace settings-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <header class="v3-command-header"><div class="v3-command-title"><h1><?= lang('UI.systemSettings') ?></h1><p><?= lang('UI.settingsConfigureSystem') ?></p></div></header><section class="v3-settings-context"><div class="v3-settings-summary-strip">
+                    <div class="settings-hero-chip v3-corner px-4 py-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsClinicProfile') ?></p>
                         <p class="mt-1 truncate text-sm font-black text-white"><?= esc($clinicDisplayName) ?></p>
                     </div>
-                    <div class="settings-hero-chip rounded-2xl px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsSubscription') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($planDisplayName) ?> <span class="font-bold text-cyan-100/80">/ <?= esc($subscriptionStatus) ?></span></p>
+                    <div class="settings-hero-chip v3-corner px-4 py-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSubscription') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($planDisplayName) ?> <span class="font-bold v3-accent-text">/ <?= esc($subscriptionStatus) ?></span></p>
                     </div>
-                    <div class="settings-hero-chip rounded-2xl px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsSystemTab') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold text-cyan-100/80">/ <?= esc($languageDisplay) ?></span></p>
+                    <div class="settings-hero-chip v3-corner px-4 py-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSystemTab') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold v3-accent-text">/ <?= esc($languageDisplay) ?></span></p>
                     </div>
-                </div>
-            </div>
-        </section>
+                </div></section>
 
-        <nav class="settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-slate-500" id="settings-breadcrumb">
+        <nav class="settings-shell-breadcrumb mb-5 flex items-center space-x-1 v3-corner px-4 py-3 text-sm text-slate-500" id="settings-breadcrumb">
             <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors"><?= lang('UI.home') ?></a>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium"><?= lang('UI.menuSettings') ?></span>
@@ -366,7 +40,7 @@
 
         <?php $settingsErrors = session('errors'); ?>
         <?php if (session('error') || (!empty($settingsErrors) && is_array($settingsErrors))): ?>
-            <div id="settings-validation-summary" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800 shadow-sm">
+            <div id="settings-validation-summary" class="mb-6 v3-corner border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800">
                 <div class="flex items-start gap-3">
                     <div class="mt-0.5 text-rose-600">
                         <i class="fas fa-circle-exclamation"></i>
@@ -389,10 +63,10 @@
         <?php endif; ?>
 
         <!-- Settings Layout with Sidebar -->
-        <div class="grid grid-cols-1 gap-5 xl:grid-cols-[230px,minmax(0,1fr)] items-start">
+        <div class="v3-settings-grid">
             <!-- Left Sidebar -->
-            <div class="xl:sticky xl:top-8">
-                <div class="settings-shell-card rounded-[1.75rem] p-4">
+            <div class="v3-settings-navigation">
+                <div class="settings-shell-card v3-corner p-4">
                     <div class="mb-3 px-2">
                         <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsMenu') ?></p>
                     </div>
@@ -417,7 +91,7 @@
                             <i class="fas fa-database w-5 h-5"></i> <span><?= lang('UI.settingsBackupRestore') ?></span>
                         </button>
                         </div>
-                        
+
                         <div class="settings-nav-group">
                             <div class="mb-3 px-2">
                                 <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsCommunications') ?></p>
@@ -461,10 +135,10 @@
     </div>
 </div>
 
-<div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+<div id="confirm-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="v3-surface v3-corner max-w-md w-full p-8">
         <div class="flex items-start space-x-4 mb-6">
-            <div id="confirm-modal-icon" class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div id="confirm-modal-icon" class="w-12 h-12 bg-red-100 v3-radius flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
             </div>
             <div>
@@ -473,10 +147,10 @@
             </div>
         </div>
         <div class="flex justify-end space-x-3">
-            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
+            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 v3-surface border v3-border text-gray-700 font-semibold v3-radius hover:bg-gray-50 transition-all">
                 <?= lang('UI.cancel') ?>
             </button>
-            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all" onclick="confirmModalProceed()">
+            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 bg-red-600 text-white font-semibold v3-radius hover:bg-red-700 transition-all" onclick="confirmModalProceed()">
                 <?= lang('UI.confirm') ?>
             </button>
         </div>

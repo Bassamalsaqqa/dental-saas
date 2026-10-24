@@ -190,7 +190,7 @@ $errorMessage = session('error');
     }
 </style>
 
-<div class="clinic-onboarding-shell min-h-screen">
+<div class="v3-platform-workspace clinic-onboarding-shell min-h-screen">
     <div class="mx-auto max-w-7xl space-y-4 px-4 py-5 sm:px-5 lg:px-6">
         <section class="clinic-onboarding-hero p-5">
             <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
@@ -199,33 +199,33 @@ $errorMessage = session('error');
                         <i class="fas fa-hospital-user"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-extrabold uppercase tracking-[0.28em] text-blue-100">Control Plane</p>
-                        <h1 class="mt-1 text-3xl font-black tracking-tight text-white">Onboard Clinic</h1>
-                        <p class="mt-1.5 max-w-3xl text-sm font-semibold leading-5 text-blue-50/90">
-                            Create the tenant clinic, initial administrator, and starting subscription plan in one controlled workflow.
+                        <p class="text-xs font-extrabold uppercase tracking-[0.28em] cp-accent"><?= esc(lang('V3Platform.controlPlane')) ?></p>
+                        <h1 class="mt-1 cp-title font-black tracking-tight text-white"><?= esc(lang('V3Platform.onboardClinic')) ?></h1>
+                        <p class="mt-1.5 max-w-3xl text-sm font-semibold leading-5 cp-accent">
+                            <?= esc(lang('V3Platform.createTheTenantClinicInitialAdministratorAndStartingSubscriptionPlanInOneControlledWorkflow')) ?>
                         </p>
                     </div>
                 </div>
                 <div class="grid gap-2.5 sm:grid-cols-3 xl:w-[28rem]">
                     <span class="clinic-hero-chip">
-                        <i class="fas fa-building-shield text-blue-100"></i>
+                        <i class="fas fa-building-shield cp-accent"></i>
                         <span class="min-w-0">
-                            <span class="block text-[0.65rem] font-black uppercase tracking-wider text-blue-100">Scope</span>
-                            <span class="block truncate text-sm font-black">Tenant setup</span>
+                            <span class="block text-[0.65rem] font-black uppercase tracking-wider cp-accent"><?= esc(lang('V3Platform.scope')) ?></span>
+                            <span class="block truncate text-sm font-black"><?= esc(lang('V3Platform.tenantSetup')) ?></span>
                         </span>
                     </span>
                     <span class="clinic-hero-chip">
-                        <i class="fas fa-user-shield text-blue-100"></i>
+                        <i class="fas fa-user-shield cp-accent"></i>
                         <span class="min-w-0">
-                            <span class="block text-[0.65rem] font-black uppercase tracking-wider text-blue-100">Admin</span>
-                            <span class="block truncate text-sm font-black">Initial owner</span>
+                            <span class="block text-[0.65rem] font-black uppercase tracking-wider cp-accent"><?= esc(lang('V3Platform.admin')) ?></span>
+                            <span class="block truncate text-sm font-black"><?= esc(lang('V3Platform.initialOwner')) ?></span>
                         </span>
                     </span>
                     <span class="clinic-hero-chip">
-                        <i class="fas fa-layer-group text-blue-100"></i>
+                        <i class="fas fa-layer-group cp-accent"></i>
                         <span class="min-w-0">
-                            <span class="block text-[0.65rem] font-black uppercase tracking-wider text-blue-100">Plans</span>
-                            <span class="block truncate text-sm font-black"><?= esc((string) count($plans)) ?> active</span>
+                            <span class="block text-[0.65rem] font-black uppercase tracking-wider cp-accent"><?= esc(lang('V3Platform.plans')) ?></span>
+                            <span class="block truncate text-sm font-black"><?= esc((string) count($plans)) ?> <?= esc(lang('V3Platform.active2')) ?></span>
                         </span>
                     </span>
                 </div>
@@ -233,13 +233,13 @@ $errorMessage = session('error');
         </section>
 
         <?php if (!empty($errors) || !empty($errorMessage)): ?>
-            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700 shadow-sm">
+            <div class="cp-radius border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                 <div class="flex items-start gap-3">
-                    <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-xl bg-rose-600 text-white">
+                    <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center cp-radius bg-rose-600 text-white">
                         <i class="fas fa-triangle-exclamation text-sm"></i>
                     </span>
                     <div>
-                        <p class="font-black text-rose-800">Review the onboarding details</p>
+                        <p class="font-black text-rose-800"><?= esc(lang('V3Platform.reviewTheOnboardingDetails')) ?></p>
                         <?php if (!empty($errorMessage)): ?>
                             <p class="mt-1"><?= esc($errorMessage) ?></p>
                         <?php endif; ?>
@@ -262,24 +262,24 @@ $errorMessage = session('error');
                 <section class="clinic-form-card">
                     <div class="clinic-card-header px-5 py-3.5">
                         <div class="flex items-center gap-3">
-                            <span class="clinic-section-icon bg-white/18 ring-1 ring-white/22">
+                            <span class="clinic-section-icon cp-surface ring-1 ring-white/22">
                                 <i class="fas fa-hospital-alt text-sm"></i>
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-white">Clinic Details</h2>
-                                <p class="text-sm font-semibold text-blue-50/88">Name the tenant exactly as operators should see it.</p>
+                                <h2 class="text-lg font-black text-white"><?= esc(lang('V3Platform.clinicDetails')) ?></h2>
+                                <p class="text-sm font-semibold cp-accent"><?= esc(lang('V3Platform.nameTheTenantExactlyAsOperatorsShouldSeeIt')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="p-4 sm:p-5">
                         <label class="block">
                             <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
-                                <i class="fas fa-signature text-blue-600"></i>
-                                <span>Clinic Name</span>
+                                <i class="fas fa-signature cp-accent"></i>
+                                <span><?= esc(lang('V3Platform.clinicName')) ?></span>
                             </span>
                             <input type="text" name="clinic_name" value="<?= old('clinic_name') ?>"
                                    class="clinic-input"
-                                   placeholder="e.g. Springfield Dental" required>
+                                   placeholder="<?= esc(lang('V3Platform.eGSpringfieldDental'), 'attr') ?>" required>
                         </label>
                     </div>
                 </section>
@@ -287,30 +287,30 @@ $errorMessage = session('error');
                 <section class="clinic-form-card clinic-form-card-admin">
                     <div class="clinic-card-header clinic-card-header-admin px-5 py-3.5">
                         <div class="flex items-center gap-3">
-                            <span class="clinic-section-icon bg-white/18 ring-1 ring-white/22">
+                            <span class="clinic-section-icon cp-surface ring-1 ring-white/22">
                                 <i class="fas fa-user-shield text-sm"></i>
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-white">Initial Admin User</h2>
-                                <p class="text-sm font-semibold text-violet-50/88">Create or link the first clinic administrator.</p>
+                                <h2 class="text-lg font-black text-white"><?= esc(lang('V3Platform.initialAdminUser')) ?></h2>
+                                <p class="text-sm font-semibold cp-accent"><?= esc(lang('V3Platform.createOrLinkTheFirstClinicAdministrator')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
                         <label class="block">
                             <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
-                                <i class="fas fa-user text-violet-600"></i>
-                                <span>Admin Name</span>
+                                <i class="fas fa-user cp-accent"></i>
+                                <span><?= esc(lang('V3Platform.adminName')) ?></span>
                             </span>
                             <input type="text" name="admin_name" value="<?= old('admin_name') ?>"
                                    class="clinic-input"
-                                   placeholder="e.g. John Doe" required>
+                                   placeholder="<?= esc(lang('V3Platform.eGJohnDoe'), 'attr') ?>" required>
                         </label>
 
                         <label class="block">
                             <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
-                                <i class="fas fa-envelope text-violet-600"></i>
-                                <span>Admin Email</span>
+                                <i class="fas fa-envelope cp-accent"></i>
+                                <span><?= esc(lang('V3Platform.adminEmail')) ?></span>
                             </span>
                             <input type="email" name="admin_email" value="<?= old('admin_email') ?>"
                                    data-user-email-check
@@ -322,19 +322,19 @@ $errorMessage = session('error');
 
                         <label class="block md:col-span-2">
                             <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
-                                <i class="fas fa-key text-violet-600"></i>
-                                <span>Password</span>
+                                <i class="fas fa-key cp-accent"></i>
+                                <span><?= esc(lang('V3Platform.password')) ?></span>
                             </span>
                             <input type="password" name="admin_password" id="admin_password"
                                    class="clinic-input"
-                                   placeholder="Minimum 8 characters" required minlength="8">
+                                   placeholder="<?= esc(lang('V3Platform.minimum8Characters'), 'attr') ?>" required minlength="8">
                             <span class="mt-2 flex items-center gap-2 text-xs font-bold text-slate-500">
                                 <i class="fas fa-info-circle"></i>
-                                <span>Share this securely with the clinic owner.</span>
+                                <span><?= esc(lang('V3Platform.shareThisSecurelyWithTheClinicOwner')) ?></span>
                             </span>
                         </label>
 
-                        <p id="onboarding-email-exists-note" class="hidden rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 md:col-span-2" role="status">
+                        <p id="onboarding-email-exists-note" class="hidden cp-radius border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 md:col-span-2" role="status">
                             <i class="fas fa-info-circle me-1"></i>
                             <span data-note-text></span>
                         </p>
@@ -344,19 +344,19 @@ $errorMessage = session('error');
                 <section class="clinic-form-card clinic-form-card-plan">
                     <div class="clinic-card-header clinic-card-header-plan px-5 py-3.5">
                         <div class="flex items-center gap-3">
-                            <span class="clinic-section-icon bg-white/18 ring-1 ring-white/22">
+                            <span class="clinic-section-icon cp-surface ring-1 ring-white/22">
                                 <i class="fas fa-layer-group text-sm"></i>
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-white">Subscription Plan</h2>
-                                <p class="text-sm font-semibold text-emerald-50/88">Choose the starting limits and billing package.</p>
+                                <h2 class="text-lg font-black text-white"><?= esc(lang('V3Platform.subscriptionPlan')) ?></h2>
+                                <p class="text-sm font-semibold text-emerald-50/88"><?= esc(lang('V3Platform.chooseTheStartingLimitsAndBillingPackage')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="grid gap-3 p-4 sm:p-5">
                         <?php if (empty($plans)): ?>
-                            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
-                                <i class="fas fa-triangle-exclamation me-2"></i>No active plans are available.
+                            <div class="cp-radius border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+                                <i class="fas fa-triangle-exclamation me-2"></i><?= esc(lang('V3Platform.noActivePlansAreAvailable')) ?>
                             </div>
                         <?php endif; ?>
 
@@ -369,24 +369,24 @@ $errorMessage = session('error');
                             <label class="clinic-plan-option cursor-pointer">
                                 <span class="mt-1 flex h-6 w-6 items-center justify-center">
                                     <input type="radio" name="plan_id" value="<?= esc($plan['id']) ?>"
-                                           class="h-5 w-5 border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                           class="h-5 w-5 cp-border text-emerald-600 focus:ring-emerald-500"
                                            <?= $selectedPlan === (int) $plan['id'] ? 'checked' : '' ?> required>
                                 </span>
                                 <span class="min-w-0 flex-1">
                                     <span class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <span class="text-lg font-black text-slate-950"><?= esc($plan['name']) ?></span>
-                                        <span class="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">
+                                        <span class="inline-flex w-fit items-center rounded-full border border-emerald-200 cp-soft-surface px-3 py-1 text-xs font-black text-emerald-700">
                                             <?= $price !== null ? '$' . esc($price) : 'Custom' ?><?= $duration ? '/' . esc(substr($duration, 0, 2)) : '' ?>
                                         </span>
                                     </span>
                                     <span class="mt-3 flex flex-wrap gap-2 text-xs font-bold text-slate-600">
-                                        <span class="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1">
-                                            <i class="fas fa-users me-1 text-slate-400"></i><?= esc($limits['patients_active_max'] ?? '0') ?> Pts
+                                        <span class="rounded-full border cp-border bg-slate-100 px-2.5 py-1">
+                                            <i class="fas fa-users me-1 text-slate-400"></i><?= esc($limits['patients_active_max'] ?? '0') ?> <?= esc(lang('V3Platform.pts')) ?>
                                         </span>
-                                        <span class="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1">
-                                            <i class="fas fa-user-shield me-1 text-slate-400"></i><?= esc($limits['users_max'] ?? '0') ?> Users
+                                        <span class="rounded-full border cp-border bg-slate-100 px-2.5 py-1">
+                                            <i class="fas fa-user-shield me-1 text-slate-400"></i><?= esc($limits['users_max'] ?? '0') ?> <?= esc(lang('V3Platform.users')) ?>
                                         </span>
-                                        <span class="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1">
+                                        <span class="rounded-full border cp-border bg-slate-100 px-2.5 py-1">
                                             <i class="fas fa-hdd me-1 text-slate-400"></i><?= esc($limits['storage_gb'] ?? '0') ?> GB
                                         </span>
                                     </span>
@@ -399,65 +399,65 @@ $errorMessage = session('error');
 
             <aside class="space-y-4">
                 <section class="clinic-submit-card p-4 sm:p-5">
-                    <p class="text-xs font-black uppercase tracking-[0.22em] text-blue-100">Ready to provision</p>
-                    <h2 class="mt-1 text-xl font-black text-white">Create clinic workspace</h2>
-                    <p class="mt-2 text-sm font-semibold leading-5 text-blue-50/88">
-                        This action creates the clinic tenant, links the initial admin, and activates the selected plan.
+                    <p class="text-xs font-black uppercase tracking-[0.22em] cp-accent"><?= esc(lang('V3Platform.readyToProvision')) ?></p>
+                    <h2 class="mt-1 text-xl font-black text-white"><?= esc(lang('V3Platform.createClinicWorkspace')) ?></h2>
+                    <p class="mt-2 text-sm font-semibold leading-5 cp-accent">
+                        <?= esc(lang('V3Platform.thisActionCreatesTheClinicTenantLinksTheInitialAdminAndActivatesTheSelectedPlan')) ?>
                     </p>
-                    <button type="submit" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-blue-800 shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-white/30">
+                    <button type="submit" class="mt-4 inline-flex w-full items-center justify-center gap-2 cp-radius cp-surface px-5 py-3 text-sm font-black cp-accent transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-white/30">
                         <i class="fas fa-magic"></i>
-                        <span>Create Clinic</span>
+                        <span><?= esc(lang('V3Platform.createClinic')) ?></span>
                     </button>
-                    <a href="<?= base_url('controlplane/dashboard') ?>" class="mt-2 inline-flex w-full items-center justify-center rounded-2xl border border-white/24 bg-white/14 px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-white/20">
-                        Cancel
+                    <a href="<?= base_url('controlplane/dashboard') ?>" class="mt-2 inline-flex w-full items-center justify-center cp-radius border cp-border cp-surface px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-white/20">
+                        <?= esc(lang('V3Platform.cancel')) ?>
                     </a>
                 </section>
 
                 <section class="clinic-side-card p-5">
                     <div class="flex items-center gap-3">
-                        <span class="clinic-section-icon bg-gradient-to-br from-emerald-600 to-teal-700">
+                        <span class="clinic-section-icon">
                             <i class="fas fa-list-check text-sm"></i>
                         </span>
                         <div>
-                            <h3 class="text-base font-black text-slate-950">Checklist</h3>
-                            <p class="text-xs font-bold text-slate-500">What this flow prepares.</p>
+                            <h3 class="text-base font-black text-slate-950"><?= esc(lang('V3Platform.checklist')) ?></h3>
+                            <p class="text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.whatThisFlowPrepares')) ?></p>
                         </div>
                     </div>
                     <ul class="mt-4 space-y-2.5 text-sm font-bold text-slate-600">
                         <li class="flex items-center gap-2.5">
                             <i class="fas fa-check-circle text-emerald-600"></i>
-                            <span>Clinic profile creation</span>
+                            <span><?= esc(lang('V3Platform.clinicProfileCreation')) ?></span>
                         </li>
                         <li class="flex items-center gap-2.5">
                             <i class="fas fa-check-circle text-emerald-600"></i>
-                            <span>Admin account setup</span>
+                            <span><?= esc(lang('V3Platform.adminAccountSetup')) ?></span>
                         </li>
                         <li class="flex items-center gap-2.5">
                             <i class="fas fa-check-circle text-emerald-600"></i>
-                            <span>Plan activation</span>
+                            <span><?= esc(lang('V3Platform.planActivation')) ?></span>
                         </li>
                         <li class="flex items-center gap-2.5 text-slate-400">
                             <i class="far fa-circle"></i>
-                            <span>Welcome email remains manual</span>
+                            <span><?= esc(lang('V3Platform.welcomeEmailRemainsManual')) ?></span>
                         </li>
                     </ul>
                 </section>
 
                 <section class="clinic-side-card p-5">
                     <div class="flex items-center gap-3">
-                        <span class="clinic-section-icon bg-gradient-to-br from-blue-600 to-indigo-700">
+                        <span class="clinic-section-icon">
                             <i class="fas fa-shield-alt text-sm"></i>
                         </span>
                         <div>
-                            <h3 class="text-base font-black text-slate-950">Default Policy</h3>
-                            <p class="text-xs font-bold text-slate-500">Inherited platform controls.</p>
+                            <h3 class="text-base font-black text-slate-950"><?= esc(lang('V3Platform.defaultPolicy')) ?></h3>
+                            <p class="text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.inheritedPlatformControls')) ?></p>
                         </div>
                     </div>
                     <p class="mt-4 text-sm font-semibold leading-6 text-slate-600">
-                        The clinic inherits global security defaults, billing cadence, and audit retention policies.
+                        <?= esc(lang('V3Platform.theClinicInheritsGlobalSecurityDefaultsBillingCadenceAndAuditRetentionPolicies')) ?>
                     </p>
-                    <div class="mt-4 rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-black text-blue-800">
-                        <i class="fas fa-circle-check me-2"></i>Mode: Production
+                    <div class="mt-4 cp-radius border cp-border cp-soft-surface px-3 py-2 text-sm font-black cp-accent">
+                        <i class="fas fa-circle-check me-2"></i><?= esc(lang('V3Platform.modeProduction')) ?>
                     </div>
                 </section>
             </aside>

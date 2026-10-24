@@ -2,8 +2,8 @@
 <div id="quickSupplierModal" class="fixed inset-0 z-[2147483640] hidden overflow-y-auto" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-950/45"></div>
     <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeQuickSupplierModal()">
-        <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <div class="w-full max-w-lg v3-radius border v3-border v3-surface" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b v3-border px-5 py-4">
                 <div>
                     <h4 class="text-base font-semibold text-slate-900"><?= lang('Inventory.quickAddSupplierTitle') ?></h4>
                     <p class="mt-1 text-sm text-slate-500"><?= lang('Inventory.quickAddSupplierHelp') ?></p>
@@ -19,11 +19,11 @@
                 <input type="email" id="quickSupplierEmail" class="inventory-create-form-field" placeholder="<?= lang('Inventory.email') ?>">
                 <p id="quickSupplierStatus" class="text-xs text-slate-500 sm:col-span-2"></p>
             </div>
-            <div class="flex flex-wrap justify-end gap-2 border-t border-slate-200 px-5 py-4">
-                <button type="button" onclick="closeQuickSupplierModal()" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            <div class="flex flex-wrap justify-end gap-2 border-t v3-border px-5 py-4">
+                <button type="button" onclick="closeQuickSupplierModal()" class="inline-flex items-center gap-2 v3-radius border v3-border px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                     <i class="fas fa-times text-xs"></i><span><?= lang('Inventory.cancel') ?></span>
                 </button>
-                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
+                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 v3-radius v3-primary-surface px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
                     <i class="fas fa-plus text-xs"></i><span><?= lang('Inventory.createSupplier') ?></span>
                 </button>
             </div>

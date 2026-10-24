@@ -1,0 +1,836 @@
+{
+  "runtime_commit": "8a720c3593c961c0926ad258d0a3d3c9838359aa",
+  "baseline": "89352fd20e0d5166e81f631cb743bead1f596a68",
+  "php_lint": 124,
+  "http": {
+    "status": "PASS",
+    "checks": 42,
+    "failed": [],
+    "results": [
+      {
+        "case": "route:/dashboard:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/patients:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/patient/1:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/appointments:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/appointment/calendar:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/finance:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/finance/reports:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/contracts/1:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/examination/1000:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/prescriptions:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/inventory:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/settings?tab=hours:en",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/dashboard:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/patients:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/patient/1:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/appointments:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/appointment/calendar:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/finance:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/finance/reports:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/contracts/1:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/examination/1000:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/prescriptions:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/inventory:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "route:/settings?tab=hours:ar",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "tenant-or-forged:/patient/2",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "tenant-or-forged:/appointment/2",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "tenant-or-forged:/finance/999999",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "tenant-or-forged:/examination/999999",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "tenant-or-forged:/contracts/999999",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "session-not-Bearer",
+        "pass": true,
+        "status": 401
+      },
+      {
+        "case": "session-patient-search",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "anonymous-search-denied-json",
+        "pass": true,
+        "status": 401
+      },
+      {
+        "case": "missing-CSRF",
+        "pass": true,
+        "status": 403
+      },
+      {
+        "case": "viewer-direct-POST-denied",
+        "pass": true,
+        "status": 403
+      },
+      {
+        "case": "clinic-viewer-controlplane-denied",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "authorized-patient-form-result-retained",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "kiosk-initial-no-patient-disclosure",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "kiosk-lookup-requires-PIN",
+        "pass": true,
+        "status": 303
+      },
+      {
+        "case": "kiosk-valid-unlock-existing-flow",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "platform-global-entry",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "case": "global-mode-tenant-denied",
+        "pass": true,
+        "status": 404
+      },
+      {
+        "case": "preserved-existing-synthetic-financial-clinical-records",
+        "pass": true,
+        "changed": [],
+        "removed": []
+      }
+    ],
+    "extra_rows_to_classify": []
+  },
+  "performance": {
+    "status": "PASS",
+    "method": "Loopback PHP8.2/MariaDB10.4, same synthetic schema, production-mode no toolbar, three warm sequential HTTP responses each; server response only, not browser paint or network benchmark",
+    "rows": [
+      {
+        "path": "/dashboard?lang=en",
+        "before": {
+          "median_seconds": 0.313,
+          "queries": 223,
+          "bytes": 296336,
+          "trials": [
+            {
+              "seconds": 0.328,
+              "bytes": 296336,
+              "query_count": 223
+            },
+            {
+              "seconds": 0.281,
+              "bytes": 296336,
+              "query_count": 223
+            },
+            {
+              "seconds": 0.313,
+              "bytes": 296336,
+              "query_count": 223
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 15,
+          "stylesheets": 7
+        },
+        "after": {
+          "median_seconds": 0.297,
+          "queries": 223,
+          "bytes": 246581,
+          "trials": [
+            {
+              "seconds": 0.281,
+              "bytes": 246581,
+              "query_count": 223
+            },
+            {
+              "seconds": 0.297,
+              "bytes": 246581,
+              "query_count": 223
+            },
+            {
+              "seconds": 0.313,
+              "bytes": 246581,
+              "query_count": 223
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 12,
+          "stylesheets": 10
+        },
+        "query_delta": 0,
+        "html_byte_delta": -49755
+      },
+      {
+        "path": "/patients?lang=en",
+        "before": {
+          "median_seconds": 0.297,
+          "queries": 199,
+          "bytes": 320570,
+          "trials": [
+            {
+              "seconds": 0.296,
+              "bytes": 320570,
+              "query_count": 199
+            },
+            {
+              "seconds": 0.297,
+              "bytes": 320570,
+              "query_count": 199
+            },
+            {
+              "seconds": 0.313,
+              "bytes": 320570,
+              "query_count": 199
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 21,
+          "stylesheets": 9
+        },
+        "after": {
+          "median_seconds": 0.313,
+          "queries": 199,
+          "bytes": 277391,
+          "trials": [
+            {
+              "seconds": 0.359,
+              "bytes": 277391,
+              "query_count": 199
+            },
+            {
+              "seconds": 0.313,
+              "bytes": 277391,
+              "query_count": 199
+            },
+            {
+              "seconds": 0.281,
+              "bytes": 277391,
+              "query_count": 199
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 21,
+          "stylesheets": 12
+        },
+        "query_delta": 0,
+        "html_byte_delta": -43179
+      },
+      {
+        "path": "/patient/1?lang=en",
+        "before": {
+          "median_seconds": 0.547,
+          "queries": 453,
+          "bytes": 963810,
+          "trials": [
+            {
+              "seconds": 0.547,
+              "bytes": 963810,
+              "query_count": 453
+            },
+            {
+              "seconds": 0.515,
+              "bytes": 963810,
+              "query_count": 453
+            },
+            {
+              "seconds": 0.547,
+              "bytes": 963810,
+              "query_count": 453
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 15,
+          "stylesheets": 8
+        },
+        "after": {
+          "median_seconds": 0.579,
+          "queries": 453,
+          "bytes": 910178,
+          "trials": [
+            {
+              "seconds": 0.563,
+              "bytes": 910178,
+              "query_count": 453
+            },
+            {
+              "seconds": 0.625,
+              "bytes": 910178,
+              "query_count": 453
+            },
+            {
+              "seconds": 0.579,
+              "bytes": 910178,
+              "query_count": 453
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 12,
+          "stylesheets": 11
+        },
+        "query_delta": 0,
+        "html_byte_delta": -53632
+      },
+      {
+        "path": "/appointments?lang=en",
+        "before": {
+          "median_seconds": 0.297,
+          "queries": 165,
+          "bytes": 289797,
+          "trials": [
+            {
+              "seconds": 0.281,
+              "bytes": 289797,
+              "query_count": 165
+            },
+            {
+              "seconds": 0.297,
+              "bytes": 289797,
+              "query_count": 165
+            },
+            {
+              "seconds": 0.312,
+              "bytes": 289797,
+              "query_count": 165
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 14,
+          "stylesheets": 7
+        },
+        "after": {
+          "median_seconds": 0.313,
+          "queries": 165,
+          "bytes": 251070,
+          "trials": [
+            {
+              "seconds": 0.344,
+              "bytes": 251070,
+              "query_count": 165
+            },
+            {
+              "seconds": 0.281,
+              "bytes": 251070,
+              "query_count": 165
+            },
+            {
+              "seconds": 0.313,
+              "bytes": 251070,
+              "query_count": 165
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 11,
+          "stylesheets": 10
+        },
+        "query_delta": 0,
+        "html_byte_delta": -38727
+      },
+      {
+        "path": "/finance?lang=en",
+        "before": {
+          "median_seconds": 0.312,
+          "queries": 203,
+          "bytes": 342710,
+          "trials": [
+            {
+              "seconds": 0.328,
+              "bytes": 342710,
+              "query_count": 203
+            },
+            {
+              "seconds": 0.312,
+              "bytes": 342710,
+              "query_count": 203
+            },
+            {
+              "seconds": 0.297,
+              "bytes": 342710,
+              "query_count": 203
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 19,
+          "stylesheets": 7
+        },
+        "after": {
+          "median_seconds": 0.375,
+          "queries": 203,
+          "bytes": 290401,
+          "trials": [
+            {
+              "seconds": 0.469,
+              "bytes": 290401,
+              "query_count": 203
+            },
+            {
+              "seconds": 0.375,
+              "bytes": 290401,
+              "query_count": 203
+            },
+            {
+              "seconds": 0.281,
+              "bytes": 290401,
+              "query_count": 203
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 16,
+          "stylesheets": 11
+        },
+        "query_delta": 0,
+        "html_byte_delta": -52309
+      },
+      {
+        "path": "/inventory?lang=en",
+        "before": {
+          "median_seconds": 0.266,
+          "queries": 158,
+          "bytes": 329140,
+          "trials": [
+            {
+              "seconds": 0.265,
+              "bytes": 329140,
+              "query_count": 158
+            },
+            {
+              "seconds": 0.266,
+              "bytes": 329140,
+              "query_count": 158
+            },
+            {
+              "seconds": 0.281,
+              "bytes": 329140,
+              "query_count": 158
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 16,
+          "stylesheets": 9
+        },
+        "after": {
+          "median_seconds": 0.266,
+          "queries": 158,
+          "bytes": 282374,
+          "trials": [
+            {
+              "seconds": 0.266,
+              "bytes": 282374,
+              "query_count": 158
+            },
+            {
+              "seconds": 0.234,
+              "bytes": 282374,
+              "query_count": 158
+            },
+            {
+              "seconds": 0.297,
+              "bytes": 282374,
+              "query_count": 158
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 13,
+          "stylesheets": 14
+        },
+        "query_delta": 0,
+        "html_byte_delta": -46766
+      },
+      {
+        "path": "/settings?tab=hours&lang=ar",
+        "before": {
+          "median_seconds": 0.25,
+          "queries": 188,
+          "bytes": 448755,
+          "trials": [
+            {
+              "seconds": 0.265,
+              "bytes": 448755,
+              "query_count": 188
+            },
+            {
+              "seconds": 0.25,
+              "bytes": 448755,
+              "query_count": 188
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 448755,
+              "query_count": 188
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 16,
+          "stylesheets": 8
+        },
+        "after": {
+          "median_seconds": 0.203,
+          "queries": 188,
+          "bytes": 400482,
+          "trials": [
+            {
+              "seconds": 0.235,
+              "bytes": 400482,
+              "query_count": 188
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 400482,
+              "query_count": 188
+            },
+            {
+              "seconds": 0.203,
+              "bytes": 400482,
+              "query_count": 188
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 13,
+          "stylesheets": 12
+        },
+        "query_delta": 0,
+        "html_byte_delta": -48273
+      },
+      {
+        "path": "/appointment/calendar?lang=en",
+        "before": {
+          "median_seconds": 0.172,
+          "queries": 160,
+          "bytes": 292370,
+          "trials": [
+            {
+              "seconds": 0.187,
+              "bytes": 292370,
+              "query_count": 160
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 292370,
+              "query_count": 160
+            },
+            {
+              "seconds": 0.156,
+              "bytes": 292370,
+              "query_count": 160
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 17,
+          "stylesheets": 8
+        },
+        "after": {
+          "median_seconds": 0.219,
+          "queries": 160,
+          "bytes": 246974,
+          "trials": [
+            {
+              "seconds": 0.219,
+              "bytes": 246974,
+              "query_count": 160
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 246974,
+              "query_count": 160
+            },
+            {
+              "seconds": 0.344,
+              "bytes": 246974,
+              "query_count": 160
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 13,
+          "stylesheets": 11
+        },
+        "query_delta": 0,
+        "html_byte_delta": -45396
+      }
+    ]
+  },
+  "preservation": {
+    "original": 79,
+    "protected": 1021,
+    "changed": []
+  }
+}

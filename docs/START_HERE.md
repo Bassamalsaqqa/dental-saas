@@ -7,6 +7,7 @@ This is the authoritative map. Read only the documents relevant to the task; rem
 | Need | Source |
 |---|---|
 | Current implementation and next work | `PROJECT_STATE.md` |
+| V3 frontend draft: acceptance, screenshots and performance | `UI_V3_ACCEPTANCE.md`, `../DESIGN.md` |
 | Recent implementation history | `CHANGELOG.md` |
 | Durable architecture/product decisions | `DECISIONS.md` |
 | Local/deployment operations | `OPERATIONS_RUNBOOK.md`, repository `README.md` |

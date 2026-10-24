@@ -5,332 +5,233 @@
     $storageBytes = (int) ($stats['storage_total_bytes'] ?? 0);
     $storageGb = $storageBytes > 0 ? ($storageBytes / 1024 / 1024 / 1024) : 0;
     $lastEventAt = $stats['last_event_at'] ?? null;
-    $lastEventLabel = $lastEventAt ? date('M j, Y g:i A', strtotime($lastEventAt)) : 'No events yet';
+    $lastEventLabel = $lastEventAt ? date('M j, Y g:i A', strtotime($lastEventAt)) : lang('V3Platform.noEventsYet');
     $activeClinicRatio = ((int) ($stats['total_clinics'] ?? 0)) > 0
         ? round(((int) ($stats['active_clinics'] ?? 0) / (int) ($stats['total_clinics'] ?? 1)) * 100)
         : 0;
 
     $kpis = [
         [
-            'label' => 'Total clinics',
+            'label' => lang('V3Platform.totalClinics'),
             'value' => number_format($stats['total_clinics'] ?? 0),
-            'detail' => 'Active: ' . number_format($stats['active_clinics'] ?? 0) . ' (' . $activeClinicRatio . '%)',
+            'detail' => lang('V3Platform.active3') . ' ' . number_format($stats['active_clinics'] ?? 0) . ' (' . $activeClinicRatio . '%)',
             'icon' => 'fas fa-hospital-user',
-            'tone' => 'from-blue-700 to-cyan-600',
-            'fill' => 'from-blue-800 via-sky-700 to-cyan-700',
-            'text' => 'text-white',
+            'tone' => 'mint',
         ],
         [
-            'label' => 'Active subscriptions',
+            'label' => lang('V3Platform.activeSubscriptions'),
             'value' => number_format($stats['active_subscriptions'] ?? 0),
-            'detail' => 'Renewal watch: ' . number_format($stats['expiring_subscriptions'] ?? 0),
+            'detail' => lang('V3Platform.renewalWatch') . ' ' . number_format($stats['expiring_subscriptions'] ?? 0),
             'icon' => 'fas fa-receipt',
-            'tone' => 'from-emerald-700 to-teal-600',
-            'fill' => 'from-emerald-800 via-teal-700 to-cyan-700',
-            'text' => 'text-white',
+            'tone' => 'softteal',
         ],
         [
-            'label' => 'Estimated MRR',
+            'label' => lang('V3Platform.estimatedMrr'),
             'value' => '$' . number_format((float) ($stats['mrr'] ?? 0), 2),
-            'detail' => 'Normalized active plan revenue',
+            'detail' => lang('V3Platform.normalizedActivePlanRevenue'),
             'icon' => 'fas fa-chart-line',
-            'tone' => 'from-violet-700 to-fuchsia-600',
-            'fill' => 'from-violet-800 via-fuchsia-700 to-rose-700',
-            'text' => 'text-white',
+            'tone' => 'emerald',
         ],
         [
-            'label' => 'Pending requests',
+            'label' => lang('V3Platform.pendingRequests'),
             'value' => number_format($stats['pending_requests'] ?? 0),
-            'detail' => 'Plan changes awaiting review',
+            'detail' => lang('V3Platform.planChangesAwaitingReview'),
             'icon' => 'fas fa-inbox',
-            'tone' => 'from-amber-600 to-orange-600',
-            'fill' => 'from-amber-600 via-orange-700 to-rose-700',
-            'text' => 'text-white',
+            'tone' => 'amber',
         ],
         [
-            'label' => 'Active plans',
+            'label' => lang('V3Platform.activePlans'),
             'value' => number_format($stats['active_plans'] ?? 0),
-            'detail' => 'Published service catalog',
+            'detail' => lang('V3Platform.publishedServiceCatalog'),
             'icon' => 'fas fa-layer-group',
-            'tone' => 'from-indigo-700 to-blue-600',
-            'fill' => 'from-indigo-800 via-blue-700 to-slate-950',
-            'text' => 'text-white',
+            'tone' => 'purple',
         ],
         [
-            'label' => 'Active users',
+            'label' => lang('V3Platform.activeUsers'),
             'value' => number_format($stats['active_users'] ?? 0),
-            'detail' => 'Enabled accounts across platform',
+            'detail' => lang('V3Platform.enabledOperatorAccounts'),
             'icon' => 'fas fa-user-shield',
-            'tone' => 'from-slate-800 to-slate-600',
-            'fill' => 'from-slate-800 via-slate-700 to-slate-950',
-            'text' => 'text-white',
+            'tone' => 'parchment',
         ],
         [
-            'label' => 'Storage used',
+            'label' => lang('V3Platform.storageUsed'),
             'value' => number_format($storageGb, 2) . ' GB',
-            'detail' => 'Attachments and generated files',
-            'icon' => 'fas fa-hdd',
-            'tone' => 'from-teal-700 to-emerald-600',
-            'fill' => 'from-teal-800 via-emerald-700 to-slate-950',
-            'text' => 'text-white',
+            'detail' => lang('V3Platform.attachmentsAndGeneratedFiles'),
+            'icon' => 'fas fa-hard-drive',
+            'tone' => 'mint',
         ],
         [
-            'label' => 'Audit events',
+            'label' => lang('V3Platform.auditEvents'),
             'value' => number_format($stats['events_7d'] ?? 0),
-            'detail' => 'Last 7 days - ' . number_format($stats['events_30d'] ?? 0) . ' in 30 days',
+            'detail' => lang('V3Platform.auditWindow', ['count' => number_format($stats['events_30d'] ?? 0)]),
             'icon' => 'fas fa-wave-square',
-            'tone' => 'from-rose-700 to-red-600',
-            'fill' => 'from-rose-800 via-red-700 to-slate-950',
-            'text' => 'text-white',
+            'tone' => 'coral',
         ],
     ];
 
     $quickActions = [
-        ['label' => 'Onboard clinic', 'href' => base_url('controlplane/onboarding/clinic/create'), 'icon' => 'fas fa-plus', 'tone' => 'from-blue-700 to-cyan-600'],
-        ['label' => 'Create plan', 'href' => base_url('controlplane/plans/create'), 'icon' => 'fas fa-layer-group', 'tone' => 'from-violet-700 to-fuchsia-600'],
-        ['label' => 'Review requests', 'href' => base_url('controlplane/plan-requests'), 'icon' => 'fas fa-inbox', 'tone' => 'from-amber-600 to-orange-600'],
-        ['label' => 'Operations', 'href' => base_url('controlplane/operations'), 'icon' => 'fas fa-cogs', 'tone' => 'from-slate-800 to-slate-600'],
+        ['label' => lang('V3Platform.onboardClinic'), 'href' => base_url('controlplane/onboarding/clinic/create'), 'icon' => 'fas fa-plus', 'btnClass' => 'cp-btn-primary'],
+        ['label' => lang('V3Platform.createPlan'), 'href' => base_url('controlplane/plans/create'), 'icon' => 'fas fa-layer-group', 'btnClass' => 'cp-btn-light'],
+        ['label' => lang('V3Platform.reviewRequests'), 'href' => base_url('controlplane/plan-requests'), 'icon' => 'fas fa-inbox', 'btnClass' => 'cp-btn-terracotta'],
+        ['label' => lang('V3Platform.operations'), 'href' => base_url('controlplane/operations'), 'icon' => 'fas fa-cogs', 'btnClass' => 'cp-btn-light'],
     ];
 ?>
 
 <div class="cp-dashboard">
-    <div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-        <section class="overflow-hidden rounded-[1.75rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-blue-950/25">
-            <div class="relative p-5 sm:p-6 lg:p-7">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,rgba(56,189,248,.50),transparent_30%),radial-gradient(circle_at_84%_10%,rgba(16,185,129,.36),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_48%,#0f766e_100%)]"></div>
-                <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/50 to-transparent"></div>
-                <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
-                    <div class="flex min-w-0 items-start gap-4">
-                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-3xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
-                            <i class="fas fa-tachometer-alt text-2xl"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-white/20">
-                                <i class="fas fa-globe"></i>
-                                <span>Global operations</span>
-                            </div>
-                            <h1 class="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">Control Plane</h1>
-                            <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90 sm:text-base">Monitor clinics, subscriptions, revenue, platform activity, and operator queues from one admin workspace.</p>
-                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">
-                                <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25">
-                                    <i class="fas fa-globe me-1"></i>Global Mode
-                                </span>
-                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20">Last event: <?= esc($lastEventLabel) ?></span>
-                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-white ring-1 ring-white/20">v2.0.0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[30rem] lg:grid-cols-4">
-                        <div class="rounded-3xl bg-white/15 p-4 ring-1 ring-white/15 backdrop-blur">
-                            <p class="text-[11px] font-bold text-blue-100">Clinics</p>
-                            <p class="mt-1 text-3xl font-black text-white"><?= number_format($stats['total_clinics'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-3xl bg-emerald-400/20 p-4 ring-1 ring-emerald-200/25 backdrop-blur">
-                            <p class="text-[11px] font-bold text-emerald-100">Subscriptions</p>
-                            <p class="mt-1 text-3xl font-black text-white"><?= number_format($stats['active_subscriptions'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-3xl bg-violet-400/20 p-4 ring-1 ring-violet-200/20 backdrop-blur">
-                            <p class="text-[11px] font-bold text-violet-100">MRR</p>
-                            <p class="mt-1 text-3xl font-black text-white">$<?= number_format((float) ($stats['mrr'] ?? 0), 0) ?></p>
-                        </div>
-                        <div class="rounded-3xl bg-amber-400/20 p-4 ring-1 ring-amber-200/25 backdrop-blur">
-                            <p class="text-[11px] font-bold text-amber-100">Queue</p>
-                            <p class="mt-1 text-3xl font-black text-white"><?= number_format($stats['pending_requests'] ?? 0) ?></p>
-                        </div>
-                    </div>
-                </div>
+    <!-- Command Header / Platform Stamp -->
+    <div class="cp-command-bar">
+        <div class="cp-command-bar-info">
+            <div class="cp-command-bar-icon">
+                <i class="fas fa-tachometer-alt"></i>
             </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <?php foreach ($kpis as $kpi): ?>
-                <article class="relative isolate overflow-hidden rounded-[1.4rem] border border-white/20 bg-gradient-to-br <?= esc($kpi['fill']) ?> p-4 text-white shadow-xl shadow-slate-900/20">
-                    <div class="absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-white/15"></div>
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="min-w-0">
-                            <p class="text-xs font-black uppercase tracking-wide text-white/75"><?= esc($kpi['label']) ?></p>
-                            <p class="mt-2 truncate text-2xl font-bold <?= esc($kpi['text']) ?>"><?= esc($kpi['value']) ?></p>
-                            <p class="mt-1 text-xs font-bold text-white/75"><?= esc($kpi['detail']) ?></p>
-                        </div>
-                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20">
-                            <i class="<?= esc($kpi['icon']) ?>"></i>
-                        </span>
-                    </div>
-                </article>
-            <?php endforeach; ?>
-        </section>
-
-        <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)]">
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-blue-900/10 sm:p-5">
-                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-950">Revenue and subscription trend</h2>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Estimated MRR from active subscriptions, normalized monthly.</p>
-                    </div>
-                    <span class="inline-flex w-fit items-center rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">
-                        <i class="fas fa-chart-line me-2"></i>Revenue
+            <div>
+                <h1 class="cp-command-bar-title">
+                    <span><?= esc(lang('V3Platform.saasPlatformOperations')) ?></span>
+                    <span class="cp-badge cp-badge-teal">
+                        <i class="fas fa-globe text-[10px]"></i> <?= esc(lang('V3Platform.globalMode')) ?>
                     </span>
-                </div>
-                <div class="h-72 rounded-2xl bg-gradient-to-br from-emerald-50 to-blue-50/70 p-3">
-                    <canvas id="mrrGrowthChart"></canvas>
-                </div>
-            </article>
+                    <span class="cp-badge cp-badge-neutral text-[10px]">
+                        <?= esc(lang('V3Platform.lastEvent')) ?> <?= esc($lastEventLabel) ?>
+                    </span>
+                </h1>
+                <p class="cp-command-bar-sub"><?= esc(lang('V3Platform.monitorTenantClinicsSubscriptionsRevenuePlatformPulseAndOperatorQueuesAcrossAllClinics')) ?></p>
+            </div>
+        </div>
+        <div class="cp-command-bar-actions">
+            <?php foreach ($quickActions as $qa): ?>
+                <a href="<?= esc($qa['href'], 'attr') ?>" class="cp-btn <?= esc($qa['btnClass']) ?>">
+                    <i class="<?= esc($qa['icon']) ?>"></i>
+                    <span><?= esc($qa['label']) ?></span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-blue-900/10 sm:p-5">
-                <div class="mb-4 flex items-start justify-between gap-3">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-950">Audit activity</h2>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Control-plane events over the last 14 days.</p>
-                    </div>
-                    <span class="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 ring-1 ring-blue-100"><?= number_format($stats['events_7d'] ?? 0) ?> / 7d</span>
+    <!-- Real KPI Strip -->
+    <div class="cp-kpi-grid">
+        <?php foreach ($kpis as $kpi): ?>
+            <div class="cp-kpi <?= esc($kpi['tone']) ?>">
+                <div class="cp-kpi-label">
+                    <i class="<?= esc($kpi['icon']) ?>"></i>
+                    <span><?= esc($kpi['label']) ?></span>
                 </div>
-                <div class="h-72 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50/70 p-3">
-                    <canvas id="activityVolumeChart"></canvas>
-                </div>
-            </article>
-        </section>
+                <div class="cp-kpi-value"><?= esc($kpi['value']) ?></div>
+                <div class="cp-kpi-foot"><?= esc($kpi['detail']) ?></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
 
-        <section class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
-                <h2 class="text-lg font-bold text-slate-950">Plan mix</h2>
-                <p class="mt-1 text-sm font-medium text-slate-500">Active subscriptions by plan.</p>
-                <div class="mt-4 h-64 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50/70 p-3">
-                    <canvas id="planDistributionChart"></canvas>
+    <!-- Recent Clinics & Recent Plan Requests Columns -->
+    <div class="cp-columns">
+        <!-- Recent Clinics -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <div>
+                    <h2><i class="fas fa-hospital text-[var(--denta-emerald-pine)]"></i> <?= esc(lang('V3Platform.recentClinicTenants')) ?></h2>
+                    <p><?= esc(lang('V3Platform.newestRegistrationsInThePlatformRegistry')) ?></p>
                 </div>
-            </article>
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
-                <h2 class="text-lg font-bold text-slate-950">Clinic growth</h2>
-                <p class="mt-1 text-sm font-medium text-slate-500">New clinics created over the last 6 months.</p>
-                <div class="mt-4 h-64 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50/70 p-3">
-                    <canvas id="clinicGrowthChart"></canvas>
-                </div>
-            </article>
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-950">Operator shortcuts</h2>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Common control-plane tasks.</p>
-                    </div>
-                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">Admin</span>
-                </div>
-                <div class="mt-4 grid grid-cols-2 gap-3">
-                    <?php foreach ($quickActions as $action): ?>
-                        <a href="<?= esc($action['href'], 'attr') ?>" class="group flex min-h-28 flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50/70 p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-white hover:shadow-lg">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br <?= esc($action['tone']) ?> text-white shadow-md">
-                                <i class="<?= esc($action['icon']) ?>"></i>
-                            </span>
-                            <span class="text-sm font-bold text-slate-800 group-hover:text-blue-800"><?= esc($action['label']) ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </article>
-        </section>
+                <a href="<?= base_url('controlplane/clinics') ?>" class="cp-btn cp-btn-light cp-btn-sm">
+                    <?= esc(lang('V3Platform.viewRegistry')) ?> <i class="fas fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+            <div class="p-0">
+                <table class="cp-table">
+                    <thead>
+                        <tr>
+                            <th><?= esc(lang('V3Platform.clinicName')) ?></th>
+                            <th><?= esc(lang('V3Platform.status')) ?></th>
+                            <th class="text-end"><?= esc(lang('V3Platform.actions')) ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($recent_clinics)): ?>
+                            <?php foreach ($recent_clinics as $clinic): ?>
+                                <?php $status = strtolower($clinic['status'] ?? 'inactive'); ?>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded bg-[var(--denta-sandstone)] border border-[var(--denta-taupe-border)] flex items-center justify-center text-[10px] font-extrabold text-[var(--denta-ink)] flex-shrink-0">
+                                                <?= esc(ui_badge_text($clinic['name'] ?? '', 2, 'CL')) ?>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <a href="<?= base_url('controlplane/clinics/' . $clinic['id']) ?>" class="font-bold text-[var(--denta-ink)] hover:text-[var(--denta-emerald-pine)] truncate block text-xs">
+                                                    <?= esc($clinic['name'] ?? 'Clinic') ?>
+                                                </a>
+                                                <span class="text-[10px] text-[var(--denta-muted)] font-mono"><?= esc(lang('V3Platform.id2')) ?> <?= esc($clinic['id'] ?? '') ?></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php if ($status === 'active'): ?>
+                                            <span class="cp-badge cp-badge-active"><?= esc(lang('V3Platform.active')) ?></span>
+                                        <?php elseif ($status === 'suspended'): ?>
+                                            <span class="cp-badge cp-badge-suspended"><?= esc(lang('V3Platform.suspended')) ?></span>
+                                        <?php else: ?>
+                                            <span class="cp-badge cp-badge-neutral"><?= esc(ucfirst($status)) ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="<?= base_url('controlplane/clinics/' . $clinic['id']) ?>" class="cp-btn cp-btn-light cp-btn-sm">
+                                            <?= esc(lang('V3Platform.inspect')) ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3" class="text-center py-6 text-xs text-[var(--denta-muted)]"><?= esc(lang('V3Platform.noRecentClinicsFound')) ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,.9fr)]">
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
-                <div class="mb-4 flex items-center justify-between gap-3">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-950">Recent clinics</h2>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Newest tenants in the platform.</p>
-                    </div>
-                    <a href="<?= base_url('controlplane/clinics') ?>" class="inline-flex items-center rounded-xl bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 ring-1 ring-blue-100 hover:bg-blue-100">
-                        View all <i class="fas fa-arrow-right ms-2 rtl-back-icon"></i>
-                    </a>
+        <!-- Pending Plan Requests -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <div>
+                    <h2><i class="fas fa-inbox text-[var(--denta-terracotta)]"></i> <?= esc(lang('V3Platform.pendingPlanRequests')) ?></h2>
+                    <p><?= esc(lang('V3Platform.subscriptionAndUpgradeApprovalsRequiringReview')) ?></p>
                 </div>
-                <div class="space-y-2">
-                    <?php if (!empty($recent_clinics)): ?>
-                        <?php foreach ($recent_clinics as $clinic): ?>
-                            <?php $status = $clinic['status'] ?? 'inactive'; ?>
-                            <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-blue-50/60 p-3">
-                                <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-700 to-cyan-600 text-xs font-bold text-white">
-                                    <?= esc(ui_badge_text($clinic['name'] ?? '', 2, 'CL')) ?>
-                                </span>
-                                <div class="min-w-0 flex-1">
-                                    <p class="truncate text-sm font-bold text-slate-950"><?= esc($clinic['name'] ?? 'Clinic') ?></p>
-                                    <p class="text-xs font-medium text-slate-500">ID: <?= esc($clinic['id'] ?? '') ?></p>
-                                </div>
-                                <span class="rounded-full px-2.5 py-1 text-xs font-bold <?= $status === 'active' ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200' ?>">
-                                    <?= esc($status) ?>
-                                </span>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm font-medium text-slate-400">No recent clinics found.</div>
-                    <?php endif; ?>
-                </div>
-            </article>
-
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
-                <div class="mb-4 flex items-center justify-between gap-3">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-950">Plan requests</h2>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Latest plan change queue.</p>
-                    </div>
-                    <a href="<?= base_url('controlplane/plan-requests') ?>" class="inline-flex items-center rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 ring-1 ring-amber-100 hover:bg-amber-100">
-                        Review <i class="fas fa-arrow-right ms-2 rtl-back-icon"></i>
-                    </a>
-                </div>
-                <div class="space-y-2">
-                    <?php if (!empty($recent_plan_requests)): ?>
-                        <?php foreach ($recent_plan_requests as $request): ?>
-                            <div class="flex items-center gap-3 rounded-2xl border border-amber-100 bg-gradient-to-r from-white to-amber-50/70 p-3">
-                                <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 text-white">
-                                    <i class="fas fa-inbox"></i>
-                                </span>
-                                <div class="min-w-0 flex-1">
-                                    <p class="truncate text-sm font-bold text-slate-950"><?= esc($request['clinic_name'] ?? 'Clinic') ?></p>
-                                    <p class="truncate text-xs font-medium text-slate-500"><?= esc($request['summary'] ?? 'Plan change') ?></p>
-                                </div>
-                                <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">Pending</span>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm font-medium text-slate-400">No pending requests.</div>
-                    <?php endif; ?>
-                </div>
-            </article>
-
-            <article class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl shadow-slate-900/10 sm:p-5">
-                <h2 class="text-lg font-bold text-slate-950">Platform pulse</h2>
-                <p class="mt-1 text-sm font-medium text-slate-500">Storage and audit indicators.</p>
-                <div class="mt-4 space-y-3">
-                    <div class="rounded-2xl bg-gradient-to-br from-emerald-700 to-teal-600 p-4 text-white shadow-lg shadow-emerald-700/20">
-                        <p class="text-xs font-semibold text-emerald-100">Storage footprint</p>
-                        <p class="mt-2 text-2xl font-bold"><?= number_format($storageGb, 2) ?> GB</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="rounded-2xl bg-slate-100 p-3">
-                            <p class="text-xs font-semibold text-slate-500">Events 7d</p>
-                            <p class="mt-1 text-xl font-bold text-slate-950"><?= number_format($stats['events_7d'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-2xl bg-slate-100 p-3">
-                            <p class="text-xs font-semibold text-slate-500">Events 30d</p>
-                            <p class="mt-1 text-xl font-bold text-slate-950"><?= number_format($stats['events_30d'] ?? 0) ?></p>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="mb-2 text-xs font-bold text-slate-500">Storage hotspots</p>
-                        <div class="space-y-2">
-                            <?php if (!empty($storage_top ?? [])): ?>
-                                <?php foreach (array_slice($storage_top, 0, 3) as $row): ?>
-                                    <?php
-                                        $clinicName = $row['clinic_name'] ?? 'Clinic';
-                                        $sizeBytes = (int) ($row['total_size'] ?? 0);
-                                        $sizeGb = $sizeBytes > 0 ? ($sizeBytes / 1024 / 1024 / 1024) : 0;
-                                    ?>
-                                    <div class="flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2 ring-1 ring-emerald-100">
-                                        <span class="truncate text-xs font-bold text-emerald-950"><?= esc($clinicName) ?></span>
-                                        <span class="text-xs font-bold text-emerald-700"><?= number_format($sizeGb, 2) ?> GB</span>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="rounded-xl bg-slate-50 px-3 py-2 text-xs font-medium text-slate-400">No storage usage yet.</div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </section>
+                <a href="<?= base_url('controlplane/plan-requests') ?>" class="cp-btn cp-btn-light cp-btn-sm">
+                    <?= esc(lang('V3Platform.reviewQueue')) ?> <i class="fas fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+            <div class="p-0">
+                <table class="cp-table">
+                    <thead>
+                        <tr>
+                            <th><?= esc(lang('V3Platform.clinic')) ?></th>
+                            <th><?= esc(lang('V3Platform.requestedPlan')) ?></th>
+                            <th><?= esc(lang('V3Platform.status')) ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($recent_plan_requests)): ?>
+                            <?php foreach ($recent_plan_requests as $request): ?>
+                                <tr>
+                                    <td>
+                                        <b class="text-xs text-[var(--denta-ink)] block"><?= esc($request['clinic_name'] ?? 'Clinic') ?></b>
+                                        <small class="text-[10px] text-[var(--denta-muted)]"><?= esc($request['summary'] ?? 'Plan change') ?></small>
+                                    </td>
+                                    <td>
+                                        <span class="cp-badge cp-badge-teal text-[10px]"><?= esc($request['requested_plan_name'] ?? '—') ?></span>
+                                    </td>
+                                    <td>
+                                        <span class="cp-badge cp-badge-amber"><?= esc(lang('V3Platform.pending')) ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3" class="text-center py-6 text-xs text-[var(--denta-muted)]"><?= esc(lang('V3Platform.noPendingPlanChangeRequests')) ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -347,11 +248,11 @@
         scales: {
             x: {
                 grid: { display: false },
-                ticks: { color: '#64748b', font: { weight: 600 } },
+                ticks: { color: '#526157', font: { weight: 600, size: 10 } },
             },
             y: {
-                grid: { color: 'rgba(148, 163, 184, 0.28)' },
-                ticks: { color: '#64748b', font: { weight: 600 } },
+                grid: { color: 'rgba(196, 185, 168, 0.35)' },
+                ticks: { color: '#526157', font: { weight: 600, size: 10 } },
             },
         },
     };
@@ -360,9 +261,9 @@
     if (mrrCtx && Array.isArray(dashboardChartData.mrr_series)) {
         const mrrLabels = dashboardChartData.mrr_series.map(point => point.label);
         const mrrTotals = dashboardChartData.mrr_series.map(point => point.value);
-        const mrrGradient = mrrCtx.getContext('2d').createLinearGradient(0, 0, 0, 240);
-        mrrGradient.addColorStop(0, 'rgba(16, 185, 129, 0.36)');
-        mrrGradient.addColorStop(1, 'rgba(37, 99, 235, 0.04)');
+        const mrrGradient = mrrCtx.getContext('2d').createLinearGradient(0, 0, 0, 220);
+        mrrGradient.addColorStop(0, 'rgba(15, 107, 99, 0.30)');
+        mrrGradient.addColorStop(1, 'rgba(15, 107, 99, 0.02)');
 
         new Chart(mrrCtx, {
             type: 'line',
@@ -371,13 +272,13 @@
                 datasets: [{
                     label: 'MRR ($)',
                     data: mrrTotals,
-                    borderColor: '#059669',
+                    borderColor: '#0F6B63',
                     backgroundColor: mrrGradient,
-                    pointBackgroundColor: '#047857',
-                    pointBorderColor: '#ffffff',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    tension: 0.35,
+                    pointBackgroundColor: '#0F6B63',
+                    pointBorderColor: '#FCFBF7',
+                    pointRadius: 3.5,
+                    pointHoverRadius: 5.5,
+                    tension: 0.3,
                     fill: true,
                 }],
             },
@@ -396,8 +297,8 @@
                     y: {
                         ...baseChartOptions.scales.y,
                         ticks: {
-                            color: '#64748b',
-                            font: { weight: 600 },
+                            color: '#526157',
+                            font: { weight: 600, size: 10 },
                             callback: value => typeof value === 'number' ? '$' + value.toLocaleString() : value,
                         },
                     },
@@ -415,9 +316,9 @@
                 datasets: [{
                     label: 'Events',
                     data: dashboardChartData.activity_series.map(point => point.total),
-                    backgroundColor: '#2563eb',
-                    borderRadius: 8,
-                    maxBarThickness: 26,
+                    backgroundColor: '#C85A32',
+                    borderRadius: 4,
+                    maxBarThickness: 22,
                 }],
             },
             options: baseChartOptions,
@@ -432,19 +333,19 @@
                 labels: dashboardChartData.plan_distribution.map(point => point.label),
                 datasets: [{
                     data: dashboardChartData.plan_distribution.map(point => point.value),
-                    backgroundColor: ['#059669', '#14b8a6', '#2563eb', '#f59e0b', '#dc2626', '#7c3aed'],
-                    borderColor: 'rgba(255,255,255,0.88)',
-                    borderWidth: 2,
+                    backgroundColor: ['#0F6B63', '#162421', '#C85A32', '#C4B9A8', '#7E9388', '#AB4928'],
+                    borderColor: '#FCFBF7',
+                    borderWidth: 1.5,
                 }],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '68%',
+                cutout: '65%',
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { color: '#475569', boxWidth: 10, boxHeight: 10, font: { weight: 600 } },
+                        labels: { color: '#1B302B', boxWidth: 10, boxHeight: 10, font: { weight: 600, size: 10 } },
                     },
                 },
             },
@@ -453,9 +354,9 @@
 
     const growthCtx = document.getElementById('clinicGrowthChart');
     if (growthCtx && Array.isArray(dashboardChartData.clinic_growth)) {
-        const growthGradient = growthCtx.getContext('2d').createLinearGradient(0, 0, 0, 220);
-        growthGradient.addColorStop(0, 'rgba(37, 99, 235, 0.32)');
-        growthGradient.addColorStop(1, 'rgba(124, 58, 237, 0.04)');
+        const growthGradient = growthCtx.getContext('2d').createLinearGradient(0, 0, 0, 200);
+        growthGradient.addColorStop(0, 'rgba(15, 107, 99, 0.25)');
+        growthGradient.addColorStop(1, 'rgba(22, 36, 33, 0.02)');
 
         new Chart(growthCtx, {
             type: 'line',
@@ -464,13 +365,13 @@
                 datasets: [{
                     label: 'New Clinics',
                     data: dashboardChartData.clinic_growth.map(point => point.value),
-                    borderColor: '#2563eb',
+                    borderColor: '#0F6B63',
                     backgroundColor: growthGradient,
-                    pointBackgroundColor: '#1d4ed8',
-                    pointBorderColor: '#ffffff',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    tension: 0.35,
+                    pointBackgroundColor: '#0F6B63',
+                    pointBorderColor: '#FCFBF7',
+                    pointRadius: 3.5,
+                    pointHoverRadius: 5.5,
+                    tension: 0.3,
                     fill: true,
                 }],
             },
@@ -478,4 +379,111 @@
         });
     }
 </script>
+    <!-- Plan Mix, Clinic Growth, and Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3.5 mb-3.5">
+        <!-- Plan Mix -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <h2><i class="fas fa-chart-pie text-[var(--denta-emerald-pine)]"></i> <?= esc(lang('V3Platform.planMix')) ?></h2>
+                <span class="cp-badge cp-badge-neutral"><?= esc(lang('V3Platform.distribution')) ?></span>
+            </div>
+            <div class="cp-panel-body">
+                <div class="cp-chart-container">
+                    <canvas id="planDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinic Growth -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <h2><i class="fas fa-arrow-trend-up text-[var(--denta-emerald-pine)]"></i> <?= esc(lang('V3Platform.clinicGrowth6Mo')) ?></h2>
+                <span class="cp-badge cp-badge-mint"><?= esc(lang('V3Platform.newTenants')) ?></span>
+            </div>
+            <div class="cp-panel-body">
+                <div class="cp-chart-container">
+                    <canvas id="clinicGrowthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operator Shortcuts & Activity Pulse -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <h2><i class="fas fa-bolt text-[var(--denta-terracotta)]"></i> <?= esc(lang('V3Platform.operatorPulse')) ?></h2>
+                <span class="cp-badge cp-badge-teal"><?= esc(lang('V3Platform.adminQueues')) ?></span>
+            </div>
+            <div class="cp-panel-body space-y-3">
+                <div class="cp-stats-grid">
+                    <div class="cp-metric-card">
+                        <small><?= esc(lang('V3Platform.storageFootprint')) ?></small>
+                        <strong><?= number_format($storageGb, 2) ?> GB</strong>
+                    </div>
+                    <div class="cp-metric-card">
+                        <small><?= esc(lang('V3Platform.label7dAuditEvents')) ?></small>
+                        <strong><?= number_format($stats['events_7d'] ?? 0) ?></strong>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-[var(--denta-muted)] mb-1.5"><?= esc(lang('V3Platform.storageHotspots')) ?></div>
+                    <div class="space-y-1.5">
+                        <?php if (!empty($storage_top ?? [])): ?>
+                            <?php foreach (array_slice($storage_top, 0, 3) as $row): ?>
+                                <?php
+                                    $clinicName = $row['clinic_name'] ?? 'Clinic';
+                                    $sizeBytes = (int) ($row['total_size'] ?? 0);
+                                    $sizeGb = $sizeBytes > 0 ? ($sizeBytes / 1024 / 1024 / 1024) : 0;
+                                ?>
+                                <div class="flex items-center justify-between p-2 rounded bg-[var(--denta-parchment)] border border-[var(--denta-taupe-border)] text-xs">
+                                    <span class="font-bold text-[var(--denta-ink)] truncate max-w-[170px]"><?= esc($clinicName) ?></span>
+                                    <span class="font-semibold text-[var(--denta-emerald-pine)]"><?= number_format($sizeGb, 2) ?> GB</span>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="text-xs text-[var(--denta-muted)] py-2 text-center"><?= esc(lang('V3Platform.noStorageUsageRecordedYet')) ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Charts Split Layout -->
+    <div class="cp-columns mb-3.5">
+        <!-- Revenue Trend -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <div>
+                    <h2><i class="fas fa-chart-line text-[var(--denta-emerald-pine)]"></i> <?= esc(lang('V3Platform.revenueAndSubscriptionTrend')) ?></h2>
+                    <p>Estimated monthly recurring revenue (MRR) normalized from active subscriptions.</p>
+                </div>
+                <span class="cp-badge cp-badge-mint"><?= esc(lang('V3Platform.mrrVolume')) ?></span>
+            </div>
+            <div class="cp-panel-body">
+                <div class="cp-chart-container">
+                    <canvas id="mrrGrowthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Volume -->
+        <div class="cp-panel mb-0">
+            <div class="cp-panel-head">
+                <div>
+                    <h2><i class="fas fa-wave-square text-[var(--denta-terracotta)]"></i> <?= esc(lang('V3Platform.platformAuditVolume')) ?></h2>
+                    <p><?= esc(lang('V3Platform.controlPlaneAndTenantEventsRecordedOverTheLast14Days')) ?></p>
+                </div>
+                <span class="cp-badge cp-badge-neutral"><?= number_format($stats['events_7d'] ?? 0) ?> / 7d</span>
+            </div>
+            <div class="cp-panel-body">
+                <div class="cp-chart-container">
+                    <canvas id="activityVolumeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 <?= $this->endSection() ?>

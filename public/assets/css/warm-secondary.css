@@ -1,0 +1,142 @@
+/* Warm Architectural Clinical v3 ? secondary task workspaces.
+   Native structural controls are cached separately; this is their replacement visual system. */
+.denta-v3 :where(.denta-contracts-workspace,.denta-examination-workspace,.denta-prescription-workspace,.denta-inventory-workspace,.denta-settings-workspace) {min-width:0;max-width:100%;color:var(--denta-ink);background:transparent;}
+.denta-v3 .v3-module-content {padding:0;}
+.denta-v3 .v3-module-workspace {padding:0;min-height:0;background:transparent;}
+.denta-v3 :is(.v3-surface,.contract-card,.exam-card,.rx-card,.settings-shell-card,.settings-action-panel,.inventory-create-form-section) {background:var(--denta-alabaster);color:var(--denta-ink);border:1px solid var(--denta-taupe-border);border-radius:8px;box-shadow:none;}
+.denta-v3 .v3-corner {border-radius:8px;}
+.denta-v3 :is(.v3-surface-heading,.exam-card-header,.rx-card-header,.settings-tab>div>div:first-child) {background:var(--denta-sandstone);color:var(--denta-ink);border-color:var(--denta-taupe-border);}
+.denta-v3 .v3-surface-heading :is(h1,h2,h3,p),.denta-v3 .rx-card-header :is(i,span,h3,p) {color:var(--denta-ink)!important;}
+.denta-v3 .v3-icon {background:var(--denta-parchment);color:var(--denta-emerald-pine);border-radius:6px;box-shadow:none;}
+.denta-v3 .v3-command-section {padding:0;margin:0 0 16px;background:transparent;border:0;}
+.denta-v3 .v3-command-layout {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 14px;border-bottom:1px solid var(--denta-taupe-border);}
+.denta-v3 .v3-command-layout>div:first-child {display:flex;align-items:center;gap:10px;}
+.denta-v3 .v3-command-layout>div:first-child> :is(.v3-icon,.settings-hero-icon) {display:none;}
+.denta-v3 .v3-command-layout h1 {font-size:24px;line-height:1.3;margin:0;color:var(--denta-ink);}
+.denta-v3 .v3-command-layout p {font-size:13px;color:var(--denta-muted);margin:4px 0;}
+.denta-v3 .v3-command-layout>div:last-child {display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.denta-v3 .v3-command-layout :is(a,button) {display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 12px;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-alabaster);color:var(--denta-ink);font-size:13px;font-weight:600;}
+.denta-v3 .v3-command-layout .v3-action-primary {background:var(--denta-emerald-pine);border-color:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
+/* Patient/encounter identity is context, not an oversized hero. */
+.denta-v3 .v3-record-banner {display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:12px 14px;background:var(--denta-parchment);border:1px solid var(--denta-taupe-border);border-radius:8px;margin-bottom:14px;}
+.denta-v3 .v3-record-heading {min-width:0;}
+.denta-v3 .v3-record-heading h1 {font-size:23px;color:var(--denta-ink);line-height:1.3;margin:0 8px 8px 0;display:inline;}
+.denta-v3 .v3-record-heading>.inline-flex {color:var(--denta-ink)!important;font-size:12px;}
+.denta-v3 .v3-record-reference {display:block;font-size:12px;color:var(--denta-muted);margin-bottom:4px;}
+.denta-v3 .v3-record-meta {display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.denta-v3 .v3-record-meta .patient-hero-chip {display:flex;align-items:center;gap:6px;padding:3px 8px;background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:5px;max-width:100%;}
+.denta-v3 .v3-record-meta .patient-hero-chip-text {display:flex;gap:5px;font-size:12px;line-height:1.4;white-space:normal;}
+.denta-v3 .v3-record-meta .patient-hero-chip-label {color:var(--denta-muted);font-weight:400;}
+.denta-v3 .v3-record-meta .patient-hero-chip-value {color:var(--denta-ink);font-weight:600;}
+.denta-v3 .v3-record-meta .patient-hero-chip-icon {display:none;}
+.denta-v3 .v3-record-actions {display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:440px;}
+.denta-v3 .v3-record-actions>div {display:contents;}
+.denta-v3 .v3-record-actions :is(a,button) {display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:7px 10px;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-alabaster);color:var(--denta-ink);font-size:12px;font-weight:600;}
+.denta-v3 .v3-record-actions .patient-header-action-emerald {background:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
+.denta-v3 .v3-record-actions .patient-header-action-danger {background:var(--denta-tint-alert);color:#8A3028;}
+/* Contracts: immutable plan at left, agreement/signature context at right. */
+
+
+
+
+
+
+.denta-v3 .contract-editor-layout {display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);gap:14px;align-items:start;}
+.denta-v3 .contract-card {padding:16px;margin-bottom:14px;}
+.denta-v3 .contract-card h3 {font-size:16px;}
+.denta-v3 .contract-card canvas {max-width:100%;background:var(--denta-ivory-input);border:1px solid var(--denta-taupe-border);}
+.denta-v3 .contract-panel-body {background:var(--denta-alabaster);}
+/* Clinical note: narrative and next actions remain distinct. */
+.denta-v3 .denta-examination-workspace .exam-snapshot-section {padding:0;background:transparent;border:0;margin-bottom:14px;}
+.denta-v3 .denta-examination-workspace .exam-snapshot-section>div:first-child {display:none;}
+.denta-v3 .denta-examination-workspace .exam-snapshot-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.denta-v3 .denta-examination-workspace .exam-snapshot-card {background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:7px;padding:12px;min-height:80px;color:var(--denta-ink);}
+.denta-v3 .denta-examination-workspace .exam-snapshot-card:nth-child(2) {background:var(--denta-tint-paid);}
+.denta-v3 .denta-examination-workspace .exam-snapshot-card:nth-child(3) {background:var(--denta-tint-inchair);}
+.denta-v3 .denta-examination-workspace .exam-snapshot-card:nth-child(4) {background:var(--denta-tint-waiting);}
+.denta-v3 .denta-examination-workspace .exam-snapshot-value {font-size:23px;line-height:1.3;color:var(--denta-ink);}
+.denta-v3 .denta-examination-workspace .exam-snapshot-label {font-size:11px;color:var(--denta-muted);}
+.denta-v3 .denta-examination-workspace .exam-workspace-section {padding:0;background:transparent;border:0;gap:14px;}
+.denta-v3 .denta-examination-workspace .exam-section-heading {padding:8px 0;border-bottom:1px solid var(--denta-taupe-border);background:transparent;margin-bottom:12px;}
+.denta-v3 .denta-examination-workspace .exam-section-heading :is(h2,h3,p,span) {color:var(--denta-ink);}
+.denta-v3 .denta-examination-workspace .exam-card {padding:14px;}
+.denta-v3 .denta-examination-workspace .exam-card-header {padding:10px 12px;margin:-14px -14px 14px;border-bottom:1px solid var(--denta-taupe-border);}
+.denta-v3 .denta-examination-workspace :is(.exam-text-tile,.exam-notes-panel,.exam-history-text-block) {background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:6px;padding:12px;}
+.denta-v3 .denta-examination-workspace .exam-icon-circle {background:var(--denta-emerald-pine);color:var(--denta-ivory-input);border-radius:5px;}
+.denta-v3 .denta-examination-workspace :is(.exam-action-primary,.exam-action-secondary) {border-radius:6px;padding:10px 12px;background:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
+.denta-v3 .denta-prescription-workspace .rx-card {padding:14px;margin-bottom:14px;}
+.denta-v3 .denta-prescription-workspace .rx-card-header {margin:-14px -14px 14px;padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--denta-taupe-border);background:var(--denta-sandstone);}
+.denta-v3 .denta-prescription-workspace .rx-card-header>i {width:28px;height:28px;background:var(--denta-parchment);color:var(--denta-emerald-pine);}
+.denta-v3 .denta-prescription-workspace :is(.rx-note,.rx-metadata-item,.rx-info-tile) {background:var(--denta-parchment);border-color:var(--denta-taupe-border);border-radius:6px;}
+/* Inventory and settings are dense operational workspaces. */
+.denta-v3 .denta-inventory-workspace .v3-metric-strip article {padding:12px 14px;background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:7px;min-height:85px;}
+.denta-v3 .denta-inventory-workspace .v3-metric-strip article:nth-child(2) {background:var(--denta-tint-paid);}
+.denta-v3 .denta-inventory-workspace .v3-metric-strip article:nth-child(3) {background:var(--denta-tint-waiting);}
+.denta-v3 .denta-inventory-workspace .v3-metric-strip article:nth-child(4) {background:var(--denta-tint-alert);}
+.denta-v3 .denta-inventory-workspace .v3-metric-strip :is(p,span,i) {color:var(--denta-ink);}
+.denta-v3 .denta-inventory-workspace .v3-metric-strip article p:nth-child(2) {font-size:24px;}
+.denta-v3 .v3-settings-context {margin-bottom:14px;}
+.denta-v3 .v3-settings-context .settings-hero-chip {background:var(--denta-parchment);border:1px solid var(--denta-taupe-border);padding:10px 12px;border-radius:7px;}
+.denta-v3 .v3-settings-context .settings-hero-chip :is(p,span) {color:var(--denta-ink);font-size:12px;letter-spacing:0;text-transform:none;}
+.denta-v3 .v3-settings-grid {display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;align-items:start;}
+.denta-v3 .denta-settings-workspace .settings-page-wrap {padding:0;}
+.denta-v3 .denta-settings-workspace .settings-shell-breadcrumb {background:var(--denta-parchment);border:1px solid var(--denta-taupe-border);padding:9px 12px;border-radius:6px;}
+.denta-v3 .denta-settings-workspace .settings-nav-group {background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:7px;padding:8px;}
+.denta-v3 .denta-settings-workspace .settings-menu-btn {display:flex;align-items:center;gap:8px;width:100%;text-align:start;min-height:44px;padding:10px 12px;background:transparent;border:0;border-bottom:1px solid var(--denta-taupe-border);border-radius:0;color:var(--denta-ink);box-shadow:none;transform:none;}
+.denta-v3 .denta-settings-workspace .settings-menu-btn.is-active {background:var(--denta-emerald-pine);border-radius:5px;color:var(--denta-ivory-input);}
+.denta-v3 .denta-settings-workspace .settings-menu-btn.is-active i {color:inherit;}
+.denta-v3 .denta-settings-workspace .settings-tab>div:first-child {border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);border-radius:8px;overflow:hidden;}
+.denta-v3 .denta-settings-workspace .settings-tab>div:first-child>div:first-child {background:var(--denta-sandstone);border-bottom:1px solid var(--denta-taupe-border);padding:14px;}
+/* Kiosk stays private, large-touch and independent of the staff shell. */
+.denta-v3.denta-kiosk #kioskSessionRoot>div {max-width:1180px;padding:16px;}
+.denta-v3.denta-kiosk .kiosk-header-banner {background:var(--denta-forest);color:var(--denta-alabaster);padding:18px 22px;}
+.denta-v3.denta-kiosk .kiosk-header-banner :is(h1,h2,p,span) {color:inherit;}
+.denta-v3.denta-kiosk .kiosk-step-pill {border:1px solid var(--denta-taupe-border);background:var(--denta-parchment);color:var(--denta-ink);}
+.denta-v3.denta-kiosk .kiosk-step-pill.active {background:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
+.denta-v3.denta-kiosk :is(.kiosk-key,.kiosk-key-secondary) {min-height:64px;background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:8px;color:var(--denta-ink);font-size:26px;box-shadow:none;}
+.denta-v3.denta-kiosk #kioskPhoneInput {background:var(--denta-ivory-input);min-height:68px;font-size:28px;text-align:center;}
+.denta-v3.denta-kiosk .kiosk-btn-submit {background:var(--denta-emerald-pine);color:var(--denta-ivory-input);min-height:56px;font-size:18px;}
+/* Platform rail is visually related, with its independent global session boundary retained. */
+body.denta-v3.denta-cp #sidebar {width:220px;background:var(--denta-forest);border-inline-end:1px solid #34443E;color:var(--denta-alabaster);height:100dvh;position:sticky;top:0;display:flex;flex-direction:column;}
+body.denta-v3.denta-cp #sidebar :is(h1,h3,p,span,i) {color:var(--denta-alabaster);}
+body.denta-v3.denta-cp #sidebar-nav {overflow:auto;min-height:0;}
+body.denta-v3.denta-cp .v3-platform-nav-link {display:flex;align-items:center;gap:8px;min-height:42px;padding:9px 12px;border-radius:6px;color:var(--denta-alabaster);font-size:13px;font-weight:600;}
+body.denta-v3.denta-cp .v3-platform-nav-link i {color:inherit;margin:0;}
+body.denta-v3.denta-cp .v3-platform-nav-link:hover {background:#2B3E37;}
+body.denta-v3.denta-cp .v3-platform-nav-link.is-active {background:var(--denta-emerald-pine);}
+body.denta-v3.denta-cp header {background:var(--denta-sandstone);border-color:var(--denta-taupe-border);}
+body.denta-v3.denta-cp .v3-platform-workspace {padding:16px;min-width:0;background:var(--denta-travertine);}
+body.denta-v3.denta-cp :is(.glass-card,.glass-muted) {background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:8px;box-shadow:none;}
+body.denta-v3.denta-cp #sidebar.sidebar-collapsed {width:88px;}
+body.denta-v3.denta-cp .sidebar-collapsed :is(#sidebar-title,#sidebar-nav h3,#sidebar-nav span) {display:none;}
+body.denta-v3.denta-cp .sidebar-collapsed #sidebar-nav a {justify-content:center;}
+@media(max-width:1100px) {.denta-v3 .v3-record-banner {flex-wrap:wrap;}.denta-v3 .v3-record-actions {max-width:none;}}
+@media(max-width:1000px){.denta-v3 .contract-editor-layout{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:767px) {
+ .denta-v3 .v3-record-banner {padding:12px;}.denta-v3 .v3-record-heading h1 {font-size:21px;}.denta-v3 .v3-record-actions {width:100%;}.denta-v3 .v3-record-actions :is(a,button) {min-height:44px;flex:1 1 auto;}
+ .denta-v3 .v3-record-meta {gap:6px;}.denta-v3 .v3-record-meta .patient-hero-chip {flex:1 1 auto;}.denta-v3 .v3-record-meta .patient-hero-chip-text {flex-wrap:wrap;}
+ .denta-v3 .denta-examination-workspace .exam-snapshot-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .denta-v3 .v3-settings-grid {grid-template-columns:minmax(0,1fr);}.denta-v3 .denta-settings-workspace .settings-nav-group {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;}
+ body.denta-v3.denta-cp #sidebar {position:fixed;inset-block:0;inset-inline-start:0;width:min(300px,86vw);z-index:40;}
+ body.denta-v3.denta-cp #sidebar.sidebar-mobile-hidden {transform:translateX(-100%);}[dir=rtl] body.denta-v3.denta-cp #sidebar.sidebar-mobile-hidden {transform:translateX(100%);}
+}
+@media(prefers-reduced-motion:reduce) {.denta-cp *,.denta-kiosk * {transition:none!important;animation:none!important;}}
+
+.denta-v3 .contract-review-layout {display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);gap:14px;align-items:start;}
+.denta-v3 .contract-review-layout>div {display:block;min-width:0;}
+@media(max-width:900px){.denta-v3 .contract-review-layout {grid-template-columns:minmax(0,1fr);}}
+
+.denta-v3 .v3-record-heading {flex:1 1 auto;}
+.denta-v3 .v3-record-meta .patient-hero-chip {width:auto;flex:0 1 auto;min-height:30px;}
+.denta-v3 .v3-record-actions {flex:0 1 440px;}
+@media(max-width:767px){.denta-v3 .v3-record-actions {flex-basis:auto;}}
+
+.denta-v3 .denta-settings-workspace .settings-tab>div:first-child>div:first-child :is(h1,h2,h3,p) {color:var(--denta-ink)!important;}
+
+.denta-v3.denta-kiosk :is(.bg-indigo-600,button[type=submit]) {background:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
+.denta-v3.denta-kiosk :is(.bg-indigo-100,.bg-indigo-50) {background:var(--denta-tint-scheduled);color:var(--denta-emerald-hover);}
+.denta-v3.denta-kiosk .kiosk-header-banner .bg-white {background:var(--denta-emerald-pine);color:var(--denta-ivory-input);}
+.denta-v3.denta-kiosk .kiosk-header-banner .rounded-full {background:#2B3E37;color:var(--denta-alabaster);border-color:#526157;}
+
+.denta-v3 .v3-settings-summary-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.denta-v3 .v3-settings-navigation{position:sticky;top:76px;align-self:start}.denta-v3 .settings-hero-chip{padding:8px 12px}.denta-v3 .settings-shell-breadcrumb{padding-block:8px;margin-bottom:12px}
+@media(max-width:767px){.denta-v3 .v3-settings-summary-strip{grid-template-columns:minmax(0,1fr);gap:2px}.denta-v3 .v3-settings-summary-strip .settings-hero-chip{display:flex;justify-content:space-between;gap:12px;border:0;padding:4px 8px}.denta-v3 .v3-settings-navigation{position:static;max-width:100%;min-width:0}.denta-v3 .v3-settings-navigation .settings-shell-card{padding:6px}.denta-v3 .v3-settings-navigation nav{display:flex;align-items:center;overflow-x:auto;gap:5px;padding:0 0 4px;height:52px;min-height:0}.denta-v3 .v3-settings-navigation .settings-shell-card>div:first-child{display:none}.denta-v3 .denta-settings-workspace .v3-settings-navigation .settings-nav-group,.denta-v3 .v3-settings-navigation .settings-nav-group>div.space-y-2{display:contents}.denta-v3 .v3-settings-navigation .settings-nav-kicker,.denta-v3 .v3-settings-navigation nav p{display:none}.denta-v3 .denta-settings-workspace .v3-settings-navigation .settings-menu-btn{width:auto;flex:0 0 auto;white-space:nowrap;min-height:44px;height:44px;margin:0;padding:8px 10px}.denta-v3 .v3-settings-navigation nav>div{border:0;padding:0;margin:0}.denta-v3 .v3-settings-context{margin-bottom:8px}}

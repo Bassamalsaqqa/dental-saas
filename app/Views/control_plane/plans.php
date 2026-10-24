@@ -1,122 +1,122 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden">
+<div class="v3-platform-workspace min-h-screen relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+
+
+
     </div>
 
     <div class="container mx-auto relative z-10 px-4 py-6">
         <!-- Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="mb-4">
+            <div class="cp-surface border cp-border cp-radius p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div class="w-12 h-12 cp-radius flex items-center justify-center text-white">
                             <i class="fas fa-cubes text-xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Plan Catalog</h1>
-                            <p class="text-gray-600">Define pricing, limits, and entitlements</p>
+                            <h1 class="cp-title font-bold text-gray-900"><?= esc(lang('V3Platform.planCatalog')) ?></h1>
+                            <p class="text-gray-600"><?= esc(lang('V3Platform.definePricingLimitsAndEntitlements')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">Global Mode</span>
-                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Catalog</span>
+                        <span class="px-3 py-1 rounded-full cp-soft-surface text-emerald-700 text-xs font-semibold"><?= esc(lang('V3Platform.globalMode')) ?></span>
+                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold"><?= esc(lang('V3Platform.catalog')) ?></span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Stats Grid -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        <div class="mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
                 <!-- Total Plans -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-indigo-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-indigo-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-indigo-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+
+                                <div class="relative p-3 cp-radius cp-primary-surface text-white transition-all duration-200">
                                     <i class="fas fa-layer-group text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200">
-                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                                <span class="text-indigo-700 font-bold text-xs">All Time</span>
+                            <div class="flex items-center space-x-2 cp-soft-surface px-3 py-1.5 rounded-full border cp-border">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                                <span class="cp-accent font-bold text-xs"><?= esc(lang('V3Platform.allTime')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Plans</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.totalPlans')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-indigo-900"><?= number_format($stats['total'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-indigo-100 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-indigo-500 rounded-full animate-pulse"></div>
+                                <p class="cp-title font-black cp-accent"><?= number_format($stats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 cp-soft-surface rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full cp-primary-surface rounded-full"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Catalog Items</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.catalogItems')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+
+                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
                                     <i class="fas fa-check-circle text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                <span class="text-emerald-700 font-bold text-xs">Active</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                                <span class="text-emerald-700 font-bold text-xs"><?= esc(lang('V3Platform.active')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Plans</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.activePlans')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($stats['active'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-green-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full animate-pulse"></div>
+                                <p class="cp-title font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($stats['active'] ?? 0) ?></p>
+                                <div class="w-12 h-1 rounded-full overflow-hidden">
+
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently Available</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.currentlyAvailable')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- In View -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+
+                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
                                     <i class="fas fa-eye text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-indigo-100 px-3 py-1.5 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-blue-700 font-bold text-xs">Filtered</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border cp-border">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                                <span class="cp-accent font-bold text-xs"><?= esc(lang('V3Platform.filtered2')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">In View</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.inView')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-blue-600" style="color: #2563eb !important;"><?= number_format($stats['filtered'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
+                                <p class="cp-title font-black cp-accent" style="color: #2563eb !important;"><?= number_format($stats['filtered'] ?? 0) ?></p>
+                                <div class="w-12 h-1 rounded-full overflow-hidden">
+
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Filtered Results</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.filteredResults')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -124,54 +124,54 @@
         </div>
 
         <!-- Unified Table Section -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden mb-12">
+        <div class="cp-surface cp-radius border cp-border overflow-hidden mb-12">
             <!-- Header & Filters -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="px-6 py-4 border-b cp-border cp-surface">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900">Catalog Plans</h3>
+                        <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                        <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('V3Platform.catalogPlans')) ?></h3>
                     </div>
-                    
+
                     <form method="get" class="flex flex-wrap items-center gap-3">
                         <!-- Search -->
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" name="q" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Search plans..."
-                                   class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 w-64">
+                            <input type="text" name="q" value="<?= esc($filters['q'] ?? '') ?>" placeholder="<?= esc(lang('V3Platform.searchPlans'), 'attr') ?>"
+                                   class="pl-10 pr-4 py-2 rounded-lg border cp-border text-sm focus:ring-emerald-500 focus:border-emerald-500 w-64">
                         </div>
 
                         <!-- Status Filter -->
-                        <select name="status" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white" onchange="this.form.submit()">
+                        <select name="status" class="py-2 pl-3 pr-8 rounded-lg border cp-border text-sm focus:ring-emerald-500 focus:border-emerald-500 cp-surface" onchange="this.form.submit()">
                             <?php $currentStatus = $filters['status'] ?? ''; ?>
-                            <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All Status</option>
-                            <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
-                            <option value="inactive" <?= $currentStatus === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                            <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>><?= esc(lang('V3Platform.allStatus')) ?></option>
+                            <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>><?= esc(lang('V3Platform.active')) ?></option>
+                            <option value="inactive" <?= $currentStatus === 'inactive' ? 'selected' : '' ?>><?= esc(lang('V3Platform.inactive')) ?></option>
                         </select>
 
                         <!-- Duration Filter -->
-                        <select name="duration" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white" onchange="this.form.submit()">
+                        <select name="duration" class="py-2 pl-3 pr-8 rounded-lg border cp-border text-sm focus:ring-emerald-500 focus:border-emerald-500 cp-surface" onchange="this.form.submit()">
                             <?php $currentDuration = $filters['duration'] ?? ''; ?>
-                            <option value="" <?= $currentDuration === '' ? 'selected' : '' ?>>All Durations</option>
-                            <option value="monthly" <?= $currentDuration === 'monthly' ? 'selected' : '' ?>>Monthly</option>
-                            <option value="yearly" <?= $currentDuration === 'yearly' ? 'selected' : '' ?>>Yearly</option>
-                            <option value="lifetime" <?= $currentDuration === 'lifetime' ? 'selected' : '' ?>>Lifetime</option>
+                            <option value="" <?= $currentDuration === '' ? 'selected' : '' ?>><?= esc(lang('V3Platform.allDurations')) ?></option>
+                            <option value="monthly" <?= $currentDuration === 'monthly' ? 'selected' : '' ?>><?= esc(lang('V3Platform.monthly')) ?></option>
+                            <option value="yearly" <?= $currentDuration === 'yearly' ? 'selected' : '' ?>><?= esc(lang('V3Platform.yearly')) ?></option>
+                            <option value="lifetime" <?= $currentDuration === 'lifetime' ? 'selected' : '' ?>><?= esc(lang('V3Platform.lifetime')) ?></option>
                         </select>
 
                         <!-- Actions -->
-                        <div class="flex items-center space-x-2 border-l border-gray-300 pl-3">
-                            <button type="submit" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Filter">
+                        <div class="flex items-center space-x-2 border-l cp-border pl-3">
+                            <button type="submit" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.filter'), 'attr') ?>">
                                 <i class="fas fa-filter"></i>
                             </button>
-                            <a href="<?= base_url('controlplane/plans') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="Reset">
+                            <a href="<?= base_url('controlplane/plans') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.reset'), 'attr') ?>">
                                 <i class="fas fa-undo"></i>
                             </a>
                         </div>
 
                         <!-- Create Button -->
-                        <a href="<?= base_url('controlplane/plans/create') ?>" class="ml-2 inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
+                        <a href="<?= base_url('controlplane/plans/create') ?>" class="ml-2 inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
                             <i class="fas fa-plus"></i>
-                            Create Plan
+                            <?= esc(lang('V3Platform.createPlan')) ?>
                         </a>
                     </form>
                 </div>
@@ -180,41 +180,41 @@
             <!-- Table -->
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="cp-surface">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-cube text-emerald-600"></i>
-                                    <span>Plan Name</span>
+                                    <span><?= esc(lang('V3Platform.planName')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-tag text-emerald-600"></i>
-                                    <span>Pricing</span>
+                                    <span><?= esc(lang('V3Platform.pricing')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-sliders-h text-emerald-600"></i>
-                                    <span>Limits</span>
+                                    <span><?= esc(lang('V3Platform.limits')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-info-circle text-emerald-600"></i>
-                                    <span>Status</span>
+                                    <span><?= esc(lang('V3Platform.status')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center justify-end space-x-2">
                                     <i class="fas fa-cogs text-emerald-600"></i>
-                                    <span>Actions</span>
+                                    <span><?= esc(lang('V3Platform.actions')) ?></span>
                                 </div>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="cp-surface divide-y divide-gray-200">
                         <?php if (empty($plans)): ?>
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center text-gray-500">
@@ -222,8 +222,8 @@
                                         <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
                                             <i class="fas fa-cubes text-gray-400 text-xl"></i>
                                         </div>
-                                        <p class="font-medium">No plans found</p>
-                                        <p class="text-xs mt-1">Create a new plan to populate the catalog.</p>
+                                        <p class="font-medium"><?= esc(lang('V3Platform.noPlansFound')) ?></p>
+                                        <p class="text-xs mt-1"><?= esc(lang('V3Platform.createANewPlanToPopulateTheCatalog')) ?></p>
                                     </div>
                                 </td>
                             </tr>
@@ -237,7 +237,7 @@
                                     $trial = (int) ($limits['trial_days'] ?? 0);
                                     $isActive = ($plan['status'] ?? 'inactive') === 'active';
                                     $usageCount = (int) ($row['usage_count'] ?? 0);
-                                    
+
                                     // Format limits
                                     $patients = $limits['patients_active_max'] ?? -1;
                                     $users = $limits['users_max'] ?? -1;
@@ -250,19 +250,19 @@
                                 <tr id="plan-row-<?= $plan['id'] ?>" class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
+                                            <div class="w-8 h-8 rounded-lg cp-soft-surface flex items-center justify-center text-emerald-600 font-bold text-xs">
                                                 <?= esc(ui_badge_text($plan['name'] ?? '', 2, 'PL')) ?>
                                             </div>
                                             <div>
                                                 <span class="block text-sm font-medium text-slate-900"><?= esc($plan['name'] ?? 'Plan') ?></span>
-                                                <span class="block text-xs text-slate-500 font-mono">ID: <?= esc($plan['id']) ?></span>
-                                                <span class="block text-[10px] text-slate-400">Linked subscriptions: <?= number_format($usageCount) ?></span>
+                                                <span class="block text-xs text-slate-500 font-mono"><?= esc(lang('V3Platform.id')) ?> <?= esc($plan['id']) ?></span>
+                                                <span class="block text-[10px] text-slate-400"><?= esc(lang('V3Platform.linkedSubscriptions')) ?> <?= number_format($usageCount) ?></span>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-bold text-slate-900">$<?= number_format((float) $price, 2) ?></div>
-                                        <div class="text-xs text-slate-500">per <?= strtolower($duration) ?></div>
+                                        <div class="text-xs text-slate-500"><?= esc(lang('V3Platform.per')) ?> <?= strtolower($duration) ?></div>
                                         <?php if ($trial > 0): ?>
                                             <div class="text-[10px] text-emerald-600 font-medium mt-0.5">+<?= $trial ?> days trial</div>
                                         <?php endif; ?>
@@ -270,7 +270,7 @@
                                     <td class="px-6 py-4">
                                         <div class="flex flex-wrap gap-1">
                                             <?php foreach ($limitText as $limit): ?>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border cp-border">
                                                     <?= esc($limit) ?>
                                                 </span>
                                             <?php endforeach; ?>
@@ -278,26 +278,26 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap" id="status-badge-<?= $plan['id'] ?>">
                                         <?php if ($isActive): ?>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                                <i class="fas fa-check-circle mr-1.5"></i> Active
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cp-soft-surface text-emerald-800">
+                                                <i class="fas fa-check-circle mr-1.5"></i> <?= esc(lang('V3Platform.active')) ?>
                                             </span>
                                         <?php else: ?>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-                                                <i class="fas fa-pause-circle mr-1.5"></i> Inactive
+                                                <i class="fas fa-pause-circle mr-1.5"></i> <?= esc(lang('V3Platform.inactive')) ?>
                                             </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end space-x-2">
                                             <!-- Edit -->
-                                            <a href="<?= base_url('controlplane/plans/' . $plan['id'] . '/edit') ?>" 
-                                               class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200"
-                                               title="Edit Plan">
+                                            <a href="<?= base_url('controlplane/plans/' . $plan['id'] . '/edit') ?>"
+                                               class="p-2 cp-accent hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200"
+                                               title="<?= esc(lang('V3Platform.editPlan'), 'attr') ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            
+
                                             <!-- Toggle Status -->
-                                            <button type="button" 
+                                            <button type="button"
                                                     id="toggle-btn-<?= $plan['id'] ?>"
                                                     onclick="togglePlanStatus(<?= $plan['id'] ?>)"
                                                     class="p-2 <?= $isActive ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50' ?> rounded-md transition-colors duration-200"
@@ -306,10 +306,10 @@
                                             </button>
 
                                             <!-- Delete -->
-                                            <button type="button" 
+                                            <button type="button"
                                                     onclick="openDeleteModal(<?= $plan['id'] ?>, '<?= esc($plan['name']) ?>')"
-                                                    class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200" 
-                                                    title="Delete Plan">
+                                                    class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200"
+                                                    title="<?= esc(lang('V3Platform.deletePlan'), 'attr') ?>">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -324,12 +324,12 @@
 </div>
 
 <!-- Delete Modal -->
-<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm">
-    <div class="w-full max-w-lg rounded-3xl border border-rose-200 bg-white shadow-2xl">
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 px-4">
+    <div class="w-full max-w-lg cp-radius border border-rose-200 cp-surface">
         <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4 bg-rose-50 rounded-t-3xl">
             <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-rose-600 font-bold">Irreversible Action</p>
-                <h3 class="text-lg font-bold text-rose-900">Delete Plan</h3>
+                <p class="text-xs uppercase tracking-[0.3em] text-rose-600 font-bold"><?= esc(lang('V3Platform.irreversibleAction')) ?></p>
+                <h3 class="text-lg font-bold text-rose-900"><?= esc(lang('V3Platform.deletePlan')) ?></h3>
             </div>
             <button type="button" class="rounded-full p-2 text-rose-400 hover:text-slate-700 hover:bg-rose-100" onclick="closeDeleteModal()">
                 <i class="fas fa-times"></i>
@@ -337,25 +337,25 @@
         </div>
         <div class="px-6 py-6 space-y-4 text-sm text-slate-600">
             <p class="font-medium text-slate-800">
-                You are about to permanently delete <span id="deletePlanName" class="font-bold text-rose-600">this plan</span>.
+                <?= esc(lang('V3Platform.youAreAboutToPermanentlyDelete')) ?> <span id="deletePlanName" class="font-bold text-rose-600"><?= esc(lang('V3Platform.thisPlan')) ?></span>.
             </p>
-            <div class="bg-rose-50 p-4 rounded-xl text-rose-800 text-xs border border-rose-100">
+            <div class="bg-rose-50 p-4 cp-radius text-rose-800 text-xs border border-rose-100">
                 <ul class="list-disc list-inside space-y-1">
-                    <li>This action <strong>cannot be undone</strong>.</li>
+                    <li><?= esc(lang('V3Platform.thisAction')) ?> <strong><?= esc(lang('V3Platform.cannotBeUndone')) ?></strong>.</li>
                     <li>If subscriptions use this plan, deletion will be blocked (deactivate instead).</li>
                 </ul>
             </div>
-            <p>Type <span class="font-mono font-bold text-slate-900">DELETE</span> to confirm.</p>
-            <input type="text" id="deleteConfirmInput" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500"
+            <p><?= esc(lang('V3Platform.type')) ?> <span class="font-mono font-bold text-slate-900">DELETE</span> <?= esc(lang('V3Platform.toConfirm')) ?></p>
+            <input type="text" id="deleteConfirmInput" class="w-full cp-radius border cp-border px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500"
                    placeholder="DELETE" oninput="updateDeleteState()">
         </div>
         <form id="deleteForm" method="post" class="px-6 pb-6 flex items-center justify-end gap-3">
             <?= csrf_field() ?>
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeDeleteModal()">
-                Cancel
+            <button type="button" class="px-4 py-2 cp-radius bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeDeleteModal()">
+                <?= esc(lang('V3Platform.cancel')) ?>
             </button>
-            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 rounded-xl text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
-                <span>Permanently Delete</span>
+            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 cp-radius text-white text-sm font-bold cursor-not-allowed transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
+                <span><?= esc(lang('V3Platform.permanentlyDelete')) ?></span>
             </button>
         </form>
     </div>
@@ -475,7 +475,7 @@ function togglePlanStatus(planId) {
         alert('An error occurred.');
     })
     .finally(() => {
-        refreshCsrfToken(); 
+        refreshCsrfToken();
     });
 }
 
@@ -484,13 +484,13 @@ function openDeleteModal(id, name) {
     const modal = document.getElementById('deleteModal');
     const nameEl = document.getElementById('deletePlanName');
     const inputEl = document.getElementById('deleteConfirmInput');
-    
+
     deletePlanId = id;
     deletePlanName = name;
-    
+
     if (nameEl) nameEl.textContent = name;
     if (inputEl) inputEl.value = '';
-    
+
     updateDeleteState();
     if (modal) {
         modal.classList.remove('hidden');
@@ -510,7 +510,7 @@ function updateDeleteState() {
     const inputEl = document.getElementById('deleteConfirmInput');
     const buttonEl = document.getElementById('deleteConfirmButton');
     if (!inputEl || !buttonEl) return;
-    
+
     const matches = inputEl.value === 'DELETE';
     buttonEl.disabled = !matches;
     if (matches) {

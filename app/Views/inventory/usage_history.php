@@ -223,36 +223,36 @@ foreach ($usageHistory as $usage) {
 }
 $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory) : 0;
 ?>
-<div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.65rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-purple-900/20">
+<div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
+    <section class="overflow-hidden rounded-[1.65rem] border v3-border bg-slate-950 text-white">
         <div class="relative p-5 sm:p-6 lg:p-7">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(168,85,247,.58),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(14,165,233,.34),transparent_28%),linear-gradient(135deg,#6d28d9_0%,#4338ca_42%,#0f172a_100%)]"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
+                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface text-white ring-1 ring-white/20">
                         <i class="fas fa-history text-2xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-purple-100"><?= esc(lang('Inventory.inventoryUsage')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.2em] v3-accent-text"><?= esc(lang('Inventory.inventoryUsage')) ?></p>
                         <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc(lang('Inventory.usageHistory')) ?></h1>
-                        <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-purple-50/90"><?= esc(lang('Inventory.usageHistorySubtitle')) ?></p>
+                        <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 v3-accent-text"><?= esc(lang('Inventory.usageHistorySubtitle')) ?></p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    <div class="rounded-2xl border border-white/15 bg-white/14 p-4 shadow-inner backdrop-blur">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-purple-100"><?= esc(lang('Inventory.totalRecords')) ?></p>
+                    <div class="v3-radius border v3-border v3-surface p-4">
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.totalRecords')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= count($usageHistory) ?></p>
                     </div>
-                    <div class="rounded-2xl border border-white/15 bg-emerald-400/18 p-4 shadow-inner backdrop-blur">
+                    <div class="v3-radius border v3-border bg-emerald-400/18 p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('Inventory.totalValue')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white" dir="ltr"><?= formatCurrency($totalUsageCost) ?></p>
                     </div>
-                    <div class="rounded-2xl border border-white/15 bg-cyan-400/18 p-4 shadow-inner backdrop-blur">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-cyan-100"><?= esc(lang('Inventory.thisMonth')) ?></p>
+                    <div class="v3-radius border v3-border v3-soft-surface p-4">
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.thisMonth')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $monthlyCount ?></p>
                     </div>
-                    <div class="rounded-2xl border border-white/15 bg-amber-400/18 p-4 shadow-inner backdrop-blur">
+                    <div class="v3-radius border v3-border bg-amber-400/18 p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide text-amber-100"><?= esc(lang('Inventory.avgCost')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white" dir="ltr"><?= formatCurrency($averageCost) ?></p>
                     </div>
@@ -260,11 +260,11 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
             </div>
 
             <div class="relative mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
                     <i class="fas fa-arrow-left rtl:rotate-180"></i>
                     <span><?= esc(lang('Inventory.backToInventory')) ?></span>
                 </a>
-                <a href="<?= base_url('inventory/usage') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-purple-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-purple-50">
+                <a href="<?= base_url('inventory/usage') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-accent-text transition hover:bg-purple-50">
                     <i class="fas fa-plus"></i>
                     <span><?= esc(lang('Inventory.recordUsage')) ?></span>
                 </a>
@@ -272,10 +272,10 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
         </div>
     </section>
 
-    <section class="overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-200/60">
-        <div class="flex flex-col gap-4 border-b border-slate-200/80 bg-gradient-to-r from-white via-purple-50/90 to-indigo-50/80 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+    <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
+        <div class="flex flex-col gap-4 border-b v3-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex min-w-0 items-center gap-3">
-                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white shadow-lg shadow-purple-500/20">
+                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius text-white">
                     <i class="fas fa-clipboard-list"></i>
                 </span>
                 <div class="min-w-0">
@@ -284,15 +284,15 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
                 </div>
             </div>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button type="button" onclick="exportUsageToPDF()" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700">
+                <button type="button" onclick="exportUsageToPDF()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700">
                     <i class="fas fa-file-pdf text-red-600"></i>
                     <span><?= esc(lang('Inventory.exportToPDF')) ?></span>
                 </button>
-                <button type="button" onclick="printUsageHistory()" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+                <button type="button" onclick="printUsageHistory()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
                     <i class="fas fa-print text-slate-600"></i>
                     <span><?= esc(lang('Inventory.exportToPrint')) ?></span>
                 </button>
-                <button type="button" onclick="exportUsageToCSV()" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700">
+                <button type="button" onclick="exportUsageToCSV()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700">
                     <i class="fas fa-file-csv text-emerald-600"></i>
                     <span><?= esc(lang('Inventory.exportToCSV')) ?></span>
                 </button>
@@ -302,53 +302,53 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
         <div class="overflow-x-auto">
             <div class="dataTables-wrapper">
                 <table id="usageHistoryTable" class="w-full min-w-full">
-                    <thead class="bg-slate-50">
+                    <thead class="v3-surface">
                         <tr>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-calendar text-purple-600"></i>
+                                            <i class="fas fa-calendar v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.date')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-user text-purple-600"></i>
+                                            <i class="fas fa-user v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.patient')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-stethoscope text-purple-600"></i>
+                                            <i class="fas fa-stethoscope v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.treatment')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-box text-purple-600"></i>
+                                            <i class="fas fa-box v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.itemsUsed')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-dollar-sign text-purple-600"></i>
+                                            <i class="fas fa-dollar-sign v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.totalCost')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-user-md text-purple-600"></i>
+                                            <i class="fas fa-user-md v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.recordedBy')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-cogs text-purple-600"></i>
+                                            <i class="fas fa-cogs v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.actions')) ?></span>
                                         </div>
                                     </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white">
+                        <tbody class="divide-y divide-slate-100 v3-surface">
                             <!-- Data will be loaded via DataTables -->
                         </tbody>
                     </table>
@@ -358,10 +358,10 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
 </div>
 
 <!-- Usage Details Modal -->
-<div id="usageDetailsModal" class="fixed inset-0 z-[2147483500] hidden h-full w-full overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
-    <div class="relative mx-auto mt-14 w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+<div id="usageDetailsModal" class="fixed inset-0 z-[2147483500] hidden h-full w-full overflow-y-auto bg-slate-950/50 p-4">
+    <div class="relative mx-auto mt-14 w-full max-w-3xl overflow-hidden v3-radius border v3-border v3-surface">
         <div>
-            <div class="flex items-center justify-between gap-4 border-b border-slate-200 bg-gradient-to-r from-white via-purple-50 to-indigo-50 px-5 py-4">
+            <div class="flex items-center justify-between gap-4 border-b v3-border px-5 py-4">
                 <h3 class="text-lg font-black text-slate-950"><?= esc(lang('Inventory.viewDetails')) ?></h3>
                 <button onclick="closeUsageDetails()" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
                     <i class="fas fa-times text-xl"></i>
@@ -410,16 +410,16 @@ function formatCurrency(amount) {
     if (typeof amount !== 'number') {
         amount = parseFloat(amount) || 0;
     }
-    
+
     // Get currency symbol and position from server-side settings
     const currencySymbol = '<?= getCurrencySymbol() ?>';
     const currencyPosition = '<?= settings()->get('currency_position', 'before') ?>';
-    
+
     const formattedAmount = amount.toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
-    
+
     // Apply currency position setting
     if (currencyPosition === 'after') {
         return formattedAmount + ' ' + currencySymbol;
@@ -431,38 +431,38 @@ function formatCurrency(amount) {
 // Client-side date formatting function
 function formatDate(dateString) {
     if (!dateString) return '';
-    
+
     try {
         const date = new Date(dateString);
         const dateFormat = '<?= settings()->get('date_format', 'Y-m-d') ?>';
-        
+
         // Convert PHP date format to JavaScript format
         let jsFormat = dateFormat
             .replace('Y', 'yyyy')
             .replace('m', 'MM')
             .replace('d', 'dd')
             .replace('y', 'yy');
-        
+
         // Format the date according to user's preference
         const options = {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         };
-        
+
         // Apply specific formatting based on user's date format preference
         if (dateFormat === 'Y-m-d') {
             // YYYY-MM-DD format
             return date.toISOString().split('T')[0];
         } else if (dateFormat === 'm/d/Y') {
             // MM/DD/YYYY format
-            return (date.getMonth() + 1).toString().padStart(2, '0') + '/' + 
-                   date.getDate().toString().padStart(2, '0') + '/' + 
+            return (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                   date.getDate().toString().padStart(2, '0') + '/' +
                    date.getFullYear();
         } else if (dateFormat === 'd/m/Y') {
             // DD/MM/YYYY format
-            return date.getDate().toString().padStart(2, '0') + '/' + 
-                   (date.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+            return date.getDate().toString().padStart(2, '0') + '/' +
+                   (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
                    date.getFullYear();
         } else {
             // Default to locale string
@@ -477,10 +477,10 @@ function formatDate(dateString) {
 function viewUsageDetails(usageId) {
     const contentDiv = document.getElementById('usageDetailsContent');
     const modal = document.getElementById('usageDetailsModal');
-    
+
     // Clear existing content
     contentDiv.textContent = '';
-    
+
     // Fetch usage details via AJAX
     fetch(`<?= base_url() ?>inventory/usage-details/${usageId}`)
         .then(response => response.json())
@@ -493,14 +493,14 @@ function viewUsageDetails(usageId) {
                 } catch (e) {
                     console.error('Error parsing items_used:', e);
                 }
-                
+
                 const container = document.createElement('div');
                 container.className = 'space-y-4';
-                
+
                 // Header Grid
                 const gridDiv = document.createElement('div');
                 gridDiv.className = 'grid grid-cols-2 gap-4';
-                
+
                 // Date Section
                 const dateDiv = document.createElement('div');
                 const dateLabel = document.createElement('label');
@@ -511,7 +511,7 @@ function viewUsageDetails(usageId) {
                 dateP.textContent = formatDate(usage.usage_date);
                 dateDiv.appendChild(dateLabel);
                 dateDiv.appendChild(dateP);
-                
+
                 // Cost Section
                 const costDiv = document.createElement('div');
                 const costLabel = document.createElement('label');
@@ -522,25 +522,25 @@ function viewUsageDetails(usageId) {
                 costP.textContent = formatCurrency(parseFloat(usage.total_cost));
                 costDiv.appendChild(costLabel);
                 costDiv.appendChild(costP);
-                
+
                 gridDiv.appendChild(dateDiv);
                 gridDiv.appendChild(costDiv);
                 container.appendChild(gridDiv);
-                
+
                 // Items List
                 const itemsSection = document.createElement('div');
                 const itemsLabel = document.createElement('label');
                 itemsLabel.className = 'text-sm font-medium text-gray-500';
                 itemsLabel.textContent = '<?= esc(lang('Inventory.itemsUsed'), 'js') ?>';
                 itemsSection.appendChild(itemsLabel);
-                
+
                 const itemsList = document.createElement('div');
                 itemsList.className = 'mt-2 space-y-2';
-                
+
                 items.forEach(item => {
                     const itemRow = document.createElement('div');
                     itemRow.className = 'flex justify-between items-center py-2 border-b border-gray-200';
-                    
+
                     const leftCol = document.createElement('div');
                     const itemName = document.createElement('div');
                     itemName.className = 'font-medium text-gray-900';
@@ -550,7 +550,7 @@ function viewUsageDetails(usageId) {
                     itemQty.textContent = `Quantity: ${item.quantity_used}`;
                     leftCol.appendChild(itemName);
                     leftCol.appendChild(itemQty);
-                    
+
                     const rightCol = document.createElement('div');
                     rightCol.className = 'text-right';
                     const unitCost = document.createElement('div');
@@ -561,15 +561,15 @@ function viewUsageDetails(usageId) {
                     totalLineCost.textContent = `Total: ${formatCurrency(parseFloat(item.total_cost))}`;
                     rightCol.appendChild(unitCost);
                     rightCol.appendChild(totalLineCost);
-                    
+
                     itemRow.appendChild(leftCol);
                     itemRow.appendChild(rightCol);
                     itemsList.appendChild(itemRow);
                 });
-                
+
                 itemsSection.appendChild(itemsList);
                 container.appendChild(itemsSection);
-                
+
                 // Notes (Optional)
                 if (usage.notes) {
                     const notesDiv = document.createElement('div');
@@ -583,7 +583,7 @@ function viewUsageDetails(usageId) {
                     notesDiv.appendChild(notesP);
                     container.appendChild(notesDiv);
                 }
-                
+
                 // Footer (Recorded By)
                 const footerDiv = document.createElement('div');
                 footerDiv.className = 'text-sm text-gray-500';
@@ -607,7 +607,7 @@ function viewUsageDetails(usageId) {
                     financeRow.appendChild(financeLink);
                     container.appendChild(financeRow);
                 }
-                
+
                 contentDiv.appendChild(container);
             } else {
                 renderError('Error loading usage details: ' + data.message);
@@ -623,14 +623,14 @@ function viewUsageDetails(usageId) {
 function renderError(message) {
     const contentDiv = document.getElementById('usageDetailsContent');
     contentDiv.textContent = '';
-    
+
     const errorDiv = document.createElement('div');
     errorDiv.className = 'p-4 bg-red-50 rounded-lg';
-    
+
     const p = document.createElement('p');
     p.className = 'text-red-600';
     p.textContent = message;
-    
+
     errorDiv.appendChild(p);
     contentDiv.appendChild(errorDiv);
 }
@@ -658,11 +658,11 @@ $(document).ready(function() {
         console.error('DataTables is not loaded. Please check if the DataTables library is included.');
         return;
     }
-    
+
     // CSRF token setup
     const csrf_name = '<?= csrf_token() ?>';
     const csrf_hash = '<?= csrf_hash() ?>';
-    
+
     // Custom loading indicator management
     function hideLoadingIndicators() {
         $('.dataTables_processing').hide();
@@ -671,15 +671,15 @@ $(document).ready(function() {
         $('.loading-dots').hide();
         $('#usageHistoryTable').closest('.table-container').find('.loading').hide();
     }
-    
+
     function showLoadingIndicators() {
         $('.dataTables_processing').show();
     }
-    
+
     console.log('Initializing DataTable for #usageHistoryTable');
     console.log('Table element:', $('#usageHistoryTable'));
     console.log('Table element length:', $('#usageHistoryTable').length);
-    
+
     usageHistoryTable = $('#usageHistoryTable').DataTable({
         processing: true,
         serverSide: true,
@@ -696,7 +696,7 @@ $(document).ready(function() {
             },
             dataSrc: function(json) {
                 console.log('Received Usage History DataTables response:', json);
-                
+
                 // Refresh CSRF token if present
                 if (json.csrf_token && window.refreshCsrfToken) {
                     window.refreshCsrfToken(json.csrf_token);
@@ -707,16 +707,16 @@ $(document).ready(function() {
                     alert('<?= esc(lang('Inventory.error'), 'js') ?>: ' + json.error);
                     return [];
                 }
-                
+
                 if (!json.data) {
                     console.error('No data property in response');
                     console.log('Full response:', json);
                     return [];
                 }
-                
+
                 console.log('Data array length:', json.data.length);
                 console.log('Sample data item:', json.data[0]);
-                
+
                 // Handle empty data case
                 if (json.data.length === 0) {
                     console.log('No usage history records found');
@@ -724,12 +724,12 @@ $(document).ready(function() {
                         console.log('Server message:', json.message);
                     }
                 }
-                
+
                 // Hide loading indicators after data is received
                 setTimeout(function() {
                     hideLoadingIndicators();
                 }, 100);
-                
+
                 return json.data;
             },
             error: function(xhr, error, thrown) {
@@ -741,7 +741,7 @@ $(document).ready(function() {
                     status: xhr.status,
                     statusText: xhr.statusText
                 });
-                
+
                 let errorMessage = 'Error loading data';
                 try {
                     const response = JSON.parse(xhr.responseText);
@@ -751,50 +751,50 @@ $(document).ready(function() {
                 } catch (e) {
                     errorMessage = xhr.responseText || error || thrown;
                 }
-                
+
                 console.error('DataTables Error: ' + errorMessage);
-                
+
                 // Show a user-friendly message in the table
                 const tbody = document.querySelector('#usageHistoryTable tbody');
                 tbody.replaceChildren();
-                
+
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 7;
                 td.className = 'text-center py-8 text-gray-500';
-                
+
                 const container = document.createElement('div');
                 container.className = 'flex flex-col items-center space-y-2';
-                
+
                 const icon = document.createElement('i');
                 icon.className = 'fas fa-exclamation-triangle text-4xl text-yellow-500';
-                
+
                 const title = document.createElement('p');
                 title.className = 'text-lg font-medium';
                 title.textContent = '<?= lang("Inventory.unableToLoadData") ?>';
-                
+
                 const msg = document.createElement('p');
                 msg.className = 'text-sm';
                 msg.textContent = '<?= lang("Inventory.checkConnection") ?>';
-                
+
                 const btn = document.createElement('button');
                 btn.onclick = () => location.reload();
                 btn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
-                
+
                 const btnIcon = document.createElement('i');
                 btnIcon.className = 'fas fa-refresh mr-2';
                 btn.appendChild(btnIcon);
                 btn.appendChild(document.createTextNode('<?= lang("Inventory.retry") ?>'));
-                
+
                 container.appendChild(icon);
                 container.appendChild(title);
                 container.appendChild(msg);
                 container.appendChild(btn);
-                
+
                 td.appendChild(container);
                 tr.appendChild(td);
                 tbody.appendChild(tr);
-                
+
                 // Hide loading indicators on error
                 hideLoadingIndicators();
             }
@@ -835,7 +835,7 @@ $(document).ready(function() {
             console.log('Settings:', settings);
             console.log('JSON response:', json);
             console.log('Table rows:', $('#usageHistoryTable tbody tr').length);
-            
+
             // Hide all loading indicators
             hideLoadingIndicators();
         },
@@ -845,12 +845,12 @@ $(document).ready(function() {
             if (typeof $.fn.tooltip === 'function') {
                 $('[data-toggle="tooltip"]').tooltip();
             }
-            
+
             // Ensure loading indicator is hidden after each draw
             hideLoadingIndicators();
         }
     });
-    
+
     // Fallback timeout to ensure loading indicators are hidden
     setTimeout(function() {
         hideLoadingIndicators();
@@ -878,24 +878,24 @@ function generateUsagePDF() {
         alert('<?= lang('Inventory.tableNotReady') ?>');
         return;
     }
-    
+
     try {
         // Get all data from the table
         const data = usageHistoryTable.data().toArray();
-        
+
         // Create PDF content using jsPDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape', 'mm', 'a4');
-        
+
         // Add title
         doc.setFontSize(20);
         doc.text('<?= lang('Inventory.usageHistoryReport') ?>', 105, 20, { align: 'center' });
-        
+
         // Add generation date
         doc.setFontSize(12);
         doc.text(`<?= lang('Inventory.generatedOn') ?>: ${new Date().toLocaleDateString()}`, 20, 35);
         doc.text(`<?= lang('Inventory.totalRecordsCount') ?>: ${usageHistoryTable.page.info().recordsTotal}`, 20, 45);
-        
+
         // Prepare table data
         const headers = ['<?= lang('Inventory.date') ?>', '<?= lang('Inventory.patient') ?>', '<?= lang('Inventory.treatment') ?>', '<?= lang('Inventory.itemsUsed') ?>', '<?= lang('Inventory.totalCost') ?>', '<?= lang('Inventory.recordedBy') ?>'];
         const tableData = data.map(row => {
@@ -907,7 +907,7 @@ function generateUsagePDF() {
                 return cell || '';
             });
         });
-        
+
         // Add table using autoTable
         doc.autoTable({
             head: [headers],
@@ -932,11 +932,11 @@ function generateUsagePDF() {
             },
             margin: { left: 20, right: 20 },
         });
-        
+
         // Save the PDF
         const fileName = `usage_history_report_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
-        
+
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('<?= lang('Inventory.errorGeneratingPDF') ?>');
@@ -946,7 +946,7 @@ function generateUsagePDF() {
 function printUsageHistoryTable() {
     // Create a new window for printing
     const printWindow = window.open('', '_blank', 'width=800,height=600');
-    
+
     if (!printWindow) {
         alert('Please allow popups for this website');
         return;
@@ -955,16 +955,16 @@ function printUsageHistoryTable() {
     // Get table data
     const table = document.getElementById('usageHistoryTable');
     const tableClone = table.cloneNode(true);
-    
+
     // Set up the print document
     const doc = printWindow.document;
     doc.open();
     doc.write('<!DOCTYPE html><html><head><title><?= lang("Inventory.usageHistoryReport") ?></title></head><body></body></html>');
     doc.close();
-    
+
     const head = doc.head;
     const body = doc.body;
-    
+
     // Add styles
     const style = doc.createElement('style');
     style.textContent = `
@@ -980,19 +980,19 @@ function printUsageHistoryTable() {
         }
     `;
     head.appendChild(style);
-    
+
     // Add content
     const h1 = doc.createElement('h1');
     h1.textContent = '<?= lang("Inventory.usageHistoryReport") ?>';
     body.appendChild(h1);
-    
+
     const pDate = doc.createElement('p');
     const dateStrong = doc.createElement('strong');
     dateStrong.textContent = '<?= lang("Inventory.generatedOn") ?>: ';
     pDate.appendChild(dateStrong);
     pDate.appendChild(doc.createTextNode(new Date().toLocaleDateString()));
     body.appendChild(pDate);
-    
+
     const pTotal = doc.createElement('p');
     const totalStrong = doc.createElement('strong');
     totalStrong.textContent = '<?= lang("Inventory.totalRecordsCount") ?>: ';
@@ -1000,10 +1000,10 @@ function printUsageHistoryTable() {
     const totalText = usageHistoryTable ? usageHistoryTable.page.info().recordsTotal : 'N/A';
     pTotal.appendChild(doc.createTextNode(totalText));
     body.appendChild(pTotal);
-    
+
     // Append cloned table
     body.appendChild(tableClone);
-    
+
     // Wait for content to load (styles), then print
     setTimeout(function() {
         printWindow.print();
@@ -1016,17 +1016,17 @@ function exportUsageHistoryToCSV() {
         alert('<?= lang('Inventory.tableNotReady') ?>');
         return;
     }
-    
+
     try {
         // Get all data from the table
         const data = usageHistoryTable.data().toArray();
-        
+
         // Create CSV headers
         const headers = ['<?= lang('Inventory.date') ?>', '<?= lang('Inventory.patient') ?>', '<?= lang('Inventory.treatment') ?>', '<?= lang('Inventory.itemsUsed') ?>', '<?= lang('Inventory.totalCost') ?>', '<?= lang('Inventory.recordedBy') ?>'];
-        
+
         // Create CSV content
         let csvContent = headers.join(',') + '\n';
-        
+
         data.forEach(row => {
             // Clean the data for CSV (remove HTML tags, quotes, etc.)
             const cleanRow = row.slice(0, 6).map(cell => { // Exclude actions column
@@ -1040,7 +1040,7 @@ function exportUsageHistoryToCSV() {
             });
             csvContent += cleanRow.join(',') + '\n';
         });
-        
+
         // Create and download file
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
@@ -1051,7 +1051,7 @@ function exportUsageHistoryToCSV() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
     } catch (error) {
         console.error('Error exporting CSV:', error);
         alert('<?= lang('Inventory.errorExportingCSV') ?>');

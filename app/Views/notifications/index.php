@@ -43,25 +43,25 @@ $formatNotificationTime = static function (?string $dateString) use ($isRtl): st
 $totalNotifications = count($notifications ?? []);
 $unreadNotifications = (int) ($unread_count ?? 0);
 ?>
-<div class="px-4 py-6 sm:px-6 lg:px-8">
+<div class="v3-operational-view px-4 py-6 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-6xl space-y-6">
-        <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section class="v3-radius border v3-border v3-surface p-5 sm:p-6">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div class="space-y-2">
-                    <p class="text-sm font-semibold text-blue-600"><?= esc(lang('UI.notifications')) ?></p>
+                    <p class="text-sm font-semibold v3-accent-text"><?= esc(lang('UI.notifications')) ?></p>
                     <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"><?= esc(lang('UI.notificationPageTitle')) ?></h1>
                     <p class="max-w-2xl text-sm leading-6 text-slate-600"><?= esc(lang('UI.notificationPageDesc')) ?></p>
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row">
-                    <div class="min-w-[10rem] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div class="min-w-[10rem] v3-radius border v3-border v3-surface px-4 py-3">
                         <p class="text-xs font-semibold text-slate-500"><?= esc(lang('UI.notificationUnreadLabel')) ?></p>
                         <p class="mt-1 text-2xl font-bold text-slate-900"><?= number_format($unreadNotifications) ?></p>
                     </div>
-                    <div class="min-w-[10rem] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div class="min-w-[10rem] v3-radius border v3-border v3-surface px-4 py-3">
                         <p class="text-xs font-semibold text-slate-500"><?= esc(lang('UI.notificationTotalLabel')) ?></p>
                         <p class="mt-1 text-2xl font-bold text-slate-900"><?= number_format($totalNotifications) ?></p>
                     </div>
-                    <button type="button" onclick="markAllNotificationsPageAsRead()" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    <button type="button" onclick="markAllNotificationsPageAsRead()" class="inline-flex items-center justify-center v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         <?= esc(lang('UI.markAllAsRead')) ?>
                     </button>
                 </div>
@@ -69,7 +69,7 @@ $unreadNotifications = (int) ($unread_count ?? 0);
         </section>
 
         <?php if (empty($notifications)): ?>
-            <section class="rounded-3xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
+            <section class="v3-radius border v3-border v3-surface px-6 py-16 text-center">
                 <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                     <i class="fas fa-bell-slash text-xl"></i>
                 </div>
@@ -83,10 +83,10 @@ $unreadNotifications = (int) ($unread_count ?? 0);
                     $notificationUrl = (string) ($notification['entity_url'] ?? base_url('notifications'));
                     $isRead = !empty($notification['is_read']);
                     ?>
-                    <article class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300 hover:shadow-md sm:p-5 cursor-pointer" onclick="handleNotificationCardClick(event, '<?= esc($notificationUrl, 'js') ?>')">
+                    <article class="v3-radius border v3-border v3-surface p-4 transition hover:border-slate-300 sm:p-5 cursor-pointer" onclick="handleNotificationCardClick(event, '<?= esc($notificationUrl, 'js') ?>')">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div class="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
-                                <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl <?= esc(match ($notification['color'] ?? 'gray') {
+                                <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center v3-radius <?= esc(match ($notification['color'] ?? 'gray') {
                                     'blue' => 'bg-blue-50 text-blue-600',
                                     'green' => 'bg-emerald-50 text-emerald-600',
                                     'yellow' => 'bg-amber-50 text-amber-600',
@@ -123,11 +123,11 @@ $unreadNotifications = (int) ($unread_count ?? 0);
 
                             <div class="flex shrink-0 items-center gap-2 <?= $isRtl ? 'sm:pr-2' : 'sm:pl-2' ?>">
                                 <?php if (!$isRead): ?>
-                                    <button type="button" onclick="markNotificationPageAsRead(<?= (int) ($notification['id'] ?? 0) ?>, this)" class="inline-flex items-center rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    <button type="button" onclick="markNotificationPageAsRead(<?= (int) ($notification['id'] ?? 0) ?>, this)" class="inline-flex items-center v3-radius border v3-border px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
                                         <?= esc(lang('UI.notificationMarkRead')) ?>
                                     </button>
                                 <?php endif; ?>
-                                <a href="<?= esc($notificationUrl) ?>" class="inline-flex items-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
+                                <a href="<?= esc($notificationUrl) ?>" class="inline-flex items-center v3-radius bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
                                     <?= esc(lang('UI.notificationOpenItem')) ?>
                                 </a>
                             </div>
