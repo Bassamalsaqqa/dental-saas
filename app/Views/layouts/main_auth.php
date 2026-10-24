@@ -130,6 +130,51 @@
 <?php endif; ?>
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
+<script>
+    // Global CSRF configuration
+    window.appBaseUrl = '<?= rtrim(base_url(), '/') ?>/';
+    window.csrfConfig = {
+        name: document.querySelector('meta[name="csrf-name"]')?.getAttribute('content') || '<?= csrf_token() ?>',
+        header: document.querySelector('meta[name="csrf-header"]')?.getAttribute('content') || '<?= csrf_header() ?>',
+        cookieName: '<?= esc(config('Security')->cookieName) ?>'
+    };
+
+    // Initialize global hash
+    window.csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?= csrf_hash() ?>';
+
+    // Global CSRF helper functions
+    window.getCsrfToken = function() {
+        return window.csrfHash;
+    };
+
+    window.refreshCsrfToken = function(serverToken) {
+        let token = serverToken;
+        if (!token) {
+            const name = window.csrfConfig.cookieName;
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) {
+                token = parts.pop().split(';').shift();
+            }
+        }
+
+        if (token) {
+            window.csrfHash = token;
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            if (meta) {
+                meta.setAttribute('content', token);
+                // Also update any hidden CSRF inputs in forms
+                document.querySelectorAll(`input[name="${window.csrfConfig.name}"]`).forEach(input => {
+                    input.value = token;
+                });
+            }
+            console.log('CSRF token refreshed successfully');
+            return token;
+        }
+        return window.csrfHash;
+    };
+
+</script>
 </head>
 <body class="denta-v3 min-h-screen" data-v3-module="<?= esc($segment1) ?>">
     <a class="v3-skip-link" href="#workspace-content"><?= esc(lang('V3.skipToContent')) ?></a>
@@ -721,49 +766,6 @@
 
 <!-- JavaScript -->
 <script>
-    // Global CSRF configuration
-    window.appBaseUrl = '<?= rtrim(base_url(), '/') ?>/';
-    window.csrfConfig = {
-        name: document.querySelector('meta[name="csrf-name"]')?.getAttribute('content') || '<?= csrf_token() ?>',
-        header: document.querySelector('meta[name="csrf-header"]')?.getAttribute('content') || '<?= csrf_header() ?>',
-        cookieName: '<?= esc(config('Security')->cookieName) ?>'
-    };
-
-    // Initialize global hash
-    window.csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?= csrf_hash() ?>';
-
-    // Global CSRF helper functions
-    window.getCsrfToken = function() {
-        return window.csrfHash;
-    };
-
-    window.refreshCsrfToken = function(serverToken) {
-        let token = serverToken;
-        if (!token) {
-            const name = window.csrfConfig.cookieName;
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) {
-                token = parts.pop().split(';').shift();
-            }
-        }
-
-        if (token) {
-            window.csrfHash = token;
-            const meta = document.querySelector('meta[name="csrf-token"]');
-            if (meta) {
-                meta.setAttribute('content', token);
-                // Also update any hidden CSRF inputs in forms
-                document.querySelectorAll(`input[name="${window.csrfConfig.name}"]`).forEach(input => {
-                    input.value = token;
-                });
-            }
-            console.log('CSRF token refreshed successfully');
-            return token;
-        }
-        return window.csrfHash;
-    };
-
     function isSafeHttpMethod(method) {
         return ['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method);
     }

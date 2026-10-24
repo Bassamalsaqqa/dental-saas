@@ -638,6 +638,6 @@ $financeConfig = [
 ];
 ?>
 <script id="finance-page-config" type="application/json"><?= json_encode($financeConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
-<script src="<?= base_url('assets/js/finance-index.js') ?>?v=<?= time() ?>"></script>
+<script defer src="<?= base_url('assets/js/finance-index.js') ?>?v=<?= @filemtime(FCPATH . 'assets/js/finance-index.js') ?: '1' ?>"></script>
 
 <?= $this->endSection() ?>
