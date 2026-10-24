@@ -11,3 +11,6 @@ Native odontogram SVG/rendering/snapshots, signed contract contents, business se
 Motion is limited to short navigation transitions and existing controls, with reduced-motion handling. Keep keyboard focus visible, mobile navigation focus contained and Escape restorative. No new UI framework or dependency. Asset loading must follow actual workflow requirements.
 
 See [acceptance record](docs/UI_V3_ACCEPTANCE.md) for evidence, curated screenshots and remaining visual acceptance. This is a draft development delivery, not deployment authorization.
+
+
+Architectural components: `v3-flow-forms.css`, scoped `v3-support-views.css`, `v3-control-plane.css`, touch-first `v3-clinical-kiosk.css` and `v3-inventory-forms.css`. `v3-chart-chrome.css` styles outer screen chrome only, never SVG/snapshots. Screen-only links protect print output. Replace obsolete markup instead of stacking specificity overrides.

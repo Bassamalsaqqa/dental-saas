@@ -14,6 +14,9 @@ Last updated: 2026-10-24 (deployed PR #20; isolated V3 frontend draft).
 
 ## Current engineering scope: V3 frontend draft
 
+Architectural runtime: `8a720c3593c961c0926ad258d0a3d3c9838359aa`. 210 EN/AR captures, 42 HTTP/security checks and bounded independent source review. See `docs/UI_V3_ACCEPTANCE.md` for adaptations and performance limits. Draft PR #21 awaits Owner visual acceptance and finished-candidate review; no production/backend changes.
+
+
 - Isolated branch `feature/warm-clinical-v3-20261023` derives from exact release `89352fd2`, not historical main. The original dirty checkout and reference kit are unchanged.
 - Warm Architectural Clinical V3 replaces frontend composition while preserving backend, native odontogram, signed evidence, forms, tenant boundaries and financial calculations. See [V3 acceptance and measured limits](UI_V3_ACCEPTANCE.md) and [design contract](../DESIGN.md).
 - No migrations, dependency changes, new permissions or optional-feature activation. Corrections, dynamic scheduling, WhatsApp, checkout, contact history and derivatives remain OFF. This branch is for one draft PR only; production deployment requires separate authorization.
