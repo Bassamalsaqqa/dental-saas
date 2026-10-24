@@ -1,18 +1,26 @@
 # Project State
 
-Last updated: 2026-10-23 (protected M2; consolidated nonproduction candidate in PR #20).
+Last updated: 2026-10-24 (deployed PR #20; isolated V3 frontend draft).
 
 ## Deployed source
 
-- Production and GitHub `release/production-20261017`: `f86376a4a6c8f6bf0fe4471f08093af71e76e042`.
-- Exact tree: `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`. M1 and M2 are deployed; do not reapply their corrections.
+- Deployed and approved source, per completed release: `89352fd20e0d5166e81f631cb743bead1f596a68`; GitHub `release/production-20261017` independently reverified unchanged for V3. PR #20 is merged and closed. No production access or changes during V3.
+- Exact tree: `71fcf67a0def31a99619437169a58ddfabc7b141`. M1, M2 and the approved consolidated source-only maintenance release are deployed; do not reimplement them.
 - PR #18 exact head `7d405af6738ee39f24b15c8be76c8e14cf52fe5a` was independently approved. PR #19 exact head `3f157567e6cfad47a031fc2cbf8fb5c01bb2b9b1` remained COMMENTED; final external decision was explicitly waived, not approved: `OWNER_WAIVED_PR19_FINAL_EXTERNAL_REVIEW`, https://github.com/Bassamalsaqqa/dental-saas/pull/19#issuecomment-6319034871 .
 - `main` is historical state, not deployment authority. Original dirty checkout and historical staging evidence are preserved.
 - Hostinger PHP 8.3.35 and MariaDB 11.8.9. Production source-only M2 deployment executed no migrations, dependency changes or feature activation. Scheduling remains OFF; pending scheduling migration remains unapplied. WhatsApp was not activated; existing email settings are retained.
 - M2 post-switch checks: exact source hashes/modes, 28 PHP syntax checks, 14 core/clinical table fingerprints, 67 schemas, 77 migration records and 49 durable files/configuration preserved. Public HTTP/auth denial passed. Fresh authenticated production browser smoke was unavailable because native browser transport failed; prior isolated native EN/AR/kiosk/document/recovery evidence was reused, not relabeled as live certification.
 - Verified encrypted off-host recovery checkpoint: `denta-private-recovery-20261021T164409Z`; separate private key storage. Authenticated decryption/archive checks passed; prior isolated restore reused. DB/files are non-atomic. Entire writable (journals, staging, generated HTML/uploads) must survive backup and source-only rollback; never restore/rewrite customer DB automatically.
 
-## Current engineering scope: consolidated roadmap campaign
+## Current engineering scope: V3 frontend draft
+
+- Isolated branch `feature/warm-clinical-v3-20261023` derives from exact release `89352fd2`, not historical main. The original dirty checkout and reference kit are unchanged.
+- Warm Architectural Clinical V3 replaces frontend composition while preserving backend, native odontogram, signed evidence, forms, tenant boundaries and financial calculations. See [V3 acceptance and measured limits](UI_V3_ACCEPTANCE.md) and [design contract](../DESIGN.md).
+- No migrations, dependency changes, new permissions or optional-feature activation. Corrections, dynamic scheduling, WhatsApp, checkout, contact history and derivatives remain OFF. This branch is for one draft PR only; production deployment requires separate authorization.
+
+## Historical consolidated development evidence (superseded current status)
+
+The following paragraphs preserve development evidence from before PR #20 deployment. Their draft/review/deployment-pending wording describes that checkpoint, not the current release or V3 status.
 
 - Isolated development branch `m2c/invoice-corrections-discovery-20261021`, based on the exact deployed M2 source.
 - Owner-approved isolated implementation: immutable issued/legacy invoices, linked corrections/credit notes, refunds distinct from noncash credits, clinical/provider obligations preserved, explicit replacement document links and consistent reporting/treasury.
