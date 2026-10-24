@@ -86,7 +86,7 @@ if (!empty($modalSelectedAppointmentId)) {
 
                 <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 backdrop-blur">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-gradient-to-br from-orange-500 to-amber-600 v3-text-on-primary v3-elevation-none">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary v3-elevation-none">
                             <i class="fas fa-stethoscope"></i>
                         </span>
                         <div>
@@ -127,7 +127,7 @@ if (!empty($modalSelectedAppointmentId)) {
                         <i class="fas fa-tooth me-2"></i>
                         <?= esc($tr('create_and_open_chart')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center v3-radius bg-gradient-to-r from-orange-500 to-amber-600 px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:from-orange-600 hover:to-amber-700 hover:v3-elevation-none v3-btn v3-btn--primary">
+                    <button type="submit" class="inline-flex items-center justify-center v3-radius v3-bg-panel v3-bg-panel v3-bg-panel px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:v3-bg-panel hover:v3-bg-panel hover:v3-elevation-none v3-btn v3-btn--primary">
                         <i class="fas fa-stethoscope me-2"></i>
                         <?= esc($tr('create_examination')) ?>
                     </button>

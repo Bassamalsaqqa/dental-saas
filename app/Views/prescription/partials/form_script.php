@@ -92,7 +92,7 @@ window.initPrescriptionCreateForms = function(root) {
             titleContainer.className = 'flex items-center gap-3';
 
             const iconContainer = document.createElement('div');
-            iconContainer.className = 'flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600';
+            iconContainer.className = 'flex h-8 w-8 items-center justify-center rounded-lg v3-bg-panel v3-bg-panel v3-bg-panel';
 
             const pillIcon = document.createElement('i');
             pillIcon.className = 'fas fa-pills text-sm v3-text-on-primary';

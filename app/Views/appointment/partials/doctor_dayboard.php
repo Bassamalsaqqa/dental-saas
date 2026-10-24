@@ -140,7 +140,7 @@ $statusLabelMap = [
 <div class="doctor-dayboard-container w-full overflow-hidden v3-radius border v3-border-default v3-bg-panel p-4 v3-elevation-none" data-doctor-dayboard="1" data-chosen-day="<?= esc($chosenDay) ?>">
     <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b v3-border-default pb-3">
         <div class="flex items-center gap-3">
-            <span class="inline-flex h-10 w-10 items-center justify-center v3-radius bg-gradient-to-br from-blue-600 to-indigo-600 v3-text-on-primary v3-elevation-none shadow-blue-500/20">
+            <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary v3-elevation-none shadow-blue-500/20">
                 <i class="fas fa-user-doctor text-base"></i>
             </span>
             <div>
@@ -167,7 +167,7 @@ $statusLabelMap = [
         <?php foreach ($activeDoctors as $doctor): ?>
             <div class="doctor-dayboard-column flex-shrink-0 flex flex-col v3-radius border v3-border-default v3-bg-panel v3-elevation-none transition v3-border-default" style="flex: 0 0 320px; min-width: 280px; max-width: 380px;" data-provider-user-id="<?= (int) $doctor['user_id'] ?>">
                 <!-- Doctor Column Header -->
-                <div class="border-b v3-border-default bg-gradient-to-r from-slate-50 to-blue-50/50 p-4 rounded-t-2xl">
+                <div class="border-b v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel p-4 rounded-t-2xl">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-1.5 min-w-0">
@@ -238,7 +238,7 @@ $statusLabelMap = [
         <!-- Separate Visible Legacy / Reassignment Column -->
         <div class="doctor-dayboard-column flex-shrink-0 flex flex-col v3-radius border-2 border-dashed v3-border-default v3-bg-waiting v3-elevation-none" style="flex: 0 0 320px; min-width: 280px; max-width: 380px;" data-dayboard-legacy-column="1">
             <!-- Legacy Header -->
-            <div class="border-b v3-border-default bg-gradient-to-r from-amber-50 to-orange-50/60 p-4 rounded-t-2xl">
+            <div class="border-b v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel p-4 rounded-t-2xl">
                 <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
                         <h4 class="truncate text-sm font-black v3-text-warning">

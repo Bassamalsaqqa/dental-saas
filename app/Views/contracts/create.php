@@ -935,11 +935,11 @@ function updateBatchUi() {
     if (applyBtn) {
         const enabled = count > 0;
         applyBtn.disabled = !enabled;
-        applyBtn.classList.toggle('bg-gradient-to-r', enabled);
-        applyBtn.classList.toggle('from-emerald-500', enabled);
-        applyBtn.classList.toggle('to-green-600', enabled);
-        applyBtn.classList.toggle('hover:from-emerald-600', enabled);
-        applyBtn.classList.toggle('hover:to-green-700', enabled);
+        applyBtn.classList.toggle('v3-bg-panel', enabled);
+        applyBtn.classList.toggle('v3-bg-panel', enabled);
+        applyBtn.classList.toggle('v3-bg-panel', enabled);
+        applyBtn.classList.toggle('hover:v3-bg-panel', enabled);
+        applyBtn.classList.toggle('hover:v3-bg-panel', enabled);
         applyBtn.classList.toggle('v3-border-default', enabled);
         applyBtn.classList.toggle('v3-elevation-none', enabled);
         applyBtn.classList.toggle('v3-text-on-primary', enabled);
@@ -1716,7 +1716,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 #odontogramSvgWrapper .tooth-outline {
-    stroke: #3b82f6;
+    stroke: var(--denta-emerald-pine);
     opacity: 0;
 }
 
@@ -1778,7 +1778,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .contract-panel textarea {
     background-color: #fff !important;
     border: 1px solid #d3dce8 !important;
-    color: #0f172a;
+    color: var(--denta-forest);
     outline: none !important;
 }
 .contract-panel input:focus,

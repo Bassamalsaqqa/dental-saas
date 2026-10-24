@@ -12,11 +12,11 @@ $liquidityOptions = $liquidity_account_options ?? [];
 $returnTo = urlencode('finance/payables');
 $formatMoney = static fn($amount) => formatCurrency((float) $amount);
 $bucketCards = [
-    'current' => ['label' => $tr('currentBucket'), 'class' => 'from-emerald-50 to-green-100 v3-text-primary v3-border-default'],
-    'days_1_30' => ['label' => $tr('days1To30'), 'class' => 'from-amber-50 to-yellow-100 v3-text-warning v3-border-default'],
-    'days_31_60' => ['label' => $tr('days31To60'), 'class' => 'from-orange-50 to-amber-100 v3-text-warning v3-border-default'],
-    'days_61_90' => ['label' => $tr('days61To90'), 'class' => 'from-rose-50 to-red-100 v3-text-danger v3-border-default'],
-    'days_91_plus' => ['label' => $tr('days91Plus'), 'class' => 'from-slate-100 to-gray-200 v3-text-ink v3-border-default'],
+    'current' => ['label' => $tr('currentBucket'), 'class' => 'v3-bg-panel v3-bg-panel v3-text-primary v3-border-default'],
+    'days_1_30' => ['label' => $tr('days1To30'), 'class' => 'v3-bg-panel v3-bg-panel v3-text-warning v3-border-default'],
+    'days_31_60' => ['label' => $tr('days31To60'), 'class' => 'v3-bg-panel v3-bg-panel v3-text-warning v3-border-default'],
+    'days_61_90' => ['label' => $tr('days61To90'), 'class' => 'v3-bg-panel v3-bg-panel v3-text-danger v3-border-default'],
+    'days_91_plus' => ['label' => $tr('days91Plus'), 'class' => 'v3-bg-panel v3-bg-panel v3-text-ink v3-border-default'],
 ];
 $statusClass = static function (string $status): string {
     return match ($status) {

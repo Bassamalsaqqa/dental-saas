@@ -271,7 +271,7 @@ function addMedicineWithData(count, name, dosage, frequency, duration) {
     titleContainer.className = 'flex items-center space-x-3';
 
     const iconContainer = document.createElement('div');
-    iconContainer.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center';
+    iconContainer.className = 'w-8 h-8 v3-bg-panel v3-bg-panel v3-bg-panel rounded-lg flex items-center justify-center';
     const pillIcon = document.createElement('i');
     pillIcon.className = 'fas fa-pills v3-text-on-primary text-sm';
     iconContainer.appendChild(pillIcon);
@@ -291,7 +291,7 @@ function addMedicineWithData(count, name, dosage, frequency, duration) {
     };
 
     const btnBg = document.createElement('div');
-    btnBg.className = 'absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 rounded-lg blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300';
+    btnBg.className = 'absolute inset-0 v3-bg-panel v3-bg-panel to-pink-500/10 rounded-lg blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300';
     const trashIcon = document.createElement('i');
     trashIcon.className = 'fas fa-trash relative z-10';
 

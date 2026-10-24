@@ -82,23 +82,23 @@ $guidanceText = static function ($item): string {
         padding: .75rem 1rem;
         font-size: .82rem;
         font-weight: 800;
-        color: #475569;
+        color: var(--denta-muted);
         background: rgba(255, 255, 255, .82);
         border: 1px solid rgba(226, 232, 240, .96);
-        box-shadow: 0 12px 30px -24px rgba(15, 23, 42, .34);
+        box-shadow:none;
         transition: all .18s ease;
         white-space: nowrap;
     }
     .wa-tab:hover {
-        color: #0f172a;
+        color: var(--denta-forest);
         transform: translateY(-1px);
-        box-shadow: 0 18px 34px -26px rgba(15, 23, 42, .36);
+        box-shadow:none;
     }
     .wa-tab.is-active {
-        color: #fff;
-        background: linear-gradient(135deg, #1559c7 0%, #0f766e 100%);
+        color:var(--denta-ivory-input);
+        background:var(--denta-alabaster);
         border-color: rgba(255, 255, 255, .55);
-        box-shadow: 0 18px 36px -18px rgba(15, 89, 199, .48);
+        box-shadow:none;
     }
     .wa-chip {
         display: inline-flex;
@@ -118,48 +118,39 @@ $guidanceText = static function ($item): string {
         border-radius: 9999px;
     }
     .wa-card {
-        background:
-            radial-gradient(circle at 10% 14%, rgba(255, 255, 255, .20), transparent 30%),
-            radial-gradient(circle at 88% 18%, rgba(125, 211, 252, .20), transparent 28%),
-            linear-gradient(135deg, #0f3f90 0%, #1656c1 56%, #0f766e 100%);
+        background:var(--denta-alabaster);
         border: 1px solid rgba(255, 255, 255, .16);
-        box-shadow: 0 28px 70px -44px rgba(15, 23, 42, .75);
+        box-shadow:none;
     }
     .wa-panel {
-        background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 14px 34px -30px rgba(15, 23, 42, .32);
+        background:var(--denta-alabaster);
+        border: 1px solid var(--denta-taupe-border);
+        box-shadow:none;
     }
     .wa-panel-emerald {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(16, 185, 129, .30), transparent 34%),
-            linear-gradient(135deg, #d1fae5 0%, #ffffff 56%, #ecfdf5 100%);
+        background:var(--denta-alabaster);
     }
     .wa-panel-sky {
-        background:
-            radial-gradient(circle at 100% 0%, rgba(37, 99, 235, .28), transparent 34%),
-            linear-gradient(135deg, #dbeafe 0%, #ffffff 56%, #eff6ff 100%);
+        background:var(--denta-alabaster);
     }
     .wa-panel-amber {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(245, 158, 11, .30), transparent 34%),
-            linear-gradient(135deg, #fef3c7 0%, #ffffff 56%, #fffbeb 100%);
+        background:var(--denta-alabaster);
     }
     .wa-field {
         width: 100%;
         border-radius: 1rem;
-        border: 1px solid #cbd5e1;
-        background: #fff;
+        border: 1px solid var(--denta-taupe-border);
+        background:var(--denta-alabaster);
         padding: .8rem 1rem;
         font-size: .875rem;
         font-weight: 600;
-        color: #0f172a;
+        color: var(--denta-forest);
         outline: none;
         transition: all .18s ease;
     }
     .wa-field:focus {
         border-color: #0ea5e9;
-        box-shadow: 0 0 0 4px rgba(14, 165, 233, .12);
+        box-shadow:none;
     }
     .wa-mini-table {
         width: 100%;
@@ -170,16 +161,16 @@ $guidanceText = static function ($item): string {
         padding: .85rem 1rem;
         font-size: .68rem;
         font-weight: 800;
-        color: #64748b;
+        color: var(--denta-muted);
         text-transform: uppercase;
         letter-spacing: .08em;
         background: #f0f9ff;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--denta-taupe-border);
         text-align: start;
     }
     .wa-mini-table td {
         padding: 1rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--denta-parchment);
         vertical-align: top;
     }
     .wa-code {
@@ -205,13 +196,10 @@ $guidanceText = static function ($item): string {
         isolation: isolate;
         border-radius: 28px !important;
         overflow: hidden;
-        color: #fff;
-        background:
-            radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.18), transparent 30%),
-            radial-gradient(circle at 88% 20%, rgba(125, 211, 252, 0.20), transparent 26%),
-            linear-gradient(135deg, #0f3f90 0%, #1656c1 58%, #0f766e 100%);
+        color:var(--denta-ivory-input);
+        background:var(--denta-alabaster);
         border: 1px solid rgba(203, 213, 225, 0.55);
-        box-shadow: 0 28px 70px -44px rgba(15, 23, 42, 0.75);
+        box-shadow:none;
     }
 
     .wa-card::before {
@@ -219,17 +207,12 @@ $guidanceText = static function ($item): string {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background:
-            radial-gradient(circle at 4% 84%, rgba(255,255,255,0.10), transparent 28%),
-            linear-gradient(120deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+        background:var(--denta-alabaster);
         z-index: 0;
     }
 
     [dir="rtl"] .wa-card {
-        background:
-            radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.18), transparent 30%),
-            radial-gradient(circle at 12% 20%, rgba(125, 211, 252, 0.20), transparent 26%),
-            linear-gradient(225deg, #0f3f90 0%, #1656c1 58%, #0f766e 100%);
+        background:var(--denta-alabaster);
     }
 
     .wa-card > * {
@@ -241,9 +224,9 @@ $guidanceText = static function ($item): string {
         width: 4.8rem !important;
         height: 4.8rem !important;
         border-radius: 1.75rem !important;
-        background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(153,246,228,0.18)) !important;
+        background:var(--denta-alabaster);
         border: 1px solid rgba(255,255,255,0.22);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 22px 40px -24px rgba(15,23,42,0.72) !important;
+        box-shadow:none;
         font-size: 2.15rem !important;
     }
 
@@ -257,8 +240,8 @@ $guidanceText = static function ($item): string {
         background: rgba(255,255,255,0.12) !important;
         border: 1px solid rgba(255,255,255,0.16) !important;
         color: #eff6ff !important;
-        backdrop-filter: blur(12px);
-        box-shadow: none !important;
+        backdrop-filter:none;
+        box-shadow:none;
         padding: 0.54rem 0.82rem !important;
         overflow: hidden;
     }
@@ -305,7 +288,7 @@ $guidanceText = static function ($item): string {
         background: rgba(255,255,255,0.14) !important;
         color: #fff !important;
         border: 1px solid rgba(255,255,255,0.18) !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 18px 34px -28px rgba(15,23,42,0.55) !important;
+        box-shadow:none;
     }
 
     .wa-hero-action:hover {
@@ -316,8 +299,8 @@ $guidanceText = static function ($item): string {
         border-radius: 1.4rem;
         background: rgba(255,255,255,0.12);
         border: 1px solid rgba(255,255,255,0.16);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 18px 34px -28px rgba(15,23,42,0.55);
-        backdrop-filter: blur(12px);
+        box-shadow:none;
+        backdrop-filter:none;
     }
 
     .wa-workspace-section {
@@ -325,11 +308,8 @@ $guidanceText = static function ($item): string {
         overflow: hidden;
         border-radius: 1.6rem;
         border: 1px solid rgba(255,255,255,0.76);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37,99,235,0.11), transparent 28%),
-            radial-gradient(circle at 100% 18%, rgba(124,58,237,0.12), transparent 30%),
-            linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
-        box-shadow: 0 24px 58px -42px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.92) inset;
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .wa-workspace-section::before {
@@ -337,9 +317,7 @@ $guidanceText = static function ($item): string {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background:
-            radial-gradient(circle at 9% 0%, rgba(37,99,235,0.14), transparent 29%),
-            radial-gradient(circle at 95% 10%, rgba(5,150,105,0.12), transparent 30%);
+        background:var(--denta-alabaster);
     }
 
     .wa-workspace-section > * {
@@ -353,8 +331,8 @@ $guidanceText = static function ($item): string {
     }
 
     .wa-tab.is-active {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
-        box-shadow: 0 18px 34px -28px rgba(37,99,235,0.72);
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .wa-panel {
@@ -362,32 +340,20 @@ $guidanceText = static function ($item): string {
         overflow: hidden;
         border-radius: 1.2rem !important;
         border-color: rgba(255,255,255,0.82);
-        background:
-            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.15), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.92) 46%, rgba(255,255,255,0.98));
-        box-shadow: 0 20px 48px -38px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.92) inset;
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .wa-panel-emerald {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(5,150,105,0.18), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(209,250,229,0.92) 46%, rgba(255,255,255,0.98));
+        background:var(--denta-alabaster);
     }
 
     .wa-panel-sky {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.18), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(219,234,254,0.92) 46%, rgba(255,255,255,0.98));
+        background:var(--denta-alabaster);
     }
 
     .wa-panel-amber {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(217,119,6,0.20), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(254,243,199,0.92) 46%, rgba(255,255,255,0.98));
+        background:var(--denta-alabaster);
     }
 
     .wa-snapshot-card {
@@ -396,7 +362,7 @@ $guidanceText = static function ($item): string {
         min-height: 7.2rem;
         border-radius: 1.2rem;
         color: #fff !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 34px -28px rgba(15,23,42,0.55);
+        box-shadow:none;
     }
 
     .wa-snapshot-card::after {
@@ -416,27 +382,19 @@ $guidanceText = static function ($item): string {
     }
 
     .wa-snapshot-card:nth-child(1) {
-        background:
-            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%),
-            linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
+        background:var(--denta-alabaster);
     }
 
     .wa-snapshot-card:nth-child(2) {
-        background:
-            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.20), transparent 34%),
-            linear-gradient(135deg, #7c3aed, #6d28d9 56%, #4c1d95);
+        background:var(--denta-alabaster);
     }
 
     .wa-snapshot-card:nth-child(3) {
-        background:
-            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.22), transparent 34%),
-            linear-gradient(135deg, #047857, #0f766e 56%, #064e3b);
+        background:var(--denta-alabaster);
     }
 
     .wa-snapshot-card:nth-child(4) {
-        background:
-            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.20), transparent 34%),
-            linear-gradient(135deg, #d97706, #b45309 58%, #92400e);
+        background:var(--denta-alabaster);
     }
 
     .wa-snapshot-card p {

@@ -784,7 +784,7 @@ $(document).ready(function() {
                     td.replaceChildren();
 
                     const span = document.createElement('span');
-                    span.className = 'inline-flex items-center v3-radius border v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 px-3 py-1.5 text-xs font-extrabold v3-text-ink';
+                    span.className = 'inline-flex items-center v3-radius border v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel px-3 py-1.5 text-xs font-extrabold v3-text-ink';
                     span.textContent = cellData;
 
                     td.appendChild(span);

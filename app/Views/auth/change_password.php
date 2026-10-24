@@ -8,23 +8,23 @@
     <link href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= time() ?>" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:var(--denta-alabaster);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .change-card {
-            background: white;
+            background:var(--denta-alabaster);
             border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow:none;
             overflow: hidden;
             max-width: 450px;
             width: 100%;
         }
         .change-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background:var(--denta-alabaster);
+            color:var(--denta-ivory-input);
             padding: 2rem;
             text-align: center;
         }
@@ -38,11 +38,11 @@
             transition: all 0.3s ease;
         }
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: var(--denta-emerald-pine);
+            box-shadow:none;
         }
         .btn-change {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:var(--denta-alabaster);
             border: none;
             border-radius: 10px;
             padding: 12px;
@@ -51,7 +51,7 @@
         }
         .btn-change:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow:none;
         }
         .alert {
             border-radius: 10px;
@@ -64,8 +64,11 @@
         [dir="rtl"] .text-start { text-align: right !important; }
         [dir="rtl"] .text-end { text-align: left !important; }
     </style>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/warm-clinical.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/warm-clinical.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
 </head>
-<body>
+<body class="denta-v3">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">

@@ -434,15 +434,15 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <div class="text-center sm:col-span-2 xl:col-span-1">
                                         <?php
                                         $statusConfig = [
-                                            'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStatusScheduled')],
-                                            'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStatusConfirmed')],
-                                            'arrived' => ['bg' => 'from-cyan-500 to-cyan-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStageArrived')],
-                                            'ready' => ['bg' => 'from-teal-500 to-teal-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStageReady')],
-                                            'in_chair' => ['bg' => 'from-indigo-500 to-indigo-600', 'text' => 'v3-text-chair', 'label' => lang('UI.appointmentStageInChair')],
+                                            'scheduled' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStatusScheduled')],
+                                            'confirmed' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStatusConfirmed')],
+                                            'arrived' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStageArrived')],
+                                            'ready' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStageReady')],
+                                            'in_chair' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-chair', 'label' => lang('UI.appointmentStageInChair')],
                                             'checkout' => ['bg' => 'from-violet-500 to-violet-600', 'text' => 'v3-text-chair', 'label' => lang('UI.appointmentStageCheckout')],
-                                            'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'v3-text-ink', 'label' => lang('UI.patientTreatmentStatusCompleted')],
-                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'v3-text-danger', 'label' => lang('UI.appointmentStatusCancelled')],
-                                            'no_show' => ['bg' => 'from-orange-500 to-orange-600', 'text' => 'v3-text-warning', 'label' => lang('UI.appointmentStatusNoShow')]
+                                            'completed' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-ink', 'label' => lang('UI.patientTreatmentStatusCompleted')],
+                                            'cancelled' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-danger', 'label' => lang('UI.appointmentStatusCancelled')],
+                                            'no_show' => ['bg' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-warning', 'label' => lang('UI.appointmentStatusNoShow')]
                                         ];
                                         $status = $statusConfig[$appointment['status']] ?? $statusConfig['scheduled'];
                                         ?>
@@ -1012,7 +1012,7 @@ function getPatientAvatar(gender) {
 // Create appointment element HTML
 function createAppointmentElement(appointment) {
     const div = document.createElement('div');
-    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm v3-radius hover:from-white/80 hover:to-white/60 transition-all duration-500 border v3-border-default v3-elevation-none hover:v3-elevation-none hover:shadow-blue-500/10 hover:scale-[1.02]  animate-slide-in';
+    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 v3-bg-panel v3-bg-panel v3-bg-panel backdrop-blur-sm v3-radius hover:v3-bg-panel hover:v3-bg-panel transition-all duration-500 border v3-border-default v3-elevation-none hover:v3-elevation-none hover:shadow-blue-500/10 hover:scale-[1.02]  animate-slide-in';
     if (<?= has_permission('appointments', 'view') ? 'true' : 'false' ?>) {
         const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
         div.dataset.href = `<?= base_url('appointment') ?>/${appointment.id}`;
@@ -1036,15 +1036,15 @@ function createAppointmentElement(appointment) {
 
     // Status configuration
     const statusConfig = {
-        'scheduled': { bg: 'from-blue-500 to-blue-600', text: 'v3-text-primary', label: appointmentI18n.statusScheduled },
-        'confirmed': { bg: 'from-green-500 to-green-600', text: 'v3-text-primary', label: appointmentI18n.statusConfirmed },
-        'arrived': { bg: 'from-cyan-500 to-cyan-600', text: 'v3-text-primary', label: appointmentI18n.statusArrived },
-        'ready': { bg: 'from-teal-500 to-teal-600', text: 'v3-text-primary', label: appointmentI18n.statusReady },
-        'in_chair': { bg: 'from-indigo-500 to-indigo-600', text: 'v3-text-chair', label: appointmentI18n.statusInChair },
+        'scheduled': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-primary', label: appointmentI18n.statusScheduled },
+        'confirmed': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-primary', label: appointmentI18n.statusConfirmed },
+        'arrived': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-primary', label: appointmentI18n.statusArrived },
+        'ready': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-primary', label: appointmentI18n.statusReady },
+        'in_chair': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-chair', label: appointmentI18n.statusInChair },
         'checkout': { bg: 'from-violet-500 to-violet-600', text: 'v3-text-chair', label: appointmentI18n.statusCheckout },
-        'completed': { bg: 'from-emerald-500 to-emerald-600', text: 'v3-text-primary', label: appointmentI18n.statusCompleted },
-        'cancelled': { bg: 'from-red-500 to-red-600', text: 'v3-text-danger', label: appointmentI18n.statusCancelled },
-        'no_show': { bg: 'from-orange-500 to-orange-600', text: 'v3-text-warning', label: appointmentI18n.statusNoShow }
+        'completed': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-primary', label: appointmentI18n.statusCompleted },
+        'cancelled': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-danger', label: appointmentI18n.statusCancelled },
+        'no_show': { bg: 'v3-bg-panel v3-bg-panel', text: 'v3-text-warning', label: appointmentI18n.statusNoShow }
     };
 
     const status = statusConfig[appointment.status] || statusConfig['scheduled'];
@@ -1115,9 +1115,9 @@ function createAppointmentElement(appointment) {
     const timeRelative = document.createElement('div');
     timeRelative.className = 'relative';
     const timeBg = document.createElement('div');
-    timeBg.className = 'absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    timeBg.className = 'absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
     const timeContent = document.createElement('div');
-    timeContent.className = 'relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 v3-radius border v3-border-default';
+    timeContent.className = 'relative v3-bg-panel v3-bg-panel v3-bg-panel px-4 py-3 v3-radius border v3-border-default';
 
     const timeP = document.createElement('p');
     timeP.className = 'text-2xl font-black v3-text-warning';
@@ -1145,9 +1145,9 @@ function createAppointmentElement(appointment) {
     const typeRelative = document.createElement('div');
     typeRelative.className = 'relative';
     const typeBg = document.createElement('div');
-    typeBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    typeBg.className = 'absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
     const typeContent = document.createElement('div');
-    typeContent.className = 'relative bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 v3-radius border v3-border-default';
+    typeContent.className = 'relative v3-bg-panel v3-bg-panel v3-bg-panel px-4 py-3 v3-radius border v3-border-default';
 
     const typeP = document.createElement('p');
     typeP.className = 'text-lg font-bold v3-text-primary';
@@ -1171,10 +1171,10 @@ function createAppointmentElement(appointment) {
     statusRelative.className = 'relative';
 
     const statusBg = document.createElement('div');
-    statusBg.className = `absolute inset-0 bg-gradient-to-r ${status.bg} v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300`;
+    statusBg.className = `absolute inset-0 v3-bg-panel ${status.bg} v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300`;
 
     const statusContent = document.createElement('div');
-    statusContent.className = `relative bg-gradient-to-r ${status.bg} px-4 py-3 v3-radius v3-elevation-none`;
+    statusContent.className = `relative v3-bg-panel ${status.bg} px-4 py-3 v3-radius v3-elevation-none`;
 
     const statusTextP = document.createElement('p');
     statusTextP.className = `text-lg font-bold ${status.text}`;
@@ -1199,10 +1199,10 @@ function createAppointmentElement(appointment) {
     const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
     const viewBtn = document.createElement('a');
     viewBtn.href = `<?= base_url('appointment') ?>/${appointment.id}`;
-    viewBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 v3-text-on-primary text-sm font-bold v3-radius hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300  hover:v3-elevation-none hover:shadow-blue-500/25';
+    viewBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary text-sm font-bold v3-radius hover:v3-bg-panel hover:v3-bg-panel focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300  hover:v3-elevation-none hover:shadow-blue-500/25';
 
     const viewBg = document.createElement('div');
-    viewBg.className = 'absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 v3-radius blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
+    viewBg.className = 'absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
 
     const viewIcon = document.createElement('i');
     viewIcon.className = 'fas fa-eye mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300';
@@ -1217,10 +1217,10 @@ function createAppointmentElement(appointment) {
 
     const editBtn = document.createElement('a');
     editBtn.href = `<?= base_url('appointment') ?>/${appointment.id}/edit`;
-    editBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 v3-text-on-primary text-sm font-bold v3-radius hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300  hover:v3-elevation-none hover:shadow-emerald-500/25';
+    editBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary text-sm font-bold v3-radius hover:v3-bg-panel hover:v3-bg-panel focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300  hover:v3-elevation-none hover:shadow-emerald-500/25';
 
     const editBg = document.createElement('div');
-    editBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 v3-radius blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
+    editBg.className = 'absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
 
     const editIcon = document.createElement('i');
     editIcon.className = 'fas fa-edit mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300';

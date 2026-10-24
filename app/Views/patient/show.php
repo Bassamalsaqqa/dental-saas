@@ -2346,29 +2346,29 @@ if (isset($workspace_history)) {
                                 </div>
 
                                 <div class="patient-finance-summary grid gap-3 md:grid-cols-4">
-                                    <div class="patient-finance-balance-card relative overflow-hidden v3-radius <?= $outstandingBalance > 0.009 ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/25' : 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-sky-500/25' ?> p-5 v3-text-on-primary">
-                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.24),transparent_34%)]"></div>
+                                    <div class="patient-finance-balance-card relative overflow-hidden v3-radius <?= $outstandingBalance > 0.009 ? 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-amber-500/25' : 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-sky-500/25' ?> p-5 v3-text-on-primary">
+                                        <div class="pointer-events-none absolute inset-0 v3-bg-panel"></div>
                                         <div class="relative">
                                             <p class="text-xs font-bold uppercase tracking-wide v3-text-on-primary"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
                                             <p class="mt-2 v3-title-scale font-black v3-text-on-primary"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
                                         </div>
                                     </div>
                                     <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
-                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.18),transparent_32%)]"></div>
+                                        <div class="pointer-events-none absolute inset-0 v3-bg-panel"></div>
                                         <div class="relative">
                                             <p class="text-xs font-bold uppercase tracking-wide v3-text-muted"><?= esc(lang('UI.patientTotalBilled')) ?></p>
                                             <p class="mt-2 text-xl font-black v3-text-on-primary"><?= formatCurrency($totalCharges) ?></p>
                                         </div>
                                     </div>
                                     <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
-                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%)]"></div>
+                                        <div class="pointer-events-none absolute inset-0 v3-bg-panel"></div>
                                         <div class="relative">
                                             <p class="text-xs font-bold uppercase tracking-wide v3-text-primary"><?= esc(lang('UI.patientTotalPaid')) ?></p>
                                             <p class="mt-2 text-xl font-black v3-text-on-primary"><?= formatCurrency($totalCollected) ?></p>
                                         </div>
                                     </div>
                                     <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
-                                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%)]"></div>
+                                        <div class="pointer-events-none absolute inset-0 v3-bg-panel"></div>
                                         <div class="relative">
                                             <p class="text-xs font-bold uppercase tracking-wide v3-text-danger"><?= esc(lang('Finance.refunds')) ?></p>
                                             <p class="mt-2 text-xl font-black v3-text-on-primary"><?= formatCurrency($totalRefunded) ?></p>
@@ -2616,7 +2616,7 @@ if (isset($workspace_history)) {
         width: 100%;
         height: 100%;
         padding: 0.7rem 0.9rem;
-        background: linear-gradient(180deg, #ffffff, #f8fafc);
+        background:var(--denta-alabaster);
     }
 
 

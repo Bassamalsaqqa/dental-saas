@@ -80,8 +80,8 @@
 }
 
 .fc-event.scheduled {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
+    background-color: var(--denta-emerald-pine);
+    border-color: var(--denta-emerald-pine);
 }
 
 .fc-event.completed {

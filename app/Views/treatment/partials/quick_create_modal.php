@@ -88,7 +88,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
 
                 <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 backdrop-blur">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-gradient-to-br from-pink-500 to-purple-600 v3-text-on-primary v3-elevation-none">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-panel from-pink-500 v3-bg-panel v3-text-on-primary v3-elevation-none">
                             <i class="fas fa-tooth"></i>
                         </span>
                         <div>
@@ -129,7 +129,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                     <button type="button" data-treatment-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('Treatment.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center v3-radius bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:from-pink-600 hover:to-purple-700 hover:v3-elevation-none v3-btn v3-btn--primary">
+                    <button type="submit" class="inline-flex items-center justify-center v3-radius v3-bg-panel from-pink-500 v3-bg-panel px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:from-pink-600 hover:v3-bg-panel hover:v3-elevation-none v3-btn v3-btn--primary">
                         <i class="fas fa-tooth me-2"></i>
                         <?= esc(lang('Treatment.create_treatment')) ?>
                     </button>

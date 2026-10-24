@@ -12,16 +12,16 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
 ?>
 <style>
     .wa-rollout-shell {
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--denta-taupe-border);
         border-radius: 1rem;
-        background: #fff;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+        background:var(--denta-alabaster);
+        box-shadow:none;
         overflow: hidden;
     }
     .wa-rollout-head {
         padding: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
-        background: #f8fafc;
+        border-bottom: 1px solid var(--denta-taupe-border);
+        background: var(--denta-alabaster);
     }
     .wa-rollout-row {
         display: flex;
@@ -29,12 +29,12 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
         justify-content: space-between;
         gap: 1rem;
         padding: 1rem 1.1rem;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--denta-taupe-border);
         border-radius: 1rem;
-        background: #fff;
+        background:var(--denta-alabaster);
     }
     .wa-rollout-row.is-disabled {
-        background: #f8fafc;
+        background: var(--denta-alabaster);
         border-style: dashed;
     }
     .wa-pill {

@@ -18,17 +18,11 @@ $initialActionCount = count($filters['actions'] ?? []);
     overflow: hidden;
     border-radius: 1.75rem;
     border: 1px solid rgba(255,255,255,0.56);
-    background:
-        radial-gradient(circle at 9% 4%, rgba(255,255,255,0.24), transparent 29%),
-        radial-gradient(circle at 88% 14%, rgba(129,140,248,0.36), transparent 28%),
-        linear-gradient(135deg, #334155 0%, #2563eb 54%, #0f766e 100%);
-    box-shadow: 0 30px 72px -46px rgba(15,23,42,0.78);
+    background:var(--denta-alabaster);
+    box-shadow:none;
 }
 [dir="rtl"] .activity-hero-card {
-    background:
-        radial-gradient(circle at 91% 4%, rgba(255,255,255,0.24), transparent 29%),
-        radial-gradient(circle at 12% 14%, rgba(129,140,248,0.36), transparent 28%),
-        linear-gradient(225deg, #334155 0%, #2563eb 54%, #0f766e 100%);
+    background:var(--denta-alabaster);
 }
 .activity-hero-card::after {
     content: "";
@@ -51,9 +45,9 @@ $initialActionCount = count($filters['actions'] ?? []);
     justify-content: center;
     border-radius: 1.5rem;
     border: 1px solid rgba(255,255,255,0.22);
-    background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(125,211,252,0.16));
-    color: #fff;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 42px -28px rgba(15,23,42,0.8);
+    background:var(--denta-alabaster);
+    color:var(--denta-ivory-input);
+    box-shadow:none;
 }
 .activity-action {
     display: inline-flex;
@@ -71,14 +65,14 @@ $initialActionCount = count($filters['actions'] ?? []);
     transform: translateY(-1px);
 }
 .activity-action-blue {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #fff;
-    box-shadow: 0 18px 34px -24px rgba(37,99,235,0.82);
+    background:var(--denta-alabaster);
+    color:var(--denta-ivory-input);
+    box-shadow:none;
 }
 .activity-action-emerald {
-    background: linear-gradient(135deg, #10b981, #047857);
-    color: #fff;
-    box-shadow: 0 18px 34px -24px rgba(16,185,129,0.82);
+    background:var(--denta-alabaster);
+    color:var(--denta-ivory-input);
+    box-shadow:none;
 }
 .activity-snapshot-grid {
     display: grid;
@@ -94,7 +88,7 @@ $initialActionCount = count($filters['actions'] ?? []);
     border-radius: 1.25rem;
     border: 1px solid rgba(255,255,255,0.75);
     padding: 1rem;
-    box-shadow: 0 18px 36px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.78);
+    box-shadow:none;
 }
 .activity-snapshot-card::after {
     content: "";
@@ -109,9 +103,9 @@ $initialActionCount = count($filters['actions'] ?? []);
     position: relative;
     z-index: 1;
 }
-.activity-snapshot-total { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
-.activity-snapshot-types { background: linear-gradient(135deg, #ddd6fe, #c4b5fd); }
-.activity-snapshot-actions { background: linear-gradient(135deg, #bbf7d0, #5eead4); }
+.activity-snapshot-total { background:var(--denta-alabaster); }
+.activity-snapshot-types { background:var(--denta-alabaster); }
+.activity-snapshot-actions { background:var(--denta-alabaster); }
 .activity-snapshot-label {
     margin: 0;
     font-size: 0.7rem;
@@ -125,7 +119,7 @@ $initialActionCount = count($filters['actions'] ?? []);
     font-size: 1.75rem;
     line-height: 1.1;
     font-weight: 950;
-    color: #0f172a;
+    color: var(--denta-forest);
 }
 .activity-snapshot-meta {
     margin-top: 0.25rem;
@@ -137,14 +131,14 @@ $initialActionCount = count($filters['actions'] ?? []);
     overflow: hidden;
     border-radius: 1.45rem;
     border: 1px solid rgba(226,232,240,0.9);
-    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
-    box-shadow: 0 22px 48px -36px rgba(15,23,42,0.32), inset 0 1px 0 rgba(255,255,255,0.8);
+    background:var(--denta-alabaster);
+    box-shadow:none;
 }
 .activity-filter-card {
     border-radius: 1.35rem;
     border: 1px solid rgba(255,255,255,0.76);
-    background: linear-gradient(135deg, #eef2ff, #f0fdfa);
-    box-shadow: 0 20px 42px -34px rgba(15,23,42,0.36), inset 0 1px 0 rgba(255,255,255,0.82);
+    background:var(--denta-alabaster);
+    box-shadow:none;
 }
 .activity-filter-field {
     width: 100%;
@@ -155,13 +149,13 @@ $initialActionCount = count($filters['actions'] ?? []);
     padding: 0.65rem 0.85rem;
     font-size: 0.9rem;
     font-weight: 650;
-    color: #0f172a;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.76);
+    color: var(--denta-forest);
+    box-shadow:none;
 }
 .activity-filter-field:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37,99,235,0.14), inset 0 1px 0 rgba(255,255,255,0.76);
+    border-color: var(--denta-emerald-pine);
+    box-shadow:none;
 }
 .activity-filter-label {
     display: block;
@@ -170,7 +164,7 @@ $initialActionCount = count($filters['actions'] ?? []);
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #475569;
+    color: var(--denta-muted);
 }
 .activity-table-wrap {
     border-radius: 1.1rem;
@@ -194,15 +188,15 @@ $initialActionCount = count($filters['actions'] ?? []);
     min-height: 2.35rem;
     border-radius: 0.8rem;
     border: 1px solid rgba(203,213,225,0.9);
-    background: #fff;
+    background:var(--denta-alabaster);
     padding: 0.45rem 0.8rem;
     font-size: 0.875rem;
     font-weight: 800;
-    color: #475569;
+    color: var(--denta-muted);
 }
 .activity-pagination-button:hover:not(:disabled) {
-    background: #f8fafc;
-    color: #0f172a;
+    background: var(--denta-alabaster);
+    color: var(--denta-forest);
 }
 </style>
 <!-- Activity Log Page -->

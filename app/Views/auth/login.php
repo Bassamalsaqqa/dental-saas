@@ -98,8 +98,8 @@
             content: "";
             position: absolute;
             inset: 0;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
+            backdrop-filter:none;
+            backdrop-filter:none;
             background-image: none;
             background-size: 42px 42px;
             mask-image: none;
@@ -124,9 +124,9 @@
             border:1px solid var(--denta-taupe-border);
             border-radius: 5px;
             background: var(--denta-alabaster);
-            box-shadow: none;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
+            box-shadow:none;
+            backdrop-filter:none;
+            backdrop-filter:none;
         }
 
         .login-info {
@@ -148,7 +148,7 @@
             border-radius: 5px;
             background: var(--denta-alabaster);
             border:1px solid var(--denta-taupe-border);
-            box-shadow: none;
+            box-shadow:none;
         }
 
         .login-kicker,
@@ -335,7 +335,7 @@
         .login-input:focus {
             border-color: var(--denta-taupe-border);
             background: var(--denta-alabaster);
-            box-shadow: none;
+            box-shadow:none;
         }
 
         .login-input-password {
@@ -445,7 +445,7 @@
             font-weight: 900;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            box-shadow: none;
+            box-shadow:none;
             transition: transform 140ms ease, filter 140ms ease;
         }
 

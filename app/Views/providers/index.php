@@ -40,10 +40,10 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
         <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <?php
             $cards = [
-                ['id' => 'totalCombined', 'label' => lang('Provider.allProviders'), 'icon' => 'fa-handshake', 'tone' => 'from-emerald-500 to-teal-600', 'soft' => 'from-emerald-100 to-teal-100', 'text' => 'v3-text-primary'],
-                ['id' => 'activeSuppliers', 'label' => lang('Provider.activeSuppliers'), 'icon' => 'fa-check-circle', 'tone' => 'from-green-500 to-emerald-600', 'soft' => 'from-green-100 to-emerald-100', 'text' => 'v3-text-primary'],
-                ['id' => 'totalProviders', 'label' => lang('Provider.clinicalProviders'), 'icon' => 'fa-user-doctor', 'tone' => 'from-blue-500 to-indigo-600', 'soft' => 'from-blue-100 to-indigo-100', 'text' => 'v3-text-primary'],
-                ['id' => 'outstandingBalance', 'label' => lang('Provider.outstandingBalance'), 'icon' => 'fa-wallet', 'tone' => 'from-amber-500 to-orange-600', 'soft' => 'from-amber-100 to-orange-100', 'text' => 'v3-text-warning'],
+                ['id' => 'totalCombined', 'label' => lang('Provider.allProviders'), 'icon' => 'fa-handshake', 'tone' => 'v3-bg-panel v3-bg-panel', 'soft' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary'],
+                ['id' => 'activeSuppliers', 'label' => lang('Provider.activeSuppliers'), 'icon' => 'fa-check-circle', 'tone' => 'v3-bg-panel v3-bg-panel', 'soft' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary'],
+                ['id' => 'totalProviders', 'label' => lang('Provider.clinicalProviders'), 'icon' => 'fa-user-doctor', 'tone' => 'v3-bg-panel v3-bg-panel', 'soft' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-primary'],
+                ['id' => 'outstandingBalance', 'label' => lang('Provider.outstandingBalance'), 'icon' => 'fa-wallet', 'tone' => 'v3-bg-panel v3-bg-panel', 'soft' => 'v3-bg-panel v3-bg-panel', 'text' => 'v3-text-warning'],
             ];
             ?>
             <?php foreach ($cards as $card): ?>

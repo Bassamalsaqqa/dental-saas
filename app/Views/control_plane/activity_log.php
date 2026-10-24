@@ -10,11 +10,11 @@
     $latestLabel = $latestAt ? date('M j, Y g:i A', strtotime((string) $latestAt)) : 'No events yet';
 ?>
 
-<div class="v3-platform-workspace min-h-screen bg-[radial-gradient(circle_at_8%_0%,rgba(59,130,246,.12),transparent_30%),radial-gradient(circle_at_92%_8%,rgba(245,158,11,.10),transparent_28%),linear-gradient(135deg,#eef5ff_0%,#f8fafc_48%,#fff7ed_100%)]">
+<div class="v3-platform-workspace min-h-screen v3-bg-panel">
     <div class="w-full space-y-5 px-3 py-3 sm:px-4 lg:px-5">
         <section class="overflow-hidden cp-radius border cp-border v3-bg-forest">
             <div class="relative p-4 sm:p-5">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_14%_16%,rgba(59,130,246,.52),transparent_30%),radial-gradient(circle_at_86%_12%,rgba(245,158,11,.35),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_54%,#92400e_100%)]"></div>
+                <div class="absolute inset-0 v3-bg-panel"></div>
                 <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div class="flex min-w-0 items-start gap-4">
                         <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center cp-radius cp-surface v3-text-on-primary border v3-border-default">
@@ -84,7 +84,7 @@
         </section>
 
         <section class="overflow-hidden cp-radius border cp-border cp-surface">
-            <div class="bg-[radial-gradient(circle_at_12%_20%,rgba(96,165,250,.42),transparent_28%),radial-gradient(circle_at_86%_18%,rgba(245,158,11,.28),transparent_24%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_55%,#92400e_100%)] px-4 py-4 sm:px-5">
+            <div class="v3-bg-panel px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-3">
                         <div class="flex h-10 w-10 items-center justify-center cp-radius cp-surface v3-text-on-primary border v3-border-default">

@@ -2,12 +2,12 @@
 
 <?= $this->section('content') ?>
 <!-- Enhanced Patient Management with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+<div class="min-h-screen v3-bg-panel v3-bg-panel v3-bg-panel v3-bg-panel relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 /2 w-96 h-96 bg-gradient-to-br from-amber-400/10 to-orange-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div class="absolute -top-40 -right-40 w-80 h-80 v3-bg-panel v3-bg-panel v3-bg-panel rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 v3-bg-panel v3-bg-panel v3-bg-panel rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 /2 w-96 h-96 v3-bg-panel v3-bg-panel v3-bg-panel rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
 
     <div class="relative z-10">
@@ -18,8 +18,8 @@
                     <div class="space-y-2">
                         <div class="flex items-center space-x-3">
                             <div class="relative group">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-cyan-600 v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-600 v3-radius flex items-center justify-center v3-elevation-none group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative w-12 h-12 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius flex items-center justify-center v3-elevation-none group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                     <i class="fas fa-users v3-text-on-primary text-xl"></i>
                                 </div>
                             </div>
@@ -31,10 +31,10 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center space-x-3">
-                        <a href="<?= base_url('patient/create') ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 v3-text-on-primary text-sm font-bold v3-radius hover:from-emerald-600 hover:to-cyan-700 transition-all duration-300  hover:v3-elevation-none hover:shadow-emerald-500/25 v3-btn v3-btn--secondary">
-                            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 v3-radius blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <a href="<?= base_url('patient/create') ?>" class="group relative inline-flex items-center px-6 py-3 v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary text-sm font-bold v3-radius hover:v3-bg-panel hover:v3-bg-panel transition-all duration-300  hover:v3-elevation-none hover:shadow-emerald-500/25 v3-btn v3-btn--secondary">
+                            <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i class="fas fa-plus mr-2 relative z-10"></i>
                             <span class="relative z-10">Add Patient</span>
                         </a>
@@ -47,14 +47,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <!-- Enhanced Patient Directory Header -->
             <div class="group relative mb-8 mt-8">
-                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-600/10 v3-radius blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                 <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 p-6">
                     <div class="flex items-center justify-between">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-cyan-600 v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-600 v3-radius flex items-center justify-center v3-elevation-none group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative w-12 h-12 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius flex items-center justify-center v3-elevation-none group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                         <i class="fas fa-list v3-text-on-primary text-lg"></i>
                                     </div>
                                 </div>
@@ -66,9 +66,9 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="flex items-center space-x-3">
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border v3-border-default">
+                            <div class="flex items-center space-x-2 v3-bg-panel v3-bg-panel v3-bg-panel px-4 py-2 rounded-full border v3-border-default">
                                 <div class="w-2 h-2 v3-bg-primary rounded-full animate-pulse"></div>
                                 <i class="fas fa-server v3-text-primary text-sm"></i>
                                 <span class="v3-text-primary font-bold text-sm">Server-Side Processing</span>
@@ -80,12 +80,12 @@
 
             <!-- Enhanced DataTable with Server-Side Processing -->
             <div class="group relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-600/10 v3-radius blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                 <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500">
                     <!-- DataTable Container -->
                     <div class="p-6">
                         <table id="patientsTable" class="w-full">
-                            <thead class="bg-gradient-to-r from-slate-50 to-gray-50">
+                            <thead class="v3-bg-panel v3-bg-panel v3-bg-panel">
                                 <tr>
                                     <th class="px-6 py-4 text-left text-xs font-bold v3-text-muted uppercase tracking-wider">Patient ID</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold v3-text-muted uppercase tracking-wider">Name</th>
@@ -130,40 +130,40 @@ $(document).ready(function() {
             type: 'GET'
         },
         columns: [
-            { 
+            {
                 data: 'patient_id',
                 name: 'patient_id',
                 className: 'px-6 py-4 whitespace-nowrap text-sm font-medium v3-text-ink'
             },
-            { 
+            {
                 data: 'name',
                 name: 'name',
                 className: 'px-6 py-4 whitespace-nowrap text-sm font-medium v3-text-ink'
             },
-            { 
+            {
                 data: 'email',
                 name: 'email',
                 className: 'px-6 py-4 whitespace-nowrap text-sm v3-text-muted'
             },
-            { 
+            {
                 data: 'phone',
                 name: 'phone',
                 className: 'px-6 py-4 whitespace-nowrap text-sm v3-text-muted'
             },
-            { 
+            {
                 data: 'age',
                 name: 'age',
                 className: 'px-6 py-4 whitespace-nowrap text-sm v3-text-muted'
             },
-            { 
+            {
                 data: 'status',
                 name: 'status',
                 className: 'px-6 py-4 whitespace-nowrap',
                 render: function(data, type, row) {
                     const statusColors = {
-                        'active': 'bg-gradient-to-r from-emerald-100 to-green-100 v3-text-primary v3-border-default',
-                        'inactive': 'bg-gradient-to-r from-gray-100 to-slate-100 v3-text-ink v3-border-default',
-                        'pending': 'bg-gradient-to-r from-amber-100 to-orange-100 v3-text-warning v3-border-default'
+                        'active': 'v3-bg-panel v3-bg-panel v3-bg-panel v3-text-primary v3-border-default',
+                        'inactive': 'v3-bg-panel v3-bg-panel v3-bg-panel v3-text-ink v3-border-default',
+                        'pending': 'v3-bg-panel v3-bg-panel v3-bg-panel v3-text-warning v3-border-default'
                     };
                     const colorClass = statusColors[data.toLowerCase()] || statusColors['inactive'];
                     return `<span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ${colorClass} border v3-elevation-none">
@@ -172,17 +172,17 @@ $(document).ready(function() {
                     </span>`;
                 }
             },
-            { 
+            {
                 data: 'examinations',
                 name: 'examinations',
                 className: 'px-6 py-4 whitespace-nowrap text-sm v3-text-muted'
             },
-            { 
+            {
                 data: 'last_visit',
                 name: 'last_visit',
                 className: 'px-6 py-4 whitespace-nowrap text-sm v3-text-muted'
             },
-            { 
+            {
                 data: 'actions',
                 name: 'actions',
                 orderable: false,
@@ -221,8 +221,8 @@ $(document).ready(function() {
         dom: '<"flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6"<"flex items-center space-x-4"<"text-sm v3-text-ink font-medium">l><"text-sm v3-text-ink font-medium">f>>rt<"flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mt-6"<"text-sm v3-text-ink font-medium">ip>>',
         language: {
             processing: '<div class="flex items-center justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 v3-border-default"></div><span class="ml-3 v3-text-muted">Loading patients...</span></div>',
-            emptyTable: '<div class="text-center py-16"><div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 v3-radius flex items-center justify-center mx-auto mb-4"><i class="fas fa-users v3-text-muted text-3xl"></i></div><h3 class="text-xl font-bold v3-text-ink mb-2">No patients found</h3><p class="v3-text-muted font-medium">Get started by adding your first patient.</p></div>',
-            zeroRecords: '<div class="text-center py-16"><div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 v3-radius flex items-center justify-center mx-auto mb-4"><i class="fas fa-search v3-text-muted text-3xl"></i></div><h3 class="text-xl font-bold v3-text-ink mb-2">No matching records found</h3><p class="v3-text-muted font-medium">Try adjusting your search criteria.</p></div>'
+            emptyTable: '<div class="text-center py-16"><div class="w-20 h-20 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius flex items-center justify-center mx-auto mb-4"><i class="fas fa-users v3-text-muted text-3xl"></i></div><h3 class="text-xl font-bold v3-text-ink mb-2">No patients found</h3><p class="v3-text-muted font-medium">Get started by adding your first patient.</p></div>',
+            zeroRecords: '<div class="text-center py-16"><div class="w-20 h-20 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius flex items-center justify-center mx-auto mb-4"><i class="fas fa-search v3-text-muted text-3xl"></i></div><h3 class="text-xl font-bold v3-text-ink mb-2">No matching records found</h3><p class="v3-text-muted font-medium">Try adjusting your search criteria.</p></div>'
         },
         responsive: true,
         scrollX: true,
@@ -230,12 +230,12 @@ $(document).ready(function() {
             {
                 extend: 'excel',
                 text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
-                className: 'bg-gradient-to-r from-green-500 to-emerald-600 v3-text-on-primary px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300'
+                className: 'v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary px-4 py-2 rounded-lg hover:v3-bg-panel hover:v3-bg-panel transition-all duration-300'
             },
             {
                 extend: 'pdf',
                 text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
-                className: 'bg-gradient-to-r from-red-500 to-pink-600 v3-text-on-primary px-4 py-2 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300'
+                className: 'v3-bg-panel v3-bg-panel to-pink-600 v3-text-on-primary px-4 py-2 rounded-lg hover:v3-bg-panel hover:to-pink-700 transition-all duration-300'
             }
         ]
     });
@@ -246,27 +246,27 @@ let patientToDelete = null;
 
 function confirmDelete(patientId) {
     patientToDelete = patientId;
-    
+
     // Create a beautiful confirmation modal safely
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 v3-bg-forest bg-opacity-50 flex items-center justify-center z-50';
-    
+
     const card = document.createElement('div');
     card.className = 'v3-bg-panel v3-radius v3-elevation-none max-w-md w-full mx-4 transform transition-all duration-300 scale-100';
-    
+
     const content = document.createElement('div');
     content.className = 'p-6';
-    
+
     // Header section
     const header = document.createElement('div');
     header.className = 'flex items-center space-x-4 mb-6';
-    
+
     const iconContainer = document.createElement('div');
-    iconContainer.className = 'w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 v3-radius flex items-center justify-center';
+    iconContainer.className = 'w-12 h-12 v3-bg-panel v3-bg-panel to-pink-600 v3-radius flex items-center justify-center';
     const icon = document.createElement('i');
     icon.className = 'fas fa-exclamation-triangle v3-text-on-primary text-xl';
     iconContainer.appendChild(icon);
-    
+
     const titleContainer = document.createElement('div');
     const title = document.createElement('h3');
     title.className = 'text-xl font-bold v3-text-ink';
@@ -276,39 +276,39 @@ function confirmDelete(patientId) {
     subtitle.textContent = 'This action cannot be undone.';
     titleContainer.appendChild(title);
     titleContainer.appendChild(subtitle);
-    
+
     header.appendChild(iconContainer);
     header.appendChild(titleContainer);
-    
+
     // Message
     const message = document.createElement('p');
     message.className = 'v3-text-ink mb-6';
     message.textContent = 'Are you sure you want to delete this patient? All associated data will be permanently removed.';
-    
+
     // Actions
     const actions = document.createElement('div');
     actions.className = 'flex items-center justify-end space-x-3';
-    
+
     const cancelBtn = document.createElement('button');
     cancelBtn.onclick = closeDeleteModal;
     cancelBtn.className = 'px-4 py-2 v3-text-muted v3-hover-text-ink font-medium transition-colors duration-200';
     cancelBtn.textContent = 'Cancel';
-    
+
     const deleteBtn = document.createElement('button');
     deleteBtn.onclick = deletePatient;
-    deleteBtn.className = 'px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 v3-text-on-primary font-bold rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300';
+    deleteBtn.className = 'px-6 py-2 v3-bg-panel v3-bg-panel to-pink-600 v3-text-on-primary font-bold rounded-lg hover:v3-bg-panel hover:to-pink-700 transition-all duration-300';
     deleteBtn.textContent = 'Delete Patient';
-    
+
     actions.appendChild(cancelBtn);
     actions.appendChild(deleteBtn);
-    
+
     // Assemble
     content.appendChild(header);
     content.appendChild(message);
     content.appendChild(actions);
     card.appendChild(content);
     modal.appendChild(card);
-    
+
     document.body.appendChild(modal);
 }
 
@@ -325,19 +325,19 @@ function deletePatient() {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '<?= base_url('patient') ?>/' + patientToDelete;
-        
+
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'DELETE';
         form.appendChild(methodInput);
-        
+
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '<?= csrf_token() ?>';
         csrfInput.value = '<?= csrf_hash() ?>';
         form.appendChild(csrfInput);
-        
+
         document.body.appendChild(form);
         form.submit();
     }

@@ -184,7 +184,7 @@
             <!-- Main Menu -->
             <div class="p-2.5">
                 <div class="flex items-center space-x-2 mb-3 px-2">
-                    <div class="w-2 h-2 from-cyan-300 to-emerald-300 rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 v3-bg-panel v3-bg-panel rounded-full animate-pulse"></div>
                     <h3 class="tenant-sidebar-section-label text-xs font-black uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
                 </div>
                 <ul class="space-y-1.5">

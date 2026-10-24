@@ -44,8 +44,8 @@
 }
 
 .dataTables_length select:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--denta-emerald-pine) !important;
+    box-shadow:none;
 }
 
 .dataTables_length select:hover {
@@ -80,8 +80,8 @@
 }
 
 .dataTables_filter input:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--denta-emerald-pine) !important;
+    box-shadow:none;
 }
 
 .dataTables_filter input:hover {
@@ -121,8 +121,8 @@
 }
 
 .dataTables_paginate .paginate_button.current {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+    background-color: var(--denta-emerald-pine) !important;
+    border-color: var(--denta-emerald-pine) !important;
     color: white !important;
 }
 
@@ -228,7 +228,7 @@ $openReorderCount = (int) ($open_reorder_count ?? 0);
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
     <section class="overflow-hidden rounded-[1.75rem] border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative isolate">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(251,146,60,0.55),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(239,68,68,0.45),transparent_28%),linear-gradient(135deg,#7c2d12_0%,#b91c1c_43%,#0f172a_100%)]"></div>
+            <div class="absolute inset-0 v3-bg-panel"></div>
 
             <div class="relative grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:p-7">
                 <div class="max-w-3xl">
@@ -557,7 +557,7 @@ function adjustStock(id) {
     }
 
     .print\\:shadow-none {
-        box-shadow: none !important;
+        box-shadow:none;
     }
 
     .print\\:p-0 {

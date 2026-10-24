@@ -34,14 +34,17 @@
             font-family: var(--app-font-ar);
         }
     </style>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/warm-clinical.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/warm-clinical.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
 </head>
-<body class="h-screen relative flex flex-col overflow-hidden v3-text-ink antialiased font-sans">
-    
+<body class="denta-v3 h-screen relative flex flex-col overflow-hidden v3-text-ink antialiased font-sans">
+
     <!-- Background -->
     <div class="fixed inset-0 z-0">
         <img src="<?= base_url('assets/images/login-background.jpg') ?>" class="w-full h-full object-cover" alt="background">
         <div class="absolute inset-0 v3-backdrop"></div>
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-transparent to-slate-900/90"></div>
+        <div class="absolute inset-0 v3-bg-panel v3-bg-panel via-transparent v3-bg-panel"></div>
         <div class="absolute inset-0 backdrop-blur-[2px]"></div>
     </div>
 
@@ -50,7 +53,7 @@
         <div class="w-full max-w-4xl max-h-full animate-card-entry">
             <div class="group relative">
                 <div class="relative glass-card border v3-border-default rounded-[2.5rem] v3-elevation-none shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
-                    
+
                     <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
 
                     <!-- Left Side -->
@@ -150,21 +153,18 @@
         .glass-card {
             position: relative; isolation: isolate;
             background-color: rgba(255, 255, 255, var(--glass-opacity)) !important;
-            backdrop-filter: blur(var(--glass-blur)) saturate(120%) !important;
-            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%) !important;
+            backdrop-filter:none;
+            backdrop-filter:none;
         }
         .glass-card::before {
             content: ""; position: absolute; inset: -20%; z-index: -1; pointer-events: none;
             mix-blend-mode: overlay; filter: blur(12px); transform: scale(1.1);
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 12%),
-                radial-gradient(circle at 70% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 20%),
-                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 15%);
+            background:var(--denta-alabaster);
         }
         .glass-card::after {
             content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
             opacity: 0.04; mix-blend-mode: soft-light;
-            background-image: repeating-radial-gradient(#fff 0 0.0001%, transparent 0 0.0004%);
+            background:var(--denta-alabaster);
             background-size: 8px 8px;
         }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

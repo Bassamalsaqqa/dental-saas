@@ -12,7 +12,7 @@ button.dt-button {
     background-image: none !important;
     background-color: transparent !important;
     border: none !important;
-    box-shadow: none !important;
+    box-shadow:none;
     text-shadow: none !important;
     margin-right: 0.5rem !important;
 }
@@ -20,7 +20,7 @@ button.dt-button:hover, button.dt-button:active {
     background-image: none !important;
     background-color: transparent !important;
     border: none !important;
-    box-shadow: none !important;
+    box-shadow:none;
 }
 /* Hide default buttons */
 .dt-buttons { display: none !important; }

@@ -44,8 +44,8 @@
 }
 
 .dataTables_length select:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--denta-emerald-pine) !important;
+    box-shadow:none;
 }
 
 .dataTables_length select:hover {
@@ -80,8 +80,8 @@
 }
 
 .dataTables_filter input:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--denta-emerald-pine) !important;
+    box-shadow:none;
 }
 
 .dataTables_filter input:hover {
@@ -121,8 +121,8 @@
 }
 
 .dataTables_paginate .paginate_button.current {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+    background-color: var(--denta-emerald-pine) !important;
+    border-color: var(--denta-emerald-pine) !important;
     color: white !important;
 }
 
@@ -226,7 +226,7 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
     <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(168,85,247,.58),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(14,165,233,.34),transparent_28%),linear-gradient(135deg,#6d28d9_0%,#4338ca_42%,#0f172a_100%)]"></div>
+            <div class="absolute inset-0 v3-bg-panel"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
                     <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface v3-text-on-primary border v3-border-default">

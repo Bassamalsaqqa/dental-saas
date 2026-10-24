@@ -21,13 +21,10 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         isolation: isolate;
         overflow: hidden;
         border-radius: 26px;
-        color: #fff;
-        background:
-            radial-gradient(circle at 12% 18%, rgba(255,255,255,0.18), transparent 30%),
-            radial-gradient(circle at 88% 20%, rgba(125,211,252,0.20), transparent 26%),
-            linear-gradient(135deg, #0f3f90 0%, #1656c1 58%, #0f766e 100%);
+        color:var(--denta-ivory-input);
+        background:var(--denta-alabaster);
         border: 1px solid rgba(203,213,225,0.55);
-        box-shadow: 0 28px 70px -44px rgba(15,23,42,0.75);
+        box-shadow:none;
     }
 
     .ops-hero-card::before {
@@ -36,16 +33,11 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         inset: 0;
         pointer-events: none;
         z-index: 0;
-        background:
-            radial-gradient(circle at 4% 84%, rgba(255,255,255,0.10), transparent 28%),
-            linear-gradient(120deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+        background:var(--denta-alabaster);
     }
 
     [dir="rtl"] .ops-hero-card {
-        background:
-            radial-gradient(circle at 88% 18%, rgba(255,255,255,0.18), transparent 30%),
-            radial-gradient(circle at 12% 20%, rgba(125,211,252,0.20), transparent 26%),
-            linear-gradient(225deg, #0f3f90 0%, #1656c1 58%, #0f766e 100%);
+        background:var(--denta-alabaster);
     }
 
     .ops-hero-card > * {
@@ -61,10 +53,10 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         justify-content: center;
         flex-shrink: 0;
         border-radius: 1.55rem;
-        background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(153,246,228,0.18));
+        background:var(--denta-alabaster);
         border: 1px solid rgba(255,255,255,0.22);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 22px 40px -24px rgba(15,23,42,0.72);
-        color: #fff;
+        box-shadow:none;
+        color:var(--denta-ivory-input);
         font-size: 1.9rem;
     }
 
@@ -80,7 +72,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         background: rgba(255,255,255,0.12);
         padding: 0.46rem 0.72rem;
         color: #eff6ff;
-        backdrop-filter: blur(12px);
+        backdrop-filter:none;
     }
 
     .ops-hero-chip-icon {
@@ -113,7 +105,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
 
     .ops-hero-chip-value {
         overflow: hidden;
-        color: #fff;
+        color:var(--denta-ivory-input);
         font-size: 0.9rem;
         font-weight: 900;
         line-height: 1.15;
@@ -124,34 +116,28 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
     .ops-hero-side-card {
         border-radius: 1.3rem;
         border: 1px solid rgba(255,255,255,0.24);
-        background:
-            radial-gradient(circle at 18% 0%, rgba(255,255,255,0.22), transparent 38%),
-            linear-gradient(145deg, rgba(255,255,255,0.20), rgba(8,47,73,0.18));
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 20px 42px -30px rgba(15,23,42,0.72);
-        backdrop-filter: blur(12px);
+        background:var(--denta-alabaster);
+        box-shadow:none;
+        backdrop-filter:none;
     }
 
     .ops-health-metric {
         border-radius: 1rem;
         border: 1px solid rgba(255,255,255,0.22);
         padding: 0.9rem;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 14px 26px -24px rgba(15,23,42,0.78);
+        box-shadow:none;
     }
 
     .ops-health-metric-ok {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(255,255,255,0.24), transparent 42%),
-            linear-gradient(145deg, rgba(16,185,129,0.42), rgba(15,118,110,0.20));
+        background:var(--denta-alabaster);
     }
 
     .ops-health-metric-warn {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(255,255,255,0.24), transparent 42%),
-            linear-gradient(145deg, rgba(245,158,11,0.42), rgba(217,119,6,0.20));
+        background:var(--denta-alabaster);
     }
 
     .ops-health-metric-value {
-        color: #fff;
+        color:var(--denta-ivory-input);
         font-size: 1.75rem;
         font-weight: 950;
         line-height: 1;
@@ -171,11 +157,8 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         overflow: hidden;
         border-radius: 1.42rem;
         border: 1px solid rgba(255,255,255,0.76);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37,99,235,0.11), transparent 28%),
-            radial-gradient(circle at 100% 18%, rgba(124,58,237,0.12), transparent 30%),
-            linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
-        box-shadow: 0 24px 58px -42px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.92) inset;
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .ops-workspace-section::before {
@@ -183,9 +166,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background:
-            radial-gradient(circle at 9% 0%, rgba(37,99,235,0.14), transparent 29%),
-            radial-gradient(circle at 95% 10%, rgba(5,150,105,0.12), transparent 30%);
+        background:var(--denta-alabaster);
     }
 
     .ops-workspace-section > * {
@@ -202,24 +183,24 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         padding: 0.62rem 0.9rem;
         border: 1px solid rgba(226,232,240,0.86);
         background: rgba(255,255,255,0.86);
-        color: #475569;
+        color: var(--denta-muted);
         font-size: 0.82rem;
         font-weight: 900;
         white-space: nowrap;
         transition: all 0.18s ease;
-        box-shadow: 0 12px 30px -24px rgba(15,23,42,0.34);
+        box-shadow:none;
     }
 
     .ops-tab-button:hover {
-        color: #0f172a;
+        color: var(--denta-forest);
         transform: translateY(-1px);
     }
 
     .ops-tab-button.is-active {
-        color: #fff;
+        color:var(--denta-ivory-input);
         border-color: rgba(255,255,255,0.55);
-        background: linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a);
-        box-shadow: 0 18px 34px -28px rgba(37,99,235,0.72);
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .ops-section-card {
@@ -227,37 +208,25 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         overflow: hidden;
         border-radius: 1.08rem;
         border: 1px solid rgba(255,255,255,0.82);
-        background:
-            radial-gradient(circle at 8% 0%, rgba(37,99,235,0.15), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.92) 46%, rgba(255,255,255,0.98));
-        box-shadow: 0 20px 48px -38px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.92) inset;
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .ops-section-card-health {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(5,150,105,0.18), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(209,250,229,0.92) 46%, rgba(255,255,255,0.98));
+        background:var(--denta-alabaster);
     }
 
     .ops-section-card-tools {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(79,70,229,0.17), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(238,242,255,0.92) 46%, rgba(255,255,255,0.98));
+        background:var(--denta-alabaster);
     }
 
     .ops-section-card-maintenance {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(217,119,6,0.18), transparent 31%),
-            radial-gradient(circle at 94% 6%, rgba(255,255,255,0.95), transparent 28%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(254,243,199,0.92) 46%, rgba(255,255,255,0.98));
+        background:var(--denta-alabaster);
     }
 
     .ops-section-header {
         border-bottom: 1px solid rgba(203,213,225,0.72);
-        background: linear-gradient(90deg, rgba(255,255,255,0.72), rgba(219,234,254,0.88));
+        background:var(--denta-alabaster);
     }
 
     .ops-section-title-dot {
@@ -267,9 +236,9 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         align-items: center;
         justify-content: center;
         border-radius: 0.85rem;
-        background: linear-gradient(135deg, #2563eb, #1e40af);
-        color: #fff;
-        box-shadow: 0 16px 26px -20px rgba(15,23,42,0.78);
+        background:var(--denta-alabaster);
+        color:var(--denta-ivory-input);
+        box-shadow:none;
     }
 
     .ops-link-row {
@@ -282,13 +251,13 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         border: 1px solid rgba(226,232,240,0.88);
         background: rgba(255,255,255,0.86);
         padding: 0.82rem 0.9rem;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+        box-shadow:none;
         transition: all 0.18s ease;
     }
 
     .ops-link-row:hover {
         transform: translateY(-1px);
-        box-shadow: 0 16px 32px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.9);
+        box-shadow:none;
     }
 
     .ops-link-icon {
@@ -299,14 +268,14 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
         justify-content: center;
         flex-shrink: 0;
         border-radius: 0.9rem;
-        color: #fff;
-        box-shadow: 0 14px 24px -18px rgba(15,23,42,0.62);
+        color:var(--denta-ivory-input);
+        box-shadow:none;
     }
 
     .ops-audit-table th {
         padding: 0.9rem 1rem;
         color: rgba(239,246,255,0.92);
-        background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+        background:var(--denta-alabaster);
         border-bottom: 1px solid rgba(148,163,184,0.36);
         font-size: 0.68rem;
         font-weight: 900;
@@ -486,11 +455,11 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                         <div class="space-y-2.5 p-4">
                             <?php
                             $toolLinks = [
-                                ['href' => base_url('controlplane/onboarding/clinic/create'), 'icon' => 'fa-plus', 'tone' => 'from-indigo-600 to-blue-700', 'title' => 'Onboard new clinic', 'copy' => 'Create tenant and admin'],
-                                ['href' => base_url('controlplane/clinics'), 'icon' => 'fa-hospital-user', 'tone' => 'from-emerald-600 to-teal-700', 'title' => 'Review clinics', 'copy' => 'Status checks and audits'],
-                                ['href' => base_url('controlplane/plan-requests'), 'icon' => 'fa-inbox', 'tone' => 'from-amber-600 to-orange-700', 'title' => 'Process requests', 'copy' => 'Subscription changes'],
-                                ['href' => base_url('controlplane/activity-log'), 'icon' => 'fa-history', 'tone' => 'from-blue-600 to-sky-700', 'title' => 'System activity', 'copy' => 'Audit logs and events'],
-                                ['href' => base_url('rbac/sync'), 'icon' => 'fa-sync-alt', 'tone' => 'from-slate-700 to-slate-900', 'title' => 'Sync permissions', 'copy' => 'RBAC inventory'],
+                                ['href' => base_url('controlplane/onboarding/clinic/create'), 'icon' => 'fa-plus', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'Onboard new clinic', 'copy' => 'Create tenant and admin'],
+                                ['href' => base_url('controlplane/clinics'), 'icon' => 'fa-hospital-user', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'Review clinics', 'copy' => 'Status checks and audits'],
+                                ['href' => base_url('controlplane/plan-requests'), 'icon' => 'fa-inbox', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'Process requests', 'copy' => 'Subscription changes'],
+                                ['href' => base_url('controlplane/activity-log'), 'icon' => 'fa-history', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'System activity', 'copy' => 'Audit logs and events'],
+                                ['href' => base_url('rbac/sync'), 'icon' => 'fa-sync-alt', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'Sync permissions', 'copy' => 'RBAC inventory'],
                             ];
                             ?>
                             <?php foreach ($toolLinks as $tool): ?>
@@ -522,10 +491,10 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                     <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
                         <?php
                         $maintenanceLinks = [
-                            ['href' => base_url('rbac/status'), 'icon' => 'fa-heartbeat', 'tone' => 'from-emerald-600 to-teal-700', 'title' => 'RBAC Status'],
-                            ['href' => base_url('rbac/init'), 'icon' => 'fa-seedling', 'tone' => 'from-indigo-600 to-violet-700', 'title' => 'Initialize RBAC'],
-                            ['href' => base_url('rbac/setup'), 'icon' => 'fa-tools', 'tone' => 'from-amber-600 to-orange-700', 'title' => 'RBAC Setup'],
-                            ['href' => base_url('controlplane/settings'), 'icon' => 'fa-sliders-h', 'tone' => 'from-slate-700 to-slate-900', 'title' => 'Global Settings'],
+                            ['href' => base_url('rbac/status'), 'icon' => 'fa-heartbeat', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'RBAC Status'],
+                            ['href' => base_url('rbac/init'), 'icon' => 'fa-seedling', 'tone' => 'v3-bg-panel to-violet-700', 'title' => 'Initialize RBAC'],
+                            ['href' => base_url('rbac/setup'), 'icon' => 'fa-tools', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'RBAC Setup'],
+                            ['href' => base_url('controlplane/settings'), 'icon' => 'fa-sliders-h', 'tone' => 'v3-bg-panel v3-bg-panel', 'title' => 'Global Settings'],
                         ];
                         ?>
                         <?php foreach ($maintenanceLinks as $link): ?>

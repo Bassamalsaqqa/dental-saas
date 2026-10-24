@@ -818,10 +818,10 @@ $(document).ready(function() {
                 name: 'examination_type',
                 render: function(data, type, row) {
                     const typeConfig = {
-                        'emergency': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'v3-text-danger', border: 'v3-border-default', icon: 'exclamation-triangle' },
-                        'initial': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'v3-text-warning', border: 'v3-border-default', icon: 'play-circle' },
-                        'periodic': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'v3-text-primary', border: 'v3-border-default', icon: 'calendar-check' },
-                        'follow_up': { bg: 'bg-gradient-to-r from-slate-100 to-gray-100', text: 'v3-text-ink', border: 'v3-border-default', icon: 'arrow-right' }
+                        'emergency': { bg: 'v3-bg-panel v3-bg-panel to-pink-100', text: 'v3-text-danger', border: 'v3-border-default', icon: 'exclamation-triangle' },
+                        'initial': { bg: 'v3-bg-panel v3-bg-panel v3-bg-panel', text: 'v3-text-warning', border: 'v3-border-default', icon: 'play-circle' },
+                        'periodic': { bg: 'v3-bg-panel v3-bg-panel v3-bg-panel', text: 'v3-text-primary', border: 'v3-border-default', icon: 'calendar-check' },
+                        'follow_up': { bg: 'v3-bg-panel v3-bg-panel v3-bg-panel', text: 'v3-text-ink', border: 'v3-border-default', icon: 'arrow-right' }
                     };
                     const typeLabelMap = {
                         emergency: i18n.typeEmergency,
@@ -843,10 +843,10 @@ $(document).ready(function() {
                 name: 'status',
                 render: function(data, type, row) {
                     const statusConfig = {
-                        'completed': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'v3-text-primary', border: 'v3-border-default', icon: 'check-circle' },
-                        'in_progress': { bg: 'bg-gradient-to-r from-sky-100 to-cyan-100', text: 'v3-text-primary', border: 'v3-border-default', icon: 'clock' },
-                        'pending': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'v3-text-warning', border: 'v3-border-default', icon: 'hourglass-half' },
-                        'cancelled': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'v3-text-danger', border: 'v3-border-default', icon: 'times-circle' }
+                        'completed': { bg: 'v3-bg-panel v3-bg-panel v3-bg-panel', text: 'v3-text-primary', border: 'v3-border-default', icon: 'check-circle' },
+                        'in_progress': { bg: 'v3-bg-panel v3-bg-panel v3-bg-panel', text: 'v3-text-primary', border: 'v3-border-default', icon: 'clock' },
+                        'pending': { bg: 'v3-bg-panel v3-bg-panel v3-bg-panel', text: 'v3-text-warning', border: 'v3-border-default', icon: 'hourglass-half' },
+                        'cancelled': { bg: 'v3-bg-panel v3-bg-panel to-pink-100', text: 'v3-text-danger', border: 'v3-border-default', icon: 'times-circle' }
                     };
                     const statusLabelMap = {
                         pending: i18n.statusPending,
@@ -894,7 +894,7 @@ $(document).ready(function() {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}/edit"
                                class="group/action relative v3-radius p-2 v3-text-primary transition-all duration-300 hover:scale-110 v3-hover-primary v3-hover-text-primary" title="${i18n.actionEditExamination}">
-                                <div class="absolute inset-0 v3-radius bg-gradient-to-r from-sky-500/10 to-cyan-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
+                                <div class="absolute inset-0 v3-radius v3-bg-panel v3-bg-panel v3-bg-panel opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-edit relative z-10"></i>
                             </a>`;
                     }
@@ -904,7 +904,7 @@ $(document).ready(function() {
                         actions += `
                             <a href="<?= base_url('odontogram') ?>/${row.patient_id}"
                                class="group/action relative v3-radius p-2 v3-text-chair transition-all duration-300 hover:scale-110 v3-hover-primary v3-hover-text-chair" title="${i18n.actionViewOdontogram}">
-                                <div class="absolute inset-0 v3-radius bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
+                                <div class="absolute inset-0 v3-radius v3-bg-panel v3-bg-panel to-pink-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-tooth relative z-10"></i>
                             </a>`;
                     }
@@ -914,7 +914,7 @@ $(document).ready(function() {
                         actions += `
                             <button onclick="completeExamination(${data})"
                                     class="group/action relative v3-radius p-2 v3-text-primary transition-all duration-300 hover:scale-110 v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary" title="${i18n.actionCompleteExamination}">
-                                <div class="absolute inset-0 v3-radius bg-gradient-to-r from-emerald-500/10 to-green-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
+                                <div class="absolute inset-0 v3-radius v3-bg-panel v3-bg-panel v3-bg-panel opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-check relative z-10"></i>
                             </button>`;
                     }

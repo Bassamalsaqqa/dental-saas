@@ -81,17 +81,17 @@ $bucketLabels = [
                     ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? null, 'accent' => 'slate'],
                 ];
                 $accentMap = [
-                    'green' => ['card' => 'bg-gradient-to-br from-emerald-600 to-teal-800 shadow-emerald-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-primary'],
-                    'rose' => ['card' => 'bg-gradient-to-br from-rose-600 to-pink-800 shadow-rose-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-danger'],
-                    'amber' => ['card' => 'bg-gradient-to-br from-amber-500 to-orange-700 shadow-amber-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-warning'],
-                    'indigo' => ['card' => 'bg-gradient-to-br from-indigo-600 to-blue-900 shadow-indigo-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-chair'],
-                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? null)) >= 0 ? 'bg-gradient-to-br from-slate-700 to-slate-950 shadow-slate-500/25' : 'bg-gradient-to-br from-rose-700 to-slate-950 shadow-rose-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-muted'],
+                    'green' => ['card' => 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-emerald-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-primary'],
+                    'rose' => ['card' => 'v3-bg-panel v3-bg-panel to-pink-800 shadow-rose-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-danger'],
+                    'amber' => ['card' => 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-amber-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-warning'],
+                    'indigo' => ['card' => 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-indigo-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-chair'],
+                    'slate' => ['card' => ((float) ($ownerSummary['net_position'] ?? null)) >= 0 ? 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-slate-500/25' : 'v3-bg-panel v3-bg-panel v3-bg-panel shadow-rose-500/25', 'badge' => 'v3-bg-panel v3-text-on-primary v3-border-default', 'value' => 'v3-text-on-primary', 'label' => 'v3-text-muted'],
                 ];
                 ?>
                 <?php foreach ($summaryCards as $card): ?>
                     <?php $accent = $accentMap[$card['accent']]; ?>
                     <div class="finance-reports-summary-card relative overflow-hidden <?= esc($accent['card']) ?>">
-                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.22),transparent_34%)]"></div>
+                        <div class="pointer-events-none absolute inset-0 v3-bg-panel"></div>
                         <div class="relative flex items-start justify-between gap-4">
                             <div class="min-w-0">
                                 <p class="text-xs uppercase tracking-wide <?= esc($accent['label']) ?>"><?= esc($card['title']) ?></p>

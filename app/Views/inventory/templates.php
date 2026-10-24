@@ -12,7 +12,7 @@ $activeFilterCount = ($selectedCategory !== '' ? 1 : 0) + ($searchQuery !== '' ?
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
     <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(20,184,166,.55),transparent_30%),radial-gradient(circle_at_84%_10%,rgba(37,99,235,.42),transparent_27%),linear-gradient(135deg,#0f766e_0%,#155e75_45%,#0f172a_100%)]"></div>
+            <div class="absolute inset-0 v3-bg-panel"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
                     <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface v3-text-on-primary border v3-border-default">

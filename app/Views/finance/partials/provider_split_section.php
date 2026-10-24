@@ -101,7 +101,7 @@ foreach (($clinic_providers ?? []) as $provider) {
 
 .provider-pay-toggle-hint {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--denta-muted);
 }
 </style>
 <div data-provider-split-section class="v3-radius border v3-border v3-soft-surface p-6 space-y-5">

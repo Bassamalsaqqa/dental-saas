@@ -579,10 +579,10 @@ $(document).ready(function() {
                 name: 'status',
                 render: function(data, type, row) {
                     const statusColors = {
-                        'active': 'v3-border-default bg-gradient-to-r from-emerald-100 to-green-100 v3-text-primary',
-                        'expired': 'v3-border-default bg-gradient-to-r from-red-100 to-rose-100 v3-text-danger',
-                        'cancelled': 'v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 v3-text-ink',
-                        'pending': 'v3-border-default bg-gradient-to-r from-amber-100 to-yellow-100 v3-text-warning'
+                        'active': 'v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-text-primary',
+                        'expired': 'v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-text-danger',
+                        'cancelled': 'v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-text-ink',
+                        'pending': 'v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-text-warning'
                     };
                     const statusIcons = {
                         'active': 'fas fa-check-circle',
@@ -590,7 +590,7 @@ $(document).ready(function() {
                         'cancelled': 'fas fa-ban',
                         'pending': 'fas fa-clock'
                     };
-                    const colorClass = statusColors[data] || 'v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 v3-text-ink';
+                    const colorClass = statusColors[data] || 'v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-text-ink';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
 
                     return `

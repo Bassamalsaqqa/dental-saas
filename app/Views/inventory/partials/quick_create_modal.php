@@ -45,8 +45,8 @@ $isRtl = !empty($is_rtl);
         width: 100% !important;
     }
     .inventory-create-modal .inventory-create-modal-section {
-        background: #fff;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
     .inventory-create-modal .inventory-create-modal-section .inventory-create-section-title {
         margin-bottom: 1.25rem;
@@ -59,29 +59,29 @@ $isRtl = !empty($is_rtl);
         height: 2.5rem;
         width: 2.5rem;
         border-radius: 0.75rem;
-        color: #fff;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+        color:var(--denta-ivory-input);
+        box-shadow:none;
     }
-    .inventory-create-modal .inventory-create-section-title .icon-emerald { background: linear-gradient(135deg, #10b981, #14b8a6); }
-    .inventory-create-modal .inventory-create-section-title .icon-amber { background: linear-gradient(135deg, #f59e0b, #f97316); }
-    .inventory-create-modal .inventory-create-section-title .icon-indigo { background: linear-gradient(135deg, #6366f1, #2563eb); }
-    .inventory-create-modal .inventory-create-section-title .icon-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
-    .inventory-create-modal .inventory-create-section-title .icon-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .inventory-create-modal .inventory-create-section-title .icon-emerald { background:var(--denta-alabaster); }
+    .inventory-create-modal .inventory-create-section-title .icon-amber { background:var(--denta-alabaster); }
+    .inventory-create-modal .inventory-create-section-title .icon-indigo { background:var(--denta-alabaster); }
+    .inventory-create-modal .inventory-create-section-title .icon-orange { background:var(--denta-alabaster); }
+    .inventory-create-modal .inventory-create-section-title .icon-violet { background:var(--denta-alabaster); }
     .inventory-create-modal .inventory-create-form-field,
     .inventory-create-modal .inventory-create-select,
     .inventory-create-modal .inventory-create-textarea {
         border-width: 2px;
-        border-color: #e2e8f0;
+        border-color: var(--denta-taupe-border);
         border-radius: 0.75rem;
-        color: #0f172a;
+        color: var(--denta-forest);
         font-weight: 500;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        box-shadow:none;
     }
     .inventory-create-modal .inventory-create-form-field:focus,
     .inventory-create-modal .inventory-create-select:focus,
     .inventory-create-modal .inventory-create-textarea:focus {
         border-color: #14b8a6;
-        box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+        box-shadow:none;
     }
     @media (prefers-reduced-motion: reduce) {
         .inventory-create-modal__backdrop,
@@ -114,7 +114,7 @@ $isRtl = !empty($is_rtl);
 
                 <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 backdrop-blur">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-gradient-to-br from-teal-500 to-blue-600 v3-text-on-primary v3-elevation-none">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary v3-elevation-none">
                             <i class="fas fa-boxes"></i>
                         </span>
                         <div>
@@ -148,7 +148,7 @@ $isRtl = !empty($is_rtl);
                     <button type="button" data-inventory-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('Inventory.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center v3-radius bg-gradient-to-r from-teal-500 to-blue-600 px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:from-teal-600 hover:to-blue-700 hover:v3-elevation-none v3-btn v3-btn--primary">
+                    <button type="submit" class="inline-flex items-center justify-center v3-radius v3-bg-panel v3-bg-panel v3-bg-panel px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:v3-bg-panel hover:v3-bg-panel hover:v3-elevation-none v3-btn v3-btn--primary">
                         <i class="fas fa-plus me-2"></i>
                         <?= esc(lang('Inventory.addItem')) ?>
                     </button>

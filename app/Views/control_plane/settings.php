@@ -3,22 +3,19 @@
 <?= $this->section('content') ?>
 <style>
     .control-settings-shell {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(59, 130, 246, 0.12), transparent 30%),
-            radial-gradient(circle at 92% 8%, rgba(16, 185, 129, 0.10), transparent 28%),
-            linear-gradient(135deg, #eef5ff 0%, #f8fafc 48%, #ecfdf5 100%);
+        background:var(--denta-alabaster);
     }
     .control-settings-shell-card {
         background: rgba(255, 255, 255, 0.94);
         border: 1px solid rgba(226, 232, 240, 0.84);
-        box-shadow: 0 18px 42px -32px rgba(15, 23, 42, 0.34);
-        backdrop-filter: blur(18px);
+        box-shadow:none;
+        backdrop-filter:none;
     }
     .control-settings-shell-breadcrumb {
         background: rgba(255, 255, 255, 0.65);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 10px 30px -24px rgba(15, 23, 42, 0.3);
-        backdrop-filter: blur(18px);
+        box-shadow:none;
+        backdrop-filter:none;
     }
     .control-settings-menu-btn {
         display: flex;
@@ -30,47 +27,44 @@
         border-radius: 1.15rem;
         font-size: 0.875rem;
         font-weight: 600;
-        color: #334155;
+        color: var(--denta-ink);
         transition: all 0.2s ease;
         text-align: left;
         border: 1px solid rgba(226, 232, 240, 0.8);
         background: rgba(255, 255, 255, 0.88);
-        box-shadow: 0 14px 32px -28px rgba(15, 23, 42, 0.32);
-        backdrop-filter: blur(14px);
+        box-shadow:none;
+        backdrop-filter:none;
     }
     .control-settings-menu-btn:hover {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
-        color: #0f172a;
+        background:var(--denta-alabaster);
+        color: var(--denta-forest);
         border-color: rgba(59, 130, 246, 0.28);
         transform: translateY(-2px);
-        box-shadow: 0 20px 40px -30px rgba(59, 130, 246, 0.4);
+        box-shadow:none;
     }
     .control-settings-menu-btn i {
-        color: #475569;
+        color: var(--denta-muted);
         transition: color 0.2s ease;
     }
     .control-settings-menu-btn.is-active {
-        background: linear-gradient(135deg, #0f172a, #1d4ed8 54%, #0f766e 100%);
-        color: #fff;
+        background:var(--denta-alabaster);
+        color:var(--denta-ivory-input);
         border-color: transparent;
-        box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.5);
+        box-shadow:none;
     }
     .control-settings-menu-btn.is-active i {
-        color: #fff;
+        color:var(--denta-ivory-input);
     }
     .control-settings-card {
         background: rgba(255, 255, 255, 0.96);
         border: 1px solid rgba(226, 232, 240, 0.88);
         border-radius: 1.5rem;
-        box-shadow: 0 18px 44px -34px rgba(15, 23, 42, 0.36);
-        backdrop-filter: blur(18px);
+        box-shadow:none;
+        backdrop-filter:none;
         overflow: hidden;
     }
     .control-settings-header {
-        background:
-            radial-gradient(circle at 12% 18%, rgba(96, 165, 250, 0.42), transparent 28%),
-            radial-gradient(circle at 86% 18%, rgba(45, 212, 191, 0.28), transparent 24%),
-            linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0f766e 100%);
+        background:var(--denta-alabaster);
         padding: 1.35rem 1.5rem;
     }
     .control-settings-header h3,
@@ -78,16 +72,16 @@
         color: #fff !important;
     }
     .control-settings-header p {
-        color: #cbd5e1 !important;
+        color: var(--denta-taupe-border) !important;
     }
     .control-settings-header .backdrop-blur-sm {
-        -webkit-backdrop-filter: blur(4px) !important;
-        backdrop-filter: blur(4px) !important;
+        backdrop-filter:none;
+        backdrop-filter:none;
     }
     .control-settings-header .w-12.h-12 {
         background: rgba(255, 255, 255, 0.2) !important;
         border-radius: 0.75rem !important;
-        box-shadow: none !important;
+        box-shadow:none;
     }
     .control-settings-field {
         width: 100%;
@@ -95,16 +89,16 @@
         background: rgba(255, 255, 255, 0.78);
         border: 1px solid rgba(203, 213, 225, 0.95);
         border-radius: 0.95rem;
-        color: #334155;
+        color: var(--denta-ink);
         font-weight: 500;
         transition: all 0.2s ease;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+        box-shadow:none;
     }
     .control-settings-field:focus {
         outline: none;
-        border-color: #3b82f6;
+        border-color: var(--denta-emerald-pine);
         background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+        box-shadow:none;
     }
     .control-settings-submit {
         display: inline-flex;
@@ -112,10 +106,10 @@
         justify-content: center;
         padding: 0.75rem 1.5rem;
         border-radius: 0.95rem;
-        background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
-        color: #fff;
+        background:var(--denta-alabaster);
+        color:var(--denta-ivory-input);
         font-weight: 600;
-        box-shadow: 0 18px 38px -22px rgba(37, 99, 235, 0.5);
+        box-shadow:none;
         transition: all 0.2s ease;
     }
     .control-settings-submit:hover {
@@ -130,16 +124,16 @@
         border-radius: 0.95rem;
         background: rgba(255, 255, 255, 0.72);
         border: 1px solid rgba(203, 213, 225, 0.9);
-        color: #475569;
+        color: var(--denta-muted);
         font-weight: 600;
         transition: all 0.2s ease;
-        box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.35);
-        backdrop-filter: blur(14px);
+        box-shadow:none;
+        backdrop-filter:none;
     }
     .control-settings-secondary:hover {
         background: rgba(255, 255, 255, 0.95);
         border-color: rgba(59, 130, 246, 0.28);
-        color: #0f172a;
+        color: var(--denta-forest);
     }
     .control-settings-card > .p-8 {
         padding: 1.35rem !important;
@@ -147,14 +141,14 @@
     .control-settings-surface {
         border: 1px solid rgba(226, 232, 240, 0.85);
         border-radius: 1.2rem;
-        background: linear-gradient(135deg, rgba(248, 250, 252, 0.94), rgba(239, 246, 255, 0.72));
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
     .control-settings-metric {
         border: 1px solid rgba(226, 232, 240, 0.85);
         border-radius: 1.25rem;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.74));
-        box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.22);
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
     [dir="rtl"] #control-settings-breadcrumb {
         direction: rtl;
@@ -194,7 +188,7 @@
     <div class="w-full space-y-5 px-3 py-3 sm:px-4 lg:px-5">
         <section class="overflow-hidden cp-radius border cp-border v3-bg-forest">
             <div class="relative p-4 sm:p-5">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_14%_16%,rgba(59,130,246,.54),transparent_30%),radial-gradient(circle_at_86%_12%,rgba(16,185,129,.32),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_54%,#0f766e_100%)]"></div>
+                <div class="absolute inset-0 v3-bg-panel"></div>
                 <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div class="flex min-w-0 items-start gap-4">
                         <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center cp-radius cp-surface v3-text-on-primary border v3-border-default">

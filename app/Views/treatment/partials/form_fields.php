@@ -21,7 +21,7 @@ $procedureIntent = (string) old('procedure_intent', 'planned');
             </select>
         </div>
     <?php endif; ?>
-    <fieldset class="mt-5 v3-radius border v3-border-default bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4 v3-elevation-none">
+    <fieldset class="mt-5 v3-radius border v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-bg-panel p-4 v3-elevation-none">
         <legend class="px-1 text-sm font-extrabold v3-text-ink"><?= esc(lang('Treatment.procedure_intent')) ?></legend>
         <p class="mb-3 text-xs font-semibold v3-text-muted"><?= esc(lang('Treatment.procedure_intent_help')) ?></p>
         <div class="grid gap-3 sm:grid-cols-2">

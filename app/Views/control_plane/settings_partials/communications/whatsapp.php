@@ -34,19 +34,19 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
         border-radius: 1rem;
         border: 1px solid rgba(148, 163, 184, .18);
         background: rgba(248, 250, 252, .88);
-        color: #475569;
+        color: var(--denta-muted);
         font-size: .875rem;
         font-weight: 700;
         transition: all .2s ease;
         white-space: nowrap;
     }
-    .wa-settings-segment:hover { background: #fff; color: #0f172a; border-color: rgba(59, 130, 246, .2); }
-    .wa-settings-segment.is-active { background: linear-gradient(135deg, #0f766e, #059669); color: #fff; border-color: transparent; box-shadow: 0 18px 38px rgba(5, 150, 105, .16); }
+    .wa-settings-segment:hover { background:var(--denta-alabaster); color: var(--denta-forest); border-color: rgba(59, 130, 246, .2); }
+    .wa-settings-segment.is-active { background:var(--denta-alabaster); color:var(--denta-ivory-input); border-color: transparent; box-shadow:none; }
     .wa-settings-pane.hidden { display: none !important; }
-    .wa-template-card { border: 1px solid #e2e8f0; border-radius: 1.25rem; background: #fff; box-shadow: 0 14px 30px rgba(15, 23, 42, .06); overflow: hidden; }
-    .wa-template-card-header { padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(15, 118, 110, .08), rgba(59, 130, 246, .05)); border-bottom: 1px solid #e2e8f0; }
+    .wa-template-card { border: 1px solid var(--denta-taupe-border); border-radius: 1.25rem; background:var(--denta-alabaster); box-shadow:none; overflow: hidden; }
+    .wa-template-card-header { padding: 1.25rem 1.5rem; background:var(--denta-alabaster); border-bottom: 1px solid var(--denta-taupe-border); }
     .wa-template-preview { min-height: 10rem; direction: rtl; text-align: right; line-height: 1.9; font-family: inherit; }
-    .wa-stat-card { border: 1px solid #e2e8f0; border-radius: 1.25rem; background: #fff; padding: 1.25rem; box-shadow: 0 12px 28px rgba(15, 23, 42, .05); }
+    .wa-stat-card { border: 1px solid var(--denta-taupe-border); border-radius: 1.25rem; background:var(--denta-alabaster); padding: 1.25rem; box-shadow:none; }
     .wa-template-nav-btn {
         display: flex;
         align-items: flex-start;
@@ -55,19 +55,19 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
         width: 100%;
         padding: .95rem 1rem;
         border-radius: 1rem;
-        border: 1px solid #e2e8f0;
-        background: #fff;
+        border: 1px solid var(--denta-taupe-border);
+        background:var(--denta-alabaster);
         text-align: left;
         transition: all .2s ease;
     }
     .wa-template-nav-btn:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
+        background: var(--denta-alabaster);
+        border-color: var(--denta-taupe-border);
     }
     .wa-template-nav-btn.is-active {
         background: #eff6ff;
         border-color: #bfdbfe;
-        box-shadow: inset 0 0 0 1px #bfdbfe;
+        box-shadow:none;
     }
     .wa-template-nav-btn.is-active .wa-template-nav-title {
         color: #1d4ed8;

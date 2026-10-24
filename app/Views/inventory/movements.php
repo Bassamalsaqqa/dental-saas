@@ -38,7 +38,7 @@ if ((int) ($filters['inventory_id'] ?? 0) > 0) {
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
     <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(16,185,129,.56),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(14,165,233,.36),transparent_28%),linear-gradient(135deg,#047857_0%,#0f766e_42%,#0f172a_100%)]"></div>
+            <div class="absolute inset-0 v3-bg-panel"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
                     <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface v3-text-on-primary border v3-border-default">

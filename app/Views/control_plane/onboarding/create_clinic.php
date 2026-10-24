@@ -10,30 +10,21 @@ $errorMessage = session('error');
 
 <style>
     .clinic-onboarding-shell {
-        background:
-            radial-gradient(circle at 4% 0%, rgba(37,99,235,0.13), transparent 28%),
-            radial-gradient(circle at 96% 8%, rgba(16,185,129,0.13), transparent 30%),
-            linear-gradient(135deg, rgba(248,250,252,0.99), rgba(239,246,255,0.94));
+        background:var(--denta-alabaster);
     }
 
     .clinic-onboarding-hero {
         position: relative;
         overflow: hidden;
         border-radius: 1.45rem;
-        color: #fff;
-        background:
-            radial-gradient(circle at 12% 12%, rgba(255,255,255,0.20), transparent 31%),
-            radial-gradient(circle at 88% 20%, rgba(94,234,212,0.22), transparent 28%),
-            linear-gradient(135deg, #0f3f90 0%, #1d4ed8 54%, #0f766e 100%);
+        color:var(--denta-ivory-input);
+        background:var(--denta-alabaster);
         border: 1px solid rgba(203,213,225,0.58);
-        box-shadow: 0 26px 64px -44px rgba(15,23,42,0.78);
+        box-shadow:none;
     }
 
     [dir="rtl"] .clinic-onboarding-hero {
-        background:
-            radial-gradient(circle at 88% 12%, rgba(255,255,255,0.20), transparent 31%),
-            radial-gradient(circle at 12% 20%, rgba(94,234,212,0.22), transparent 28%),
-            linear-gradient(225deg, #0f3f90 0%, #1d4ed8 54%, #0f766e 100%);
+        background:var(--denta-alabaster);
     }
 
     .clinic-onboarding-hero::before {
@@ -41,7 +32,7 @@ $errorMessage = session('error');
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: linear-gradient(120deg, rgba(255,255,255,0.08), transparent 46%);
+        background:var(--denta-alabaster);
     }
 
     .clinic-onboarding-hero > * {
@@ -57,11 +48,11 @@ $errorMessage = session('error');
         justify-content: center;
         flex-shrink: 0;
         border-radius: 1.42rem;
-        color: #fff;
+        color:var(--denta-ivory-input);
         font-size: 1.78rem;
-        background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(153,246,228,0.18));
+        background:var(--denta-alabaster);
         border: 1px solid rgba(255,255,255,0.25);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 20px 40px -28px rgba(15,23,42,0.78);
+        box-shadow:none;
     }
 
     .clinic-hero-chip {
@@ -71,10 +62,10 @@ $errorMessage = session('error');
         gap: 0.55rem;
         border-radius: 999px;
         padding: 0.48rem 0.76rem;
-        color: #fff;
+        color:var(--denta-ivory-input);
         background: rgba(255,255,255,0.13);
         border: 1px solid rgba(255,255,255,0.18);
-        backdrop-filter: blur(12px);
+        backdrop-filter:none;
     }
 
     .clinic-form-card {
@@ -82,42 +73,30 @@ $errorMessage = session('error');
         overflow: hidden;
         border-radius: 1.12rem;
         border: 1px solid rgba(255,255,255,0.84);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37,99,235,0.10), transparent 30%),
-            linear-gradient(135deg, rgba(255,255,255,0.99), rgba(239,246,255,0.94));
-        box-shadow: 0 20px 48px -40px rgba(15,23,42,0.52), 0 1px 0 rgba(255,255,255,0.94) inset;
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .clinic-form-card-admin {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(124,58,237,0.13), transparent 31%),
-            linear-gradient(135deg, rgba(255,255,255,0.99), rgba(245,243,255,0.93));
+        background:var(--denta-alabaster);
     }
 
     .clinic-form-card-plan {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(5,150,105,0.14), transparent 31%),
-            linear-gradient(135deg, rgba(255,255,255,0.99), rgba(209,250,229,0.88));
+        background:var(--denta-alabaster);
     }
 
     .clinic-card-header {
-        color: #fff;
+        color:var(--denta-ivory-input);
         border-bottom: 1px solid rgba(255,255,255,0.20);
-        background:
-            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.18), transparent 36%),
-            linear-gradient(135deg, #1d4ed8, #0f766e);
+        background:var(--denta-alabaster);
     }
 
     .clinic-card-header-admin {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.18), transparent 36%),
-            linear-gradient(135deg, #6d28d9, #be185d);
+        background:var(--denta-alabaster);
     }
 
     .clinic-card-header-plan {
-        background:
-            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.20), transparent 36%),
-            linear-gradient(135deg, #047857, #0f766e);
+        background:var(--denta-alabaster);
     }
 
     .clinic-section-icon {
@@ -128,8 +107,8 @@ $errorMessage = session('error');
         justify-content: center;
         flex-shrink: 0;
         border-radius: 0.9rem;
-        color: #fff;
-        box-shadow: 0 16px 28px -22px rgba(15,23,42,0.75);
+        color:var(--denta-ivory-input);
+        box-shadow:none;
     }
 
     .clinic-input {
@@ -138,17 +117,17 @@ $errorMessage = session('error');
         border: 1px solid rgba(203,213,225,0.95);
         background: rgba(255,255,255,0.95);
         padding: 0.82rem 0.95rem;
-        color: #1e293b;
+        color: var(--denta-ink);
         font-size: 0.95rem;
         font-weight: 700;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+        box-shadow:none;
         transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
     }
 
     .clinic-input:focus {
-        border-color: #2563eb;
+        border-color: var(--denta-emerald-pine);
         outline: none;
-        box-shadow: 0 0 0 4px rgba(37,99,235,0.14), inset 0 1px 0 rgba(255,255,255,0.9);
+        box-shadow:none;
     }
 
     .clinic-plan-option {
@@ -157,36 +136,30 @@ $errorMessage = session('error');
         gap: 1rem;
         border-radius: 1rem;
         border: 1px solid rgba(148,163,184,0.38);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(16,185,129,0.10), transparent 35%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240,253,244,0.92));
+        background:var(--denta-alabaster);
         padding: 0.95rem;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+        box-shadow:none;
         transition: all 0.16s ease;
     }
 
     .clinic-plan-option:hover {
         border-color: rgba(16,185,129,0.62);
         transform: translateY(-1px);
-        box-shadow: 0 16px 34px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.92);
+        box-shadow:none;
     }
 
     .clinic-side-card {
         border-radius: 1.12rem;
         border: 1px solid rgba(255,255,255,0.84);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37,99,235,0.11), transparent 33%),
-            linear-gradient(135deg, rgba(255,255,255,0.99), rgba(248,250,252,0.96));
-        box-shadow: 0 18px 42px -38px rgba(15,23,42,0.48), 0 1px 0 rgba(255,255,255,0.94) inset;
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 
     .clinic-submit-card {
         border-radius: 1.12rem;
-        color: #fff;
-        background:
-            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.20), transparent 34%),
-            linear-gradient(135deg, #1d4ed8, #0f766e);
-        box-shadow: 0 22px 44px -34px rgba(15,23,42,0.72);
+        color:var(--denta-ivory-input);
+        background:var(--denta-alabaster);
+        box-shadow:none;
     }
 </style>
 

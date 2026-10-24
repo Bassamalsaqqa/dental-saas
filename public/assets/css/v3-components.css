@@ -51,6 +51,8 @@
 .denta-v3 .v3-hover-text-warning:hover{color:#71500A}
 .denta-v3 .v3-hover-text-chair:hover{color:#52436F}
 .denta-v3 .v3-form-section-header :is(h2,h3,h4){color:var(--denta-ink)}
+.denta-v3.login-page .login-input{padding-inline-start:2.7rem}
+.denta-v3.login-page .login-input-password{padding-inline-end:3rem}
 @media(max-width:640px){.denta-v3 .v3-btn{min-height:40px}.denta-v3 :is(.v3-input,.v3-select,.v3-textarea){min-height:40px}}
 @media(prefers-reduced-motion:reduce){.denta-v3 *{scroll-behavior:auto;transition:none}}
 }

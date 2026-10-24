@@ -491,25 +491,25 @@ const select2CustomCSS = `
 /* Select2 Custom Styling */
 .select2-container--default .select2-selection--single {
     height: 42px;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    background-color: #ffffff;
+    border: 1px solid var(--denta-taupe-border);
+    border-radius: 5px;
+    background-color: var(--denta-ivory-input);
     position: relative;
     transition: all 0.2s ease-in-out;
 }
 
 .select2-container--default .select2-selection--single:hover {
-    border-color: #0284c7;
+    border-color: var(--denta-emerald-pine);
 }
 
 .select2-container--default.select2-container--focus .select2-selection--single {
-    border-color: #0284c7;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    border-color: var(--denta-emerald-pine);
+    box-shadow:none;
     outline: none;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #374151;
+    color: var(--denta-ink);
     line-height: 40px;
     display: block;
     overflow: hidden;
@@ -522,7 +522,7 @@ const select2CustomCSS = `
 }
 
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
-    color: #9ca3af;
+    color: var(--denta-muted);
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -571,7 +571,7 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {
-    border-color: #6b7280 transparent transparent transparent;
+    border-color: var(--denta-muted) transparent transparent transparent;
     border-style: solid;
     border-width: 5px 4px 0 4px;
     height: 0;
@@ -584,20 +584,20 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
 }
 
 .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
-    border-color: transparent transparent #6b7280 transparent;
+    border-color: transparent transparent var(--denta-muted) transparent;
     border-width: 0 4px 5px 4px;
 }
 
 .select2-dropdown {
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    background-color: #ffffff;
+    border: 1px solid var(--denta-taupe-border);
+    border-radius: 5px;
+    box-shadow:none;
+    background-color: var(--denta-ivory-input);
     z-index: 9999;
 }
 
 .select2-container--default .select2-search--dropdown .select2-search__field {
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--denta-taupe-border);
     border-radius: 0.375rem;
     padding: 8px 12px;
     font-size: 14px;
@@ -606,51 +606,51 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
 }
 
 .select2-container--default .select2-search--dropdown .select2-search__field:focus {
-    border-color: #0284c7;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    border-color: var(--denta-emerald-pine);
+    box-shadow:none;
     outline: none;
 }
 
 .select2-container--default .select2-results__option {
     padding: 8px 12px;
     font-size: 14px;
-    color: #374151;
+    color: var(--denta-ink);
     transition: background-color 0.2s ease-in-out;
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #0284c7;
-    color: #ffffff;
+    background-color: var(--denta-emerald-pine);
+    color: var(--denta-ivory-input);
 }
 
 .select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: #f3f4f6;
-    color: #374151;
+    background-color: var(--denta-parchment);
+    color: var(--denta-ink);
 }
 
 .select2-container--default .select2-results__option[aria-selected=true]:hover {
-    background-color: #e5e7eb;
+    background-color: var(--denta-taupe-border);
 }
 
 .select2-container--default .select2-results__option--loading {
-    color: #6b7280;
+    color: var(--denta-muted);
     font-style: italic;
 }
 
 .select2-container--default .select2-results__message {
-    color: #6b7280;
+    color: var(--denta-muted);
     font-style: italic;
     padding: 8px 12px;
 }
 
 /* Error state styling */
 .select2-container--default.is-invalid .select2-selection--single {
-    border-color: #dc2626;
+    border-color: var(--denta-terracotta);
 }
 
 .select2-container--default.is-invalid.select2-container--focus .select2-selection--single {
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    border-color: var(--denta-terracotta);
+    box-shadow:none;
 }
 
 /* Loading state */
@@ -666,8 +666,8 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    border: 2px solid #e5e7eb;
-    border-top: 2px solid #0284c7;
+    border: 2px solid var(--denta-taupe-border);
+    border-top: 2px solid var(--denta-emerald-pine);
     border-radius: 50%;
     animation: select2-spin 1s linear infinite;
     display: none;
@@ -720,42 +720,6 @@ html[dir="rtl"] .select2-container--default .select2-results__message {
     }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .select2-container--default .select2-selection--single {
-        background-color: #1f2937;
-        border-color: #374151;
-        color: #f9fafb;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: #f9fafb;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: #9ca3af;
-    }
-    
-    .select2-dropdown {
-        background-color: #1f2937;
-        border-color: #374151;
-    }
-    
-    .select2-container--default .select2-search--dropdown .select2-search__field {
-        background-color: #1f2937;
-        border-color: #374151;
-        color: #f9fafb;
-    }
-    
-    .select2-container--default .select2-results__option {
-        color: #f9fafb;
-    }
-    
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        background-color: #374151;
-        color: #f9fafb;
-    }
-}
 </style>
 `;
 

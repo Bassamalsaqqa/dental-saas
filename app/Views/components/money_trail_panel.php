@@ -78,7 +78,7 @@ $toneClasses = [
 ?>
 
 <section class="v3-radius border v3-border-default v3-bg-panel v3-elevation-none overflow-hidden" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="border-b v3-border-default bg-gradient-to-r from-emerald-50 via-white to-sky-50 px-4 py-3 sm:px-5">
+    <div class="border-b v3-border-default v3-bg-panel v3-bg-panel v3-bg-panel v3-bg-panel px-4 py-3 sm:px-5">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h3 class="text-base font-bold v3-text-ink"><?= esc($moneyLabel('moneyTrailTitle')) ?></h3>
