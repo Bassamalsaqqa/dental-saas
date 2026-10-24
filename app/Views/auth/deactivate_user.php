@@ -5,9 +5,9 @@
 
   <p>
   	<?php echo form_label(lang('Auth.deactivate_confirm_y_label'), 'confirm');?>
-    <input type="radio" name="confirm" value="yes" checked="checked" />
+    <input type="radio" name="confirm" value="yes" checked="checked"  class="v3-radio"/>
     <?php echo form_label(lang('Auth.deactivate_confirm_n_label'), 'confirm');?>
-    <input type="radio" name="confirm" value="no" />
+    <input type="radio" name="confirm" value="no"  class="v3-radio"/>
   </p>
 
   <?php echo form_hidden('id', $user->id); ?>

@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="v3-operational-view">
-<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
+<p class="px-4 py-2 text-sm v3-text-warning"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php
     $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']);
     $taxPercent = $finance['tax_percentage'] ?? 0;
@@ -121,15 +121,15 @@
     $isRtl = in_array(service('request')->getLocale(), ['ar', 'he', 'fa', 'ur'], true);
     $settlementProgress = $totalAmount > 0 ? max(0, min(100, round(($paidSoFar / $totalAmount) * 100))) : 0;
     $statusTone = match ($paymentStatusKey) {
-        'paid' => ['pill' => 'bg-emerald-100 text-emerald-700', 'dot' => 'bg-emerald-500', 'text' => 'text-emerald-700', 'hero_bg' => 'rgba(16,185,129,0.22)', 'hero_border' => 'rgba(167,243,208,0.4)'],
-        'partial' => ['pill' => 'bg-blue-100 text-blue-700', 'dot' => 'bg-blue-500', 'text' => 'text-blue-700', 'hero_bg' => 'rgba(96,165,250,0.22)', 'hero_border' => 'rgba(191,219,254,0.4)'],
-        'pending' => ['pill' => 'bg-amber-100 text-amber-700', 'dot' => 'bg-amber-500', 'text' => 'text-amber-700', 'hero_bg' => 'rgba(251,191,36,0.22)', 'hero_border' => 'rgba(253,230,138,0.4)'],
-        'overdue' => ['pill' => 'bg-rose-100 text-rose-700', 'dot' => 'bg-rose-500', 'text' => 'text-rose-700', 'hero_bg' => 'rgba(244,63,94,0.22)', 'hero_border' => 'rgba(254,205,211,0.4)'],
-        default => ['pill' => 'bg-gray-100 text-gray-700', 'dot' => 'bg-gray-400', 'text' => 'text-gray-700', 'hero_bg' => 'rgba(255,255,255,0.12)', 'hero_border' => 'rgba(255,255,255,0.2)'],
+        'paid' => ['pill' => 'v3-bg-paid v3-text-primary', 'dot' => 'v3-bg-primary', 'text' => 'v3-text-primary', 'hero_bg' => 'rgba(16,185,129,0.22)', 'hero_border' => 'rgba(167,243,208,0.4)'],
+        'partial' => ['pill' => 'v3-bg-scheduled v3-text-primary', 'dot' => 'v3-bg-primary', 'text' => 'v3-text-primary', 'hero_bg' => 'rgba(96,165,250,0.22)', 'hero_border' => 'rgba(191,219,254,0.4)'],
+        'pending' => ['pill' => 'v3-bg-waiting v3-text-warning', 'dot' => 'v3-bg-warning', 'text' => 'v3-text-warning', 'hero_bg' => 'rgba(251,191,36,0.22)', 'hero_border' => 'rgba(253,230,138,0.4)'],
+        'overdue' => ['pill' => 'v3-bg-alert v3-text-danger', 'dot' => 'v3-bg-danger', 'text' => 'v3-text-danger', 'hero_bg' => 'rgba(244,63,94,0.22)', 'hero_border' => 'rgba(254,205,211,0.4)'],
+        default => ['pill' => 'v3-bg-soft v3-text-ink', 'dot' => 'v3-bg-canvas', 'text' => 'v3-text-ink', 'hero_bg' => 'rgba(255,255,255,0.12)', 'hero_border' => 'rgba(255,255,255,0.2)'],
     };
     $typeTone = $isExpense
-        ? ['icon' => 'fa-receipt', 'bg' => 'bg-amber-600', 'soft' => 'bg-amber-100 text-amber-800']
-        : ['icon' => 'fa-file-invoice-dollar', 'bg' => 'bg-blue-600', 'soft' => 'bg-blue-100 text-blue-800'];
+        ? ['icon' => 'fa-receipt', 'bg' => 'v3-bg-warning', 'soft' => 'v3-bg-waiting v3-text-warning']
+        : ['icon' => 'fa-file-invoice-dollar', 'bg' => 'v3-bg-primary', 'soft' => 'v3-bg-scheduled v3-text-primary'];
     $counterpartyName = trim((string) ($finance['counterparty_name'] ?? ''));
     $relatedPartyTitle = $isExpense ? lang('Finance.payeeVendor') : lang('Finance.patient');
     $relatedPartyValue = $isExpense ? $counterpartyName : trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
@@ -325,13 +325,13 @@
                         ?>
                         <div class="grid gap-2 <?= $finCols ?>">
                             <?php if ($showPayment): ?>
-                            <button type="button" onclick="openFinanceModal('paymentModal', this)" class="v3-context-action patient-header-action-emerald">
+                            <button type="button" onclick="openFinanceModal('paymentModal', this)" class="v3-context-action patient-header-action-emerald v3-btn v3-btn--secondary">
                                 <i class="fas fa-plus-circle"></i>
                                 <span><?= esc($ui['recordPayment']) ?></span>
                             </button>
                             <?php endif; ?>
                             <?php if ($showRefund): ?>
-                            <button type="button" onclick="openFinanceModal('refundModal', this)" class="v3-context-action patient-header-action-danger">
+                            <button type="button" onclick="openFinanceModal('refundModal', this)" class="v3-context-action patient-header-action-danger v3-btn v3-btn--secondary">
                                 <i class="fas fa-rotate-left"></i>
                                 <span><?= esc($ui['recordRefund']) ?></span>
                             </button>
@@ -435,7 +435,7 @@
                             </div>
 
                             <div class="v3-finance-breakdown">
-                                <div class="divide-y divide-slate-100 text-sm">
+                                <div class="divide-y v3-border-default text-sm">
                                     <div class="flex items-center justify-between gap-4 px-5 py-4">
                                         <span class="font-medium"><?= lang('Finance.subtotal') ?></span>
                                         <span class="font-semibold"><?= number_format($finance['amount'], 2) ?> <?= esc($baseCurrency) ?></span>
@@ -452,7 +452,7 @@
                                     <?php if ($finance['discount_amount'] > 0): ?>
                                     <div class="flex items-center justify-between gap-4 px-5 py-4">
                                         <span class="font-medium"><?= lang('Finance.discount') ?></span>
-                                        <span class="font-semibold text-rose-600">-<?= number_format($finance['discount_amount'], 2) ?> <?= esc($baseCurrency) ?></span>
+                                        <span class="font-semibold v3-text-danger">-<?= number_format($finance['discount_amount'], 2) ?> <?= esc($baseCurrency) ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($finance['tax_amount'] > 0): ?>
@@ -467,12 +467,12 @@
                                     </div>
                                     <?php if ($showSettlementSummary): ?>
                                     <div class="flex items-center justify-between gap-4 px-5 py-4">
-                                        <span class="font-medium text-emerald-700"><?= lang('Finance.paidToDate') ?></span>
-                                        <span class="font-semibold text-emerald-700"><?= number_format($paidSoFar, 2) ?> <?= esc($baseCurrency) ?></span>
+                                        <span class="font-medium v3-text-primary"><?= lang('Finance.paidToDate') ?></span>
+                                        <span class="font-semibold v3-text-primary"><?= number_format($paidSoFar, 2) ?> <?= esc($baseCurrency) ?></span>
                                     </div>
                                     <div class="flex items-center justify-between gap-4 px-5 py-4">
-                                        <span class="font-medium text-rose-700"><?= lang('Finance.balanceDue') ?></span>
-                                        <span class="font-semibold text-rose-700"><?= number_format($balanceDue, 2) ?> <?= esc($baseCurrency) ?></span>
+                                        <span class="font-medium v3-text-danger"><?= lang('Finance.balanceDue') ?></span>
+                                        <span class="font-semibold v3-text-danger"><?= number_format($balanceDue, 2) ?> <?= esc($baseCurrency) ?></span>
                                     </div>
                                     <?php endif; ?>
                                 </div>
@@ -485,7 +485,7 @@
                 <div class="finance-show-card finance-clinical-card finance-show-primary-block overflow-hidden">
                     <div class="v3-finance-detail-header">
                         <div class="finance-show-section-title">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg v3-bg-paid v3-text-primary">
                                 <i class="fas fa-tooth"></i>
                             </div>
                             <div>
@@ -493,15 +493,15 @@
                                 <p class="mt-1 text-sm"><?= esc(lang('Finance.clinicalWorkBilledHelp')) ?></p>
                             </div>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1 text-sm font-bold bg-emerald-100 text-emerald-700" dir="ltr">
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-bold v3-bg-paid v3-text-primary" dir="ltr">
                             <?= esc(formatCurrency($billedClinicalTotal)) ?>
                         </span>
                     </div>
                     <div class="finance-show-card-body space-y-5">
-                        <div class="finance-clinical-snapshot border border-emerald-100 p-4">
+                        <div class="finance-clinical-snapshot border v3-border-default p-4">
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                 <div>
-                                    <p class="text-xs font-bold uppercase tracking-wide text-emerald-700"><?= esc(lang('Finance.clinicalTraceSnapshot')) ?></p>
+                                    <p class="text-xs font-bold uppercase tracking-wide v3-text-primary"><?= esc(lang('Finance.clinicalTraceSnapshot')) ?></p>
                                     <p class="mt-1 text-sm"><?= esc(lang('Finance.clinicalTraceSnapshotHelp')) ?></p>
                                 </div>
                                 <?php if (!empty($patient['id'])): ?>
@@ -521,7 +521,7 @@
                                 </div>
                                 <div class="finance-trace-stat border p-3">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceLines')) ?></p>
-                                    <p class="mt-1 text-lg font-extrabold text-emerald-700"><?= esc((string) count($billedClinicalChargeLines)) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold v3-text-primary"><?= esc((string) count($billedClinicalChargeLines)) ?></p>
                                 </div>
                                 <div class="finance-trace-stat border p-3">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceTreatments')) ?></p>
@@ -537,13 +537,13 @@
                                 </div>
                                 <div class="finance-trace-stat border p-3">
                                     <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
-                                    <p class="mt-1 text-lg font-extrabold <?= $billedInventoryUsageTotal > 0.009 ? 'text-rose-700' : 'text-slate-500' ?>" dir="ltr"><?= esc(formatCurrency($billedInventoryUsageTotal)) ?></p>
+                                    <p class="mt-1 text-lg font-extrabold <?= $billedInventoryUsageTotal > 0.009 ? 'v3-text-danger' : 'v3-text-muted' ?>" dir="ltr"><?= esc(formatCurrency($billedInventoryUsageTotal)) ?></p>
                                 </div>
                             </div>
                         </div>
                         <div class="finance-table-panel overflow-hidden border">
                             <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-slate-100 text-sm">
+                                <table class="min-w-full divide-y v3-border-default text-sm">
                                     <thead class="text-xs font-bold uppercase tracking-wide">
                                         <tr>
                                             <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc(lang('Finance.procedure')) ?></th>
@@ -555,7 +555,7 @@
                                             <th class="px-4 py-3 text-end"><?= esc(lang('Finance.amount')) ?></th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100">
+                                    <tbody class="divide-y v3-border-default">
                                         <?php foreach ($billedClinicalChargeLines as $line): ?>
                                             <?php
                                                 $providerDisplay = trim((string) (($line['provider_first_name'] ?? '') . ' ' . ($line['provider_last_name'] ?? '')));
@@ -593,7 +593,7 @@
                                                 </td>
                                                 <td class="px-4 py-3">
                                                     <?php if ($treatmentId > 0): ?>
-                                                        <a href="<?= esc(workflow_context_url('treatment/' . $treatmentId, $return_to ?? null)) ?>" class="font-semibold text-emerald-700 hover:underline">
+                                                        <a href="<?= esc(workflow_context_url('treatment/' . $treatmentId, $return_to ?? null)) ?>" class="font-semibold v3-text-primary hover:underline">
                                                             <?= esc($treatmentLabel !== '' ? $treatmentLabel : ('#' . $treatmentId)) ?>
                                                         </a>
                                                     <?php else: ?>
@@ -613,17 +613,17 @@
                                                 <td class="px-4 py-3"><?= !empty($line['service_date']) ? esc(formatDate($line['service_date'])) : esc(lang('Finance.notAvailable')) ?></td>
                                                 <td class="px-4 py-3">
                                                     <?php if ($lineInventoryCost > 0.009): ?>
-                                                        <div class="font-bold text-rose-700" dir="ltr"><?= esc(formatCurrency($lineInventoryCost)) ?></div>
+                                                        <div class="font-bold v3-text-danger" dir="ltr"><?= esc(formatCurrency($lineInventoryCost)) ?></div>
                                                         <div class="mt-1 flex flex-wrap gap-1.5">
                                                             <?php foreach (array_slice($lineInventoryRows, 0, 2) as $usageRow): ?>
                                                                 <?php $usageFinanceId = (int) ($usageRow['finance_entry_id'] ?? 0); ?>
                                                                 <?php if ($usageFinanceId > 0): ?>
-                                                                    <a href="<?= esc(workflow_context_url('finance/' . $usageFinanceId, $return_to ?? null)) ?>" class="inline-flex items-center gap-1 border border-rose-100 bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700 hover:bg-rose-100">
+                                                                    <a href="<?= esc(workflow_context_url('finance/' . $usageFinanceId, $return_to ?? null)) ?>" class="inline-flex items-center gap-1 border v3-border-default v3-bg-alert px-2 py-0.5 text-[11px] font-semibold v3-text-danger v3-hover-danger v3-btn v3-btn--danger">
                                                                         <i class="fas fa-boxes-stacked"></i>
                                                                         <span><?= esc($summarizeInventoryUsage($usageRow)) ?></span>
                                                                     </a>
                                                                 <?php else: ?>
-                                                                    <span class="inline-flex items-center gap-1 border border-rose-100 bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700">
+                                                                    <span class="inline-flex items-center gap-1 border v3-border-default v3-bg-alert px-2 py-0.5 text-[11px] font-semibold v3-text-danger">
                                                                         <i class="fas fa-boxes-stacked"></i>
                                                                         <span><?= esc($summarizeInventoryUsage($usageRow)) ?></span>
                                                                     </span>
@@ -634,7 +634,7 @@
                                                         <span class=""><?= esc(lang('Finance.notAvailable')) ?></span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td class="px-4 py-3 text-end font-bold text-emerald-700" dir="ltr"><?= esc(formatCurrency($line['net_production_amount'] ?? 0)) ?></td>
+                                                <td class="px-4 py-3 text-end font-bold v3-text-primary" dir="ltr"><?= esc(formatCurrency($line['net_production_amount'] ?? 0)) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -655,7 +655,7 @@
                             <h2 class="text-xl font-bold"><?= esc($providerPayoutUi['sectionTitle']) ?></h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            <?= (bool) array_filter($provider_payout_summary['currency_buckets'] ?? [], static fn(array $b): bool => ($b['provider_balance_due'] ?? 0) > 0) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                            <?= (bool) array_filter($provider_payout_summary['currency_buckets'] ?? [], static fn(array $b): bool => ($b['provider_balance_due'] ?? 0) > 0) ? 'v3-bg-waiting v3-text-warning' : 'v3-bg-paid v3-text-primary' ?>">
                             <?= (bool) array_filter($provider_payout_summary['currency_buckets'] ?? [], static fn(array $b): bool => ($b['provider_balance_due'] ?? 0) > 0) ? esc($providerPayoutUi['sectionStatusOpen']) : esc($providerPayoutUi['sectionStatusClear']) ?>
                         </span>
                     </div>
@@ -672,15 +672,15 @@
                             </div>
                             <div class="finance-provider-stat border p-4">
                                 <p class="text-xs uppercase tracking-wide font-semibold"><?= esc($providerPayoutUi['paid']) ?></p>
-                                <p class="mt-1 font-bold text-emerald-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_paid_amount')) ?></p>
+                                <p class="mt-1 font-bold v3-text-primary"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_paid_amount')) ?></p>
                             </div>
                             <div class="finance-provider-stat border p-4">
                                 <p class="text-xs uppercase tracking-wide font-semibold"><?= esc($providerPayoutUi['left']) ?></p>
-                                <p class="mt-1 font-bold text-rose-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_balance_due')) ?></p>
+                                <p class="mt-1 font-bold v3-text-danger"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'provider_balance_due')) ?></p>
                             </div>
                             <div class="finance-provider-stat border p-4">
                                 <p class="text-xs uppercase tracking-wide font-semibold"><?= esc($providerPayoutUi['clinicKeeps']) ?></p>
-                                <p class="mt-1 font-bold text-sky-700"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'clinic_share_amount')) ?></p>
+                                <p class="mt-1 font-bold v3-text-primary"><?= esc(\App\Services\ProviderCurrencySummary::format($provider_payout_summary, 'clinic_share_amount')) ?></p>
                             </div>
                         </div>
 
@@ -698,8 +698,8 @@
                                         $providerStatusLabel = ucfirst($providerStatusKey);
                                     }
                                     $providerStatusClass = $providerStatusKey === 'paid'
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : ($providerStatusKey === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700');
+                                        ? 'v3-bg-paid v3-text-primary'
+                                        : ($providerStatusKey === 'partial' ? 'v3-bg-waiting v3-text-warning' : 'v3-bg-alert v3-text-danger');
                                     $providerTypeKey = (string) ($providerPayout['provider_type'] ?? 'guest');
                                     $providerTypeLabel = $providerTypeKey === 'user' ? lang('Finance.clinicUser') : lang('Finance.guestProvider');
                                     $providerUserId = (int) ($providerPayout['provider_user_id'] ?? 0);
@@ -738,11 +738,11 @@
                                             </div>
                                             <div class="finance-provider-mini-stat border p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['paid']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-emerald-700"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
+                                                <p class="mt-1 text-sm font-bold v3-text-primary"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                             <div class="finance-provider-mini-stat border p-3">
                                                 <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['left']) ?></p>
-                                                <p class="mt-1 text-sm font-bold text-rose-700"><?= esc(\App\Services\ProviderCurrencySummary::native(($providerPayout['status'] ?? '') === 'void' ? 0 : ($providerPayout['provider_balance_due'] ?? 0), $providerPayout['currency'] ?? null)) ?></p>
+                                                <p class="mt-1 text-sm font-bold v3-text-danger"><?= esc(\App\Services\ProviderCurrencySummary::native(($providerPayout['status'] ?? '') === 'void' ? 0 : ($providerPayout['provider_balance_due'] ?? 0), $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -768,7 +768,7 @@
                                                             <th class="px-4 py-3 <?= $isRtl ? 'text-right' : 'text-left' ?>"><?= esc($providerPayoutUi['historyNotes']) ?></th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody class="divide-y divide-slate-100">
+                                                    <tbody class="divide-y v3-border-default">
                                                         <?php foreach ($providerPayoutPayments as $paymentRow): ?>
                                                             <tr class="">
                                                                 <td class="px-4 py-3"><?= !empty($paymentRow['paid_date']) ? esc(formatDate($paymentRow['paid_date'])) : '-' ?></td>
@@ -787,12 +787,12 @@
 
                                     <?php if (($providerPayout['status'] ?? '') !== 'void' && floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
                                         <?php $providerPayoutModalId = 'providerPayoutModal' . (int) $providerPayout['id']; ?>
-                                        <div class="finance-provider-cta flex flex-col gap-3 border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                        <div class="finance-provider-cta flex flex-col gap-3 border v3-border-default v3-bg-paid p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="<?= $isRtl ? 'text-right' : 'text-left' ?>">
-                                                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($providerPayoutUi['balanceReady']) ?></p>
+                                                <p class="text-xs font-semibold uppercase tracking-wide v3-text-primary"><?= esc($providerPayoutUi['balanceReady']) ?></p>
                                                 <p class="mt-1 text-sm font-bold"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_balance_due'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
-                                            <button type="button" onclick="openFinanceModal('<?= esc($providerPayoutModalId) ?>', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal">
+                                            <button type="button" onclick="openFinanceModal('<?= esc($providerPayoutModalId) ?>', this)" class="finance-show-btn finance-show-btn-success finance-show-btn-modal v3-btn v3-btn--secondary">
                                                 <?php if ($isRtl): ?>
                                                     <span><?= esc($providerPayoutUi['action']) ?></span><i class="fas fa-plus-circle"></i>
                                                 <?php else: ?>
@@ -812,9 +812,9 @@
                 <!-- Additional Notes -->
                 <div class="finance-show-card finance-notes-card finance-show-primary-block">
                     <h2 class="mb-4 flex items-center gap-3 text-xl font-bold">
-                        <i class="fas fa-sticky-note text-yellow-600"></i><?= lang('Finance.administrativeNotes') ?>
+                        <i class="fas fa-sticky-note v3-text-warning"></i><?= lang('Finance.administrativeNotes') ?>
                     </h2>
-                    <div class="finance-notes-body leading-relaxed bg-yellow-50 p-4 border border-yellow-100">
+                    <div class="finance-notes-body leading-relaxed v3-bg-waiting p-4 border v3-border-default">
                         <?= nl2br(htmlspecialchars($finance['notes'])) ?>
                     </div>
                 </div>
@@ -860,10 +860,10 @@
                             <div class="finance-attachment-item space-y-2 border p-4">
                                 <dt class="block text-sm font-medium"><?= lang('Finance.checkScanLabel') ?></dt>
                                 <div class="finance-show-attachment-actions">
-                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-colors v3-btn v3-btn--secondary" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
                                         <i class="fas fa-download"></i><?= lang('Finance.download') ?>
                                     </a>
-                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-colors v3-btn v3-btn--secondary" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
                                         <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
                                     </a>
                                 </div>
@@ -881,10 +881,10 @@
                             <div class="finance-attachment-item space-y-2 border p-4">
                                 <dt class="block text-sm font-medium"><?= lang('Finance.attachmentLabel') ?></dt>
                                 <div class="finance-show-attachment-actions">
-                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-colors v3-btn v3-btn--secondary" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
                                         <i class="fas fa-download"></i><?= lang('Finance.download') ?>
                                     </a>
-                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-colors v3-btn v3-btn--secondary" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
                                         <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
                                     </a>
                                     <span class="text-xs"><?= esc($finance_attachment['original_name'] ?? '') ?></span>
@@ -906,11 +906,11 @@
                     <?php if ($examination): ?>
                     <div class="finance-show-sidebar-card finance-sidebar-inner-card finance-sidebar-inner-card--clinical">
                         <h2 class="mb-4 flex items-center gap-2 text-xl font-bold">
-                            <i class="fas fa-stethoscope text-emerald-600"></i>
+                            <i class="fas fa-stethoscope v3-text-primary"></i>
                             <?= lang('Finance.clinicalLink') ?>
                         </h2>
                         <div class="mb-4 flex items-center gap-4">
-                            <div class="flex h-12 w-12 items-center justify-center bg-emerald-100 text-emerald-600">
+                            <div class="flex h-12 w-12 items-center justify-center v3-bg-paid v3-text-primary">
                                 <i class="fas fa-stethoscope"></i>
                             </div>
                             <div class="min-w-0">
@@ -935,7 +935,7 @@
         <div class="finance-show-card finance-history-card finance-show-full-span mt-6 overflow-hidden">
             <div class="v3-finance-detail-header">
                 <div class="flex items-center gap-3">
-                    <span class="h-2.5 w-2.5 bg-green-500"></span>
+                    <span class="h-2.5 w-2.5 v3-bg-primary"></span>
                     <div>
                         <h3 class="text-lg font-semibold"><?= esc($ui['history']) ?></h3>
                         <p class="text-xs"><?= esc($ui['historyHelp']) ?></p>
@@ -945,8 +945,8 @@
                     <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border">
                         <?= count($payments ?? []) ?> <?= lang('Finance.settlement') ?>
                     </span>
-                    <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="inline-flex items-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors duration-200">
-                        <i class="fas fa-file-pdf text-red-600"></i>
+                    <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="inline-flex items-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 v3-btn v3-btn--secondary">
+                        <i class="fas fa-file-pdf v3-text-danger"></i>
                         <?= esc($ui['exportPdf']) ?>
                     </a>
                 </div>
@@ -958,76 +958,76 @@
                         <tr>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar text-green-600"></i>
+                                    <i class="fas fa-calendar v3-text-primary"></i>
                                     <span><?= lang('Finance.date') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-circle-dot text-green-600"></i>
+                                    <i class="fas fa-circle-dot v3-text-primary"></i>
                                     <span><?= esc($ui['type']) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-credit-card text-green-600"></i>
+                                    <i class="fas fa-credit-card v3-text-primary"></i>
                                     <span><?= lang('Finance.method') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-user-doctor text-green-600"></i>
+                                    <i class="fas fa-user-doctor v3-text-primary"></i>
                                     <span><?= lang('Finance.recordedBy') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-coins text-green-600"></i>
+                                    <i class="fas fa-coins v3-text-primary"></i>
                                     <span><?= esc($ui['enteredAmount']) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-end text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center justify-end gap-2">
-                                    <i class="fas fa-wallet text-green-600"></i>
+                                    <i class="fas fa-wallet v3-text-primary"></i>
                                     <span><?= esc($ui['baseAmount']) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-note-sticky text-green-600"></i>
+                                    <i class="fas fa-note-sticky v3-text-primary"></i>
                                     <span><?= lang('Finance.notes') ?></span>
                                 </div>
                             </th>
                             <?php if (has_permission('finance', 'edit')): ?>
                             <th class="px-6 py-4 text-end text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center justify-end gap-2">
-                                    <i class="fas fa-cogs text-green-600"></i>
+                                    <i class="fas fa-cogs v3-text-primary"></i>
                                     <span><?= lang('Finance.actions') ?></span>
                                 </div>
                             </th>
                             <?php endif; ?>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y v3-border-default">
                         <?php if (!empty($payments)): ?>
                             <?php foreach ($payments as $payment): ?>
                             <?php
                                 $type = $payment['type'] ?? 'payment';
-                                $typeClass = 'bg-emerald-100 text-emerald-700';
-                                $amountClass = 'text-emerald-700';
+                                $typeClass = 'v3-bg-paid v3-text-primary';
+                                $amountClass = 'v3-text-primary';
                                 $prefix = '+';
 
                                 if ($type === 'refund') {
-                                    $typeClass = 'bg-rose-100 text-rose-700';
-                                    $amountClass = 'text-rose-700';
+                                    $typeClass = 'v3-bg-alert v3-text-danger';
+                                    $amountClass = 'v3-text-danger';
                                     $prefix = '-';
                                 } elseif ($type === 'void') {
-                                    $typeClass = 'bg-slate-100 text-slate-500 line-through';
-                                    $amountClass = 'text-slate-400 line-through';
+                                    $typeClass = 'v3-bg-soft v3-text-muted line-through';
+                                    $amountClass = 'v3-text-muted line-through';
                                     $prefix = '';
                                 } elseif ($type === 'adjustment') {
-                                    $typeClass = 'bg-amber-100 text-amber-700';
-                                    $amountClass = 'text-amber-700';
+                                    $typeClass = 'v3-bg-waiting v3-text-warning';
+                                    $amountClass = 'v3-text-warning';
                                     $prefix = '+';
                                 }
                             ?>
@@ -1077,7 +1077,7 @@
                                 <?php if (has_permission('finance', 'edit')): ?>
                                 <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                     <?php if ($type === 'payment'): ?>
-                                        <button type="button" onclick="voidPayment(<?= (int) $payment['id'] ?>)" class="hover:text-rose-600 transition-colors" title="<?= esc(lang('Finance.voidPayment')) ?>">
+                                        <button type="button" onclick="voidPayment(<?= (int) $payment['id'] ?>)" class="v3-hover-text-danger transition-colors v3-btn v3-btn--secondary" title="<?= esc(lang('Finance.voidPayment')) ?>">
                                             <i class="fas fa-ban"></i>
                                         </button>
                                     <?php endif; ?>
@@ -1116,7 +1116,7 @@
                         <h4 id="paymentModalTitle" class="text-base font-semibold"><?= esc($ui['recordPayment']) ?></h4>
                         <p class="mt-1 text-sm"><?= esc($ui['paymentNotice']) ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.</p>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closeFinanceModal('paymentModal')">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closeFinanceModal('paymentModal')">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
@@ -1125,22 +1125,22 @@
                     <div class="finance-inline-modal-grid">
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                                <i class="fas fa-dollar-sign text-emerald-600"></i>
+                                <i class="fas fa-dollar-sign v3-text-primary"></i>
                                 <span><?= esc($ui['amountRequired']) ?></span>
                             </label>
                             <div class="relative">
                                 <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
-                                       class="finance-show-input"
+                                       class="finance-show-input v3-input"
                                        placeholder="0.00" required>
                             </div>
                         </div>
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                                <i class="fas fa-coins text-amber-500"></i>
+                                <i class="fas fa-coins v3-text-warning"></i>
                                 <span><?= lang('Finance.currency') ?></span>
                             </label>
                             <div class="relative">
-                                <select name="currency" data-settlement-currency class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.currency')) ?>">
+                                <select name="currency" data-settlement-currency class="finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.currency')) ?>">
                                     <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
                                         <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
                                     <?php endforeach; ?>
@@ -1159,7 +1159,7 @@
                             </label>
                             <div class="relative">
                                 <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
-                                       class="finance-show-input">
+                                       class="finance-show-input v3-input">
                             </div>
                         </div>
                         <div class="relative md:col-span-2">
@@ -1169,7 +1169,7 @@
                             </label>
                             <div class="relative">
                                 <input type="text" data-settlement-base readonly
-                                       class="finance-show-input font-semibold"
+                                       class="finance-show-input font-semibold v3-input"
                                        value="0.00">
                             </div>
                         </div>
@@ -1181,7 +1181,7 @@
                                 <span><?= esc($ui['methodRequired']) ?></span>
                             </label>
                             <div class="relative">
-                                <select name="payment_method" class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
+                                <select name="payment_method" class="finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
                                     <option value="cash"><?= lang('Finance.cash') ?></option>
                                     <option value="card"><?= lang('Finance.card') ?></option>
                                     <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -1200,7 +1200,7 @@
                                 <span><?= lang('Finance.paidFromAccount') ?></span>
                             </label>
                             <div class="relative">
-                                <select id="settlementLiquidityAccount" name="liquidity_account" class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
+                                <select id="settlementLiquidityAccount" name="liquidity_account" class="finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
                                     <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?>
                                         <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
                                     <?php endforeach; ?>
@@ -1214,12 +1214,12 @@
                         <?php endif; ?>
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                                <i class="fas fa-calendar-alt text-rose-600"></i>
+                                <i class="fas fa-calendar-alt v3-text-danger"></i>
                                 <span><?= lang('Finance.dateRequired') ?></span>
                             </label>
                             <div class="relative">
                                 <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>"
-                                       class="finance-show-input">
+                                       class="finance-show-input v3-input">
                             </div>
                         </div>
                     </div>
@@ -1230,16 +1230,16 @@
                         </label>
                         <div class="relative">
                             <textarea name="notes" rows="2"
-                                      class="finance-show-textarea resize-none"
+                                      class="finance-show-textarea resize-none v3-textarea"
                                       placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
                     </div>
                     <div class="finance-inline-modal-actions">
-                        <button type="button" onclick="closeFinanceModal('paymentModal')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition">
+                        <button type="button" onclick="closeFinanceModal('paymentModal')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                             <i class="fas fa-times text-xs"></i>
                             <span><?= esc(lang('Finance.cancel')) ?></span>
                         </button>
-                        <button type="submit" class="finance-show-btn finance-show-btn-success px-6 py-3 text-sm">
+                        <button type="submit" class="finance-show-btn finance-show-btn-success px-6 py-3 text-sm v3-btn v3-btn--primary">
                             <i class="fas fa-check-double"></i><?= esc($ui['savePayment']) ?>
                         </button>
                     </div>
@@ -1262,7 +1262,7 @@
                         <h4 id="refundModalTitle" class="text-base font-semibold"><?= esc($ui['recordRefund']) ?></h4>
                         <p class="mt-1 text-sm"><?= esc($ui['refundNotice']) ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.</p>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closeFinanceModal('refundModal')">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closeFinanceModal('refundModal')">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
@@ -1271,22 +1271,22 @@
                     <div class="finance-inline-modal-grid">
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                                <i class="fas fa-dollar-sign text-rose-600"></i>
+                                <i class="fas fa-dollar-sign v3-text-danger"></i>
                                 <span><?= esc($ui['amountRequired']) ?></span>
                             </label>
                             <div class="relative">
                                 <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
-                                       class="finance-show-input"
+                                       class="finance-show-input v3-input"
                                        placeholder="0.00" required>
                             </div>
                         </div>
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                                <i class="fas fa-coins text-amber-500"></i>
+                                <i class="fas fa-coins v3-text-warning"></i>
                                 <span><?= lang('Finance.currency') ?></span>
                             </label>
                             <div class="relative">
-                                <select name="currency" data-settlement-currency class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.currency')) ?>">
+                                <select name="currency" data-settlement-currency class="finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.currency')) ?>">
                                     <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
                                         <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
                                     <?php endforeach; ?>
@@ -1305,7 +1305,7 @@
                             </label>
                             <div class="relative">
                                 <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
-                                       class="finance-show-input">
+                                       class="finance-show-input v3-input">
                             </div>
                         </div>
                         <div class="relative md:col-span-2">
@@ -1315,7 +1315,7 @@
                             </label>
                             <div class="relative">
                                 <input type="text" data-settlement-base readonly
-                                       class="finance-show-input font-semibold"
+                                       class="finance-show-input font-semibold v3-input"
                                        value="0.00">
                             </div>
                         </div>
@@ -1327,7 +1327,7 @@
                                 <span><?= esc($ui['methodRequired']) ?></span>
                             </label>
                             <div class="relative">
-                                <select name="payment_method" class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
+                                <select name="payment_method" class="finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
                                     <option value="cash"><?= lang('Finance.cash') ?></option>
                                     <option value="card"><?= lang('Finance.card') ?></option>
                                     <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -1341,32 +1341,32 @@
                         </div>
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                                <i class="fas fa-calendar-alt text-amber-600"></i>
+                                <i class="fas fa-calendar-alt v3-text-warning"></i>
                                 <span><?= lang('Finance.dateRequired') ?></span>
                             </label>
                             <div class="relative">
                                 <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>"
-                                       class="finance-show-input">
+                                       class="finance-show-input v3-input">
                             </div>
                         </div>
                     </div>
                     <div class="relative">
                         <label class="block text-sm font-bold mb-3 flex items-center gap-2">
-                            <i class="fas fa-sticky-note text-rose-600"></i>
+                            <i class="fas fa-sticky-note v3-text-danger"></i>
                             <span><?= esc($ui['refundNote']) ?></span>
                         </label>
                         <div class="relative">
                             <textarea name="notes" rows="2"
-                                      class="finance-show-textarea resize-none"
+                                      class="finance-show-textarea resize-none v3-textarea"
                                       placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
                     </div>
                     <div class="finance-inline-modal-actions">
-                        <button type="button" onclick="closeFinanceModal('refundModal')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition">
+                        <button type="button" onclick="closeFinanceModal('refundModal')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                             <i class="fas fa-times text-xs"></i>
                             <span><?= esc(lang('Finance.cancel')) ?></span>
                         </button>
-                        <button type="submit" class="finance-show-btn finance-show-btn-danger px-6 py-3 text-sm">
+                        <button type="submit" class="finance-show-btn finance-show-btn-danger px-6 py-3 text-sm v3-btn v3-btn--primary">
                             <i class="fas fa-reply-all"></i><?= esc($ui['saveRefund']) ?>
                         </button>
                     </div>
@@ -1404,7 +1404,7 @@
                             <h4 id="<?= esc($providerPayoutModalId) ?>Title" class="text-base font-semibold"><?= esc($providerPayoutUi['action']) ?></h4>
                             <p class="mt-1 text-sm"><?= esc($providerPayoutUi['notice']) ?></p>
                         </div>
-                        <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')">
+                        <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')">
                             <i class="fas fa-times text-sm"></i>
                         </button>
                     </div>
@@ -1427,11 +1427,11 @@
                                     </div>
                                     <div class="border px-3 py-2">
                                         <p class="text-[10px] font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['paid']) ?></p>
-                                        <p class="mt-1 text-sm font-bold text-emerald-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
+                                        <p class="mt-1 text-sm font-bold v3-text-primary" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                     <div class="border px-3 py-2">
                                         <p class="text-[10px] font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['left']) ?></p>
-                                        <p class="mt-1 text-sm font-bold text-rose-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerBalanceDue, $providerPayout['currency'] ?? null)) ?></p>
+                                        <p class="mt-1 text-sm font-bold v3-text-danger" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerBalanceDue, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -1439,10 +1439,10 @@
                         <div class="finance-inline-modal-grid finance-inline-modal-grid-3">
                             <div class="relative">
                                 <label class="mb-3 flex items-center gap-2 text-sm font-bold">
-                                    <i class="fas fa-dollar-sign text-emerald-600"></i>
+                                    <i class="fas fa-dollar-sign v3-text-primary"></i>
                                     <span><?= esc($ui['amountRequired']) ?></span>
                                 </label>
-                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayoutAmountValue) ?>" value="<?= esc($providerPayoutAmountValue) ?>" class="finance-show-input" placeholder="0.00" required>
+                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayoutAmountValue) ?>" value="<?= esc($providerPayoutAmountValue) ?>" class="finance-show-input v3-input" placeholder="0.00" required>
                             </div>
                             <div class="relative">
                                 <label class="mb-3 flex items-center gap-2 text-sm font-bold">
@@ -1450,7 +1450,7 @@
                                     <span><?= esc($ui['methodRequired']) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="payment_method" class="provider-payout-method-input finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
+                                    <select name="payment_method" class="provider-payout-method-input finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
                                         <option value="cash"><?= lang('Finance.cash') ?></option>
                                         <option value="card"><?= lang('Finance.card') ?></option>
                                         <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -1464,10 +1464,10 @@
                             </div>
                             <div class="relative">
                                 <label class="mb-3 flex items-center gap-2 text-sm font-bold">
-                                    <i class="fas fa-calendar-alt text-rose-600"></i>
+                                    <i class="fas fa-calendar-alt v3-text-danger"></i>
                                     <span><?= lang('Finance.dateRequired') ?></span>
                                 </label>
-                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="finance-show-input">
+                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="finance-show-input v3-input">
                             </div>
                         </div>
                         <div class="finance-inline-modal-grid">
@@ -1477,7 +1477,7 @@
                                     <span><?= lang('Finance.paidFromAccount') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="liquidity_account" class="finance-show-select finance-modal-select appearance-none" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
+                                    <select name="liquidity_account" class="finance-show-select finance-modal-select appearance-none v3-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
                                         <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
                                         <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
                                     </select>
@@ -1490,17 +1490,17 @@
                         </div>
                         <div class="relative">
                             <label class="mb-3 flex items-center gap-2 text-sm font-bold">
-                                <i class="fas fa-note-sticky text-amber-600"></i>
+                                <i class="fas fa-note-sticky v3-text-warning"></i>
                                 <span><?= esc($providerPayoutUi['historyNotes']) ?></span>
                             </label>
-                            <textarea name="notes" rows="2" class="finance-show-input min-h-[5rem]" placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
+                            <textarea name="notes" rows="2" class="finance-show-input min-h-[5rem] v3-textarea" placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
                         <div class="finance-inline-modal-actions">
-                            <button type="button" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition">
+                            <button type="button" onclick="closeFinanceModal('<?= esc($providerPayoutModalId) ?>')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                                 <i class="fas fa-times text-xs"></i>
                                 <span><?= esc(lang('Finance.cancel')) ?></span>
                             </button>
-                            <button type="submit" class="finance-show-btn finance-show-btn-success px-6 py-3 text-sm">
+                            <button type="submit" class="finance-show-btn finance-show-btn-success px-6 py-3 text-sm v3-btn v3-btn--primary">
                                 <i class="fas fa-check-double"></i><?= esc($providerPayoutUi['save']) ?>
                             </button>
                         </div>
@@ -1636,10 +1636,10 @@ function syncSettlementForm(form) {
         rate = 1;
         rateInput.value = '1';
         rateInput.readOnly = true;
-        rateInput.classList.add('bg-slate-50');
+        rateInput.classList.add('v3-bg-panel');
     } else if (rateInput) {
         rateInput.readOnly = false;
-        rateInput.classList.remove('bg-slate-50');
+        rateInput.classList.remove('v3-bg-panel');
     }
 
     const amount = parseFloat(amountInput.value || '0');

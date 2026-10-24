@@ -97,28 +97,28 @@ $medicalAlerts = [
     [
         'enabled' => !empty($patient['alert_has_allergies'] ?? 0),
         'icon' => 'fas fa-allergies',
-        'icon_class' => 'text-red-600',
+        'icon_class' => 'v3-text-danger',
         'label' => lang('UI.patientAllergies'),
         'details' => $patient['alert_allergies_details'] ?? null,
     ],
     [
         'enabled' => !empty($patient['alert_taking_medications'] ?? 0),
         'icon' => 'fas fa-pills',
-        'icon_class' => 'text-blue-600',
+        'icon_class' => 'v3-text-primary',
         'label' => lang('UI.patientTakingMedications'),
         'details' => $patient['alert_medications_details'] ?? null,
     ],
     [
         'enabled' => !empty($patient['alert_blood_thinners'] ?? 0),
         'icon' => 'fas fa-tint',
-        'icon_class' => 'text-rose-600',
+        'icon_class' => 'v3-text-danger',
         'label' => lang('UI.patientTakingBloodThinners'),
         'details' => $patient['alert_blood_thinners_details'] ?? null,
     ],
     [
         'enabled' => !empty($patient['alert_diabetes'] ?? 0),
         'icon' => 'fas fa-syringe',
-        'icon_class' => 'text-amber-600',
+        'icon_class' => 'v3-text-warning',
         'label' => lang('UI.patientDiabetes'),
         'details' => $patient['alert_diabetes_details'] ?? null,
     ],
@@ -132,7 +132,7 @@ $medicalAlerts = [
     [
         'enabled' => !empty($patient['alert_heart_condition'] ?? 0),
         'icon' => 'fas fa-heart',
-        'icon_class' => 'text-red-700',
+        'icon_class' => 'v3-text-danger',
         'label' => lang('UI.patientHeartCondition'),
         'details' => $patient['alert_heart_condition_details'] ?? null,
     ],
@@ -146,7 +146,7 @@ $medicalAlerts = [
     [
         'enabled' => !empty($patient['alert_anesthesia_problem'] ?? 0),
         'icon' => 'fas fa-mask-face',
-        'icon_class' => 'text-indigo-600',
+        'icon_class' => 'v3-text-chair',
         'label' => lang('UI.patientAnesthesiaProblem'),
         'details' => $patient['alert_anesthesia_problem_details'] ?? null,
     ],
@@ -283,12 +283,12 @@ $treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatu
             'amount_raw' => 0.0,
             'charge_line_id' => 0,
             'status_text' => lang('UI.patientNoChargeCaptured'),
-            'status_class' => 'bg-slate-100 text-slate-600',
+            'status_class' => 'v3-bg-soft v3-text-muted',
             'finance_id' => 0,
             'invoice_number' => '',
             'invoice_status' => '',
             'invoice_status_text' => '',
-            'invoice_status_class' => 'bg-slate-100 text-slate-600',
+            'invoice_status_class' => 'v3-bg-soft v3-text-muted',
             'paid_amount' => 0.0,
             'paid_text' => '',
             'balance_amount' => 0.0,
@@ -303,11 +303,11 @@ $treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatu
     $isPaid = $isBilled && $invoiceBalance <= 0.009 && in_array($invoiceStatus, ['paid', 'partial', 'pending', 'overdue'], true);
     $hasBalance = $isBilled && $invoiceBalance > 0.009;
     $invoiceStatusClass = match ($invoiceStatus) {
-        'paid' => 'bg-emerald-100 text-emerald-700',
-        'partial' => 'bg-blue-100 text-blue-700',
-        'overdue' => 'bg-rose-100 text-rose-700',
-        'pending' => 'bg-amber-100 text-amber-700',
-        default => 'bg-slate-100 text-slate-600',
+        'paid' => 'v3-bg-paid v3-text-primary',
+        'partial' => 'v3-bg-scheduled v3-text-primary',
+        'overdue' => 'v3-bg-alert v3-text-danger',
+        'pending' => 'v3-bg-waiting v3-text-warning',
+        default => 'v3-bg-soft v3-text-muted',
     };
 
     return [
@@ -315,7 +315,7 @@ $treatmentBillingMeta = static function (array $treatmentRow) use ($financeStatu
         'amount_raw' => $amount,
         'charge_line_id' => $chargeId,
         'status_text' => $isBilled ? lang('UI.patientBilled') : lang('UI.patientReadyToBill'),
-        'status_class' => $isBilled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
+        'status_class' => $isBilled ? 'v3-bg-paid v3-text-primary' : 'v3-bg-waiting v3-text-warning',
         'finance_id' => $financeId,
         'invoice_number' => $invoiceNumber,
         'invoice_status' => $invoiceStatus,
@@ -779,7 +779,7 @@ if (isset($workspace_history)) {
     <div class="v3-clinical-stack">
         <section class="v3-patient-banner"><div class="v3-patient-identity"><div class="v3-patient-avatar" aria-hidden="true"><i class="fas fa-user"></i></div><div><h1><?= esc($fullName) ?></h1><p><?= esc(lang('UI.patientMemberSince')) ?> <?= esc($memberSince) ?> <span class="v3-patient-status"><?= esc($patientStatusLabel) ?></span></p></div></div><div class="v3-command-actions">
                             <?php if (has_permission('patients', 'edit')): ?>
-                                <button type="button" data-app-drawer-open="patientProfileEditDrawer" class="patient-header-action patient-header-action-soft">
+                                <button type="button" data-app-drawer-open="patientProfileEditDrawer" class="patient-header-action patient-header-action-soft v3-btn v3-btn--secondary">
                                     <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UI.patientEditPatient')) ?></span>
                                 </button>
@@ -799,7 +799,7 @@ if (isset($workspace_history)) {
                             $isButton = !empty($capsule['is_button']);
                             ?>
                             <?php if ($isButton): ?>
-                                <button type="button" class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>" onclick="openPatientWhatsAppIdentityModal('<?= esc($patientWhatsAppNumber, 'js') ?>')">
+                                <button type="button" class="<?= esc($capsuleClass) ?> v3-btn v3-btn--secondary" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>" onclick="openPatientWhatsAppIdentityModal('<?= esc($patientWhatsAppNumber, 'js') ?>')">
                                     <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
                                     <span class="patient-hero-chip-text">
                                         <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
@@ -861,34 +861,34 @@ if (isset($workspace_history)) {
                     <div class="mb-5 flex items-center gap-3">
                         <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-soft-surface v3-accent-text"><i class="fas fa-user-pen"></i></span>
                         <div>
-                            <h3 class="text-base font-black text-slate-950"><?= esc(lang('UI.patientEditPatient')) ?></h3>
-                            <p class="text-sm font-semibold text-slate-500"><?= esc($fullName) ?></p>
+                            <h3 class="text-base font-black v3-text-ink"><?= esc(lang('UI.patientEditPatient')) ?></h3>
+                            <p class="text-sm font-semibold v3-text-muted"><?= esc($fullName) ?></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label for="profile_edit_first_name" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientFirstName')) ?> *</label>
-                            <input id="profile_edit_first_name" name="first_name" type="text" required value="<?= esc(old('first_name', $patient['first_name'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                            <label for="profile_edit_first_name" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientFirstName')) ?> *</label>
+                            <input id="profile_edit_first_name" name="first_name" type="text" required value="<?= esc(old('first_name', $patient['first_name'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input">
                         </div>
                         <div>
-                            <label for="profile_edit_last_name" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientLastName')) ?> *</label>
-                            <input id="profile_edit_last_name" name="last_name" type="text" required value="<?= esc(old('last_name', $patient['last_name'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                            <label for="profile_edit_last_name" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientLastName')) ?> *</label>
+                            <input id="profile_edit_last_name" name="last_name" type="text" required value="<?= esc(old('last_name', $patient['last_name'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input">
                         </div>
                         <div>
-                            <label for="profile_edit_phone" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientPhoneNumber')) ?> *</label>
-                            <input id="profile_edit_phone" name="phone" type="tel" required minlength="9" maxlength="15" inputmode="numeric" pattern="\d{9,15}" value="<?= esc(old('phone', $patient['phone'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15" dir="ltr">
+                            <label for="profile_edit_phone" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientPhoneNumber')) ?> *</label>
+                            <input id="profile_edit_phone" name="phone" type="tel" required minlength="9" maxlength="15" inputmode="numeric" pattern="\d{9,15}" value="<?= esc(old('phone', $patient['phone'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input" dir="ltr">
                         </div>
                         <div>
-                            <label for="profile_edit_email" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientEmail')) ?></label>
-                            <input id="profile_edit_email" name="email" type="email" value="<?= esc(old('email', $patient['email'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-500/15">
+                            <label for="profile_edit_email" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientEmail')) ?></label>
+                            <input id="profile_edit_email" name="email" type="email" value="<?= esc(old('email', $patient['email'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input">
                         </div>
                         <div>
-                            <label for="profile_edit_date_of_birth" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientDateOfBirth')) ?> *</label>
-                            <input id="profile_edit_date_of_birth" name="date_of_birth" type="text" data-clinic-date="1" required value="<?= esc(old('date_of_birth', $patient['date_of_birth'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15">
+                            <label for="profile_edit_date_of_birth" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientDateOfBirth')) ?> *</label>
+                            <input id="profile_edit_date_of_birth" name="date_of_birth" type="text" data-clinic-date="1" required value="<?= esc(old('date_of_birth', $patient['date_of_birth'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input">
                         </div>
                         <div data-select2-dropdown-parent>
-                            <label for="profile_edit_gender" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientGender')) ?> *</label>
-                            <select id="profile_edit_gender" name="gender" data-force-select2 required class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                            <label for="profile_edit_gender" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientGender')) ?> *</label>
+                            <select id="profile_edit_gender" name="gender" data-force-select2 required class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-select">
                                 <option value=""><?= esc(lang('UI.patientSelect')) ?></option>
                                 <?php foreach (['male' => lang('UI.patientMale'), 'female' => lang('UI.patientFemale'), 'other' => lang('UI.patientOther')] as $genderValue => $genderLabel): ?>
                                     <option value="<?= esc($genderValue) ?>" <?= old('gender', $patient['gender'] ?? '') === $genderValue ? 'selected' : '' ?>><?= esc($genderLabel) ?></option>
@@ -901,12 +901,12 @@ if (isset($workspace_history)) {
                 <section class="v3-radius border v3-border v3-surface p-5">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label for="profile_edit_city" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientCity')) ?></label>
-                            <input id="profile_edit_city" name="city" type="text" value="<?= esc(old('city', $patient['city'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15">
+                            <label for="profile_edit_city" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientCity')) ?></label>
+                            <input id="profile_edit_city" name="city" type="text" value="<?= esc(old('city', $patient['city'] ?? '')) ?>" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input">
                         </div>
                         <div class="md:col-span-2">
-                            <label for="profile_edit_notes" class="mb-2 block text-sm font-bold text-slate-700"><?= esc(lang('UI.patientNotes')) ?></label>
-                            <textarea id="profile_edit_notes" name="notes" rows="3" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15"><?= esc(old('notes', $patient['notes'] ?? '')) ?></textarea>
+                            <label for="profile_edit_notes" class="mb-2 block text-sm font-bold v3-text-ink"><?= esc(lang('UI.patientNotes')) ?></label>
+                            <textarea id="profile_edit_notes" name="notes" rows="3" class="w-full v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-textarea"><?= esc(old('notes', $patient['notes'] ?? '')) ?></textarea>
                         </div>
                     </div>
                 </section>
@@ -916,13 +916,13 @@ if (isset($workspace_history)) {
             ob_start();
             ?>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <a href="<?= base_url('patient/' . (int) $patient['id'] . '/edit?' . http_build_query(['return_to' => 'patient/' . (int) $patient['id']])) ?>" class="inline-flex items-center justify-center gap-2 v3-radius px-3 py-2 text-sm font-bold v3-accent-text hover:bg-sky-50">
+                <a href="<?= base_url('patient/' . (int) $patient['id'] . '/edit?' . http_build_query(['return_to' => 'patient/' . (int) $patient['id']])) ?>" class="inline-flex items-center justify-center gap-2 v3-radius px-3 py-2 text-sm font-bold v3-accent-text v3-hover-primary v3-btn v3-btn--secondary">
                     <i class="fas fa-up-right-from-square"></i>
                     <span><?= esc(lang('UI.openFullPage')) ?></span>
                 </a>
                 <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                    <button type="button" class="inline-flex items-center justify-center v3-radius border v3-border px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="<?= esc($patientEditDrawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
-                    <button type="submit" form="<?= esc($patientEditFormId) ?>" class="inline-flex items-center justify-center v3-radius v3-soft-surface px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-800"><?= esc(lang('UI.settingsSave')) ?></button>
+                    <button type="button" class="inline-flex items-center justify-center v3-radius border v3-border px-4 py-2.5 text-sm font-bold v3-text-ink v3-hover-soft v3-btn v3-btn--secondary" data-app-drawer-close="<?= esc($patientEditDrawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
+                    <button type="submit" form="<?= esc($patientEditFormId) ?>" class="inline-flex items-center justify-center v3-radius v3-soft-surface px-4 py-2.5 text-sm font-bold v3-text-on-primary v3-hover-primary v3-btn v3-btn--primary"><?= esc(lang('UI.settingsSave')) ?></button>
                 </div>
             </div>
             <?php
@@ -933,7 +933,7 @@ if (isset($workspace_history)) {
                 'title' => lang('UI.patientEditPatient'),
                 'description' => $fullName,
                 'icon' => 'fas fa-user-pen',
-                'tone' => 'bg-sky-700',
+                'tone' => 'v3-bg-primary',
                 'size' => 'form',
                 'body' => $patientEditDrawerBody,
                 'footer' => $patientEditDrawerFooter,
@@ -950,31 +950,31 @@ if (isset($workspace_history)) {
         ]) ?>
 
         <?php if ($medicalAlertCount > 0): ?>
-            <section class="patient-alert-banner v3-radius border border-rose-200 bg-rose-50 px-5 py-4">
+            <section class="patient-alert-banner v3-radius border v3-border-default v3-bg-alert px-5 py-4">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div class="flex items-start gap-4">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center v3-radius bg-rose-100 text-rose-600">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-bg-alert v3-text-danger">
                             <i class="fas fa-exclamation-triangle text-lg"></i>
                         </div>
                         <div class="space-y-2">
                             <div>
-                                <h2 class="text-sm font-bold uppercase tracking-[0.18em] text-rose-700"><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></h2>
-                                <p class="mt-1 text-sm text-rose-900"><?= esc(lang('UI.patientProfileAlertSummary', ['count' => $medicalAlertCount])) ?></p>
+                                <h2 class="text-sm font-bold uppercase tracking-[0.18em] v3-text-danger"><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></h2>
+                                <p class="mt-1 text-sm v3-text-danger"><?= esc(lang('UI.patientProfileAlertSummary', ['count' => $medicalAlertCount])) ?></p>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <?php foreach (array_slice($activeMedicalAlerts, 0, 4) as $medicalAlertRow): ?>
-                                    <span class="inline-flex items-center gap-2 rounded-full border border-rose-200 v3-surface px-3 py-1 text-xs font-semibold text-rose-700">
+                                    <span class="inline-flex items-center gap-2 rounded-full border v3-border-default v3-surface px-3 py-1 text-xs font-semibold v3-text-danger">
                                         <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class']) ?>"></i>
                                         <span><?= esc($medicalAlertRow['label']) ?></span>
                                     </span>
                                 <?php endforeach; ?>
                                 <?php if ($medicalAlertCount > 4): ?>
-                                    <span class="inline-flex items-center rounded-full border border-rose-200 v3-surface px-3 py-1 text-xs font-semibold text-rose-700">+<?= $medicalAlertCount - 4 ?></span>
+                                    <span class="inline-flex items-center rounded-full border v3-border-default v3-surface px-3 py-1 text-xs font-semibold v3-text-danger">+<?= $medicalAlertCount - 4 ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
                     </div>
-                    <button type="button" onclick="return showTab('details', event)" class="inline-flex items-center gap-2 self-start v3-radius border border-rose-200 v3-surface px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">
+                    <button type="button" onclick="return showTab('details', event)" class="inline-flex items-center gap-2 self-start v3-radius border v3-border-default v3-surface px-4 py-2 text-sm font-semibold v3-text-danger v3-hover-danger v3-btn v3-btn--danger">
                         <i class="fas fa-arrow-down"></i>
                         <span><?= esc(lang('UI.patientReviewMedicalDetails')) ?></span>
                     </button>
@@ -1000,7 +1000,7 @@ if (isset($workspace_history)) {
                                         aria-selected="true"
                                         aria-controls="details-content"
                                         tabindex="0"
-                                        class="tab-button active inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button active inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-user shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabDetails')) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('timeline', event)"
@@ -1009,7 +1009,7 @@ if (isset($workspace_history)) {
                                         aria-selected="false"
                                         aria-controls="timeline-content"
                                         tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-history shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabTimeline')) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('examinations', event)"
@@ -1018,7 +1018,7 @@ if (isset($workspace_history)) {
                                         aria-selected="false"
                                         aria-controls="examinations-content"
                                         tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-stethoscope shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabExams')) ?></span> <span class="tab-count shrink-0"><?= (int) ($historyCounts['examinations'] ?? count($examinations)) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('appointments', event)"
@@ -1027,7 +1027,7 @@ if (isset($workspace_history)) {
                                         aria-selected="false"
                                         aria-controls="appointments-content"
                                         tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-calendar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAppts')) ?></span> <span class="tab-count shrink-0"><?= (int) ($historyCounts['appointments'] ?? count($appointments)) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('treatments', event)"
@@ -1036,7 +1036,7 @@ if (isset($workspace_history)) {
                                         aria-selected="false"
                                         aria-controls="treatments-content"
                                         tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-tooth shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTreatments')) ?></span> <span class="tab-count shrink-0"><?= (int) ($historyCounts['treatments'] ?? count($treatments)) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('prescriptions', event)"
@@ -1045,7 +1045,7 @@ if (isset($workspace_history)) {
                                         aria-selected="false"
                                         aria-controls="prescriptions-content"
                                         tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-prescription shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabRx')) ?></span> <span class="tab-count shrink-0"><?= count($prescriptions) ?></span>
                                 </button>
                                 <?php if (!empty($attachments_enabled)): ?>
@@ -1055,7 +1055,7 @@ if (isset($workspace_history)) {
                                             aria-selected="false"
                                             aria-controls="attachments-content"
                                             tabindex="-1"
-                                            class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                            class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                         <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($attachments ?? []) ?></span>
                                     </button>
                                 <?php endif; ?>
@@ -1066,7 +1066,7 @@ if (isset($workspace_history)) {
                                             aria-selected="false"
                                             aria-controls="contracts-content"
                                             tabindex="-1"
-                                            class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                            class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                         <i class="fas fa-file-signature shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabContracts')) ?></span> <span class="tab-count shrink-0"><?= count($contracts ?? []) ?></span>
                                     </button>
                                 <?php endif; ?>
@@ -1076,7 +1076,7 @@ if (isset($workspace_history)) {
                                         aria-selected="false"
                                         aria-controls="finances-content"
                                         tabindex="-1"
-                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium v3-tab">
                                     <i class="fas fa-file-invoice-dollar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabFinancials')) ?></span> <span class="tab-count shrink-0"><?= count($financialLedgerRows) ?></span>
                                 </button>
                             </nav>
@@ -1087,19 +1087,19 @@ if (isset($workspace_history)) {
                                     <input type="text"
                                            id="historySearch" maxlength="200" value="<?= esc($workspace_history['query']['q'] ?? '') ?>"
                                            placeholder="<?= esc(lang('UI.patientSearchHistory')) ?>"
-                                           class="w-full v3-radius border v3-border v3-surface py-3 pl-10 pr-4 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-                                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                           class="w-full v3-radius border v3-border v3-surface py-3 pl-10 pr-4 text-sm v3-text-ink v3-focus-control focus:outline-none focus:ring-2 v3-focus-control v3-input">
+                                    <i class="fas fa-search absolute left-3 top-1/2 transform /2 v3-text-muted"></i>
                                 </div>
                                 <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                                     <input type="text" data-clinic-date="1"
                                            id="startDate" value="<?= esc($workspace_history['query']['start'] ?? '') ?>"
-                                           class="v3-radius border v3-border v3-surface px-3 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                                           class="v3-radius border v3-border v3-surface px-3 py-3 text-sm v3-focus-control focus:outline-none focus:ring-2 v3-focus-control v3-input">
                                     <input type="text" data-clinic-date="1"
                                            id="endDate" value="<?= esc($workspace_history['query']['end'] ?? '') ?>"
-                                           class="v3-radius border v3-border v3-surface px-3 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-                                    <button id="historySearchAll" type="button" onclick="applyHistoryFilters()" class="v3-radius v3-soft-surface px-4 py-3 text-sm font-semibold text-white"><?= esc(lang('PatientHistory.search')) ?></button>
+                                           class="v3-radius border v3-border v3-surface px-3 py-3 text-sm v3-focus-control focus:outline-none focus:ring-2 v3-focus-control v3-input">
+                                    <button id="historySearchAll" type="button" onclick="applyHistoryFilters()" class="v3-radius v3-soft-surface px-4 py-3 text-sm font-semibold v3-text-on-primary v3-btn v3-btn--secondary"><?= esc(lang('PatientHistory.search')) ?></button>
                                     <button type="button" onclick="clearFilters()"
-                                            class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                                            class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-3 text-sm font-medium v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                                         <i class="fas fa-undo"></i><span><?= esc(lang('UI.patientClear')) ?></span>
                                     </button>
                                 </div>
@@ -1225,7 +1225,7 @@ if (isset($workspace_history)) {
                                                         <p><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
                                                     </div>
                                                     <?php if (!empty($attachments_enabled)): ?>
-                                                        <button type="button" onclick="return showTab('attachments', event)" class="patient-preview-action">
+                                                        <button type="button" onclick="return showTab('attachments', event)" class="patient-preview-action v3-btn v3-btn--secondary">
                                                             <i class="fas fa-image"></i>
                                                             <span><?= esc(lang('UI.patientOpenImagingWorkspace')) ?></span>
                                                         </button>
@@ -1279,7 +1279,7 @@ if (isset($workspace_history)) {
                                                                 <article class="patient-alert-tile">
                                                                     <div class="patient-alert-topline">
                                                                         <span class="patient-alert-title">
-                                                                            <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class'] ?? 'text-amber-700') ?>"></i>
+                                                                            <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class'] ?? 'v3-text-warning') ?>"></i>
                                                                             <span><?= esc($medicalAlertRow['label']) ?></span>
                                                                         </span>
                                                                         <span class="patient-alert-flag"><?= esc(lang('UI.patientYes')) ?></span>
@@ -1342,7 +1342,7 @@ if (isset($workspace_history)) {
                                         <div class="patient-snapshot-list">
                                             <?php if (!empty($snapshotPreviewRows)): ?>
                                                 <div class="flex justify-end">
-                                                    <a href="<?= workflow_context_url('patient/' . $patient['id'] . '/odontogram-versions', $patientContextReturnTo) ?>" class="inline-flex items-center gap-2 v3-radius bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                                                    <a href="<?= workflow_context_url('patient/' . $patient['id'] . '/odontogram-versions', $patientContextReturnTo) ?>" class="inline-flex items-center gap-2 v3-radius v3-bg-soft px-3 py-2 text-xs font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                                                         <i class="fas fa-clock-rotate-left"></i>
                                                         <span><?= esc(lang('UI.patientChartHistoryOpenAll')) ?></span>
                                                     </a>
@@ -1359,13 +1359,13 @@ if (isset($workspace_history)) {
                                                         <p class="patient-snapshot-copy"><?= esc(lang('UI.patientSnapshotTeethAffected', ['count' => (int) $snapshotItem['count']])) ?></p>
                                                         <div class="mt-3 flex flex-wrap gap-2">
                                                             <?php if (!empty($snapshotItem['id'])): ?>
-                                                                <a href="<?= workflow_context_url('patient/' . $patient['id'] . '/odontogram-versions/' . $snapshotItem['id'], $patientContextReturnTo) ?>" class="inline-flex items-center gap-2 v3-radius bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                                                                <a href="<?= workflow_context_url('patient/' . $patient['id'] . '/odontogram-versions/' . $snapshotItem['id'], $patientContextReturnTo) ?>" class="inline-flex items-center gap-2 v3-radius v3-bg-soft px-3 py-2 text-xs font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                                                                     <i class="fas fa-eye"></i>
                                                                     <span><?= esc(lang('UI.patientChartHistoryOpenSelected')) ?></span>
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($snapshotItem['source_url'])): ?>
-                                                                <a href="<?= esc($snapshotItem['source_url']) ?>" class="inline-flex items-center gap-2 v3-radius v3-soft-surface px-3 py-2 text-xs font-semibold v3-accent-text transition hover:bg-cyan-100">
+                                                                <a href="<?= esc($snapshotItem['source_url']) ?>" class="inline-flex items-center gap-2 v3-radius v3-soft-surface px-3 py-2 text-xs font-semibold v3-accent-text transition v3-hover-primary v3-btn v3-btn--secondary">
                                                                     <i class="fas fa-arrow-up-right-from-square"></i>
                                                                     <span><?= esc(lang('UI.patientChartHistoryOpenSource')) ?></span>
                                                                 </a>
@@ -1477,8 +1477,8 @@ if (isset($workspace_history)) {
                                     <?php if (empty($timeline)): ?>
                                         <li>
                                             <div class="text-center py-8">
-                                                <i class="fas fa-history text-gray-400 v3-title-scale mb-4"></i>
-                                                <p class="text-gray-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoHistoryRecords')) ?></p>
+                                                <i class="fas fa-history v3-text-muted v3-title-scale mb-4"></i>
+                                                <p class="v3-text-muted"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoHistoryRecords')) ?></p>
                                             </div>
                                         </li>
                                     <?php endif; ?>
@@ -1498,54 +1498,54 @@ if (isset($workspace_history)) {
                                 ?>
 
                                 <?php if (session('success')): ?>
-                                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 text-sm">
+                                    <div class="mb-4 rounded-lg border v3-border-default v3-bg-paid p-4 v3-text-primary text-sm">
                                         <?= esc(session('success')) ?>
                                     </div>
                                 <?php endif; ?>
                                 <?php if (session('error')): ?>
-                                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700 text-sm">
+                                    <div class="mb-4 rounded-lg border v3-border-default v3-bg-alert p-4 v3-text-danger text-sm">
                                         <?= esc(session('error')) ?>
                                     </div>
                                 <?php endif; ?>
 
                                 <?php if ($limitBytes > 0 && $usagePercent >= 80): ?>
-                                    <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800 text-sm">
+                                    <div class="mb-6 rounded-lg border v3-border-default v3-bg-waiting p-4 v3-text-warning text-sm">
                                         <strong><?= esc(lang('UI.patientStorageWarning')) ?></strong> <?= esc(lang('UI.patientStorageWarningText', ['percent' => $usagePercent])) ?>
                                     </div>
                                 <?php endif; ?>
 
                                 <section class="relative overflow-hidden v3-radius border v3-border v3-warm-surface p-4 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"></div><div class="relative grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.95fr)] mb-5">
-                                    <section class="overflow-hidden v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                    <section class="overflow-hidden v3-radius border v3-border v3-surface border v3-border-default">
                                         <div class="border-b v3-border v3-warm-surface px-5 py-4">
-                                            <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientImagingWorkspaceLatestTitle')) ?></h3>
-                                            <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
+                                            <h3 class="text-lg font-bold v3-text-ink"><?= esc(lang('UI.patientImagingWorkspaceLatestTitle')) ?></h3>
+                                            <p class="mt-1 text-sm v3-text-muted"><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
                                         </div>
                                         <div class="space-y-4 p-5">
                                             <?php if (!empty($latestImagingAttachment)): ?>
-                                                <div class="overflow-hidden rounded-[24px] border v3-border bg-slate-950">
+                                                <div class="overflow-hidden rounded-[24px] border v3-border v3-bg-forest">
                                                     <div class="aspect-[16/9] flex items-center justify-center">
                                                         <?php if (!empty($latestImagingAttachment) && $latestImagingIsPreviewable && !empty($latestImagingPreviewSrc)): ?>
                                                             <img loading="lazy" decoding="async" src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
                                                         <?php else: ?>
-                                                            <div class="px-6 text-center text-sm text-slate-300"><?= esc(lang('UI.patientImagingPreviewUnavailable')) ?></div>
+                                                            <div class="px-6 text-center text-sm v3-text-muted"><?= esc(lang('UI.patientImagingPreviewUnavailable')) ?></div>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
                                                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                                     <div>
-                                                        <h4 class="text-base font-bold text-slate-900"><?= esc($latestImagingAttachment['category'] ?? lang('UI.patientLatestImagingTitle')) ?></h4>
-                                                        <p class="mt-1 text-sm text-slate-500"><?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientAttachmentFallback')) ?></p>
-                                                        <p class="mt-1 text-xs text-slate-400"><?= esc(!empty($latestImagingAttachment['created_at']) ? formatDateTime($latestImagingAttachment['created_at']) : '--') ?></p>
+                                                        <h4 class="text-base font-bold v3-text-ink"><?= esc($latestImagingAttachment['category'] ?? lang('UI.patientLatestImagingTitle')) ?></h4>
+                                                        <p class="mt-1 text-sm v3-text-muted"><?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientAttachmentFallback')) ?></p>
+                                                        <p class="mt-1 text-xs v3-text-muted"><?= esc(!empty($latestImagingAttachment['created_at']) ? formatDateTime($latestImagingAttachment['created_at']) : '--') ?></p>
                                                     </div>
                                                     <div class="flex flex-wrap gap-2">
                                                         <?php if (!empty($latestImagingViewUrl) && $latestImagingIsPreviewable): ?>
-                                                            <a href="<?= esc($latestImagingViewUrl) ?>" target="_blank" rel="noopener" class="inline-flex items-center gap-2 v3-radius bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
+                                                            <a href="<?= esc($latestImagingViewUrl) ?>" target="_blank" rel="noopener" class="inline-flex items-center gap-2 v3-radius v3-bg-soft px-4 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                                                                 <i class="fas fa-eye"></i>
                                                                 <span><?= esc(lang('UI.patientOpenImaging')) ?></span>
                                                             </a>
                                                         <?php endif; ?>
                                                         <?php if (!empty($latestImagingOpenUrl)): ?>
-                                                            <a href="<?= esc($latestImagingOpenUrl) ?>" class="inline-flex items-center gap-2 v3-radius v3-soft-surface px-4 py-2.5 text-sm font-semibold v3-accent-text transition hover:bg-cyan-100">
+                                                            <a href="<?= esc($latestImagingOpenUrl) ?>" class="inline-flex items-center gap-2 v3-radius v3-soft-surface px-4 py-2.5 text-sm font-semibold v3-accent-text transition v3-hover-primary v3-btn v3-btn--secondary">
                                                                 <i class="fas fa-download"></i>
                                                                 <span><?= esc(lang('UI.patientImagingWorkspaceOpenFile')) ?></span>
                                                             </a>
@@ -1554,30 +1554,30 @@ if (isset($workspace_history)) {
                                                 </div>
                                             <?php else: ?>
                                                 <div class="rounded-[24px] border border-dashed v3-border v3-surface px-5 py-16 text-center">
-                                                    <i class="fas fa-x-ray v3-title-scale text-slate-300"></i>
-                                                    <p class="mt-4 text-sm text-slate-500"><?= esc(lang('UI.patientNoImagingPreview')) ?></p>
+                                                    <i class="fas fa-x-ray v3-title-scale v3-text-muted"></i>
+                                                    <p class="mt-4 text-sm v3-text-muted"><?= esc(lang('UI.patientNoImagingPreview')) ?></p>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
                                     </section>
 
                                     <aside>
-                                        <section class="overflow-hidden v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                        <section class="overflow-hidden v3-radius border v3-border v3-surface border v3-border-default">
                                             <div class="border-b v3-border v3-warm-surface px-5 py-4">
-                                                <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientUploadFiles')) ?></h3>
-                                                <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UI.patientAttachmentsSubtitle', ['max' => ($maxFileMb === null ? lang('UI.patientUnlimited') : ((int) $maxFileMb . 'MB'))])) ?></p>
+                                                <h3 class="text-lg font-bold v3-text-ink"><?= esc(lang('UI.patientUploadFiles')) ?></h3>
+                                                <p class="mt-1 text-sm v3-text-muted"><?= esc(lang('UI.patientAttachmentsSubtitle', ['max' => ($maxFileMb === null ? lang('UI.patientUnlimited') : ((int) $maxFileMb . 'MB'))])) ?></p>
                                             </div>
                                             <div class="p-5">
                                                 <?php $selectedAttachmentCategory = old('category'); ?>
                                                 <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/upload') ?>" method="post" enctype="multipart/form-data" class="space-y-4">
                                                     <?= csrf_field() ?>
                                                     <div>
-                                                        <label class="mb-2 block text-sm font-medium text-slate-700"><?= esc(lang('UI.patientUploadFiles')) ?></label>
-                                                        <input type="file" name="attachment[]" required multiple accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip" class="block w-full v3-radius border v3-border px-3 py-2.5 text-sm text-slate-700 file:me-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
+                                                        <label class="mb-2 block text-sm font-medium v3-text-ink"><?= esc(lang('UI.patientUploadFiles')) ?></label>
+                                                        <input type="file" name="attachment[]" required multiple accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip" class="block w-full v3-radius border v3-border px-3 py-2.5 text-sm v3-text-ink file:me-3 file:rounded-lg file:border-0 file:v3-bg-soft file:px-3 file:py-2 file:text-sm file:font-semibold file:v3-text-ink hover:file:v3-bg-sand v3-input">
                                                     </div>
                                                     <div>
-                                                        <label class="mb-2 block text-sm font-medium text-slate-700"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
-                                                        <select name="category" class="w-full v3-radius border v3-border px-3 py-2.5 text-sm text-slate-700 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200">
+                                                        <label class="mb-2 block text-sm font-medium v3-text-ink"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
+                                                        <select name="category" class="w-full v3-radius border v3-border px-3 py-2.5 text-sm v3-text-ink v3-focus-control focus:outline-none focus:ring-2 v3-focus-control v3-select">
                                                             <option value=""><?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?></option>
                                                             <?php foreach (($attachment_category_options ?? []) as $groupLabel => $groupOptions): ?>
                                                                 <optgroup label="<?= esc($groupLabel) ?>">
@@ -1589,11 +1589,11 @@ if (isset($workspace_history)) {
                                                         </select>
                                                     </div>
                                                     <div>
-                                                        <label class="mb-2 block text-sm font-medium text-slate-700"><?= esc(lang('UI.patientNotes')) ?></label>
-                                                        <textarea name="notes" rows="4" placeholder="<?= esc(lang('UI.patientAttachmentNotesPlaceholder')) ?>" class="w-full v3-radius border v3-border px-3 py-2.5 text-sm text-slate-700 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200"></textarea>
+                                                        <label class="mb-2 block text-sm font-medium v3-text-ink"><?= esc(lang('UI.patientNotes')) ?></label>
+                                                        <textarea name="notes" rows="4" placeholder="<?= esc(lang('UI.patientAttachmentNotesPlaceholder')) ?>" class="w-full v3-radius border v3-border px-3 py-2.5 text-sm v3-text-ink v3-focus-control focus:outline-none focus:ring-2 v3-focus-control v3-textarea"></textarea>
                                                     </div>
                                                     <div class="flex items-center justify-end">
-                                                        <button type="submit" class="inline-flex items-center gap-2 v3-radius v3-soft-surface px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-700">
+                                                        <button type="submit" class="inline-flex items-center gap-2 v3-radius v3-soft-surface px-4 py-2.5 text-sm font-semibold v3-text-on-primary transition v3-hover-primary v3-btn v3-btn--primary">
                                                             <i class="fas fa-upload"></i>
                                                             <span><?= esc(lang('UI.patientUpload')) ?></span>
                                                         </button>
@@ -1604,19 +1604,19 @@ if (isset($workspace_history)) {
                                     </aside>
                                 </div>
 
-                                <div class="overflow-hidden v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                <div class="overflow-hidden v3-radius border v3-border v3-surface border v3-border-default">
                                     <div class="border-b v3-border v3-warm-surface px-5 py-4">
-                                        <h4 class="text-base font-extrabold text-slate-950"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
+                                        <h4 class="text-base font-extrabold v3-text-ink"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
                                         <table class="patient-record-table" data-record-type="attachments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead>
                                                 <tr>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientFile')) ?></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientCategory')) ?></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientNotes')) ?></th>
-                                                    <th class="px-6 py-4 text-right text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientFile')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientCategory')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientNotes')) ?></th>
+                                                    <th class="px-6 py-4 text-right text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1633,10 +1633,10 @@ if (isset($workspace_history)) {
                                                                     <div class="patient-record-subtitle"><?= number_format(($attachment['file_size'] ?? 0) / 1024, 1) ?> KB</div>
                                                                 </div>
                                                             </td>
-                                                            <td class="text-slate-600">
+                                                            <td class="v3-text-muted">
                                                                 <?= esc($attachment['category'] ?? lang('UI.patientDash')) ?>
                                                             </td>
-                                                            <td class="text-slate-600">
+                                                            <td class="v3-text-muted">
                                                                 <?= esc($attachment['notes'] ?? lang('UI.patientDash')) ?>
                                                             </td>
                                                             <td class="text-right">
@@ -1653,7 +1653,7 @@ if (isset($workspace_history)) {
                                                                 </a>
                                                                 <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/' . $attachment['id'] . '/delete') ?>" method="post" class="inline">
                                                                     <?= csrf_field() ?>
-                                                                    <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteAttachmentConfirm'), 'js') ?>');">
+                                                                    <button type="submit" class="patient-table-action patient-table-action-danger v3-btn v3-btn--primary" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteAttachmentConfirm'), 'js') ?>');">
                                                                         <i class="fas fa-trash"></i>
                                                                     </button>
                                                                 </form>
@@ -1663,7 +1663,7 @@ if (isset($workspace_history)) {
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr>
-                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500"><?= esc(lang('UI.patientNoAttachmentsYet')) ?></td>
+                                                        <td colspan="5" class="px-6 py-8 text-center text-sm v3-text-muted"><?= esc(lang('UI.patientNoAttachmentsYet')) ?></td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -1679,12 +1679,12 @@ if (isset($workspace_history)) {
                             <div id="contracts-content" class="tab-content hidden">
                                 <section class="relative overflow-hidden v3-radius border v3-border v3-warm-surface p-4 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"></div><div class="relative space-y-5">
                                 <?php if (session('success')): ?>
-                                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 text-sm">
+                                    <div class="mb-4 rounded-lg border v3-border-default v3-bg-paid p-4 v3-text-primary text-sm">
                                         <?= esc(session('success')) ?>
                                     </div>
                                 <?php endif; ?>
                                 <?php if (session('error')): ?>
-                                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700 text-sm">
+                                    <div class="mb-4 rounded-lg border v3-border-default v3-bg-alert p-4 v3-text-danger text-sm">
                                         <?= esc(session('error')) ?>
                                     </div>
                                 <?php endif; ?>
@@ -1692,43 +1692,43 @@ if (isset($workspace_history)) {
                                 <div class="flex flex-wrap items-center justify-end gap-2">
                                     <?php if (has_permission('patients', 'edit')): ?>
                                         <a href="<?= workflow_context_url('contracts/create/' . $patient['id'], $patientContextReturnTo) ?>"
-                                           class="inline-flex items-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-xs font-extrabold text-white transition">
+                                           class="inline-flex items-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-xs font-extrabold v3-text-on-primary transition v3-btn v3-btn--secondary">
                                             <i class="fas fa-plus"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
 
-                                <div class="overflow-hidden v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                <div class="overflow-hidden v3-radius border v3-border v3-surface border v3-border-default">
                                     <div class="border-b v3-border v3-warm-surface px-5 py-4">
-                                        <h4 class="text-base font-extrabold text-slate-950"><?= esc(lang('UI.patientContractHistory')) ?></h4>
+                                        <h4 class="text-base font-extrabold v3-text-ink"><?= esc(lang('UI.patientContractHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
                                         <table class="patient-record-table" data-record-type="contracts" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead>
                                                 <tr>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientExam')) ?></th>
-                                                    <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
-                                                    <th class="px-6 py-4 text-right text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientExam')) ?></th>
+                                                    <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
+                                                    <th class="px-6 py-4 text-right text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php if (!empty($contracts)): ?>
                                                     <?php foreach ($contracts as $contract): ?>
                                                         <tr class="patient-record-row" data-date="<?= !empty($contract['created_at']) ? esc(date('Y-m-d', strtotime($contract['created_at']))) : '' ?>" data-href="<?= esc(workflow_context_url('contracts/' . $contract['id'], $patientContextReturnTo)) ?>">
-                                                            <td class="whitespace-nowrap text-slate-600">
+                                                            <td class="whitespace-nowrap v3-text-muted">
                                                                 <?= !empty($contract['created_at']) ? formatDateTime($contract['created_at']) : '--' ?>
                                                             </td>
                                                             <td>
-                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
+                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'v3-bg-paid v3-text-primary' : 'v3-bg-waiting v3-text-warning' ?>">
                                                                     <?= esc(ucfirst($contract['status'] ?? 'draft')) ?>
                                                                 </span>
                                                             </td>
-                                                            <td class="text-slate-700">
+                                                            <td class="v3-text-ink">
                                                                 <?= !empty($contract['examination_id']) ? esc($contract['examination_id']) : '--' ?>
                                                             </td>
-                                                            <td class="text-slate-700">
+                                                            <td class="v3-text-ink">
                                                                 <?= esc($contract['currency'] ?? 'USD') ?> <?= number_format((float) ($contract['total_cost'] ?? 0), 2) ?>
                                                             </td>
                                                     <td class="text-right">
@@ -1744,7 +1744,7 @@ if (isset($workspace_history)) {
                                                             </a>
                                                             <form action="<?= base_url('contracts/' . $contract['id'] . '/delete') ?>" method="post" class="inline">
                                                                 <?= csrf_field() ?>
-                                                                <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteContractConfirm'), 'js') ?>');">
+                                                                <button type="submit" class="patient-table-action patient-table-action-danger v3-btn v3-btn--primary" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteContractConfirm'), 'js') ?>');">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
                                                             </form>
@@ -1759,7 +1759,7 @@ if (isset($workspace_history)) {
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr>
-                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500"><?= esc(lang('UI.patientNoContractsYet')) ?></td>
+                                                        <td colspan="5" class="px-6 py-8 text-center text-sm v3-text-muted"><?= esc(lang('UI.patientNoContractsYet')) ?></td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -1788,7 +1788,7 @@ if (isset($workspace_history)) {
                                             <span><?= esc(lang('UI.patientTabExams')) ?></span>
                                         </div>
                                         <?php if (has_permission('examinations', 'create')): ?>
-                                            <button type="button" data-app-drawer-open="patientExamDrawer" class="patient-exam-create-action">
+                                            <button type="button" data-app-drawer-open="patientExamDrawer" class="patient-exam-create-action v3-btn v3-btn--secondary">
                                                 <i class="fas fa-plus"></i>
                                                 <span><?= esc(lang('UI.patientCreateExamination')) ?></span>
                                             </button>
@@ -1851,13 +1851,13 @@ if (isset($workspace_history)) {
                                         <?php endforeach; ?>
                                     </div>
                                     <div class="patient-filter-empty hidden text-center py-10">
-                                        <i class="fas fa-search text-slate-300 v3-title-scale mb-3"></i>
-                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoExaminations')) ?></p>
+                                        <i class="fas fa-search v3-text-muted v3-title-scale mb-3"></i>
+                                        <p class="text-sm font-semibold v3-text-muted"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoExaminations')) ?></p>
                                     </div>
                                 <?php else: ?>
                                     <div class="patient-exam-empty text-center py-10">
-                                        <i class="fas fa-stethoscope text-slate-300 v3-title-scale mb-3"></i>
-                                        <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoExaminations')) ?></p>
+                                        <i class="fas fa-stethoscope v3-text-muted v3-title-scale mb-3"></i>
+                                        <p class="text-sm font-semibold v3-text-muted"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoExaminations')) ?></p>
                                     </div>
                                 <?php endif; ?>
                             </section>
@@ -1869,24 +1869,24 @@ if (isset($workspace_history)) {
                             <section class="relative overflow-hidden v3-radius border v3-border v3-warm-surface">
                                 <div class="pointer-events-none absolute inset-0 opacity-90">
 
-                                    <div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-emerald-300/25"></div>
+                                    <div class="absolute bottom-0 start-6 h-48 w-48 rounded-full v3-bg-primary"></div>
                                 </div>
                                 <div class="relative border-b v3-border px-4 py-4 sm:px-6">
                                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div class="flex items-start gap-3">
-                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface text-white">
+                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface v3-text-on-primary">
                                                 <i class="fas fa-calendar-check"></i>
                                             </span>
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
-                                                    <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientAppointments')) ?></h3>
-                                                    <span class="inline-flex items-center rounded-full v3-surface px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200/70"><?= (int) ($historyCounts['appointments'] ?? count($appointments)) ?> <?= esc(lang('UI.patientTabAppts')) ?></span>
+                                                    <h3 class="text-lg font-extrabold v3-text-ink"><?= esc(lang('UI.patientAppointments')) ?></h3>
+                                                    <span class="inline-flex items-center rounded-full v3-surface px-2.5 py-1 text-xs font-bold v3-text-muted border v3-border-default"><?= (int) ($historyCounts['appointments'] ?? count($appointments)) ?> <?= esc(lang('UI.patientTabAppts')) ?></span>
                                                 </div>
-                                                <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
+                                                <p class="mt-1 max-w-2xl text-sm font-medium v3-text-muted"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
                                             </div>
                                         </div>
                                         <?php if (has_permission('appointments', 'create')): ?>
-                                            <button type="button" data-app-drawer-open="patientAppointmentDrawer" class="patient-appointment-create-action">
+                                            <button type="button" data-app-drawer-open="patientAppointmentDrawer" class="patient-appointment-create-action v3-btn v3-btn--secondary">
                                                 <i class="fas fa-clock"></i>
                                                 <span><?= esc(lang('UI.patientScheduleAppointment')) ?></span>
                                             </button>
@@ -1895,18 +1895,18 @@ if (isset($workspace_history)) {
                                 </div>
                                 <?php if (!empty($appointments)): ?>
                                     <div class="relative px-4 py-5 sm:px-6">
-                                        <div class="overflow-x-auto v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                        <div class="overflow-x-auto v3-radius border v3-border v3-surface border v3-border-default">
                                             <table class="patient-record-table w-full min-w-full" data-record-type="appointments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                                 <thead class="v3-warm-surface">
                                                     <tr>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientDateTime')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientType')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientDuration')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientActions')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientDateTime')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientType')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientDuration')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientActions')) ?></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="divide-y divide-slate-200/70 v3-surface">
+                                                <tbody class="divide-y v3-border-default v3-surface">
                                                     <?php foreach ($appointments as $apt): ?>
                                                         <?php
                                                         $appointmentDateKey = !empty($apt['appointment_date']) ? substr((string) $apt['appointment_date'], 0, 10) : '';
@@ -1924,42 +1924,42 @@ if (isset($workspace_history)) {
                                                             default => $appointmentStatusKey !== '' ? ucfirst(str_replace('_', ' ', $appointmentStatusKey)) : lang('UI.patientUnknown'),
                                                         };
                                                         $appointmentStatusClass = [
-                                                            'scheduled' => 'bg-blue-100 text-blue-800 ring-blue-200/70',
-                                                            'confirmed' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
-                                                            'completed' => 'bg-slate-100 text-slate-800 ring-slate-200/70',
-                                                            'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200/70',
-                                                            'no_show' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
-                                                        ][$appointmentStatusKey] ?? 'bg-slate-100 text-slate-700 ring-slate-200/70';
+                                                            'scheduled' => 'v3-bg-scheduled v3-text-primary v3-border-default',
+                                                            'confirmed' => 'v3-bg-paid v3-text-primary v3-border-default',
+                                                            'completed' => 'v3-bg-soft v3-text-ink v3-border-default',
+                                                            'cancelled' => 'v3-bg-alert v3-text-danger v3-border-default',
+                                                            'no_show' => 'v3-bg-waiting v3-text-warning v3-border-default',
+                                                        ][$appointmentStatusKey] ?? 'v3-bg-soft v3-text-ink v3-border-default';
                                                         $appointmentTypeRaw = trim((string) ($apt['appointment_type'] ?? ''));
                                                         $appointmentTypeLabel = $appointmentTypeRaw !== '' ? ucfirst(str_replace('_', ' ', $appointmentTypeRaw)) : lang('UI.patientGeneral');
                                                         $appointmentChairLabel = trim((string) ($apt['chair_name'] ?? '')) !== '' ? (string) $apt['chair_name'] : lang('UI.appointmentChairDefault');
                                                         $appointmentUrl = workflow_context_url('appointment/' . $apt['id'], $patientContextReturnTo);
                                                         ?>
-                                                        <tr class="patient-record-row transition-colors hover:bg-blue-50/70" data-href="<?= esc($appointmentUrl) ?>" data-date="<?= esc($appointmentDateKey, 'attr') ?>">
-                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                                                                <div class="font-extrabold text-slate-950"><?= esc(formatDate($apt['appointment_date'])) ?></div>
+                                                        <tr class="patient-record-row transition-colors v3-hover-primary" data-href="<?= esc($appointmentUrl) ?>" data-date="<?= esc($appointmentDateKey, 'attr') ?>">
+                                                            <td class="px-6 py-4 whitespace-nowrap text-sm v3-text-ink">
+                                                                <div class="font-extrabold v3-text-ink"><?= esc(formatDate($apt['appointment_date'])) ?></div>
                                                                 <div class="mt-1 text-xs font-bold v3-accent-text"><?= esc(lang('UI.patientAt')) ?> <?= esc(formatTime($apt['appointment_time'])) ?></div>
                                                             </td>
                                                             <td class="px-6 py-4">
-                                                                <div class="patient-record-title text-sm font-extrabold text-slate-950"><?= esc($appointmentTypeLabel) ?></div>
-                                                                <div class="mt-1 inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 text-xs font-bold v3-accent-text ring-1 ring-indigo-100">
+                                                                <div class="patient-record-title text-sm font-extrabold v3-text-ink"><?= esc($appointmentTypeLabel) ?></div>
+                                                                <div class="mt-1 inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 text-xs font-bold v3-accent-text border v3-border-default">
                                                                     <i class="fas fa-chair text-[10px]"></i>
                                                                     <?= esc($appointmentChairLabel) ?>
                                                                 </div>
                                                                 <?php if ($appointmentClinicalCount > 0): ?>
                                                                     <div class="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                                                        <span class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text ring-1 ring-sky-100">
+                                                                        <span class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text border v3-border-default">
                                                                             <i class="fas fa-link v3-accent-text"></i>
                                                                             <span><?= esc(lang('UI.patientSameDayClinicalWork')) ?>: <?= esc((string) $appointmentClinicalCount) ?></span>
                                                                         </span>
                                                                         <?php foreach (array_slice(($appointmentClinical['examinations'] ?? []), 0, 1) as $clinicalItem): ?>
-                                                                            <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text ring-1 ring-blue-100 hover:bg-blue-100">
+                                                                            <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text border v3-border-default v3-hover-primary v3-btn v3-btn--secondary">
                                                                                 <i class="fas fa-stethoscope"></i>
                                                                                 <span><?= esc($clinicalItem['label']) ?></span>
                                                                             </a>
                                                                         <?php endforeach; ?>
                                                                         <?php foreach (array_slice(($appointmentClinical['treatments'] ?? []), 0, 1) as $clinicalItem): ?>
-                                                                            <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-rose-800 ring-1 ring-rose-100 hover:bg-rose-100">
+                                                                            <a href="<?= esc($clinicalItem['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full v3-bg-alert px-2.5 py-1 v3-text-danger border v3-border-default v3-hover-danger v3-btn v3-btn--danger">
                                                                                 <i class="fas fa-tooth"></i>
                                                                                 <span><?= esc($clinicalItem['label']) ?></span>
                                                                             </a>
@@ -1968,13 +1968,13 @@ if (isset($workspace_history)) {
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 ring-1 ring-slate-200">
-                                                                    <i class="fas fa-hourglass-half text-slate-500"></i>
+                                                                <span class="inline-flex items-center gap-1.5 rounded-full v3-bg-soft px-2.5 py-1 text-xs font-bold v3-text-ink border v3-border-default">
+                                                                    <i class="fas fa-hourglass-half v3-text-muted"></i>
                                                                     <?= esc($apt['duration'] ?? '30') ?> <?= esc(lang('UI.patientMinutes')) ?>
                                                                 </span>
                                                             </td>
                                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= esc($appointmentStatusClass) ?>">
+                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold border <?= esc($appointmentStatusClass) ?>">
                                                                     <?= esc($appointmentStatusLabel) ?>
                                                                 </span>
                                                             </td>
@@ -1993,7 +1993,7 @@ if (isset($workspace_history)) {
                                     <div class="relative px-6 py-8">
                                         <div class="v3-radius border border-dashed v3-border v3-surface px-6 py-12 text-center">
                                             <i class="fas fa-calendar-times mb-3 v3-title-scale v3-accent-text"></i>
-                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoAppointments')) ?></p>
+                                            <p class="text-sm font-semibold v3-text-muted"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoAppointments')) ?></p>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -2010,19 +2010,19 @@ if (isset($workspace_history)) {
                                 <div class="relative border-b v3-border px-4 py-4 sm:px-6">
                                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div class="flex items-start gap-3">
-                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface text-white">
+                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface v3-text-on-primary">
                                                 <i class="fas fa-tooth"></i>
                                             </span>
                                             <div>
                                                 <div class="flex flex-wrap items-center gap-2">
-                                                    <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientTreatments')) ?></h3>
-                                                    <span class="inline-flex items-center rounded-full v3-surface px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200/70"><?= (int) ($historyCounts['treatments'] ?? count($treatments)) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
+                                                    <h3 class="text-lg font-extrabold v3-text-ink"><?= esc(lang('UI.patientTreatments')) ?></h3>
+                                                    <span class="inline-flex items-center rounded-full v3-surface px-2.5 py-1 text-xs font-bold v3-text-muted border v3-border-default"><?= (int) ($historyCounts['treatments'] ?? count($treatments)) ?> <?= esc(lang('UI.patientTreatments')) ?></span>
                                                 </div>
-                                                <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientBilling')) ?> / <?= esc(lang('UI.patientStatus')) ?> / <?= esc(lang('Finance.provider')) ?></p>
+                                                <p class="mt-1 max-w-2xl text-sm font-medium v3-text-muted"><?= esc(lang('UI.patientBilling')) ?> / <?= esc(lang('UI.patientStatus')) ?> / <?= esc(lang('Finance.provider')) ?></p>
                                             </div>
                                         </div>
                                         <?php if (has_permission('treatments', 'create')): ?>
-                                            <button type="button" data-treatment-create-modal-open data-context-patient-id="<?= (int) $patient['id'] ?>" data-context-patient-name="<?= esc($fullName !== '' ? $fullName : ($patient['patient_id'] ?? ''), 'attr') ?>" data-context-patient-code="<?= esc((string) ($patient['patient_id'] ?? ''), 'attr') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-sm font-extrabold text-white transition focus:outline-none focus:ring-4 focus:ring-pink-500/20">
+                                            <button type="button" data-treatment-create-modal-open data-context-patient-id="<?= (int) $patient['id'] ?>" data-context-patient-name="<?= esc($fullName !== '' ? $fullName : ($patient['patient_id'] ?? ''), 'attr') ?>" data-context-patient-code="<?= esc((string) ($patient['patient_id'] ?? ''), 'attr') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-sm font-extrabold v3-text-on-primary transition focus:outline-none focus:ring-4 focus:ring-pink-500/20 v3-btn v3-btn--secondary">
                                                 <i class="fas fa-plus"></i>
                                                 <span><?= esc(lang('UI.patientCreateTreatmentPlan')) ?></span>
                                             </button>
@@ -2032,29 +2032,29 @@ if (isset($workspace_history)) {
 
                                 <div class="relative px-4 py-4 sm:px-6">
                                     <div class="grid gap-3 md:grid-cols-3">
-                                        <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 text-white">
+                                        <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
                                             <div class="absolute -end-8 -top-8 h-24 w-24 rounded-full v3-surface"></div>
                                             <div class="relative flex items-start justify-between gap-3">
                                                 <div>
-                                                    <p class="text-xs font-bold uppercase tracking-wide text-amber-50/90"><?= esc(lang('UI.patientUnbilledWork')) ?></p>
+                                                    <p class="text-xs font-bold uppercase tracking-wide v3-text-warning"><?= esc(lang('UI.patientUnbilledWork')) ?></p>
                                                     <p class="mt-2 text-2xl font-black" dir="ltr"><?= formatCurrency($openClinicalChargeTotal) ?></p>
-                                                    <p class="mt-1 text-xs font-semibold text-amber-50/90"><?= esc($openClinicalChargeCount) ?> <?= esc(lang('UI.patientTreatments')) ?></p>
+                                                    <p class="mt-1 text-xs font-semibold v3-text-warning"><?= esc($openClinicalChargeCount) ?> <?= esc(lang('UI.patientTreatments')) ?></p>
                                                 </div>
-                                                <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-surface text-white"><i class="fas fa-file-invoice-dollar"></i></span>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-surface v3-text-on-primary"><i class="fas fa-file-invoice-dollar"></i></span>
                                             </div>
                                         </div>
-                                        <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 text-white">
+                                        <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
                                             <div class="absolute -end-8 -top-8 h-24 w-24 rounded-full v3-surface"></div>
                                             <div class="relative flex items-start justify-between gap-3">
                                                 <div>
-                                                    <p class="text-xs font-bold uppercase tracking-wide text-emerald-50/90"><?= esc(lang('UI.patientBilledPaid')) ?></p>
+                                                    <p class="text-xs font-bold uppercase tracking-wide v3-text-primary"><?= esc(lang('UI.patientBilledPaid')) ?></p>
                                                     <p class="mt-2 text-2xl font-black"><?= esc($paidBilledTreatmentCount) ?></p>
-                                                    <p class="mt-1 text-xs font-semibold text-emerald-50/90"><?= esc(lang('UI.patientPaidShort')) ?></p>
+                                                    <p class="mt-1 text-xs font-semibold v3-text-primary"><?= esc(lang('UI.patientPaidShort')) ?></p>
                                                 </div>
-                                                <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-surface text-white"><i class="fas fa-circle-check"></i></span>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-surface v3-text-on-primary"><i class="fas fa-circle-check"></i></span>
                                             </div>
                                         </div>
-                                        <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 text-white">
+                                        <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
                                             <div class="absolute -end-8 -top-8 h-24 w-24 rounded-full v3-surface"></div>
                                             <div class="relative flex items-start justify-between gap-3">
                                                 <div>
@@ -2062,7 +2062,7 @@ if (isset($workspace_history)) {
                                                     <p class="mt-2 text-2xl font-black"><?= esc($unpaidBilledTreatmentCount) ?></p>
                                                     <p class="mt-1 text-xs font-semibold v3-accent-text"><?= esc(lang('UI.patientBalanceShort')) ?></p>
                                                 </div>
-                                                <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-surface text-white"><i class="fas fa-scale-balanced"></i></span>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center v3-radius v3-surface v3-text-on-primary"><i class="fas fa-scale-balanced"></i></span>
                                             </div>
                                         </div>
                                     </div>
@@ -2087,11 +2087,11 @@ if (isset($workspace_history)) {
                                                 default => $treatmentStatus !== '' ? ucfirst(str_replace('_', ' ', $treatmentStatus)) : lang('UI.patientNa'),
                                             };
                                             $statusClass = match ($treatmentStatus) {
-                                                'active', 'in_progress' => 'bg-blue-100 text-blue-800 ring-blue-200/70',
-                                                'completed' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
-                                                'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200/70',
-                                                'on_hold', 'pending', 'needs_attention' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
-                                                default => 'bg-slate-100 text-slate-700 ring-slate-200/70',
+                                                'active', 'in_progress' => 'v3-bg-scheduled v3-text-primary v3-border-default',
+                                                'completed' => 'v3-bg-paid v3-text-primary v3-border-default',
+                                                'cancelled' => 'v3-bg-alert v3-text-danger v3-border-default',
+                                                'on_hold', 'pending', 'needs_attention' => 'v3-bg-waiting v3-text-warning v3-border-default',
+                                                default => 'v3-bg-soft v3-text-ink v3-border-default',
                                             };
                                             $doctorName = trim((string) (($trt['doctor_first_name'] ?? '') . ' ' . ($trt['doctor_last_name'] ?? '')));
                                             if ($doctorName === '') {
@@ -2116,38 +2116,38 @@ if (isset($workspace_history)) {
                                                 );
                                             }
                                             ?>
-                                            <article class="patient-record-row group relative overflow-hidden v3-radius border v3-border v3-surface p-4 ring-1 ring-slate-100 transition hover:shadow-pink-100/70 sm:p-5" data-href="<?= esc($treatmentUrl) ?>">
+                                            <article class="patient-record-row group relative overflow-hidden v3-radius border v3-border v3-surface p-4 border v3-border-default transition hover:shadow-pink-100/70 sm:p-5" data-href="<?= esc($treatmentUrl) ?>">
                                                 <div class="absolute inset-y-0 start-0 w-1.5 v3-warm-surface"></div>
                                                 <div class="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)_auto] xl:items-center">
                                                     <div class="min-w-0 ps-2">
                                                         <div class="flex flex-wrap items-center gap-2">
-                                                            <h4 class="truncate text-base font-extrabold text-slate-950"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></h4>
-                                                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= esc($statusClass) ?>"><?= esc($treatmentStatusLabel) ?></span>
+                                                            <h4 class="truncate text-base font-extrabold v3-text-ink"><?= esc($trt['treatment_name'] ?? lang('UI.patientNa')) ?></h4>
+                                                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold border <?= esc($statusClass) ?>"><?= esc($treatmentStatusLabel) ?></span>
                                                         </div>
-                                                        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
-                                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-pink-50 px-2.5 py-1 text-pink-800 ring-1 ring-pink-100"><i class="fas fa-tag text-[10px]"></i><?= esc($treatmentTypeLabel) ?></span>
-                                                            <span class="inline-flex items-center gap-1.5 rounded-full v3-surface px-2.5 py-1 text-slate-700 ring-1 ring-slate-100"><i class="fas fa-tooth text-[10px]"></i><?= esc(lang('UI.patientTooth')) ?>: <span dir="ltr"><?= esc($trt['tooth_number'] ?? '—') ?></span></span>
-                                                            <span class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text ring-1 ring-cyan-100"><i class="fas fa-user-doctor text-[10px]"></i><?= esc($doctorName) ?></span>
+                                                        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold v3-text-muted">
+                                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-pink-50 px-2.5 py-1 text-pink-800 border ring-pink-100"><i class="fas fa-tag text-[10px]"></i><?= esc($treatmentTypeLabel) ?></span>
+                                                            <span class="inline-flex items-center gap-1.5 rounded-full v3-surface px-2.5 py-1 v3-text-ink border v3-border-default"><i class="fas fa-tooth text-[10px]"></i><?= esc(lang('UI.patientTooth')) ?>: <span dir="ltr"><?= esc($trt['tooth_number'] ?? '—') ?></span></span>
+                                                            <span class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text border v3-border-default"><i class="fas fa-user-doctor text-[10px]"></i><?= esc($doctorName) ?></span>
                                                             <?php if (!empty($trt['start_date'])): ?>
-                                                                <span class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text ring-1 ring-indigo-100"><i class="fas fa-calendar text-[10px]"></i><span dir="ltr"><?= esc(formatDate($trt['start_date'])) ?></span></span>
+                                                                <span class="inline-flex items-center gap-1.5 rounded-full v3-soft-surface px-2.5 py-1 v3-accent-text border v3-border-default"><i class="fas fa-calendar text-[10px]"></i><span dir="ltr"><?= esc(formatDate($trt['start_date'])) ?></span></span>
                                                             <?php endif; ?>
                                                         </div>
                                                         <?php if (!empty($trt['treatment_description'])): ?>
-                                                            <p class="mt-3 text-sm font-medium leading-6 text-slate-600"><?= esc($trt['treatment_description']) ?></p>
+                                                            <p class="mt-3 text-sm font-medium leading-6 v3-text-muted"><?= esc($trt['treatment_description']) ?></p>
                                                         <?php endif; ?>
                                                     </div>
 
                                                     <div class="v3-radius border v3-border v3-warm-surface p-3">
                                                         <div class="flex items-start justify-between gap-3">
                                                             <div>
-                                                                <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.patientBilling')) ?></p>
-                                                                <p class="mt-1 text-lg font-black text-slate-950" dir="ltr"><?= esc($rowBilling['amount_text']) ?></p>
+                                                                <p class="text-xs font-bold uppercase tracking-wide v3-text-muted"><?= esc(lang('UI.patientBilling')) ?></p>
+                                                                <p class="mt-1 text-lg font-black v3-text-ink" dir="ltr"><?= esc($rowBilling['amount_text']) ?></p>
                                                             </div>
                                                             <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold <?= esc($rowBilling['status_class']) ?>"><?= esc($rowBilling['status_text']) ?></span>
                                                         </div>
                                                         <?php if (!empty($rowBilling['finance_id'])): ?>
-                                                            <div class="mt-3 grid gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-2">
-                                                                <a href="<?= esc(workflow_context_url('finance/' . (int) $rowBilling['finance_id'], $patientContextReturnTo)) ?>" class="inline-flex items-center gap-1.5 v3-radius bg-emerald-50 px-2.5 py-2 text-emerald-800 ring-1 ring-emerald-100 hover:bg-emerald-100">
+                                                            <div class="mt-3 grid gap-2 text-xs font-semibold v3-text-muted sm:grid-cols-2">
+                                                                <a href="<?= esc(workflow_context_url('finance/' . (int) $rowBilling['finance_id'], $patientContextReturnTo)) ?>" class="inline-flex items-center gap-1.5 v3-radius v3-bg-paid px-2.5 py-2 v3-text-primary border v3-border-default v3-hover-primary v3-btn v3-btn--secondary">
                                                                     <i class="fas fa-file-invoice-dollar"></i>
                                                                     <span class="truncate"><?= esc($rowBilling['invoice_number'] !== '' ? $rowBilling['invoice_number'] : lang('Finance.invoice')) ?></span>
                                                                 </a>
@@ -2155,13 +2155,13 @@ if (isset($workspace_history)) {
                                                                     <span class="inline-flex items-center justify-center v3-radius px-2.5 py-2 font-bold <?= esc($rowBilling['invoice_status_class']) ?>"><?= esc($rowBilling['invoice_status_text']) ?></span>
                                                                 <?php endif; ?>
                                                                 <span><?= esc(lang('UI.patientPaidShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['paid_text']) ?></strong></span>
-                                                                <span class="<?= $rowBilling['has_balance'] ? 'text-amber-700' : 'text-emerald-700' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
+                                                                <span class="<?= $rowBilling['has_balance'] ? 'v3-text-warning' : 'v3-text-primary' ?>"><?= esc(lang('UI.patientBalanceShort')) ?>: <strong dir="ltr"><?= esc($rowBilling['balance_text']) ?></strong></span>
                                                             </div>
                                                         <?php elseif ($billTreatmentFromPatientUrl !== ''): ?>
                                                             <button type="button"
                                                                     data-patient-charge-line-open
                                                                     data-charge-line-id="<?= (int) $rowBilling['charge_line_id'] ?>"
-                                                                    class="mt-3 inline-flex w-full items-center justify-center gap-2 v3-radius v3-warm-surface px-3 py-2.5 text-xs font-extrabold text-white transition">
+                                                                    class="mt-3 inline-flex w-full items-center justify-center gap-2 v3-radius v3-warm-surface px-3 py-2.5 text-xs font-extrabold v3-text-on-primary transition v3-btn v3-btn--secondary">
                                                                 <i class="fas fa-file-invoice-dollar"></i>
                                                                 <?= esc(lang('UI.patientCreateInvoiceFromWork')) ?>
                                                             </button>
@@ -2169,7 +2169,7 @@ if (isset($workspace_history)) {
                                                     </div>
 
                                                     <div class="flex shrink-0 items-center justify-end gap-2">
-                                                        <a href="<?= esc($treatmentUrl) ?>" class="inline-flex h-10 w-10 items-center justify-center v3-radius bg-pink-50 text-pink-700 ring-1 ring-pink-100 transition hover:bg-pink-100" title="<?= esc(lang('UI.patientView')) ?>">
+                                                        <a href="<?= esc($treatmentUrl) ?>" class="inline-flex h-10 w-10 items-center justify-center v3-radius bg-pink-50 text-pink-700 border ring-pink-100 transition hover:bg-pink-100" title="<?= esc(lang('UI.patientView')) ?>">
                                                             <i class="fas fa-eye text-sm"></i>
                                                         </a>
                                                     </div>
@@ -2181,7 +2181,7 @@ if (isset($workspace_history)) {
                                     <div class="relative px-6 pb-8">
                                         <div class="v3-radius border border-dashed border-pink-200 v3-surface px-6 py-12 text-center">
                                             <i class="fas fa-tooth mb-3 v3-title-scale text-pink-200"></i>
-                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoTreatments')) ?></p>
+                                            <p class="text-sm font-semibold v3-text-muted"><?= esc(lang(isset($workspace_history) ? 'PatientHistory.none' : 'UI.patientNoTreatments')) ?></p>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -2191,26 +2191,26 @@ if (isset($workspace_history)) {
                         <div id="prescriptions-content" class="tab-content hidden">
                             <section class="relative overflow-hidden v3-radius border v3-border v3-warm-surface">
                                 <div class="pointer-events-none absolute inset-0 opacity-90">
-                                    <div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-teal-400/25"></div>
+                                    <div class="absolute -top-24 end-10 h-52 w-52 rounded-full v3-bg-primary"></div>
 
                                 </div>
                                 <div class="relative border-b v3-border px-4 py-4 sm:px-6">
                                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div class="flex items-start gap-3">
-                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface text-white">
+                                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface v3-text-on-primary">
                                                 <i class="fas fa-prescription-bottle-medical"></i>
                                             </span>
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
-                                                    <h3 class="text-lg font-extrabold text-slate-950"><?= esc(lang('UI.patientPrescriptions')) ?></h3>
-                                                    <span class="inline-flex items-center rounded-full v3-surface px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200/70"><?= count($prescriptions) ?> <?= esc(lang('UI.patientTabRx')) ?></span>
+                                                    <h3 class="text-lg font-extrabold v3-text-ink"><?= esc(lang('UI.patientPrescriptions')) ?></h3>
+                                                    <span class="inline-flex items-center rounded-full v3-surface px-2.5 py-1 text-xs font-bold v3-text-muted border v3-border-default"><?= count($prescriptions) ?> <?= esc(lang('UI.patientTabRx')) ?></span>
                                                 </div>
-                                                <p class="mt-1 max-w-2xl text-sm font-medium text-slate-600"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
+                                                <p class="mt-1 max-w-2xl text-sm font-medium v3-text-muted"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
                                             </div>
                                         </div>
                                         <?php if (has_permission('prescriptions', 'create')): ?>
                                             <a href="<?= workflow_context_url('prescription/create?patient_id=' . $patient['id'], $patientContextReturnTo) ?>"
-                                               class="inline-flex w-fit items-center justify-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-xs font-extrabold text-white transition focus:outline-none focus:ring-4 focus:ring-teal-500/20">
+                                               class="inline-flex w-fit items-center justify-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-xs font-extrabold v3-text-on-primary transition focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                                                 <i class="fas fa-plus"></i>
                                                 <span><?= esc(lang('UI.patientCreatePrescription')) ?></span>
                                             </a>
@@ -2220,19 +2220,19 @@ if (isset($workspace_history)) {
 
                                 <?php if (!empty($prescriptions)): ?>
                                     <div class="relative px-4 py-5 sm:px-6">
-                                        <div class="overflow-x-auto v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                        <div class="overflow-x-auto v3-radius border v3-border v3-surface border v3-border-default">
                                             <table class="patient-record-table w-full min-w-full" data-record-type="prescriptions" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                                 <thead class="v3-warm-surface">
                                                     <tr>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientMedication')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientDosage')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientFrequency')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientPrescribedDate')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider text-slate-600"><?= esc(lang('UI.patientActions')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientMedication')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientDosage')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientFrequency')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientPrescribedDate')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold uppercase tracking-wider v3-text-muted"><?= esc(lang('UI.patientActions')) ?></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="divide-y divide-slate-200/70 v3-surface">
+                                                <tbody class="divide-y v3-border-default v3-surface">
                                                     <?php foreach ($prescriptions as $prescription): ?>
                                                         <?php
                                                         $medicationName = lang('UI.patientNa');
@@ -2280,33 +2280,33 @@ if (isset($workspace_history)) {
                                                             default => $prescriptionStatusKey !== '' ? ucfirst(str_replace('_', ' ', $prescriptionStatusKey)) : lang('UI.patientUnknown'),
                                                         };
                                                         $prescriptionStatusClass = match ($prescriptionStatusKey) {
-                                                            'active' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
-                                                            'pending' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
-                                                            'expired', 'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200/70',
-                                                            default => 'bg-slate-100 text-slate-700 ring-slate-200/70',
+                                                            'active' => 'v3-bg-paid v3-text-primary v3-border-default',
+                                                            'pending' => 'v3-bg-waiting v3-text-warning v3-border-default',
+                                                            'expired', 'cancelled' => 'v3-bg-alert v3-text-danger v3-border-default',
+                                                            default => 'v3-bg-soft v3-text-ink v3-border-default',
                                                         };
                                                         $prescriptionUrl = workflow_context_url('prescription/' . $prescription['id'], $patientContextReturnTo);
                                                         $prescribedDateIso = !empty($prescription['prescribed_date']) ? substr((string) $prescription['prescribed_date'], 0, 10) : '';
                                                         ?>
-                                                        <tr class="patient-record-row transition-colors hover:bg-teal-50/70" data-href="<?= esc($prescriptionUrl) ?>" data-date="<?= esc($prescribedDateIso, 'attr') ?>">
+                                                        <tr class="patient-record-row transition-colors v3-hover-primary" data-href="<?= esc($prescriptionUrl) ?>" data-date="<?= esc($prescribedDateIso, 'attr') ?>">
                                                             <td class="px-6 py-4">
                                                                 <div class="flex items-center gap-3">
-                                                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center v3-radius bg-teal-50 text-teal-700 ring-1 ring-teal-100">
+                                                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default">
                                                                         <i class="fas fa-pills text-sm"></i>
                                                                     </span>
                                                                     <div class="min-w-0">
-                                                                        <div class="patient-record-title truncate text-sm font-extrabold text-slate-950"><?= esc($medicationName) ?></div>
-                                                                        <div class="mt-1 text-xs font-bold text-teal-700"><?= esc(lang('UI.patientMedicationDetails')) ?></div>
+                                                                        <div class="patient-record-title truncate text-sm font-extrabold v3-text-ink"><?= esc($medicationName) ?></div>
+                                                                        <div class="mt-1 text-xs font-bold v3-text-primary"><?= esc(lang('UI.patientMedicationDetails')) ?></div>
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm font-semibold text-slate-700"><?= esc($dosage) ?></td>
-                                                            <td class="px-6 py-4 text-sm font-semibold text-slate-700"><?= esc($frequency) ?></td>
-                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-700">
+                                                            <td class="px-6 py-4 text-sm font-semibold v3-text-ink"><?= esc($dosage) ?></td>
+                                                            <td class="px-6 py-4 text-sm font-semibold v3-text-ink"><?= esc($frequency) ?></td>
+                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold v3-text-ink">
                                                                 <?= !empty($prescription['prescribed_date']) ? esc(formatDate($prescription['prescribed_date'])) : esc(lang('UI.patientNa')) ?>
                                                             </td>
                                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= esc($prescriptionStatusClass) ?>">
+                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold border <?= esc($prescriptionStatusClass) ?>">
                                                                     <?= esc($prescriptionStatusLabel) ?>
                                                                 </span>
                                                             </td>
@@ -2323,9 +2323,9 @@ if (isset($workspace_history)) {
                                     </div>
                                 <?php else: ?>
                                     <div class="relative px-6 py-8">
-                                        <div class="v3-radius border border-dashed border-teal-200 v3-surface px-6 py-12 text-center">
-                                            <i class="fas fa-prescription-bottle-medical mb-3 v3-title-scale text-teal-200"></i>
-                                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoPrescriptions')) ?></p>
+                                        <div class="v3-radius border border-dashed v3-border-default v3-surface px-6 py-12 text-center">
+                                            <i class="fas fa-prescription-bottle-medical mb-3 v3-title-scale v3-text-primary"></i>
+                                            <p class="text-sm font-semibold v3-text-muted"><?= esc(lang('UI.patientNoPrescriptions')) ?></p>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -2333,79 +2333,79 @@ if (isset($workspace_history)) {
                         </div>
                         <!-- Financials Tab -->
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
-                            <section class="patient-finance-workspace relative overflow-hidden v3-radius border v3-border v3-warm-surface p-4 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full bg-emerald-400/20"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full bg-amber-300/20"></div></div><div class="relative space-y-5">
+                            <section class="patient-finance-workspace relative overflow-hidden v3-radius border v3-border v3-warm-surface p-4 sm:p-6"><div class="pointer-events-none absolute inset-0 opacity-80"><div class="absolute -top-24 end-10 h-52 w-52 rounded-full v3-bg-primary"></div><div class="absolute bottom-0 start-6 h-48 w-48 rounded-full v3-bg-warning"></div></div><div class="relative space-y-5">
                                 <div class="flex flex-wrap items-center justify-end gap-2">
                                     <?php if (has_permission('finance', 'create')): ?>
-                                        <button type="button" data-app-drawer-open="patientPaymentDrawer" class="inline-flex items-center gap-2 v3-radius border border-emerald-200 v3-surface px-4 py-2.5 text-xs font-extrabold text-emerald-800 transition hover:bg-emerald-50">
+                                        <button type="button" data-app-drawer-open="patientPaymentDrawer" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-surface px-4 py-2.5 text-xs font-extrabold v3-text-primary transition v3-hover-primary v3-btn v3-btn--secondary">
                                             <i class="fas fa-hand-holding-dollar"></i><?= esc(lang('UI.recordPayment')) ?>
                                         </button>
-                                        <button type="button" data-app-drawer-open="patientChargeDrawer" class="inline-flex items-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-xs font-extrabold text-white transition">
+                                        <button type="button" data-app-drawer-open="patientChargeDrawer" class="inline-flex items-center gap-2 v3-radius v3-warm-surface px-4 py-2.5 text-xs font-extrabold v3-text-on-primary transition v3-btn v3-btn--secondary">
                                             <i class="fas fa-plus"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                         </button>
                                     <?php endif; ?>
                                 </div>
 
                                 <div class="patient-finance-summary grid gap-3 md:grid-cols-4">
-                                    <div class="patient-finance-balance-card relative overflow-hidden v3-radius <?= $outstandingBalance > 0.009 ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/25' : 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-sky-500/25' ?> p-5 text-white">
+                                    <div class="patient-finance-balance-card relative overflow-hidden v3-radius <?= $outstandingBalance > 0.009 ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/25' : 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-sky-500/25' ?> p-5 v3-text-on-primary">
                                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.24),transparent_34%)]"></div>
                                         <div class="relative">
-                                            <p class="text-xs font-bold uppercase tracking-wide text-white/90"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
-                                            <p class="mt-2 v3-title-scale font-black text-white"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
+                                            <p class="text-xs font-bold uppercase tracking-wide v3-text-on-primary"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
+                                            <p class="mt-2 v3-title-scale font-black v3-text-on-primary"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
                                         </div>
                                     </div>
-                                    <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 text-white">
+                                    <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
                                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.18),transparent_32%)]"></div>
                                         <div class="relative">
-                                            <p class="text-xs font-bold uppercase tracking-wide text-slate-100/90"><?= esc(lang('UI.patientTotalBilled')) ?></p>
-                                            <p class="mt-2 text-xl font-black text-white"><?= formatCurrency($totalCharges) ?></p>
+                                            <p class="text-xs font-bold uppercase tracking-wide v3-text-muted"><?= esc(lang('UI.patientTotalBilled')) ?></p>
+                                            <p class="mt-2 text-xl font-black v3-text-on-primary"><?= formatCurrency($totalCharges) ?></p>
                                         </div>
                                     </div>
-                                    <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 text-white">
+                                    <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
                                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%)]"></div>
                                         <div class="relative">
-                                            <p class="text-xs font-bold uppercase tracking-wide text-emerald-50/90"><?= esc(lang('UI.patientTotalPaid')) ?></p>
-                                            <p class="mt-2 text-xl font-black text-white"><?= formatCurrency($totalCollected) ?></p>
+                                            <p class="text-xs font-bold uppercase tracking-wide v3-text-primary"><?= esc(lang('UI.patientTotalPaid')) ?></p>
+                                            <p class="mt-2 text-xl font-black v3-text-on-primary"><?= formatCurrency($totalCollected) ?></p>
                                         </div>
                                     </div>
-                                    <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 text-white">
+                                    <div class="relative overflow-hidden v3-radius v3-warm-surface p-4 v3-text-on-primary">
                                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.20),transparent_32%)]"></div>
                                         <div class="relative">
-                                            <p class="text-xs font-bold uppercase tracking-wide text-rose-50/90"><?= esc(lang('Finance.refunds')) ?></p>
-                                            <p class="mt-2 text-xl font-black text-white"><?= formatCurrency($totalRefunded) ?></p>
+                                            <p class="text-xs font-bold uppercase tracking-wide v3-text-danger"><?= esc(lang('Finance.refunds')) ?></p>
+                                            <p class="mt-2 text-xl font-black v3-text-on-primary"><?= formatCurrency($totalRefunded) ?></p>
                                         </div>
                                     </div>
 
                                 </div>
                                 <?php if (!empty($financialLedgerRows)): ?>
-                                    <div class="overflow-hidden v3-radius border v3-border v3-surface ring-1 ring-slate-100">
+                                    <div class="overflow-hidden v3-radius border v3-border v3-surface border v3-border-default">
                                         <div class="overflow-x-auto">
                                             <table class="patient-record-table" data-record-type="finances" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                                 <thead class="v3-warm-surface">
                                                     <tr>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('Finance.detailsReference')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientClinicalSource')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('Finance.method')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                        <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-600 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('Finance.detailsReference')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientClinicalSource')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('Finance.method')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-4 text-left text-xs font-extrabold v3-text-muted uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php foreach ($financialLedgerRows as $ledgerRow): ?>
                                                         <?php
                                                         $statusColors = [
-                                                            'paid' => 'bg-green-100 text-green-800',
-                                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                                            'partial' => 'bg-blue-100 text-blue-800',
-                                                            'overdue' => 'bg-red-100 text-red-800',
-                                                            'cancelled' => 'bg-gray-100 text-gray-800',
-                                                            'recorded' => 'bg-slate-100 text-slate-700',
+                                                            'paid' => 'v3-bg-paid v3-text-primary',
+                                                            'pending' => 'v3-bg-waiting v3-text-warning',
+                                                            'partial' => 'v3-bg-scheduled v3-text-primary',
+                                                            'overdue' => 'v3-bg-alert v3-text-danger',
+                                                            'cancelled' => 'v3-bg-soft v3-text-ink',
+                                                            'recorded' => 'v3-bg-soft v3-text-ink',
                                                         ];
                                                         $rowAmount = (float) ($ledgerRow['amount'] ?? 0);
-                                                        $amountClass = $rowAmount < 0 ? 'text-rose-700' : ($rowAmount > 0 ? 'text-emerald-700' : 'text-slate-700');
-                                                        $colorClass = $statusColors[$ledgerRow['status_key']] ?? 'bg-gray-100 text-gray-800';
+                                                        $amountClass = $rowAmount < 0 ? 'v3-text-danger' : ($rowAmount > 0 ? 'v3-text-primary' : 'v3-text-ink');
+                                                        $colorClass = $statusColors[$ledgerRow['status_key']] ?? 'v3-bg-soft v3-text-ink';
                                                         ?>
                                                         <tr class="patient-record-row" data-href="<?= esc($ledgerRow['action_url']) ?>" data-date="<?= esc($ledgerRow['document_date_iso']) ?>">
                                                             <td class="whitespace-nowrap">
@@ -2429,12 +2429,12 @@ if (isset($workspace_history)) {
                                                                             <?php $clinicalSourceLabel = trim((string) ($clinicalSource['label'] ?? '')); ?>
                                                                             <?php if ($clinicalSourceLabel === '') { continue; } ?>
                                                                             <?php if (!empty($clinicalSource['url'])): ?>
-                                                                                <a href="<?= esc($clinicalSource['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border v3-border v3-soft-surface px-2 py-1 text-xs font-semibold v3-accent-text hover:bg-sky-100">
+                                                                                <a href="<?= esc($clinicalSource['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border v3-border v3-soft-surface px-2 py-1 text-xs font-semibold v3-accent-text v3-hover-primary v3-btn v3-btn--secondary">
                                                                                     <i class="<?= esc($clinicalSource['icon'] ?? 'fas fa-link') ?>"></i>
                                                                                     <span><?= esc($clinicalSourceLabel) ?></span>
                                                                                 </a>
                                                                             <?php else: ?>
-                                                                                <span class="inline-flex items-center gap-1.5 rounded-full border v3-border v3-surface px-2 py-1 text-xs font-semibold text-slate-700">
+                                                                                <span class="inline-flex items-center gap-1.5 rounded-full border v3-border v3-surface px-2 py-1 text-xs font-semibold v3-text-ink">
                                                                                     <i class="<?= esc($clinicalSource['icon'] ?? 'fas fa-link') ?>"></i>
                                                                                     <span><?= esc($clinicalSourceLabel) ?></span>
                                                                                 </span>
@@ -2442,12 +2442,12 @@ if (isset($workspace_history)) {
                                                                         <?php endforeach; ?>
                                                                     </div>
                                                                 <?php else: ?>
-                                                                    <span class="text-xs text-slate-400"><?= esc(lang('UI.patientNoClinicalSource')) ?></span>
+                                                                    <span class="text-xs v3-text-muted"><?= esc(lang('UI.patientNoClinicalSource')) ?></span>
                                                                 <?php endif; ?>
                                                                 <?php if (!empty($ledgerRow['provider_payouts'])): ?>
                                                                     <div class="mt-2 flex flex-wrap gap-1.5">
                                                                         <?php foreach ($ledgerRow['provider_payouts'] as $providerPayout): ?>
-                                                                            <a href="<?= esc($providerPayout['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border v3-border v3-soft-surface px-2 py-1 text-xs font-semibold v3-accent-text hover:bg-violet-100">
+                                                                            <a href="<?= esc($providerPayout['url']) ?>" class="inline-flex items-center gap-1.5 rounded-full border v3-border v3-soft-surface px-2 py-1 text-xs font-semibold v3-accent-text v3-hover-primary v3-btn v3-btn--secondary">
                                                                                 <i class="fas fa-user-doctor"></i>
                                                                                 <span><?= esc(lang('UI.patientProviderCompensation')) ?>: <?= esc($providerPayout['provider_name']) ?></span>
                                                                                 <span dir="ltr"><?= esc($providerPayout['share_text']) ?></span>
@@ -2461,7 +2461,7 @@ if (isset($workspace_history)) {
                                                             </td>
                                                             <td><?= esc($ledgerRow['method_label']) ?></td>
                                                             <td class="whitespace-nowrap">
-                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 <?= $colorClass ?>">
+                                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold border <?= $colorClass ?>">
                                                                     <?= esc($ledgerRow['status_label']) ?>
                                                                 </span>
                                                             </td>
@@ -2477,17 +2477,17 @@ if (isset($workspace_history)) {
                                         </div>
                                     </div>
                                 <?php else: ?>
-                                <div class="v3-radius border border-dashed border-emerald-200 v3-surface px-6 py-12 text-center">
-                                    <i class="fas fa-file-invoice mb-3 v3-title-scale text-emerald-200"></i>
-                                    <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientNoFinancialRecords')) ?></p>
+                                <div class="v3-radius border border-dashed v3-border-default v3-surface px-6 py-12 text-center">
+                                    <i class="fas fa-file-invoice mb-3 v3-title-scale v3-text-primary"></i>
+                                    <p class="text-sm font-semibold v3-text-muted"><?= esc(lang('UI.patientNoFinancialRecords')) ?></p>
                                 </div>
                                 <?php endif; ?>
-                                <details class="patient-finance-trace overflow-hidden v3-radius border v3-border v3-surface ring-1 ring-slate-100">
-                                    <summary class="flex cursor-pointer items-center justify-between gap-3 v3-warm-surface px-5 py-4 text-sm font-extrabold text-slate-900">
-                                        <span class="inline-flex items-center gap-2"><i class="fas fa-route text-emerald-700"></i><?= esc(lang('UI.moneyTrailTitle')) ?></span>
-                                        <span class="inline-flex items-center gap-2 text-xs font-bold text-slate-500">
+                                <details class="patient-finance-trace overflow-hidden v3-radius border v3-border v3-surface border v3-border-default">
+                                    <summary class="flex cursor-pointer items-center justify-between gap-3 v3-warm-surface px-5 py-4 text-sm font-extrabold v3-text-ink">
+                                        <span class="inline-flex items-center gap-2"><i class="fas fa-route v3-text-primary"></i><?= esc(lang('UI.moneyTrailTitle')) ?></span>
+                                        <span class="inline-flex items-center gap-2 text-xs font-bold v3-text-muted">
                                             <?= esc(lang('UI.moneyTrailLinkedRecords')) ?>
-                                            <i class="fas fa-chevron-down text-slate-400"></i>
+                                            <i class="fas fa-chevron-down v3-text-muted"></i>
                                         </span>
                                     </summary>
                                     <div class="border-t v3-border p-3 sm:p-4">
@@ -2502,29 +2502,29 @@ if (isset($workspace_history)) {
                         </div>
 
                         <!-- Tooth Modal -->
-                        <div id="toothModal" class="fixed inset-0 bg-black/50 hidden z-50 transition-opacity duration-300">
+                        <div id="toothModal" class="fixed inset-0 v3-backdrop hidden z-50 transition-opacity duration-300">
                             <div class="flex items-center justify-center min-h-screen p-4">
                                 <div class="v3-surface v3-radius max-w-lg w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
                                     <!-- Enhanced Modal Header -->
-                                    <div class="v3-warm-surface text-white p-6 rounded-t-2xl relative overflow-hidden">
-                                        <div class="absolute inset-0 bg-black/10"></div>
+                                    <div class="v3-warm-surface v3-text-on-primary p-6 rounded-t-2xl relative overflow-hidden">
+                                        <div class="absolute inset-0 v3-backdrop"></div>
                                         <div class="relative z-10">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center space-x-4">
                                                     <div class="w-12 h-12 v3-surface v3-radius flex items-center justify-center">
-                                                        <i class="fas fa-tooth text-white text-xl"></i>
+                                                        <i class="fas fa-tooth v3-text-on-primary text-xl"></i>
                                                     </div>
                                                     <div>
                                                         <h3 class="text-xl font-bold">
                                                             <?= esc(lang('UI.patientToothConditionHeadingPrefix')) ?>
-                                                            <span id="modalToothNumber" class="text-yellow-300"></span>
+                                                            <span id="modalToothNumber" class="v3-text-warning"></span>
                                                             <?= esc(lang('UI.patientToothConditionHeadingSuffix')) ?>
                                                         </h3>
                                                         <p class="v3-accent-text text-sm"><?= esc(lang('UI.patientToothConditionSubtitle')) ?></p>
                                                     </div>
                                                 </div>
-                                                <button onclick="closeToothModal()" class="w-8 h-8 v3-surface hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                                                    <i class="fas fa-times text-white"></i>
+                                                <button onclick="closeToothModal()" class="w-8 h-8 v3-surface v3-hover-soft rounded-lg flex items-center justify-center transition-colors duration-200 v3-btn v3-btn--secondary">
+                                                    <i class="fas fa-times v3-text-on-primary"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -2539,8 +2539,8 @@ if (isset($workspace_history)) {
                                             <div class="space-y-6">
                                                 <!-- Condition Type -->
                                                 <div>
-                                                    <label for="condition_type" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientConditionType')) ?></label>
-                                                    <select id="condition_type" name="condition_type" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    <label for="condition_type" class="block text-sm font-medium v3-text-ink mb-2"><?= esc(lang('UI.patientConditionType')) ?></label>
+                                                    <select id="condition_type" name="condition_type" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control v3-select">
                                                         <option value="healthy"><?= esc(lang('UI.patientConditionHealthy')) ?></option>
                                                         <option value="cavity"><?= esc(lang('UI.patientConditionCavity')) ?></option>
                                                         <option value="filling"><?= esc(lang('UI.patientConditionFilling')) ?></option>
@@ -2557,20 +2557,20 @@ if (isset($workspace_history)) {
 
                                                 <!-- Condition Description -->
                                                 <div>
-                                                    <label for="condition_description" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientConditionDescription')) ?></label>
-                                                    <textarea id="condition_description" name="condition_description" rows="3" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= esc(lang('UI.patientConditionDescriptionPlaceholder')) ?>"></textarea>
+                                                    <label for="condition_description" class="block text-sm font-medium v3-text-ink mb-2"><?= esc(lang('UI.patientConditionDescription')) ?></label>
+                                                    <textarea id="condition_description" name="condition_description" rows="3" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control v3-textarea" placeholder="<?= esc(lang('UI.patientConditionDescriptionPlaceholder')) ?>"></textarea>
                                                 </div>
 
                                                 <!-- Treatment Notes -->
                                                 <div>
-                                                    <label for="treatment_notes" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientTreatmentNotes')) ?></label>
-                                                    <textarea id="treatment_notes" name="treatment_notes" rows="3" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= esc(lang('UI.patientTreatmentNotesPlaceholder')) ?>"></textarea>
+                                                    <label for="treatment_notes" class="block text-sm font-medium v3-text-ink mb-2"><?= esc(lang('UI.patientTreatmentNotes')) ?></label>
+                                                    <textarea id="treatment_notes" name="treatment_notes" rows="3" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control v3-textarea" placeholder="<?= esc(lang('UI.patientTreatmentNotesPlaceholder')) ?>"></textarea>
                                                 </div>
 
                                                 <!-- Treatment Status -->
                                                 <div>
-                                                    <label for="treatment_status" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientTreatmentStatus')) ?></label>
-                                                    <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    <label for="treatment_status" class="block text-sm font-medium v3-text-ink mb-2"><?= esc(lang('UI.patientTreatmentStatus')) ?></label>
+                                                    <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control v3-select">
                                                         <option value="pending"><?= esc(lang('UI.patientTreatmentStatusPending')) ?></option>
                                                         <option value="in_progress"><?= esc(lang('UI.patientTreatmentStatusInProgress')) ?></option>
                                                         <option value="completed"><?= esc(lang('UI.patientTreatmentStatusCompleted')) ?></option>
@@ -2581,14 +2581,14 @@ if (isset($workspace_history)) {
 
                                             <!-- Modal Footer -->
                                             <div class="flex items-center justify-between mt-8 pt-6 border-t v3-border">
-                                                <button type="button" onclick="resetTooth()" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200">
+                                                <button type="button" onclick="resetTooth()" class="px-4 py-2 v3-bg-alert v3-text-danger rounded-lg v3-hover-danger transition-colors duration-200 v3-btn v3-btn--danger">
                                                     <i class="fas fa-undo mr-2"></i><?= esc(lang('UI.patientResetToHealthy')) ?>
                                                 </button>
                                                 <div class="flex space-x-3">
-                                                    <button type="button" onclick="closeToothModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                                                    <button type="button" onclick="closeToothModal()" class="px-4 py-2 v3-bg-soft v3-text-ink rounded-lg v3-hover-soft transition-colors duration-200 v3-btn v3-btn--secondary">
                                                         <?= esc(lang('UI.cancel')) ?>
                                                     </button>
-                                                    <button type="submit" class="px-4 py-2 v3-soft-surface text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                    <button type="submit" class="px-4 py-2 v3-soft-surface v3-text-on-primary rounded-lg v3-hover-primary transition-colors duration-200 v3-btn v3-btn--primary">
                                                         <i class="fas fa-save mr-2"></i><?= esc(lang('UI.settingsSaveChanges')) ?>
                                                     </button>
                                                 </div>
@@ -2900,12 +2900,12 @@ if (isset($workspace_history)) {
                 }
                 Array.from(files).forEach(file => {
                     const row = document.createElement('div');
-                    row.className = 'flex items-center justify-between rounded-md bg-white px-3 py-2 border border-gray-200';
+                    row.className = 'flex items-center justify-between rounded-md v3-bg-panel px-3 py-2 border v3-border-default';
                     const name = document.createElement('div');
-                    name.className = 'text-sm text-gray-700';
+                    name.className = 'text-sm v3-text-ink';
                     name.textContent = file.name;
                     const size = document.createElement('div');
-                    size.className = 'text-xs text-gray-500';
+                    size.className = 'text-xs v3-text-muted';
                     size.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
                     row.appendChild(name);
                     row.appendChild(size);
@@ -2915,8 +2915,8 @@ if (isset($workspace_history)) {
 
             const setHover = (active) => {
                 dropzone.classList.toggle('ring-2', active);
-                dropzone.classList.toggle('ring-blue-400', active);
-                dropzone.classList.toggle('bg-blue-50', active);
+                dropzone.classList.toggle('v3-border-default', active);
+                dropzone.classList.toggle('v3-bg-scheduled', active);
             };
 
             ['dragenter', 'dragover'].forEach(evt => {
@@ -3103,10 +3103,10 @@ if (isset($workspace_history)) {
             div.className = 'text-center py-8';
 
             const icon = document.createElement('i');
-            icon.className = 'fas fa-search text-gray-400 text-4xl mb-4';
+            icon.className = 'fas fa-search v3-text-muted text-4xl mb-4';
 
             const p = document.createElement('p');
-            p.className = 'text-gray-500';
+            p.className = 'v3-text-muted';
             p.textContent = patientShowI18n.noHistoryRecords;
 
             div.appendChild(icon);
@@ -3513,15 +3513,15 @@ if (isset($workspace_history)) {
         const fdiBtn = document.getElementById('fdiBtn');
 
         if (system === 'universal') {
-            universalBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-            universalBtn.classList.remove('text-gray-600');
-            fdiBtn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-            fdiBtn.classList.add('text-gray-600');
+            universalBtn.classList.add('v3-bg-panel', 'v3-text-primary', 'v3-elevation-none');
+            universalBtn.classList.remove('v3-text-muted');
+            fdiBtn.classList.remove('v3-bg-panel', 'v3-text-primary', 'v3-elevation-none');
+            fdiBtn.classList.add('v3-text-muted');
         } else {
-            fdiBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-            fdiBtn.classList.remove('text-gray-600');
-            universalBtn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-            universalBtn.classList.add('text-gray-600');
+            fdiBtn.classList.add('v3-bg-panel', 'v3-text-primary', 'v3-elevation-none');
+            fdiBtn.classList.remove('v3-text-muted');
+            universalBtn.classList.remove('v3-bg-panel', 'v3-text-primary', 'v3-elevation-none');
+            universalBtn.classList.add('v3-text-muted');
         }
 
         // Toggle number display
@@ -3659,10 +3659,10 @@ if (isset($workspace_history)) {
     function showNotification(message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
-            type === 'success' ? 'bg-green-500 text-white' :
-            type === 'error' ? 'bg-red-500 text-white' :
-            'bg-blue-500 text-white'
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg v3-elevation-none transition-all duration-300 transform translate-x-full ${
+            type === 'success' ? 'v3-bg-primary v3-text-on-primary' :
+            type === 'error' ? 'v3-bg-danger v3-text-on-primary' :
+            'v3-bg-primary v3-text-on-primary'
         }`;
 
         const flexDiv = document.createElement('div');

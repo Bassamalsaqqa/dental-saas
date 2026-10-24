@@ -43,8 +43,8 @@ window.initPatientCreateForms = function (root) {
         const isValid = /^\d{9,15}$/.test(value);
         const shouldShowError = showError && !isValid;
 
-        phoneInput.classList.toggle('border-red-500', shouldShowError);
-        phoneInput.classList.toggle('border-gray-300', !shouldShowError);
+        phoneInput.classList.toggle('v3-border-default', shouldShowError);
+        phoneInput.classList.toggle('v3-border-default', !shouldShowError);
 
         if (isEmpty && !showError) {
             return false;
@@ -60,15 +60,15 @@ window.initPatientCreateForms = function (root) {
 
         if (optionalToggle.checked) {
             optionalSection.classList.remove('hidden');
-            optionalTrack?.classList.remove('bg-gray-200');
-            optionalTrack?.classList.add('bg-blue-500');
+            optionalTrack?.classList.remove('v3-bg-sand');
+            optionalTrack?.classList.add('v3-bg-primary');
             if (optionalDot) {
                 window.applyToggleDotState?.(optionalDot, true);
             }
         } else {
             optionalSection.classList.add('hidden');
-            optionalTrack?.classList.remove('bg-blue-500');
-            optionalTrack?.classList.add('bg-gray-200');
+            optionalTrack?.classList.remove('v3-bg-primary');
+            optionalTrack?.classList.add('v3-bg-sand');
             if (optionalDot) {
                 window.applyToggleDotState?.(optionalDot, false);
             }
@@ -93,8 +93,8 @@ window.initPatientCreateForms = function (root) {
 
         if (toggle.checked) {
             if (track) {
-                track.classList.remove('bg-gray-200');
-                track.classList.add('bg-blue-500');
+                track.classList.remove('v3-bg-sand');
+                track.classList.add('v3-bg-primary');
             }
             if (dot) {
                 window.applyToggleDotState?.(dot, true);
@@ -107,8 +107,8 @@ window.initPatientCreateForms = function (root) {
             }
         } else {
             if (track) {
-                track.classList.remove('bg-blue-500');
-                track.classList.add('bg-gray-200');
+                track.classList.remove('v3-bg-primary');
+                track.classList.add('v3-bg-sand');
             }
             if (dot) {
                 window.applyToggleDotState?.(dot, false);

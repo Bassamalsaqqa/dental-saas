@@ -11,19 +11,19 @@
                     <div class="relative group">
 
                         <div class="relative w-12 h-12 v3-radius flex items-center justify-center group-hover:rotate-2 transition-all duration-200">
-                            <i class="fas fa-clipboard-list text-white text-lg"></i>
+                            <i class="fas fa-clipboard-list v3-text-on-primary text-lg"></i>
                         </div>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black text-gray-900"><?= lang('Inventory.inventoryUsage') ?></h1>
-                        <p class="text-gray-600 font-medium"><?= lang('Inventory.recordItemConsumptionForTreatments') ?></p>
+                        <h1 class="text-2xl font-black v3-text-ink"><?= lang('Inventory.inventoryUsage') ?></h1>
+                        <p class="v3-text-muted font-medium"><?= lang('Inventory.recordItemConsumptionForTreatments') ?></p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="<?= base_url() ?>inventory" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
+                    <a href="<?= base_url() ?>inventory" class="inline-flex items-center px-4 py-2 v3-bg-soft v3-text-ink text-sm font-semibold rounded-lg v3-hover-soft transition-all duration-200 v3-btn v3-btn--secondary">
                         <i class="fas fa-arrow-left mr-2"></i><?= lang('Inventory.backToInventory') ?>
                     </a>
-                    <a href="<?= base_url() ?>inventory/usage-history" class="inline-flex items-center px-4 py-2 text-white text-sm font-semibold rounded-lg transition-all duration-200">
+                    <a href="<?= base_url() ?>inventory/usage-history" class="inline-flex items-center px-4 py-2 v3-text-on-primary text-sm font-semibold rounded-lg transition-all duration-200 v3-btn v3-btn--secondary">
                         <i class="fas fa-history mr-2"></i><?= lang('Inventory.usageHistory') ?>
                     </a>
                 </div>
@@ -35,12 +35,12 @@
             <div class="v3-surface v3-radius border v3-border p-5">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex items-start space-x-3">
-                        <div class="w-10 h-10 v3-radius flex items-center justify-center <?= $financeAutoPostInventoryCogs ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
+                        <div class="w-10 h-10 v3-radius flex items-center justify-center <?= $financeAutoPostInventoryCogs ? 'v3-bg-paid v3-text-primary' : 'v3-bg-waiting v3-text-warning' ?>">
                             <i class="fas <?= $financeAutoPostInventoryCogs ? 'fa-file-invoice-dollar' : 'fa-toggle-off' ?>"></i>
                         </div>
                         <div>
-                            <h2 class="text-sm font-bold text-gray-900"><?= lang('Inventory.financeAutoPostInventoryCogs') ?></h2>
-                            <p class="text-sm text-gray-600">
+                            <h2 class="text-sm font-bold v3-text-ink"><?= lang('Inventory.financeAutoPostInventoryCogs') ?></h2>
+                            <p class="text-sm v3-text-muted">
                                 <?= $financeAutoPostInventoryCogs
                                     ? lang('Inventory.financeAutoPostEnabledDescription')
                                     : lang('Inventory.financeAutoPostDisabledDescription') ?>
@@ -48,14 +48,14 @@
                         </div>
                     </div>
                     <div class="shrink-0">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold <?= $financeAutoPostInventoryCogs ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' ?>">
-                            <span class="w-2 h-2 rounded-full mr-2 <?= $financeAutoPostInventoryCogs ? 'bg-emerald-500' : 'bg-amber-500' ?>"></span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold <?= $financeAutoPostInventoryCogs ? 'v3-bg-paid v3-text-primary' : 'v3-bg-waiting v3-text-warning' ?>">
+                            <span class="w-2 h-2 rounded-full mr-2 <?= $financeAutoPostInventoryCogs ? 'v3-bg-primary' : 'v3-bg-warning' ?>"></span>
                             <?= $financeAutoPostInventoryCogs ? lang('Inventory.enabled') : lang('Inventory.disabled') ?>
                         </span>
                     </div>
                 </div>
-                <div class="mt-3 text-xs text-gray-500">
-                    <?= lang('Inventory.changeThisIn') ?> <a href="<?= base_url('settings') ?>" class="font-semibold v3-accent-text hover:text-blue-800"><?= lang('Inventory.settingsSystemPreference') ?></a>.
+                <div class="mt-3 text-xs v3-text-muted">
+                    <?= lang('Inventory.changeThisIn') ?> <a href="<?= base_url('settings') ?>" class="font-semibold v3-accent-text v3-hover-text-primary"><?= lang('Inventory.settingsSystemPreference') ?></a>.
                 </div>
             </div>
         </div>
@@ -68,14 +68,14 @@
 
                     <!-- Treatment Selection -->
                     <div class="mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <h3 class="text-lg font-bold v3-text-ink mb-4 flex items-center">
                             <i class="fas fa-user-md v3-accent-text mr-2"></i>
                             <?= lang('Inventory.treatmentInformationOptional') ?>
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
                             <div class="flex flex-col h-full">
-                                <label for="treatment_id" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.selectTreatmentOptional') ?></label>
-                                <select name="treatment_id" id="treatment_id" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                <label for="treatment_id" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.selectTreatmentOptional') ?></label>
+                                <select name="treatment_id" id="treatment_id" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control transition-all duration-200 v3-select">
                                     <option value=""><?= lang('Inventory.chooseTreatment') ?></option>
                                     <?php if (!empty($treatments)): ?>
                                         <?php foreach ($treatments as $treatment): ?>
@@ -91,25 +91,25 @@
                                 </select>
                             </div>
                             <div class="flex flex-col h-full">
-                                <label for="usage_date" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.usageDateRequired') ?></label>
-                                <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" required>
+                                <label for="usage_date" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.usageDateRequired') ?></label>
+                                <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control transition-all duration-200 v3-input" required>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-500 mt-3"><?= lang('Inventory.linkUsageToTreatmentHelp') ?></p>
+                        <p class="text-sm v3-text-muted mt-3"><?= lang('Inventory.linkUsageToTreatmentHelp') ?></p>
 
                         <!-- Treatment Details Display -->
                         <div id="treatmentDetails" class="mt-4 p-4 v3-soft-surface rounded-lg hidden">
                             <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 v3-soft-surface rounded-lg flex items-center justify-center text-white">
+                                <div class="w-10 h-10 v3-soft-surface rounded-lg flex items-center justify-center v3-text-on-primary">
                                     <i class="fas fa-user-md"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-600"><?= esc($tr('patient')) ?></p>
-                                    <p class="text-lg font-bold text-gray-900" id="patientName">-</p>
+                                    <p class="text-sm font-medium v3-text-muted"><?= esc($tr('patient')) ?></p>
+                                    <p class="text-lg font-bold v3-text-ink" id="patientName">-</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-600"><?= esc($tr('treatment')) ?></p>
-                                    <p class="text-lg font-bold text-gray-900" id="treatmentName">-</p>
+                                    <p class="text-sm font-medium v3-text-muted"><?= esc($tr('treatment')) ?></p>
+                                    <p class="text-lg font-bold v3-text-ink" id="treatmentName">-</p>
                                 </div>
                             </div>
                         </div>
@@ -117,8 +117,8 @@
 
                     <!-- Items Selection -->
                     <div class="mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                            <i class="fas fa-boxes text-green-600 mr-2"></i>
+                        <h3 class="text-lg font-bold v3-text-ink mb-4 flex items-center">
+                            <i class="fas fa-boxes v3-text-primary mr-2"></i>
                             <?= lang('Inventory.itemsUsed') ?>
                         </h3>
 
@@ -126,8 +126,8 @@
                             <div class="item-row v3-surface p-4 rounded-lg border v3-border">
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.itemRequired') ?></label>
-                                        <select name="items[0][item_id]" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 item-select" required>
+                                        <label class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.itemRequired') ?></label>
+                                        <select name="items[0][item_id]" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control item-select v3-select" required>
                                             <option value=""><?= lang('Inventory.selectItem') ?></option>
                                             <?php foreach ($inventory_items as $item): ?>
                                                 <option value="<?= $item['id'] ?>"
@@ -140,20 +140,20 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('quantity')) ?> *</label>
-                                        <input type="number" name="items[0][quantity]" min="1" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input" required>
+                                        <label class="block text-sm font-medium v3-text-ink mb-2"><?= esc($tr('quantity')) ?> *</label>
+                                        <input type="number" name="items[0][quantity]" min="1" class="w-full px-3 py-2 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control quantity-input v3-input" required>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.unitCost') ?></label>
-                                        <input type="text" class="w-full px-3 py-2 border v3-border rounded-lg bg-gray-100 unit-cost" readonly>
+                                        <label class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.unitCost') ?></label>
+                                        <input type="text" class="w-full px-3 py-2 border v3-border rounded-lg v3-bg-soft unit-cost v3-input" readonly>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('totalCost')) ?></label>
-                                        <input type="text" class="w-full px-3 py-2 border v3-border rounded-lg bg-gray-100 total-cost" readonly>
+                                        <label class="block text-sm font-medium v3-text-ink mb-2"><?= esc($tr('totalCost')) ?></label>
+                                        <input type="text" class="w-full px-3 py-2 border v3-border rounded-lg v3-bg-soft total-cost v3-input" readonly>
                                     </div>
                                 </div>
                                 <div class="mt-3 flex justify-end">
-                                    <button type="button" class="text-red-600 hover:text-red-800 remove-item hidden">
+                                    <button type="button" class="v3-text-danger v3-hover-text-danger remove-item hidden v3-btn v3-btn--danger">
                                         <i class="fas fa-trash mr-1"></i><?= esc($tr('removeItem')) ?>
                                     </button>
                                 </div>
@@ -161,35 +161,35 @@
                         </div>
 
                         <div class="mt-4">
-                            <button type="button" id="addItem" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-200">
+                            <button type="button" id="addItem" class="inline-flex items-center px-4 py-2 v3-bg-primary v3-text-on-primary text-sm font-medium rounded-lg v3-hover-primary transition-all duration-200 v3-btn v3-btn--primary">
                                 <i class="fas fa-plus mr-2"></i><?= esc($tr('addAnotherItem')) ?>
                             </button>
                         </div>
 
                         <!-- Total Cost Display -->
-                        <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div class="mt-6 p-4 v3-bg-paid rounded-lg border v3-border-default">
                             <div class="flex justify-between items-center">
-                                <span class="text-lg font-medium text-gray-700"><?= lang('Inventory.totalMaterialCost') ?>:</span>
-                                <span class="text-2xl font-bold text-green-600" id="grandTotal"><?= formatCurrency(0) ?></span>
+                                <span class="text-lg font-medium v3-text-ink"><?= lang('Inventory.totalMaterialCost') ?>:</span>
+                                <span class="text-2xl font-bold v3-text-primary" id="grandTotal"><?= formatCurrency(0) ?></span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Notes -->
                     <div class="mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                            <i class="fas fa-sticky-note text-amber-600 mr-2"></i>
+                        <h3 class="text-lg font-bold v3-text-ink mb-4 flex items-center">
+                            <i class="fas fa-sticky-note v3-text-warning mr-2"></i>
                             <?= lang('Inventory.additionalNotes') ?>
                         </h3>
-                        <textarea name="notes" rows="4" class="w-full px-4 py-3 border v3-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
+                        <textarea name="notes" rows="4" class="w-full px-4 py-3 border v3-border rounded-lg focus:ring-2 v3-focus-control v3-focus-control transition-all duration-200 v3-textarea" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="flex justify-end space-x-4">
-                        <a href="<?= base_url() ?>inventory" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
+                        <a href="<?= base_url() ?>inventory" class="inline-flex items-center px-6 py-3 v3-bg-soft v3-text-ink text-sm font-semibold rounded-lg v3-hover-soft transition-all duration-200 v3-btn v3-btn--secondary">
                             <?= esc($tr('cancel')) ?>
                         </a>
-                        <button type="submit" class="inline-flex items-center px-8 py-3 text-white text-sm font-bold rounded-lg transition-all duration-200">
+                        <button type="submit" class="inline-flex items-center px-8 py-3 v3-text-on-primary text-sm font-bold rounded-lg transition-all duration-200 v3-btn v3-btn--primary">
                             <i class="fas fa-save mr-2"></i><?= lang('Inventory.recordUsage') ?>
                         </button>
                     </div>

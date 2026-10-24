@@ -39,24 +39,24 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
             <div class="border-b v3-border v3-warm-surface px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-paid v3-text-primary border v3-border-default">
                             <i class="fas fa-list"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg text-slate-950"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
-                            <p class="text-sm font-semibold text-slate-500"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
+                            <h3 class="text-lg v3-text-ink"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
+                            <p class="text-sm font-semibold v3-text-muted"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 transition hover:bg-red-100">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-alert px-3 py-2 text-xs v3-text-danger transition v3-hover-danger v3-btn v3-btn--danger">
                             <i class="fas fa-file-pdf"></i>
                             PDF
                         </button>
-                        <button onclick="printPatients()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs text-slate-700 transition hover:bg-slate-50">
+                        <button onclick="printPatients()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                             <i class="fas fa-print"></i>
                             <?= esc(lang('UI.patientPrint')) ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700 transition hover:bg-emerald-100">
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-paid px-3 py-2 text-xs v3-text-primary transition v3-hover-primary v3-btn v3-btn--secondary">
                             <i class="fas fa-file-csv"></i>
                             CSV
                         </button>
@@ -68,51 +68,51 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                         <table id="patientsTable" class="w-full min-w-full">
                             <thead>
                                 <tr>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-id-card text-emerald-600"></i>
+                                            <i class="fas fa-id-card v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientPatientId')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-user text-emerald-600"></i>
+                                            <i class="fas fa-user v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientName')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-phone text-emerald-600"></i>
+                                            <i class="fas fa-phone v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientPhone')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-envelope text-emerald-600"></i>
+                                            <i class="fas fa-envelope v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientEmail')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-info-circle text-emerald-600"></i>
+                                            <i class="fas fa-info-circle v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientStatus')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-calendar text-emerald-600"></i>
+                                            <i class="fas fa-calendar v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientCreated')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-cogs text-emerald-600"></i>
+                                            <i class="fas fa-cogs v3-text-primary"></i>
                                             <span><?= esc(lang('UI.patientActions')) ?></span>
                                         </div>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="v3-surface divide-y divide-gray-200">
+                            <tbody class="v3-surface divide-y v3-border-default">
                                 <!-- Data will be loaded via DataTables -->
                             </tbody>
                         </table>
@@ -136,20 +136,20 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                             <i class="fas fa-user-plus"></i>
                         </span>
                         <div>
-                            <h2 id="newPatientModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientNewPatient')) ?></h2>
-                            <a href="<?= workflow_context_url('patient/create', $patientIndexReturnTo) ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                            <h2 id="newPatientModalTitle" class="text-lg font-bold v3-text-ink"><?= esc(lang('UI.patientNewPatient')) ?></h2>
+                            <a href="<?= workflow_context_url('patient/create', $patientIndexReturnTo) ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-primary v3-hover-text-primary">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-patient-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-patient-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <div class="v3-context-drawer__body">
                     <?php if (session('error') && $shouldOpenPatientCreateModal): ?>
-                        <div class="v3-radius border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -162,14 +162,14 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                 </div>
 
                 <div class="v3-context-drawer__footer">
-                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center v3-radius border border-emerald-200 v3-surface px-5 py-2.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50">
+                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center v3-radius border v3-border-default v3-surface px-5 py-2.5 text-sm font-bold v3-text-primary transition v3-hover-primary v3-btn v3-btn--primary">
                         <i class="fas fa-user-plus me-2"></i>
                         <?= esc(lang('UI.settingsSave')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-calendar-plus me-2"></i>
                         <?= esc(lang('UI.patientSaveAndBookAppointment')) ?>
                     </button>
@@ -507,8 +507,8 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div>
-                            <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
-                            <div class="text-xs text-gray-500">${patientI18n.patientId}</div>
+                            <div class="text-sm font-medium v3-text-ink">${data || patientI18n.na}</div>
+                            <div class="text-xs v3-text-muted">${patientI18n.patientId}</div>
                         </div>
                     `;
                 }
@@ -521,18 +521,18 @@ $(document).ready(function() {
                     const avatarMap = {
                         male: {
                             icon: 'fas fa-person',
-                            shell: 'bg-blue-50 border border-blue-100',
-                            iconColor: 'text-blue-700'
+                            shell: 'v3-bg-scheduled border v3-border-default',
+                            iconColor: 'v3-text-primary'
                         },
                         female: {
                             icon: 'fas fa-person-dress',
-                            shell: 'bg-rose-50 border border-rose-100',
-                            iconColor: 'text-rose-700'
+                            shell: 'v3-bg-alert border v3-border-default',
+                            iconColor: 'v3-text-danger'
                         },
                         other: {
                             icon: 'fas fa-user',
-                            shell: 'bg-slate-100 border border-slate-200',
-                            iconColor: 'text-slate-600'
+                            shell: 'v3-bg-soft border v3-border-default',
+                            iconColor: 'v3-text-muted'
                         }
                     };
                     const avatar = avatarMap[gender] || avatarMap.other;
@@ -542,8 +542,8 @@ $(document).ready(function() {
                                 <i class="${avatar.icon} ${avatar.iconColor} text-2xl"></i>
                             </span>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
-                                <div class="text-xs text-gray-500">${patientI18n.patientName}</div>
+                                <div class="text-sm font-medium v3-text-ink">${data || patientI18n.na}</div>
+                                <div class="text-xs v3-text-muted">${patientI18n.patientName}</div>
                             </div>
                         </div>
                     `;
@@ -555,10 +555,10 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return data ? `
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-phone text-emerald-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${data}</span>
+                            <i class="fas fa-phone v3-text-primary text-xs"></i>
+                            <span class="text-sm v3-text-ink">${data}</span>
                         </div>
-                    ` : `<span class="text-gray-400 text-sm">${patientI18n.noPhone}</span>`;
+                    ` : `<span class="v3-text-muted text-sm">${patientI18n.noPhone}</span>`;
                 }
             },
             {
@@ -567,10 +567,10 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return data ? `
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-envelope text-emerald-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${data}</span>
+                            <i class="fas fa-envelope v3-text-primary text-xs"></i>
+                            <span class="text-sm v3-text-ink">${data}</span>
                         </div>
-                    ` : `<span class="text-gray-400 text-sm">${patientI18n.noEmail}</span>`;
+                    ` : `<span class="v3-text-muted text-sm">${patientI18n.noEmail}</span>`;
                 }
             },
             {
@@ -578,9 +578,9 @@ $(document).ready(function() {
                 name: 'status',
                 render: function(data, type, row) {
                     const statusColors = {
-                        'active': 'bg-green-100 text-green-800',
-                        'inactive': 'bg-gray-100 text-gray-800',
-                        'pending': 'bg-yellow-100 text-yellow-800'
+                        'active': 'v3-bg-paid v3-text-primary',
+                        'inactive': 'v3-bg-soft v3-text-ink',
+                        'pending': 'v3-bg-waiting v3-text-warning'
                     };
                     const statusIcons = {
                         'active': 'fas fa-check-circle',
@@ -592,7 +592,7 @@ $(document).ready(function() {
                         'inactive': patientI18n.statusInactive,
                         'pending': patientI18n.statusPending
                     };
-                    const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
+                    const colorClass = statusColors[data] || 'v3-bg-soft v3-text-ink';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
                     const label = statusLabels[data] || patientI18n.unknown;
 
@@ -610,8 +610,8 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-calendar text-emerald-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${data || patientI18n.na}</span>
+                            <i class="fas fa-calendar v3-text-primary text-xs"></i>
+                            <span class="text-sm v3-text-ink">${data || patientI18n.na}</span>
                         </div>
                     `;
                 }
@@ -628,7 +628,7 @@ $(document).ready(function() {
                     if (permissions.patients.view) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}"
-                               data-workflow-context="1" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100" title="${patientI18n.viewPatient}">
+                               data-workflow-context="1" class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-paid v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.viewPatient}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -637,7 +637,7 @@ $(document).ready(function() {
                     if (permissions.patients.edit) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}/edit"
-                               class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition hover:bg-blue-100" title="${patientI18n.editPatient}">
+                               class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.editPatient}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -645,7 +645,7 @@ $(document).ready(function() {
                     // Odontogram button
                     actions += `
                         <a href="<?= base_url('odontogram') ?>/${data}"
-                           class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-700 ring-1 ring-purple-100 transition hover:bg-purple-100" title="${patientI18n.odontogram}">
+                           class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-chair v3-text-chair border v3-border-default transition v3-hover-primary" title="${patientI18n.odontogram}">
                             <i class="fas fa-tooth"></i>
                         </a>`;
 
@@ -661,7 +661,7 @@ $(document).ready(function() {
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
                                data-context-patient-gender="${escapeHtmlAttribute(row.gender || '')}"
-                               class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 transition hover:bg-indigo-100" title="${patientI18n.newExamination}">
+                               class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-chair v3-text-chair border v3-border-default transition v3-hover-primary" title="${patientI18n.newExamination}">
                                 <i class="fas fa-stethoscope"></i>
                             </a>`;
                     }
@@ -675,7 +675,7 @@ $(document).ready(function() {
                                data-context-patient-id="${data}"
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
-                               class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100 transition hover:bg-cyan-100" title="${patientI18n.newTreatment}">
+                               class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.newTreatment}">
                                 <i class="fas fa-briefcase-medical"></i>
                             </a>`;
                     }
@@ -684,7 +684,7 @@ $(document).ready(function() {
                     if (permissions.patients.delete) {
                         actions += `
                             <button onclick="deletePatient(${data})"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700 ring-1 ring-red-100 transition hover:bg-red-100" title="${patientI18n.deletePatient}">
+                                    class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-alert v3-text-danger border v3-border-default transition v3-hover-danger v3-btn v3-btn--danger" title="${patientI18n.deletePatient}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
@@ -703,7 +703,7 @@ $(document).ready(function() {
             const contextualProfileUrl = window.workflowContextUrl ? window.workflowContextUrl(profileUrl) : profileUrl;
 
             $(row)
-                .addClass('cursor-pointer hover:bg-emerald-50/50 transition-colors duration-150')
+                .addClass('cursor-pointer v3-hover-primary transition-colors duration-150')
                 .attr('data-href', contextualProfileUrl)
                 .attr('tabindex', '0')
                 .attr('role', 'link')
@@ -728,7 +728,7 @@ $(document).ready(function() {
                 event.stopPropagation();
             });
         },
-        dom: 'B<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: 'B<"px-6 py-4 border-b v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         order: [[0, 'desc']],
@@ -794,31 +794,31 @@ $(document).ready(function() {
     // Apply custom DataTables styling
     function applyDataTablesStyling() {
         // Style length selector
-        $('.dataTables_length select').addClass('focus:ring-emerald-500 focus:border-emerald-500');
+        $('.dataTables_length select').addClass('v3-focus-control v3-focus-control');
 
         // Style search input
-        $('.dataTables_filter input').addClass('focus:ring-emerald-500 focus:border-emerald-500');
+        $('.dataTables_filter input').addClass('v3-focus-control v3-focus-control');
 
         // Style info text
-        $('.dataTables_info').addClass('text-gray-600');
+        $('.dataTables_info').addClass('v3-text-muted');
 
         // Style pagination buttons
         $('.dataTables_paginate .paginate_button').each(function() {
             if ($(this).hasClass('current')) {
-                $(this).addClass('bg-emerald-600 border-emerald-600 text-white');
+                $(this).addClass('v3-bg-primary v3-border-default v3-text-on-primary');
             } else {
-                $(this).addClass('hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700');
+                $(this).addClass('v3-hover-primary v3-border-default v3-hover-text-primary');
             }
         });
 
         // Style processing indicator
-        $('.dataTables_processing').addClass('border-emerald-200 text-emerald-700');
+        $('.dataTables_processing').addClass('v3-border-default v3-text-primary');
 
         // Style labels
-        $('.dataTables_length label, .dataTables_filter label').addClass('text-gray-700 font-semibold');
+        $('.dataTables_length label, .dataTables_filter label').addClass('v3-text-ink font-semibold');
 
         // Style icons
-        $('.dataTables_length i, .dataTables_filter i').addClass('text-emerald-600');
+        $('.dataTables_length i, .dataTables_filter i').addClass('v3-text-primary');
     }
 
     // Load statistics

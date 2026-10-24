@@ -9,7 +9,7 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-0 text-gray-800"><?= $title ?></h1>
+            <h1 class="h3 mb-0 v3-text-ink"><?= $title ?></h1>
             <p class="text-muted mb-0"><?= lang('UserRole.manageUsersRolesPermissions') ?></p>
         </div>
         <a href="<?= base_url('user-management/create') ?>" class="btn btn-primary">
@@ -22,7 +22,7 @@
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle"></i>
             <?= session()->getFlashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close v3-btn v3-btn--secondary" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
@@ -30,7 +30,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle"></i>
             <?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close v3-btn v3-btn--secondary" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
@@ -43,8 +43,8 @@
                 </div>
                 <div class="col-auto">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="<?= lang('UserRole.searchUsers') ?>" id="searchInput">
-                        <button class="btn btn-outline-secondary" type="button">
+                        <input type="text" class="form-control v3-input" placeholder="<?= lang('UserRole.searchUsers') ?>" id="searchInput">
+                        <button class="btn btn-outline-secondary v3-btn v3-btn--secondary" type="button">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
@@ -70,7 +70,7 @@
                                 <td>
                                     <a href="<?= base_url('user-management/' . $user['id']) ?>" class="text-decoration-none text-reset d-block rounded py-1 px-1">
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                            <div class="avatar-sm bg-primary v3-text-on-primary rounded-circle d-flex align-items-center justify-content-center me-3">
                                                 <?= esc(ui_initials($user['first_name'] ?? '', $user['last_name'] ?? '', 'U')) ?>
                                             </div>
                                             <div>
@@ -115,7 +115,7 @@
                                 </td>
                                 <td>
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle v3-btn v3-btn--secondary" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu">
@@ -127,12 +127,12 @@
                                             </a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <button class="dropdown-item" onclick="assignRole(<?= $user['id'] ?>)">
+                                                <button class="dropdown-item v3-btn v3-btn--secondary" onclick="assignRole(<?= $user['id'] ?>)">
                                                     <i class="fas fa-user-tag"></i> <?= lang('UserRole.assignRole') ?>
                                                 </button>
                                             </li>
                                             <li>
-                                                <button class="dropdown-item" onclick="managePermissions(<?= $user['id'] ?>)">
+                                                <button class="dropdown-item v3-btn v3-btn--secondary" onclick="managePermissions(<?= $user['id'] ?>)">
                                                     <i class="fas fa-key"></i> <?= lang('UserRole.managePermissions') ?>
                                                 </button>
                                             </li>
@@ -140,7 +140,7 @@
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
                                                     <form action="<?= base_url('user-management/' . $user['id'] . '/toggle-status') ?>" method="post" class="d-inline">
-                                                        <button type="submit" class="dropdown-item text-<?= $user['active'] ? 'warning' : 'success' ?>">
+                                                        <button type="submit" class="dropdown-item text-<?= $user['active'] ? 'warning' : 'success' ?> v3-btn v3-btn--primary">
                                                             <i class="fas fa-<?= $user['active'] ? 'pause' : 'play' ?>"></i>
                                                             <?= $user['active'] ? lang('UserRole.deactivate') : lang('UserRole.activate') ?>
                                                         </button>
@@ -150,7 +150,7 @@
                                                     <form action="<?= base_url('user-management/' . $user['id']) ?>" method="post" class="d-inline" 
                                                           onsubmit="return confirm(<?= json_encode(lang('UserRole.confirmDeleteUserShort')) ?>)">
                                                         <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="dropdown-item text-danger">
+                                                        <button type="submit" class="dropdown-item text-danger v3-btn v3-btn--primary">
                                                             <i class="fas fa-trash"></i> <?= lang('UserRole.deleteUser') ?>
                                                         </button>
                                                     </form>
@@ -170,7 +170,7 @@
     <!-- Statistics Cards -->
     <div class="row mt-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
+            <div class="card bg-primary v3-text-on-primary">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -185,7 +185,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white">
+            <div class="card bg-success v3-text-on-primary">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -200,7 +200,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-info text-white">
+            <div class="card bg-info v3-text-on-primary">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -215,7 +215,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-white">
+            <div class="card bg-warning v3-text-on-primary">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -238,14 +238,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><?= lang('UserRole.assignRole') ?></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close v3-btn v3-btn--secondary" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="roleForm">
                     <input type="hidden" id="userId" name="user_id">
                     <div class="mb-3">
                         <label for="roleSelect" class="form-label"><?= lang('UserRole.selectRole') ?></label>
-                        <select class="form-select" id="roleSelect" name="role_id" required>
+                        <select class="form-select v3-select" id="roleSelect" name="role_id" required>
                             <option value=""><?= lang('UserRole.chooseRole') ?></option>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= $role['id'] ?>"><?= esc($role['name']) ?></option>
@@ -254,14 +254,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="expiresAt" class="form-label"><?= lang('UserRole.expiresAtOptional') ?></label>
-                        <input type="datetime-local" class="form-control" id="expiresAt" name="expires_at">
+                        <input type="datetime-local" class="form-control v3-input" id="expiresAt" name="expires_at">
                         <div class="form-text"><?= lang('UserRole.leaveEmptyForPermanentAssignment') ?></div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang('UserRole.cancel') ?></button>
-                <button type="button" class="btn btn-primary" onclick="submitRoleAssignment()"><?= lang('UserRole.assignRole') ?></button>
+                <button type="button" class="btn btn-secondary v3-btn v3-btn--secondary" data-bs-dismiss="modal"><?= lang('UserRole.cancel') ?></button>
+                <button type="button" class="btn btn-primary v3-btn v3-btn--secondary" onclick="submitRoleAssignment()"><?= lang('UserRole.assignRole') ?></button>
             </div>
         </div>
     </div>
@@ -273,7 +273,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><?= lang('UserRole.managePermissions') ?></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close v3-btn v3-btn--secondary" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="permissionContent">

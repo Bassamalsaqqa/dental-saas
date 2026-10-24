@@ -4,7 +4,7 @@ function Card({ className, ...props }) {
   return {
     element: "div",
     className: cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      "rounded-lg border bg-card text-card-foreground v3-elevation-none",
       className
     ),
     ...props

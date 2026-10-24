@@ -51,7 +51,7 @@ html[lang^="ar"] .denta-cp {
     width: 34px;
     height: 34px;
     background: var(--denta-emerald-pine, #0F6B63);
-    color: #FFFFFF;
+    color: var(--denta-ivory-input);
     border-radius: var(--denta-radius-sm, 6px);
     display: flex;
     align-items: center;
@@ -87,12 +87,12 @@ html[lang^="ar"] .denta-cp {
 
 .denta-cp .v3-platform-nav-link:hover {
     background: #22352E;
-    color: #FFFFFF;
+    color: var(--denta-ivory-input);
 }
 
 .denta-cp .v3-platform-nav-link.is-active {
     background: var(--denta-emerald-pine, #0F6B63) !important;
-    color: #FFFFFF !important;
+    color: var(--denta-ivory-input) !important;
 }
 
 .denta-cp .v3-platform-nav-link i {
@@ -140,7 +140,7 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .cp-top-search:hover {
-    background: #FFFFFF;
+    background: var(--denta-ivory-input);
     border-color: var(--denta-emerald-pine, #0F6B63);
 }
 
@@ -187,7 +187,7 @@ html[lang^="ar"] .denta-cp {
     height: 40px;
     border-radius: var(--denta-radius-sm, 6px);
     background: var(--denta-emerald-pine, #0F6B63);
-    color: #FFFFFF;
+    color: var(--denta-ivory-input);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -501,7 +501,7 @@ html[lang^="ar"] .denta-cp {
 .denta-cp .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 .denta-cp .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
     background: var(--denta-emerald-pine, #0F6B63) !important;
-    color: #FFFFFF !important;
+    color: var(--denta-ivory-input) !important;
     border-color: var(--denta-emerald-hover, #09564F) !important;
 }
 
@@ -581,7 +581,7 @@ html[lang^="ar"] .denta-cp {
 
 .denta-cp .cp-btn-primary {
     background: var(--denta-emerald-pine, #0F6B63);
-    color: #FFFFFF !important;
+    color: var(--denta-ivory-input) !important;
     border-color: var(--denta-emerald-hover, #09564F);
 }
 
@@ -592,7 +592,7 @@ html[lang^="ar"] .denta-cp {
 .denta-cp .cp-btn-secondary,
 .denta-cp .cp-btn-terracotta {
     background: var(--denta-terracotta, #C85A32);
-    color: #FFFFFF !important;
+    color: var(--denta-ivory-input) !important;
     border-color: var(--denta-terracotta-hover, #AB4928);
 }
 
@@ -616,7 +616,7 @@ html[lang^="ar"] .denta-cp {
 
 .denta-cp .cp-btn-danger {
     background: #9E2A2B;
-    color: #FFFFFF !important;
+    color: var(--denta-ivory-input) !important;
     border-color: #7E1F20;
 }
 
@@ -697,7 +697,7 @@ html[lang^="ar"] .denta-cp {
 .denta-cp .cp-tab.active {
     background: var(--denta-emerald-pine, #0F6B63) !important;
     border-color: var(--denta-emerald-pine, #0F6B63) !important;
-    color: #FFFFFF !important;
+    color: var(--denta-ivory-input) !important;
 }
 
 /* Contextual Columns (Split Workspace) */
@@ -851,7 +851,7 @@ html[lang^="ar"] .denta-cp {
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 9999px;
-    background: #FFFFFF;
+    background: var(--denta-ivory-input);
     box-shadow: 0 1px 3px rgba(22, 36, 33, 0.2);
     transition: all .2s ease;
 }

@@ -7,14 +7,14 @@
     <div class="mb-4">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
             <div class="space-y-2">
-                <h1 class="v3-title-scale lg:text-4xl font-bold text-gray-900"><?= esc($tr('calendar_title')) ?></h1>
-                <p class="text-gray-600 text-base lg:text-lg"><?= esc($tr('calendar_subtitle')) ?></p>
+                <h1 class="v3-title-scale lg:text-4xl font-bold v3-text-ink"><?= esc($tr('calendar_title')) ?></h1>
+                <p class="v3-text-muted text-base lg:text-lg"><?= esc($tr('calendar_subtitle')) ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                <a href="<?= base_url('examination') ?>" class="inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                <a href="<?= base_url('examination') ?>" class="inline-flex items-center justify-center px-4 py-2.5 v3-bg-soft v3-text-ink text-sm font-medium rounded-lg v3-hover-soft focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-all duration-200 v3-btn v3-btn--secondary">
                     <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('back_to_examinations')) ?>
                 </a>
-                <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center justify-center px-4 py-2.5 v3-soft-surface text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center justify-center px-4 py-2.5 v3-soft-surface v3-text-on-primary text-sm font-medium rounded-lg v3-hover-primary focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-all duration-200 v3-btn v3-btn--secondary">
                     <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
                 </a>
             </div>
@@ -27,7 +27,7 @@
             <!-- Loading Indicator -->
             <div id="loading-indicator" class="hidden flex items-center justify-center py-8">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 v3-border"></div>
-                <span class="ml-3 text-gray-600"><?= esc($tr('loading_calendar_events')) ?></span>
+                <span class="ml-3 v3-text-muted"><?= esc($tr('loading_calendar_events')) ?></span>
             </div>
 
             <!-- Calendar -->
@@ -37,12 +37,12 @@
 </div>
 
 <!-- Examination Details Modal -->
-<div id="examinationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+<div id="examinationModal" class="fixed inset-0 v3-bg-canvas bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
     <div class="relative top-20 mx-auto p-5 border w-96 rounded-md v3-surface">
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('examination_details')) ?></h3>
-                <button onclick="closeExaminationModal()" class="text-gray-400 hover:text-gray-600">
+                <h3 class="text-lg font-semibold v3-text-ink"><?= esc($tr('examination_details')) ?></h3>
+                <button onclick="closeExaminationModal()" class="v3-text-muted v3-hover-text-muted v3-btn v3-btn--secondary">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -52,10 +52,10 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeExaminationModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                <button onclick="closeExaminationModal()" class="px-4 py-2 v3-bg-sand v3-text-ink rounded-lg v3-hover-soft transition-colors v3-btn v3-btn--secondary">
                     <?= esc($tr('close')) ?>
                 </button>
-                <button id="editExaminationBtn" onclick="editExamination()" class="px-4 py-2 v3-soft-surface text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <button id="editExaminationBtn" onclick="editExamination()" class="px-4 py-2 v3-soft-surface v3-text-on-primary rounded-lg v3-hover-primary transition-colors v3-btn v3-btn--secondary">
                     <?= esc($tr('edit_examination')) ?>
                 </button>
             </div>
@@ -206,7 +206,7 @@ function showExaminationDetails(event) {
     const createDetail = (label, value, isStatus = false) => {
         const div = document.createElement('div');
         const labelElem = document.createElement('label');
-        labelElem.className = 'text-sm font-medium text-gray-600';
+        labelElem.className = 'text-sm font-medium v3-text-muted';
         labelElem.textContent = label;
         div.appendChild(labelElem);
 
@@ -218,7 +218,7 @@ function showExaminationDetails(event) {
             div.appendChild(span);
         } else {
             const p = document.createElement('p');
-            p.className = 'text-gray-900';
+            p.className = 'v3-text-ink';
             p.textContent = value;
             div.appendChild(p);
         }

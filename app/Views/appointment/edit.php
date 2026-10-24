@@ -67,7 +67,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
 <div class="v3-record-flow">
     <header class="v3-flow-command">
         <div><h1><?= esc(lang('UI.appointmentEdit')) ?></h1><p><?= esc(lang('UI.appointmentUpdateFor', ['name' => $appointment['first_name'] . ' ' . $appointment['last_name']])) ?></p></div>
-        <div class="v3-flow-navigation"><a href="<?= esc(workflow_back('appointment/' . $appointment['id'], $return_to ?? null)) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold">
+        <div class="v3-flow-navigation"><a href="<?= esc(workflow_back('appointment/' . $appointment['id'], $return_to ?? null)) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.appointmentBack')) ?></span>
@@ -88,7 +88,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     <span><?= esc(lang('UI.appointmentPatientRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4"
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select"
                                             data-searchable-select
                                             data-minimum-input-length="0"
                                             data-limit="5"
@@ -109,7 +109,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('patient_id')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('patient_id') ?></span>
                                     </p>
@@ -122,7 +122,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     <span><?= esc(lang('UI.appointmentTypeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="appointment_type" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-force-select2 required>
+                                    <select name="appointment_type" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectType')) ?></option>
                                         <option value="consultation" <?= (old('appointment_type', $appointment['appointment_type']) == 'consultation') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
                                         <option value="treatment" <?= (old('appointment_type', $appointment['appointment_type']) == 'treatment') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
@@ -136,7 +136,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('appointment_type')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('appointment_type') ?></span>
                                     </p>
@@ -150,12 +150,12 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                         <span><?= esc(lang('DoctorScheduling.doctorRequired')) ?> *</span>
                                     </label>
                                     <?php if ($isLegacyOrInactive): ?>
-                                        <div class="mb-3 border border-amber-200 bg-amber-50 p-3 text-amber-900">
+                                        <div class="mb-3 border v3-border-default v3-bg-waiting p-3 v3-text-warning">
                                             <div class="flex items-start gap-2.5">
-                                                <i class="fas fa-triangle-exclamation mt-0.5 text-amber-600"></i>
+                                                <i class="fas fa-triangle-exclamation mt-0.5 v3-text-warning"></i>
                                                 <div>
-                                                    <p class="font-bold text-xs uppercase tracking-wide text-amber-800"><?= esc(lang('DoctorScheduling.legacyProviderNotice')) ?></p>
-                                                    <p class="mt-0.5 text-xs text-amber-900">
+                                                    <p class="font-bold text-xs uppercase tracking-wide v3-text-warning"><?= esc(lang('DoctorScheduling.legacyProviderNotice')) ?></p>
+                                                    <p class="mt-0.5 text-xs v3-text-warning">
                                                         <?php if ($currentProviderUserId !== null && !$isCurrentProviderActive): ?>
                                                             <?= esc(lang('DoctorScheduling.legacyProviderInactiveNotice', [$storedChairName !== '' ? $storedChairName : ('Doctor #' . $currentProviderUserId)])) ?>
                                                         <?php elseif ($storedChairName !== ''): ?>
@@ -170,28 +170,28 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     <?php endif; ?>
                                     <div class="relative">
                                         <?php if (!$schemaReady): ?>
-                                            <div class="mb-3 border border-amber-300 bg-amber-50 p-4 text-amber-900">
+                                            <div class="mb-3 border v3-border-default v3-bg-waiting p-4 v3-text-warning">
                                                 <div class="flex items-center gap-3">
-                                                    <i class="fas fa-triangle-exclamation text-amber-600 text-base"></i>
+                                                    <i class="fas fa-triangle-exclamation v3-text-warning text-base"></i>
                                                     <div>
-                                                        <h4 class="font-bold text-xs uppercase tracking-wide text-amber-800"><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></h4>
-                                                        <p class="mt-0.5 text-xs text-amber-900"><?= esc(lang('DoctorScheduling.schemaNotReady')) ?></p>
+                                                        <h4 class="font-bold text-xs uppercase tracking-wide v3-text-warning"><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></h4>
+                                                        <p class="mt-0.5 text-xs v3-text-warning"><?= esc(lang('DoctorScheduling.schemaNotReady')) ?></p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 cursor-not-allowed" data-appointment-provider disabled required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 cursor-not-allowed v3-select" data-appointment-provider disabled required>
                                                 <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc(($currentProviderUserId === null ? \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName) : \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId,$storedChairName))) ?> - <?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
                                             </select>
                                         <?php elseif (empty($providers)): ?>
-                                            <div class="mb-2 border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
+                                            <div class="mb-2 border v3-border-default v3-bg-waiting p-3 text-xs font-semibold v3-text-warning">
                                                 <i class="fas fa-triangle-exclamation me-1"></i>
                                                 <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
                                             </div>
-                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 cursor-not-allowed" data-appointment-provider disabled required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 cursor-not-allowed v3-select" data-appointment-provider disabled required>
                                                 <option value="<?= (int)($currentProviderUserId ?? 0) ?: '' ?>" selected><?= esc(($currentProviderUserId === null ? \App\Libraries\ProviderDisplayLabel::forUnassignedOption($storedChairName) : \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId,$storedChairName))) ?> - <?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
                                             </select>
                                         <?php else: ?>
-                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-appointment-provider data-force-select2 <?= ($currentProviderUserId === null) ? '' : 'required' ?>>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select" data-appointment-provider data-force-select2 <?= ($currentProviderUserId === null) ? '' : 'required' ?>>
                                                 <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
                                                 <?php if ($currentProviderUserId !== null && !$isCurrentProviderActive): ?>
                                                     <?php $inactiveLabel = \App\Libraries\ProviderDisplayLabel::forInactiveOption($currentProviderUserId, $storedChairName !== '' ? $storedChairName : null); ?>
@@ -220,7 +220,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                         <?php endif; ?>
                                     </div>
                                     <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('provider_user_id')): ?>
-                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                        <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                             <i class="fas fa-exclamation-circle"></i>
                                             <span><?= session()->getFlashdata('validation')->getError('provider_user_id') ?></span>
                                         </p>
@@ -233,7 +233,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                         <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
                                     </label>
                                     <div class="relative">
-                                        <select name="chair_name" id="chairName" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-appointment-chair data-force-select2 required>
+                                        <select name="chair_name" id="chairName" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select" data-appointment-chair data-force-select2 required>
                                             <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
                                             <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chairOptions ?? []), true)): ?>
                                                 <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
@@ -247,7 +247,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                         </div>
                                     </div>
                                     <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
-                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                        <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                             <i class="fas fa-exclamation-circle"></i>
                                             <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
                                         </p>
@@ -265,13 +265,13 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     <span><?= esc(lang('UI.appointmentDateRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= esc(old('appointment_date', $appointment['appointment_date']), 'attr') ?>" class="appointment-date-input w-full py-3 border-2 focus:outline-none focus:ring-4" required>
+                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= esc(old('appointment_date', $appointment['appointment_date']), 'attr') ?>" class="appointment-date-input w-full py-3 border-2 focus:outline-none focus:ring-4 v3-input" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar"></i>
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('appointment_date')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('appointment_date') ?></span>
                                     </p>
@@ -280,11 +280,11 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
 
                             <div class="relative">
                                 <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-clock text-amber-600"></i>
+                                    <i class="fas fa-clock v3-text-warning"></i>
                                     <span><?= esc(lang('UI.appointmentTimeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500" data-force-select2 required>
+                                    <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control v3-select" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectTime')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
@@ -292,7 +292,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('appointment_time')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('appointment_time') ?></span>
                                     </p>
@@ -301,11 +301,11 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
 
                             <div class="relative">
                                 <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-hourglass-half text-rose-600"></i>
+                                    <i class="fas fa-hourglass-half v3-text-danger"></i>
                                     <span><?= esc(lang('UI.appointmentDurationRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="duration" id="duration" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500" data-force-select2 required>
+                                    <select name="duration" id="duration" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control v3-select" data-force-select2 required>
                                         <?php
                                             $defaultDuration = (int) getAppointmentDuration();
                                             $selectedDuration = (int) old('duration', $appointment['duration'] ?? $defaultDuration);
@@ -324,7 +324,7 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('duration')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('duration') ?></span>
                                     </p>
@@ -344,8 +344,8 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
                                 <span><?= esc(lang('UI.appointmentAdditionalNotes')) ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes', $appointment['notes'])) ?></textarea>
-                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 resize-none v3-textarea" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes', $appointment['notes'])) ?></textarea>
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> v3-text-muted text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -353,12 +353,12 @@ $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chairOptions[
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t">
-                            <a href="<?= esc(workflow_cancel('appointment/' . $appointment['id'], $return_to ?? ('appointment/' . $appointment['id']))) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold">
+                            <a href="<?= esc(workflow_cancel('appointment/' . $appointment['id'], $return_to ?? ('appointment/' . $appointment['id']))) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.cancel')) ?></span>
                             </a>
-                            <button type="submit" class="v3-flow-submit relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold">
+                            <button type="submit" class="v3-flow-submit relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold v3-btn v3-btn--primary">
 
                                 <i class="fas fa-save mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.appointmentUpdate')) ?></span>

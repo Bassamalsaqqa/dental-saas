@@ -16,7 +16,7 @@
         <section class="mb-5 overflow-hidden rounded-[1.55rem]">
             <div class="grid gap-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center ring-1">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center border">
                         <i class="fas fa-procedures text-xl"></i>
                     </span>
                     <div class="min-w-0">
@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <?php if (has_permission('treatments', 'create')): ?>
-                    <a href="<?= base_url('treatment/create') ?>" id="newTreatmentModalTrigger" data-treatment-create-modal-open class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm text-pink-800 transition hover:-translate-y-0.5 hover:bg-pink-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                    <a href="<?= base_url('treatment/create') ?>" id="newTreatmentModalTrigger" data-treatment-create-modal-open class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm text-pink-800 transition hover:-translate-y-0.5 hover:bg-pink-50 focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                         <i class="fas fa-plus"></i>
                         <?= lang('Treatment.new_treatment') ?>
                     </a>
@@ -41,16 +41,16 @@
                         <p class="text-xs uppercase tracking-wide text-pink-100"><?= lang('Treatment.total_treatments') ?></p>
                         <p class="mt-2 v3-title" id="totalTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-procedures"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center border"><i class="fas fa-procedures"></i></span>
                 </div>
             </article>
             <article class="p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-emerald-100"><?= lang('Treatment.active_treatments') ?></p>
+                        <p class="text-xs uppercase tracking-wide v3-text-primary"><?= lang('Treatment.active_treatments') ?></p>
                         <p class="mt-2 v3-title" id="activeTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-play-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center border"><i class="fas fa-play-circle"></i></span>
                 </div>
             </article>
             <article class="p-4">
@@ -59,7 +59,7 @@
                         <p class="text-xs uppercase tracking-wide"><?= lang('Treatment.completed_treatments') ?></p>
                         <p class="mt-2 v3-title" id="completedTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-check-double"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center border"><i class="fas fa-check-double"></i></span>
                 </div>
             </article>
             <article class="p-4">
@@ -68,7 +68,7 @@
                         <p class="text-xs uppercase tracking-wide"><?= lang('Treatment.this_month') ?></p>
                         <p class="mt-2 v3-title" id="monthlyTreatments"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center ring-1"><i class="fas fa-calendar-day"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center border"><i class="fas fa-calendar-day"></i></span>
                 </div>
             </article>
         </section>
@@ -92,7 +92,7 @@
                     <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         <?php foreach (($acceptedQueue['items'] ?? []) as $item): ?>
                             <?php $patientName = trim((string) ($item['first_name'] ?? '') . ' ' . (string) ($item['last_name'] ?? '')); ?>
-                            <article class="flex items-center justify-between gap-3 p-3 ring-1">
+                            <article class="flex items-center justify-between gap-3 p-3 border">
                                 <a href="<?= esc(workflow_context_url('treatment/' . (int) $item['treatment_id'], 'treatment')) ?>" class="min-w-0">
                                     <p class="truncate text-sm"><?= esc($item['procedure_name'] ?? '') ?></p>
                                     <p class="mt-1 truncate text-xs font-bold"><?= esc($patientName) ?></p>
@@ -124,16 +124,16 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition hover:bg-red-50 hover:text-red-700">
-                            <i class="fas fa-file-pdf text-red-600"></i>
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition v3-hover-danger v3-hover-text-danger v3-btn v3-btn--secondary">
+                            <i class="fas fa-file-pdf v3-text-danger"></i>
                             <?= lang('Treatment.pdf') ?>
                         </button>
-                        <button onclick="printTreatments()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition">
+                        <button onclick="printTreatments()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition v3-btn v3-btn--secondary">
                             <i class="fas fa-print"></i>
                             <?= lang('Treatment.print') ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition hover:bg-emerald-50 hover:text-emerald-700">
-                            <i class="fas fa-file-csv text-emerald-600"></i>
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 border px-3 py-2 text-sm font-extrabold transition v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary">
+                            <i class="fas fa-file-csv v3-text-primary"></i>
                             <?= lang('Treatment.csv') ?>
                         </button>
                     </div>
@@ -176,7 +176,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y v3-border-default">
                         <!-- Data will be loaded via DataTables -->
                     </tbody>
                 </table>
@@ -230,9 +230,9 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const gender = String(row.gender || 'other').toLowerCase();
                     const avatarMap = {
-                        male: { icon: 'fas fa-person', color: 'text-blue-700' },
-                        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
-                        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+                        male: { icon: 'fas fa-person', color: 'v3-text-primary' },
+                        female: { icon: 'fas fa-person-dress', color: 'v3-text-danger' },
+                        other: { icon: 'fas fa-user', color: 'v3-text-muted' }
                     };
                     const avatar = avatarMap[gender] || avatarMap.other;
                     const patientNumber = row.patient_number || '<?= esc(lang('Treatment.no_id'), 'js') ?>';
@@ -242,8 +242,8 @@ $(document).ready(function() {
                                 <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
                             </span>
                             <div class="min-w-0">
-                                <div class="truncate text-sm font-extrabold text-slate-950">${data || '<?= esc(lang('Treatment.na'), 'js') ?>'}</div>
-                                <div class="truncate text-xs font-bold text-slate-500">${patientNumber}</div>
+                                <div class="truncate text-sm font-extrabold v3-text-ink">${data || '<?= esc(lang('Treatment.na'), 'js') ?>'}</div>
+                                <div class="truncate text-xs font-bold v3-text-muted">${patientNumber}</div>
                             </div>
                         </div>
                     `;
@@ -255,12 +255,12 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-100 text-pink-700">
+                            <div class="flex h-10 w-10 items-center justify-center v3-radius bg-pink-100 text-pink-700">
                                 <i class="fas fa-procedures text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-extrabold text-slate-950">${data}</div>
-                                <div class="text-xs font-bold text-slate-500"><?= esc(lang('Treatment.treatment'), 'js') ?></div>
+                                <div class="text-sm font-extrabold v3-text-ink">${data}</div>
+                                <div class="text-xs font-bold v3-text-muted"><?= esc(lang('Treatment.treatment'), 'js') ?></div>
                             </div>
                         </div>
                     `;
@@ -271,10 +271,10 @@ $(document).ready(function() {
                 name: 'status',
                 render: function(data, type, row) {
                     const statusColors = {
-                        'active': 'border-emerald-200 bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800',
-                        'completed': 'border-blue-200 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800',
-                        'cancelled': 'border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800',
-                        'on_hold': 'border-amber-200 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800'
+                        'active': 'v3-border-default bg-gradient-to-r from-emerald-100 to-green-100 v3-text-primary',
+                        'completed': 'v3-border-default bg-gradient-to-r from-blue-100 to-cyan-100 v3-text-primary',
+                        'cancelled': 'v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 v3-text-ink',
+                        'on_hold': 'v3-border-default bg-gradient-to-r from-amber-100 to-yellow-100 v3-text-warning'
                     };
                     const statusIcons = {
                         'active': 'fas fa-play-circle',
@@ -282,7 +282,7 @@ $(document).ready(function() {
                         'cancelled': 'fas fa-times-circle',
                         'on_hold': 'fas fa-pause-circle'
                     };
-                    const colorClass = statusColors[data] || 'border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800';
+                    const colorClass = statusColors[data] || 'v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 v3-text-ink';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
                     const localizedStatus = {
                         active: '<?= esc(lang('Treatment.status_values.active'), 'js') ?>',
@@ -292,7 +292,7 @@ $(document).ready(function() {
                     };
 
                     return `
-                        <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${colorClass}">
+                        <span class="inline-flex items-center v3-radius border px-3 py-1.5 text-xs font-extrabold ${colorClass}">
                             <i class="${iconClass} me-2"></i>
                             ${localizedStatus[data] || (data.charAt(0).toUpperCase() + data.slice(1))}
                         </span>
@@ -307,7 +307,7 @@ $(document).ready(function() {
                     return `
                         <div class="flex items-center gap-2">
                             <i class="fas fa-calendar text-pink-700 text-xs"></i>
-                            <span class="text-sm font-bold text-slate-900">${row.start_date_formatted || date.toLocaleDateString()}</span>
+                            <span class="text-sm font-bold v3-text-ink">${row.start_date_formatted || date.toLocaleDateString()}</span>
                         </div>
                     `;
                 }
@@ -325,7 +325,7 @@ $(document).ready(function() {
                     if (permissions.treatments.view) {
                         actions += `
                             <a href="<?= base_url('treatment') ?>/${data}"
-                               class="rounded-xl p-2 text-pink-700 transition-all duration-200 hover:scale-105 hover:bg-pink-50 hover:text-pink-800" title="<?= esc(lang('Treatment.view_details'), 'attr') ?>">
+                               class="v3-radius p-2 text-pink-700 transition-all duration-200  hover:bg-pink-50 hover:text-pink-800" title="<?= esc(lang('Treatment.view_details'), 'attr') ?>">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -334,7 +334,7 @@ $(document).ready(function() {
                     if (permissions.treatments.edit) {
                         actions += `
                             <a href="<?= base_url('treatment') ?>/${data}/edit"
-                               class="rounded-xl p-2 text-sky-700 transition-all duration-200 hover:scale-105 hover:bg-sky-50 hover:text-sky-800" title="<?= esc(lang('Treatment.edit_treatment'), 'attr') ?>">
+                               class="v3-radius p-2 v3-text-primary transition-all duration-200  v3-hover-primary v3-hover-text-primary" title="<?= esc(lang('Treatment.edit_treatment'), 'attr') ?>">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -343,7 +343,7 @@ $(document).ready(function() {
                     if (permissions.treatments.delete) {
                         actions += `
                             <button onclick="deleteTreatment(${data})"
-                                    class="rounded-xl p-2 text-red-700 transition-all duration-200 hover:scale-105 hover:bg-red-50 hover:text-red-800" title="<?= esc(lang('Treatment.delete_treatment'), 'attr') ?>">
+                                    class="v3-radius p-2 v3-text-danger transition-all duration-200  v3-hover-danger v3-hover-text-danger v3-btn v3-btn--danger" title="<?= esc(lang('Treatment.delete_treatment'), 'attr') ?>">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
@@ -353,7 +353,7 @@ $(document).ready(function() {
                 }
             }
         ],
-        dom: 'B<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: 'B<"border-b v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         order: [[0, 'desc']],
@@ -415,18 +415,18 @@ $(document).ready(function() {
     });
 
     function applyDataTablesStyling() {
-        $('.dataTables_length select').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100');
-        $('.dataTables_filter input').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100');
-        $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold text-slate-600');
-        $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:border-pink-200 hover:bg-pink-50 hover:text-pink-800 focus:outline-none focus:ring-4 focus:ring-pink-100');
-        $('.dataTables_paginate .paginate_button.current').addClass('!border-pink-600 !bg-pink-600 !text-white');
-        $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!border-slate-200 hover:!bg-white hover:!text-slate-500');
-        $('.dataTables_processing').removeClass().addClass('rounded-xl border-0 bg-pink-600 px-4 py-3 text-sm font-extrabold text-white shadow-xl');
+        $('.dataTables_length select').removeClass().addClass('v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-bold v3-text-ink v3-elevation-none outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100');
+        $('.dataTables_filter input').removeClass().addClass('v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-bold v3-text-ink v3-elevation-none outline-none transition placeholder:v3-text-muted focus:border-pink-400 focus:ring-4 focus:ring-pink-100');
+        $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold v3-text-muted');
+        $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-extrabold v3-text-ink v3-elevation-none transition hover:border-pink-200 hover:bg-pink-50 hover:text-pink-800 focus:outline-none focus:ring-4 focus:ring-pink-100');
+        $('.dataTables_paginate .paginate_button.current').addClass('!border-pink-600 !bg-pink-600 !v3-text-on-primary');
+        $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!v3-border-default hover:!v3-bg-panel hover:!v3-text-muted');
+        $('.dataTables_processing').removeClass().addClass('v3-radius border-0 bg-pink-600 px-4 py-3 text-sm font-extrabold v3-text-on-primary v3-elevation-none');
         $('.dataTables_length').addClass('order-1 flex items-center gap-3');
         $('.dataTables_filter').addClass('order-2 ms-auto flex items-center gap-3');
         $('.dataTables_info').addClass('order-1 flex items-center');
         $('.dataTables_paginate').addClass('order-2 ms-auto flex items-center gap-2');
-        $('.dataTables_length label, .dataTables_filter label').addClass('text-sm font-extrabold text-slate-700');
+        $('.dataTables_length label, .dataTables_filter label').addClass('text-sm font-extrabold v3-text-ink');
     }
 
     if (permissions.treatments.view) {

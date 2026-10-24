@@ -52,14 +52,14 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" data-appointment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--icon" data-appointment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <div class="v3-context-drawer__body">
                     <?php if (session('error') && $modalShouldOpen): ?>
-                        <div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -79,10 +79,10 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 </div>
 
                 <div class="v3-context-drawer__footer">
-                    <button type="button" data-appointment-create-modal-close class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-semibold transition">
+                    <button type="button" data-appointment-create-modal-close class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-calendar-check me-2"></i>
                         <?= esc(lang('UI.appointmentSchedule')) ?>
                     </button>

@@ -18,17 +18,17 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
         <section class="mb-5 overflow-hidden rounded-[1.55rem]">
             <div class="grid gap-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center ring-1">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center border">
                         <i class="fas fa-handshake text-xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs uppercase tracking-[0.22em] text-emerald-100"><?= esc(lang('Provider.tableTitle')) ?></p>
+                        <p class="text-xs uppercase tracking-[0.22em] v3-text-primary"><?= esc(lang('Provider.tableTitle')) ?></p>
                         <h1 class="mt-1 v3-section-title leading-tight v3-title"><?= esc(lang('Provider.pageTitle')) ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-50/88"><?= esc(lang('Provider.pageSubtitle')) ?></p>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 v3-text-primary"><?= esc(lang('Provider.pageSubtitle')) ?></p>
                     </div>
                 </div>
                 <?php if (has_permission('inventory', 'edit')): ?>
-                    <button type="button" id="addSupplierBtn" class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm text-emerald-800 transition hover:-translate-y-0.5 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                    <button type="button" id="addSupplierBtn" class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm v3-text-primary transition hover:-translate-y-0.5 v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                         <i class="fas fa-plus"></i>
                         <?= esc(lang('Provider.addSupplier')) ?>
                     </button>
@@ -40,10 +40,10 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
         <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <?php
             $cards = [
-                ['id' => 'totalCombined', 'label' => lang('Provider.allProviders'), 'icon' => 'fa-handshake', 'tone' => 'from-emerald-500 to-teal-600', 'soft' => 'from-emerald-100 to-teal-100', 'text' => 'text-emerald-700'],
-                ['id' => 'activeSuppliers', 'label' => lang('Provider.activeSuppliers'), 'icon' => 'fa-check-circle', 'tone' => 'from-green-500 to-emerald-600', 'soft' => 'from-green-100 to-emerald-100', 'text' => 'text-green-700'],
-                ['id' => 'totalProviders', 'label' => lang('Provider.clinicalProviders'), 'icon' => 'fa-user-doctor', 'tone' => 'from-blue-500 to-indigo-600', 'soft' => 'from-blue-100 to-indigo-100', 'text' => 'text-blue-700'],
-                ['id' => 'outstandingBalance', 'label' => lang('Provider.outstandingBalance'), 'icon' => 'fa-wallet', 'tone' => 'from-amber-500 to-orange-600', 'soft' => 'from-amber-100 to-orange-100', 'text' => 'text-amber-700'],
+                ['id' => 'totalCombined', 'label' => lang('Provider.allProviders'), 'icon' => 'fa-handshake', 'tone' => 'from-emerald-500 to-teal-600', 'soft' => 'from-emerald-100 to-teal-100', 'text' => 'v3-text-primary'],
+                ['id' => 'activeSuppliers', 'label' => lang('Provider.activeSuppliers'), 'icon' => 'fa-check-circle', 'tone' => 'from-green-500 to-emerald-600', 'soft' => 'from-green-100 to-emerald-100', 'text' => 'v3-text-primary'],
+                ['id' => 'totalProviders', 'label' => lang('Provider.clinicalProviders'), 'icon' => 'fa-user-doctor', 'tone' => 'from-blue-500 to-indigo-600', 'soft' => 'from-blue-100 to-indigo-100', 'text' => 'v3-text-primary'],
+                ['id' => 'outstandingBalance', 'label' => lang('Provider.outstandingBalance'), 'icon' => 'fa-wallet', 'tone' => 'from-amber-500 to-orange-600', 'soft' => 'from-amber-100 to-orange-100', 'text' => 'v3-text-warning'],
             ];
             ?>
             <?php foreach ($cards as $card): ?>
@@ -53,7 +53,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                             <p class="text-xs uppercase tracking-wide"><?= esc($card['label']) ?></p>
                             <p class="mt-2 v3-title" id="<?= esc($card['id']) ?>"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                         </div>
-                        <span class="inline-flex h-11 w-11 items-center justify-center ring-1">
+                        <span class="inline-flex h-11 w-11 items-center justify-center border">
                             <i class="fas <?= esc($card['icon']) ?>"></i>
                         </span>
                     </div>
@@ -65,7 +65,7 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
             <div class="border-b px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-bg-paid v3-text-primary border v3-border-default">
                             <i class="fas fa-list"></i>
                         </span>
                         <div>
@@ -74,9 +74,9 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2" id="typeFilters">
-                        <button type="button" class="provider-filter active" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
-                        <button type="button" class="provider-filter" data-type="supplier"><i class="fas fa-truck <?= $iconGapSmall ?>"></i><?= esc(lang('Provider.filterSuppliers')) ?></button>
-                        <button type="button" class="provider-filter" data-type="clinical_provider"><i class="fas fa-user-doctor <?= $iconGapSmall ?>"></i><?= esc(lang('Provider.filterProviders')) ?></button>
+                        <button type="button" class="provider-filter active v3-btn v3-btn--secondary" data-type=""><?= esc(lang('Provider.filterAll')) ?></button>
+                        <button type="button" class="provider-filter v3-btn v3-btn--secondary" data-type="supplier"><i class="fas fa-truck <?= $iconGapSmall ?>"></i><?= esc(lang('Provider.filterSuppliers')) ?></button>
+                        <button type="button" class="provider-filter v3-btn v3-btn--secondary" data-type="clinical_provider"><i class="fas fa-user-doctor <?= $iconGapSmall ?>"></i><?= esc(lang('Provider.filterProviders')) ?></button>
                     </div>
                 </div>
             </div>
@@ -86,49 +86,49 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                         <tr>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-user text-emerald-600"></i>
+                                    <i class="fas fa-user v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.colName')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-tag text-emerald-600"></i>
+                                    <i class="fas fa-tag v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.colType')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-address-book text-emerald-600"></i>
+                                    <i class="fas fa-address-book v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.colContact')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-chart-simple text-emerald-600"></i>
+                                    <i class="fas fa-chart-simple v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.colStats')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-wallet text-emerald-600"></i>
+                                    <i class="fas fa-wallet v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.openAmount')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-circle-info text-emerald-600"></i>
+                                    <i class="fas fa-circle-info v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.colStatus')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar text-emerald-600"></i>
+                                    <i class="fas fa-calendar v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.lastActivity')) ?></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-cogs text-emerald-600"></i>
+                                    <i class="fas fa-cogs v3-text-primary"></i>
                                     <span><?= esc(lang('Provider.colActions')) ?></span>
                                 </div>
                             </th>
@@ -155,37 +155,37 @@ $iconGapSmall = $isRtl ? 'ml-1.5' : 'mr-1.5';
                         <p class="mt-1 text-sm font-semibold"><?= esc(lang('Provider.quickAddSupplierHelp')) ?></p>
                     </div>
                 </div>
-                <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closeSupplierModal()">
+                <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closeSupplierModal()">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
             <div class="space-y-4">
                 <div>
                     <label class="mb-1.5 block text-xs uppercase tracking-wider" for="quickSupplierName"><?= esc(lang('Provider.supplierName')) ?> *</label>
-                    <input type="text" id="quickSupplierName" class="w-full border px-3 py-2.5 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" placeholder="<?= esc(lang('Provider.supplierName')) ?>" required>
+                    <input type="text" id="quickSupplierName" class="w-full border px-3 py-2.5 text-sm v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input" placeholder="<?= esc(lang('Provider.supplierName')) ?>" required>
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="mb-1.5 block text-xs uppercase tracking-wider" for="quickSupplierContact"><?= esc(lang('Provider.contactPerson')) ?></label>
-                        <input type="text" id="quickSupplierContact" class="w-full border px-3 py-2.5 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                        <input type="text" id="quickSupplierContact" class="w-full border px-3 py-2.5 text-sm v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input">
                     </div>
                     <div>
                         <label class="mb-1.5 block text-xs uppercase tracking-wider" for="quickSupplierPhone"><?= esc(lang('Provider.phone')) ?></label>
-                        <input type="text" id="quickSupplierPhone" class="w-full border px-3 py-2.5 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                        <input type="text" id="quickSupplierPhone" class="w-full border px-3 py-2.5 text-sm v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input">
                     </div>
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs uppercase tracking-wider" for="quickSupplierEmail"><?= esc(lang('Provider.email')) ?></label>
-                    <input type="email" id="quickSupplierEmail" class="w-full border px-3 py-2.5 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                    <input type="email" id="quickSupplierEmail" class="w-full border px-3 py-2.5 text-sm v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input">
                 </div>
                 <p id="quickSupplierStatus" class="text-xs hidden"></p>
             </div>
             <div class="flex flex-wrap justify-end gap-2 border-t px-5 py-4">
-                <button type="button" onclick="closeSupplierModal()" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition">
+                <button type="button" onclick="closeSupplierModal()" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                     <i class="fas fa-times text-xs"></i>
                     <span><?= esc(lang('Provider.cancel')) ?></span>
                 </button>
-                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition">
+                <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition v3-btn v3-btn--secondary">
                     <i class="fas fa-plus text-xs"></i>
                     <span><?= esc(lang('Provider.createSupplier')) ?></span>
                 </button>
@@ -300,21 +300,21 @@ document.addEventListener('keydown', function(e) {
 
     function typeBadge(row) {
         const supplier = row.type === 'supplier';
-        const classes = supplier ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700';
+        const classes = supplier ? 'v3-bg-paid v3-text-primary' : 'v3-bg-scheduled v3-text-primary';
         const icon = supplier ? 'fa-truck' : 'fa-user-doctor';
         return '<span class="inline-flex items-center rounded-full px-2 py-px text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.type_label) + '</span>';
     }
 
     function statusBadge(row) {
-        let classes = 'bg-gray-100 text-gray-700';
+        let classes = 'v3-bg-soft v3-text-ink';
         let icon = 'fa-circle-info';
         if (row.status === 'active' || row.status === 'settled') {
-            classes = 'bg-green-100 text-green-700';
+            classes = 'v3-bg-paid v3-text-primary';
             icon = 'fa-check-circle';
         } else if (row.status === 'inactive') {
             icon = 'fa-times-circle';
         } else if (row.status === 'balance_due') {
-            classes = 'bg-yellow-100 text-yellow-700';
+            classes = 'v3-bg-waiting v3-text-warning';
             icon = 'fa-clock';
         }
         return '<span class="inline-flex items-center rounded-full px-2 py-px text-xs font-medium ' + classes + '"><i class="fas ' + icon + ' <?= $iconGapSmall ?>"></i>' + escHtml(row.status_label) + '</span>';
@@ -351,30 +351,30 @@ document.addEventListener('keydown', function(e) {
             },
             columns: [
                 { data: 'name', responsivePriority: 1, render: function(data, type, row) {
-                    const icon = row.type === 'supplier' ? 'fa-truck text-emerald-600' : 'fa-user-doctor text-blue-600';
-                    return '<div class="flex items-center gap-2"><span class="inline-flex flex-shrink-0 items-center justify-center"><i class="fas ' + icon + '"></i></span><span class="text-sm font-medium text-gray-900">' + escHtml(data || '-') + '</span></div>';
+                    const icon = row.type === 'supplier' ? 'fa-truck v3-text-primary' : 'fa-user-doctor v3-text-primary';
+                    return '<div class="flex items-center gap-2"><span class="inline-flex flex-shrink-0 items-center justify-center"><i class="fas ' + icon + '"></i></span><span class="text-sm font-medium v3-text-ink">' + escHtml(data || '-') + '</span></div>';
                 } },
                 { data: 'type', responsivePriority: 3, render: function(data, type, row) { return typeBadge(row); } },
                 { data: 'contact', responsivePriority: 4, orderable: false, render: function(data) {
-                    return data ? escHtml(data) : '<span class="text-gray-400">' + i18n.noContact + '</span>';
+                    return data ? escHtml(data) : '<span class="v3-text-muted">' + i18n.noContact + '</span>';
                 } },
                 { data: 'activity_count', responsivePriority: 5, render: function(data, type, row) {
-                    return '<span class="text-sm text-gray-900">' + escHtml(row.activity_label || '-') + '</span>';
+                    return '<span class="text-sm v3-text-ink">' + escHtml(row.activity_label || '-') + '</span>';
                 } },
                 { data: 'outstanding', responsivePriority: 2, render: function(data, type, row) {
                     const due = Number(data) > 0;
-                    return '<span class="text-sm font-medium ' + (due ? 'text-amber-700' : 'text-gray-900') + '">' + escHtml(row.outstanding_label || '0.00') + '</span>';
+                    return '<span class="text-sm font-medium ' + (due ? 'v3-text-warning' : 'v3-text-ink') + '">' + escHtml(row.outstanding_label || '0.00') + '</span>';
                 } },
                 { data: 'status', responsivePriority: 6, render: function(data, type, row) {
                     return statusBadge(row);
                 } },
                 { data: 'last_activity', responsivePriority: 7, render: function(data) {
-                    return '<span class="text-sm text-gray-900">' + formatDate(data) + '</span>';
+                    return '<span class="text-sm v3-text-ink">' + formatDate(data) + '</span>';
                 } },
                 { data: null, responsivePriority: 1, orderable: false, render: function(data, type, row) {
                     if (!row.show_link) return '';
                     const href = window.workflowContextUrl ? window.workflowContextUrl(row.link) : row.link;
-                    return '<a href="' + escHtml(href) + '" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
+                    return '<a href="' + escHtml(href) + '" class="inline-flex items-center justify-center w-8 h-8 rounded-lg v3-text-primary transition-colors duration-200 v3-hover-primary v3-hover-text-primary" title="' + escHtml(row.link_label) + '"><i class="fas fa-eye"></i></a>';
                 } }
             ],
             createdRow: function(row, data) {
@@ -439,7 +439,7 @@ document.addEventListener('keydown', function(e) {
 
         if (!name) {
             statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-red-600');
+            statusEl.classList.add('v3-text-danger');
             statusEl.textContent = i18n.supplierNameRequired;
             return;
         }
@@ -474,12 +474,12 @@ document.addEventListener('keydown', function(e) {
                 return;
             }
             statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-red-600');
+            statusEl.classList.add('v3-text-danger');
             statusEl.textContent = json.message || i18n.failedToCreate;
         })
         .catch(function() {
             statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-red-600');
+            statusEl.classList.add('v3-text-danger');
             statusEl.textContent = i18n.failedToCreate;
         })
         .finally(function() {

@@ -221,14 +221,14 @@ $initialActionCount = count($filters['actions'] ?? []);
                                 <span class="h-1 w-1 rounded-full v3-soft-surface"></span>
                                 <span><?= esc($tr('activities')) ?></span>
                             </div>
-                            <h1 class="mt-2 v3-title-scale font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($tr('title')) ?></h1>
+                            <h1 class="mt-2 v3-title-scale font-extrabold tracking-tight v3-text-on-primary sm:text-4xl"><?= esc($tr('title')) ?></h1>
                         </div>
                     </div>
                     <div class="flex flex-col gap-2 sm:flex-row xl:flex-col xl:w-[13rem]">
-                        <button onclick="refreshActivities()" class="activity-action activity-action-blue">
+                        <button onclick="refreshActivities()" class="activity-action activity-action-blue v3-btn v3-btn--secondary">
                             <i class="fas fa-sync-alt"></i><?= esc($tr('refresh')) ?>
                         </button>
-                        <button onclick="exportActivities()" class="activity-action activity-action-emerald">
+                        <button onclick="exportActivities()" class="activity-action activity-action-emerald v3-btn v3-btn--secondary">
                             <i class="fas fa-download"></i><?= esc($tr('export')) ?>
                         </button>
                     </div>
@@ -262,7 +262,7 @@ $initialActionCount = count($filters['actions'] ?? []);
                 <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:items-end">
                     <div class="flex-1">
                         <label class="activity-filter-label"><?= esc($tr('entityType')) ?></label>
-                        <select id="entityTypeFilter" class="activity-filter-field">
+                        <select id="entityTypeFilter" class="activity-filter-field v3-select">
                             <option value=""><?= esc($tr('allTypes')) ?></option>
                             <?php foreach ($filters['entity_types'] as $type): ?>
                                 <option value="<?= $type ?>"><?= ucfirst($type) ?></option>
@@ -271,7 +271,7 @@ $initialActionCount = count($filters['actions'] ?? []);
                     </div>
                     <div class="flex-1">
                         <label class="activity-filter-label"><?= esc($tr('action')) ?></label>
-                        <select id="actionFilter" class="activity-filter-field">
+                        <select id="actionFilter" class="activity-filter-field v3-select">
                             <option value=""><?= esc($tr('allActions')) ?></option>
                             <?php foreach ($filters['actions'] as $action): ?>
                                 <option value="<?= $action ?>"><?= ucfirst($action) ?></option>
@@ -280,10 +280,10 @@ $initialActionCount = count($filters['actions'] ?? []);
                     </div>
                     <div class="flex-1">
                         <label class="activity-filter-label"><?= esc($tr('user')) ?></label>
-                        <input type="text" id="userFilter" placeholder="<?= esc($tr('searchByUserName')) ?>" class="activity-filter-field">
+                        <input type="text" id="userFilter" placeholder="<?= esc($tr('searchByUserName')) ?>" class="activity-filter-field v3-input">
                     </div>
                     <div class="flex items-end">
-                        <button onclick="applyFilters()" class="activity-action activity-action-blue w-full">
+                        <button onclick="applyFilters()" class="activity-action activity-action-blue w-full v3-btn v3-btn--secondary">
                             <i class="fas fa-filter"></i><?= esc($tr('filter')) ?>
                         </button>
                     </div>
@@ -297,19 +297,19 @@ $initialActionCount = count($filters['actions'] ?? []);
             <div class="border-b v3-border px-5 py-4 sm:px-6">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="flex h-10 w-10 items-center justify-center v3-radius text-white">
+                        <div class="flex h-10 w-10 items-center justify-center v3-radius v3-text-on-primary">
                             <i class="fas fa-stream"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= esc($tr('recentActivities')) ?></h3>
-                            <p class="text-xs font-semibold text-slate-500"><?= esc($tr('subtitle')) ?></p>
+                            <h3 class="text-lg font-black v3-text-ink"><?= esc($tr('recentActivities')) ?></h3>
+                            <p class="text-xs font-semibold v3-text-muted"><?= esc($tr('subtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <div class="rounded-full v3-soft-surface px-3 py-1 text-sm font-bold v3-accent-text ring-1 ring-blue-100">
+                        <div class="rounded-full v3-soft-surface px-3 py-1 text-sm font-bold v3-accent-text border v3-border-default">
                             <span id="total-activities">0</span> <?= esc($tr('activities')) ?>
                         </div>
-                        <div class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700 ring-1 ring-emerald-100">
+                        <div class="rounded-full v3-bg-paid px-3 py-1 text-sm font-bold v3-text-primary border v3-border-default">
                             <span id="filtered-activities">0</span> <?= esc($tr('filtered')) ?>
                         </div>
                     </div>
@@ -321,15 +321,15 @@ $initialActionCount = count($filters['actions'] ?? []);
                 <table id="activitiesTable" class="w-full">
                     <thead>
                         <tr>
-                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('activity')) ?></th>
-                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('user')) ?></th>
-                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('entity')) ?></th>
-                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('description')) ?></th>
-                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('time')) ?></th>
-                            <th class="px-5 py-3 text-start text-xs font-black text-slate-500 uppercase tracking-wider"><?= esc($tr('ipAddress')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black v3-text-muted uppercase tracking-wider"><?= esc($tr('activity')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black v3-text-muted uppercase tracking-wider"><?= esc($tr('user')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black v3-text-muted uppercase tracking-wider"><?= esc($tr('entity')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black v3-text-muted uppercase tracking-wider"><?= esc($tr('description')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black v3-text-muted uppercase tracking-wider"><?= esc($tr('time')) ?></th>
+                            <th class="px-5 py-3 text-start text-xs font-black v3-text-muted uppercase tracking-wider"><?= esc($tr('ipAddress')) ?></th>
                         </tr>
                     </thead>
-                    <tbody id="activitiesTableBody" class="divide-y divide-slate-100 v3-surface">
+                    <tbody id="activitiesTableBody" class="divide-y v3-border-default v3-surface">
                         <!-- Activities will be loaded here -->
                     </tbody>
                 </table>
@@ -345,28 +345,28 @@ $initialActionCount = count($filters['actions'] ?? []);
 
             <!-- Empty State -->
             <div id="emptyState" class="hidden p-4 text-center">
-                <div class="mb-4 text-slate-400">
+                <div class="mb-4 v3-text-muted">
                     <i class="fas fa-history v3-title-scale"></i>
                 </div>
-                <h3 class="mb-2 text-lg font-black text-slate-900"><?= esc($tr('noActivitiesFound')) ?></h3>
-                <p class="font-semibold text-slate-500"><?= esc($tr('noActivitiesMatchFilters')) ?></p>
+                <h3 class="mb-2 text-lg font-black v3-text-ink"><?= esc($tr('noActivitiesFound')) ?></h3>
+                <p class="font-semibold v3-text-muted"><?= esc($tr('noActivitiesMatchFilters')) ?></p>
             </div>
 
             <!-- Pagination -->
             <div id="paginationContainer" class="hidden border-t v3-border v3-surface px-5 py-4 sm:px-6">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-2">
-                        <button id="prevPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50">
+                        <button id="prevPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50 v3-btn v3-btn--secondary">
                             <i class="fas fa-chevron-left mr-1"></i><?= esc($tr('previous')) ?>
                         </button>
-                        <span id="pageInfo" class="rounded-full v3-surface px-3 py-1 text-sm font-bold text-slate-700 ring-1 ring-slate-200"></span>
-                        <button id="nextPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50">
+                        <span id="pageInfo" class="rounded-full v3-surface px-3 py-1 text-sm font-bold v3-text-ink border v3-border-default"></span>
+                        <button id="nextPage" class="activity-pagination-button disabled:cursor-not-allowed disabled:opacity-50 v3-btn v3-btn--secondary">
                             <?= esc($tr('next')) ?><i class="fas fa-chevron-right ml-1"></i>
                         </button>
                     </div>
                     <div class="flex items-center gap-2">
-                        <label class="text-sm font-bold text-slate-700"><?= esc($tr('show')) ?></label>
-                        <select id="pageSize" class="rounded-lg border v3-border v3-surface px-3 py-2 text-sm font-bold text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <label class="text-sm font-bold v3-text-ink"><?= esc($tr('show')) ?></label>
+                        <select id="pageSize" class="rounded-lg border v3-border v3-surface px-3 py-2 text-sm font-bold v3-text-ink v3-focus-control focus:ring-2 v3-focus-control v3-select">
                             <option value="25">25</option>
                             <option value="50" selected>50</option>
                             <option value="100">100</option>
@@ -483,17 +483,17 @@ function displayActivities(activities) {
         divFlex.className = 'flex items-center gap-3';
 
         const divIcon = document.createElement('div');
-        divIcon.className = `flex h-9 w-9 items-center justify-center rounded-xl ${getActivityIconBgClass(activity.color)}`;
+        divIcon.className = `flex h-9 w-9 items-center justify-center v3-radius ${getActivityIconBgClass(activity.color)}`;
         const icon = document.createElement('i');
         icon.className = `${activity.icon} ${getActivityIconClass(activity.color)} text-sm`;
         divIcon.appendChild(icon);
 
         const divText = document.createElement('div');
         const divTitle = document.createElement('div');
-        divTitle.className = 'text-sm font-black text-slate-900';
+        divTitle.className = 'text-sm font-black v3-text-ink';
         divTitle.textContent = activity.title;
         const divAction = document.createElement('div');
-        divAction.className = 'text-xs font-semibold text-slate-500';
+        divAction.className = 'text-xs font-semibold v3-text-muted';
         divAction.textContent = `${activity.action} • ${activity.entity_type}`;
 
         divText.appendChild(divTitle);
@@ -506,10 +506,10 @@ function displayActivities(activities) {
         const tdUser = document.createElement('td');
         tdUser.className = 'px-5 py-4 whitespace-nowrap';
         const divUserName = document.createElement('div');
-        divUserName.className = 'text-sm font-bold text-slate-900';
+        divUserName.className = 'text-sm font-bold v3-text-ink';
         divUserName.textContent = activity.user_name;
         const divUserEmail = document.createElement('div');
-        divUserEmail.className = 'text-xs font-semibold text-slate-500';
+        divUserEmail.className = 'text-xs font-semibold v3-text-muted';
         divUserEmail.textContent = activity.user_email;
         tdUser.appendChild(divUserName);
         tdUser.appendChild(divUserEmail);
@@ -526,7 +526,7 @@ function displayActivities(activities) {
         const tdDesc = document.createElement('td');
         tdDesc.className = 'px-5 py-4';
         const divDesc = document.createElement('div');
-        divDesc.className = 'max-w-sm truncate text-sm font-semibold text-slate-800';
+        divDesc.className = 'max-w-sm truncate text-sm font-semibold v3-text-ink';
         divDesc.textContent = activity.description;
         tdDesc.appendChild(divDesc);
 
@@ -534,10 +534,10 @@ function displayActivities(activities) {
         const tdTime = document.createElement('td');
         tdTime.className = 'px-5 py-4 whitespace-nowrap';
         const divTimeFormatted = document.createElement('div');
-        divTimeFormatted.className = 'text-sm font-bold text-slate-900';
+        divTimeFormatted.className = 'text-sm font-bold v3-text-ink';
         divTimeFormatted.textContent = activity.formatted_time;
         const divTimeFull = document.createElement('div');
-        divTimeFull.className = 'text-xs font-semibold text-slate-500';
+        divTimeFull.className = 'text-xs font-semibold v3-text-muted';
         divTimeFull.textContent = new Date(activity.created_at).toLocaleString();
         tdTime.appendChild(divTimeFormatted);
         tdTime.appendChild(divTimeFull);
@@ -546,7 +546,7 @@ function displayActivities(activities) {
         const tdIp = document.createElement('td');
         tdIp.className = 'px-5 py-4 whitespace-nowrap';
         const divIp = document.createElement('div');
-        divIp.className = 'text-sm font-semibold text-slate-500';
+        divIp.className = 'text-sm font-semibold v3-text-muted';
         divIp.textContent = activity.ip_address || '<?= esc($tr('notAvailable'), 'js') ?>';
         tdIp.appendChild(divIp);
 
@@ -688,45 +688,45 @@ function navigateToEntity(entityType, entityId) {
 // Helper functions for styling
 function getActivityIconBgClass(color) {
     const colorMap = {
-        'blue': 'bg-blue-100',
-        'green': 'bg-green-100',
-        'yellow': 'bg-yellow-100',
-        'purple': 'bg-purple-100',
-        'red': 'bg-red-100',
-        'gray': 'bg-gray-100',
-        'teal': 'bg-teal-100',
-        'indigo': 'bg-indigo-100'
+        'blue': 'v3-bg-scheduled',
+        'green': 'v3-bg-paid',
+        'yellow': 'v3-bg-waiting',
+        'purple': 'v3-bg-chair',
+        'red': 'v3-bg-alert',
+        'gray': 'v3-bg-soft',
+        'teal': 'v3-bg-scheduled',
+        'indigo': 'v3-bg-chair'
     };
-    return colorMap[color] || 'bg-gray-100';
+    return colorMap[color] || 'v3-bg-soft';
 }
 
 function getActivityIconClass(color) {
     const colorMap = {
-        'blue': 'text-blue-600',
-        'green': 'text-green-600',
-        'yellow': 'text-yellow-600',
-        'purple': 'text-purple-600',
-        'red': 'text-red-600',
-        'gray': 'text-gray-600',
-        'teal': 'text-teal-600',
-        'indigo': 'text-indigo-600'
+        'blue': 'v3-text-primary',
+        'green': 'v3-text-primary',
+        'yellow': 'v3-text-warning',
+        'purple': 'v3-text-chair',
+        'red': 'v3-text-danger',
+        'gray': 'v3-text-muted',
+        'teal': 'v3-text-primary',
+        'indigo': 'v3-text-chair'
     };
-    return colorMap[color] || 'text-gray-600';
+    return colorMap[color] || 'v3-text-muted';
 }
 
 function getEntityBadgeClass(entityType) {
     const colorMap = {
-        'patient': 'bg-green-100 text-green-800',
-        'appointment': 'bg-blue-100 text-blue-800',
-        'examination': 'bg-purple-100 text-purple-800',
-        'treatment': 'bg-orange-100 text-orange-800',
-        'inventory': 'bg-yellow-100 text-yellow-800',
-        'finance': 'bg-emerald-100 text-emerald-800',
-        'prescription': 'bg-indigo-100 text-indigo-800',
-        'user': 'bg-slate-100 text-slate-700',
-        'contract': 'bg-violet-100 text-violet-800'
+        'patient': 'v3-bg-paid v3-text-primary',
+        'appointment': 'v3-bg-scheduled v3-text-primary',
+        'examination': 'v3-bg-chair v3-text-chair',
+        'treatment': 'v3-bg-waiting v3-text-warning',
+        'inventory': 'v3-bg-waiting v3-text-warning',
+        'finance': 'v3-bg-paid v3-text-primary',
+        'prescription': 'v3-bg-chair v3-text-chair',
+        'user': 'v3-bg-soft v3-text-ink',
+        'contract': 'v3-bg-chair v3-text-chair'
     };
-    return colorMap[entityType] || 'bg-gray-100 text-gray-800';
+    return colorMap[entityType] || 'v3-bg-soft v3-text-ink';
 }
 </script>
 <?= $this->endSection() ?>

@@ -6,14 +6,14 @@
     <div class="mb-4">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
             <div>
-                <h1 class="v3-title-scale font-bold text-gray-800 mb-3"><?= lang('Inventory.editItem') ?></h1>
-                <p class="text-gray-600 text-lg"><?= lang('Inventory.updateInventoryItemInformation') ?></p>
+                <h1 class="v3-title-scale font-bold v3-text-ink mb-3"><?= lang('Inventory.editItem') ?></h1>
+                <p class="v3-text-muted text-lg"><?= lang('Inventory.updateInventoryItemInformation') ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 v3-bg-soft v3-text-ink text-sm font-medium rounded-md v3-hover-soft focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-colors v3-btn v3-btn--secondary">
                     <i class="fas fa-arrow-left mr-2"></i><?= lang('Inventory.backToInventory') ?>
                 </a>
-                <a href="<?= workflow_context_url('inventory/' . $item['id'], $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 v3-soft-surface v3-accent-text text-sm font-medium rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= workflow_context_url('inventory/' . $item['id'], $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 v3-soft-surface v3-accent-text text-sm font-medium rounded-md v3-hover-primary focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-colors v3-btn v3-btn--secondary">
                     <i class="fas fa-eye mr-2"></i><?= lang('Inventory.viewItem') ?>
                 </a>
             </div>
@@ -22,14 +22,14 @@
 
     <!-- Error Messages -->
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="mb-6 v3-bg-alert border v3-border-default rounded-lg p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-triangle text-red-400"></i>
+                    <i class="fas fa-exclamation-triangle v3-text-danger"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800"><?= lang('Inventory.error') ?></h3>
-                    <div class="mt-2 text-sm text-red-700">
+                    <h3 class="text-sm font-medium v3-text-danger"><?= lang('Inventory.error') ?></h3>
+                    <div class="mt-2 text-sm v3-text-danger">
                         <p><?= session()->getFlashdata('error') ?></p>
                     </div>
                 </div>
@@ -39,14 +39,14 @@
 
     <!-- Success Messages -->
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+        <div class="mb-6 v3-bg-paid border v3-border-default rounded-lg p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-400"></i>
+                    <i class="fas fa-check-circle v3-text-primary"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800"><?= lang('Inventory.success') ?></h3>
-                    <div class="mt-2 text-sm text-green-700">
+                    <h3 class="text-sm font-medium v3-text-primary"><?= lang('Inventory.success') ?></h3>
+                    <div class="mt-2 text-sm v3-text-primary">
                         <p><?= session()->getFlashdata('success') ?></p>
                     </div>
                 </div>
@@ -65,19 +65,19 @@
 
                 <!-- Basic Information -->
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6"><?= lang('Inventory.basicInformation') ?></h3>
+                    <h3 class="text-lg font-semibold v3-text-ink mb-6"><?= lang('Inventory.basicInformation') ?></h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                            <label for="item_name" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.itemNameRequired') ?></label>
+                            <label for="item_name" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.itemNameRequired') ?></label>
                             <input type="text" id="item_name" name="item_name" value="<?= old('item_name', $item['item_name']) ?>"
-                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input"
                                    required>
                         </div>
 
                         <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.categoryRequired') ?></label>
+                            <label for="category" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.categoryRequired') ?></label>
                             <select id="category" name="category" data-force-select2 data-allow-clear="false"
-                                    class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-select"
                                     required>
                                 <option value=""><?= lang('Inventory.selectCategory') ?></option>
                                 <?php foreach ($categories as $key => $label): ?>
@@ -90,37 +90,37 @@
                     </div>
 
                     <div class="mt-6">
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.description') ?></label>
+                        <label for="description" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.description') ?></label>
                         <textarea id="description" name="description" rows="3"
-                                  class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= old('description', $item['description']) ?></textarea>
+                                  class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-textarea"><?= old('description', $item['description']) ?></textarea>
                     </div>
                 </div>
 
                 <!-- Stock Information -->
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6"><?= lang('Inventory.stockInformation') ?></h3>
+                    <h3 class="text-lg font-semibold v3-text-ink mb-6"><?= lang('Inventory.stockInformation') ?></h3>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.currentQuantityRequired') ?></label>
+                            <label for="quantity" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.currentQuantityRequired') ?></label>
                             <input type="hidden" name="expected_quantity" value="<?= esc(old('expected_quantity', $item['quantity'])) ?>">
                             <input type="number" id="quantity" name="quantity" value="<?= old('quantity', $item['quantity']) ?>"
                                    min="0" step="1"
-                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input"
                                    required>
                         </div>
 
                         <div>
-                            <label for="min_quantity" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.minimumQuantityRequired') ?></label>
+                            <label for="min_quantity" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.minimumQuantityRequired') ?></label>
                             <input type="number" id="min_quantity" name="min_quantity" value="<?= old('min_quantity', $item['min_quantity']) ?>"
                                    min="0" step="1"
-                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input"
                                    required>
                         </div>
 
                         <div>
-                            <label for="unit" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.unit') ?></label>
+                            <label for="unit" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.unit') ?></label>
                             <select id="unit" name="unit" data-force-select2 data-allow-clear="false"
-                                    class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-select">
                                 <option value="pieces" <?= old('unit', $item['unit'] ?? 'pieces') == 'pieces' ? 'selected' : '' ?>><?= lang('Inventory.unitPieces') ?></option>
                                 <option value="boxes" <?= old('unit', $item['unit'] ?? 'pieces') == 'boxes' ? 'selected' : '' ?>><?= lang('Inventory.unitBoxes') ?></option>
                                 <option value="bottles" <?= old('unit', $item['unit'] ?? 'pieces') == 'bottles' ? 'selected' : '' ?>><?= lang('Inventory.unitBottles') ?></option>
@@ -134,33 +134,33 @@
 
                 <!-- Financial Information -->
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6"><?= lang('Inventory.financialInformation') ?></h3>
+                    <h3 class="text-lg font-semibold v3-text-ink mb-6"><?= lang('Inventory.financialInformation') ?></h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                            <label for="unit_price" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.unitPriceRequired') ?></label>
+                            <label for="unit_price" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.unitPriceRequired') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-3' : 'left-0 pl-3' ?> flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm"><?= getCurrencySymbol() ?></span>
+                                    <span class="v3-text-muted sm:text-sm"><?= getCurrencySymbol() ?></span>
                                 </div>
                                 <input type="number" id="unit_price" name="unit_price" value="<?= old('unit_price', $item['unit_price']) ?>"
                                        min="0" step="0.01"
-                                       class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-3' : 'pl-10 pr-3' ?> py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-3' : 'pl-10 pr-3' ?> py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input"
                                        required>
                             </div>
                         </div>
 
                         <div>
-                            <label for="supplier" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.supplier') ?></label>
+                            <label for="supplier" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.supplier') ?></label>
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><?= lang('Inventory.supplierDirectory') ?></span>
+                                    <span class="text-xs font-semibold v3-text-muted uppercase tracking-wide"><?= lang('Inventory.supplierDirectory') ?></span>
                                     <div class="flex items-center gap-2">
-                                        <a href="<?= base_url('providers') ?>" target="_blank" class="text-xs font-semibold v3-accent-text hover:text-blue-800"><?= lang('Inventory.manageSuppliers') ?></a>
-                                        <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold v3-accent-text hover:text-indigo-800"><?= lang('Inventory.quickAdd') ?></button>
+                                        <a href="<?= base_url('providers') ?>" target="_blank" class="text-xs font-semibold v3-accent-text v3-hover-text-primary"><?= lang('Inventory.manageSuppliers') ?></a>
+                                        <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold v3-accent-text v3-hover-text-chair v3-btn v3-btn--secondary"><?= lang('Inventory.quickAdd') ?></button>
                                     </div>
                                 </div>
                                 <select id="supplier_id" name="supplier_id" data-force-select2 data-allow-clear="false"
-                                        class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-select">
                                     <option value=""><?= lang('Inventory.noLinkedSupplier') ?></option>
                                     <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                                         <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id', $item['supplier_id'] ?? '') === (string) $supplier['id'] ? 'selected' : '' ?>>
@@ -169,18 +169,18 @@
                                     <?php endforeach; ?>
                                 </select>
                                 <input type="text" id="supplier_text" name="supplier" value="<?= old('supplier', $item['supplier']) ?>"
-                                       class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input"
                                        placeholder="<?= lang('Inventory.customSupplierNameOptional') ?>">
                                 <div id="quickSupplierCreatePanel" class="hidden p-3 rounded-lg border v3-border v3-soft-surface space-y-3">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <input type="text" id="quickSupplierName" class="w-full px-3 py-2 border v3-border rounded-lg" placeholder="<?= lang('Inventory.supplierNameRequired') ?>">
-                                        <input type="text" id="quickSupplierContact" class="w-full px-3 py-2 border v3-border rounded-lg" placeholder="<?= lang('Inventory.contactPerson') ?>">
-                                        <input type="text" id="quickSupplierPhone" class="w-full px-3 py-2 border v3-border rounded-lg" placeholder="<?= lang('Inventory.phone') ?>">
-                                        <input type="email" id="quickSupplierEmail" class="w-full px-3 py-2 border v3-border rounded-lg" placeholder="<?= lang('Inventory.email') ?>">
+                                        <input type="text" id="quickSupplierName" class="w-full px-3 py-2 border v3-border rounded-lg v3-input" placeholder="<?= lang('Inventory.supplierNameRequired') ?>">
+                                        <input type="text" id="quickSupplierContact" class="w-full px-3 py-2 border v3-border rounded-lg v3-input" placeholder="<?= lang('Inventory.contactPerson') ?>">
+                                        <input type="text" id="quickSupplierPhone" class="w-full px-3 py-2 border v3-border rounded-lg v3-input" placeholder="<?= lang('Inventory.phone') ?>">
+                                        <input type="email" id="quickSupplierEmail" class="w-full px-3 py-2 border v3-border rounded-lg v3-input" placeholder="<?= lang('Inventory.email') ?>">
                                     </div>
                                     <div class="flex items-center justify-between">
-                                        <p id="quickSupplierStatus" class="text-xs text-gray-600"></p>
-                                        <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center px-3 py-2 v3-soft-surface text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">
+                                        <p id="quickSupplierStatus" class="text-xs v3-text-muted"></p>
+                                        <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center px-3 py-2 v3-soft-surface v3-text-on-primary text-xs font-semibold rounded-lg v3-hover-primary v3-btn v3-btn--secondary">
                                             <i class="fas fa-plus mr-2"></i><?= lang('Inventory.createSupplier') ?>
                                         </button>
                                     </div>
@@ -189,54 +189,54 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.supplierMappingOptional') ?></label>
+                            <label class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.supplierMappingOptional') ?></label>
                             <?php $prefLink = $preferred_supplier_link ?? null; ?>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <input type="text" name="supplier_sku" value="<?= old('supplier_sku', $prefLink['supplier_sku'] ?? '') ?>" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.supplierSku') ?>">
-                                <input type="text" name="pack_size_label" value="<?= old('pack_size_label', $prefLink['pack_size_label'] ?? '') ?>" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.packSize') ?>">
-                                <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty', $prefLink['preferred_order_qty'] ?? '') ?>" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.preferredReorderQty') ?>">
+                                <input type="text" name="supplier_sku" value="<?= old('supplier_sku', $prefLink['supplier_sku'] ?? '') ?>" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input" placeholder="<?= lang('Inventory.supplierSku') ?>">
+                                <input type="text" name="pack_size_label" value="<?= old('pack_size_label', $prefLink['pack_size_label'] ?? '') ?>" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input" placeholder="<?= lang('Inventory.packSize') ?>">
+                                <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty', $prefLink['preferred_order_qty'] ?? '') ?>" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input" placeholder="<?= lang('Inventory.preferredReorderQty') ?>">
                                 <div class="grid grid-cols-3 gap-2">
-                                    <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price', $prefLink['last_unit_price'] ?? '') ?>" class="col-span-2 w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.lastSupplierPrice') ?>">
-                                    <select name="supplier_price_currency" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price', $prefLink['last_unit_price'] ?? '') ?>" class="col-span-2 w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input" placeholder="<?= lang('Inventory.lastSupplierPrice') ?>">
+                                    <select name="supplier_price_currency" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-select">
                                         <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
                                             <option value="<?= esc($currency) ?>" <?= (string) old('supplier_price_currency', $prefLink['currency'] ?? 'ILS') === (string) $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
-                            <p class="mt-2 text-xs text-gray-500"><?= lang('Inventory.supplierMappingUpdateHelp') ?></p>
+                            <p class="mt-2 text-xs v3-text-muted"><?= lang('Inventory.supplierMappingUpdateHelp') ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Additional Information -->
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6"><?= lang('Inventory.additionalInformation') ?></h3>
+                    <h3 class="text-lg font-semibold v3-text-ink mb-6"><?= lang('Inventory.additionalInformation') ?></h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                            <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.purchaseDate') ?></label>
+                            <label for="purchase_date" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.purchaseDate') ?></label>
                                 <input type="text" id="purchase_date" name="purchase_date" data-clinic-date="1" value="<?= old('purchase_date', $item['purchase_date']) ?>"
-                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input">
                         </div>
 
                         <div>
-                            <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.expiryDate') ?></label>
+                            <label for="expiry_date" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.expiryDate') ?></label>
                                 <input type="text" id="expiry_date" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', $item['expiry_date']) ?>"
-                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input">
                         </div>
                     </div>
 
                     <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                            <label for="location" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.storageLocation') ?></label>
+                            <label for="location" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.storageLocation') ?></label>
                             <input type="text" id="location" name="location" value="<?= old('location', $item['location']) ?>"
-                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                   class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-input">
                         </div>
 
                         <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.statusRequired') ?></label>
+                            <label for="status" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.statusRequired') ?></label>
                             <select id="status" name="status" data-force-select2 data-allow-clear="false"
-                                    class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-select"
                                     required>
                                 <option value="active" <?= old('status', $item['status']) == 'active' ? 'selected' : '' ?>><?= lang('Inventory.statusActive') ?></option>
                                 <option value="inactive" <?= old('status', $item['status']) == 'inactive' ? 'selected' : '' ?>><?= lang('Inventory.statusInactive') ?></option>
@@ -246,19 +246,19 @@
                     </div>
 
                     <div class="mt-6">
-                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.notes') ?></label>
+                        <label for="notes" class="block text-sm font-medium v3-text-ink mb-2"><?= lang('Inventory.notes') ?></label>
                         <textarea id="notes" name="notes" rows="4"
-                                  class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= old('notes', $item['notes']) ?></textarea>
+                                  class="w-full px-3 py-2 border v3-border rounded-md focus:outline-none focus:ring-2 v3-focus-control v3-focus-control v3-textarea"><?= old('notes', $item['notes']) ?></textarea>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-12 pt-6 border-t v3-border">
-                    <button type="submit" class="inline-flex items-center px-6 py-3 v3-soft-surface text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    <button type="submit" class="inline-flex items-center px-6 py-3 v3-soft-surface v3-text-on-primary text-sm font-medium rounded-md v3-hover-primary focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-colors v3-btn v3-btn--primary">
                         <i class="fas fa-save mr-2"></i><?= lang('Inventory.updateItem') ?>
                     </button>
 
-                    <a href="<?= workflow_cancel('inventory/' . $item['id'], $return_to ?? ('inventory/' . $item['id'])) ?>" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                    <a href="<?= workflow_cancel('inventory/' . $item['id'], $return_to ?? ('inventory/' . $item['id'])) ?>" class="inline-flex items-center px-6 py-3 v3-bg-soft v3-text-ink text-sm font-medium rounded-md v3-hover-soft focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-colors v3-btn v3-btn--secondary">
                         <i class="fas fa-times mr-2"></i><?= lang('Inventory.cancel') ?>
                     </a>
                 </div>
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const name = (document.getElementById('quickSupplierName')?.value || '').trim();
             if (!name) {
                 statusEl.textContent = '<?= lang('Inventory.supplierNameRequiredMessage') ?>';
-                statusEl.className = 'text-xs text-red-600';
+                statusEl.className = 'text-xs v3-text-danger';
                 return;
             }
 
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             createBtn.disabled = true;
             statusEl.textContent = '<?= lang('Inventory.creatingSupplier') ?>';
-            statusEl.className = 'text-xs text-indigo-700';
+            statusEl.className = 'text-xs v3-text-chair';
 
             try {
                 const response = await fetch('<?= base_url('inventory/suppliers/quick-create') ?>', {
@@ -376,11 +376,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 supplierSelect.value = String(data.supplier.id);
                 supplierText.value = data.supplier.name;
                 statusEl.textContent = data.duplicate ? '<?= lang('Inventory.supplierAlreadyExistedSelected') ?>' : '<?= lang('Inventory.supplierCreatedSelected') ?>';
-                statusEl.className = 'text-xs text-emerald-700';
+                statusEl.className = 'text-xs v3-text-primary';
                 panel.classList.add('hidden');
             } catch (error) {
                 statusEl.textContent = error.message || '<?= lang('Inventory.failedToCreateSupplierWithPeriod') ?>';
-                statusEl.className = 'text-xs text-red-600';
+                statusEl.className = 'text-xs v3-text-danger';
             } finally {
                 createBtn.disabled = false;
             }

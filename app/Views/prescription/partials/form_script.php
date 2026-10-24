@@ -38,7 +38,7 @@ window.initPrescriptionCreateForms = function(root) {
             fieldContainer.className = 'group/field relative';
 
             const labelElem = document.createElement('label');
-            labelElem.className = 'mb-2 flex items-center gap-2 text-sm font-bold text-gray-700';
+            labelElem.className = 'mb-2 flex items-center gap-2 text-sm font-bold v3-text-ink';
 
             const labelIcon = document.createElement('i');
             labelIcon.className = iconClass + ' ' + iconColor;
@@ -55,7 +55,7 @@ window.initPrescriptionCreateForms = function(root) {
             const input = document.createElement('input');
             input.type = 'text';
             input.name = inputName;
-            input.className = 'prescription-leading-input w-full rounded-lg border border-gray-300 bg-white py-2 transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500';
+            input.className = 'prescription-leading-input w-full rounded-lg border v3-border-default v3-bg-panel py-2 transition-all duration-300 v3-focus-control focus:outline-none focus:ring-2 v3-focus-control';
             input.placeholder = placeholder;
             input.required = true;
 
@@ -65,7 +65,7 @@ window.initPrescriptionCreateForms = function(root) {
                 : 'pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3';
 
             const innerIcon = document.createElement('i');
-            innerIcon.className = iconClass + ' text-xs text-gray-400';
+            innerIcon.className = iconClass + ' text-xs v3-text-muted';
             innerIconContainer.appendChild(innerIcon);
 
             relativeDiv.appendChild(input);
@@ -83,7 +83,7 @@ window.initPrescriptionCreateForms = function(root) {
 
             medicineCount += 1;
             const medicineItem = document.createElement('div');
-            medicineItem.className = 'medicine-item rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md';
+            medicineItem.className = 'medicine-item v3-radius border v3-border-default v3-bg-panel p-4 v3-elevation-none transition-all duration-300 hover:v3-elevation-none';
 
             const headerDiv = document.createElement('div');
             headerDiv.className = 'mb-4 flex items-center justify-between';
@@ -95,11 +95,11 @@ window.initPrescriptionCreateForms = function(root) {
             iconContainer.className = 'flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600';
 
             const pillIcon = document.createElement('i');
-            pillIcon.className = 'fas fa-pills text-sm text-white';
+            pillIcon.className = 'fas fa-pills text-sm v3-text-on-primary';
             iconContainer.appendChild(pillIcon);
 
             const titleH4 = document.createElement('h4');
-            titleH4.className = 'text-lg font-semibold text-gray-900';
+            titleH4.className = 'text-lg font-semibold v3-text-ink';
             titleH4.textContent = i18n.medicineNumber.replace('{number}', medicineCount);
 
             titleContainer.appendChild(iconContainer);
@@ -107,7 +107,7 @@ window.initPrescriptionCreateForms = function(root) {
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
-            removeBtn.className = 'group/btn relative rounded-lg p-2 text-red-600 transition-all duration-300 hover:bg-red-50 hover:text-red-800';
+            removeBtn.className = 'group/btn relative rounded-lg p-2 v3-text-danger transition-all duration-300 v3-hover-danger v3-hover-text-danger';
             removeBtn.addEventListener('click', function() {
                 medicineItem.style.transition = 'all 0.3s ease';
                 medicineItem.style.opacity = '0';
@@ -128,10 +128,10 @@ window.initPrescriptionCreateForms = function(root) {
 
             const gridDiv = document.createElement('div');
             gridDiv.className = 'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4';
-            gridDiv.appendChild(createField(i18n.medicineNameRequired.replace(' *', ''), 'fas fa-pills', 'medicines[' + medicineCount + '][name]', i18n.placeholderAmoxicillin, 'text-blue-600'));
-            gridDiv.appendChild(createField(i18n.dosageRequired.replace(' *', ''), 'fas fa-weight', 'medicines[' + medicineCount + '][dosage]', i18n.placeholder500mg, 'text-purple-600'));
-            gridDiv.appendChild(createField(i18n.frequencyRequired.replace(' *', ''), 'fas fa-clock', 'medicines[' + medicineCount + '][frequency]', i18n.placeholderTwiceDaily, 'text-amber-600'));
-            gridDiv.appendChild(createField(i18n.durationRequired.replace(' *', ''), 'fas fa-calendar-alt', 'medicines[' + medicineCount + '][duration]', i18n.placeholder7Days, 'text-rose-600'));
+            gridDiv.appendChild(createField(i18n.medicineNameRequired.replace(' *', ''), 'fas fa-pills', 'medicines[' + medicineCount + '][name]', i18n.placeholderAmoxicillin, 'v3-text-primary'));
+            gridDiv.appendChild(createField(i18n.dosageRequired.replace(' *', ''), 'fas fa-weight', 'medicines[' + medicineCount + '][dosage]', i18n.placeholder500mg, 'v3-text-chair'));
+            gridDiv.appendChild(createField(i18n.frequencyRequired.replace(' *', ''), 'fas fa-clock', 'medicines[' + medicineCount + '][frequency]', i18n.placeholderTwiceDaily, 'v3-text-warning'));
+            gridDiv.appendChild(createField(i18n.durationRequired.replace(' *', ''), 'fas fa-calendar-alt', 'medicines[' + medicineCount + '][duration]', i18n.placeholder7Days, 'v3-text-danger'));
             medicineItem.appendChild(gridDiv);
 
             container.appendChild(medicineItem);

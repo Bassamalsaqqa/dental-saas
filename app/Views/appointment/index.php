@@ -82,22 +82,22 @@ $dynamicMode = !empty($bookingContext['enabled']);
     <div class="w-full">
         <div class="w-full px-3 pt-3 sm:px-4 lg:px-5">
             <header class="v3-command-header"><div><h1><?= lang('UI.appointmentManagement') ?></h1><p><?= $viewAllMode ? lang('UI.appointmentAllAppointments') : lang('UI.appointmentTodaySchedule') ?> <span aria-hidden="true"> / </span> <?= esc(formatDate($selected_date ?? date('Y-m-d'))) ?></p></div><div class="v3-command-actions"><?php if (has_permission('appointments', 'create')): ?>
-                                    <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm v3-accent-text transition hover:bg-blue-50">
+                                    <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm v3-accent-text transition v3-hover-primary v3-btn v3-btn--secondary">
                                         <i class="fas fa-plus"></i>
                                         <span><?= lang('UI.appointmentNew') ?></span>
                                     </a>
                                 <?php endif; ?>
-                                <a href="<?= base_url('appointment/calendar') ?>" class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
+                                <a href="<?= base_url('appointment/calendar') ?>" class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm border transition v3-hover-soft v3-btn v3-btn--secondary">
                                     <i class="fas fa-calendar"></i>
                                     <span><?= lang('UI.appointmentCalendarView') ?></span>
                                 </a>
                                 <?php if ($viewAllMode): ?>
-                                    <a href="<?= base_url('appointment') ?>" class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
+                                    <a href="<?= base_url('appointment') ?>" class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm border transition v3-hover-soft v3-btn v3-btn--secondary">
                                         <i class="fas fa-calendar-day"></i>
                                         <span><?= lang('UI.appointmentDailyView') ?></span>
                                     </a>
                                 <?php else: ?>
-                                    <a href="<?= base_url('appointment') ?>?view=all" class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
+                                    <a href="<?= base_url('appointment') ?>?view=all" class="inline-flex flex-1 items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm border transition v3-hover-soft v3-btn v3-btn--secondary">
                                         <i class="fas fa-list"></i>
                                         <span><?= lang('UI.appointmentViewAll') ?></span>
                                     </a>
@@ -109,14 +109,14 @@ $dynamicMode = !empty($bookingContext['enabled']);
         <div class="w-full px-3 sm:px-4 lg:px-5">
             <!-- Success Message -->
             <?php if (session()->getFlashdata('success')): ?>
-                <noscript><div class="mb-6 bg-green-50 border border-green-200 v3-radius p-4" role="status" aria-live="polite">
+                <noscript><div class="mb-6 v3-bg-paid border v3-border-default v3-radius p-4" role="status" aria-live="polite">
                     <div class="flex">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                            <i class="fas fa-check-circle v3-text-primary text-xl"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-sm font-medium text-green-800"><?= lang('UI.appointmentSuccessTitle') ?></h3>
-                            <div class="mt-2 text-sm text-green-700">
+                            <h3 class="text-sm font-medium v3-text-primary"><?= lang('UI.appointmentSuccessTitle') ?></h3>
+                            <div class="mt-2 text-sm v3-text-primary">
                                 <p><?= session()->getFlashdata('success') ?></p>
                             </div>
                         </div>
@@ -126,14 +126,14 @@ $dynamicMode = !empty($bookingContext['enabled']);
 
             <!-- Error Flash Message -->
             <?php if (session()->getFlashdata('error')): ?>
-                <noscript><div class="mb-6 bg-red-50 border border-red-200 v3-radius p-4" role="alert" aria-live="assertive">
+                <noscript><div class="mb-6 v3-bg-alert border v3-border-default v3-radius p-4" role="alert" aria-live="assertive">
                     <div class="flex">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+                            <i class="fas fa-exclamation-triangle v3-text-danger text-xl"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800"><?= lang('UI.appointmentErrorTitle') ?></h3>
-                            <div class="mt-2 text-sm text-red-700">
+                            <h3 class="text-sm font-medium v3-text-danger"><?= lang('UI.appointmentErrorTitle') ?></h3>
+                            <div class="mt-2 text-sm v3-text-danger">
                                 <p><?= session()->getFlashdata('error') ?></p>
                             </div>
                         </div>
@@ -151,27 +151,27 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 v3-warm-surface rounded-full"></div>
-                                <h3 class="text-base text-gray-900">
+                                <h3 class="text-base v3-text-ink">
                                     <?= lang('UI.appointmentAdvancedFilters') ?>
                                 </h3>
                             </div>
-                            <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentFilterSubtitle') ?></p>
+                            <p class="v3-text-muted font-medium text-sm"><?= lang('UI.appointmentFilterSubtitle') ?></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 p-5 pt-0 md:grid-cols-2 xl:grid-cols-4 sm:p-6 sm:pt-0">
                         <!-- Date Filter -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentSelectDate') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentSelectDate') ?></label>
                             <div class="relative">
-                                    <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 v3-surface border-2 v3-border v3-radius hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all duration-300 font-medium">
+                                    <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 v3-surface border-2 v3-border v3-radius v3-border-default focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 font-medium v3-input">
                             </div>
                         </div>
 
                         <!-- Status Filter -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentFilterByStatus') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentFilterByStatus') ?></label>
                             <div class="relative">
-                                <select id="statusFilter" class="relative w-full px-4 py-3 v3-surface border-2 v3-border v3-radius hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
+                                <select id="statusFilter" class="relative w-full px-4 py-3 v3-surface border-2 v3-border v3-radius v3-border-default focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 font-medium v3-select">
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= ($selected_status ?? '') === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
                                     <option value="confirmed" <?= ($selected_status ?? '') === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
@@ -187,25 +187,25 @@ $dynamicMode = !empty($bookingContext['enabled']);
 
                         <!-- Search Filter -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentSearchPatient') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentSearchPatient') ?></label>
                             <div class="relative">
-                                <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>" class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 v3-surface border-2 v3-border v3-radius hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 transition-all duration-300 font-medium">
+                                <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>" class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 v3-surface border-2 v3-border v3-radius v3-border-default focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 font-medium v3-input">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                    <i class="fas fa-search text-gray-400"></i>
+                                    <i class="fas fa-search v3-text-muted"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Filter Actions -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentActions') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentActions') ?></label>
                             <div class="flex flex-col gap-3 sm:flex-row">
-                                <button type="button" onclick="filterAppointments()" class="group/btn relative inline-flex flex-1 items-center justify-center px-4 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300">
+                                <button type="button" onclick="filterAppointments()" class="group/btn relative inline-flex flex-1 items-center justify-center px-4 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                     <i class="fas fa-filter mr-2 text-lg relative z-10 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentFilterAction') ?></span>
                                 </button>
-                                <button type="button" onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300">
+                                <button type="button" onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                     <i class="fas fa-times mr-2 text-lg relative z-10 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
@@ -225,31 +225,31 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 v3-warm-surface rounded-full"></div>
-                                <h3 class="text-base text-gray-900"><?= lang('UI.appointmentSearchAppointments') ?></h3>
+                                <h3 class="text-base v3-text-ink"><?= lang('UI.appointmentSearchAppointments') ?></h3>
                             </div>
-                            <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSearchAppointmentsSubtitle') ?></p>
+                            <p class="v3-text-muted font-medium text-sm"><?= lang('UI.appointmentSearchAppointmentsSubtitle') ?></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 p-5 pt-0 md:grid-cols-2 xl:grid-cols-3 sm:p-6 sm:pt-0">
                         <!-- Search Input -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentSearch') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentSearch') ?></label>
                             <div class="relative">
                                 <input type="text" id="searchInput" placeholder="<?= esc(lang('UI.appointmentSearchInputPlaceholder')) ?>"
                                        value="<?= $search_term ?>"
-                                       class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 v3-surface border-2 v3-border v3-radius hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
+                                       class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 v3-surface border-2 v3-border v3-radius v3-border-default focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 font-medium v3-input">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                    <i class="fas fa-search text-emerald-500" id="searchIcon"></i>
-                                    <div class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-500" id="searchSpinner"></div>
+                                    <i class="fas fa-search v3-text-primary" id="searchIcon"></i>
+                                    <div class="hidden animate-spin rounded-full h-4 w-4 border-b-2 v3-border-default" id="searchSpinner"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Status Filter -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentStatusLabel') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentStatusLabel') ?></label>
                             <div class="relative">
-                                <select id="statusFilter" class="relative w-full px-4 py-3 v3-surface border-2 v3-border v3-radius hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
+                                <select id="statusFilter" class="relative w-full px-4 py-3 v3-surface border-2 v3-border v3-radius v3-border-default focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 font-medium v3-select">
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= $selected_status === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
                                     <option value="confirmed" <?= $selected_status === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
@@ -266,9 +266,9 @@ $dynamicMode = !empty($bookingContext['enabled']);
 
                         <!-- Search Actions -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700"><?= lang('UI.appointmentActions') ?></label>
+                            <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentActions') ?></label>
                             <div class="flex flex-col gap-3 sm:flex-row">
-                                <button type="button" onclick="clearSearch()" class="group/btn relative inline-flex w-full items-center justify-center px-6 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 sm:w-auto">
+                                <button type="button" onclick="clearSearch()" class="group/btn relative inline-flex w-full items-center justify-center px-6 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 sm:w-auto v3-btn v3-btn--secondary">
 
                                     <i class="fas fa-times mr-2 text-lg relative z-10 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
@@ -328,7 +328,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                 <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-warm-surface">
                                     <i class="fas fa-list-check"></i>
                                 </span>
-                                <h3 class="text-base text-gray-900">
+                                <h3 class="text-base v3-text-ink">
                                     <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                         <?= lang('UI.appointmentAllAppointments') ?>
                                     <?php else: ?>
@@ -336,7 +336,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <?php endif; ?>
                                 </h3>
                             </div>
-                            <p class="text-gray-600 font-medium text-sm">
+                            <p class="v3-text-muted font-medium text-sm">
                                 <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                     <?= lang('UI.appointmentAllAppointmentsSubtitle') ?>
                                 <?php else: ?>
@@ -358,28 +358,28 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                 <?php
                                 $appointmentGender = strtolower((string) ($appointment['gender'] ?? 'other'));
                                 $appointmentAvatarIcon = 'fas fa-user';
-                                $appointmentAvatarColor = 'text-slate-600';
+                                $appointmentAvatarColor = 'v3-text-muted';
                                 if ($appointmentGender === 'male') {
                                     $appointmentAvatarIcon = 'fas fa-person';
-                                    $appointmentAvatarColor = 'text-blue-700';
+                                    $appointmentAvatarColor = 'v3-text-primary';
                                 } elseif ($appointmentGender === 'female') {
                                     $appointmentAvatarIcon = 'fas fa-person-dress';
-                                    $appointmentAvatarColor = 'text-rose-700';
+                                    $appointmentAvatarColor = 'v3-text-danger';
                                 }
                                 ?>
-                                <div class="appointment-record-card group/item relative flex flex-col gap-4 v3-radius border v3-border p-4 transition-all duration-300 hover:border-blue-200 hover:shadow-blue-900/10 md:p-5 xl:flex-row xl:items-center xl:justify-between <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(workflow_context_url('appointment/' . $appointment['id'])) . '"' : '' ?>>
+                                <div class="appointment-record-card group/item relative flex flex-col gap-4 v3-radius border v3-border p-4 transition-all duration-300 v3-border-default hover:shadow-blue-900/10 md:p-5 xl:flex-row xl:items-center xl:justify-between <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(workflow_context_url('appointment/' . $appointment['id'])) . '"' : '' ?>>
                                     <!-- Patient Information -->
                                     <div class="flex items-start gap-4 md:gap-6 xl:flex-1">
                                         <span class="inline-flex items-center justify-center w-9 h-9 flex-shrink-0">
                                             <i class="<?= esc($appointmentAvatarIcon) ?> <?= esc($appointmentAvatarColor) ?> v3-title-scale"></i>
                                         </span>
                                         <div class="space-y-2">
-                                            <h4 class="text-lg md:text-xl text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
+                                            <h4 class="text-lg md:text-xl v3-text-ink group-hover/item:v3-text-primary transition-colors duration-300">
                                                 <?= $appointment['first_name'] . ' ' . $appointment['last_name'] ?>
                                             </h4>
-                                            <div class="flex flex-col gap-2 text-sm text-gray-600 font-medium">
+                                            <div class="flex flex-col gap-2 text-sm v3-text-muted font-medium">
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fas fa-id-card text-slate-400"></i>
+                                                    <i class="fas fa-id-card v3-text-muted"></i>
                                                     <span><?= esc($appointment['patient_number'] ?? lang('Treatment.no_id')) ?></span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
@@ -387,7 +387,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                                     <span><?= $appointment['phone'] ?></span>
                                                 </div>
                                                 <div class="flex items-center gap-2 break-all">
-                                                    <i class="fas fa-envelope text-emerald-500"></i>
+                                                    <i class="fas fa-envelope v3-text-primary"></i>
                                                     <span><?= $appointment['email'] ?></span>
                                                 </div>
                                             </div>
@@ -399,15 +399,15 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <div class="text-center space-y-2">
                                         <div class="relative">
 
-                                            <div class="relative v3-warm-surface px-4 py-3 v3-radius border border-amber-200">
-                                                <p class="text-2xl text-amber-900">
+                                            <div class="relative v3-warm-surface px-4 py-3 v3-radius border v3-border-default">
+                                                <p class="text-2xl v3-text-warning">
                                                     <?= formatTime($appointment['appointment_time']) ?>
                                                 </p>
-                                                <p class="text-sm text-amber-700 font-bold">
+                                                <p class="text-sm v3-text-warning font-bold">
                                                     <?= $appointment['duration'] ?> <?= lang('UI.appointmentMinutes') ?>
                                                 </p>
                                                 <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-                                                    <p class="text-xs text-amber-600 font-semibold mt-1">
+                                                    <p class="text-xs v3-text-warning font-semibold mt-1">
                                                         <?= formatDate($appointment['appointment_date']) ?>
                                                     </p>
                                                 <?php endif; ?>
@@ -419,11 +419,11 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <div class="text-center space-y-2">
                                         <div class="relative">
 
-                                            <div class="relative v3-warm-surface px-4 py-3 v3-radius border border-emerald-200">
-                                                <p class="text-lg font-bold text-emerald-900">
+                                            <div class="relative v3-warm-surface px-4 py-3 v3-radius border v3-border-default">
+                                                <p class="text-lg font-bold v3-text-primary">
                                                     <?= ucfirst(str_replace('_', ' ', $appointment['appointment_type'])) ?>
                                                 </p>
-                                                <p class="text-xs text-emerald-700 font-medium">
+                                                <p class="text-xs v3-text-primary font-medium">
                                                     <?= esc($appointment['chair_name'] ?? lang('UI.appointmentChairDefault')) ?>
                                                 </p>
                                             </div>
@@ -434,21 +434,21 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <div class="text-center sm:col-span-2 xl:col-span-1">
                                         <?php
                                         $statusConfig = [
-                                            'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'text-blue-900', 'label' => lang('UI.appointmentStatusScheduled')],
-                                            'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'text-green-900', 'label' => lang('UI.appointmentStatusConfirmed')],
-                                            'arrived' => ['bg' => 'from-cyan-500 to-cyan-600', 'text' => 'text-cyan-900', 'label' => lang('UI.appointmentStageArrived')],
-                                            'ready' => ['bg' => 'from-teal-500 to-teal-600', 'text' => 'text-teal-900', 'label' => lang('UI.appointmentStageReady')],
-                                            'in_chair' => ['bg' => 'from-indigo-500 to-indigo-600', 'text' => 'text-indigo-900', 'label' => lang('UI.appointmentStageInChair')],
-                                            'checkout' => ['bg' => 'from-violet-500 to-violet-600', 'text' => 'text-violet-900', 'label' => lang('UI.appointmentStageCheckout')],
-                                            'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'text-gray-900', 'label' => lang('UI.patientTreatmentStatusCompleted')],
-                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'text-red-900', 'label' => lang('UI.appointmentStatusCancelled')],
-                                            'no_show' => ['bg' => 'from-orange-500 to-orange-600', 'text' => 'text-orange-900', 'label' => lang('UI.appointmentStatusNoShow')]
+                                            'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStatusScheduled')],
+                                            'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStatusConfirmed')],
+                                            'arrived' => ['bg' => 'from-cyan-500 to-cyan-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStageArrived')],
+                                            'ready' => ['bg' => 'from-teal-500 to-teal-600', 'text' => 'v3-text-primary', 'label' => lang('UI.appointmentStageReady')],
+                                            'in_chair' => ['bg' => 'from-indigo-500 to-indigo-600', 'text' => 'v3-text-chair', 'label' => lang('UI.appointmentStageInChair')],
+                                            'checkout' => ['bg' => 'from-violet-500 to-violet-600', 'text' => 'v3-text-chair', 'label' => lang('UI.appointmentStageCheckout')],
+                                            'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'v3-text-ink', 'label' => lang('UI.patientTreatmentStatusCompleted')],
+                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'v3-text-danger', 'label' => lang('UI.appointmentStatusCancelled')],
+                                            'no_show' => ['bg' => 'from-orange-500 to-orange-600', 'text' => 'v3-text-warning', 'label' => lang('UI.appointmentStatusNoShow')]
                                         ];
                                         $status = $statusConfig[$appointment['status']] ?? $statusConfig['scheduled'];
                                         ?>
                                         <div class="relative">
 
-                                            <div class="relative <?= $status['bg'] ?> text-white px-6 py-3 v3-radius font-bold text-sm uppercase tracking-wider transition-transform duration-300">
+                                            <div class="relative <?= $status['bg'] ?> v3-text-on-primary px-6 py-3 v3-radius font-bold text-sm uppercase tracking-wider transition-transform duration-300">
                                                 <?= $status['label'] ?>
                                             </div>
                                         </div>
@@ -457,31 +457,31 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <!-- Action Buttons -->
                                     <div class="flex flex-wrap justify-start gap-2 sm:col-span-2 xl:col-span-1 xl:justify-end">
                                         <?php if (has_permission('appointments', 'view')): ?>
-                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface text-gray-700 v3-radius focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300">
+                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-text-ink v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300">
 
                                                 <i class="fas fa-eye text-lg relative z-10 transition-transform duration-300"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('appointments', 'edit')): ?>
-                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300">
+                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300">
 
                                                 <i class="fas fa-edit text-lg relative z-10 transition-transform duration-300"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if ($appointment['status'] === 'scheduled' && has_permission('appointments', 'edit')): ?>
-                                            <button type="button" onclick="confirmAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 focus:ring-green-500/50 transition-all duration-300">
+                                            <button type="button" onclick="confirmAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                                 <i class="fas fa-check text-lg relative z-10 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
                                         <?php if (in_array($appointment['status'], ['scheduled', 'confirmed', 'arrived', 'ready'], true) && has_permission('appointments', 'edit')): ?>
-                                            <button type="button" onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 focus:ring-red-500/50 transition-all duration-300">
+                                            <button type="button" onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                                 <i class="fas fa-times text-lg relative z-10 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
                                         <?php if (has_permission('appointments', 'delete')): ?>
-                                            <button type="button" onclick="deleteAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300">
+                                            <button type="button" onclick="deleteAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                                 <i class="fas fa-trash text-lg relative z-10 transition-transform duration-300"></i>
                                             </button>
@@ -493,11 +493,11 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <?php else: ?>
                             <div class="text-center py-16">
                                 <div class="relative w-24 h-24 v3-warm-surface v3-radius flex items-center justify-center mx-auto mb-6 transition-transform duration-300">
-                                    <i class="fas fa-calendar text-gray-400 v3-title-scale"></i>
+                                    <i class="fas fa-calendar v3-text-muted v3-title-scale"></i>
                                 </div>
-                                <h3 class="text-base text-gray-900 mb-3"><?= lang('UI.appointmentNoAppointmentsFound') ?></h3>
-                                <p class="text-gray-500 text-lg font-medium mb-6"><?= lang('UI.appointmentNoAppointmentsForDate') ?></p>
-                                <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="group/btn relative inline-flex items-center px-6 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300">
+                                <h3 class="text-base v3-text-ink mb-3"><?= lang('UI.appointmentNoAppointmentsFound') ?></h3>
+                                <p class="v3-text-muted text-lg font-medium mb-6"><?= lang('UI.appointmentNoAppointmentsForDate') ?></p>
+                                <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="group/btn relative inline-flex items-center px-6 py-3 v3-warm-surface text-sm font-bold v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                     <i class="fas fa-plus mr-3 text-lg relative z-10 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentSchedule') ?></span>
@@ -508,15 +508,15 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <!-- Load More Button for View All Mode -->
                         <?php if (isset($view_mode) && $view_mode === 'all' && isset($pagination['has_more']) && $pagination['has_more']): ?>
                             <div class="text-center py-6">
-                                <button onclick="loadMoreAppointments()" id="loadMoreBtn" class="group relative inline-flex items-center px-8 py-4 v3-warm-surface text-lg font-bold v3-radius focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300">
+                                <button onclick="loadMoreAppointments()" id="loadMoreBtn" class="group relative inline-flex items-center px-8 py-4 v3-warm-surface text-lg font-bold v3-radius focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300 v3-btn v3-btn--secondary">
 
                                     <i class="fas fa-chevron-down mr-3 text-xl relative z-10 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentLoadMore') ?></span>
                                 </button>
                                 <div id="loadMoreSpinner" class="hidden text-center py-4">
-                                    <div class="inline-flex items-center px-6 py-3 v3-warm-surface v3-radius border border-emerald-200">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mr-3"></div>
-                                        <span class="text-emerald-700 font-bold"><?= lang('UI.appointmentLoadingMore') ?></span>
+                                    <div class="inline-flex items-center px-6 py-3 v3-warm-surface v3-radius border v3-border-default">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 v3-border-default mr-3"></div>
+                                        <span class="v3-text-primary font-bold"><?= lang('UI.appointmentLoadingMore') ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -773,32 +773,32 @@ function showNotification(message, type = 'info') {
     let bgColor, textColor, iconColor, icon;
     switch(type) {
         case 'success':
-            bgColor = 'bg-green-500';
-            textColor = 'text-white';
-            iconColor = 'text-green-100';
+            bgColor = 'v3-bg-primary';
+            textColor = 'v3-text-on-primary';
+            iconColor = 'v3-text-primary';
             icon = 'fas fa-check-circle';
             break;
         case 'error':
-            bgColor = 'bg-red-500';
-            textColor = 'text-white';
-            iconColor = 'text-red-100';
+            bgColor = 'v3-bg-danger';
+            textColor = 'v3-text-on-primary';
+            iconColor = 'v3-text-danger';
             icon = 'fas fa-exclamation-circle';
             break;
         case 'warning':
-            bgColor = 'bg-yellow-500';
-            textColor = 'text-white';
-            iconColor = 'text-yellow-100';
+            bgColor = 'v3-bg-warning';
+            textColor = 'v3-text-on-primary';
+            iconColor = 'v3-text-warning';
             icon = 'fas fa-exclamation-triangle';
             break;
         default:
-            bgColor = 'bg-blue-500';
-            textColor = 'text-white';
-            iconColor = 'text-blue-100';
+            bgColor = 'v3-bg-primary';
+            textColor = 'v3-text-on-primary';
+            iconColor = 'v3-text-primary';
             icon = 'fas fa-info-circle';
     }
 
     const innerContainer = document.createElement('div');
-    innerContainer.className = `${bgColor} ${textColor} rounded-lg shadow-lg p-4 flex items-center space-x-3 animate-slide-in`;
+    innerContainer.className = `${bgColor} ${textColor} rounded-lg v3-elevation-none p-4 flex items-center space-x-3 animate-slide-in`;
 
     const iconDiv = document.createElement('div');
     iconDiv.className = 'flex-shrink-0';
@@ -816,7 +816,7 @@ function showNotification(message, type = 'info') {
     const closeDiv = document.createElement('div');
     closeDiv.className = 'flex-shrink-0';
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'text-white hover:text-gray-200 focus:outline-none focus:text-gray-200 transition-colors duration-200';
+    closeBtn.className = 'v3-text-on-primary v3-hover-text-muted focus:outline-none v3-focus-control transition-colors duration-200';
     closeBtn.onclick = function() {
         this.closest('.notification-toast').remove();
     };
@@ -1001,9 +1001,9 @@ function getSafeInitials(firstName, lastName, fallback = 'P') {
 
 function getPatientAvatar(gender) {
     const avatarMap = {
-        male: { icon: 'fas fa-person', color: 'text-blue-700' },
-        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
-        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+        male: { icon: 'fas fa-person', color: 'v3-text-primary' },
+        female: { icon: 'fas fa-person-dress', color: 'v3-text-danger' },
+        other: { icon: 'fas fa-user', color: 'v3-text-muted' }
     };
 
     return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
@@ -1012,7 +1012,7 @@ function getPatientAvatar(gender) {
 // Create appointment element HTML
 function createAppointmentElement(appointment) {
     const div = document.createElement('div');
-    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] hover:-translate-y-1 animate-slide-in';
+    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm v3-radius hover:from-white/80 hover:to-white/60 transition-all duration-500 border v3-border-default v3-elevation-none hover:v3-elevation-none hover:shadow-blue-500/10 hover:scale-[1.02]  animate-slide-in';
     if (<?= has_permission('appointments', 'view') ? 'true' : 'false' ?>) {
         const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
         div.dataset.href = `<?= base_url('appointment') ?>/${appointment.id}`;
@@ -1036,15 +1036,15 @@ function createAppointmentElement(appointment) {
 
     // Status configuration
     const statusConfig = {
-        'scheduled': { bg: 'from-blue-500 to-blue-600', text: 'text-blue-900', label: appointmentI18n.statusScheduled },
-        'confirmed': { bg: 'from-green-500 to-green-600', text: 'text-green-900', label: appointmentI18n.statusConfirmed },
-        'arrived': { bg: 'from-cyan-500 to-cyan-600', text: 'text-cyan-900', label: appointmentI18n.statusArrived },
-        'ready': { bg: 'from-teal-500 to-teal-600', text: 'text-teal-900', label: appointmentI18n.statusReady },
-        'in_chair': { bg: 'from-indigo-500 to-indigo-600', text: 'text-indigo-900', label: appointmentI18n.statusInChair },
-        'checkout': { bg: 'from-violet-500 to-violet-600', text: 'text-violet-900', label: appointmentI18n.statusCheckout },
-        'completed': { bg: 'from-emerald-500 to-emerald-600', text: 'text-emerald-900', label: appointmentI18n.statusCompleted },
-        'cancelled': { bg: 'from-red-500 to-red-600', text: 'text-red-900', label: appointmentI18n.statusCancelled },
-        'no_show': { bg: 'from-orange-500 to-orange-600', text: 'text-orange-900', label: appointmentI18n.statusNoShow }
+        'scheduled': { bg: 'from-blue-500 to-blue-600', text: 'v3-text-primary', label: appointmentI18n.statusScheduled },
+        'confirmed': { bg: 'from-green-500 to-green-600', text: 'v3-text-primary', label: appointmentI18n.statusConfirmed },
+        'arrived': { bg: 'from-cyan-500 to-cyan-600', text: 'v3-text-primary', label: appointmentI18n.statusArrived },
+        'ready': { bg: 'from-teal-500 to-teal-600', text: 'v3-text-primary', label: appointmentI18n.statusReady },
+        'in_chair': { bg: 'from-indigo-500 to-indigo-600', text: 'v3-text-chair', label: appointmentI18n.statusInChair },
+        'checkout': { bg: 'from-violet-500 to-violet-600', text: 'v3-text-chair', label: appointmentI18n.statusCheckout },
+        'completed': { bg: 'from-emerald-500 to-emerald-600', text: 'v3-text-primary', label: appointmentI18n.statusCompleted },
+        'cancelled': { bg: 'from-red-500 to-red-600', text: 'v3-text-danger', label: appointmentI18n.statusCancelled },
+        'no_show': { bg: 'from-orange-500 to-orange-600', text: 'v3-text-warning', label: appointmentI18n.statusNoShow }
     };
 
     const status = statusConfig[appointment.status] || statusConfig['scheduled'];
@@ -1064,11 +1064,11 @@ function createAppointmentElement(appointment) {
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'space-y-2';
     const nameH4 = document.createElement('h4');
-    nameH4.className = 'text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300';
+    nameH4.className = 'text-xl font-black v3-text-ink group-hover/item:v3-text-primary transition-colors duration-300';
     nameH4.textContent = appointment.first_name + ' ' + appointment.last_name;
 
     const contactDiv = document.createElement('div');
-    contactDiv.className = 'flex flex-col space-y-2 text-sm text-gray-600 font-medium';
+    contactDiv.className = 'flex flex-col space-y-2 text-sm v3-text-muted font-medium';
     contactDiv.style.display = 'flex';
     contactDiv.style.flexDirection = 'column';
     contactDiv.style.gap = '0.5rem';
@@ -1076,7 +1076,7 @@ function createAppointmentElement(appointment) {
     const idDiv = document.createElement('div');
     idDiv.className = 'flex items-center space-x-2';
     const idIcon = document.createElement('i');
-    idIcon.className = 'fas fa-id-card text-slate-400';
+    idIcon.className = 'fas fa-id-card v3-text-muted';
     const idSpan = document.createElement('span');
     idSpan.textContent = appointment.patient_number || '<?= esc(lang('Treatment.no_id'), 'js') ?>';
     idDiv.appendChild(idIcon);
@@ -1085,7 +1085,7 @@ function createAppointmentElement(appointment) {
     const phoneDiv = document.createElement('div');
     phoneDiv.className = 'flex items-center space-x-2';
     const phoneIcon = document.createElement('i');
-    phoneIcon.className = 'fas fa-phone text-blue-500';
+    phoneIcon.className = 'fas fa-phone v3-text-primary';
     const phoneSpan = document.createElement('span');
     phoneSpan.textContent = appointment.phone;
     phoneDiv.appendChild(phoneIcon);
@@ -1094,7 +1094,7 @@ function createAppointmentElement(appointment) {
     const emailDiv = document.createElement('div');
     emailDiv.className = 'flex items-center space-x-2';
     const emailIcon = document.createElement('i');
-    emailIcon.className = 'fas fa-envelope text-emerald-500';
+    emailIcon.className = 'fas fa-envelope v3-text-primary';
     const emailSpan = document.createElement('span');
     emailSpan.textContent = appointment.email;
     emailDiv.appendChild(emailIcon);
@@ -1115,20 +1115,20 @@ function createAppointmentElement(appointment) {
     const timeRelative = document.createElement('div');
     timeRelative.className = 'relative';
     const timeBg = document.createElement('div');
-    timeBg.className = 'absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    timeBg.className = 'absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
     const timeContent = document.createElement('div');
-    timeContent.className = 'relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 rounded-xl border border-amber-200';
+    timeContent.className = 'relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 v3-radius border v3-border-default';
 
     const timeP = document.createElement('p');
-    timeP.className = 'text-2xl font-black text-amber-900';
+    timeP.className = 'text-2xl font-black v3-text-warning';
     timeP.textContent = formattedTime;
 
     const durationP = document.createElement('p');
-    durationP.className = 'text-sm text-amber-700 font-bold';
+    durationP.className = 'text-sm v3-text-warning font-bold';
     durationP.textContent = appointment.duration + ' ' + appointmentI18n.minutes;
 
     const dateP = document.createElement('p');
-    dateP.className = 'text-xs text-amber-600 font-semibold mt-1';
+    dateP.className = 'text-xs v3-text-warning font-semibold mt-1';
     dateP.textContent = formattedDate;
 
     timeContent.appendChild(timeP);
@@ -1145,16 +1145,16 @@ function createAppointmentElement(appointment) {
     const typeRelative = document.createElement('div');
     typeRelative.className = 'relative';
     const typeBg = document.createElement('div');
-    typeBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    typeBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
     const typeContent = document.createElement('div');
-    typeContent.className = 'relative bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 rounded-xl border border-emerald-200';
+    typeContent.className = 'relative bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 v3-radius border v3-border-default';
 
     const typeP = document.createElement('p');
-    typeP.className = 'text-lg font-bold text-emerald-900';
+    typeP.className = 'text-lg font-bold v3-text-primary';
     typeP.textContent = appointment.appointment_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
     const chairP = document.createElement('p');
-    chairP.className = 'text-xs text-emerald-700 font-medium';
+    chairP.className = 'text-xs v3-text-primary font-medium';
     chairP.textContent = appointment.chair_name || appointmentI18n.chairDefault;
 
     typeContent.appendChild(typeP);
@@ -1171,10 +1171,10 @@ function createAppointmentElement(appointment) {
     statusRelative.className = 'relative';
 
     const statusBg = document.createElement('div');
-    statusBg.className = `absolute inset-0 bg-gradient-to-r ${status.bg} rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300`;
+    statusBg.className = `absolute inset-0 bg-gradient-to-r ${status.bg} v3-radius blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300`;
 
     const statusContent = document.createElement('div');
-    statusContent.className = `relative bg-gradient-to-r ${status.bg} px-4 py-3 rounded-xl shadow-lg`;
+    statusContent.className = `relative bg-gradient-to-r ${status.bg} px-4 py-3 v3-radius v3-elevation-none`;
 
     const statusTextP = document.createElement('p');
     statusTextP.className = `text-lg font-bold ${status.text}`;
@@ -1199,10 +1199,10 @@ function createAppointmentElement(appointment) {
     const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
     const viewBtn = document.createElement('a');
     viewBtn.href = `<?= base_url('appointment') ?>/${appointment.id}`;
-    viewBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25';
+    viewBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 v3-text-on-primary text-sm font-bold v3-radius hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300  hover:v3-elevation-none hover:shadow-blue-500/25';
 
     const viewBg = document.createElement('div');
-    viewBg.className = 'absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
+    viewBg.className = 'absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 v3-radius blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
 
     const viewIcon = document.createElement('i');
     viewIcon.className = 'fas fa-eye mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300';
@@ -1217,10 +1217,10 @@ function createAppointmentElement(appointment) {
 
     const editBtn = document.createElement('a');
     editBtn.href = `<?= base_url('appointment') ?>/${appointment.id}/edit`;
-    editBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25';
+    editBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 v3-text-on-primary text-sm font-bold v3-radius hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-4 v3-focus-control transition-all duration-300  hover:v3-elevation-none hover:shadow-emerald-500/25';
 
     const editBg = document.createElement('div');
-    editBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
+    editBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 v3-radius blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
 
     const editIcon = document.createElement('i');
     editIcon.className = 'fas fa-edit mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300';

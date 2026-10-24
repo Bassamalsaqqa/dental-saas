@@ -25,54 +25,54 @@ foreach ($reorderItems as $item) {
 
 $supplierCount = count($supplierNames);
 $statusClasses = [
-    'draft' => 'bg-amber-100 text-amber-800 ring-amber-200/70',
-    'ordered' => 'bg-blue-100 text-blue-800 ring-blue-200/70',
-    'received' => 'bg-emerald-100 text-emerald-800 ring-emerald-200/70',
-    'cancelled' => 'bg-slate-100 text-slate-700 ring-slate-200/70',
+    'draft' => 'v3-bg-waiting v3-text-warning v3-border-default',
+    'ordered' => 'v3-bg-scheduled v3-text-primary v3-border-default',
+    'received' => 'v3-bg-paid v3-text-primary v3-border-default',
+    'cancelled' => 'v3-bg-soft v3-text-ink v3-border-default',
 ];
 ?>
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.65rem] border v3-border bg-slate-950 text-white">
+    <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(245,158,11,.56),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(20,184,166,.38),transparent_28%),linear-gradient(135deg,#92400e_0%,#b45309_42%,#0f766e_100%)]"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface text-white ring-1 ring-white/20">
+                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface v3-text-on-primary border v3-border-default">
                         <i class="fas fa-cart-shopping text-2xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-100"><?= esc($tr('inventoryManagement')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc($tr('reorderList')) ?></h1>
-                        <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-amber-50/90"><?= esc($tr('reorderListSubtitle')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.2em] v3-text-warning"><?= esc($tr('inventoryManagement')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black tracking-tight v3-text-on-primary sm:text-3xl"><?= esc($tr('reorderList')) ?></h1>
+                        <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 v3-text-warning"><?= esc($tr('reorderListSubtitle')) ?></p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div class="v3-radius border v3-border v3-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-amber-100"><?= esc($tr('draftLines')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $draftCount ?></p>
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-warning"><?= esc($tr('draftLines')) ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $draftCount ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-soft-surface p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('orderedLines')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $orderedCount ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $orderedCount ?></p>
                     </div>
-                    <div class="v3-radius border v3-border bg-emerald-400/18 p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc($tr('suppliersInvolved')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $supplierCount ?></p>
+                    <div class="v3-radius border v3-border v3-bg-primary p-4">
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('suppliersInvolved')) ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $supplierCount ?></p>
                     </div>
                 </div>
             </div>
 
             <div class="relative mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-on-primary border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
                     <i class="fas fa-arrows-rotate"></i>
                     <span><?= esc($tr('movements')) ?></span>
                 </a>
-                <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius bg-rose-500 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-600">
+                <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-bg-danger px-4 py-2.5 text-sm font-black v3-text-on-primary transition v3-hover-danger v3-btn v3-btn--danger">
                     <i class="fas fa-exclamation-triangle"></i>
                     <span><?= esc($tr('lowStockItems')) ?></span>
                 </a>
-                <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-amber-800 transition hover:bg-amber-50">
+                <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-warning transition v3-hover-primary v3-btn v3-btn--secondary">
                     <i class="fas fa-arrow-left rtl:rotate-180"></i>
                     <span><?= esc($tr('backToInventory')) ?></span>
                 </a>
@@ -81,12 +81,12 @@ $statusClasses = [
     </section>
 
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="v3-radius border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
+        <div class="v3-radius border v3-border-default v3-bg-paid p-4 text-sm font-bold v3-text-primary">
             <?= esc(session()->getFlashdata('success')) ?>
         </div>
     <?php endif; ?>
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="v3-radius border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
+        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm font-bold v3-text-danger">
             <?= esc(session()->getFlashdata('error')) ?>
         </div>
     <?php endif; ?>
@@ -94,19 +94,19 @@ $statusClasses = [
     <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
         <div class="flex flex-col gap-4 border-b v3-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex min-w-0 items-center gap-3">
-                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius text-white">
+                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius v3-text-on-primary">
                     <i class="fas fa-list-check"></i>
                 </span>
                 <div class="min-w-0">
-                    <h2 class="text-xl font-black text-slate-950"><?= esc($tr('reorderLines')) ?></h2>
-                    <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($tr('rowsCount', ['count' => count($reorderItems)])) ?></p>
+                    <h2 class="text-xl font-black v3-text-ink"><?= esc($tr('reorderLines')) ?></h2>
+                    <p class="mt-1 text-sm font-semibold v3-text-muted"><?= esc($tr('rowsCount', ['count' => count($reorderItems)])) ?></p>
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 text-xs font-black">
-                <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1.5 text-amber-800 ring-1 ring-amber-200/70">
-                    <span class="h-2 w-2 rounded-full bg-amber-500"></span><?= esc($tr('draftLines')) ?>
+                <span class="inline-flex items-center gap-2 rounded-full v3-bg-waiting px-3 py-1.5 v3-text-warning border v3-border-default">
+                    <span class="h-2 w-2 rounded-full v3-bg-warning"></span><?= esc($tr('draftLines')) ?>
                 </span>
-                <span class="inline-flex items-center gap-2 rounded-full v3-soft-surface px-3 py-1.5 v3-accent-text ring-1 ring-blue-200/70">
+                <span class="inline-flex items-center gap-2 rounded-full v3-soft-surface px-3 py-1.5 v3-accent-text border v3-border-default">
                     <span class="h-2 w-2 rounded-full v3-soft-surface"></span><?= esc($tr('orderedLines')) ?>
                 </span>
             </div>
@@ -117,16 +117,16 @@ $statusClasses = [
                 <table class="min-w-full">
                     <thead class="v3-surface">
                         <tr>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('item')) ?></th>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('stockDetails')) ?></th>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('supplier')) ?></th>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('requested')) ?></th>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('status')) ?></th>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('notes')) ?></th>
-                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('actions')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('item')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('stockDetails')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('supplier')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('requested')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('status')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('notes')) ?></th>
+                            <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('actions')) ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y v3-border-default">
                         <?php foreach ($reorderItems as $row): ?>
                             <?php
                             $status = (string) ($row['status'] ?? 'draft');
@@ -134,86 +134,86 @@ $statusClasses = [
                             $supplierName = trim((string) ($row['supplier_name'] ?? ''));
                             $supplierName = $supplierName !== '' ? $supplierName : 'Unassigned';
                             ?>
-                            <tr class="align-top transition hover:bg-amber-50/45">
+                            <tr class="align-top transition v3-hover-primary">
                                 <td class="px-5 py-4">
-                                    <div class="font-black text-slate-950"><?= esc($row['item_name'] ?? ('Item #' . $inventoryId)) ?></div>
-                                    <div class="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
+                                    <div class="font-black v3-text-ink"><?= esc($row['item_name'] ?? ('Item #' . $inventoryId)) ?></div>
+                                    <div class="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold v3-text-muted">
                                         <?php if (!empty($row['category'])): ?>
                                             <span><?= esc(ucfirst((string) $row['category'])) ?></span>
                                             <span aria-hidden="true">&middot;</span>
                                         <?php endif; ?>
-                                        <a class="font-black v3-accent-text hover:text-blue-900" href="<?= base_url('inventory/' . $inventoryId) ?>"><?= esc($tr('viewItem')) ?></a>
+                                        <a class="font-black v3-accent-text v3-hover-text-primary" href="<?= base_url('inventory/' . $inventoryId) ?>"><?= esc($tr('viewItem')) ?></a>
                                     </div>
                                 </td>
                                 <td class="px-5 py-4 text-sm">
-                                    <div class="font-black text-slate-950">
-                                        <?= (int) ($row['current_qty'] ?? 0) ?> <span class="font-bold text-slate-500"><?= esc((string) ($row['unit'] ?? 'units')) ?></span>
+                                    <div class="font-black v3-text-ink">
+                                        <?= (int) ($row['current_qty'] ?? 0) ?> <span class="font-bold v3-text-muted"><?= esc((string) ($row['unit'] ?? 'units')) ?></span>
                                     </div>
-                                    <div class="mt-1 text-xs font-bold text-slate-500"><?= esc($tr('minimum')) ?> <?= (int) ($row['min_quantity'] ?? 0) ?></div>
+                                    <div class="mt-1 text-xs font-bold v3-text-muted"><?= esc($tr('minimum')) ?> <?= (int) ($row['min_quantity'] ?? 0) ?></div>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <div class="font-black text-slate-950"><?= esc($supplierName) ?></div>
-                                    <div class="mt-1 text-xs font-semibold text-slate-500">
+                                    <div class="font-black v3-text-ink"><?= esc($supplierName) ?></div>
+                                    <div class="mt-1 text-xs font-semibold v3-text-muted">
                                         <?php if (!empty($row['preferred_supplier_sku'])): ?>SKU: <?= esc((string) $row['preferred_supplier_sku']) ?><?php endif; ?>
                                         <?php if (!empty($row['preferred_pack_size_label'])): ?><?= !empty($row['preferred_supplier_sku']) ? ' &middot; ' : '' ?><?= esc($tr('packSize')) ?>: <?= esc((string) $row['preferred_pack_size_label']) ?><?php endif; ?>
                                     </div>
                                     <div class="mt-2 flex flex-wrap gap-2">
                                         <?php if (!empty($row['supplier_phone'])): ?>
-                                            <a href="tel:<?= esc((string) $row['supplier_phone']) ?>" class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700 transition hover:bg-slate-200">
+                                            <a href="tel:<?= esc((string) $row['supplier_phone']) ?>" class="inline-flex items-center gap-1 rounded-lg v3-bg-soft px-2.5 py-1 text-xs font-black v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                                                 <i class="fas fa-phone"></i><?= esc($tr('call')) ?>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (!empty($row['supplier_email'])): ?>
-                                            <a href="mailto:<?= esc((string) $row['supplier_email']) ?>" class="inline-flex items-center gap-1 rounded-lg v3-soft-surface px-2.5 py-1 text-xs font-black v3-accent-text transition hover:bg-blue-100">
+                                            <a href="mailto:<?= esc((string) $row['supplier_email']) ?>" class="inline-flex items-center gap-1 rounded-lg v3-soft-surface px-2.5 py-1 text-xs font-black v3-accent-text transition v3-hover-primary v3-btn v3-btn--secondary">
                                                 <i class="fas fa-envelope"></i><?= esc($tr('emailShort')) ?>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (!empty($row['supplier_whatsapp'])): ?>
                                             <?php $wa = preg_replace('/\D+/', '', (string) $row['supplier_whatsapp']); ?>
-                                            <a href="https://wa.me/<?= esc($wa) ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-black text-emerald-700 transition hover:bg-emerald-200">
+                                            <a href="https://wa.me/<?= esc($wa) ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg v3-bg-paid px-2.5 py-1 text-xs font-black v3-text-primary transition v3-hover-primary v3-btn v3-btn--secondary">
                                                 <i class="fab fa-whatsapp"></i><?= esc($tr('whatsApp')) ?>
                                             </a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td class="px-5 py-4 text-sm font-black text-slate-950"><?= (int) ($row['requested_qty'] ?? 0) ?></td>
+                                <td class="px-5 py-4 text-sm font-black v3-text-ink"><?= (int) ($row['requested_qty'] ?? 0) ?></td>
                                 <td class="px-5 py-4">
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black ring-1 <?= $statusClasses[$status] ?? 'bg-slate-100 text-slate-700 ring-slate-200/70' ?>">
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black border <?= $statusClasses[$status] ?? 'v3-bg-soft v3-text-ink v3-border-default' ?>">
                                         <?= esc(ucfirst($status)) ?>
                                     </span>
                                 </td>
-                                <td class="max-w-xs px-5 py-4 text-sm font-semibold leading-5 text-slate-600"><?= esc((string) ($row['notes'] ?? '')) ?></td>
+                                <td class="max-w-xs px-5 py-4 text-sm font-semibold leading-5 v3-text-muted"><?= esc((string) ($row['notes'] ?? '')) ?></td>
                                 <td class="px-5 py-4">
                                     <div class="min-w-[20rem] space-y-3">
                                         <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/status') ?>" class="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] gap-2">
                                             <?= csrf_field() ?>
-                                            <input type="number" name="requested_qty" min="1" value="<?= (int) ($row['requested_qty'] ?? 1) ?>" class="w-full v3-radius border v3-border px-3 py-2 text-sm font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
-                                            <select name="status" data-force-select2 data-allow-clear="false" class="w-full v3-radius border v3-border px-3 py-2 text-sm font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                                            <input type="number" name="requested_qty" min="1" value="<?= (int) ($row['requested_qty'] ?? 1) ?>" class="w-full v3-radius border v3-border px-3 py-2 text-sm font-bold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-input">
+                                            <select name="status" data-force-select2 data-allow-clear="false" class="w-full v3-radius border v3-border px-3 py-2 text-sm font-bold v3-text-ink outline-none transition v3-focus-control focus:ring-4 v3-focus-control v3-select">
                                                 <?php foreach (['draft', 'ordered', 'received', 'cancelled'] as $statusOption): ?>
                                                     <option value="<?= esc($statusOption) ?>" <?= $status === $statusOption ? 'selected' : '' ?>><?= esc(ucfirst($statusOption)) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <button type="submit" class="v3-radius v3-soft-surface px-4 py-2 text-xs font-black text-white transition hover:bg-blue-700"><?= esc($tr('apply')) ?></button>
+                                            <button type="submit" class="v3-radius v3-soft-surface px-4 py-2 text-xs font-black v3-text-on-primary transition v3-hover-primary v3-btn v3-btn--primary"><?= esc($tr('apply')) ?></button>
                                         </form>
 
                                         <div class="v3-radius border v3-border v3-surface p-3">
                                             <div class="mb-2 flex items-center justify-between gap-3">
-                                                <div class="text-[11px] font-black uppercase tracking-wide text-slate-500"><?= esc($tr('supplierContact')) ?></div>
+                                                <div class="text-[11px] font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('supplierContact')) ?></div>
                                                 <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/delete') ?>" onsubmit="return confirm('<?= esc(lang('Inventory.removeReorderLineConfirm'), 'js') ?>');">
                                                     <?= csrf_field() ?>
-                                                    <button type="submit" class="inline-flex items-center gap-1 rounded-lg bg-rose-50 px-2.5 py-1 text-[11px] font-black text-rose-700 transition hover:bg-rose-100">
+                                                    <button type="submit" class="inline-flex items-center gap-1 rounded-lg v3-bg-alert px-2.5 py-1 text-[11px] font-black v3-text-danger transition v3-hover-danger v3-btn v3-btn--danger">
                                                         <i class="fas fa-trash"></i><?= esc($tr('removeLine')) ?>
                                                     </button>
                                                 </form>
                                             </div>
 
                                             <?php if (!empty($row['supplier_contacted_at'])): ?>
-                                                <div class="text-xs font-black text-emerald-700">
+                                                <div class="text-xs font-black v3-text-primary">
                                                     <?= esc($tr('loggedVia', ['method' => ucfirst((string) ($row['supplier_contact_method'] ?? 'other'))])) ?>
                                                 </div>
-                                                <div class="mt-0.5 text-[11px] font-semibold text-slate-500"><?= esc(formatDateTime($row['supplier_contacted_at'])) ?></div>
+                                                <div class="mt-0.5 text-[11px] font-semibold v3-text-muted"><?= esc(formatDateTime($row['supplier_contacted_at'])) ?></div>
                                             <?php else: ?>
-                                                <div class="mb-2 text-xs font-semibold text-slate-500"><?= esc($tr('noContactLoggedYet')) ?></div>
+                                                <div class="mb-2 text-xs font-semibold v3-text-muted"><?= esc($tr('noContactLoggedYet')) ?></div>
                                             <?php endif; ?>
 
                                             <div class="mt-2 grid grid-cols-4 gap-1.5">
@@ -221,7 +221,7 @@ $statusClasses = [
                                                     <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/contacted') ?>">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="method" value="<?= esc($methodKey) ?>">
-                                                        <button type="submit" class="w-full rounded-lg border v3-border v3-surface px-2 py-1.5 text-[11px] font-black text-slate-700 transition hover:bg-slate-100"><?= esc($label) ?></button>
+                                                        <button type="submit" class="w-full rounded-lg border v3-border v3-surface px-2 py-1.5 text-[11px] font-black v3-text-ink transition v3-hover-soft v3-btn v3-btn--primary"><?= esc($label) ?></button>
                                                     </form>
                                                 <?php endforeach; ?>
                                             </div>
@@ -236,17 +236,17 @@ $statusClasses = [
         <?php else: ?>
             <div class="px-5 py-14 text-center">
                 <div class="mx-auto flex max-w-md flex-col items-center">
-                    <span class="flex h-14 w-14 items-center justify-center v3-radius bg-amber-100 text-amber-700">
+                    <span class="flex h-14 w-14 items-center justify-center v3-radius v3-bg-waiting v3-text-warning">
                         <i class="fas fa-cart-shopping text-xl"></i>
                     </span>
-                    <p class="mt-4 text-sm font-black text-slate-700"><?= esc($tr('noReorderLinesYet')) ?></p>
-                    <p class="mt-1 text-sm font-semibold text-slate-500"><?= esc($tr('addItemsFromLowStock')) ?></p>
+                    <p class="mt-4 text-sm font-black v3-text-ink"><?= esc($tr('noReorderLinesYet')) ?></p>
+                    <p class="mt-1 text-sm font-semibold v3-text-muted"><?= esc($tr('addItemsFromLowStock')) ?></p>
                     <div class="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
-                        <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700">
+                        <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-bg-danger px-4 py-2.5 text-sm font-black v3-text-on-primary transition v3-hover-danger v3-btn v3-btn--danger">
                             <i class="fas fa-exclamation-triangle"></i>
                             <span><?= esc($tr('openLowStock')) ?></span>
                         </a>
-                        <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border bg-slate-100 px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-200">
+                        <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-bg-soft px-4 py-2.5 text-sm font-black v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                             <i class="fas fa-boxes"></i>
                             <span><?= esc($tr('inventoryItems')) ?></span>
                         </a>

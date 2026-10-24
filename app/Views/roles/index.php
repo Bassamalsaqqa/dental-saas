@@ -45,14 +45,14 @@
             <div class="mt-6 flex flex-wrap gap-3">
                 <?php if ($global_mode): ?>
                     <?php if (has_permission('settings', 'edit')): ?>
-                        <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm transition">
+                        <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm transition v3-btn v3-btn--secondary">
                             <i class="fas fa-sync-alt mr-2"></i><?= esc($tr('syncPermissions')) ?>
                         </a>
                     <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if (has_permission('users', 'create') || has_permission('users', 'roles')): ?>
-                    <a href="<?= workflow_context_url($rolesRoute . '/create') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm transition hover:-translate-y-0.5">
+                    <a href="<?= workflow_context_url($rolesRoute . '/create') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm transition hover:-translate-y-0.5 v3-btn v3-btn--secondary">
                         <i class="fas fa-plus mr-2"></i><?= esc($tr('createRole')) ?>
                     </a>
                 <?php endif; ?>
@@ -61,17 +61,17 @@
 
     <!-- RBAC Status -->
     <?php if (isset($diagnostics) && !$diagnostics['rbac_ready']): ?>
-        <div class="mb-6 bg-yellow-50 border border-yellow-200 p-4">
+        <div class="mb-6 v3-bg-waiting border v3-border-default p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                    <i class="fas fa-exclamation-triangle v3-text-warning text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800"><?= esc($tr('rbacSystemNotReady')) ?></h3>
-                    <div class="mt-2 text-sm text-yellow-700">
+                    <h3 class="text-sm font-medium v3-text-warning"><?= esc($tr('rbacSystemNotReady')) ?></h3>
+                    <div class="mt-2 text-sm v3-text-warning">
                         <p><?= esc($tr('rbacNotInitializedUsers')) ?></p>
                         <div class="mt-3">
-                            <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-3 py-2 bg-yellow-600 text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors">
+                            <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-3 py-2 v3-bg-warning text-sm font-medium rounded-lg v3-hover-primary transition-colors v3-btn v3-btn--secondary">
                                 <i class="fas fa-cog mr-2"></i><?= esc($tr('initializeRbacSystem')) ?>
                             </a>
                         </div>
@@ -83,14 +83,14 @@
 
     <!-- Flash Messages -->
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="mb-6 bg-green-50 border border-green-200 p-4">
+        <div class="mb-6 v3-bg-paid border v3-border-default p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    <i class="fas fa-check-circle v3-text-primary text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800"><?= esc($tr('success')) ?></h3>
-                    <div class="mt-2 text-sm text-green-700">
+                    <h3 class="text-sm font-medium v3-text-primary"><?= esc($tr('success')) ?></h3>
+                    <div class="mt-2 text-sm v3-text-primary">
                         <p><?= session()->getFlashdata('success') ?></p>
                     </div>
                 </div>
@@ -99,14 +99,14 @@
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 p-4">
+        <div class="mb-6 v3-bg-alert border v3-border-default p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                    <i class="fas fa-exclamation-circle v3-text-danger text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800"><?= esc($tr('error')) ?></h3>
-                    <div class="mt-2 text-sm text-red-700">
+                    <h3 class="text-sm font-medium v3-text-danger"><?= esc($tr('error')) ?></h3>
+                    <div class="mt-2 text-sm v3-text-danger">
                         <p><?= session()->getFlashdata('error') ?></p>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
         <div class="roles-stat-card">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.14em] text-emerald-100/80"><?= esc($tr('activeRoles')) ?></p>
+                    <p class="text-xs uppercase tracking-[0.14em] v3-text-primary"><?= esc($tr('activeRoles')) ?></p>
                     <p class="mt-3 v3-title"><?= $activeRoles ?></p>
                 </div>
                 <div class="p-3"><i class="fas fa-check-circle text-xl"></i></div>
@@ -160,8 +160,8 @@
             <p class="mt-1 text-sm font-semibold"><?= esc($tr('manageSystemRolesPermissions')) ?></p>
         </div>
         <div class="flex flex-wrap gap-2 text-xs">
-            <span class="px-3 py-1.5 ring-1"><?= esc($tr('systemRoles')) ?>: <?= $systemRoles ?></span>
-            <span class="bg-emerald-50 px-3 py-1.5 text-emerald-700 ring-1 ring-emerald-100"><?= esc($tr('activeRoles')) ?>: <?= $activeRoles ?></span>
+            <span class="px-3 py-1.5 border"><?= esc($tr('systemRoles')) ?>: <?= $systemRoles ?></span>
+            <span class="v3-bg-paid px-3 py-1.5 v3-text-primary border v3-border-default"><?= esc($tr('activeRoles')) ?>: <?= $activeRoles ?></span>
         </div>
     </section>
 
@@ -196,7 +196,7 @@
                         <div class="roles-status-item">
                             <span class="roles-status-label"><?= esc($tr('active')) ?></span>
                             <span class="roles-status-value">
-                                <span class="h-2 w-2 <?= $isActiveRole ? 'bg-emerald-200' : 'bg-rose-200' ?>"></span>
+                                <span class="h-2 w-2 <?= $isActiveRole ? 'v3-bg-paid' : 'v3-bg-alert' ?>"></span>
                                 <?= $isActiveRole ? esc($tr('active')) : esc($tr('inactive')) ?>
                             </span>
                         </div>
@@ -233,7 +233,7 @@
                         <div class="roles-metric">
                             <div class="flex items-center justify-between gap-3">
                                 <p class="text-[11px] uppercase tracking-[0.12em]"><?= esc($tr('permissions')) ?></p>
-                                <i class="fas fa-key text-teal-500"></i>
+                                <i class="fas fa-key v3-text-primary"></i>
                             </div>
                             <p class="mt-1 text-xl"><?= $rolePermissionCount ?></p>
                         </div>
@@ -249,13 +249,13 @@
                                     </a>
                                 <?php endif; ?>
                                 <?php if (has_permission('users', 'delete')): ?>
-                                    <button onclick="deleteRole(<?= $role['id'] ?>)" class="roles-action bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100">
+                                    <button onclick="deleteRole(<?= $role['id'] ?>)" class="roles-action v3-bg-alert v3-text-danger border v3-border-default v3-hover-danger v3-btn v3-btn--danger">
                                         <i class="fas fa-trash"></i>
                                         <?= esc($tr('delete')) ?>
                                     </button>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <span class="roles-action ring-1">
+                                <span class="roles-action border">
                                     <i class="fas fa-lock"></i>
                                     <?= $isSystemRole ? esc($tr('systemRoles')) : esc($tr('readOnly')) ?>
                                 </span>
@@ -263,7 +263,7 @@
                         </div>
 
                         <?php if ($isEditable && has_permission('users', 'edit')): ?>
-                            <button onclick="toggleRoleStatus(<?= $role['id'] ?>, <?= $isActiveRole ? 0 : 1 ?>)" class="roles-action <?= $isActiveRole ? 'bg-amber-50 text-amber-800 ring-1 ring-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 hover:bg-emerald-100' ?>">
+                            <button onclick="toggleRoleStatus(<?= $role['id'] ?>, <?= $isActiveRole ? 0 : 1 ?>)" class="roles-action <?= $isActiveRole ? 'v3-bg-waiting v3-text-warning border v3-border-default v3-hover-primary' : 'v3-bg-paid v3-text-primary border v3-border-default v3-hover-primary' ?> v3-btn v3-btn--secondary">
                                 <i class="fas <?= $isActiveRole ? 'fa-pause' : 'fa-play' ?>"></i>
                                 <?= $isActiveRole ? esc($tr('deactivate')) : esc($tr('activate')) ?>
                             </button>
@@ -282,7 +282,7 @@
             </div>
             <h3 class="text-xl"><?= esc($tr('noRolesFound')) ?></h3>
             <p class="mx-auto mt-2 max-w-md text-sm font-semibold"><?= esc($tr('getStartedCreateFirstRole')) ?></p>
-            <a href="<?= workflow_context_url($rolesRoute . '/create') ?>" class="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 text-sm transition">
+            <a href="<?= workflow_context_url($rolesRoute . '/create') ?>" class="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 text-sm transition v3-btn v3-btn--secondary">
                 <i class="fas fa-plus"></i><?= esc($tr('createRole')) ?>
             </a>
         </div>

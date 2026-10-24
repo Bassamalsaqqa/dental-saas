@@ -34,8 +34,8 @@ $hasApproval = !empty($payload['approval_id']);
 <?php foreach (['amount_original','reason','idempotency_key'] as $field): ?><input type="hidden" name="<?= esc($field, 'attr') ?>" value="<?= esc($payload[$field], 'attr') ?>"><?php endforeach ?>
 <input type="hidden" name="source_hash" value="<?= esc($preview['source_hash'], 'attr') ?>">
 <?php if ($hasApproval): ?><input type="hidden" name="approval_id" value="<?= esc($payload['approval_id'], 'attr') ?>"><?php endif ?>
-<label class="ic-check"><input type="checkbox" name="confirm" value="1" required><span><?= esc($tr($isApproval ? 'approveConfirm' : 'issueConfirm')) ?></span></label>
-<button class="ic-button" type="submit"><?= esc($tr($isApproval ? 'approveAction' : 'issueAction')) ?></button>
+<label class="ic-check"><input type="checkbox" name="confirm" value="1" required class="v3-checkbox"><span><?= esc($tr($isApproval ? 'approveConfirm' : 'issueConfirm')) ?></span></label>
+<button class="ic-button v3-btn v3-btn--primary" type="submit"><?= esc($tr($isApproval ? 'approveAction' : 'issueAction')) ?></button>
 </form><?php endif ?>
 <p class="ic-help"><?= esc($tr('snapshotNotice')) ?></p><div class="ic-actions"><a href="<?= esc(site_url('finance/' . $invoiceId . '/corrections'), 'attr') ?>"><?= esc($tr('returnCorrections')) ?></a></div>
 </main>

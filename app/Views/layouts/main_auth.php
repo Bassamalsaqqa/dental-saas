@@ -77,7 +77,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= esc(asset_version('assets/css/tailwind.css')) ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/app-drawer.css') ?>?v=<?= esc(asset_version('assets/css/app-drawer.css')) ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= esc(asset_version('assets/vendor/fontawesome/css/all.min.css')) ?>">
+    <link rel="stylesheet" media="print" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= esc(asset_version('assets/vendor/fontawesome/css/all.min.css')) ?>">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- DataTables Buttons CSS - Only load for pages that need DataTables -->
     <?php if (!isset($disableDataTables) || !$disableDataTables): ?>
@@ -128,6 +128,8 @@
 <?php if ($segment1 === 'odontogram'): ?>
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-chart-chrome.css') ?>?v=<?= esc(asset_version('assets/css/v3-chart-chrome.css')) ?>">
 <?php endif; ?>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
 </head>
 <body class="denta-v3 min-h-screen" data-v3-module="<?= esc($segment1) ?>">
     <a class="v3-skip-link" href="#workspace-content"><?= esc(lang('V3.skipToContent')) ?></a>
@@ -148,12 +150,12 @@
             })();
         </script>
         <!-- Enhanced Sidebar Header -->
-        <div class="px-3 pb-2.5 pt-3 border-b border-white/10" id="sidebar-header">
+        <div class="px-3 pb-2.5 pt-3 border-b v3-border-default" id="sidebar-header">
             <div class="flex items-center">
-                <a href="<?= base_url('dashboard') ?>" class="tenant-sidebar-brand flex items-center space-x-3 group cursor-pointer rounded-2xl p-2 transition-all duration-200 hover:bg-white/10">
+                <a href="<?= base_url('dashboard') ?>" class="tenant-sidebar-brand flex items-center space-x-3 group cursor-pointer v3-radius p-2 transition-all duration-200 v3-hover-soft">
                     <div class="relative group">
-                            <div class="absolute inset-0 rounded-xl opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
-                            <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 transition-all duration-200">
+                            <div class="absolute inset-0 v3-radius opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
+                            <div class="relative w-10 h-10 v3-radius flex items-center justify-center v3-elevation-none group-hover:scale-105 transition-all duration-200">
                             <?php if (!empty($clinic['logo_path'])): ?>
                                 <?php
                                     $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0)
@@ -162,15 +164,15 @@
                                 ?>
                                 <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain">
                             <?php else: ?>
-                                <i class="fas fa-tooth text-white text-lg"></i>
+                                <i class="fas fa-tooth v3-text-on-primary text-lg"></i>
                             <?php endif; ?>
                         </div>
                     </div>
                     <div id="sidebar-title" class="min-w-0 flex-shrink-0">
-                        <h1 class="text-base font-black text-white whitespace-nowrap"><?= esc($clinic['name']) ?></h1>
+                        <h1 class="text-base font-black v3-text-on-primary whitespace-nowrap"><?= esc($clinic['name']) ?></h1>
                         <div class="flex items-center space-x-1">
-                            <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-                            <p class="text-xs text-blue-100/75 font-bold whitespace-nowrap"><?= esc($clinic['tagline']) ?></p>
+                            <div class="w-1.5 h-1.5 v3-bg-primary rounded-full animate-pulse"></div>
+                            <p class="text-xs v3-text-primary font-bold whitespace-nowrap"><?= esc($clinic['tagline']) ?></p>
                         </div>
                     </div>
                 </a>
@@ -348,17 +350,17 @@
         </nav>
 
         <!-- Enhanced Sidebar Footer -->
-        <div class="p-2.5 border-t border-white/10" id="sidebar-footer">
-            <a href="<?= base_url('profile') ?>" class="tenant-sidebar-footer-card group relative block cursor-pointer rounded-2xl p-2.5 transition-all duration-200 hover:bg-white/10">
+        <div class="p-2.5 border-t v3-border-default" id="sidebar-footer">
+            <a href="<?= base_url('profile') ?>" class="tenant-sidebar-footer-card group relative block cursor-pointer v3-radius p-2.5 transition-all duration-200 v3-hover-soft">
                 <div class="relative z-10 flex items-center gap-2.5">
                     <div class="relative shrink-0">
                         <div class="absolute inset-0 rounded-full opacity-70 group-hover:opacity-95 transition-opacity duration-200"></div>
-                        <div class="relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
-                            <i class="fas fa-user text-white text-sm"></i>
+                        <div class="relative w-10 h-10 rounded-full flex items-center justify-center v3-elevation-none group-hover:scale-105 transition-all duration-200">
+                            <i class="fas fa-user v3-text-on-primary text-sm"></i>
                         </div>
                     </div>
                     <div class="min-w-0 flex-1">
-                        <div class="truncate text-sm font-black leading-5 text-white">
+                        <div class="truncate text-sm font-black leading-5 v3-text-on-primary">
                             <?php
                             $user = $user ?? null;
                             $displayName = esc($clinic['name']);
@@ -382,7 +384,7 @@
         </div>
     </aside>
 
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden" onclick="closeMobileSidebar()"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 v3-backdrop z-30 hidden md:hidden" onclick="closeMobileSidebar()"></div>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen transition-all duration-300 min-w-0" id="main-content">
@@ -401,7 +403,7 @@
 
                     <!-- Page Title -->
                     <div class="flex items-center space-x-4 min-w-0">
-                        <h2 class="text-lg sm:text-xl font-black text-slate-950 leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
+                        <h2 class="text-lg sm:text-xl font-black v3-text-ink leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
                     </div>
                 </div>
 
@@ -446,10 +448,10 @@
                         </a>
                     </div>
                     <?php if (session()->get('is_impersonating')): ?>
-                    <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="hidden sm:flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
+                    <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="hidden sm:flex items-center space-x-2 v3-radius border v3-border-default v3-bg-alert px-3 py-1.5">
                         <?= csrf_field() ?>
-                        <span class="text-xs font-semibold text-rose-600"><?= esc(lang('V3.impersonating')) ?></span>
-                        <button type="submit" class="text-xs font-semibold text-rose-700 hover:text-rose-800">
+                        <span class="text-xs font-semibold v3-text-danger"><?= esc(lang('V3.impersonating')) ?></span>
+                        <button type="submit" class="text-xs font-semibold v3-text-danger v3-hover-text-danger">
                             <?= esc(lang('V3.exitImpersonation')) ?>
                         </button>
                     </form>
@@ -462,21 +464,21 @@
                         </button>
 
                         <!-- Tooltip -->
-                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                             <?= lang('UI.switchClinic') ?> (<?= esc($clinic['name']) ?>)
-                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                         </div>
 
                         <div id="clinicSwitcherMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50 transform transition-all">
                             <div class="tenant-header-dropdown__header p-4">
-                                <p class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
-                                <p class="mt-1 truncate text-sm font-black text-slate-950"><?= esc($clinic['name']) ?></p>
+                                <p class="text-[10px] font-black v3-text-primary uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
+                                <p class="mt-1 truncate text-sm font-black v3-text-ink"><?= esc($clinic['name']) ?></p>
                             </div>
                             <div class="p-2 max-h-64 overflow-y-auto">
                                 <?php foreach ($user_memberships as $m): ?>
-                                    <a href="<?= base_url('clinic/switch/' . $m['clinic_id']) ?>" class="tenant-menu-row justify-between mb-1 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-blue-50 !text-blue-700' : '' ?>">
+                                    <a href="<?= base_url('clinic/switch/' . $m['clinic_id']) ?>" class="tenant-menu-row justify-between mb-1 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!v3-bg-scheduled !v3-text-primary' : '' ?>">
                                         <span class="flex min-w-0 items-center gap-3">
-                                            <span class="tenant-menu-row__icon <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-emerald-700 !text-white' : '' ?>">
+                                            <span class="tenant-menu-row__icon <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!v3-bg-primary !v3-text-on-primary' : '' ?>">
                                                 <i class="fas fa-hospital text-sm"></i>
                                             </span>
                                             <span class="flex min-w-0 flex-col overflow-hidden">
@@ -485,22 +487,22 @@
                                             </span>
                                         </span>
                                         <?php if ($m['clinic_id'] == session()->get('active_clinic_id')): ?>
-                                            <span class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-                                                <i class="fas fa-check text-white text-[8px]"></i>
+                                            <span class="w-5 h-5 v3-bg-primary rounded-full flex items-center justify-center flex-shrink-0 v3-elevation-none">
+                                                <i class="fas fa-check v3-text-on-primary text-[8px]"></i>
                                             </span>
                                         <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
                             <div class="tenant-header-dropdown__footer p-3 text-center">
-                                <a href="<?= base_url('clinic/select') ?>" class="inline-flex items-center space-x-1 text-[11px] text-blue-600 hover:text-blue-700 font-black uppercase tracking-wider transition-colors">
+                                <a href="<?= base_url('clinic/select') ?>" class="inline-flex items-center space-x-1 text-[11px] v3-text-primary v3-hover-text-primary font-black uppercase tracking-wider transition-colors">
                                     <i class="fas fa-th-large text-[10px]"></i>
                                     <span><?= lang('UI.allClinics') ?></span>
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <div class="hidden sm:block h-8 w-px bg-gray-200 mx-1 mobile-hide-compact"></div>
+                    <div class="hidden sm:block h-8 w-px v3-bg-sand mx-1 mobile-hide-compact"></div>
                     <?php endif; ?>
 
                     <!-- System Action Icons -->
@@ -510,9 +512,9 @@
                             <a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="tenant-header-button">
                                 <i class="fas fa-user-plus text-sm"></i>
                             </a>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                                 <?= lang('UI.newPatient') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                             </div>
                         </div>
 
@@ -521,9 +523,9 @@
                             <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="tenant-header-button">
                                 <i class="fas fa-calendar-plus text-sm"></i>
                             </a>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                                 <?= lang('UI.newAppointment') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                             </div>
                         </div>
 
@@ -532,9 +534,9 @@
                             <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="tenant-header-button">
                                 <i class="fas fa-stethoscope text-sm"></i>
                             </a>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                                 <?= lang('UI.newExamination') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                             </div>
                         </div>
 
@@ -542,11 +544,11 @@
                         <div class="relative group">
                             <button id="notifications-trigger" class="tenant-header-button" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
                                 <i class="fas fa-bell text-sm"></i>
-                                <span id="notification-count" class="absolute -top-1 <?= !empty($is_rtl) ? '-left-1' : '-right-1' ?> bg-red-500 text-white text-xs rounded-full min-w-[1rem] h-4 px-1 inline-flex items-center justify-center font-bold shadow-sm hidden text-[10px]">0</span>
+                                <span id="notification-count" class="absolute -top-1 <?= !empty($is_rtl) ? '-left-1' : '-right-1' ?> v3-bg-danger v3-text-on-primary text-xs rounded-full min-w-[1rem] h-4 px-1 inline-flex items-center justify-center font-bold v3-elevation-none hidden text-[10px]">0</span>
                             </button>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                                 <?= lang('UI.notifications') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                             </div>
                         </div>
 
@@ -557,20 +559,20 @@
                         <button id="user-menu-trigger" aria-label="<?= esc(lang('UI.profileMenu')) ?>" type="button" onclick="toggleUserMenu()" class="tenant-header-button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
                             <i class="fas fa-user text-sm"></i>
                         </button>
-                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                             <?= lang('UI.profileMenu') ?>
-                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                         </div>
 
                         <!-- User Menu Dropdown -->
                         <div id="userMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50">
                             <div class="tenant-header-dropdown__header p-4">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-user text-white text-lg"></i>
+                                    <div class="w-12 h-12 v3-radius flex items-center justify-center v3-elevation-none">
+                                        <i class="fas fa-user v3-text-on-primary text-lg"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="truncate text-sm font-black text-slate-950">
+                                        <div class="truncate text-sm font-black v3-text-ink">
                                             <?php
                                             $displayName = 'User';
                                             if (isset($user) and $user) {
@@ -587,10 +589,10 @@
                                             echo $displayName;
                                             ?>
                                         </div>
-                                        <div class="truncate text-xs font-bold text-slate-500">
+                                        <div class="truncate text-xs font-bold v3-text-muted">
                                             <?= isset($user) && $user && property_exists($user, 'email') ? htmlspecialchars($user->email) : 'user@example.com' ?>
                                         </div>
-                                        <div class="mt-2 inline-flex rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-black text-blue-700">
+                                        <div class="mt-2 inline-flex rounded-full border v3-border-default v3-bg-scheduled px-2 py-1 text-[11px] font-black v3-text-primary">
                                             <?= isset($user_groups) && !empty($user_groups) ? $user_groups[0]->name : 'User' ?>
                                         </div>
                                     </div>
@@ -611,17 +613,17 @@
                                 </a>
 
                                 <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
-                                    <div class="border-t border-gray-100 my-2"></div>
+                                    <div class="border-t v3-border-default my-2"></div>
                                     <form action="<?= base_url('controlplane/enter') ?>" method="post">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="tenant-menu-row w-full text-start !text-indigo-700 hover:!bg-indigo-50">
-                                            <span class="tenant-menu-row__icon !text-indigo-600 !bg-indigo-50"><i class="fas fa-rocket text-sm"></i></span>
+                                        <button type="submit" class="tenant-menu-row w-full text-start !v3-text-chair hover:!v3-bg-chair">
+                                            <span class="tenant-menu-row__icon !v3-text-chair !v3-bg-chair"><i class="fas fa-rocket text-sm"></i></span>
                                             <span><?= lang('UI.enterControlPlane') ?></span>
                                         </button>
                                     </form>
                                 <?php endif; ?>
 
-                                <div class="border-t border-gray-100 my-2"></div>
+                                <div class="border-t v3-border-default my-2"></div>
                                 <a href="<?= base_url('auth/logout') ?>" class="tenant-menu-row tenant-menu-row--danger">
                                     <span class="tenant-menu-row__icon"><i class="fas fa-sign-out-alt text-sm"></i></span>
                                     <span><?= lang('UI.signOut') ?></span>
@@ -632,12 +634,12 @@
 
                     <!-- Logout Button -->
                     <div class="relative group mobile-hide-compact">
-                        <a href="<?= base_url('auth/logout') ?>" class="tenant-header-button hover:!text-red-600">
+                        <a href="<?= base_url('auth/logout') ?>" class="tenant-header-button hover:!v3-text-danger">
                             <i class="fas fa-sign-out-alt text-sm"></i>
                         </a>
-                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                             <?= lang('UI.logout') ?>
-                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
                         </div>
                     </div>
                 </div>
@@ -648,13 +650,13 @@
         <main id="workspace-content" tabindex="-1" class="v3-workspace-canvas">
             <!-- Flash Messages -->
             <?php if (session()->getFlashdata('message')): ?>
-                <noscript><div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg" role="status" aria-live="polite">
+                <noscript><div class="mb-4 p-4 v3-bg-paid border v3-border-default v3-text-primary rounded-lg" role="status" aria-live="polite">
                     <?= session()->getFlashdata('message') ?>
                 </div></noscript>
             <?php endif; ?>
 
             <?php if (session()->getFlashdata('error')): ?>
-                <noscript><div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert" aria-live="assertive">
+                <noscript><div class="mb-4 p-4 v3-bg-alert border v3-border-default v3-text-danger rounded-lg" role="alert" aria-live="assertive">
                     <?= session()->getFlashdata('error') ?>
                 </div></noscript>
             <?php endif; ?>
@@ -669,11 +671,11 @@
             ?>
             <?php if (count($breadcrumbTrail) > 1): ?>
             <div class="mb-4 -mt-2">
-                <nav class="flex items-center gap-1.5 text-[11px] text-gray-400 font-medium overflow-x-auto whitespace-nowrap">
+                <nav class="flex items-center gap-1.5 text-[11px] v3-text-muted font-medium overflow-x-auto whitespace-nowrap">
                     <?php foreach ($breadcrumbTrail as $i => $step): ?>
-                        <?php if ($i > 0): ?><span class="text-gray-300">/</span><?php endif; ?>
+                        <?php if ($i > 0): ?><span class="v3-text-muted">/</span><?php endif; ?>
                         <a href="<?= esc($step['url']) ?>"
-                           class="hover:text-gray-700 transition-colors <?= $i === count($breadcrumbTrail) - 1 ? 'text-gray-600 font-semibold' : '' ?>">
+                           class="v3-hover-text-ink transition-colors <?= $i === count($breadcrumbTrail) - 1 ? 'v3-text-muted font-semibold' : '' ?>">
                             <?= esc($step['label']) ?>
                         </a>
                     <?php endforeach; ?>
@@ -703,15 +705,15 @@
         <div class="tenant-header-dropdown__header shrink-0 px-4 py-4">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <h3 id="notifications-title" class="text-sm font-black text-slate-950"><?= lang('UI.notificationCenterTitle') ?></h3>
-                    <p id="notifications-summary" class="mt-1 text-xs font-bold text-slate-500"><?= lang('UI.notificationCenterDesc') ?></p>
+                    <h3 id="notifications-title" class="text-sm font-black v3-text-ink"><?= lang('UI.notificationCenterTitle') ?></h3>
+                    <p id="notifications-summary" class="mt-1 text-xs font-bold v3-text-muted"><?= lang('UI.notificationCenterDesc') ?></p>
                 </div>
-                <button type="button" onclick="markAllAsRead()" class="shrink-0 rounded-xl border border-blue-200 bg-white px-3 py-1.5 text-xs font-black text-blue-700 shadow-sm transition hover:bg-blue-50"><?= lang('UI.markAllAsRead') ?></button>
+                <button type="button" onclick="markAllAsRead()" class="shrink-0 v3-radius border v3-border-default v3-bg-panel px-3 py-1.5 text-xs font-black v3-text-primary v3-elevation-none transition v3-hover-primary"><?= lang('UI.markAllAsRead') ?></button>
             </div>
         </div>
         <div id="notifications-list" class="min-h-0 flex-1 overflow-y-auto px-2 py-2.5" role="list" style="overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"></div>
         <div class="tenant-header-dropdown__footer shrink-0 px-4 py-3">
-            <a href="<?= base_url('notifications') ?>" class="inline-flex items-center text-sm font-black text-blue-600 hover:text-blue-800"><?= lang('UI.viewAllNotifications') ?></a>
+            <a href="<?= base_url('notifications') ?>" class="inline-flex items-center text-sm font-black v3-text-primary v3-hover-text-primary"><?= lang('UI.viewAllNotifications') ?></a>
         </div>
     </div>
 </div>
@@ -1209,18 +1211,18 @@
             emptyState.className = 'px-4 py-8 text-center';
 
             const iconWrap = document.createElement('div');
-            iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400';
+            iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full v3-bg-soft v3-text-muted';
 
             const icon = document.createElement('i');
             icon.className = 'fas fa-bell-slash text-lg';
             iconWrap.appendChild(icon);
 
             const title = document.createElement('p');
-            title.className = 'mt-4 text-sm font-semibold text-slate-900';
+            title.className = 'mt-4 text-sm font-semibold v3-text-ink';
             title.textContent = notificationsUi.empty;
 
             const description = document.createElement('p');
-            description.className = 'mt-1 text-sm text-slate-500';
+            description.className = 'mt-1 text-sm v3-text-muted';
             description.textContent = notificationsUi.emptyDesc;
 
             emptyState.appendChild(iconWrap);
@@ -1235,7 +1237,7 @@
         notifications.forEach((notification) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'block w-full rounded-xl border border-slate-100 bg-white/80 px-3.5 py-3 text-start shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-50/70 focus:bg-blue-50/70 focus:outline-none';
+            item.className = 'block w-full v3-radius border v3-border-default v3-bg-panel px-3.5 py-3 text-start v3-elevation-none transition hover:-translate-y-0.5 v3-hover-primary v3-focus-control focus:outline-none';
             item.setAttribute('role', 'listitem');
             item.onclick = async function () {
                 if (!notification.is_read) {
@@ -1249,7 +1251,7 @@
             row.className = `flex items-start gap-3 ${notificationsUi.isRtl ? 'text-right' : 'text-left'}`;
 
             const iconWrap = document.createElement('div');
-            iconWrap.className = `mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${getNotificationIconBgClass(notification.color)}`;
+            iconWrap.className = `mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center v3-radius ${getNotificationIconBgClass(notification.color)}`;
 
             const icon = document.createElement('i');
             icon.className = `${notification.icon} ${getNotificationIconClass(notification.color)} text-sm`;
@@ -1265,11 +1267,11 @@
             textWrap.className = 'min-w-0 flex-1';
 
             const title = document.createElement('p');
-            title.className = 'text-[13px] font-black leading-5 text-slate-950';
+            title.className = 'text-[13px] font-black leading-5 v3-text-ink';
             title.textContent = notification.title || '';
 
             const message = document.createElement('p');
-            message.className = 'mt-1 line-clamp-2 text-[13px] font-semibold leading-5 text-slate-600';
+            message.className = 'mt-1 line-clamp-2 text-[13px] font-semibold leading-5 v3-text-muted';
             message.textContent = notification.message || '';
 
             textWrap.appendChild(title);
@@ -1278,13 +1280,13 @@
 
             if (!notification.is_read) {
                 const unread = document.createElement('span');
-                unread.className = 'mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500';
+                unread.className = 'mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full v3-bg-primary';
                 unread.setAttribute('aria-hidden', 'true');
                 header.appendChild(unread);
             }
 
             const meta = document.createElement('div');
-            meta.className = `mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-500 ${notificationsUi.isRtl ? 'justify-start' : ''}`;
+            meta.className = `mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold v3-text-muted ${notificationsUi.isRtl ? 'justify-start' : ''}`;
 
             const time = document.createElement('span');
             time.textContent = formatTime(notification.created_at);
@@ -1298,7 +1300,7 @@
 
             if (notification.type_label) {
                 const badge = document.createElement('span');
-                badge.className = 'inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 font-black text-slate-600';
+                badge.className = 'inline-flex items-center rounded-full border v3-border-default v3-bg-soft px-2 py-0.5 font-black v3-text-muted';
                 badge.textContent = notification.type_label;
                 meta.appendChild(badge);
             }
@@ -1328,19 +1330,19 @@
         state.className = 'px-4 py-8 text-center';
 
         const iconWrap = document.createElement('div');
-        iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500';
+        iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full v3-bg-alert v3-text-danger';
 
         const icon = document.createElement('i');
         icon.className = 'fas fa-bell-slash text-lg';
         iconWrap.appendChild(icon);
 
         const title = document.createElement('p');
-        title.className = 'mt-4 text-sm font-semibold text-slate-900';
+        title.className = 'mt-4 text-sm font-semibold v3-text-ink';
         title.textContent = notificationsUi.loadFailed;
 
         const retry = document.createElement('button');
         retry.type = 'button';
-        retry.className = 'mt-4 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50';
+        retry.className = 'mt-4 inline-flex items-center rounded-lg border v3-border-default px-3 py-2 text-sm font-semibold v3-text-ink transition v3-hover-soft';
         retry.textContent = notificationsUi.retry;
         retry.onclick = function () {
             loadNotifications({ showList: true });
@@ -1354,28 +1356,28 @@
 
     function getNotificationIconBgClass(color) {
         const colorMap = {
-            blue: 'bg-blue-50',
-            green: 'bg-emerald-50',
-            yellow: 'bg-amber-50',
-            purple: 'bg-violet-50',
-            red: 'bg-rose-50',
-            gray: 'bg-slate-100',
+            blue: 'v3-bg-scheduled',
+            green: 'v3-bg-paid',
+            yellow: 'v3-bg-waiting',
+            purple: 'v3-bg-chair',
+            red: 'v3-bg-alert',
+            gray: 'v3-bg-soft',
         };
 
-        return colorMap[color] || 'bg-slate-100';
+        return colorMap[color] || 'v3-bg-soft';
     }
 
     function getNotificationIconClass(color) {
         const colorMap = {
-            blue: 'text-blue-600',
-            green: 'text-emerald-600',
-            yellow: 'text-amber-600',
-            purple: 'text-violet-600',
-            red: 'text-rose-600',
-            gray: 'text-slate-600',
+            blue: 'v3-text-primary',
+            green: 'v3-text-primary',
+            yellow: 'v3-text-warning',
+            purple: 'v3-text-chair',
+            red: 'v3-text-danger',
+            gray: 'v3-text-muted',
         };
 
-        return colorMap[color] || 'text-slate-600';
+        return colorMap[color] || 'v3-text-muted';
     }
 
     function formatTime(dateString) {

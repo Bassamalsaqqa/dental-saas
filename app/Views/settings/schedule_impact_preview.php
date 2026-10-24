@@ -6,16 +6,16 @@
     <!-- Top breadcrumb and title -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-            <a href="<?= base_url('settings?tab=hours') ?>" class="text-sm font-medium text-orange-600 hover:text-orange-700 flex items-center gap-1">
+            <a href="<?= base_url('settings?tab=hours') ?>" class="text-sm font-medium v3-text-warning v3-hover-text-warning flex items-center gap-1">
                 <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                 <span><?= esc(lang('DoctorScheduleSettings.backToHours')) ?></span>
             </a>
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-2"><?= esc(lang('DoctorScheduleSettings.impactReport')) ?></h1>
-            <p class="text-sm text-slate-600 mt-1"><?= esc(lang('DoctorScheduleSettings.impactReportHelp')) ?></p>
+            <h1 class="text-2xl sm:text-3xl font-bold v3-text-ink mt-2"><?= esc(lang('DoctorScheduleSettings.impactReport')) ?></h1>
+            <p class="text-sm v3-text-muted mt-1"><?= esc(lang('DoctorScheduleSettings.impactReportHelp')) ?></p>
         </div>
         <div class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-4 py-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('DoctorScheduleSettings.changedSetting')) ?>:</span>
-            <span class="font-semibold text-slate-800"><?= $target_type === 'clinic_hours' ? esc(lang('DoctorScheduleSettings.clinicHours')) : esc($target_label) ?></span>
+            <span class="text-xs font-semibold uppercase tracking-wider v3-text-muted"><?= esc(lang('DoctorScheduleSettings.changedSetting')) ?>:</span>
+            <span class="font-semibold v3-text-ink"><?= $target_type === 'clinic_hours' ? esc(lang('DoctorScheduleSettings.clinicHours')) : esc($target_label) ?></span>
         </div>
     </div>
 
@@ -26,7 +26,7 @@
     </div>
     <?php $proposal = json_decode($proposed_dto_json, true, 512, JSON_THROW_ON_ERROR); ?>
     <section class="mb-6 v3-radius border v3-border v3-surface p-4 sm:p-6" aria-labelledby="proposed-settings-heading" data-proposed-settings>
-        <h2 id="proposed-settings-heading" class="mb-4 text-lg font-bold text-slate-900"><?= esc(lang('DoctorScheduleSettings.proposedSettings')) ?></h2>
+        <h2 id="proposed-settings-heading" class="mb-4 text-lg font-bold v3-text-ink"><?= esc(lang('DoctorScheduleSettings.proposedSettings')) ?></h2>
         <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <?php if ($target_type === 'clinic_hours'): ?>
             <div><dt class="font-semibold"><?= esc(lang('DoctorScheduleSettings.clinicHours')) ?></dt><dd dir="ltr"><?= esc($proposal['working_hours_start']) ?> – <?= esc($proposal['working_hours_end']) ?></dd></div>
@@ -72,26 +72,26 @@
     <!-- Summary Metrics Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8">
         <div class="v3-corner border v3-border v3-surface p-4">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.totalFutureVisits')) ?></div>
-            <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1" dir="ltr"><?= esc((string) $report['total_future_visits']) ?></div>
+            <div class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.totalFutureVisits')) ?></div>
+            <div class="text-2xl sm:text-3xl font-extrabold v3-text-ink mt-1" dir="ltr"><?= esc((string) $report['total_future_visits']) ?></div>
         </div>
         <div class="v3-corner border v3-border v3-surface p-4">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.beforeStatus')) ?></div>
-            <div class="text-2xl sm:text-3xl font-extrabold <?= $report['before_conflicts_count'] > 0 ? 'text-amber-600' : 'text-emerald-600' ?> mt-1" dir="ltr">
+            <div class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.beforeStatus')) ?></div>
+            <div class="text-2xl sm:text-3xl font-extrabold <?= $report['before_conflicts_count'] > 0 ? 'v3-text-warning' : 'v3-text-primary' ?> mt-1" dir="ltr">
                 <?= esc((string) $report['before_conflicts_count']) ?>
             </div>
-            <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
+            <span class="text-xs v3-text-muted"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
         </div>
         <div class="v3-corner border v3-border v3-surface p-4">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.afterStatus')) ?></div>
-            <div class="text-2xl sm:text-3xl font-extrabold <?= $report['after_conflicts_count'] > 0 ? 'text-rose-600' : 'text-emerald-600' ?> mt-1" dir="ltr">
+            <div class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.afterStatus')) ?></div>
+            <div class="text-2xl sm:text-3xl font-extrabold <?= $report['after_conflicts_count'] > 0 ? 'v3-text-danger' : 'v3-text-primary' ?> mt-1" dir="ltr">
                 <?= esc((string) $report['after_conflicts_count']) ?>
             </div>
-            <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
+            <span class="text-xs v3-text-muted"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
         </div>
         <div class="v3-corner border v3-border v3-surface p-4">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.proofReference')) ?></div>
-            <div class="text-xs font-mono text-slate-700 truncate mt-2" dir="ltr" title="<?= esc($report['state_digest']) ?>">
+            <div class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.proofReference')) ?></div>
+            <div class="text-xs font-mono v3-text-ink truncate mt-2" dir="ltr" title="<?= esc($report['state_digest']) ?>">
                 <?= esc(substr($report['state_digest'], 0, 12)) ?>...
             </div>
 
@@ -110,19 +110,19 @@
 
         <!-- Status Notification Box -->
         <?php if ($report['after_conflicts_count'] === 0): ?>
-            <div class="v3-corner border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 flex items-start gap-4">
-                <i class="fas fa-check-circle text-emerald-500 text-2xl mt-0.5"></i>
+            <div class="v3-corner border v3-border-default v3-bg-paid p-5 v3-text-primary flex items-start gap-4">
+                <i class="fas fa-check-circle v3-text-primary text-2xl mt-0.5"></i>
                 <div>
                     <h3 class="font-bold text-lg"><?= esc(lang('DoctorScheduleSettings.noConflicts')) ?></h3>
-                    <p class="text-sm text-emerald-800 mt-1"><?= esc(lang('DoctorScheduleSettings.previewClean')) ?></p>
+                    <p class="text-sm v3-text-primary mt-1"><?= esc(lang('DoctorScheduleSettings.previewClean')) ?></p>
                 </div>
             </div>
         <?php else: ?>
-            <div class="v3-corner border border-rose-200 bg-rose-50 p-5 text-rose-900 flex items-start gap-4">
-                <i class="fas fa-exclamation-triangle text-rose-500 text-2xl mt-0.5"></i>
+            <div class="v3-corner border v3-border-default v3-bg-alert p-5 v3-text-danger flex items-start gap-4">
+                <i class="fas fa-exclamation-triangle v3-text-danger text-2xl mt-0.5"></i>
                 <div>
                     <h3 class="font-bold text-lg"><?= esc(lang('DoctorScheduleSettings.unresolvedImpact')) ?></h3>
-                    <p class="text-sm text-rose-800 mt-1"><?= esc(lang('DoctorScheduleSettings.impactReportHelp')) ?></p>
+                    <p class="text-sm v3-text-danger mt-1"><?= esc(lang('DoctorScheduleSettings.impactReportHelp')) ?></p>
                 </div>
             </div>
         <?php endif; ?>
@@ -130,12 +130,12 @@
         <!-- Appointments List -->
         <div class="v3-corner border v3-border v3-surface overflow-hidden">
             <div class="border-b v3-border v3-surface px-6 py-4 flex items-center justify-between">
-                <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.reviewedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
-                <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.previewExpiryHelp')) ?></span>
+                <h2 class="font-bold v3-text-ink text-lg"><?= esc(lang('DoctorScheduleSettings.reviewedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
+                <span class="text-xs v3-text-muted"><?= esc(lang('DoctorScheduleSettings.previewExpiryHelp')) ?></span>
             </div>
 
             <?php if (empty($report['items'])): ?>
-                <div class="p-8 text-center text-slate-500">
+                <div class="p-8 text-center v3-text-muted">
                     <?= esc(lang('DoctorScheduleSettings.previewClean')) ?>
                 </div>
             <?php else: ?>
@@ -143,7 +143,7 @@
                 <div class="block overflow-x-auto">
                     <table class="w-full text-start border-collapse text-sm">
                         <thead>
-                            <tr class="border-b v3-border v3-surface text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            <tr class="border-b v3-border v3-surface text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                 <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.visit')) ?> #</th>
                                 <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.date')) ?> / <?= esc(lang('DoctorScheduleSettings.time')) ?></th>
                                 <th class="py-3.5 px-4"><?= esc(lang('DoctorScheduleSettings.providers')) ?></th>
@@ -152,70 +152,70 @@
                                 <th class="py-3.5 px-4 w-72"><?= esc(lang('DoctorScheduleSettings.retainReason')) ?></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y v3-border-default">
                             <?php foreach ($report['items'] as $item): ?>
                                 <?php
                                 $isConflict = !$item['after_outcome']['compliant'];
-                                $rowBg = $isConflict ? 'bg-rose-50/30 hover:bg-rose-50/60' : 'hover:bg-slate-50/60';
+                                $rowBg = $isConflict ? 'v3-bg-alert v3-hover-danger' : 'v3-hover-soft';
                                 ?>
                                 <tr class="transition-colors <?= $rowBg ?>">
-                                    <td class="py-3 px-4 font-mono font-semibold text-slate-800 whitespace-nowrap">
+                                    <td class="py-3 px-4 font-mono font-semibold v3-text-ink whitespace-nowrap">
                                         <span dir="ltr">#<?= esc((string) $item['appointment_id']) ?></span>
-                                        <?php if (($item['temporal_state'] ?? '') === 'in_progress'): ?><span class="block text-xs text-amber-800" data-temporal-state="in_progress"><?= esc(lang('DoctorScheduleSettings.inProgressVisit')) ?></span><?php endif; ?>
+                                        <?php if (($item['temporal_state'] ?? '') === 'in_progress'): ?><span class="block text-xs v3-text-warning" data-temporal-state="in_progress"><?= esc(lang('DoctorScheduleSettings.inProgressVisit')) ?></span><?php endif; ?>
                                         <?php if ($item['status'] === 'completed'): ?>
-                                            <span class="block text-xs font-normal text-slate-500"><?= esc(lang('DoctorScheduleSettings.completedPreserved')) ?></span>
+                                            <span class="block text-xs font-normal v3-text-muted"><?= esc(lang('DoctorScheduleSettings.completedPreserved')) ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-3 px-4 whitespace-nowrap">
-                                        <div class="font-medium text-slate-800" dir="ltr"><?= esc($item['appointment_date']) ?></div>
-                                        <div class="text-xs text-slate-500" dir="ltr"><?= esc($item['appointment_time']) ?> – <?= esc($item['end_time']) ?> (<?= esc((string) $item['duration']) ?> <?= esc(lang('DoctorScheduleSettings.minutes')) ?>)</div>
+                                        <div class="font-medium v3-text-ink" dir="ltr"><?= esc($item['appointment_date']) ?></div>
+                                        <div class="text-xs v3-text-muted" dir="ltr"><?= esc($item['appointment_time']) ?> – <?= esc($item['end_time']) ?> (<?= esc((string) $item['duration']) ?> <?= esc(lang('DoctorScheduleSettings.minutes')) ?>)</div>
                                     </td>
                                     <td class="py-3 px-4">
-                                        <div class="font-medium text-slate-800"><?= esc($item['provider_name'] ?? $item['chair_name'] ?? '—') ?></div>
+                                        <div class="font-medium v3-text-ink"><?= esc($item['provider_name'] ?? $item['chair_name'] ?? '—') ?></div>
                                         <?php if ($item['provider_user_id'] !== null): ?>
-                                            <span class="text-xs font-mono text-slate-500" dir="ltr">#<?= esc((string) $item['provider_user_id']) ?></span>
+                                            <span class="text-xs font-mono v3-text-muted" dir="ltr">#<?= esc((string) $item['provider_user_id']) ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-3 px-4">
                                         <?php if ($item['before_outcome']['compliant']): ?>
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                                            <span class="inline-flex items-center gap-1 rounded-full v3-bg-paid px-2.5 py-0.5 text-xs font-semibold v3-text-primary">
                                                 <i class="fas fa-check text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.compliant')) ?>
                                             </span>
                                         <?php else: ?>
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800" title="<?= esc($item['before_outcome']['reason']) ?>">
+                                            <span class="inline-flex items-center gap-1 rounded-full v3-bg-waiting px-2.5 py-0.5 text-xs font-semibold v3-text-warning" title="<?= esc($item['before_outcome']['reason']) ?>">
                                                 <i class="fas fa-exclamation text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.needsReview')) ?>
                                             </span>
-                                            <span class="block text-xs text-amber-700 mt-1 max-w-xs"><?= esc($item['before_outcome']['reason']) ?></span>
+                                            <span class="block text-xs v3-text-warning mt-1 max-w-xs"><?= esc($item['before_outcome']['reason']) ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-3 px-4">
                                         <?php if ($item['after_outcome']['compliant']): ?>
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                                            <span class="inline-flex items-center gap-1 rounded-full v3-bg-paid px-2.5 py-0.5 text-xs font-semibold v3-text-primary">
                                                 <i class="fas fa-check text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.compliant')) ?>
                                             </span>
                                         <?php else: ?>
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800" title="<?= esc($item['after_outcome']['reason']) ?>">
+                                            <span class="inline-flex items-center gap-1 rounded-full v3-bg-alert px-2.5 py-0.5 text-xs font-semibold v3-text-danger" title="<?= esc($item['after_outcome']['reason']) ?>">
                                                 <i class="fas fa-times text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.needsReview')) ?>
                                             </span>
-                                            <span class="block text-xs text-rose-700 mt-1 max-w-xs font-medium"><?= esc($item['after_outcome']['reason']) ?></span>
+                                            <span class="block text-xs v3-text-danger mt-1 max-w-xs font-medium"><?= esc($item['after_outcome']['reason']) ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-3 px-4">
                                         <?php if ($isConflict): ?>
                                             <div class="space-y-2">
                                                 <input type="hidden" name="dispositions[<?= esc((string) $item['appointment_id'], 'attr') ?>][action]" value="retain">
-                                                <label class="block text-xs font-semibold text-slate-700">
+                                                <label class="block text-xs font-semibold v3-text-ink">
                                                     <?= esc(lang('DoctorScheduleSettings.retainReason')) ?>:
-                                                    <textarea name="dispositions[<?= esc((string) $item['appointment_id'], 'attr') ?>][reason]" rows="2" class="mt-1 w-full rounded-lg border v3-border p-2 text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-500" placeholder="<?= esc(lang('DoctorScheduleSettings.reasonRequired'), 'attr') ?>" required minlength="3" maxlength="500"></textarea>
+                                                    <textarea name="dispositions[<?= esc((string) $item['appointment_id'], 'attr') ?>][reason]" rows="2" class="mt-1 w-full rounded-lg border v3-border p-2 text-xs v3-focus-control focus:border v3-focus-control v3-textarea" placeholder="<?= esc(lang('DoctorScheduleSettings.reasonRequired'), 'attr') ?>" required minlength="3" maxlength="500"></textarea>
                                                 </label>
                                                 <?php if (!empty($item['edit_url'])): ?>
-                                                    <a href="<?= esc($item['edit_url'], 'attr') ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs v3-accent-text hover:text-blue-800 underline">
+                                                    <a href="<?= esc($item['edit_url'], 'attr') ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs v3-accent-text v3-hover-text-primary underline">
                                                         <i class="fas fa-external-link-alt text-[10px]"></i> <?= esc(lang('DoctorScheduleSettings.rescheduleLink')) ?>
                                                     </a>
                                                 <?php endif; ?>
                                             </div>
                                         <?php else: ?>
-                                            <span class="text-xs text-slate-400">—</span>
+                                            <span class="text-xs v3-text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -228,9 +228,9 @@
         </div>
 
         <!-- Explicit operator acknowledgment -->
-            <div class="v3-corner border border-amber-200 bg-amber-50 p-5 text-amber-950">
+            <div class="v3-corner border v3-border-default v3-bg-waiting p-5 v3-text-warning">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="acknowledged" value="1" required class="mt-1 h-5 w-5 rounded v3-border text-orange-600 focus:ring-orange-500">
+                    <input type="checkbox" name="acknowledged" value="1" required class="mt-1 h-5 w-5 rounded v3-border v3-text-warning v3-focus-control v3-checkbox">
                     <span class="text-sm font-semibold">
                         <?= esc(lang('DoctorScheduleSettings.acknowledgePrompt')) ?>
                     </span>
@@ -238,14 +238,14 @@
             </div>
 
         <p><?= esc(lang('DoctorScheduleSettings.communicationGate')) ?></p>
-        <button class="v3-radius border v3-border px-5 py-3 font-semibold text-slate-700" type="submit" name="refresh_preview" value="1" formaction="<?= esc(base_url('settings/preview-schedule-impact'), 'attr') ?>" formnovalidate><?= esc(lang('DoctorScheduleSettings.refreshReport')) ?></button>
+        <button class="v3-radius border v3-border px-5 py-3 font-semibold v3-text-ink v3-btn v3-btn--primary" type="submit" name="refresh_preview" value="1" formaction="<?= esc(base_url('settings/preview-schedule-impact'), 'attr') ?>" formnovalidate><?= esc(lang('DoctorScheduleSettings.refreshReport')) ?></button>
         <!-- Action Buttons -->
         <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t v3-border">
-            <a href="<?= base_url('settings?tab=hours') ?>" class="px-5 py-2.5 v3-radius border v3-border text-slate-700 hover:bg-slate-50 font-medium text-sm transition-colors">
+            <a href="<?= base_url('settings?tab=hours') ?>" class="px-5 py-2.5 v3-radius border v3-border v3-text-ink v3-hover-soft font-medium text-sm transition-colors">
                 <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?> mr-1"></i> <?= esc(lang('DoctorScheduleSettings.backToHours')) ?>
             </a>
             <div class="flex items-center gap-3">
-                <button type="submit" class="v3-action v3-action-primary px-6 py-3 v3-radius font-bold transition-all text-sm flex items-center gap-2">
+                <button type="submit" class="v3-action v3-action-primary px-6 py-3 v3-radius font-bold transition-all text-sm flex items-center gap-2 v3-btn v3-btn--primary">
                     <i class="fas fa-check-double"></i>
                     <span><?= esc(lang('DoctorScheduleSettings.applyChanges')) ?></span>
                 </button>

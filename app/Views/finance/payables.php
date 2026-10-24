@@ -12,19 +12,19 @@ $liquidityOptions = $liquidity_account_options ?? [];
 $returnTo = urlencode('finance/payables');
 $formatMoney = static fn($amount) => formatCurrency((float) $amount);
 $bucketCards = [
-    'current' => ['label' => $tr('currentBucket'), 'class' => 'from-emerald-50 to-green-100 text-emerald-800 border-emerald-200'],
-    'days_1_30' => ['label' => $tr('days1To30'), 'class' => 'from-amber-50 to-yellow-100 text-amber-800 border-amber-200'],
-    'days_31_60' => ['label' => $tr('days31To60'), 'class' => 'from-orange-50 to-amber-100 text-orange-800 border-orange-200'],
-    'days_61_90' => ['label' => $tr('days61To90'), 'class' => 'from-rose-50 to-red-100 text-rose-800 border-rose-200'],
-    'days_91_plus' => ['label' => $tr('days91Plus'), 'class' => 'from-slate-100 to-gray-200 text-slate-800 border-slate-300'],
+    'current' => ['label' => $tr('currentBucket'), 'class' => 'from-emerald-50 to-green-100 v3-text-primary v3-border-default'],
+    'days_1_30' => ['label' => $tr('days1To30'), 'class' => 'from-amber-50 to-yellow-100 v3-text-warning v3-border-default'],
+    'days_31_60' => ['label' => $tr('days31To60'), 'class' => 'from-orange-50 to-amber-100 v3-text-warning v3-border-default'],
+    'days_61_90' => ['label' => $tr('days61To90'), 'class' => 'from-rose-50 to-red-100 v3-text-danger v3-border-default'],
+    'days_91_plus' => ['label' => $tr('days91Plus'), 'class' => 'from-slate-100 to-gray-200 v3-text-ink v3-border-default'],
 ];
 $statusClass = static function (string $status): string {
     return match ($status) {
-        'paid' => 'bg-emerald-100 text-emerald-700',
-        'partial' => 'bg-blue-100 text-blue-700',
-        'overdue' => 'bg-rose-100 text-rose-700',
-        'pending' => 'bg-amber-100 text-amber-700',
-        default => 'bg-gray-100 text-gray-700',
+        'paid' => 'v3-bg-paid v3-text-primary',
+        'partial' => 'v3-bg-scheduled v3-text-primary',
+        'overdue' => 'v3-bg-alert v3-text-danger',
+        'pending' => 'v3-bg-waiting v3-text-warning',
+        default => 'v3-bg-soft v3-text-ink',
     };
 };
 ?>
@@ -38,28 +38,28 @@ $statusClass = static function (string $status): string {
         <section class="finance-payables-hero overflow-hidden border sm:p-6 lg:p-7">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center border">
                         <i class="fas fa-file-invoice-dollar text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-amber-100/90"><?= esc($tr('accountsPayableAging')) ?></p>
+                        <p class="text-xs uppercase tracking-wide v3-text-warning"><?= esc($tr('accountsPayableAging')) ?></p>
                         <h1 class="mt-1 v3-section-title tracking-tight v3-title"><?= esc($tr('supplierPayables')) ?></h1>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (has_permission('finance', 'create')): ?>
-                        <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-amber-800 transition hover:bg-amber-50">
+                        <a href="<?= base_url('finance/expenses/create') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm v3-text-warning transition v3-hover-primary v3-btn v3-btn--secondary">
                             <i class="fas fa-plus"></i>
                             <?= esc($tr('newSupplierExpense')) ?>
                         </a>
                     <?php endif; ?>
                     <?php if (!empty($can_access_finance_reports)): ?>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold ring-1 transition">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold border transition v3-btn v3-btn--secondary">
                             <i class="fas fa-chart-simple"></i>
                             <?= esc($tr('reports')) ?>
                         </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold ring-1 transition">
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold border transition v3-btn v3-btn--secondary">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                         <?= esc($tr('financeManagement')) ?>
                     </a>
@@ -71,9 +71,9 @@ $statusClass = static function (string $status): string {
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(180px,240px)_auto] sm:items-end">
                 <div>
                     <label for="asOfDate" class="mb-2 block text-xs uppercase tracking-wide"><?= esc($tr('asOfDate')) ?></label>
-                    <input id="asOfDate" type="date" name="as_of" value="<?= esc($as_of_date ?? date('Y-m-d')) ?>" class="w-full border-2 px-4 py-3 text-sm font-semibold focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15">
+                    <input id="asOfDate" type="date" name="as_of" value="<?= esc($as_of_date ?? date('Y-m-d')) ?>" class="w-full border-2 px-4 py-3 text-sm font-semibold v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input">
                 </div>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm transition">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm transition v3-btn v3-btn--primary">
                     <i class="fas fa-filter"></i>
                     <?= esc($tr('filter')) ?>
                 </button>
@@ -82,15 +82,15 @@ $statusClass = static function (string $status): string {
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div class="finance-payables-card">
-                <p class="text-xs uppercase tracking-wide text-amber-50/95"><?= esc($tr('openBalance')) ?></p>
+                <p class="text-xs uppercase tracking-wide v3-text-warning"><?= esc($tr('openBalance')) ?></p>
                 <p class="mt-3 v3-title"><?= $formatMoney($summary['open_balance'] ?? 0) ?></p>
             </div>
             <div class="finance-payables-card">
-                <p class="text-xs uppercase tracking-wide text-sky-50/90"><?= esc($tr('openBills')) ?></p>
+                <p class="text-xs uppercase tracking-wide v3-text-primary"><?= esc($tr('openBills')) ?></p>
                 <p class="mt-3 v3-title"><?= number_format((int) ($summary['open_count'] ?? 0)) ?></p>
             </div>
             <div class="finance-payables-card">
-                <p class="text-xs uppercase tracking-wide text-rose-50/90"><?= esc($tr('overdueBills')) ?></p>
+                <p class="text-xs uppercase tracking-wide v3-text-danger"><?= esc($tr('overdueBills')) ?></p>
                 <p class="mt-3 v3-title"><?= number_format((int) ($summary['overdue_count'] ?? 0)) ?></p>
             </div>
             <div class="finance-payables-card">
@@ -102,7 +102,7 @@ $statusClass = static function (string $status): string {
         <details class="finance-payables-panel">
             <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm">
                 <span class="inline-flex items-center gap-2">
-                    <i class="fas fa-clock-rotate-left text-amber-600"></i>
+                    <i class="fas fa-clock-rotate-left v3-text-warning"></i>
                     <?= esc($tr('accountsPayableAging')) ?>
                 </span>
                 <i class="fas fa-chevron-down text-xs transition group-open:rotate-180"></i>
@@ -122,20 +122,20 @@ $statusClass = static function (string $status): string {
                 <div class="border-b px-6 py-5">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="h-2.5 w-2.5 bg-amber-400"></div>
+                            <div class="h-2.5 w-2.5 v3-bg-warning"></div>
                             <h3 class="text-lg"><?= esc($tr('apAgingDetail')) ?></h3>
                         </div>
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-3">
-                            <button onclick="exportPayablesToPDF()" class="inline-flex items-center px-3 py-2 text-sm font-bold ring-1 transition">
-                                <i class="fas fa-file-pdf mr-2 text-red-600"></i>
+                            <button onclick="exportPayablesToPDF()" class="inline-flex items-center px-3 py-2 text-sm font-bold border transition v3-btn v3-btn--secondary">
+                                <i class="fas fa-file-pdf mr-2 v3-text-danger"></i>
                                 <?= esc($tr('exportPdf')) ?>
                             </button>
-                            <button onclick="printPayables()" class="inline-flex items-center px-3 py-2 text-sm font-bold ring-1 transition">
+                            <button onclick="printPayables()" class="inline-flex items-center px-3 py-2 text-sm font-bold border transition v3-btn v3-btn--secondary">
                                 <i class="fas fa-print mr-2"></i>
                                 <?= esc($tr('print')) ?>
                             </button>
-                            <button onclick="exportPayablesToCSV()" class="inline-flex items-center px-3 py-2 text-sm font-bold ring-1 transition">
-                                <i class="fas fa-file-csv mr-2 text-green-600"></i>
+                            <button onclick="exportPayablesToCSV()" class="inline-flex items-center px-3 py-2 text-sm font-bold border transition v3-btn v3-btn--secondary">
+                                <i class="fas fa-file-csv mr-2 v3-text-primary"></i>
                                 <?= esc($tr('exportCsv')) ?>
                             </button>
                         </div>
@@ -149,49 +149,49 @@ $statusClass = static function (string $status): string {
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-building text-green-600"></i>
+                                        <i class="fas fa-building v3-text-primary"></i>
                                         <span><?= esc($tr('supplierOrVendor')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-receipt text-green-600"></i>
+                                        <i class="fas fa-receipt v3-text-primary"></i>
                                         <span><?= esc($tr('transaction')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-tag text-green-600"></i>
+                                        <i class="fas fa-tag v3-text-primary"></i>
                                         <span><?= esc($tr('expenses')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-dollar-sign text-green-600"></i>
+                                        <i class="fas fa-dollar-sign v3-text-primary"></i>
                                         <span><?= esc($tr('total')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-info-circle text-green-600"></i>
+                                        <i class="fas fa-info-circle v3-text-primary"></i>
                                         <span><?= esc($tr('status')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-calendar text-green-600"></i>
+                                        <i class="fas fa-calendar v3-text-primary"></i>
                                         <span><?= esc($tr('dueDate')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-cogs text-green-600"></i>
+                                        <i class="fas fa-cogs v3-text-primary"></i>
                                         <span><?= esc($tr('actions')) ?></span>
                                     </div>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody id="payablesTableBody" class="divide-y divide-gray-200">
+                        <tbody id="payablesTableBody" class="divide-y v3-border-default">
                             <?php foreach ($rows as $row): ?>
                                 <?php
                                 $financeId = (int) ($row['id'] ?? 0);
@@ -216,10 +216,10 @@ $statusClass = static function (string $status): string {
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <a data-row-action href="<?= workflow_context_url('finance/' . $financeId) ?>" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
+                                        <a data-row-action href="<?= workflow_context_url('finance/' . $financeId) ?>" class="block rounded-md v3-hover-primary transition-colors duration-200 cursor-pointer">
                                             <div class="flex items-center space-x-3">
                                                 <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
-                                                    <i class="fas fa-receipt text-orange-700 text-xl"></i>
+                                                    <i class="fas fa-receipt v3-text-warning text-xl"></i>
                                                 </span>
                                                 <div class="min-w-0">
                                                     <div class="text-sm font-medium truncate"><?= esc($row['transaction_id'] ?? ('#' . $financeId)) ?></div>
@@ -229,7 +229,7 @@ $statusClass = static function (string $status): string {
                                         </a>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-800">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium v3-bg-waiting v3-text-warning">
                                             <i class="fas fa-tag mr-1"></i>
                                             <?= esc($row['expense_category'] ?? $tr('expenses')) ?>
                                         </span>
@@ -237,8 +237,8 @@ $statusClass = static function (string $status): string {
                                     <td class="px-6 py-4 whitespace-nowrap" data-order="<?= esc((string) ($row['total_amount'] ?? 0)) ?>">
                                         <div>
                                             <div class="flex items-center space-x-2">
-                                                <i class="fas fa-arrow-down text-red-600 text-xs"></i>
-                                                <span class="text-sm font-medium text-red-600"><?= $formatMoney($row['total_amount'] ?? 0) ?></span>
+                                                <i class="fas fa-arrow-down v3-text-danger text-xs"></i>
+                                                <span class="text-sm font-medium v3-text-danger"><?= $formatMoney($row['total_amount'] ?? 0) ?></span>
                                             </div>
                                             <div class="text-xs"><?= esc($tr('balanceDue')) ?>: <?= $formatMoney($balance) ?></div>
                                         </div>
@@ -251,7 +251,7 @@ $statusClass = static function (string $status): string {
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap" data-order="<?= esc($dueDate) ?>">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-calendar text-green-600 text-xs"></i>
+                                            <i class="fas fa-calendar v3-text-primary text-xs"></i>
                                             <div>
                                                 <div class="text-sm"><?= $dueDate !== '' ? esc(formatDate($dueDate)) : '-' ?></div>
                                                 <div class="text-xs"><?= $age > 0 ? esc($age . ' ' . $tr('daysPastDue')) : esc($tr('currentBucket')) ?></div>
@@ -264,15 +264,15 @@ $statusClass = static function (string $status): string {
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if (!empty($row['supplier_id'])): ?>
-                                                <a data-row-action href="<?= base_url('inventory/suppliers/' . (int) $row['supplier_id']) ?>" class="p-2 text-amber-600 hover:text-amber-700 rounded-md hover:bg-amber-50 transition-colors duration-200" title="<?= esc($tr('supplierDirectory')) ?>">
+                                                <a data-row-action href="<?= base_url('inventory/suppliers/' . (int) $row['supplier_id']) ?>" class="p-2 v3-text-warning v3-hover-text-warning rounded-md v3-hover-primary transition-colors duration-200" title="<?= esc($tr('supplierDirectory')) ?>">
                                                     <i class="fas fa-address-book"></i>
                                                 </a>
                                             <?php endif; ?>
                                             <?php if (has_permission('finance', 'edit')): ?>
-                                                <button data-row-action type="button" onclick="openPayablePaymentModal(<?= $financeId ?>, <?= esc(json_encode($balance)) ?>)" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= esc($tr('recordPayablePayment')) ?>">
+                                                <button data-row-action type="button" onclick="openPayablePaymentModal(<?= $financeId ?>, <?= esc(json_encode($balance)) ?>)" class="p-2 v3-text-primary v3-hover-text-primary rounded-md v3-hover-primary transition-colors duration-200 v3-btn v3-btn--secondary" title="<?= esc($tr('recordPayablePayment')) ?>">
                                                     <i class="fas fa-money-bill-wave"></i>
                                                 </button>
-                                                <button data-row-action type="button" onclick="markPayablePaid(<?= $financeId ?>)" class="p-2 rounded-md transition-colors duration-200" title="<?= esc($tr('markPayableAsPaid')) ?>">
+                                                <button data-row-action type="button" onclick="markPayablePaid(<?= $financeId ?>)" class="p-2 rounded-md transition-colors duration-200 v3-btn v3-btn--secondary" title="<?= esc($tr('markPayableAsPaid')) ?>">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             <?php endif; ?>
@@ -298,7 +298,7 @@ $statusClass = static function (string $status): string {
                     <h3 id="payablePaymentTitle" class="text-lg"><?= esc($tr('recordPayablePayment')) ?></h3>
                     <p id="payablePaymentHelp" class="mt-1 text-sm"></p>
                 </div>
-                <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg transition" onclick="closePayablePaymentModal()" aria-label="<?= esc($tr('cancel')) ?>">
+                <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg transition v3-btn v3-btn--icon" onclick="closePayablePaymentModal()" aria-label="<?= esc($tr('cancel')) ?>">
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
@@ -308,14 +308,14 @@ $statusClass = static function (string $status): string {
                     <label for="payablePaymentAmount" class="mb-2 block text-sm font-bold">
                         <?= esc($tr('paymentAmount')) ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                     </label>
-                    <input id="payablePaymentAmount" type="number" step="0.01" min="0.01" required class="w-full border-2 px-4 py-3 text-sm font-semibold focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15">
+                    <input id="payablePaymentAmount" type="number" step="0.01" min="0.01" required class="w-full border-2 px-4 py-3 text-sm font-semibold v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input">
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label for="payablePaymentMethod" class="mb-2 block text-sm font-bold">
                             <?= esc($tr('paymentMethodRequired')) ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                         </label>
-                        <select id="payablePaymentMethod" data-force-select2 required class="w-full border-2 px-4 py-3 text-sm font-semibold focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15">
+                        <select id="payablePaymentMethod" data-force-select2 required class="w-full border-2 px-4 py-3 text-sm font-semibold v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-select">
                             <option value="cash"><?= esc($tr('cash')) ?></option>
                             <option value="card"><?= esc($tr('card')) ?></option>
                             <option value="bank_transfer"><?= esc($tr('bankTransfer')) ?></option>
@@ -327,23 +327,23 @@ $statusClass = static function (string $status): string {
                         <label for="payablePaymentDate" class="mb-2 block text-sm font-bold">
                             <?= esc($tr('settlementDate')) ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                         </label>
-                        <input id="payablePaymentDate" type="date" required class="w-full border-2 px-4 py-3 text-sm font-semibold focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15">
+                        <input id="payablePaymentDate" type="date" required class="w-full border-2 px-4 py-3 text-sm font-semibold v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-input">
                     </div>
                 </div>
                 <div id="payableLiquidityField" class="hidden">
                     <label for="payableLiquidityAccount" class="mb-2 block text-sm font-bold"><?= esc($tr('paidFromAccount')) ?></label>
-                    <select id="payableLiquidityAccount" data-force-select2 class="w-full border-2 px-4 py-3 text-sm font-semibold focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15">
+                    <select id="payableLiquidityAccount" data-force-select2 class="w-full border-2 px-4 py-3 text-sm font-semibold v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-select">
                         <option value="bank"><?= esc($liquidityOptions['bank'] ?? $tr('liquidityAccount.bank')) ?></option>
                         <option value="undeposited_checks"><?= esc($liquidityOptions['undeposited_checks'] ?? $tr('liquidityAccount.undeposited_checks')) ?></option>
                     </select>
                 </div>
                 <div>
                     <label for="payablePaymentNotes" class="mb-2 block text-sm font-bold"><?= esc($tr('notes')) ?></label>
-                    <textarea id="payablePaymentNotes" rows="3" class="w-full border-2 px-4 py-3 text-sm font-semibold focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/15" placeholder="<?= esc($tr('optionalNotesPlaceholder')) ?>"></textarea>
+                    <textarea id="payablePaymentNotes" rows="3" class="w-full border-2 px-4 py-3 text-sm font-semibold v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-textarea" placeholder="<?= esc($tr('optionalNotesPlaceholder')) ?>"></textarea>
                 </div>
                 <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                    <button type="button" onclick="closePayablePaymentModal()" class="inline-flex items-center justify-center px-4 py-3 text-sm font-bold transition"><?= esc($tr('cancel')) ?></button>
-                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold transition">
+                    <button type="button" onclick="closePayablePaymentModal()" class="inline-flex items-center justify-center px-4 py-3 text-sm font-bold transition v3-btn v3-btn--secondary"><?= esc($tr('cancel')) ?></button>
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-save"></i>
                         <?= esc($tr('postSettlement')) ?>
                     </button>
@@ -368,18 +368,18 @@ const payableCurrencySymbol = <?= json_encode($currency_symbol ?? '') ?>;
 const payableCurrencyPosition = <?= json_encode($currency_position ?? 'before') ?>;
 
 function applyPayablesDataTablesStyling() {
-    $('.dataTables_length select').addClass('focus:ring-green-500 focus:border-green-500');
-    $('.dataTables_filter input').addClass('focus:ring-green-500 focus:border-green-500');
-    $('.dataTables_info').addClass('text-gray-600');
+    $('.dataTables_length select').addClass('v3-focus-control v3-focus-control');
+    $('.dataTables_filter input').addClass('v3-focus-control v3-focus-control');
+    $('.dataTables_info').addClass('v3-text-muted');
     $('.dataTables_paginate .paginate_button').each(function () {
         if ($(this).hasClass('current')) {
-            $(this).addClass('bg-green-600 border-green-600 text-white');
+            $(this).addClass('v3-bg-primary v3-border-default v3-text-on-primary');
         } else {
-            $(this).addClass('hover:bg-green-50 hover:border-green-300 hover:text-green-700');
+            $(this).addClass('v3-hover-primary v3-border-default v3-hover-text-primary');
         }
     });
-    $('.dataTables_length label, .dataTables_filter label').addClass('text-gray-700 font-semibold');
-    $('.dataTables_length i, .dataTables_filter i').addClass('text-green-600');
+    $('.dataTables_length label, .dataTables_filter label').addClass('v3-text-ink font-semibold');
+    $('.dataTables_length i, .dataTables_filter i').addClass('v3-text-primary');
 }
 
 window.exportPayablesToPDF = function () {
@@ -475,7 +475,7 @@ document.getElementById('payablePaymentMethod')?.addEventListener('change', sync
 
 $(document).ready(function () {
     payablesTable = $('#payablesTable').DataTable({
-        dom: 'B<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: 'B<"px-6 py-4 border-b v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         order: [[5, 'asc']],
@@ -537,7 +537,7 @@ $(document).ready(function () {
             }
         })
         .on('mouseenter', 'tr', function () {
-            $(this).addClass('cursor-pointer hover:bg-green-50/50 transition-colors duration-150');
+            $(this).addClass('cursor-pointer v3-hover-primary transition-colors duration-150');
         });
 
     applyPayablesDataTablesStyling();

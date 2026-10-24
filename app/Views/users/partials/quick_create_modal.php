@@ -26,14 +26,14 @@ $shouldOpenUserCreateModal = old('source_modal') === 'user_quick_create';
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" data-user-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--icon" data-user-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <div class="v3-context-drawer__body">
                     <?php if (session('error') && $shouldOpenUserCreateModal): ?>
-                        <div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -48,10 +48,10 @@ $shouldOpenUserCreateModal = old('source_modal') === 'user_quick_create';
                 </div>
 
                 <div class="v3-context-drawer__footer">
-                    <button type="button" data-user-create-modal-close class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-semibold transition">
+                    <button type="button" data-user-create-modal-close class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                         <?= esc(lang('UserRole.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-user-plus me-2"></i>
                         <?= esc(lang('UserRole.createUser')) ?>
                     </button>

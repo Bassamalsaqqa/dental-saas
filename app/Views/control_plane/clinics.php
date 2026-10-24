@@ -66,37 +66,37 @@
         <div class="cp-table-tools">
             <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
                 <div class="relative min-w-[220px] flex-1 max-w-sm">
-                    <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--denta-muted)] text-xs"></i>
+                    <i class="fas fa-search absolute left-2.5 top-1/2 /2 text-[var(--denta-muted)] text-xs"></i>
                     <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="<?= esc(lang('V3Platform.searchClinicsOrAdminEmail'), 'attr') ?>"
-                           class="cp-input w-full pl-8 text-xs">
+                           class="cp-input w-full pl-8 text-xs v3-input">
                 </div>
-                <select id="clinicStatus" class="cp-select text-xs">
+                <select id="clinicStatus" class="cp-select text-xs v3-select">
                     <option value=""><?= esc(lang('V3Platform.allStatuses')) ?></option>
                     <option value="active" <?= ($filters['status'] ?? '') === 'active' ? 'selected' : '' ?>><?= esc(lang('V3Platform.active')) ?></option>
                     <option value="suspended" <?= ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' ?>><?= esc(lang('V3Platform.suspended')) ?></option>
                     <option value="inactive" <?= ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' ?>><?= esc(lang('V3Platform.inactive')) ?></option>
                 </select>
-                <select id="clinicPlan" class="cp-select text-xs">
+                <select id="clinicPlan" class="cp-select text-xs v3-select">
                     <option value="0"><?= esc(lang('V3Platform.allPlans')) ?></option>
                     <?php foreach (($plans ?? []) as $plan): ?>
                         <option value="<?= (int) ($plan['id'] ?? 0) ?>" <?= (int) ($filters['plan_id'] ?? 0) === (int) ($plan['id'] ?? 0) ? 'selected' : '' ?>><?= esc($plan['name'] ?? 'Plan') ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button id="resetClinicFilters" type="button" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.clearFilters'), 'attr') ?>">
+                <button id="resetClinicFilters" type="button" class="cp-btn cp-btn-light cp-btn-sm v3-btn v3-btn--secondary" title="<?= esc(lang('V3Platform.clearFilters'), 'attr') ?>">
                     <i class="fas fa-times"></i>
                     <span><?= esc(lang('V3Platform.clear')) ?></span>
                 </button>
             </div>
             <div class="flex items-center gap-1.5">
-                <button onclick="exportToPDF()" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.exportPdf'), 'attr') ?>">
+                <button onclick="exportToPDF()" class="cp-btn cp-btn-light cp-btn-sm v3-btn v3-btn--secondary" title="<?= esc(lang('V3Platform.exportPdf'), 'attr') ?>">
                     <i class="fas fa-file-pdf text-[#9E2A2B]"></i>
                     <span>PDF</span>
                 </button>
-                <button onclick="printTable()" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.printRegistry'), 'attr') ?>">
+                <button onclick="printTable()" class="cp-btn cp-btn-light cp-btn-sm v3-btn v3-btn--secondary" title="<?= esc(lang('V3Platform.printRegistry'), 'attr') ?>">
                     <i class="fas fa-print"></i>
                     <span><?= esc(lang('V3Platform.print')) ?></span>
                 </button>
-                <button onclick="exportToCSV()" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.exportCsv'), 'attr') ?>">
+                <button onclick="exportToCSV()" class="cp-btn cp-btn-light cp-btn-sm v3-btn v3-btn--secondary" title="<?= esc(lang('V3Platform.exportCsv'), 'attr') ?>">
                     <i class="fas fa-file-csv text-[var(--denta-emerald-pine)]"></i>
                     <span>CSV</span>
                 </button>
@@ -155,32 +155,32 @@
 </div>
 
 <!-- Terminate Clinic Modal -->
-<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 backdrop-blur-sm">
+<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center v3-backdrop px-4 backdrop-blur-sm">
     <div class="w-full max-w-lg cp-modal-box">
         <div class="cp-modal-head bg-[var(--denta-tint-alert)] border-b border-[#EABCB8]">
             <div>
                 <p class="text-[10px] uppercase tracking-wider text-[#8C2224] font-bold m-0"><?= esc(lang('V3Platform.dangerZone')) ?></p>
                 <h3 class="text-sm font-bold text-[#8C2224] m-0"><?= esc(lang('V3Platform.terminateClinicTenant')) ?></h3>
             </div>
-            <button type="button" class="p-1.5 text-slate-500 hover:text-slate-800 rounded" onclick="closeTerminateModal()">
+            <button type="button" class="p-1.5 v3-text-muted v3-hover-text-ink rounded v3-btn v3-btn--secondary" onclick="closeTerminateModal()">
                 <i class="fas fa-times text-sm"></i>
             </button>
         </div>
-        <div class="cp-modal-body space-y-3 text-xs text-slate-700">
+        <div class="cp-modal-body space-y-3 text-xs v3-text-ink">
             <p>
                 <?= esc(lang('V3Platform.thisWillImmediatelyDisableAccessAndCancelSubscriptionsFor')) ?>
-                <span id="terminateClinicName" class="font-bold text-slate-900"><?= esc(lang('V3Platform.thisClinic')) ?></span>.
+                <span id="terminateClinicName" class="font-bold v3-text-ink"><?= esc(lang('V3Platform.thisClinic')) ?></span>.
                 Type the clinic name below to confirm termination.
             </p>
-            <input type="text" id="terminateConfirmInput" class="cp-input w-full"
+            <input type="text" id="terminateConfirmInput" class="cp-input w-full v3-input"
                    placeholder="<?= esc(lang('V3Platform.typeClinicNameToConfirm'), 'attr') ?>" oninput="updateTerminateState()">
         </div>
         <form id="terminateForm" method="post" class="cp-modal-foot">
             <?= csrf_field() ?>
-            <button type="button" class="cp-btn cp-btn-light cp-btn-sm" onclick="closeTerminateModal()">
+            <button type="button" class="cp-btn cp-btn-light cp-btn-sm v3-btn v3-btn--secondary" onclick="closeTerminateModal()">
                 <?= esc(lang('V3Platform.cancel')) ?>
             </button>
-            <button id="terminateConfirmButton" type="submit" class="cp-btn cp-btn-danger cp-btn-sm" disabled>
+            <button id="terminateConfirmButton" type="submit" class="cp-btn cp-btn-danger cp-btn-sm v3-btn v3-btn--primary" disabled>
                 <span><?= esc(lang('V3Platform.confirmTermination')) ?></span>
             </button>
         </form>
@@ -389,15 +389,15 @@ $(document).ready(function() {
                     const avatarColor = getAvatarColor(initials || (Array.from(nameRaw)[0] || 'C'));
                     const detailUrl = `${baseUrl}controlplane/clinics/${id}`;
                     return `
-                        <a href="${detailUrl}" class="block rounded-2xl px-2 py-1.5 transition-colors duration-200 hover:bg-emerald-50/70">
+                        <a href="${detailUrl}" class="block v3-radius px-2 py-1.5 transition-colors duration-200 v3-hover-primary">
                             <div class="flex items-center gap-3">
-                                <div class="flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-black text-slate-900"
+                                <div class="flex h-11 w-11 items-center justify-center v3-radius text-sm font-black v3-text-ink"
                                      style="background: ${avatarColor}; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);">
                                     ${initials}
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="truncate text-sm font-black text-slate-950">${name}</div>
-                                    <div class="truncate text-xs font-bold text-slate-500">ID ${id} - ${slug}</div>
+                                    <div class="truncate text-sm font-black v3-text-ink">${name}</div>
+                                    <div class="truncate text-xs font-bold v3-text-muted">ID ${id} - ${slug}</div>
                                 </div>
                             </div>
                         </a>
@@ -410,9 +410,9 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const status = (data || 'inactive').toLowerCase();
                     const statusColors = {
-                        'active': 'bg-green-100 text-green-800',
-                        'suspended': 'bg-yellow-100 text-yellow-800',
-                        'inactive': 'bg-gray-100 text-gray-800'
+                        'active': 'v3-bg-paid v3-text-primary',
+                        'suspended': 'v3-bg-waiting v3-text-warning',
+                        'inactive': 'v3-bg-soft v3-text-ink'
                     };
                     const statusIcons = {
                         'active': 'fas fa-check-circle',
@@ -420,7 +420,7 @@ $(document).ready(function() {
                         'inactive': 'fas fa-times-circle'
                     };
 
-                    const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
+                    const colorClass = statusColors[status] || 'v3-bg-soft v3-text-ink';
                     const iconClass = statusIcons[status] || 'fas fa-question-circle';
                     const label = status.charAt(0).toUpperCase() + status.slice(1);
 
@@ -436,7 +436,7 @@ $(document).ready(function() {
                 data: 'plan_name',
                 name: 'plan_name',
                 render: function(data) {
-                    return `<span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700 ring-1 ring-indigo-100">${escapeHtml(data || 'Unassigned')}</span>`;
+                    return `<span class="inline-flex items-center rounded-full v3-bg-chair px-2.5 py-1 text-xs font-black v3-text-chair border v3-border-default">${escapeHtml(data || 'Unassigned')}</span>`;
                 }
             },
             {
@@ -445,30 +445,30 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const email = escapeHtml(data || 'None');
                     if (email === 'None' || email === 'Unknown' || row.admin_state === 'unassigned') {
-                        return `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">${escapeHtml(row.admin_state_label || 'Unassigned')}</span>`;
+                        return `<span class="inline-flex items-center rounded-full v3-bg-soft px-2.5 py-0.5 text-xs font-bold v3-text-muted">${escapeHtml(row.admin_state_label || 'Unassigned')}</span>`;
                     }
                     if (row.admin_is_fallback) {
                         return `
                             <div>
-                                <div class="text-sm font-semibold text-slate-700">${email}</div>
-                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 mt-0.5">
+                                <div class="text-sm font-semibold v3-text-ink">${email}</div>
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold v3-bg-waiting v3-text-warning border v3-border-default mt-0.5">
                                     <i class="fas fa-clock text-[9px] me-1"></i><?= esc(lang('UI.legacyAdminCandidate'), 'js') ?>
                                 </span>
                             </div>
                         `;
                     }
                     if (row.admin_is_healthy) {
-                        return `<span class="text-sm font-semibold text-slate-700">${email}</span>`;
+                        return `<span class="text-sm font-semibold v3-text-ink">${email}</span>`;
                     }
-                    let badgeClass = 'bg-amber-100 text-amber-800';
+                    let badgeClass = 'v3-bg-waiting v3-text-warning';
                     if (row.admin_state === 'disabled_user') {
-                        badgeClass = 'bg-rose-100 text-rose-800';
+                        badgeClass = 'v3-bg-alert v3-text-danger';
                     } else if (row.admin_state === 'inactive_membership') {
-                        badgeClass = 'bg-orange-100 text-orange-800';
+                        badgeClass = 'v3-bg-waiting v3-text-warning';
                     }
                     return `
                         <div>
-                            <div class="text-sm font-semibold text-slate-700">${email}</div>
+                            <div class="text-sm font-semibold v3-text-ink">${email}</div>
                             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${badgeClass} mt-0.5">
                                 ${escapeHtml(row.admin_state_label || 'Degraded')}
                             </span>
@@ -480,7 +480,7 @@ $(document).ready(function() {
                 data: 'mrr',
                 name: 'mrr',
                 render: function(data) {
-                    return `<span class="text-sm font-black text-slate-900">${formatCurrency(data)}</span>`;
+                    return `<span class="text-sm font-black v3-text-ink">${formatCurrency(data)}</span>`;
                 }
             },
             {
@@ -497,7 +497,7 @@ $(document).ready(function() {
                     // View Details
                     actions += `
                         <a href="${baseUrl}controlplane/clinics/${id}"
-                           class="rounded-xl p-2 text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700"
+                           class="v3-radius p-2 v3-text-primary transition-colors duration-200 v3-hover-primary v3-hover-text-primary"
                            title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>`;
@@ -505,12 +505,12 @@ $(document).ready(function() {
                     // Suspend / Reactivate
                     if (status === 'active') {
                         actions += `
-                            <button onclick="toggleClinicStatus('${id}', 'suspend')" class="rounded-xl p-2 text-amber-600 transition-colors duration-200 hover:bg-amber-50 hover:text-amber-700" title="Suspend">
+                            <button onclick="toggleClinicStatus('${id}', 'suspend')" class="v3-radius p-2 v3-text-warning transition-colors duration-200 v3-hover-primary v3-hover-text-warning v3-btn v3-btn--secondary" title="Suspend">
                                 <i class="fas fa-pause"></i>
                             </button>`;
                     } else {
                         actions += `
-                            <button onclick="toggleClinicStatus('${id}', 'reactivate')" class="rounded-xl p-2 text-green-600 transition-colors duration-200 hover:bg-green-50 hover:text-green-700" title="Reactivate">
+                            <button onclick="toggleClinicStatus('${id}', 'reactivate')" class="v3-radius p-2 v3-text-primary transition-colors duration-200 v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary" title="Reactivate">
                                 <i class="fas fa-play"></i>
                             </button>`;
                     }
@@ -520,19 +520,19 @@ $(document).ready(function() {
                         <form action="${baseUrl}controlplane/impersonate" method="post" class="inline">
                             ${renderCsrfField()}
                             <input type="hidden" name="clinic_id" value="${id}">
-                            <button type="submit" class="rounded-xl p-2 text-indigo-600 transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-700" title="Login As">
+                            <button type="submit" class="v3-radius p-2 v3-text-chair transition-colors duration-200 v3-hover-primary v3-hover-text-chair v3-btn v3-btn--primary" title="Login As">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
                         </form>`;
 
                     // Terminate
                     actions += `
-                        <button type="button" class="rounded-xl p-2 text-rose-600 transition-colors duration-200 hover:bg-rose-50 hover:text-rose-700"
+                        <button type="button" class="v3-radius p-2 v3-text-danger transition-colors duration-200 v3-hover-danger v3-hover-text-danger v3-btn v3-btn--danger"
                                 onclick="openTerminateModal('${id}', '${encodedName}')" title="Terminate">
                             <i class="fas fa-ban"></i>
                         </button>`;
 
-                    actions += `<button type="button" disabled class="p-2 text-slate-400 cursor-not-allowed" title="<?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?>"><i class="fas fa-lock" aria-hidden="true"></i><span class="sr-only"><?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?></span></button>`;
+                    actions += `<button type="button" disabled class="p-2 v3-text-muted cursor-not-allowed v3-btn v3-btn--secondary" title="<?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?>"><i class="fas fa-lock" aria-hidden="true"></i><span class="sr-only"><?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?></span></button>`;
                     actions += '</div>';
                     return actions;
                 }
@@ -571,7 +571,7 @@ $(document).ready(function() {
         language: {
             processing: 'Loading clinics...',
             lengthMenu: '_MENU_',
-            zeroRecords: `<div class="py-12 text-center text-slate-400 space-y-3"><p class="text-sm font-semibold">No clinics found</p></div>`,
+            zeroRecords: `<div class="py-12 text-center v3-text-muted space-y-3"><p class="text-sm font-semibold">No clinics found</p></div>`,
             info: 'Showing _START_ to _END_ of _TOTAL_ clinics',
             infoEmpty: 'No clinics available',
             infoFiltered: '(filtered from _MAX_ total clinics)',
@@ -752,10 +752,10 @@ function updateTerminateState() {
     buttonEl.disabled = !matches;
     if (matches) {
         buttonEl.classList.remove('opacity-50', 'cursor-not-allowed');
-        buttonEl.classList.add('hover:bg-rose-700');
+        buttonEl.classList.add('v3-hover-danger');
     } else {
         buttonEl.classList.add('opacity-50', 'cursor-not-allowed');
-        buttonEl.classList.remove('hover:bg-rose-700');
+        buttonEl.classList.remove('v3-hover-danger');
     }
 }
 

@@ -42,13 +42,13 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
             <div class="v3-command-layout">
                 <div class="flex items-center space-x-4">
                     <div class="v3-icon w-12 h-12 v3-radius flex items-center justify-center">
-                        <i class="fas fa-file-signature text-white text-xl"></i>
+                        <i class="fas fa-file-signature v3-text-on-primary text-xl"></i>
                     </div>
                     <div>
                         <h1 class="v3-surface-heading v3-title-scale font-bold">
                             <?= $mode === 'edit' ? esc(lang('Contracts.editTitle')) : esc(lang('Contracts.createTitle')) ?>
                         </h1>
-                        <p class="text-gray-600 mt-1 flex items-center">
+                        <p class="v3-text-muted mt-1 flex items-center">
                             <i class="fas fa-user-circle mr-2 v3-accent-text"></i>
                             <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?>
                             <span class="ml-2 px-2 py-1 v3-soft-surface v3-accent-text text-xs font-medium rounded-full">
@@ -58,7 +58,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 v3-surface hover:bg-white border v3-border rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 hover:shadow-md transition-all duration-200">
+                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 v3-surface v3-hover-soft border v3-border rounded-lg text-sm font-medium v3-text-ink v3-hover-text-ink hover:v3-elevation-none transition-all duration-200 v3-btn v3-btn--secondary">
                         <i class="fas fa-arrow-left rtl-back-icon mr-2 transition-transform"></i><?= esc(lang('Contracts.back')) ?>
                     </a>
                 </div>
@@ -82,11 +82,11 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 <div class="space-y-6">
                     <div class="contract-card v3-surface v3-corner border v3-border overflow-hidden">
                         <div class="v3-surface-heading p-6 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-black/10"></div>
+                            <div class="absolute inset-0 v3-backdrop"></div>
                             <div class="relative z-10 flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 v3-surface v3-radius flex items-center justify-center">
-                                        <i class="fas fa-tooth text-white text-xl"></i>
+                                        <i class="fas fa-tooth v3-text-on-primary text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-2xl font-bold mb-1"><?= esc(lang('Contracts.chartTitle')) ?></h3>
@@ -98,38 +98,38 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </div>
                                 <div class="flex flex-col items-end gap-3">
                                     <div class="hidden md:flex items-center space-x-2 v3-accent-text">
-                                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                        <div class="w-2 h-2 v3-bg-primary rounded-full"></div>
                                         <span class="text-sm font-medium"><?= esc(lang('Contracts.liveUpdates')) ?></span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <button type="button"
                                                 id="legendToggleBtn"
-                                                class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
+                                                class="inline-flex items-center px-3 py-2 v3-surface v3-hover-soft v3-text-on-primary text-xs font-semibold rounded-lg border v3-border transition-all duration-200 v3-btn v3-btn--secondary">
                                             <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
                                             <span id="legendToggleText"><?= esc(lang('Contracts.showLegend')) ?></span>
                                         </button>
                                         <button id="batchModeToggleBtn"
                                                 type="button"
                                                 onclick="toggleBatchMode()"
-                                                class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
+                                                class="inline-flex items-center px-3 py-2 v3-surface v3-hover-soft v3-text-on-primary text-xs font-semibold rounded-lg border v3-border transition-all duration-200 v3-btn v3-btn--secondary">
                                             <i class="fas fa-object-group mr-2"></i>
                                             <span id="batchModeToggleText"><?= esc(lang('Contracts.batchSelect')) ?></span>
                                         </button>
                                         <div id="batchTopControls" class="hidden items-center gap-2">
-                                            <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 bg-amber-400/90 text-amber-950 rounded-full text-xs font-bold">
+                                            <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 v3-bg-warning v3-text-warning rounded-full text-xs font-bold">
                                                 0 selected
                                             </span>
                                             <button type="button" id="batchApplyBtn" onclick="openBatchModal()"
-                                                    class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border transition-all duration-200 disabled:cursor-not-allowed"
+                                                    class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border transition-all duration-200 disabled:cursor-not-allowed v3-btn v3-btn--secondary"
                                                     disabled>
                                                 <i class="fas fa-layer-group mr-1.5"></i><?= esc(lang('Contracts.apply')) ?>
                                             </button>
                                             <button type="button" id="batchClearBtn" onclick="clearBatchSelection()"
-                                                    class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
+                                                    class="inline-flex items-center px-3 py-2 v3-surface v3-hover-soft v3-text-on-primary text-xs font-semibold rounded-lg border v3-border transition-all duration-200 v3-btn v3-btn--secondary">
                                                 <?= esc(lang('Contracts.clear')) ?>
                                             </button>
                                             <button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"
-                                                    class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
+                                                    class="inline-flex items-center px-3 py-2 v3-surface v3-hover-soft v3-text-on-primary text-xs font-semibold rounded-lg border v3-border transition-all duration-200 v3-btn v3-btn--secondary">
                                                 <?= esc(lang('Contracts.exit')) ?>
                                             </button>
                                         </div>
@@ -142,47 +142,47 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 
                         <div class="v3-surface-heading p-6 border-b v3-border">
                             <div class="flex items-center justify-between">
-                                <h4 class="text-lg font-bold text-gray-800 flex items-center">
+                                <h4 class="text-lg font-bold v3-text-ink flex items-center">
                                     <i class="fas fa-palette mr-3 v3-accent-text"></i>
                                     <?= esc(lang('Contracts.legend')) ?>
                                 </h4>
                             </div>
                             <div id="legendContent" class="hidden mt-6">
                             <div class="grid grid-cols-6 gap-4">
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-green-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-green-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-check text-green-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border-default rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-check v3-text-primary text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.healthy')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.noIssues')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.healthy')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.noIssues')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-yellow-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-yellow-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border-default rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-exclamation v3-text-warning text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.cavity')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.needsFilling')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.cavity')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.needsFilling')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-blue-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
                                     <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-tools v3-accent-text text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.filling')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.restored')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.filling')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.restored')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-purple-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
                                     <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-crown v3-accent-text text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.crown')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.capped')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.crown')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.capped')) ?></div>
                                     </div>
                                 </div>
                                 <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-pink-200/50">
@@ -190,62 +190,62 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <i class="fas fa-tooth text-pink-600 text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.rootCanal')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.endodontic')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.rootCanal')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.endodontic')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-red-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-red-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-times text-red-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border-default rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-times v3-text-danger text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.extracted')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.removed')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.extracted')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.removed')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-indigo-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
                                     <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-screwdriver v3-accent-text text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.implant')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.titanium')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.implant')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.titanium')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-teal-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-teal-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-link text-teal-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border-default rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-link v3-text-primary text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.bridge')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.connected')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.bridge')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.connected')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-orange-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-orange-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-teeth text-orange-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border-default rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-teeth v3-text-warning text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.partialDenture')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.removable')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.partialDenture')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.removable')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-amber-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-amber-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-teeth-open text-amber-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border-default rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-teeth-open v3-text-warning text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.fullDenture')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.complete')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.fullDenture')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.complete')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-gray-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border v3-border-default">
                                     <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-question text-gray-600 text-sm"></i>
+                                        <i class="fas fa-question v3-text-muted text-sm"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.other')) ?></span>
-                                        <div class="text-xs text-gray-500"><?= esc(lang('Contracts.special')) ?></div>
+                                        <span class="text-sm font-semibold v3-text-ink"><?= esc(lang('Contracts.other')) ?></span>
+                                        <div class="text-xs v3-text-muted"><?= esc(lang('Contracts.special')) ?></div>
                                     </div>
                                 </div>
                             </div>
@@ -261,7 +261,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         if (is_file($svgPath)) {
                                             echo file_get_contents($svgPath);
                                         } else {
-                                            echo '<p class="text-sm text-gray-500">Odontogram SVG not found.</p>';
+                                            echo '<p class="text-sm v3-text-muted">Odontogram SVG not found.</p>';
                                         }
                                         ?>
                                     </div>
@@ -275,7 +275,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 v3-surface v3-radius flex items-center justify-center">
-                                        <i class="fas fa-table text-white text-xl"></i>
+                                        <i class="fas fa-table v3-text-on-primary text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-xl font-bold"><?= esc(lang('Contracts.teethWithConditions')) ?></h3>
@@ -289,17 +289,17 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 <table class="w-full text-sm">
                                     <thead class="v3-surface">
                                         <tr>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.tooth')) ?></th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">FDI</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.position')) ?></th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.condition')) ?></th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.description')) ?></th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.treatment')) ?></th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.status')) ?></th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.tooth')) ?></th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider">FDI</th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.position')) ?></th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.condition')) ?></th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.description')) ?></th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.treatment')) ?></th>
+                                            <th class="text-left py-2 px-3 text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.status')) ?></th>
                                             <th class="text-left py-2 px-3 w-16"></th>
                                         </tr>
                                     </thead>
-                                    <tbody id="teethTableBody" class="divide-y divide-gray-100"></tbody>
+                                    <tbody id="teethTableBody" class="divide-y v3-border-default"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -311,34 +311,34 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         <div class="v3-surface-heading p-5">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 v3-surface v3-radius flex items-center justify-center">
-                                    <i class="fas fa-receipt text-white"></i>
+                                    <i class="fas fa-receipt v3-text-on-primary"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold"><?= esc(lang('Contracts.summary')) ?></h3>
-                                    <p class="text-emerald-100 text-xs"><?= esc(lang('Contracts.currencyTotal')) ?></p>
+                                    <p class="v3-text-primary text-xs"><?= esc(lang('Contracts.currencyTotal')) ?></p>
                                 </div>
                             </div>
                         </div>
                         <div class="p-5 v3-surface contract-panel-body">
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5"><?= esc(lang('Contracts.currency')) ?></label>
+                                    <label class="block text-xs font-semibold v3-text-muted mb-1.5"><?= esc(lang('Contracts.currency')) ?></label>
                                     <?php
                                         $baseCurrency = $base_currency ?? 'ILS';
                                         $selectedCurrency = $contract['currency'] ?? $baseCurrency;
                                     ?>
-                                    <select name="currency" class="w-full h-9 px-3 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <select name="currency" class="w-full h-9 px-3 border v3-border rounded-lg text-sm v3-surface focus:ring-2 v3-focus-control v3-focus-control v3-select">
                                         <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
                                             <option value="<?= esc($option) ?>" <?= ($selectedCurrency === $option) ? 'selected' : '' ?>><?= esc($option) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5"><?= esc(lang('Contracts.total')) ?></label>
+                                    <label class="block text-xs font-semibold v3-text-muted mb-1.5"><?= esc(lang('Contracts.total')) ?></label>
                                     <input type="number" step="0.01" min="0" name="total_cost" id="contractTotalInput"
                                            value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
-                                           class="w-full h-9 px-3 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display v3-surface">
-                                    <p class="mt-1 text-[10px] text-gray-400"><?= esc(lang('Contracts.calculatedTotal')) ?></p>
+                                           class="w-full h-9 px-3 border v3-border-default rounded-lg text-sm font-semibold v3-text-primary contract-total-display v3-surface v3-input">
+                                    <p class="mt-1 text-[10px] v3-text-muted"><?= esc(lang('Contracts.calculatedTotal')) ?></p>
                                 </div>
                             </div>
                         </div>
@@ -349,14 +349,14 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 v3-surface v3-radius flex items-center justify-center">
-                                        <i class="fas fa-list text-white"></i>
+                                        <i class="fas fa-list v3-text-on-primary"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-bold"><?= esc(lang('Contracts.treatmentItems')) ?></h3>
                                         <p class="v3-accent-text text-xs"><?= esc(lang('Contracts.itemsHint')) ?></p>
                                     </div>
                                 </div>
-                                <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border">
+                                <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 v3-surface v3-hover-soft v3-text-on-primary text-xs font-semibold rounded-lg border v3-border v3-btn v3-btn--secondary">
                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('Contracts.addItem')) ?>
                                 </button>
                             </div>
@@ -366,15 +366,15 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 <table class="min-w-full text-sm">
                                     <thead class="v3-surface">
                                     <tr>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.code')) ?></th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.tooth')) ?></th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.description')) ?></th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-16"><?= esc(lang('Contracts.quantity')) ?></th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-24"><?= esc(lang('Contracts.price')) ?></th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.code')) ?></th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.tooth')) ?></th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('Contracts.description')) ?></th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold v3-text-muted uppercase tracking-wider w-16"><?= esc(lang('Contracts.quantity')) ?></th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold v3-text-muted uppercase tracking-wider w-24"><?= esc(lang('Contracts.price')) ?></th>
                                         <th class="px-3 py-2 w-16"></th>
                                     </tr>
                                     </thead>
-                                    <tbody id="itemsBody" class="divide-y divide-gray-100"></tbody>
+                                    <tbody id="itemsBody" class="divide-y v3-border-default"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -385,16 +385,16 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 v3-surface v3-radius flex items-center justify-center">
-                                        <i class="fas fa-pen-fancy text-white"></i>
+                                        <i class="fas fa-pen-fancy v3-text-on-primary"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-bold"><?= esc(lang('Contracts.contractTerms')) ?></h3>
-                                        <p class="text-slate-200 text-xs"><?= esc(lang('Contracts.optionalTerms')) ?></p>
+                                        <p class="v3-text-muted text-xs"><?= esc(lang('Contracts.optionalTerms')) ?></p>
                                     </div>
                                 </div>
                                 <button type="button"
                                         id="contractTermsToggleBtn"
-                                        class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border">
+                                        class="inline-flex items-center px-3 py-2 v3-surface v3-hover-soft v3-text-on-primary text-xs font-semibold rounded-lg border v3-border v3-btn v3-btn--secondary">
                                     <i id="contractTermsToggleIcon" class="fas <?= $hasContractTerms ? 'fa-chevron-up' : 'fa-chevron-down' ?> mr-2"></i>
                                     <span id="contractTermsToggleText"><?= $hasContractTerms ? 'Hide' : 'Show' ?></span>
                                 </button>
@@ -402,26 +402,26 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
                         <div id="contractTermsContent" class="p-4 space-y-3 v3-surface contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.terms')) ?></label>
-                                <textarea name="terms_conditions" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
+                                <label class="block text-xs font-semibold v3-text-muted mb-1"><?= esc(lang('Contracts.terms')) ?></label>
+                                <textarea name="terms_conditions" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 v3-focus-control v3-focus-control v3-textarea" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.paymentTerms')) ?></label>
-                                <textarea name="payment_terms" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
+                                <label class="block text-xs font-semibold v3-text-muted mb-1"><?= esc(lang('Contracts.paymentTerms')) ?></label>
+                                <textarea name="payment_terms" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 v3-focus-control v3-focus-control v3-textarea" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.durationPlan')) ?></label>
-                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full h-9 px-3 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
+                                <label class="block text-xs font-semibold v3-text-muted mb-1"><?= esc(lang('Contracts.durationPlan')) ?></label>
+                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full h-9 px-3 border v3-border rounded-lg text-sm v3-surface focus:ring-2 v3-focus-control v3-focus-control v3-input" placeholder="Optional duration or timeline">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.notes')) ?></label>
-                                <textarea name="notes" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
+                                <label class="block text-xs font-semibold v3-text-muted mb-1"><?= esc(lang('Contracts.notes')) ?></label>
+                                <textarea name="notes" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 v3-focus-control v3-focus-control v3-textarea" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-end">
-                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center px-5 py-3 v3-radius text-sm font-semibold transition-all duration-200">
+                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center px-5 py-3 v3-radius text-sm font-semibold transition-all duration-200 v3-btn v3-btn--primary">
                             <i class="fas fa-save mr-2"></i><?= esc($mode === 'edit' ? lang('Contracts.saveChanges') : lang('Contracts.saveDraft')) ?>
                         </button>
                     </div>
@@ -431,23 +431,23 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
     </form>
 </div>
 
-<div id="toothModal" class="fixed inset-0 bg-black/50 hidden z-50 transition-opacity duration-300">
+<div id="toothModal" class="fixed inset-0 v3-backdrop hidden z-50 transition-opacity duration-300">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="v3-surface v3-corner max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
             <div class="v3-surface-heading p-4 rounded-t-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
+                <div class="absolute inset-0 v3-backdrop"></div>
                 <div class="relative z-10 flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 v3-surface rounded-lg flex items-center justify-center">
-                                <i class="fas fa-layer-group text-white text-lg"></i>
+                                <i class="fas fa-layer-group v3-text-on-primary text-lg"></i>
                             </div>
                             <div>
                                 <h3 class="text-lg font-bold leading-tight">Tooth <span id="modalToothNumber"></span></h3>
-                                <p class="text-orange-100 text-xs"><?= esc(lang('Contracts.conditionDetails')) ?></p>
+                                <p class="v3-text-warning text-xs"><?= esc(lang('Contracts.conditionDetails')) ?></p>
                             </div>
                     </div>
-                    <button type="button" onclick="closeToothModal()" class="w-8 h-8 v3-surface hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                        <i class="fas fa-times text-white"></i>
+                    <button type="button" onclick="closeToothModal()" class="w-8 h-8 v3-surface v3-hover-soft rounded-lg flex items-center justify-center transition-colors duration-200 v3-btn v3-btn--secondary">
+                        <i class="fas fa-times v3-text-on-primary"></i>
                     </button>
                 </div>
             </div>
@@ -456,8 +456,8 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 <form id="toothForm" class="space-y-3.5">
                     <input type="hidden" id="toothNumber" name="tooth_number">
                     <div>
-                        <label for="condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.conditionType')) ?></label>
-                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface" required>
+                        <label for="condition_type" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.conditionType')) ?></label>
+                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface v3-select" required>
                             <option value=""><?= esc(lang('Contracts.selectCondition')) ?></option>
                             <?php foreach ($condition_types as $key => $label): ?>
                                 <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
@@ -465,16 +465,16 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </select>
                     </div>
                     <div>
-                        <label for="condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.description')) ?></label>
-                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional description..."></textarea>
+                        <label for="condition_description" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.description')) ?></label>
+                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none v3-textarea" placeholder="Optional description..."></textarea>
                     </div>
                     <div>
-                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentNotes')) ?></label>
-                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional treatment notes..."></textarea>
+                        <label for="treatment_notes" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.treatmentNotes')) ?></label>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none v3-textarea" placeholder="Optional treatment notes..."></textarea>
                     </div>
                     <div>
-                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentStatus')) ?></label>
-                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface">
+                        <label for="treatment_status" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.treatmentStatus')) ?></label>
+                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface v3-select">
                             <option value="pending"><?= esc(lang('Contracts.pending')) ?></option>
                             <option value="in_progress"><?= esc(lang('Contracts.inProgress')) ?></option>
                             <option value="completed"><?= esc(lang('Contracts.completed')) ?></option>
@@ -483,14 +483,14 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                     <div class="flex items-center justify-between gap-4 pt-3 border-t v3-border">
                         <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border v3-border v3-radius text-sm font-medium text-gray-700 whitespace-nowrap">
+                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 v3-bg-soft v3-hover-soft border v3-border v3-radius text-sm font-medium v3-text-ink whitespace-nowrap v3-btn v3-btn--secondary">
                                 <?= esc(lang('Contracts.cancel')) ?>
                             </button>
-                            <button type="button" onclick="removeToothCondition()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 v3-radius text-sm font-medium text-red-700 whitespace-nowrap">
+                            <button type="button" onclick="removeToothCondition()" class="inline-flex items-center justify-center px-4 py-2.5 v3-bg-alert v3-hover-danger border v3-border-default v3-radius text-sm font-medium v3-text-danger whitespace-nowrap v3-btn v3-btn--danger">
                                 <?= esc(lang('Contracts.removeStatus')) ?>
                             </button>
                         </div>
-                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] v3-radius text-sm font-medium whitespace-nowrap">
+                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] v3-radius text-sm font-medium whitespace-nowrap v3-btn v3-btn--primary">
                             <i class="fas fa-save mr-2"></i><?= esc(lang('Contracts.applyChanges')) ?>
                         </button>
                     </div>
@@ -500,31 +500,31 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
     </div>
 </div>
 
-<div id="batchModal" class="fixed inset-0 bg-black/50 hidden z-50 transition-opacity duration-300">
+<div id="batchModal" class="fixed inset-0 v3-backdrop hidden z-50 transition-opacity duration-300">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="v3-surface v3-corner max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="batchModalContent">
             <div class="v3-surface-heading p-4 rounded-t-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
+                <div class="absolute inset-0 v3-backdrop"></div>
                 <div class="relative z-10 flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 v3-surface rounded-lg flex items-center justify-center">
-                            <i class="fas fa-layer-group text-white text-lg"></i>
+                            <i class="fas fa-layer-group v3-text-on-primary text-lg"></i>
                         </div>
                         <div>
                             <h3 class="text-lg font-bold leading-tight"><?= esc(lang('Contracts.applySelected')) ?></h3>
-                            <p class="text-orange-100 text-xs">Selected: <span id="batchModalCount">0</span> teeth</p>
+                            <p class="v3-text-warning text-xs">Selected: <span id="batchModalCount">0</span> teeth</p>
                         </div>
                     </div>
-                    <button type="button" onclick="closeBatchModal()" class="w-8 h-8 v3-surface hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                        <i class="fas fa-times text-white"></i>
+                    <button type="button" onclick="closeBatchModal()" class="w-8 h-8 v3-surface v3-hover-soft rounded-lg flex items-center justify-center transition-colors duration-200 v3-btn v3-btn--secondary">
+                        <i class="fas fa-times v3-text-on-primary"></i>
                     </button>
                 </div>
             </div>
             <div class="p-4">
                 <form id="batchForm" class="space-y-3.5">
                     <div>
-                        <label for="batch_condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.conditionType')) ?></label>
-                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface" required>
+                        <label for="batch_condition_type" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.conditionType')) ?></label>
+                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface v3-select" required>
                             <option value=""><?= esc(lang('Contracts.selectCondition')) ?></option>
                             <?php foreach ($condition_types as $key => $label): ?>
                                 <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
@@ -532,16 +532,16 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </select>
                     </div>
                     <div>
-                        <label for="batch_condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.description')) ?></label>
-                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional shared description..."></textarea>
+                        <label for="batch_condition_description" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.description')) ?></label>
+                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none v3-textarea" placeholder="Optional shared description..."></textarea>
                     </div>
                     <div>
-                        <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentNotes')) ?></label>
-                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional shared treatment notes..."></textarea>
+                        <label for="batch_treatment_notes" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.treatmentNotes')) ?></label>
+                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none v3-textarea" placeholder="Optional shared treatment notes..."></textarea>
                     </div>
                     <div>
-                        <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentStatus')) ?></label>
-                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface">
+                        <label for="batch_treatment_status" class="block text-sm font-semibold v3-text-ink mb-1.5"><?= esc(lang('Contracts.treatmentStatus')) ?></label>
+                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface v3-select">
                             <option value="pending"><?= esc(lang('Contracts.pending')) ?></option>
                             <option value="in_progress"><?= esc(lang('Contracts.inProgress')) ?></option>
                             <option value="completed"><?= esc(lang('Contracts.completed')) ?></option>
@@ -550,14 +550,14 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                     <div class="flex items-center justify-between gap-4 pt-3 border-t v3-border">
                         <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border v3-border v3-radius text-sm font-medium text-gray-700 whitespace-nowrap">
+                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 v3-bg-soft v3-hover-soft border v3-border v3-radius text-sm font-medium v3-text-ink whitespace-nowrap v3-btn v3-btn--secondary">
                                 <?= esc(lang('Contracts.cancel')) ?>
                             </button>
-                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 v3-radius text-sm font-medium text-red-700 whitespace-nowrap">
+                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 v3-bg-alert v3-hover-danger border v3-border-default v3-radius text-sm font-medium v3-text-danger whitespace-nowrap v3-btn v3-btn--danger">
                                 <?= esc(lang('Contracts.removeStatus')) ?>
                             </button>
                         </div>
-                        <button type="submit" id="batchSubmitBtn" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] v3-radius text-sm font-medium whitespace-nowrap">
+                        <button type="submit" id="batchSubmitBtn" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] v3-radius text-sm font-medium whitespace-nowrap v3-btn v3-btn--primary">
                             <i class="fas fa-save mr-2"></i><?= esc(lang('Contracts.applyChanges')) ?>
                         </button>
                     </div>
@@ -584,23 +584,23 @@ const conditionColors = {
     other: '#6b7280'
 };
 const conditionBadgeClasses = {
-    healthy: 'bg-green-100 text-green-800',
-    cavity: 'bg-yellow-100 text-yellow-800',
-    filling: 'bg-blue-100 text-blue-800',
-    crown: 'bg-purple-100 text-purple-800',
+    healthy: 'v3-bg-paid v3-text-primary',
+    cavity: 'v3-bg-waiting v3-text-warning',
+    filling: 'v3-bg-scheduled v3-text-primary',
+    crown: 'v3-bg-chair v3-text-chair',
     root_canal: 'bg-pink-100 text-pink-800',
-    extracted: 'bg-red-100 text-red-800',
-    implant: 'bg-indigo-100 text-indigo-800',
-    bridge: 'bg-teal-100 text-teal-800',
-    partial_denture: 'bg-orange-100 text-orange-800',
-    full_denture: 'bg-amber-100 text-amber-800',
-    other: 'bg-gray-100 text-gray-800'
+    extracted: 'v3-bg-alert v3-text-danger',
+    implant: 'v3-bg-chair v3-text-chair',
+    bridge: 'v3-bg-scheduled v3-text-primary',
+    partial_denture: 'v3-bg-waiting v3-text-warning',
+    full_denture: 'v3-bg-waiting v3-text-warning',
+    other: 'v3-bg-soft v3-text-ink'
 };
 const statusBadgeClasses = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    in_progress: 'bg-orange-100 text-orange-800',
-    completed: 'bg-green-100 text-green-800',
-    needs_attention: 'bg-red-100 text-red-800'
+    pending: 'v3-bg-waiting v3-text-warning',
+    in_progress: 'v3-bg-waiting v3-text-warning',
+    completed: 'v3-bg-paid v3-text-primary',
+    needs_attention: 'v3-bg-alert v3-text-danger'
 };
 const statusLabels = {
     pending: 'Pending',
@@ -909,13 +909,13 @@ function updateBatchUi() {
     const count = batchSelectedTeeth.size;
 
     if (toggleBtn) {
-        toggleBtn.classList.toggle('bg-amber-500', batchModeEnabled);
-        toggleBtn.classList.toggle('hover:bg-amber-600', batchModeEnabled);
-        toggleBtn.classList.toggle('border-amber-300', batchModeEnabled);
-        toggleBtn.classList.toggle('shadow-lg', batchModeEnabled);
-        toggleBtn.classList.toggle('bg-white/20', !batchModeEnabled);
-        toggleBtn.classList.toggle('hover:bg-white/30', !batchModeEnabled);
-        toggleBtn.classList.toggle('border-white/30', !batchModeEnabled);
+        toggleBtn.classList.toggle('v3-bg-warning', batchModeEnabled);
+        toggleBtn.classList.toggle('v3-hover-primary', batchModeEnabled);
+        toggleBtn.classList.toggle('v3-border-default', batchModeEnabled);
+        toggleBtn.classList.toggle('v3-elevation-none', batchModeEnabled);
+        toggleBtn.classList.toggle('v3-bg-panel', !batchModeEnabled);
+        toggleBtn.classList.toggle('v3-hover-soft', !batchModeEnabled);
+        toggleBtn.classList.toggle('v3-border-default', !batchModeEnabled);
         toggleBtn.classList.toggle('shadow-none', !batchModeEnabled);
     }
 
@@ -940,15 +940,15 @@ function updateBatchUi() {
         applyBtn.classList.toggle('to-green-600', enabled);
         applyBtn.classList.toggle('hover:from-emerald-600', enabled);
         applyBtn.classList.toggle('hover:to-green-700', enabled);
-        applyBtn.classList.toggle('border-emerald-300/70', enabled);
-        applyBtn.classList.toggle('shadow-lg', enabled);
-        applyBtn.classList.toggle('text-white', enabled);
+        applyBtn.classList.toggle('v3-border-default', enabled);
+        applyBtn.classList.toggle('v3-elevation-none', enabled);
+        applyBtn.classList.toggle('v3-text-on-primary', enabled);
 
-        applyBtn.classList.toggle('bg-white/20', !enabled);
-        applyBtn.classList.toggle('hover:bg-white/20', !enabled);
-        applyBtn.classList.toggle('border-white/30', !enabled);
+        applyBtn.classList.toggle('v3-bg-panel', !enabled);
+        applyBtn.classList.toggle('v3-hover-soft', !enabled);
+        applyBtn.classList.toggle('v3-border-default', !enabled);
         applyBtn.classList.toggle('shadow-none', !enabled);
-        applyBtn.classList.toggle('text-white/70', !enabled);
+        applyBtn.classList.toggle('v3-text-on-primary', !enabled);
     }
 }
 
@@ -1013,7 +1013,7 @@ function setElementDisplay(el, show) {
 function createTooltip() {
     const el = document.createElement('div');
     el.id = 'odontogramTooltip';
-    el.className = 'fixed z-50 pointer-events-none px-3 py-2 rounded-md text-xs font-medium shadow-lg bg-slate-900 text-white opacity-0 transition-opacity duration-150';
+    el.className = 'fixed z-50 pointer-events-none px-3 py-2 rounded-md text-xs font-medium v3-elevation-none v3-bg-forest v3-text-on-primary opacity-0 transition-opacity duration-150';
     document.body.appendChild(el);
     return el;
 }
@@ -1325,11 +1325,11 @@ function updateConditionsTable() {
         const row = document.createElement('tr');
         const cell = document.createElement('td');
         cell.setAttribute('colspan', '8');
-        cell.className = 'py-12 text-center text-gray-500';
+        cell.className = 'py-12 text-center v3-text-muted';
         const wrapper = document.createElement('div');
         wrapper.className = 'flex flex-col items-center space-y-3';
         const icon = document.createElement('i');
-        icon.className = 'fas fa-smile text-4xl text-green-400';
+        icon.className = 'fas fa-smile text-4xl v3-text-primary';
         const title = document.createElement('div');
         title.className = 'text-lg font-medium';
         title.textContent = 'All teeth are healthy!';
@@ -1354,16 +1354,16 @@ function updateConditionsTable() {
         const status = record.treatment_status || 'completed';
 
         const row = document.createElement('tr');
-        row.className = 'border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-200';
+        row.className = 'border-b v3-border-default v3-hover-soft transition-colors duration-200';
         row.dataset.tooth = toothNumber;
 
         const toothCell = document.createElement('td');
         toothCell.className = 'py-2 px-3';
         const toothUniversal = document.createElement('span');
-        toothUniversal.className = 'universal-number font-semibold text-blue-600';
+        toothUniversal.className = 'universal-number font-semibold v3-text-primary';
         toothUniversal.textContent = String(toothNumber);
         const toothFdi = document.createElement('span');
-        toothFdi.className = 'fdi-number hidden font-semibold text-blue-600';
+        toothFdi.className = 'fdi-number hidden font-semibold v3-text-primary';
         toothFdi.textContent = getFdiNumber(toothNumber);
         toothCell.appendChild(toothUniversal);
         toothCell.appendChild(toothFdi);
@@ -1371,16 +1371,16 @@ function updateConditionsTable() {
         const fdiCell = document.createElement('td');
         fdiCell.className = 'py-2 px-3';
         const fdiUniversal = document.createElement('span');
-        fdiUniversal.className = 'universal-number text-gray-600';
+        fdiUniversal.className = 'universal-number v3-text-muted';
         fdiUniversal.textContent = getFdiNumber(toothNumber);
         const fdiAlt = document.createElement('span');
-        fdiAlt.className = 'fdi-number hidden text-gray-600';
+        fdiAlt.className = 'fdi-number hidden v3-text-muted';
         fdiAlt.textContent = String(toothNumber);
         fdiCell.appendChild(fdiUniversal);
         fdiCell.appendChild(fdiAlt);
 
         const positionCell = document.createElement('td');
-        positionCell.className = 'py-3 px-4 text-gray-600';
+        positionCell.className = 'py-3 px-4 v3-text-muted';
         positionCell.textContent = getToothPosition(toothNumber);
 
         const conditionCell = document.createElement('td');
@@ -1391,12 +1391,12 @@ function updateConditionsTable() {
         conditionCell.appendChild(conditionBadge);
 
         const descriptionCell = document.createElement('td');
-        descriptionCell.className = 'py-3 px-4 text-gray-600 max-w-xs truncate';
+        descriptionCell.className = 'py-3 px-4 v3-text-muted max-w-xs truncate';
         descriptionCell.title = description;
         descriptionCell.textContent = description || '-';
 
         const treatmentCell = document.createElement('td');
-        treatmentCell.className = 'py-3 px-4 text-gray-600 max-w-xs truncate';
+        treatmentCell.className = 'py-3 px-4 v3-text-muted max-w-xs truncate';
         treatmentCell.title = treatment;
         treatmentCell.textContent = treatment || '-';
 
@@ -1411,7 +1411,7 @@ function updateConditionsTable() {
         actionCell.className = 'py-2 px-3 text-center';
         const editLink = document.createElement('a');
         editLink.href = '#';
-        editLink.className = 'inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors';
+        editLink.className = 'inline-flex items-center justify-center w-8 h-8 rounded-lg v3-text-primary v3-hover-primary v3-hover-text-primary transition-colors';
         editLink.title = 'Edit tooth ' + toothNumber;
         editLink.innerHTML = '<i class="fas fa-pen text-xs"></i>';
         editLink.addEventListener('click', (e) => { e.preventDefault(); openToothModal(toothNumber); });
@@ -1506,7 +1506,7 @@ function renderItems() {
         const row = document.createElement('tr');
         const cell = document.createElement('td');
         cell.colSpan = 6;
-        cell.className = 'px-4 py-6 text-center text-gray-500';
+        cell.className = 'px-4 py-6 text-center v3-text-muted';
         cell.textContent = 'No items added.';
         row.appendChild(cell);
         itemsBody.appendChild(row);
@@ -1527,7 +1527,7 @@ function renderItems() {
         actionCell.className = 'px-2 py-1.5 text-right';
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
-        removeBtn.className = 'text-[11px] text-rose-500 hover:text-rose-700 font-medium';
+        removeBtn.className = 'text-[11px] v3-text-danger v3-hover-text-danger font-medium';
         removeBtn.textContent = '×';
         removeBtn.addEventListener('click', () => {
             items.splice(index, 1);
@@ -1549,7 +1549,7 @@ function buildItemCell(field, value, index, type = 'text') {
     input.type = type;
     input.name = `items[${index}][${field}]`;
     input.value = value ?? '';
-    input.className = 'w-full px-2 py-1.5 border border-gray-200 rounded text-xs bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400';
+    input.className = 'w-full px-2 py-1.5 border v3-border-default rounded text-xs v3-bg-panel v3-text-ink focus:outline-none focus:border v3-focus-control v3-focus-control';
 
     if (field === 'qty' || field === 'price') {
         input.step = '0.01'; input.min = '0';

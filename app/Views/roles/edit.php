@@ -15,7 +15,7 @@ $isRtl = !empty($is_rtl);
                 <p class="text-lg"><?= lang('UserRole.updateRoleInformationPermissions') ?></p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 duration-200">
+                <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 duration-200 v3-btn v3-btn--secondary">
                     <i class="fas fa-arrow-left rtl-back-icon"></i>
                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.backToRoles') ?></span>
                 </a>
@@ -25,14 +25,14 @@ $isRtl = !empty($is_rtl);
 
     <!-- Flash Messages -->
     <?php if (session()->getFlashdata('validation')): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 p-4">
+        <div class="mb-6 v3-bg-alert border v3-border-default p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                    <i class="fas fa-exclamation-circle v3-text-danger text-xl"></i>
                 </div>
                 <div class="<?= $isRtl ? 'mr-3' : 'ml-3' ?>">
-                    <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.validationErrors') ?></h3>
-                    <div class="mt-2 text-sm text-red-700">
+                    <h3 class="text-sm font-medium v3-text-danger"><?= lang('UserRole.validationErrors') ?></h3>
+                    <div class="mt-2 text-sm v3-text-danger">
                         <ul class="list-disc list-inside space-y-1">
                             <?php foreach (session()->getFlashdata('validation')->getErrors() as $error): ?>
                                 <li><?= esc($error) ?></li>
@@ -45,14 +45,14 @@ $isRtl = !empty($is_rtl);
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 p-4">
+        <div class="mb-6 v3-bg-alert border v3-border-default p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                    <i class="fas fa-exclamation-circle v3-text-danger text-xl"></i>
                 </div>
                 <div class="<?= $isRtl ? 'mr-3' : 'ml-3' ?>">
-                    <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.error') ?></h3>
-                    <div class="mt-2 text-sm text-red-700">
+                    <h3 class="text-sm font-medium v3-text-danger"><?= lang('UserRole.error') ?></h3>
+                    <div class="mt-2 text-sm v3-text-danger">
                         <p><?= session()->getFlashdata('error') ?></p>
                     </div>
                 </div>
@@ -61,14 +61,14 @@ $isRtl = !empty($is_rtl);
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="mb-6 bg-green-50 border border-green-200 p-4">
+        <div class="mb-6 v3-bg-paid border v3-border-default p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    <i class="fas fa-check-circle v3-text-primary text-xl"></i>
                 </div>
                 <div class="<?= $isRtl ? 'mr-3' : 'ml-3' ?>">
-                    <h3 class="text-sm font-medium text-green-800"><?= lang('UserRole.success') ?></h3>
-                    <div class="mt-2 text-sm text-green-700">
+                    <h3 class="text-sm font-medium v3-text-primary"><?= lang('UserRole.success') ?></h3>
+                    <div class="mt-2 text-sm v3-text-primary">
                         <p><?= session()->getFlashdata('success') ?></p>
                     </div>
                 </div>
@@ -88,13 +88,13 @@ $isRtl = !empty($is_rtl);
             </div>
             <div class="<?= $isRtl ? 'mr-auto' : 'ml-auto' ?> flex items-center gap-2">
                 <?php if ($role['is_active']): ?>
-                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
-                        <div class="w-1.5 h-1.5 bg-green-400 mr-1.5"></div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium v3-bg-paid v3-text-primary">
+                        <div class="w-1.5 h-1.5 v3-bg-primary mr-1.5"></div>
                         <?= lang('UserRole.active') ?>
                     </span>
                 <?php else: ?>
-                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-800">
-                        <div class="w-1.5 h-1.5 bg-red-400 mr-1.5"></div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium v3-bg-alert v3-text-danger">
+                        <div class="w-1.5 h-1.5 v3-bg-danger mr-1.5"></div>
                         <?= lang('UserRole.inactive') ?>
                     </span>
                 <?php endif; ?>
@@ -133,13 +133,13 @@ $isRtl = !empty($is_rtl);
                         <!-- Role Name -->
                         <div>
                             <label for="name" class="block text-sm font-medium mb-2">
-                                <?= lang('UserRole.roleName') ?> <span class="text-red-500">*</span>
+                                <?= lang('UserRole.roleName') ?> <span class="v3-text-danger">*</span>
                             </label>
                             <input type="text"
                                    id="name"
                                    name="name"
                                    value="<?= old('name', $role['name']) ?>"
-                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200 v3-input"
                                    placeholder="<?= lang('UserRole.roleNamePlaceholder') ?>"
                                    required>
                         </div>
@@ -147,13 +147,13 @@ $isRtl = !empty($is_rtl);
                         <!-- Role Slug -->
                         <div>
                             <label for="slug" class="block text-sm font-medium mb-2">
-                                <?= lang('UserRole.roleSlug') ?> <span class="text-red-500">*</span>
+                                <?= lang('UserRole.roleSlug') ?> <span class="v3-text-danger">*</span>
                             </label>
                             <input type="text"
                                    id="slug"
                                    name="slug"
                                    value="<?= old('slug', $role['slug']) ?>"
-                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200 v3-input"
                                    placeholder="<?= lang('UserRole.roleSlugPlaceholder') ?>"
                                    required>
                             <p class="text-xs mt-1"><?= lang('UserRole.roleSlugHint') ?></p>
@@ -167,7 +167,7 @@ $isRtl = !empty($is_rtl);
                             <textarea id="description"
                                       name="description"
                                       rows="4"
-                                      class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200"
+                                      class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200 v3-textarea"
                                       placeholder="<?= lang('UserRole.roleDescriptionPlaceholder') ?>"><?= old('description', $role['description']) ?></textarea>
                         </div>
 
@@ -180,7 +180,7 @@ $isRtl = !empty($is_rtl);
                                            name="is_active"
                                            value="1"
                                            <?= old('is_active', $role['is_active']) == '1' ? 'checked' : '' ?>
-                                           class="h-4 w-4">
+                                           class="h-4 w-4 v3-radio">
                                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.active') ?></span>
                                 </label>
                                 <label class="flex items-center">
@@ -188,7 +188,7 @@ $isRtl = !empty($is_rtl);
                                            name="is_active"
                                            value="0"
                                            <?= old('is_active', $role['is_active']) == '0' ? 'checked' : '' ?>
-                                           class="h-4 w-4">
+                                           class="h-4 w-4 v3-radio">
                                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.inactive') ?></span>
                                 </label>
                             </div>
@@ -203,7 +203,7 @@ $isRtl = !empty($is_rtl);
                                            name="is_medical"
                                            value="1"
                                            <?= old('is_medical', $role['is_medical'] ?? 0) == '1' ? 'checked' : '' ?>
-                                           class="h-4 w-4 text-green-600 focus:ring-green-500">
+                                           class="h-4 w-4 v3-text-primary v3-focus-control v3-radio">
                                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.medicalRoleDoctor') ?></span>
                                 </label>
                                 <label class="flex items-center">
@@ -211,7 +211,7 @@ $isRtl = !empty($is_rtl);
                                            name="is_medical"
                                            value="0"
                                            <?= old('is_medical', $role['is_medical'] ?? 0) == '0' ? 'checked' : '' ?>
-                                           class="h-4 w-4 text-green-600 focus:ring-green-500">
+                                           class="h-4 w-4 v3-text-primary v3-focus-control v3-radio">
                                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.nonMedicalRole') ?></span>
                                 </label>
                             </div>
@@ -296,13 +296,13 @@ $isRtl = !empty($is_rtl);
                                         <div class="flex items-center gap-3">
                                             <button type="button"
                                                     onclick="selectAllPermissions('<?= $module ?>')"
-                                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200">
+                                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 v3-btn v3-btn--secondary">
                                                 <i class="fas fa-check-double"></i>
                                                 <span class="<?= $isRtl ? 'mr-1' : 'ml-1' ?>"><?= lang('UserRole.selectAll') ?></span>
                                             </button>
                                             <button type="button"
                                                     onclick="deselectAllPermissions('<?= $module ?>')"
-                                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200">
+                                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 v3-btn v3-btn--secondary">
                                                 <i class="fas fa-times"></i>
                                                 <span class="<?= $isRtl ? 'mr-1' : 'ml-1' ?>"><?= lang('UserRole.deselectAll') ?></span>
                                             </button>
@@ -326,16 +326,16 @@ $isRtl = !empty($is_rtl);
                                                        name="permissions[]"
                                                        value="<?= $permission['id'] ?>"
                                                        <?= $isChecked ? 'checked' : '' ?>
-                                                       class="h-5 w-5 rounded mt-0.5 permission-checkbox"
+                                                       class="h-5 w-5 rounded mt-0.5 permission-checkbox v3-checkbox"
                                                        data-module="<?= $module ?>"
                                                        >
                                                 <div class="<?= $isRtl ? 'mr-3' : 'ml-3' ?> flex-1">
                                                     <div class="flex items-center gap-2">
-                                                        <span class="text-sm font-semibold <?= $isDisabled ? 'text-gray-400' : '' ?>">
+                                                        <span class="text-sm font-semibold <?= $isDisabled ? 'v3-text-muted' : '' ?>">
                                                             <?= esc($actionLabels[$permissionAction] ?? $permission['name']) ?>
                                                         </span>
                                                         <?php if ($isDisabled): ?>
-                                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium v3-bg-waiting v3-text-warning">
                                                                 <i class="fas fa-lock mr-1"></i><?= lang('UserRole.system') ?>
                                                             </span>
                                                         <?php endif; ?>
@@ -358,7 +358,7 @@ $isRtl = !empty($is_rtl);
                                 </div>
                                 <h3 class="text-lg font-medium mb-2"><?= lang('UserRole.noPermissionsAvailable') ?></h3>
                                 <p class="mb-6"><?= lang('UserRole.syncPermissionsFirstEdit') ?></p>
-                                <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors">
+                                <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors v3-btn v3-btn--secondary">
                                     <i class="fas fa-sync-alt"></i>
                                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.syncPermissions') ?></span>
                                 </a>
@@ -371,10 +371,10 @@ $isRtl = !empty($is_rtl);
 
         <!-- Form Actions -->
         <div class="flex flex-col justify-end gap-3 pt-6 border-t sm:flex-row sm:gap-4">
-            <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
+            <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border text-sm font-medium rounded-lg focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-colors duration-200 v3-btn v3-btn--secondary">
                 <?= lang('UserRole.cancel') ?>
             </a>
-            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 duration-200">
+            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 duration-200 v3-btn v3-btn--primary">
                 <i class="fas fa-save"></i>
                 <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.updateRole') ?></span>
             </button>

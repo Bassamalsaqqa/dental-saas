@@ -39,8 +39,8 @@ $billingStateLabel = $chargeLineId <= 0
     ? $tr('no_charge_captured')
     : ($chargeLineIsOpen ? $tr('not_billed_yet') : $tr('already_billed'));
 $billingStateTone = $chargeLineId <= 0
-    ? 'border-slate-200 bg-slate-50 text-slate-700'
-    : ($chargeLineIsOpen ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800');
+    ? 'v3-border-default v3-bg-panel v3-text-ink'
+    : ($chargeLineIsOpen ? 'v3-border-default v3-bg-waiting v3-text-warning' : 'v3-border-default v3-bg-paid v3-text-primary');
 $invoiceBalance = (float) ($moneySummary['balance_due'] ?? 0);
 $providerRemaining = (float) ($moneySummary['provider_remaining'] ?? 0);
 $inventoryCost = (float) ($moneySummary['inventory_cost'] ?? 0);
@@ -51,12 +51,12 @@ if ($procedureStatus !== '' && $procedureStatusLabel === 'Treatment.procedure_st
     $procedureStatusLabel = ucfirst(str_replace('_', ' ', $procedureStatus));
 }
 $procedureStatusClass = match ($procedureStatus) {
-    'completed' => 'bg-emerald-100 text-emerald-800 ring-emerald-200',
-    'in_progress' => 'bg-blue-100 text-blue-800 ring-blue-200',
-    'accepted', 'scheduled' => 'bg-cyan-100 text-cyan-800 ring-cyan-200',
-    'rejected', 'cancelled' => 'bg-rose-100 text-rose-800 ring-rose-200',
-    'referred' => 'bg-violet-100 text-violet-800 ring-violet-200',
-    default => 'bg-amber-100 text-amber-800 ring-amber-200',
+    'completed' => 'v3-bg-paid v3-text-primary v3-border-default',
+    'in_progress' => 'v3-bg-scheduled v3-text-primary v3-border-default',
+    'accepted', 'scheduled' => 'v3-bg-scheduled v3-text-primary v3-border-default',
+    'rejected', 'cancelled' => 'v3-bg-alert v3-text-danger v3-border-default',
+    'referred' => 'v3-bg-chair v3-text-chair v3-border-default',
+    default => 'v3-bg-waiting v3-text-warning v3-border-default',
 };
 $statusTone = match ($statusRaw) {
     'active' => ['bg' => 'rgba(59,130,246,0.22)', 'border' => 'rgba(147,197,253,0.4)'],
@@ -135,19 +135,19 @@ $statusTone = match ($statusRaw) {
                         <a href="<?= workflow_context_url('treatment/' . $treatment['id'] . '/edit', $return_to ?? null) ?>" class="v3-context-action patient-header-action-soft">
                             <i class="fas fa-pen"></i><span><?= esc($tr('edit_treatment')) ?></span>
                         </a>
-                        <button type="button" onclick="printTreatment(<?= $treatment['id'] ?>)" class="patient-hero-tool-button">
+                        <button type="button" onclick="printTreatment(<?= $treatment['id'] ?>)" class="patient-hero-tool-button v3-btn v3-btn--secondary">
                             <i class="fas fa-print"></i><span><?= esc($tr('print_treatment')) ?></span>
                         </button>
                     </div>
                     <?php if ($statusRaw === 'active'): ?>
                     <div class="grid gap-2 sm:grid-cols-1">
-                        <button type="button" onclick="completeTreatment(<?= $treatment['id'] ?>)" class="v3-context-action patient-header-action-emerald">
+                        <button type="button" onclick="completeTreatment(<?= $treatment['id'] ?>)" class="v3-context-action patient-header-action-emerald v3-btn v3-btn--secondary">
                             <i class="fas fa-check"></i><span><?= esc($tr('mark_as_completed')) ?></span>
                         </button>
                     </div>
                     <?php endif; ?>
                     <div class="grid gap-2 sm:grid-cols-1">
-                        <button type="button" onclick="deleteTreatment(<?= $treatment['id'] ?>)" class="v3-context-action patient-header-action-danger">
+                        <button type="button" onclick="deleteTreatment(<?= $treatment['id'] ?>)" class="v3-context-action patient-header-action-danger v3-btn v3-btn--secondary">
                             <i class="fas fa-trash"></i><span><?= esc($tr('delete_treatment')) ?></span>
                         </button>
                     </div>
@@ -159,11 +159,11 @@ $statusTone = match ($statusRaw) {
     <section class="treatment-command-section mb-6 rounded-[1.6rem] border p-4 sm:p-5">
         <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-xs uppercase tracking-[0.16em] text-emerald-700"><?= esc($tr('operational_snapshot')) ?></p>
+                <p class="text-xs uppercase tracking-[0.16em] v3-text-primary"><?= esc($tr('operational_snapshot')) ?></p>
                 <h2 class="mt-1 text-lg font-extrabold"><?= esc($tr('clinical_finance_trace')) ?></h2>
             </div>
             <?php if ($linkedInvoiceUrl !== ''): ?>
-                <a href="<?= esc($linkedInvoiceUrl) ?>" class="inline-flex w-fit items-center justify-center gap-2 border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+                <a href="<?= esc($linkedInvoiceUrl) ?>" class="inline-flex w-fit items-center justify-center gap-2 border v3-border-default v3-bg-paid px-3 py-2 text-sm font-bold v3-text-primary v3-hover-primary v3-btn v3-btn--secondary">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span><?= esc($tr('open_linked_invoice')) ?></span>
                 </a>
@@ -184,17 +184,17 @@ $statusTone = match ($statusRaw) {
             </div>
             <div class="treatment-snapshot-card">
                 <p class="treatment-snapshot-label"><?= esc(lang('UI.moneyTrailBalanceDue')) ?></p>
-                <p class="treatment-snapshot-value <?= $invoiceBalance > 0.009 ? 'text-amber-700' : 'text-emerald-700' ?>" dir="ltr"><?= esc(formatCurrency($invoiceBalance)) ?></p>
+                <p class="treatment-snapshot-value <?= $invoiceBalance > 0.009 ? 'v3-text-warning' : 'v3-text-primary' ?>" dir="ltr"><?= esc(formatCurrency($invoiceBalance)) ?></p>
                 <p class="treatment-snapshot-meta"><?= esc(lang('UI.moneyTrailCharged')) ?>: <span dir="ltr"><?= esc(formatCurrency($moneySummary['charged'] ?? 0)) ?></span></p>
             </div>
             <div class="treatment-snapshot-card">
                 <p class="treatment-snapshot-label"><?= esc(lang('UI.moneyTrailProviderRemaining')) ?></p>
-                <p class="treatment-snapshot-value <?= $providerRemaining > 0.009 ? 'text-violet-700' : 'text-slate-700' ?>" dir="ltr"><?= esc(formatCurrency($providerRemaining)) ?></p>
+                <p class="treatment-snapshot-value <?= $providerRemaining > 0.009 ? 'v3-text-chair' : 'v3-text-ink' ?>" dir="ltr"><?= esc(formatCurrency($providerRemaining)) ?></p>
                 <p class="treatment-snapshot-meta"><?= esc(lang('UI.moneyTrailProviderShare')) ?>: <span dir="ltr"><?= esc(formatCurrency($moneySummary['provider_share'] ?? 0)) ?></span></p>
             </div>
             <div class="treatment-snapshot-card">
                 <p class="treatment-snapshot-label"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
-                <p class="treatment-snapshot-value <?= $inventoryCost > 0.009 ? 'text-rose-700' : 'text-slate-700' ?>" dir="ltr"><?= esc(formatCurrency($inventoryCost)) ?></p>
+                <p class="treatment-snapshot-value <?= $inventoryCost > 0.009 ? 'v3-text-danger' : 'v3-text-ink' ?>" dir="ltr"><?= esc(formatCurrency($inventoryCost)) ?></p>
                 <p class="treatment-snapshot-meta"><?= esc($tr('inventory_usage')) ?>: <?= esc((string) count($usage_records ?? [])) ?></p>
             </div>
         </div>
@@ -219,12 +219,12 @@ $statusTone = match ($statusRaw) {
                     <i class="fas fa-route"></i><span><?= esc($tr('procedure_lifecycle')) ?></span>
                 </div>
                 <div class="treatment-card-body">
-                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 ring-1">
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border">
                         <div>
                             <p class="text-sm font-extrabold"><?= esc($tr('procedure_lifecycle')) ?></p>
                             <p class="mt-1 text-xs font-semibold"><?= esc($tr('procedure_lifecycle_help')) ?></p>
                         </div>
-                        <span class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-extrabold ring-1 <?= esc($procedureStatusClass) ?>">
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-extrabold border <?= esc($procedureStatusClass) ?>">
                             <i class="fas fa-circle-check"></i>
                             <?= esc($procedureStatusLabel) ?>
                         </span>
@@ -233,7 +233,7 @@ $statusTone = match ($statusRaw) {
                         <form action="<?= base_url('treatment/' . (int) $treatment['id'] . '/accept') ?>" method="POST" class="mt-4">
                             <?= csrf_field() ?>
                             <input type="hidden" name="return_to" value="treatment/<?= (int) $treatment['id'] ?>">
-                            <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-extrabold transition hover:-translate-y-0.5">
+                            <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-extrabold transition hover:-translate-y-0.5 v3-btn v3-btn--primary">
                                 <i class="fas fa-circle-check"></i>
                                 <span><?= esc($tr('accept_for_scheduling')) ?></span>
                             </button>
@@ -249,7 +249,7 @@ $statusTone = match ($statusRaw) {
                            data-patient-id="<?= (int) $treatment['patient_id'] ?>"
                            data-clinical-procedure-id="<?= (int) $procedureLifecycle['id'] ?>"
                            data-appointment-type="treatment"
-                           class="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-extrabold transition hover:-translate-y-0.5">
+                           class="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-extrabold transition hover:-translate-y-0.5 v3-btn v3-btn--secondary">
                             <i class="fas fa-calendar-plus"></i>
                             <span><?= esc($tr('schedule_accepted_treatment')) ?></span>
                         </a>
@@ -272,7 +272,7 @@ $statusTone = match ($statusRaw) {
             <?php if (!empty($treatment['treatment_notes'])): ?>
             <div class="treatment-card treatment-card--notes">
                 <div class="treatment-card-header">
-                    <i class="fas fa-sticky-note text-amber-500"></i><span><?= esc($tr('treatment_notes')) ?></span>
+                    <i class="fas fa-sticky-note v3-text-warning"></i><span><?= esc($tr('treatment_notes')) ?></span>
                 </div>
                 <div class="treatment-card-body">
                     <div class="treatment-detail-copy text-sm"><?= nl2br(htmlspecialchars($treatment['treatment_notes'])) ?></div>
@@ -284,7 +284,7 @@ $statusTone = match ($statusRaw) {
             <?php if (!empty($usage_records)): ?>
             <div class="treatment-card treatment-card--inventory">
                 <div class="treatment-card-header">
-                    <i class="fas fa-boxes text-emerald-600"></i><span><?= esc($tr('inventory_usage')) ?></span>
+                    <i class="fas fa-boxes v3-text-primary"></i><span><?= esc($tr('inventory_usage')) ?></span>
                 </div>
                 <div class="treatment-card-body">
                 <div class="treatment-card-panel overflow-hidden">
@@ -298,7 +298,7 @@ $statusTone = match ($statusRaw) {
                                 <th class="px-3 py-2.5"><?= esc($tr('notes')) ?></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y v3-border-default">
                             <?php foreach ($usage_records as $usage):
                                 $items = json_decode($usage['items_used'] ?? '[]', true);
                                 $itemList = [];
@@ -309,7 +309,7 @@ $statusTone = match ($statusRaw) {
                                 <tr class="">
                                     <td class="px-3 py-2.5"><?= !empty($usage['usage_date']) ? formatDate($usage['usage_date']) : '—' ?></td>
                                     <td class="px-3 py-2.5"><?= !empty($itemList) ? esc(implode(', ', $itemList)) : '—' ?></td>
-                                    <td class="px-3 py-2.5 font-semibold text-emerald-700"><?= formatCurrency((float) ($usage['total_cost'] ?? 0)) ?></td>
+                                    <td class="px-3 py-2.5 font-semibold v3-text-primary"><?= formatCurrency((float) ($usage['total_cost'] ?? 0)) ?></td>
                                     <td class="px-3 py-2.5"><?= !empty($usage['notes']) ? esc($usage['notes']) : '—' ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -335,40 +335,40 @@ $statusTone = match ($statusRaw) {
             <!-- Patient Billing -->
             <div class="treatment-card treatment-card--billing">
                 <div class="treatment-card-header">
-                    <i class="fas fa-file-invoice-dollar text-emerald-600"></i><span><?= esc($tr('patient_billing')) ?></span>
+                    <i class="fas fa-file-invoice-dollar v3-text-primary"></i><span><?= esc($tr('patient_billing')) ?></span>
                 </div>
                 <div class="treatment-card-body space-y-4 text-sm">
                     <?php if ($chargeLineId > 0): ?>
                         <div class="treatment-card-panel p-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <p class="text-xs font-bold uppercase tracking-wide text-emerald-700"><?= esc($tr('captured_charge')) ?></p>
+                                    <p class="text-xs font-bold uppercase tracking-wide v3-text-primary"><?= esc($tr('captured_charge')) ?></p>
                                     <p class="mt-1 truncate font-bold"><?= esc($chargeLine['procedure_name'] ?? $treatment['treatment_name'] ?? $tr('treatment')) ?></p>
                                     <?php if (!empty($chargeLine['tooth_numbers'])): ?>
                                         <p class="mt-1 text-xs"><?= esc($tr('tooth_number_short')) ?>: <span dir="ltr"><?= esc($chargeLine['tooth_numbers']) ?></span></p>
                                     <?php endif; ?>
                                 </div>
                                 <div class="shrink-0 text-end">
-                                    <p class="text-emerald-700" dir="ltr"><?= esc($chargeLineCurrency) ?> <?= number_format($chargeLineAmount, 2) ?></p>
-                                    <span class="mt-1 inline-flex px-2 py-0.5 text-xs font-bold <?= $chargeLineIsOpen ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                                    <p class="v3-text-primary" dir="ltr"><?= esc($chargeLineCurrency) ?> <?= number_format($chargeLineAmount, 2) ?></p>
+                                    <span class="mt-1 inline-flex px-2 py-0.5 text-xs font-bold <?= $chargeLineIsOpen ? 'v3-bg-waiting v3-text-warning' : 'v3-bg-paid v3-text-primary' ?>">
                                         <?= esc($chargeLineIsOpen ? $tr('not_billed_yet') : $tr('already_billed')) ?>
                                     </span>
                                 </div>
                             </div>
                         </div>
                         <?php if ($billThisTreatmentUrl !== ''): ?>
-                            <button type="button" data-app-drawer-open="treatmentInvoiceDrawer" class="treatment-card-action w-full bg-emerald-600 hover:bg-emerald-700">
+                            <button type="button" data-app-drawer-open="treatmentInvoiceDrawer" class="treatment-card-action w-full v3-bg-primary v3-hover-primary v3-btn v3-btn--primary">
                                 <i class="fas fa-file-invoice-dollar"></i><span><?= esc($tr('create_invoice_from_treatment')) ?></span>
                             </button>
                         <?php elseif ($linkedInvoiceUrl !== ''): ?>
-                            <a href="<?= esc($linkedInvoiceUrl) ?>" class="treatment-card-action w-full border border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                            <a href="<?= esc($linkedInvoiceUrl) ?>" class="treatment-card-action w-full border v3-border-default v3-text-primary v3-hover-primary">
                                 <i class="fas fa-link"></i><span><?= esc($tr('open_linked_invoice')) ?></span>
                             </a>
                         <?php endif; ?>
                     <?php else: ?>
                         <div class="treatment-card-empty p-4">
                             <p class="font-semibold"><?= esc($tr('no_charge_captured')) ?></p>
-                            <a href="<?= workflow_context_url('treatment/' . $treatment['id'] . '/edit', $return_to ?? null) ?>" class="mt-2 inline-flex items-center gap-2 text-xs font-bold text-emerald-700 hover:text-emerald-800">
+                            <a href="<?= workflow_context_url('treatment/' . $treatment['id'] . '/edit', $return_to ?? null) ?>" class="mt-2 inline-flex items-center gap-2 text-xs font-bold v3-text-primary v3-hover-text-primary">
                                 <i class="fas fa-pen"></i><span><?= esc($tr('edit_to_capture_charge')) ?></span>
                             </a>
                         </div>
@@ -440,13 +440,13 @@ $statusTone = match ($statusRaw) {
         'title' => $tr('create_invoice_from_treatment'),
         'description' => '',
         'icon' => 'fas fa-file-invoice-dollar',
-        'tone' => 'bg-emerald-600',
+        'tone' => 'v3-bg-primary',
         'size' => 'wide',
         'body' => $treatmentInvoiceDrawerBody,
         'footer' => '<div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">'
             . '<button type="button" class="inline-flex items-center justify-center border px-4 py-2.5 text-sm font-bold" data-app-drawer-close="' . esc($treatmentInvoiceDrawerId) . '">' . esc(lang('UI.cancel')) . '</button>'
-            . '<a href="' . esc($billThisTreatmentUrl) . '" class="inline-flex items-center justify-center border border-emerald-200 px-4 py-2.5 text-sm font-bold text-emerald-800 hover:bg-emerald-50">' . esc(lang('UI.openFullPage')) . '</a>'
-            . '<button type="submit" form="' . esc($treatmentInvoiceFormId) . '" class="inline-flex items-center justify-center bg-emerald-600 px-5 py-2.5 text-sm font-bold hover:bg-emerald-700">' . esc(lang('Finance.createTransaction')) . '</button>'
+            . '<a href="' . esc($billThisTreatmentUrl) . '" class="inline-flex items-center justify-center border v3-border-default px-4 py-2.5 text-sm font-bold v3-text-primary v3-hover-primary">' . esc(lang('UI.openFullPage')) . '</a>'
+            . '<button type="submit" form="' . esc($treatmentInvoiceFormId) . '" class="inline-flex items-center justify-center v3-bg-primary px-5 py-2.5 text-sm font-bold v3-hover-primary">' . esc(lang('Finance.createTransaction')) . '</button>'
             . '</div>',
     ]) ?>
     <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>

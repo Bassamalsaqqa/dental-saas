@@ -23,12 +23,9 @@ html[lang^=ar] .denta-v3 :is(h1,h2,h3,h4) {letter-spacing:0;}
 .denta-v3 :is(.num,.tabular-nums,input[type=number],table) {font-variant-numeric:tabular-nums;}
 .denta-v3 :is(.text-gray-500,.text-slate-500,.text-gray-600,.text-slate-600) {color:var(--denta-muted);}
 .denta-v3 ::selection {background:var(--denta-tint-scheduled);color:var(--denta-forest);}
-.denta-v3 :focus-visible {outline:3px solid var(--denta-emerald-hover)!important;outline-offset:3px;}
+.denta-v3 :focus-visible {outline:3px solid var(--denta-emerald-hover);outline-offset:3px;}
 .denta-v3 input,.denta-v3 textarea {caret-color:var(--denta-emerald-pine);}
 .denta-v3 [dir=ltr] {unicode-bidi:isolate;}
-.denta-v3 .fa,.denta-v3 .fas {font-family:"Font Awesome 6 Free"!important;font-weight:900;}
-.denta-v3 .far {font-family:"Font Awesome 6 Free"!important;font-weight:400;}
-.denta-v3 .fab {font-family:"Font Awesome 6 Brands"!important;}
 /* Independent fixed-height navigation, not a second navigation system. */
 .denta-v3 #sidebar {display:flex;flex-direction:column;flex-shrink:0;width:240px;height:100dvh;position:sticky;top:0;z-index:40;background:var(--denta-forest);color:var(--denta-alabaster);border-inline-end:1px solid #34443E;overflow:hidden;}
 .denta-v3 #sidebar:not(.no-transition) {transition:transform .16s ease;}
@@ -181,6 +178,51 @@ html[lang^=ar] .denta-v3 :is(h1,h2,h3,h4) {letter-spacing:0;}
 @media(max-width:767px){.denta-v3 #main-header .group>.absolute.opacity-0 {display:none;}}
 
 /* Shared matte presentation primitives used by replaced markup. */
-.denta-v3 .v3-radius{border-radius:6px}.denta-v3 .v3-surface{background:var(--denta-alabaster)}.denta-v3 .v3-soft-surface{background:var(--denta-tint-scheduled)}.denta-v3 .v3-accent-text{color:var(--denta-emerald-pine)}.denta-v3 .v3-border{border-color:var(--denta-taupe-border)}.denta-v3 .v3-title-scale{font-size:22px;line-height:1.3}.denta-v3 .v3-action{border-radius:5px;min-height:36px}.denta-v3 .v3-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--denta-taupe-border);background:var(--denta-sandstone)}
+.denta-v3 .v3-radius{border-radius:var(--denta-radius)}.denta-v3 .v3-surface{background:var(--denta-alabaster)}.denta-v3 .v3-soft-surface{background:var(--denta-tint-scheduled)}.denta-v3 .v3-accent-text{color:var(--denta-emerald-pine)}.denta-v3 .v3-border{border-color:var(--denta-taupe-border)}.denta-v3 .v3-title-scale{font-size:22px;line-height:1.3}.denta-v3 .v3-action{border-radius:5px;min-height:36px}.denta-v3 .v3-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--denta-taupe-border);background:var(--denta-sandstone)}
 
 .denta-v3 .v3-primary-surface{background:var(--denta-emerald-pine);color:var(--denta-ivory-input)}.denta-v3 .v3-form-section-header{background:var(--denta-sandstone);border-bottom:1px solid var(--denta-taupe-border);color:var(--denta-ink);padding:12px 14px}.denta-v3 .v3-form-section-header :is(h1,h2,h3,p,span){color:inherit}.denta-v3 .v3-form-section-header :is(h1,h2,h3){font-size:17px}.denta-v3 .v3-form-section-header .bg-white\/20{background:var(--denta-tint-scheduled);color:var(--denta-emerald-pine)}.denta-v3 .v3-form-section-header i{color:var(--denta-emerald-pine)}
+
+/* Source-owned V3 semantic tokens. These names replace visual Tailwind colors in PHP
+   and generated controls; they do not change native display/state utilities. */
+.denta-v3 .v3-bg-panel{background-color:var(--denta-alabaster)}
+.denta-v3 .v3-bg-input{background-color:var(--denta-ivory-input)}
+.denta-v3 .v3-bg-canvas{background-color:var(--denta-travertine)}
+.denta-v3 .v3-bg-sand{background-color:var(--denta-sandstone)}
+.denta-v3 .v3-bg-soft{background-color:var(--denta-parchment)}
+.denta-v3 .v3-bg-primary{background-color:var(--denta-emerald-pine)}
+.denta-v3 .v3-bg-primary-hover{background-color:var(--denta-emerald-hover)}
+.denta-v3 .v3-text-ink{color:var(--denta-ink)}
+.denta-v3 .v3-text-muted{color:var(--denta-muted)}
+.denta-v3 .v3-text-primary{color:var(--denta-emerald-pine)}
+.denta-v3 .v3-text-on-primary{color:var(--denta-ivory-input)}
+.denta-v3 .v3-border-default{border-color:var(--denta-taupe-border)}
+.denta-v3 .v3-bg-scheduled{background-color:var(--denta-tint-scheduled)}
+.denta-v3 .v3-text-scheduled{color:var(--denta-emerald-hover)}
+.denta-v3 .v3-bg-chair{background-color:var(--denta-tint-inchair)}
+.denta-v3 .v3-text-chair{color:#52436F}
+.denta-v3 .v3-hover-panel:hover{background-color:var(--denta-alabaster)}
+.denta-v3 .v3-hover-soft:hover{background-color:var(--denta-parchment)}
+.denta-v3 .v3-hover-primary:hover{background-color:var(--denta-emerald-hover)}
+.denta-v3 .v3-hover-text-primary:hover{color:var(--denta-emerald-pine)}
+.denta-v3 .v3-focus-control:focus{border-color:var(--denta-emerald-pine);outline:2px solid var(--denta-emerald-pine);outline-offset:2px;box-shadow:none}
+
+.denta-v3 .v3-bg-alert{background-color:var(--denta-tint-alert)}
+.denta-v3 .v3-bg-danger{background-color:#9B281F}
+.denta-v3 .v3-text-danger{color:#9B281F}
+.denta-v3 .v3-bg-paid{background-color:var(--denta-tint-paid)}
+.denta-v3 .v3-bg-waiting{background-color:var(--denta-tint-waiting)}
+.denta-v3 .v3-bg-warning{background-color:#86600B}
+.denta-v3 .v3-text-warning{color:#71500A}
+.denta-v3 .v3-hover-danger:hover{background-color:#7D211B}
+.denta-v3 .v3-hover-warning:hover{background-color:#71500A}
+.denta-v3 .v3-hover-paid:hover{background-color:var(--denta-tint-paid)}
+.denta-v3 .v3-hover-alert:hover{background-color:var(--denta-tint-alert)}
+.denta-v3 .v3-hover-waiting:hover{background-color:var(--denta-tint-waiting)}
+.denta-v3 .v3-hover-chair:hover{background-color:var(--denta-tint-inchair)}
+.denta-v3 .v3-hover-scheduled:hover{background-color:var(--denta-tint-scheduled)}
+.denta-v3 .v3-hover-text-ink:hover{color:var(--denta-ink)}
+.denta-v3 .v3-hover-text-danger:hover{color:#9B281F}
+.denta-v3 .v3-elevation-none{box-shadow:none}
+
+.denta-v3 .peer:checked ~ .v3-checked-primary{background-color:var(--denta-emerald-pine);color:var(--denta-ivory-input)}
+.denta-v3 .v3-hover-primary:hover,.denta-v3 .v3-hover-danger:hover,.denta-v3 .v3-hover-warning:hover{color:var(--denta-ivory-input)}

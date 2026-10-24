@@ -48,17 +48,17 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                             <div class="relative">
 
                                 <div class="v3-icon relative w-12 h-12 v3-corner flex items-center justify-center transition-all duration-300">
-                                    <i class="fas fa-stethoscope text-white text-lg"></i>
+                                    <i class="fas fa-stethoscope v3-text-on-primary text-lg"></i>
                                 </div>
                             </div>
                             <div>
-                                <h1 class="text-2xl font-black text-gray-900 group-hover:text-cyan-900 transition-colors duration-300"><?= esc($tr('edit_examination_title')) ?></h1>
-                                <p class="text-gray-600 font-medium"><?= esc($tr('edit_examination_subtitle', ['id' => $examination['examination_id']])) ?></p>
+                                <h1 class="text-2xl font-black v3-text-ink v3-hover-text-primary transition-colors duration-300"><?= esc($tr('edit_examination_title')) ?></h1>
+                                <p class="v3-text-muted font-medium"><?= esc($tr('edit_examination_subtitle', ['id' => $examination['examination_id']])) ?></p>
                             </div>
                         </div>
 
                         <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('examination/' . $examination['id'], $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 v3-border text-gray-700 text-sm font-bold v3-radius hover:border-gray-400 transition-all duration-300">
+                            <a href="<?= esc(workflow_back('examination/' . $examination['id'], $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 v3-border v3-text-ink text-sm font-bold v3-radius v3-border-default transition-all duration-300 v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc($tr('back')) ?></span>
@@ -75,18 +75,18 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                         <?php endif; ?>
 
                         <section class="v3-radius border v3-border v3-surface p-6 md:p-7">
-                            <h4 class="text-lg font-bold text-gray-900 mb-5 flex items-center space-x-2">
+                            <h4 class="text-lg font-bold v3-text-ink mb-5 flex items-center space-x-2">
                                 <i class="fas fa-asterisk text-xs v3-accent-text"></i>
                                 <span><?= esc($tr('required_information')) ?></span>
                             </h4>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="patientSelect" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('patient_required')) ?></label>
+                                    <label for="patientSelect" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('patient_required')) ?></label>
                                     <select
                                         name="patient_id"
                                         id="patientSelect"
-                                        class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                                        class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 v3-select"
                                         data-searchable-select
                                         data-minimum-input-length="0"
                                         data-limit="5"
@@ -104,13 +104,13 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         <?php endif; ?>
                                     </select>
                                     <?php if ($validation && $validation->hasError('patient_id')): ?>
-                                        <p class="text-red-600 text-sm mt-2"><?= $validation->getError('patient_id') ?></p>
+                                        <p class="v3-text-danger text-sm mt-2"><?= $validation->getError('patient_id') ?></p>
                                     <?php endif; ?>
                                 </div>
 
                                 <div>
-                                    <label for="examination_type" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_type_required')) ?></label>
-                                    <select name="examination_type" id="examination_type" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200" required>
+                                    <label for="examination_type" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('examination_type_required')) ?></label>
+                                    <select name="examination_type" id="examination_type" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 v3-select" required>
                                         <option value=""><?= esc($tr('select_type')) ?></option>
                                         <option value="initial" <?= old('examination_type', $examination['examination_type']) == 'initial' ? 'selected' : '' ?>><?= esc($tr('type_initial')) ?></option>
                                         <option value="periodic" <?= old('examination_type', $examination['examination_type']) == 'periodic' ? 'selected' : '' ?>><?= esc($tr('type_periodic')) ?></option>
@@ -118,31 +118,31 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         <option value="follow_up" <?= old('examination_type', $examination['examination_type']) == 'follow_up' ? 'selected' : '' ?>><?= esc($tr('type_follow_up')) ?></option>
                                     </select>
                                     <?php if ($validation && $validation->hasError('examination_type')): ?>
-                                        <p class="text-red-600 text-sm mt-2"><?= $validation->getError('examination_type') ?></p>
+                                        <p class="v3-text-danger text-sm mt-2"><?= $validation->getError('examination_type') ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
                             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="examination_date" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_date_required')) ?></label>
+                                    <label for="examination_date" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('examination_date_required')) ?></label>
                                     <input
                                         type="text"
                                         name="examination_date"
                                         id="examination_date"
                                         data-clinic-date="1"
                                         value="<?= old('examination_date', $examination['examination_date']) ?>"
-                                        class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                                        class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 v3-input"
                                         required
                                     >
                                     <?php if ($validation && $validation->hasError('examination_date')): ?>
-                                        <p class="text-red-600 text-sm mt-2"><?= $validation->getError('examination_date') ?></p>
+                                        <p class="v3-text-danger text-sm mt-2"><?= $validation->getError('examination_date') ?></p>
                                     <?php endif; ?>
                                 </div>
 
                                 <div>
-                                    <label for="status" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('status')) ?></label>
-                                    <select name="status" id="status" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200">
+                                    <label for="status" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('status')) ?></label>
+                                    <select name="status" id="status" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 v3-select">
                                         <option value="pending" <?= old('status', $examination['status']) == 'pending' ? 'selected' : '' ?>><?= esc($tr('status_pending')) ?></option>
                                         <option value="in_progress" <?= old('status', $examination['status']) == 'in_progress' ? 'selected' : '' ?>><?= esc($tr('status_in_progress')) ?></option>
                                         <option value="completed" <?= old('status', $examination['status']) == 'completed' ? 'selected' : '' ?>><?= esc($tr('status_completed')) ?></option>
@@ -152,17 +152,17 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                             </div>
 
                             <div class="mt-6">
-                                <label for="chief_complaint" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('chief_complaint_required')) ?></label>
+                                <label for="chief_complaint" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('chief_complaint_required')) ?></label>
                                 <textarea
                                     name="chief_complaint"
                                     id="chief_complaint"
                                     rows="3"
-                                    class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
+                                    class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea"
                                     placeholder="<?= esc($tr('chief_complaint_placeholder')) ?>"
                                     required
                                 ><?= old('chief_complaint', $examination['chief_complaint']) ?></textarea>
                                 <?php if ($validation && $validation->hasError('chief_complaint')): ?>
-                                    <p class="text-red-600 text-sm mt-2"><?= $validation->getError('chief_complaint') ?></p>
+                                    <p class="v3-text-danger text-sm mt-2"><?= $validation->getError('chief_complaint') ?></p>
                                 <?php endif; ?>
                             </div>
                         </section>
@@ -174,61 +174,61 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         <i class="fas fa-notes-medical"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-gray-900"><?= esc($tr('additional_clinical_details')) ?></h4>
-                                        <p class="text-sm text-gray-500"><?= esc($tr('optional')) ?></p>
+                                        <h4 class="text-lg font-bold v3-text-ink"><?= esc($tr('additional_clinical_details')) ?></h4>
+                                        <p class="text-sm v3-text-muted"><?= esc($tr('optional')) ?></p>
                                     </div>
                                 </div>
                                 <label class="inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="optionalEnabled" class="sr-only" <?= $optionalEnabledByOld ? 'checked' : '' ?>>
-                                    <div id="optionalTrack" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
+                                    <input type="checkbox" id="optionalEnabled" class="sr-only v3-checkbox" <?= $optionalEnabledByOld ? 'checked' : '' ?>>
+                                    <div id="optionalTrack" class="toggle-track w-11 h-6 v3-bg-sand rounded-full relative">
                                         <div id="optionalDot" class="toggle-dot absolute left-1 top-1 v3-surface w-4 h-4 rounded-full"></div>
                                     </div>
-                                    <span class="ml-3 text-sm font-semibold text-gray-700"><?= esc($tr('enable')) ?></span>
+                                    <span class="ml-3 text-sm font-semibold v3-text-ink"><?= esc($tr('enable')) ?></span>
                                 </label>
                             </div>
 
                             <div id="optionalSection" class="hidden space-y-5">
                                 <div>
-                                    <label for="history_of_present_illness" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('history_of_present_illness')) ?></label>
-                                    <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('history_of_present_illness_placeholder')) ?>"><?= old('history_of_present_illness', $examination['history_of_present_illness']) ?></textarea>
+                                    <label for="history_of_present_illness" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('history_of_present_illness')) ?></label>
+                                    <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('history_of_present_illness_placeholder')) ?>"><?= old('history_of_present_illness', $examination['history_of_present_illness']) ?></textarea>
                                 </div>
 
                                 <div class="v3-radius border v3-border v3-surface p-4 md:p-5">
                                     <div class="flex items-center justify-between gap-3 mb-3">
-                                        <h5 class="text-sm font-semibold text-slate-800"><?= esc($tr('health_update_since_last_visit')) ?></h5>
-                                        <span class="text-xs text-slate-500"><?= esc($tr('quick_check')) ?></span>
+                                        <h5 class="text-sm font-semibold v3-text-ink"><?= esc($tr('health_update_since_last_visit')) ?></h5>
+                                        <span class="text-xs v3-text-muted"><?= esc($tr('quick_check')) ?></span>
                                     </div>
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
                                         <?php
                                         $healthUpdateItems = [
-                                            ['key' => 'health_update_medical_changes', 'label' => $tr('health_q_medical_changes'), 'icon' => 'fas fa-notes-medical', 'icon_class' => 'text-emerald-500'],
-                                            ['key' => 'health_update_medication_changes', 'label' => $tr('health_q_medication_changes'), 'icon' => 'fas fa-pills', 'icon_class' => 'text-blue-500'],
-                                            ['key' => 'health_update_allergies_reactions', 'label' => $tr('health_q_allergies_reactions'), 'icon' => 'fas fa-allergies', 'icon_class' => 'text-red-500'],
+                                            ['key' => 'health_update_medical_changes', 'label' => $tr('health_q_medical_changes'), 'icon' => 'fas fa-notes-medical', 'icon_class' => 'v3-text-primary'],
+                                            ['key' => 'health_update_medication_changes', 'label' => $tr('health_q_medication_changes'), 'icon' => 'fas fa-pills', 'icon_class' => 'v3-text-primary'],
+                                            ['key' => 'health_update_allergies_reactions', 'label' => $tr('health_q_allergies_reactions'), 'icon' => 'fas fa-allergies', 'icon_class' => 'v3-text-danger'],
                                             ['key' => 'health_update_pregnancy', 'label' => $tr('health_q_pregnancy'), 'icon' => 'fas fa-baby', 'icon_class' => 'text-fuchsia-500', 'pregnancy_only' => true],
-                                            ['key' => 'health_update_current_symptoms', 'label' => $tr('health_q_current_symptoms'), 'icon' => 'fas fa-triangle-exclamation', 'icon_class' => 'text-amber-500'],
+                                            ['key' => 'health_update_current_symptoms', 'label' => $tr('health_q_current_symptoms'), 'icon' => 'fas fa-triangle-exclamation', 'icon_class' => 'v3-text-warning'],
                                         ];
                                         ?>
                                         <?php foreach ($healthUpdateItems as $item): ?>
                                             <?php $isChecked = $healthToggleChecked($item['key'], $examination); ?>
                                             <div class="rounded-lg border v3-border v3-surface p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
                                                 <div class="flex items-center justify-between gap-3">
-                                                    <label for="<?= esc($item['key']) ?>" class="text-sm font-medium text-gray-700 leading-snug pr-2 flex items-start gap-2">
+                                                    <label for="<?= esc($item['key']) ?>" class="text-sm font-medium v3-text-ink leading-snug pr-2 flex items-start gap-2">
                                                         <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class']) ?> mt-0.5 w-4 text-center"></i>
                                                         <span><?= esc($item['label']) ?></span>
                                                     </label>
                                                     <div class="flex items-center gap-2 shrink-0">
-                                                        <span class="text-xs font-semibold text-gray-500"><?= esc($tr('no')) ?></span>
+                                                        <span class="text-xs font-semibold v3-text-muted"><?= esc($tr('no')) ?></span>
                                                         <label class="inline-flex items-center cursor-pointer">
                                                             <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
                                                             <input type="checkbox"
                                                                    id="<?= esc($item['key']) ?>"
                                                                    name="<?= esc($item['key']) ?>"
                                                                    value="1"
-                                                                   class="sr-only health-update-toggle"
+                                                                   class="sr-only health-update-toggle v3-checkbox"
                                                                    data-track-id="<?= esc($item['key']) ?>_track"
                                                                    data-dot-id="<?= esc($item['key']) ?>_dot"
                                                                    <?= $isChecked ? 'checked' : '' ?>>
-                                                            <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'bg-blue-500' : 'bg-gray-200' ?> rounded-full relative">
+                                                            <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'v3-bg-primary' : 'v3-bg-sand' ?> rounded-full relative">
                                                                 <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 v3-surface w-4 h-4 rounded-full" style="transform: <?= $isChecked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></div>
                                                             </div>
                                                         </label>
@@ -246,55 +246,55 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         || $healthToggleChecked('health_update_current_symptoms', $examination);
                                     ?>
                                     <div id="healthUpdateDetailsWrap" class="mt-4 <?= $showHealthUpdateDetails ? '' : 'hidden' ?>">
-                                        <label for="health_update_details" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('health_update_details')) ?></label>
-                                        <textarea name="health_update_details" id="health_update_details" rows="3" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('health_update_details_placeholder')) ?>" <?= $showHealthUpdateDetails ? '' : 'disabled' ?>><?= old('health_update_details', $examination['health_update_details'] ?? '') ?></textarea>
+                                        <label for="health_update_details" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('health_update_details')) ?></label>
+                                        <textarea name="health_update_details" id="health_update_details" rows="3" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('health_update_details_placeholder')) ?>" <?= $showHealthUpdateDetails ? '' : 'disabled' ?>><?= old('health_update_details', $examination['health_update_details'] ?? '') ?></textarea>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label for="dental_history" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('dental_history')) ?></label>
-                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history', $examination['dental_history']) ?></textarea>
+                                        <label for="dental_history" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('dental_history')) ?></label>
+                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history', $examination['dental_history']) ?></textarea>
                                     </div>
                                     <div>
-                                        <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('clinical_findings')) ?></label>
-                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('clinical_findings_placeholder_edit')) ?>"><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
+                                        <label for="clinical_findings" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('clinical_findings')) ?></label>
+                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('clinical_findings_placeholder_edit')) ?>"><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label for="diagnosis" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('diagnosis')) ?></label>
-                                        <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
+                                        <label for="diagnosis" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('diagnosis')) ?></label>
+                                        <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
                                     </div>
                                     <div>
-                                        <label for="prognosis" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('prognosis')) ?></label>
-                                        <textarea name="prognosis" id="prognosis" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('prognosis_placeholder')) ?>"><?= old('prognosis', $examination['prognosis']) ?></textarea>
+                                        <label for="prognosis" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('prognosis')) ?></label>
+                                        <textarea name="prognosis" id="prognosis" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('prognosis_placeholder')) ?>"><?= old('prognosis', $examination['prognosis']) ?></textarea>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label for="recommendations" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('recommendations')) ?></label>
-                                    <textarea name="recommendations" id="recommendations" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('recommendations_placeholder')) ?>"><?= old('recommendations', $examination['recommendations']) ?></textarea>
+                                    <label for="recommendations" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('recommendations')) ?></label>
+                                    <textarea name="recommendations" id="recommendations" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('recommendations_placeholder')) ?>"><?= old('recommendations', $examination['recommendations']) ?></textarea>
                                 </div>
 
                                 <div>
-                                    <label for="examination_notes" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_notes')) ?></label>
-                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('examination_notes_placeholder_edit')) ?>"><?= old('examination_notes', $examination['examination_notes']) ?></textarea>
+                                    <label for="examination_notes" class="block text-sm font-semibold v3-text-ink mb-2"><?= esc($tr('examination_notes')) ?></label>
+                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-200 resize-y v3-textarea" placeholder="<?= esc($tr('examination_notes_placeholder_edit')) ?>"><?= old('examination_notes', $examination['examination_notes']) ?></textarea>
                                 </div>
                             </div>
                         </section>
 
                         <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t v3-border">
-                            <a href="<?= esc(workflow_cancel('examination/' . $examination['id'], $return_to ?? ('examination/' . $examination['id']))) ?>" class="inline-flex items-center justify-center px-6 py-2.5 border v3-border text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">
+                            <a href="<?= esc(workflow_cancel('examination/' . $examination['id'], $return_to ?? ('examination/' . $examination['id']))) ?>" class="inline-flex items-center justify-center px-6 py-2.5 border v3-border v3-text-ink text-sm font-semibold rounded-lg v3-hover-soft transition-colors v3-btn v3-btn--secondary">
                                 <i class="fas fa-times mr-2"></i>
                                 <?= esc($tr('cancel')) ?>
                             </a>
-                            <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center px-6 py-2.5 border v3-border v3-soft-surface v3-accent-text text-sm font-semibold rounded-lg hover:bg-cyan-100 transition-colors">
+                            <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center px-6 py-2.5 border v3-border v3-soft-surface v3-accent-text text-sm font-semibold rounded-lg v3-hover-primary transition-colors v3-btn v3-btn--primary">
                                 <i class="fas fa-tooth mr-2"></i>
                                 <?= esc($tr('save_and_open_chart')) ?>
                             </button>
-                            <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold rounded-lg transition-colors">
+                            <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold rounded-lg transition-colors v3-btn v3-btn--primary">
                                 <i class="fas fa-save mr-2"></i>
                                 <?= esc($tr('update_examination')) ?>
                             </button>
@@ -323,15 +323,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (optionalToggle.checked) {
             optionalSection.classList.remove('hidden');
-            optionalTrack?.classList.remove('bg-gray-200');
-            optionalTrack?.classList.add('bg-blue-500');
+            optionalTrack?.classList.remove('v3-bg-sand');
+            optionalTrack?.classList.add('v3-bg-primary');
             if (optionalDot) {
                 window.applyToggleDotState?.(optionalDot, true);
             }
         } else {
             optionalSection.classList.add('hidden');
-            optionalTrack?.classList.remove('bg-blue-500');
-            optionalTrack?.classList.add('bg-gray-200');
+            optionalTrack?.classList.remove('v3-bg-primary');
+            optionalTrack?.classList.add('v3-bg-sand');
             if (optionalDot) {
                 window.applyToggleDotState?.(optionalDot, false);
             }
@@ -348,12 +348,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const track = document.getElementById(toggle.dataset.trackId || '');
         const dot = document.getElementById(toggle.dataset.dotId || '');
         if (toggle.checked) {
-            track?.classList.remove('bg-gray-200');
-            track?.classList.add('bg-blue-500');
+            track?.classList.remove('v3-bg-sand');
+            track?.classList.add('v3-bg-primary');
             window.applyToggleDotState?.(dot, true);
         } else {
-            track?.classList.remove('bg-blue-500');
-            track?.classList.add('bg-gray-200');
+            track?.classList.remove('v3-bg-primary');
+            track?.classList.add('v3-bg-sand');
             window.applyToggleDotState?.(dot, false);
         }
     }

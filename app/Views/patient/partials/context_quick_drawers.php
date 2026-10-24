@@ -23,13 +23,13 @@ $footer = static function (string $drawerId, string $submitLabel, string $fullPa
     ob_start();
     ?>
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <a href="<?= esc($fullPageUrl) ?>" class="inline-flex items-center justify-center gap-2 v3-radius px-3 py-2 text-sm font-bold v3-accent-text hover:bg-sky-50">
+        <a href="<?= esc($fullPageUrl) ?>" class="inline-flex items-center justify-center gap-2 v3-radius px-3 py-2 text-sm font-bold v3-accent-text v3-hover-primary v3-btn v3-btn--secondary">
             <i class="fas fa-up-right-from-square"></i>
             <span><?= esc(lang('UI.openFullPage')) ?></span>
         </a>
         <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button type="button" class="inline-flex items-center justify-center v3-radius border v3-border px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
-            <button type="submit" form="<?= esc($formId) ?>" class="inline-flex items-center justify-center v3-radius bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"><?= esc($submitLabel) ?></button>
+            <button type="button" class="inline-flex items-center justify-center v3-radius border v3-border px-4 py-2.5 text-sm font-bold v3-text-ink v3-hover-soft v3-btn v3-btn--secondary" data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
+            <button type="submit" form="<?= esc($formId) ?>" class="inline-flex items-center justify-center v3-radius v3-bg-primary px-4 py-2.5 text-sm font-bold v3-text-on-primary v3-hover-primary v3-btn v3-btn--primary"><?= esc($submitLabel) ?></button>
         </div>
     </div>
     <?php
@@ -51,34 +51,34 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
 <section class="patient-command-workspace v3-patient-command-strip">
     <div class="v3-patient-command-content">
         <div class="v3-patient-command-label">
-            <h2 class="text-base font-bold text-slate-950"><?= esc(lang('UI.patientCommandActions')) ?></h2>
+            <h2 class="text-base font-bold v3-text-ink"><?= esc(lang('UI.patientCommandActions')) ?></h2>
         </div>
         <div class="v3-command-actions">
             <?php if (has_permission('examinations', 'create')): ?>
-                <button type="button" class="<?= esc($primaryButtonClass) ?>" data-app-drawer-open="patientExamDrawer">
+                <button type="button" class="<?= esc($primaryButtonClass) ?> v3-btn v3-btn--secondary" data-app-drawer-open="patientExamDrawer">
                     <i class="fas fa-stethoscope"></i><span><?= esc(lang('UI.addExamination')) ?></span>
                 </button>
             <?php endif; ?>
             <?php if (has_permission('appointments', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientAppointmentDrawer">
-                    <i class="fas fa-calendar-plus text-emerald-600"></i><span><?= esc(lang('UI.newAppointment')) ?></span>
+                <button type="button" class="<?= esc($buttonClass) ?> v3-btn v3-btn--secondary" data-app-drawer-open="patientAppointmentDrawer">
+                    <i class="fas fa-calendar-plus v3-text-primary"></i><span><?= esc(lang('UI.newAppointment')) ?></span>
                 </button>
             <?php endif; ?>
             <?php if (has_permission('treatments', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientTreatmentDrawer">
+                <button type="button" class="<?= esc($buttonClass) ?> v3-btn v3-btn--secondary" data-app-drawer-open="patientTreatmentDrawer">
                     <i class="fas fa-tooth v3-accent-text"></i><span><?= esc(lang('UI.addTreatment')) ?></span>
                 </button>
             <?php endif; ?>
             <?php if (has_permission('finance', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientPaymentDrawer">
-                    <i class="fas fa-money-bill-wave text-green-600"></i><span><?= esc(lang('UI.recordPayment')) ?></span>
+                <button type="button" class="<?= esc($buttonClass) ?> v3-btn v3-btn--secondary" data-app-drawer-open="patientPaymentDrawer">
+                    <i class="fas fa-money-bill-wave v3-text-primary"></i><span><?= esc(lang('UI.recordPayment')) ?></span>
                 </button>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientChargeDrawer">
-                    <i class="fas fa-file-invoice-dollar text-amber-600"></i><span><?= esc(lang('UI.addPatientCharge')) ?></span>
+                <button type="button" class="<?= esc($buttonClass) ?> v3-btn v3-btn--secondary" data-app-drawer-open="patientChargeDrawer">
+                    <i class="fas fa-file-invoice-dollar v3-text-warning"></i><span><?= esc(lang('UI.addPatientCharge')) ?></span>
                 </button>
             <?php endif; ?>
             <?php if ($attachmentsEnabled && has_permission('patients', 'edit')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientDocumentDrawer">
+                <button type="button" class="<?= esc($buttonClass) ?> v3-btn v3-btn--secondary" data-app-drawer-open="patientDocumentDrawer">
                     <i class="fas fa-paperclip v3-accent-text"></i><span><?= esc(lang('UI.addDocument')) ?></span>
                 </button>
             <?php endif; ?>
@@ -100,7 +100,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         'id' => 'patientExamDrawer',
         'title' => lang('UI.addExamination'),
         'icon' => 'fas fa-stethoscope',
-        'tone' => 'bg-sky-600',
+        'tone' => 'v3-bg-primary',
         'size' => 'form',
         'body' => $body,
         'footer' => $footer('patientExamDrawer', lang('Examination.create_examination'), $fullUrl('examination/create'), $examFormId),
@@ -122,7 +122,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         'id' => 'patientAppointmentDrawer',
         'title' => lang('UI.newAppointment'),
         'icon' => 'fas fa-calendar-plus',
-        'tone' => 'bg-emerald-600',
+        'tone' => 'v3-bg-primary',
         'size' => 'form',
         'body' => $body,
         'footer' => $footer('patientAppointmentDrawer', lang('UI.appointmentSchedule'), $fullUrl('appointment/create'), $appointmentFormId),
@@ -148,7 +148,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         'id' => 'patientTreatmentDrawer',
         'title' => lang('UI.addTreatment'),
         'icon' => 'fas fa-tooth',
-        'tone' => 'bg-purple-600',
+        'tone' => 'v3-bg-primary',
         'size' => 'form',
         'body' => $body,
         'footer' => $footer('patientTreatmentDrawer', lang('Treatment.create_treatment'), $fullUrl('treatment/create'), $treatmentFormId),
@@ -182,7 +182,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
             'id' => $drawerId,
             'title' => $title,
             'icon' => 'fas fa-file-invoice-dollar',
-            'tone' => 'bg-amber-600',
+            'tone' => 'v3-bg-warning',
             'size' => 'wide',
             'body' => $body,
             'footer' => $footer($drawerId, lang('Finance.createTransaction'), $fullUrl('finance/create'), $financeFormId),
@@ -204,7 +204,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         'id' => 'patientDocumentDrawer',
         'title' => lang('UI.addDocument'),
         'icon' => 'fas fa-paperclip',
-        'tone' => 'bg-cyan-600',
+        'tone' => 'v3-bg-primary',
         'size' => 'form',
         'body' => $body,
         'footer' => $footer('patientDocumentDrawer', lang('UI.patientUploadFiles'), base_url('patient/' . $patientId . '?tab=attachments'), $documentFormId),

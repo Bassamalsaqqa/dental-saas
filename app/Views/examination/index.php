@@ -30,17 +30,17 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
         <section class="v3-command-section mb-5 overflow-hidden v3-corner">
             <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface text-white ring-1 ring-white/20">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface v3-text-on-primary border v3-border-default">
                         <i class="fas fa-stethoscope text-xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-amber-100"><?= esc($tr('examinations_registry')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc($tr('examination_management')) ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-amber-50/88"><?= esc($tr('examination_management_subtitle')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.22em] v3-text-warning"><?= esc($tr('examinations_registry')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black leading-tight v3-text-on-primary sm:text-3xl"><?= esc($tr('examination_management')) ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 v3-text-warning"><?= esc($tr('examination_management_subtitle')) ?></p>
                     </div>
                 </div>
                 <?php if (has_permission('examinations', 'create')): ?>
-                    <a href="<?= base_url('examination/create') ?>" id="newExaminationModalTrigger" data-examination-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-5 py-3 text-sm font-black text-orange-800 transition hover:bg-orange-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                    <a href="<?= base_url('examination/create') ?>" id="newExaminationModalTrigger" data-examination-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-5 py-3 text-sm font-black v3-text-warning transition v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                         <i class="fas fa-plus"></i>
                         <?= esc($tr('new_examination')) ?>
                     </a>
@@ -52,37 +52,37 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-100"><?= esc($tr('card_total_examinations')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-warning"><?= esc($tr('card_total_examinations')) ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="totalExaminations"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-stethoscope"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-stethoscope"></i></span>
                 </div>
             </article>
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-green-100"><?= esc($tr('card_completed_today')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('card_completed_today')) ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="completedToday"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-check-circle"></i></span>
                 </div>
             </article>
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-amber-100"><?= esc($tr('card_pending_reviews')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-warning"><?= esc($tr('card_pending_reviews')) ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="pendingReviews"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-clock"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-clock"></i></span>
                 </div>
             </article>
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-red-100"><?= esc($tr('card_emergency_cases')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-danger"><?= esc($tr('card_emergency_cases')) ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="emergencyCases"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-triangle-exclamation"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-triangle-exclamation"></i></span>
                 </div>
             </article>
         </section>
@@ -90,7 +90,7 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
         <section class="v3-command-section mb-5 v3-corner p-4 sm:p-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-center gap-3">
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-file-signature"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-file-signature"></i></span>
                     <div>
                         <h2 class="text-lg font-black"><?= esc($tr('documentation_queue')) ?></h2>
                         <p class="mt-1 text-sm font-semibold v3-accent-text"><?= esc($tr('documentation_queue_help')) ?></p>
@@ -98,10 +98,10 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <div class="flex gap-2">
-                        <a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="v3-radius v3-surface px-3 py-2 text-sm font-black ring-1 ring-white/20 hover:bg-white/20"><span dir="ltr"><?= $readyToSignCount ?></span> <?= esc($tr('documentation_ready_to_sign')) ?></a>
-                        <a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="v3-radius bg-amber-400 px-3 py-2 text-sm font-black text-amber-950 hover:bg-amber-300"><span dir="ltr"><?= $overdueDraftCount ?></span> <?= esc($tr('documentation_overdue_draft')) ?></a>
+                        <a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="v3-radius v3-surface px-3 py-2 text-sm font-black border v3-border-default v3-hover-soft"><span dir="ltr"><?= $readyToSignCount ?></span> <?= esc($tr('documentation_ready_to_sign')) ?></a>
+                        <a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="v3-radius v3-bg-warning px-3 py-2 text-sm font-black v3-text-warning v3-hover-primary"><span dir="ltr"><?= $overdueDraftCount ?></span> <?= esc($tr('documentation_overdue_draft')) ?></a>
                     </div>
-                    <select id="documentationFilter" class="min-w-[12rem] v3-radius border v3-border v3-surface px-3 py-2.5 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-white/20">
+                    <select id="documentationFilter" class="min-w-[12rem] v3-radius border v3-border v3-surface px-3 py-2.5 text-sm font-black v3-text-ink outline-none focus:ring-4 v3-focus-control v3-select">
                         <option value="" <?= $documentationFilter === '' ? 'selected' : '' ?>><?= esc($tr('documentation_all')) ?></option>
                         <option value="ready_to_sign" <?= $documentationFilter === 'ready_to_sign' ? 'selected' : '' ?>><?= esc($tr('documentation_ready_to_sign')) ?></option>
                         <option value="overdue_draft" <?= $documentationFilter === 'overdue_draft' ? 'selected' : '' ?>><?= esc($tr('documentation_overdue_draft')) ?></option>
@@ -115,24 +115,24 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
             <div class="v3-surface-heading border-b v3-border px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center v3-corner bg-orange-100 text-orange-700 ring-1 ring-orange-200">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-bg-waiting v3-text-warning border v3-border-default">
                             <i class="fas fa-list"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= esc($tr('examinations_registry')) ?></h3>
-                            <p class="text-sm font-semibold text-slate-500"><?= esc($tr('examination_management_subtitle')) ?></p>
+                            <h3 class="text-lg font-black v3-text-ink"><?= esc($tr('examinations_registry')) ?></h3>
+                            <p class="text-sm font-semibold v3-text-muted"><?= esc($tr('examination_management_subtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-100">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-alert px-3 py-2 text-xs font-black v3-text-danger transition v3-hover-danger v3-btn v3-btn--danger">
                             <i class="fas fa-file-pdf"></i>
                             <?= esc($tr('pdf')) ?>
                         </button>
-                        <button onclick="printExaminations()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">
+                        <button onclick="printExaminations()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs font-black v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                             <i class="fas fa-print"></i>
                             <?= esc($tr('print')) ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-paid px-3 py-2 text-xs font-black v3-text-primary transition v3-hover-primary v3-btn v3-btn--secondary">
                             <i class="fas fa-file-csv"></i>
                             <?= esc($tr('csv')) ?>
                         </button>
@@ -145,43 +145,43 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                         <tr>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-stethoscope text-orange-600"></i>
+                                    <i class="fas fa-stethoscope v3-text-warning"></i>
                                     <span><?= esc($tr('column_examination_id')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-user text-orange-600"></i>
+                                    <i class="fas fa-user v3-text-warning"></i>
                                     <span><?= esc($tr('column_patient')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar-alt text-orange-600"></i>
+                                    <i class="fas fa-calendar-alt v3-text-warning"></i>
                                     <span><?= esc($tr('column_date_time')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-tag text-orange-600"></i>
+                                    <i class="fas fa-tag v3-text-warning"></i>
                                     <span><?= esc($tr('column_type')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-orange-600"></i>
+                                    <i class="fas fa-info-circle v3-text-warning"></i>
                                     <span><?= esc($tr('column_status')) ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-cogs text-orange-600"></i>
+                                    <i class="fas fa-cogs v3-text-warning"></i>
                                     <span><?= esc($tr('column_actions')) ?></span>
                                 </div>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="v3-surface divide-y divide-gray-200">
+                    <tbody class="v3-surface divide-y v3-border-default">
                         <!-- Data will be loaded via DataTables -->
                     </tbody>
                 </table>
@@ -198,36 +198,36 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center">
                                         <div class="v3-icon w-10 h-10 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-stethoscope text-white text-sm"></i>
+                                            <i class="fas fa-stethoscope v3-text-on-primary text-sm"></i>
                                         </div>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' :
-                                            ($examination['status'] == 'in_progress' ? 'bg-sky-100 text-sky-800' :
-                                            ($examination['status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')) ?>">
+                                        <?= $examination['status'] == 'completed' ? 'v3-bg-paid v3-text-primary' :
+                                            ($examination['status'] == 'in_progress' ? 'v3-bg-scheduled v3-text-primary' :
+                                            ($examination['status'] == 'pending' ? 'v3-bg-waiting v3-text-warning' : 'v3-bg-alert v3-text-danger')) ?>">
                                         <?= esc($tr('status_' . $examination['status'])) ?>
                                     </span>
                                 </div>
 
                                 <div class="mb-4">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-1"><?= $examination['examination_id'] ?></h3>
-                                    <p class="text-sm text-gray-600"><?= $examination['first_name'] . ' ' . $examination['last_name'] ?></p>
-                                    <p class="text-xs text-gray-500"><?= $examination['patient_number'] ?></p>
+                                    <h3 class="text-lg font-semibold v3-text-ink mb-1"><?= $examination['examination_id'] ?></h3>
+                                    <p class="text-sm v3-text-muted"><?= $examination['first_name'] . ' ' . $examination['last_name'] ?></p>
+                                    <p class="text-xs v3-text-muted"><?= $examination['patient_number'] ?></p>
                                 </div>
 
                                 <div class="mb-4">
-                                    <div class="flex items-center text-sm text-gray-600 mb-2">
+                                    <div class="flex items-center text-sm v3-text-muted mb-2">
                                         <i class="fas fa-calendar-alt me-2"></i>
                                         <?= formatDate($examination['examination_date']) ?>
                                     </div>
-                                    <div class="flex items-center text-sm text-gray-600 mb-2">
+                                    <div class="flex items-center text-sm v3-text-muted mb-2">
                                         <i class="fas fa-clock me-2"></i>
                                         <?= formatTime($examination['examination_date']) ?>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        <?= $examination['examination_type'] == 'emergency' ? 'bg-red-100 text-red-800' :
-                                            ($examination['examination_type'] == 'initial' ? 'bg-yellow-100 text-yellow-800' :
-                                            ($examination['examination_type'] == 'periodic' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) ?>">
+                                        <?= $examination['examination_type'] == 'emergency' ? 'v3-bg-alert v3-text-danger' :
+                                            ($examination['examination_type'] == 'initial' ? 'v3-bg-waiting v3-text-warning' :
+                                            ($examination['examination_type'] == 'periodic' ? 'v3-bg-paid v3-text-primary' : 'v3-bg-soft v3-text-ink')) ?>">
                                         <?= esc($tr('type_' . $examination['examination_type'])) ?>
                                     </span>
                                 </div>
@@ -236,26 +236,26 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                                     <div class="flex gap-2">
                                         <?php if (has_permission('examinations', 'view')): ?>
                                             <a href="<?= base_url('examination/' . $examination['id']) ?>"
-                                               class="p-2 text-orange-700 hover:text-orange-800 rounded-lg hover:bg-orange-50 transition-colors" title="<?= esc($tr('action_view_details')) ?>">
+                                               class="p-2 v3-text-warning v3-hover-text-warning rounded-lg v3-hover-primary transition-colors" title="<?= esc($tr('action_view_details')) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('examinations', 'edit')): ?>
                                             <a href="<?= base_url('examination/' . $examination['id'] . '/edit') ?>"
-                                               class="text-yellow-600 hover:text-yellow-700 p-2 rounded-lg hover:bg-yellow-50 transition-colors" title="<?= esc($tr('edit_examination')) ?>">
+                                               class="v3-text-warning v3-hover-text-warning p-2 rounded-lg v3-hover-primary transition-colors" title="<?= esc($tr('edit_examination')) ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('examinations', 'view')): ?>
                                             <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], 'examination/' . (int) $examination['id']) ?>"
-                                               class="v3-accent-text hover:text-purple-700 p-2 rounded-lg hover:bg-purple-50 transition-colors" title="<?= esc($tr('action_view_odontogram')) ?>">
+                                               class="v3-accent-text v3-hover-text-chair p-2 rounded-lg v3-hover-primary transition-colors" title="<?= esc($tr('action_view_odontogram')) ?>">
                                                 <i class="fas fa-tooth"></i>
                                             </a>
                                         <?php endif; ?>
                                     </div>
                                     <?php if (($examination['status'] == 'pending' || $examination['status'] == 'in_progress') && has_permission('examinations', 'edit')): ?>
                                         <button onclick="completeExamination(<?= $examination['id'] ?>)"
-                                                class="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors" title="<?= esc($tr('action_complete_examination')) ?>">
+                                                class="v3-text-primary v3-hover-text-primary p-2 rounded-lg v3-hover-primary transition-colors v3-btn v3-btn--secondary" title="<?= esc($tr('action_complete_examination')) ?>">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     <?php endif; ?>
@@ -265,13 +265,13 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="col-span-full flex flex-col items-center justify-center py-12">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <i class="fas fa-stethoscope text-gray-400 text-2xl"></i>
+                        <div class="w-16 h-16 v3-bg-soft rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-stethoscope v3-text-muted text-2xl"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= esc($tr('no_examinations_found')) ?></h3>
-                        <p class="text-gray-500 mb-4"><?= esc($tr('start_creating_new_examination')) ?></p>
+                        <h3 class="text-lg font-semibold v3-text-ink mb-2"><?= esc($tr('no_examinations_found')) ?></h3>
+                        <p class="v3-text-muted mb-4"><?= esc($tr('start_creating_new_examination')) ?></p>
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center v3-radius px-4 py-2 text-sm font-bold text-white transition focus:outline-none focus:ring-4 focus:ring-orange-200">
+                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="inline-flex items-center v3-radius px-4 py-2 text-sm font-bold v3-text-on-primary transition focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                                 <i class="fas fa-plus me-2"></i><?= esc($tr('new_examination')) ?>
                             </a>
                         <?php endif; ?>
@@ -285,13 +285,13 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
             <div class="v3-surface v3-radius border v3-border">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('calendar_title')) ?></h3>
+                        <h3 class="text-lg font-semibold v3-text-ink"><?= esc($tr('calendar_title')) ?></h3>
                         <div class="flex items-center gap-4">
-                            <button onclick="previousMonth()" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
+                            <button onclick="previousMonth()" class="p-2 v3-text-muted v3-hover-text-ink v3-hover-soft rounded-lg v3-btn v3-btn--secondary">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
-                            <span id="currentMonth" class="text-lg font-semibold text-gray-900"><?= formatDate(date('Y-m-d')) ?></span>
-                            <button onclick="nextMonth()" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
+                            <span id="currentMonth" class="text-lg font-semibold v3-text-ink"><?= formatDate(date('Y-m-d')) ?></span>
+                            <button onclick="nextMonth()" class="p-2 v3-text-muted v3-hover-text-ink v3-hover-soft rounded-lg v3-btn v3-btn--secondary">
                                 <i class="fas fa-chevron-right"></i>
                             </button>
                         </div>
@@ -307,7 +307,7 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
 
 <?php if (has_permission('examinations', 'create')): ?>
     <div id="newExaminationModal" class="examination-create-modal v3-context-drawer fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newExaminationModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="examination-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 bg-slate-950/45" data-examination-create-modal-close></div>
+        <div class="examination-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 v3-backdrop" data-examination-create-modal-close></div>
         <div class="examination-create-modal__shell v3-context-drawer__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-examination-create-modal-close>
             <form id="newExaminationQuickCreateForm" action="<?= base_url('examination/store') ?>" method="POST" class="examination-create-modal__panel v3-context-drawer__panel flex w-full max-w-xl flex-col overflow-hidden v3-radius border v3-border v3-surface" data-examination-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
@@ -320,20 +320,20 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                             <i class="fas fa-stethoscope"></i>
                         </span>
                         <div>
-                            <h2 id="newExaminationModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('new_examination')) ?></h2>
-                            <a href="<?= workflow_context_url('examination/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-orange-700 hover:text-orange-800">
+                            <h2 id="newExaminationModalTitle" class="text-lg font-bold v3-text-ink"><?= esc($tr('new_examination')) ?></h2>
+                            <a href="<?= workflow_context_url('examination/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-warning v3-hover-text-warning">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-examination-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-examination-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <div class="min-h-0 flex-1 space-y-5 overflow-y-auto v3-surface p-5">
                     <?php if (session('error') && $shouldOpenExaminationCreateModal): ?>
-                        <div class="v3-radius border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -349,14 +349,14 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                 </div>
 
                 <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border v3-surface px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-examination-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    <button type="button" data-examination-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc($tr('cancel')) ?>
                     </button>
-                    <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center v3-radius border v3-border v3-soft-surface px-5 py-2.5 text-sm font-bold v3-accent-text transition hover:bg-cyan-100">
+                    <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center v3-radius border v3-border v3-soft-surface px-5 py-2.5 text-sm font-bold v3-accent-text transition v3-hover-primary v3-btn v3-btn--primary">
                         <i class="fas fa-tooth me-2"></i>
                         <?= esc($tr('create_and_open_chart')) ?>
                     </button>
-                    <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center v3-radius px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center v3-radius px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-stethoscope me-2"></i>
                         <?= esc($tr('create_examination')) ?>
                     </button>
@@ -367,18 +367,18 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
 <?php endif; ?>
 
 <!-- Complete Examination Modal -->
-<div id="completeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+<div id="completeModal" class="fixed inset-0 v3-bg-canvas bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
     <div class="relative top-20 mx-auto p-5 border w-96 rounded-md v3-surface max-w-lg">
         <div class="p-8">
             <div class="flex items-center justify-center mb-6">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                <div class="w-16 h-16 v3-bg-paid rounded-full flex items-center justify-center">
+                    <i class="fas fa-check-circle v3-text-primary text-2xl"></i>
                 </div>
             </div>
 
             <div class="text-center mb-6">
-                <h3 class="text-xl font-bold text-gray-900 mb-2"><?= esc($tr('complete_examination')) ?></h3>
-                <p class="text-gray-600"><?= esc($tr('complete_examination_subtitle')) ?></p>
+                <h3 class="text-xl font-bold v3-text-ink mb-2"><?= esc($tr('complete_examination')) ?></h3>
+                <p class="v3-text-muted"><?= esc($tr('complete_examination_subtitle')) ?></p>
             </div>
 
             <form id="completeForm">
@@ -386,17 +386,17 @@ $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
                 <input type="hidden" id="examinationId" name="examination_id">
 
                 <div class="mb-6">
-                    <label for="examination_notes" class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('final_notes')) ?></label>
+                    <label for="examination_notes" class="block text-sm font-medium v3-text-ink mb-2"><?= esc($tr('final_notes')) ?></label>
                     <textarea id="examination_notes" name="examination_notes"
-                              class="w-full v3-radius border v3-border px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-100" rows="4"
+                              class="w-full v3-radius border v3-border px-3 py-2 v3-focus-control focus:outline-none focus:ring-4 v3-focus-control v3-textarea" rows="4"
                               placeholder="<?= esc($tr('final_notes_placeholder')) ?>"></textarea>
                 </div>
 
                 <div class="flex gap-4">
-                    <button type="button" onclick="closeCompleteModal()" class="inline-flex flex-1 items-center justify-center v3-radius bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-slate-200">
+                    <button type="button" onclick="closeCompleteModal()" class="inline-flex flex-1 items-center justify-center v3-radius v3-bg-soft px-4 py-2 text-sm font-bold v3-text-ink transition v3-hover-soft focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                         <i class="fas fa-times me-2"></i><?= esc($tr('cancel')) ?>
                     </button>
-                    <button type="submit" class="v3-action v3-action-primary inline-flex flex-1 items-center justify-center v3-radius px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-4 focus:ring-emerald-200">
+                    <button type="submit" class="v3-action v3-action-primary inline-flex flex-1 items-center justify-center v3-radius px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--primary">
                         <i class="fas fa-check me-2"></i><?= esc($tr('complete_examination')) ?>
                     </button>
                 </div>
@@ -482,9 +482,9 @@ const i18n = {
 
 function getPatientAvatar(gender) {
     const avatarMap = {
-        male: { icon: 'fas fa-person', color: 'text-blue-700' },
-        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
-        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+        male: { icon: 'fas fa-person', color: 'v3-text-primary' },
+        female: { icon: 'fas fa-person-dress', color: 'v3-text-danger' },
+        other: { icon: 'fas fa-user', color: 'v3-text-muted' }
     };
 
     return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
@@ -644,13 +644,13 @@ document.addEventListener('keydown', function(event) {
 });
 
 function applyDataTablesStyling() {
-    $('.dataTables_length select').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100');
-    $('.dataTables_filter input').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100');
-    $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold text-slate-600');
-    $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-800 focus:outline-none focus:ring-4 focus:ring-orange-100');
-    $('.dataTables_paginate .paginate_button.current').addClass('!border-orange-600 !bg-orange-600 !text-white');
-    $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!border-slate-200 hover:!bg-white hover:!text-slate-500');
-    $('.dataTables_processing').removeClass().addClass('rounded-xl border-0 bg-orange-600 px-4 py-3 text-sm font-extrabold text-white shadow-xl');
+    $('.dataTables_length select').removeClass().addClass('v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-bold v3-text-ink v3-elevation-none outline-none transition v3-focus-control focus:ring-4 v3-focus-control');
+    $('.dataTables_filter input').removeClass().addClass('v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-bold v3-text-ink v3-elevation-none outline-none transition placeholder:v3-text-muted v3-focus-control focus:ring-4 v3-focus-control');
+    $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold v3-text-muted');
+    $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-extrabold v3-text-ink v3-elevation-none transition v3-border-default v3-hover-primary v3-hover-text-warning focus:outline-none focus:ring-4 v3-focus-control');
+    $('.dataTables_paginate .paginate_button.current').addClass('!v3-border-default !v3-bg-warning !v3-text-on-primary');
+    $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!v3-border-default hover:!v3-bg-panel hover:!v3-text-muted');
+    $('.dataTables_processing').removeClass().addClass('v3-radius border-0 v3-bg-warning px-4 py-3 text-sm font-extrabold v3-text-on-primary v3-elevation-none');
 
     $('.dataTables_wrapper').addClass('relative');
     $('.dataTables_length').addClass('order-1 flex items-center gap-3');
@@ -662,10 +662,10 @@ function applyDataTablesStyling() {
     $('.dataTables_wrapper > .row:last-child').addClass('flex items-center justify-between');
 
     if ($('.dataTables_length label').length === 0) {
-        $('.dataTables_length').prepend(`<label class="me-3 flex items-center text-sm font-extrabold text-slate-700"><i class="fas fa-list-ul me-2 text-orange-500"></i>${i18n.datatableShow}</label>`);
+        $('.dataTables_length').prepend(`<label class="me-3 flex items-center text-sm font-extrabold v3-text-ink"><i class="fas fa-list-ul me-2 v3-text-warning"></i>${i18n.datatableShow}</label>`);
     }
     if ($('.dataTables_filter label').length === 0) {
-        $('.dataTables_filter').prepend(`<label class="me-3 flex items-center text-sm font-extrabold text-slate-700"><i class="fas fa-search me-2 text-orange-500"></i>${i18n.datatableSearch}</label>`);
+        $('.dataTables_filter').prepend(`<label class="me-3 flex items-center text-sm font-extrabold v3-text-ink"><i class="fas fa-search me-2 v3-text-warning"></i>${i18n.datatableSearch}</label>`);
     }
 
     // Add icons to pagination buttons using safe DOM construction
@@ -764,18 +764,18 @@ $(document).ready(function() {
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     const identityHtml = `
                         <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-700">
+                            <div class="flex h-10 w-10 items-center justify-center v3-radius v3-bg-waiting v3-text-warning">
                                 <i class="fas fa-stethoscope text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-extrabold text-slate-950">${data}</div>
-                                <div class="text-xs font-bold text-slate-500">${i18n.examinationIdLabel}</div>
+                                <div class="text-sm font-extrabold v3-text-ink">${data}</div>
+                                <div class="text-xs font-bold v3-text-muted">${i18n.examinationIdLabel}</div>
                             </div>
                         </div>
                     `;
                     if (permissions.examinations.view) {
                         return `
-                            <a href="<?= base_url('examination') ?>/${row.id}" class="block cursor-pointer rounded-xl transition-colors duration-200 hover:bg-orange-50/70">
+                            <a href="<?= base_url('examination') ?>/${row.id}" class="block cursor-pointer v3-radius transition-colors duration-200 v3-hover-primary">
                                 ${identityHtml}
                             </a>
                         `;
@@ -794,8 +794,8 @@ $(document).ready(function() {
                                 <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
                             </span>
                             <div>
-                                <div class="text-sm font-extrabold text-slate-950">${data}</div>
-                                <div class="text-xs font-bold text-slate-500">${row.patient_number}</div>
+                                <div class="text-sm font-extrabold v3-text-ink">${data}</div>
+                                <div class="text-xs font-bold v3-text-muted">${row.patient_number}</div>
                             </div>
                         </div>
                     `;
@@ -807,8 +807,8 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="text-sm font-extrabold text-slate-950">${row.examination_date_formatted || data}</div>
-                            <div class="text-xs font-bold text-slate-500">${row.examination_time_formatted || ''}</div>
+                            <div class="text-sm font-extrabold v3-text-ink">${row.examination_date_formatted || data}</div>
+                            <div class="text-xs font-bold v3-text-muted">${row.examination_time_formatted || ''}</div>
                         </div>
                     `;
                 }
@@ -818,10 +818,10 @@ $(document).ready(function() {
                 name: 'examination_type',
                 render: function(data, type, row) {
                     const typeConfig = {
-                        'emergency': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'text-red-800', border: 'border-red-200', icon: 'exclamation-triangle' },
-                        'initial': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'text-yellow-800', border: 'border-yellow-200', icon: 'play-circle' },
-                        'periodic': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'text-green-800', border: 'border-green-200', icon: 'calendar-check' },
-                        'follow_up': { bg: 'bg-gradient-to-r from-slate-100 to-gray-100', text: 'text-slate-800', border: 'border-slate-200', icon: 'arrow-right' }
+                        'emergency': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'v3-text-danger', border: 'v3-border-default', icon: 'exclamation-triangle' },
+                        'initial': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'v3-text-warning', border: 'v3-border-default', icon: 'play-circle' },
+                        'periodic': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'v3-text-primary', border: 'v3-border-default', icon: 'calendar-check' },
+                        'follow_up': { bg: 'bg-gradient-to-r from-slate-100 to-gray-100', text: 'v3-text-ink', border: 'v3-border-default', icon: 'arrow-right' }
                     };
                     const typeLabelMap = {
                         emergency: i18n.typeEmergency,
@@ -831,7 +831,7 @@ $(document).ready(function() {
                     };
                     const config = typeConfig[data] || typeConfig['follow_up'];
                     return `
-                        <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
+                        <span class="inline-flex items-center v3-radius border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
                             <i class="fas fa-${config.icon} me-2"></i>
                             ${typeLabelMap[data] || (typeLabelMap.follow_up)}
                         </span>
@@ -843,10 +843,10 @@ $(document).ready(function() {
                 name: 'status',
                 render: function(data, type, row) {
                     const statusConfig = {
-                        'completed': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'text-green-800', border: 'border-green-200', icon: 'check-circle' },
-                        'in_progress': { bg: 'bg-gradient-to-r from-sky-100 to-cyan-100', text: 'text-sky-800', border: 'border-sky-200', icon: 'clock' },
-                        'pending': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'text-yellow-800', border: 'border-yellow-200', icon: 'hourglass-half' },
-                        'cancelled': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'text-red-800', border: 'border-red-200', icon: 'times-circle' }
+                        'completed': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'v3-text-primary', border: 'v3-border-default', icon: 'check-circle' },
+                        'in_progress': { bg: 'bg-gradient-to-r from-sky-100 to-cyan-100', text: 'v3-text-primary', border: 'v3-border-default', icon: 'clock' },
+                        'pending': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'v3-text-warning', border: 'v3-border-default', icon: 'hourglass-half' },
+                        'cancelled': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'v3-text-danger', border: 'v3-border-default', icon: 'times-circle' }
                     };
                     const statusLabelMap = {
                         pending: i18n.statusPending,
@@ -856,14 +856,14 @@ $(document).ready(function() {
                     };
                     const config = statusConfig[data] || statusConfig['pending'];
                     const documentationBadge = row.documentation_state === 'signed'
-                        ? `<span class="mt-1 inline-flex rounded-lg bg-emerald-100 px-2 py-1 text-[11px] font-black text-emerald-800">${i18n.documentationSigned}</span>`
+                        ? `<span class="mt-1 inline-flex rounded-lg v3-bg-paid px-2 py-1 text-[11px] font-black v3-text-primary">${i18n.documentationSigned}</span>`
                         : (row.documentation_state === 'ready_to_sign'
-                            ? `<span class="mt-1 inline-flex rounded-lg bg-indigo-100 px-2 py-1 text-[11px] font-black text-indigo-800">${i18n.documentationReadyToSign}</span>`
+                            ? `<span class="mt-1 inline-flex rounded-lg v3-bg-chair px-2 py-1 text-[11px] font-black v3-text-chair">${i18n.documentationReadyToSign}</span>`
                             : (row.documentation_state === 'overdue_draft'
-                                ? `<span class="mt-1 inline-flex rounded-lg bg-amber-100 px-2 py-1 text-[11px] font-black text-amber-900">${i18n.documentationOverdueDraft}</span>`
+                                ? `<span class="mt-1 inline-flex rounded-lg v3-bg-waiting px-2 py-1 text-[11px] font-black v3-text-warning">${i18n.documentationOverdueDraft}</span>`
                                 : ''));
                     return `
-                        <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
+                        <span class="inline-flex items-center v3-radius border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">
                             <i class="fas fa-${config.icon} me-2"></i>
                             ${statusLabelMap[data] || statusLabelMap.pending}
                         </span>
@@ -884,7 +884,7 @@ $(document).ready(function() {
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}"
-                               class="rounded-xl p-2 text-orange-700 transition-all duration-200 hover:scale-105 hover:bg-orange-50 hover:text-orange-800" title="${i18n.actionViewDetails}">
+                               class="v3-radius p-2 v3-text-warning transition-all duration-200  v3-hover-primary v3-hover-text-warning" title="${i18n.actionViewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -893,8 +893,8 @@ $(document).ready(function() {
                     if (permissions.examinations.edit) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}/edit"
-                               class="group/action relative rounded-xl p-2 text-sky-700 transition-all duration-300 hover:scale-110 hover:bg-sky-50 hover:text-sky-800" title="${i18n.actionEditExamination}">
-                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-sky-500/10 to-cyan-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
+                               class="group/action relative v3-radius p-2 v3-text-primary transition-all duration-300 hover:scale-110 v3-hover-primary v3-hover-text-primary" title="${i18n.actionEditExamination}">
+                                <div class="absolute inset-0 v3-radius bg-gradient-to-r from-sky-500/10 to-cyan-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-edit relative z-10"></i>
                             </a>`;
                     }
@@ -903,8 +903,8 @@ $(document).ready(function() {
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('odontogram') ?>/${row.patient_id}"
-                               class="group/action relative rounded-xl p-2 text-purple-700 transition-all duration-300 hover:scale-110 hover:bg-purple-50 hover:text-purple-800" title="${i18n.actionViewOdontogram}">
-                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
+                               class="group/action relative v3-radius p-2 v3-text-chair transition-all duration-300 hover:scale-110 v3-hover-primary v3-hover-text-chair" title="${i18n.actionViewOdontogram}">
+                                <div class="absolute inset-0 v3-radius bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-tooth relative z-10"></i>
                             </a>`;
                     }
@@ -913,8 +913,8 @@ $(document).ready(function() {
                     if ((row.status === 'pending' || row.status === 'in_progress') && permissions.examinations.edit) {
                         actions += `
                             <button onclick="completeExamination(${data})"
-                                    class="group/action relative rounded-xl p-2 text-emerald-700 transition-all duration-300 hover:scale-110 hover:bg-emerald-50 hover:text-emerald-800" title="${i18n.actionCompleteExamination}">
-                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
+                                    class="group/action relative v3-radius p-2 v3-text-primary transition-all duration-300 hover:scale-110 v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary" title="${i18n.actionCompleteExamination}">
+                                <div class="absolute inset-0 v3-radius bg-gradient-to-r from-emerald-500/10 to-green-500/10 opacity-0 blur transition-opacity duration-300 group-hover/action:opacity-100"></div>
                                 <i class="fas fa-check relative z-10"></i>
                             </button>`;
                     }
@@ -922,33 +922,33 @@ $(document).ready(function() {
                     // More actions dropdown
                     actions += `
                         <div class="relative">
-                            <button onclick="toggleDropdown(${data})" class="rounded-xl p-2 text-slate-600 transition-all duration-300 hover:scale-110 hover:bg-slate-100 hover:text-slate-900" title="${i18n.actionMoreActions}">
+                            <button onclick="toggleDropdown(${data})" class="v3-radius p-2 v3-text-muted transition-all duration-300 hover:scale-110 v3-hover-soft v3-hover-text-ink v3-btn v3-btn--secondary" title="${i18n.actionMoreActions}">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <div id="dropdown-${data}" class="absolute end-0 z-10 mt-2 hidden w-48 rounded-xl border border-slate-200 bg-white shadow-2xl">
+                            <div id="dropdown-${data}" class="absolute end-0 z-10 mt-2 hidden w-48 v3-radius border v3-border-default v3-bg-panel v3-elevation-none">
                                 <div class="py-2">`;
 
                     // Print button (always available if view permission)
                     if (permissions.examinations.view) {
                         actions += `
-                            <a href="<?= base_url('examination') ?>/${data}/print" class="flex items-center px-4 py-2 text-sm font-bold text-slate-700 transition-colors duration-200 hover:bg-slate-50 hover:text-slate-950">
-                                        <i class="fas fa-print me-3 text-slate-500"></i>${i18n.actionPrintReport}
+                            <a href="<?= base_url('examination') ?>/${data}/print" class="flex items-center px-4 py-2 text-sm font-bold v3-text-ink transition-colors duration-200 v3-hover-soft v3-hover-text-ink">
+                                        <i class="fas fa-print me-3 v3-text-muted"></i>${i18n.actionPrintReport}
                                     </a>`;
                     }
 
                     // Duplicate button (requires create permission)
                     if (permissions.examinations.create) {
                         actions += `
-                                    <a href="<?= base_url('examination') ?>/${data}/duplicate" class="flex items-center px-4 py-2 text-sm font-bold text-slate-700 transition-colors duration-200 hover:bg-orange-50 hover:text-orange-800">
-                                        <i class="fas fa-copy me-3 text-orange-600"></i>${i18n.actionDuplicate}
+                                    <a href="<?= base_url('examination') ?>/${data}/duplicate" class="flex items-center px-4 py-2 text-sm font-bold v3-text-ink transition-colors duration-200 v3-hover-primary v3-hover-text-warning">
+                                        <i class="fas fa-copy me-3 v3-text-warning"></i>${i18n.actionDuplicate}
                                     </a>`;
                     }
 
                     // Delete button
                     if (permissions.examinations.delete) {
                         actions += `
-                                    <button onclick="deleteExamination(${data})" class="flex w-full items-center px-4 py-2 text-sm font-bold text-red-700 transition-colors duration-200 hover:bg-red-50">
-                                        <i class="fas fa-trash me-3 text-red-600"></i>${i18n.actionDelete}
+                                    <button onclick="deleteExamination(${data})" class="flex w-full items-center px-4 py-2 text-sm font-bold v3-text-danger transition-colors duration-200 v3-hover-danger v3-btn v3-btn--danger">
+                                        <i class="fas fa-trash me-3 v3-text-danger"></i>${i18n.actionDelete}
                                     </button>`;
                     }
 
@@ -981,7 +981,7 @@ $(document).ready(function() {
                 previous: i18n.previous
             }
         },
-        dom: '<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: '<"border-b v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
         buttons: [
             {
                 extend: 'pdf',
@@ -1019,7 +1019,7 @@ $(document).ready(function() {
         drawCallback: function() {
             setTimeout(applyDataTablesStyling, 50);
             if (permissions.examinations.view) {
-                $('#examinationsTable tbody tr').addClass('cursor-pointer hover:bg-orange-50/40 transition-colors duration-150');
+                $('#examinationsTable tbody tr').addClass('cursor-pointer v3-hover-primary transition-colors duration-150');
             }
         }
     });
@@ -1077,20 +1077,20 @@ function toggleView(view) {
     document.getElementById('calendarView').classList.add('hidden');
 
     // Reset button styles
-    document.getElementById('tableViewBtn').className = 'inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200';
-    document.getElementById('gridViewBtn').className = 'inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200';
-    document.getElementById('calendarViewBtn').className = 'inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200';
+    document.getElementById('tableViewBtn').className = 'inline-flex items-center px-4 py-2 v3-bg-soft v3-text-ink text-sm font-medium rounded-lg v3-hover-soft focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-all duration-200';
+    document.getElementById('gridViewBtn').className = 'inline-flex items-center px-4 py-2 v3-bg-soft v3-text-ink text-sm font-medium rounded-lg v3-hover-soft focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-all duration-200';
+    document.getElementById('calendarViewBtn').className = 'inline-flex items-center px-4 py-2 v3-bg-soft v3-text-ink text-sm font-medium rounded-lg v3-hover-soft focus:outline-none focus:ring-2 v3-focus-control focus:ring-offset-2 transition-all duration-200';
 
     // Show selected view and update button
     if (view === 'table') {
         document.getElementById('tableView').classList.remove('hidden');
-        document.getElementById('tableViewBtn').className = 'inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200';
+        document.getElementById('tableViewBtn').className = 'inline-flex items-center rounded-lg v3-bg-warning px-4 py-2 text-sm font-bold v3-text-on-primary v3-elevation-none transition-all duration-200 v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control';
     } else if (view === 'grid') {
         document.getElementById('gridView').classList.remove('hidden');
-        document.getElementById('gridViewBtn').className = 'inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200';
+        document.getElementById('gridViewBtn').className = 'inline-flex items-center rounded-lg v3-bg-warning px-4 py-2 text-sm font-bold v3-text-on-primary v3-elevation-none transition-all duration-200 v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control';
     } else if (view === 'calendar') {
         document.getElementById('calendarView').classList.remove('hidden');
-        document.getElementById('calendarViewBtn').className = 'inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200';
+        document.getElementById('calendarViewBtn').className = 'inline-flex items-center rounded-lg v3-bg-warning px-4 py-2 text-sm font-bold v3-text-on-primary v3-elevation-none transition-all duration-200 v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control';
         generateCalendar();
     }
 
@@ -1112,7 +1112,7 @@ function generateCalendar() {
     // Add day headers
     i18n.calendarDays.forEach(day => {
         const dayHeader = document.createElement('div');
-        dayHeader.className = 'p-2 text-center text-sm font-semibold text-gray-600 bg-gray-50';
+        dayHeader.className = 'p-2 text-center text-sm font-semibold v3-text-muted v3-bg-panel';
         dayHeader.textContent = day;
         calendarGrid.appendChild(dayHeader);
     });
@@ -1126,17 +1126,17 @@ function generateCalendar() {
     // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'h-20 p-2 border border-gray-200 bg-gray-50';
+        emptyCell.className = 'h-20 p-2 border v3-border-default v3-bg-panel';
         calendarGrid.appendChild(emptyCell);
     }
 
     // Add days of month
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
-        dayCell.className = 'h-20 p-2 border border-gray-200 hover:bg-gray-50 cursor-pointer';
+        dayCell.className = 'h-20 p-2 border v3-border-default v3-hover-soft cursor-pointer';
 
         const dayNum = document.createElement('div');
-        dayNum.className = 'text-sm font-medium text-gray-900';
+        dayNum.className = 'text-sm font-medium v3-text-ink';
         dayNum.textContent = day;
 
         const dayContent = document.createElement('div');

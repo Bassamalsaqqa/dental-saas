@@ -156,46 +156,6 @@
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.74));
         box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.22);
     }
-    .ui-toggle {
-        appearance: none;
-        width: 44px;
-        height: 24px;
-        border-radius: 9999px;
-        background: #e5e7eb;
-        position: relative;
-        cursor: pointer;
-        transition: background 0.2s ease;
-        flex-shrink: 0;
-    }
-    .ui-toggle::before {
-        content: '';
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #fff;
-        top: 3px;
-        left: 3px;
-        transition: transform 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-    .ui-toggle:checked {
-        background: #3b82f6;
-    }
-    .ui-toggle:checked::before {
-        transform: translateX(20px);
-    }
-    [dir="rtl"] .ui-toggle::before {
-        left: auto;
-        right: 3px;
-    }
-    [dir="rtl"] .ui-toggle:checked::before {
-        transform: translateX(-20px);
-    }
-    .ui-toggle:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
     [dir="rtl"] #control-settings-breadcrumb {
         direction: rtl;
     }
@@ -232,61 +192,61 @@
 </style>
 <div class="v3-platform-workspace control-settings-shell min-h-screen">
     <div class="w-full space-y-5 px-3 py-3 sm:px-4 lg:px-5">
-        <section class="overflow-hidden cp-radius border cp-border bg-slate-950">
+        <section class="overflow-hidden cp-radius border cp-border v3-bg-forest">
             <div class="relative p-4 sm:p-5">
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_14%_16%,rgba(59,130,246,.54),transparent_30%),radial-gradient(circle_at_86%_12%,rgba(16,185,129,.32),transparent_25%),linear-gradient(135deg,#0f172a_0%,#1d4ed8_54%,#0f766e_100%)]"></div>
                 <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div class="flex min-w-0 items-start gap-4">
-                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center cp-radius cp-surface text-white ring-1 ring-white/20">
+                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center cp-radius cp-surface v3-text-on-primary border v3-border-default">
                             <i class="fas fa-cog text-2xl"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-xs font-bold text-emerald-200"><?= esc(lang('V3Platform.globalConfiguration')) ?></p>
-                            <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl"><?= esc(lang('V3Platform.controlPlaneSettings')) ?></h1>
+                            <p class="text-xs font-bold v3-text-primary"><?= esc(lang('V3Platform.globalConfiguration')) ?></p>
+                            <h1 class="mt-1 text-2xl font-bold tracking-tight v3-text-on-primary sm:text-3xl"><?= esc(lang('V3Platform.controlPlaneSettings')) ?></h1>
                             <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 cp-accent"><?= esc(lang('V3Platform.managePlatformIdentityClinicOnboardingDefaultsRetentionGovernanceAndSharedCommunicationTemplatesFromOneControlledWorkspace')) ?></p>
                             <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">
-                                <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25">
+                                <span class="rounded-full v3-bg-primary px-3 py-1.5 v3-text-primary border v3-border-default">
                                     <i class="fas fa-lock me-1"></i><?= esc(lang('V3Platform.globalMode')) ?>
                                 </span>
-                                <span class="rounded-full cp-surface px-3 py-1.5 text-white ring-1 ring-white/18"><?= esc($settings['platform_name'] ?? 'Platform') ?></span>
-                                <span class="rounded-full cp-surface px-3 py-1.5 text-white ring-1 ring-white/18"><?= esc($settings['default_timezone'] ?? 'Asia/Jerusalem') ?></span>
+                                <span class="rounded-full cp-surface px-3 py-1.5 v3-text-on-primary border v3-border-default"><?= esc($settings['platform_name'] ?? 'Platform') ?></span>
+                                <span class="rounded-full cp-surface px-3 py-1.5 v3-text-on-primary border v3-border-default"><?= esc($settings['default_timezone'] ?? 'Asia/Jerusalem') ?></span>
                             </div>
                         </div>
                     </div>
                     <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[30rem] lg:grid-cols-4">
-                        <div class="cp-radius cp-surface p-3 ring-1 ring-white/15">
+                        <div class="cp-radius cp-surface p-3 border v3-border-default">
                             <p class="text-[11px] font-bold cp-accent"><?= esc(lang('V3Platform.currency')) ?></p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= esc($settings['default_currency'] ?? 'ILS') ?></p>
+                            <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= esc($settings['default_currency'] ?? 'ILS') ?></p>
                         </div>
-                        <div class="cp-radius bg-emerald-400/20 p-3 ring-1 ring-emerald-200/25">
-                            <p class="text-[11px] font-bold text-emerald-100"><?= esc(lang('V3Platform.slotLength')) ?></p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= (int) ($settings['default_appointment_duration'] ?? 30) ?>m</p>
+                        <div class="cp-radius v3-bg-primary p-3 border v3-border-default">
+                            <p class="text-[11px] font-bold v3-text-primary"><?= esc(lang('V3Platform.slotLength')) ?></p>
+                            <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= (int) ($settings['default_appointment_duration'] ?? 30) ?>m</p>
                         </div>
-                        <div class="cp-radius bg-violet-400/20 p-3 ring-1 ring-violet-200/20">
+                        <div class="cp-radius v3-bg-primary p-3 border v3-border-default">
                             <p class="text-[11px] font-bold cp-accent"><?= esc(lang('V3Platform.emailTemplates2')) ?></p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= number_format($templateStats['total'] ?? 0) ?></p>
+                            <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= number_format($templateStats['total'] ?? 0) ?></p>
                         </div>
-                        <div class="cp-radius bg-amber-400/20 p-3 ring-1 ring-amber-200/25">
-                            <p class="text-[11px] font-bold text-amber-100"><?= esc(lang('V3Platform.exportRetention')) ?></p>
-                            <p class="mt-1 text-2xl font-bold text-white"><?= esc(ucwords(str_replace('_', ' ', (string) ($settings['retention_mode'] ?? 'latest')))) ?></p>
+                        <div class="cp-radius v3-bg-warning p-3 border v3-border-default">
+                            <p class="text-[11px] font-bold v3-text-warning"><?= esc(lang('V3Platform.exportRetention')) ?></p>
+                            <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= esc(ucwords(str_replace('_', ' ', (string) ($settings['retention_mode'] ?? 'latest')))) ?></p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center gap-1 cp-radius px-4 py-3 text-sm text-slate-500" id="control-settings-breadcrumb">
-            <span class="text-gray-700 font-medium"><?= esc(lang('V3Platform.controlPlane')) ?></span>
-            <i class="fas fa-chevron-right text-xs text-gray-300"></i>
-            <span class="text-gray-700 font-medium"><?= esc(lang('V3Platform.settings')) ?></span>
-            <i class="fas fa-chevron-right text-xs text-gray-300"></i>
-            <span id="control-breadcrumb-tab" class="text-gray-900 font-semibold"></span>
+        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center gap-1 cp-radius px-4 py-3 text-sm v3-text-muted" id="control-settings-breadcrumb">
+            <span class="v3-text-ink font-medium"><?= esc(lang('V3Platform.controlPlane')) ?></span>
+            <i class="fas fa-chevron-right text-xs v3-text-muted"></i>
+            <span class="v3-text-ink font-medium"><?= esc(lang('V3Platform.settings')) ?></span>
+            <i class="fas fa-chevron-right text-xs v3-text-muted"></i>
+            <span id="control-breadcrumb-tab" class="v3-text-ink font-semibold"></span>
         </nav>
         <?php $controlSettingsErrors = session('errors'); ?>
         <?php if (session('error') || (!empty($controlSettingsErrors) && is_array($controlSettingsErrors))): ?>
-            <div id="control-settings-feedback" class="mb-6 cp-radius border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800">
+            <div id="control-settings-feedback" class="mb-6 cp-radius border v3-border-default v3-bg-alert px-5 py-4 v3-text-danger">
                 <div class="flex items-start gap-3">
-                    <div class="mt-0.5 text-rose-600">
+                    <div class="mt-0.5 v3-text-danger">
                         <i class="fas fa-circle-exclamation"></i>
                     </div>
                     <div class="space-y-2">
@@ -309,33 +269,33 @@
         <section class="control-settings-shell-card rounded-[1.75rem] p-3 sm:p-4">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-3 px-1 sm:px-2">
                 <div>
-                    <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500"><?= esc(lang('V3Platform.settingsAreas')) ?></p>
-                    <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc(lang('V3Platform.chooseTheOperatingSurfaceYouNeedToReviewOrUpdate')) ?></p>
+                    <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.settingsAreas')) ?></p>
+                    <p class="mt-1 text-sm font-semibold v3-text-muted"><?= esc(lang('V3Platform.chooseTheOperatingSurfaceYouNeedToReviewOrUpdate')) ?></p>
                 </div>
-                <span class="rounded-full cp-soft-surface px-3 py-1.5 text-xs font-bold cp-accent ring-1 ring-blue-100"><?= esc(lang('V3Platform.changesAreSavedPerSection')) ?></span>
+                <span class="rounded-full cp-soft-surface px-3 py-1.5 text-xs font-bold cp-accent border v3-border-default"><?= esc(lang('V3Platform.changesAreSavedPerSection')) ?></span>
             </div>
             <nav class="grid gap-3 control-settings-sidebar-nav sm:grid-cols-2 xl:grid-cols-6">
-                <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
+                <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active v3-btn v3-btn--secondary">
                     <i class="fas fa-id-badge w-5 h-5"></i>
                     <span><?= esc(lang('V3Platform.platformProfile')) ?></span>
                 </button>
-                <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn">
+                <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn v3-btn v3-btn--secondary">
                     <i class="fas fa-clinic-medical w-5 h-5"></i>
                     <span><?= esc(lang('V3Platform.systemPreferences')) ?></span>
                 </button>
-                <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn">
+                <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn v3-btn v3-btn--secondary">
                     <i class="fas fa-clock w-5 h-5"></i>
                     <span><?= esc(lang('V3Platform.workingHours')) ?></span>
                 </button>
-                <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
+                <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn v3-btn v3-btn--secondary">
                     <i class="fas fa-shield-alt w-5 h-5"></i>
                     <span><?= esc(lang('V3Platform.governance')) ?></span>
                 </button>
-                <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn">
+                <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn v3-btn v3-btn--secondary">
                     <i class="fas fa-envelope-open-text w-5 h-5"></i>
                     <span><?= esc(lang('V3Platform.emailTemplates')) ?></span>
                 </button>
-                <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn">
+                <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn v3-btn v3-btn--secondary">
                     <i class="fab fa-whatsapp w-5 h-5"></i>
                     <span><?= esc(lang('V3Platform.whatsappTemplates')) ?></span>
                 </button>
@@ -351,24 +311,24 @@
     </div>
 </div>
 
-<div id="confirm-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+<div id="confirm-modal" class="fixed inset-0 v3-backdrop z-50 hidden items-center justify-center p-4">
     <div class="cp-surface cp-radius max-w-md w-full cp-panel-padding">
         <div class="mb-6 flex items-start gap-4">
-            <div class="w-12 h-12 bg-red-100 cp-radius flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            <div class="w-12 h-12 v3-bg-alert cp-radius flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-exclamation-triangle v3-text-danger text-xl"></i>
             </div>
             <div>
-                <h3 id="confirm-modal-title" class="text-xl font-bold text-gray-900 mb-1"><?= esc(lang('V3Platform.areYouSure')) ?></h3>
-                <p id="confirm-modal-message" class="text-gray-500 text-sm"><?= esc(lang('V3Platform.thisActionCannotBeUndone')) ?></p>
+                <h3 id="confirm-modal-title" class="text-xl font-bold v3-text-ink mb-1"><?= esc(lang('V3Platform.areYouSure')) ?></h3>
+                <p id="confirm-modal-message" class="v3-text-muted text-sm"><?= esc(lang('V3Platform.thisActionCannotBeUndone')) ?></p>
             </div>
         </div>
         <div class="flex justify-end gap-3">
             <button onclick="closeConfirmModal()"
-                    class="px-6 py-2.5 cp-surface border cp-border text-gray-700 font-semibold cp-radius hover:bg-gray-50 transition-all">
+                    class="px-6 py-2.5 cp-surface border cp-border v3-text-ink font-semibold cp-radius v3-hover-soft transition-all v3-btn v3-btn--secondary">
                 <?= esc(lang('V3Platform.cancel')) ?>
             </button>
             <button id="confirm-modal-action"
-                    class="px-6 py-2.5 text-white font-semibold cp-radius transition-all">
+                    class="px-6 py-2.5 v3-text-on-primary font-semibold cp-radius transition-all v3-btn v3-btn--secondary">
                 <?= esc(lang('V3Platform.confirm')) ?>
             </button>
         </div>
@@ -435,13 +395,13 @@ function toastMessage(type, message) {
     if (!container) {
         container = document.createElement('div');
         container.id = 'control-settings-toast';
-        container.className = 'fixed top-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all';
+        container.className = 'fixed top-5 z-[100] max-w-sm v3-radius px-4 py-3 text-sm font-semibold v3-elevation-none transition-all';
         container.style.insetInlineEnd = '1.25rem';
         document.body.appendChild(container);
     }
 
-    container.className = `fixed top-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all ${
-        type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+    container.className = `fixed top-5 z-[100] max-w-sm v3-radius px-4 py-3 text-sm font-semibold v3-elevation-none transition-all ${
+        type === 'success' ? 'v3-bg-primary v3-text-on-primary' : 'v3-bg-danger v3-text-on-primary'
     }`;
     container.style.insetInlineEnd = '1.25rem';
     container.textContent = message;
@@ -473,7 +433,7 @@ function bindManagedForms() {
 
         trackedFields.forEach((field) => {
             const syncFieldState = () => {
-                field.classList.remove('border-rose-400', 'focus:border-rose-500', 'focus:ring-rose-100');
+                field.classList.remove('v3-border-default', 'v3-focus-control', 'v3-focus-control');
                 if (!field.checkValidity()) {
                     return;
                 }
@@ -490,9 +450,9 @@ function bindManagedForms() {
                 event.preventDefault();
                 trackedFields.forEach((field) => {
                     if (typeof field.checkValidity === 'function' && !field.checkValidity()) {
-                        field.classList.add('border-rose-400', 'focus:border-rose-500', 'focus:ring-rose-100');
+                        field.classList.add('v3-border-default', 'v3-focus-control', 'v3-focus-control');
                     } else {
-                        field.classList.remove('border-rose-400', 'focus:border-rose-500', 'focus:ring-rose-100');
+                        field.classList.remove('v3-border-default', 'v3-focus-control', 'v3-focus-control');
                     }
                 });
                 form.reportValidity();
@@ -641,11 +601,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const label = checkbox.closest('label');
             if (!label) return;
             if (checkbox.checked) {
-                label.classList.add('border-blue-500', 'bg-blue-50');
-                label.classList.remove('border-slate-200');
+                label.classList.add('v3-border-default', 'v3-bg-scheduled');
+                label.classList.remove('v3-border-default');
             } else {
-                label.classList.remove('border-blue-500', 'bg-blue-50');
-                label.classList.add('border-slate-200');
+                label.classList.remove('v3-border-default', 'v3-bg-scheduled');
+                label.classList.add('v3-border-default');
             }
         });
     });

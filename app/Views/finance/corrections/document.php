@@ -16,18 +16,18 @@
 <form class="ic-card ic-noprint" method="post" action="<?= esc(site_url('finance/corrections/' . (int) $correction['id'] . '/applications/' . (int) $application['id'] . '/return'), 'attr') ?>">
 <?= csrf_field() ?><input type="hidden" name="idempotency_key" value="<?= esc(bin2hex(random_bytes(24)), 'attr') ?>">
 <h3><?= esc($tr('returnApplication')) ?> <bdi>#<?= esc($application['id']) ?></bdi></h3>
-<label><?= esc($tr('returnReason')) ?><textarea name="reason" maxlength="2000" required></textarea></label>
-<label class="ic-check"><input type="checkbox" name="confirm" value="1" required><span><?= esc($tr('returnConfirm')) ?></span></label>
-<button class="ic-button" type="submit"><?= esc($tr('returnApplication')) ?></button></form>
+<label><?= esc($tr('returnReason')) ?><textarea name="reason" maxlength="2000" required class="v3-textarea"></textarea></label>
+<label class="ic-check"><input type="checkbox" name="confirm" value="1" required class="v3-checkbox"><span><?= esc($tr('returnConfirm')) ?></span></label>
+<button class="ic-button v3-btn v3-btn--primary" type="submit"><?= esc($tr('returnApplication')) ?></button></form>
 <?php endforeach; endif ?>
 <?php if ($canWrite && !empty($document['source_hash'])): ?>
 <form class="ic-card ic-noprint" method="post" action="<?= esc(site_url('finance/corrections/' . (int) $correction['id'] . '/allocate'), 'attr') ?>">
 <?= csrf_field() ?><input type="hidden" name="source_hash" value="<?= esc($document['source_hash'], 'attr') ?>"><input type="hidden" name="idempotency_key" value="<?= esc($idempotencyKey, 'attr') ?>">
 <h2><?= esc($tr('allocation')) ?></h2><p class="ic-help"><?= esc($tr('allocationHelp')) ?></p>
-<label for="ic-target"><?= esc($tr('replacementId')) ?></label><input id="ic-target" type="text" name="target_finance_id" inputmode="numeric" pattern="[0-9]+" maxlength="18" required>
-<label for="ic-apply-amount"><?= esc($tr('amount')) ?></label><input id="ic-apply-amount" name="amount_original" type="text" dir="ltr" inputmode="decimal" pattern="[0-9]+([.][0-9]{1,2})?" maxlength="20" required>
-<label class="ic-check"><input type="checkbox" name="confirm" value="1" required><span><?= esc($tr('allocateConfirm')) ?></span></label>
-<button class="ic-button" type="submit"><?= esc($tr('allocateAction')) ?></button>
+<label for="ic-target"><?= esc($tr('replacementId')) ?></label><input id="ic-target" type="text" name="target_finance_id" inputmode="numeric" pattern="[0-9]+" maxlength="18" required class="v3-input">
+<label for="ic-apply-amount"><?= esc($tr('amount')) ?></label><input id="ic-apply-amount" name="amount_original" type="text" dir="ltr" inputmode="decimal" pattern="[0-9]+([.][0-9]{1,2})?" maxlength="20" required class="v3-input">
+<label class="ic-check"><input type="checkbox" name="confirm" value="1" required class="v3-checkbox"><span><?= esc($tr('allocateConfirm')) ?></span></label>
+<button class="ic-button v3-btn v3-btn--primary" type="submit"><?= esc($tr('allocateAction')) ?></button>
 </form><?php endif ?>
 <div class="ic-noprint"><p class="ic-help"><?= esc($tr('printHelp')) ?></p><p class="ic-help"><?= esc($tr('separateRefund')) ?></p><div class="ic-actions"><a href="<?= esc(site_url('finance/' . $invoiceId . '/corrections'), 'attr') ?>"><?= esc($tr('returnCorrections')) ?></a><a href="<?= esc(site_url('finance/' . $invoiceId), 'attr') ?>"><?= esc($tr('back')) ?></a></div></div>
 </main>

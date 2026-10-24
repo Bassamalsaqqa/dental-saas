@@ -224,17 +224,17 @@ foreach ($usageHistory as $usage) {
 $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory) : 0;
 ?>
 <div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.65rem] border v3-border bg-slate-950 text-white">
+    <section class="overflow-hidden rounded-[1.65rem] border v3-border v3-bg-forest v3-text-on-primary">
         <div class="relative p-5 sm:p-6 lg:p-7">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(168,85,247,.58),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(14,165,233,.34),transparent_28%),linear-gradient(135deg,#6d28d9_0%,#4338ca_42%,#0f172a_100%)]"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface text-white ring-1 ring-white/20">
+                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface v3-text-on-primary border v3-border-default">
                         <i class="fas fa-history text-2xl"></i>
                     </span>
                     <div class="min-w-0">
                         <p class="text-xs font-black uppercase tracking-[0.2em] v3-accent-text"><?= esc(lang('Inventory.inventoryUsage')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc(lang('Inventory.usageHistory')) ?></h1>
+                        <h1 class="mt-1 text-2xl font-black tracking-tight v3-text-on-primary sm:text-3xl"><?= esc(lang('Inventory.usageHistory')) ?></h1>
                         <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 v3-accent-text"><?= esc(lang('Inventory.usageHistorySubtitle')) ?></p>
                     </div>
                 </div>
@@ -242,29 +242,29 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
                 <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     <div class="v3-radius border v3-border v3-surface p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.totalRecords')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= count($usageHistory) ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= count($usageHistory) ?></p>
                     </div>
-                    <div class="v3-radius border v3-border bg-emerald-400/18 p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('Inventory.totalValue')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white" dir="ltr"><?= formatCurrency($totalUsageCost) ?></p>
+                    <div class="v3-radius border v3-border v3-bg-primary p-4">
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc(lang('Inventory.totalValue')) ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary" dir="ltr"><?= formatCurrency($totalUsageCost) ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-soft-surface p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.thisMonth')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $monthlyCount ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $monthlyCount ?></p>
                     </div>
-                    <div class="v3-radius border v3-border bg-amber-400/18 p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-amber-100"><?= esc(lang('Inventory.avgCost')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white" dir="ltr"><?= formatCurrency($averageCost) ?></p>
+                    <div class="v3-radius border v3-border v3-bg-warning p-4">
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-warning"><?= esc(lang('Inventory.avgCost')) ?></p>
+                        <p class="mt-1 text-2xl font-black v3-text-on-primary" dir="ltr"><?= formatCurrency($averageCost) ?></p>
                     </div>
                 </div>
             </div>
 
             <div class="relative mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-on-primary border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
                     <i class="fas fa-arrow-left rtl:rotate-180"></i>
                     <span><?= esc(lang('Inventory.backToInventory')) ?></span>
                 </a>
-                <a href="<?= base_url('inventory/usage') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-accent-text transition hover:bg-purple-50">
+                <a href="<?= base_url('inventory/usage') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-accent-text transition v3-hover-primary v3-btn v3-btn--secondary">
                     <i class="fas fa-plus"></i>
                     <span><?= esc(lang('Inventory.recordUsage')) ?></span>
                 </a>
@@ -275,25 +275,25 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
     <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
         <div class="flex flex-col gap-4 border-b v3-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex min-w-0 items-center gap-3">
-                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius text-white">
+                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius v3-text-on-primary">
                     <i class="fas fa-clipboard-list"></i>
                 </span>
                 <div class="min-w-0">
-                    <h2 class="text-xl font-black text-slate-950"><?= esc(lang('Inventory.usageHistory')) ?></h2>
-                    <p class="mt-1 text-sm font-semibold text-slate-600"><span class="total-items-count">0</span> <?= esc(lang('Inventory.records')) ?></p>
+                    <h2 class="text-xl font-black v3-text-ink"><?= esc(lang('Inventory.usageHistory')) ?></h2>
+                    <p class="mt-1 text-sm font-semibold v3-text-muted"><span class="total-items-count">0</span> <?= esc(lang('Inventory.records')) ?></p>
                 </div>
             </div>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button type="button" onclick="exportUsageToPDF()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700">
-                    <i class="fas fa-file-pdf text-red-600"></i>
+                <button type="button" onclick="exportUsageToPDF()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black v3-text-ink transition v3-border-default v3-hover-danger v3-hover-text-danger v3-btn v3-btn--secondary">
+                    <i class="fas fa-file-pdf v3-text-danger"></i>
                     <span><?= esc(lang('Inventory.exportToPDF')) ?></span>
                 </button>
-                <button type="button" onclick="printUsageHistory()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                    <i class="fas fa-print text-slate-600"></i>
+                <button type="button" onclick="printUsageHistory()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black v3-text-ink transition v3-border-default v3-hover-soft v3-btn v3-btn--secondary">
+                    <i class="fas fa-print v3-text-muted"></i>
                     <span><?= esc(lang('Inventory.exportToPrint')) ?></span>
                 </button>
-                <button type="button" onclick="exportUsageToCSV()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700">
-                    <i class="fas fa-file-csv text-emerald-600"></i>
+                <button type="button" onclick="exportUsageToCSV()" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-black v3-text-ink transition v3-border-default v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary">
+                    <i class="fas fa-file-csv v3-text-primary"></i>
                     <span><?= esc(lang('Inventory.exportToCSV')) ?></span>
                 </button>
             </div>
@@ -304,43 +304,43 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
                 <table id="usageHistoryTable" class="w-full min-w-full">
                     <thead class="v3-surface">
                         <tr>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-calendar v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.date')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-user v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.patient')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-stethoscope v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.treatment')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-box v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.itemsUsed')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-dollar-sign v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.totalCost')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-user-md v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.recordedBy')) ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500">
+                                    <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide v3-text-muted">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-cogs v3-accent-text"></i>
                                             <span><?= esc(lang('Inventory.actions')) ?></span>
@@ -348,7 +348,7 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
                                     </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 v3-surface">
+                        <tbody class="divide-y v3-border-default v3-surface">
                             <!-- Data will be loaded via DataTables -->
                         </tbody>
                     </table>
@@ -358,12 +358,12 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
 </div>
 
 <!-- Usage Details Modal -->
-<div id="usageDetailsModal" class="fixed inset-0 z-[2147483500] hidden h-full w-full overflow-y-auto bg-slate-950/50 p-4">
+<div id="usageDetailsModal" class="fixed inset-0 z-[2147483500] hidden h-full w-full overflow-y-auto v3-backdrop p-4">
     <div class="relative mx-auto mt-14 w-full max-w-3xl overflow-hidden v3-radius border v3-border v3-surface">
         <div>
             <div class="flex items-center justify-between gap-4 border-b v3-border px-5 py-4">
-                <h3 class="text-lg font-black text-slate-950"><?= esc(lang('Inventory.viewDetails')) ?></h3>
-                <button onclick="closeUsageDetails()" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+                <h3 class="text-lg font-black v3-text-ink"><?= esc(lang('Inventory.viewDetails')) ?></h3>
+                <button onclick="closeUsageDetails()" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--secondary">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -504,10 +504,10 @@ function viewUsageDetails(usageId) {
                 // Date Section
                 const dateDiv = document.createElement('div');
                 const dateLabel = document.createElement('label');
-                dateLabel.className = 'text-sm font-medium text-gray-500';
+                dateLabel.className = 'text-sm font-medium v3-text-muted';
                 dateLabel.textContent = '<?= esc(lang('Inventory.usageDateRequired'), 'js') ?>';
                 const dateP = document.createElement('p');
-                dateP.className = 'text-lg font-semibold text-gray-900';
+                dateP.className = 'text-lg font-semibold v3-text-ink';
                 dateP.textContent = formatDate(usage.usage_date);
                 dateDiv.appendChild(dateLabel);
                 dateDiv.appendChild(dateP);
@@ -515,10 +515,10 @@ function viewUsageDetails(usageId) {
                 // Cost Section
                 const costDiv = document.createElement('div');
                 const costLabel = document.createElement('label');
-                costLabel.className = 'text-sm font-medium text-gray-500';
+                costLabel.className = 'text-sm font-medium v3-text-muted';
                 costLabel.textContent = '<?= esc(lang('Inventory.totalCost'), 'js') ?>';
                 const costP = document.createElement('p');
-                costP.className = 'text-lg font-semibold text-green-600';
+                costP.className = 'text-lg font-semibold v3-text-primary';
                 costP.textContent = formatCurrency(parseFloat(usage.total_cost));
                 costDiv.appendChild(costLabel);
                 costDiv.appendChild(costP);
@@ -530,7 +530,7 @@ function viewUsageDetails(usageId) {
                 // Items List
                 const itemsSection = document.createElement('div');
                 const itemsLabel = document.createElement('label');
-                itemsLabel.className = 'text-sm font-medium text-gray-500';
+                itemsLabel.className = 'text-sm font-medium v3-text-muted';
                 itemsLabel.textContent = '<?= esc(lang('Inventory.itemsUsed'), 'js') ?>';
                 itemsSection.appendChild(itemsLabel);
 
@@ -539,14 +539,14 @@ function viewUsageDetails(usageId) {
 
                 items.forEach(item => {
                     const itemRow = document.createElement('div');
-                    itemRow.className = 'flex justify-between items-center py-2 border-b border-gray-200';
+                    itemRow.className = 'flex justify-between items-center py-2 border-b v3-border-default';
 
                     const leftCol = document.createElement('div');
                     const itemName = document.createElement('div');
-                    itemName.className = 'font-medium text-gray-900';
+                    itemName.className = 'font-medium v3-text-ink';
                     itemName.textContent = item.item_name;
                     const itemQty = document.createElement('div');
-                    itemQty.className = 'text-sm text-gray-500';
+                    itemQty.className = 'text-sm v3-text-muted';
                     itemQty.textContent = `Quantity: ${item.quantity_used}`;
                     leftCol.appendChild(itemName);
                     leftCol.appendChild(itemQty);
@@ -554,10 +554,10 @@ function viewUsageDetails(usageId) {
                     const rightCol = document.createElement('div');
                     rightCol.className = 'text-right';
                     const unitCost = document.createElement('div');
-                    unitCost.className = 'font-medium text-gray-900';
+                    unitCost.className = 'font-medium v3-text-ink';
                     unitCost.textContent = formatCurrency(parseFloat(item.unit_cost));
                     const totalLineCost = document.createElement('div');
-                    totalLineCost.className = 'text-sm text-gray-500';
+                    totalLineCost.className = 'text-sm v3-text-muted';
                     totalLineCost.textContent = `Total: ${formatCurrency(parseFloat(item.total_cost))}`;
                     rightCol.appendChild(unitCost);
                     rightCol.appendChild(totalLineCost);
@@ -574,10 +574,10 @@ function viewUsageDetails(usageId) {
                 if (usage.notes) {
                     const notesDiv = document.createElement('div');
                     const notesLabel = document.createElement('label');
-                    notesLabel.className = 'text-sm font-medium text-gray-500';
+                    notesLabel.className = 'text-sm font-medium v3-text-muted';
                     notesLabel.textContent = '<?= esc(lang('Inventory.notes'), 'js') ?>';
                     const notesP = document.createElement('p');
-                    notesP.className = 'text-gray-900 mt-1';
+                    notesP.className = 'v3-text-ink mt-1';
                     notesP.textContent = usage.notes;
                     notesDiv.appendChild(notesLabel);
                     notesDiv.appendChild(notesP);
@@ -586,17 +586,17 @@ function viewUsageDetails(usageId) {
 
                 // Footer (Recorded By)
                 const footerDiv = document.createElement('div');
-                footerDiv.className = 'text-sm text-gray-500';
+                footerDiv.className = 'text-sm v3-text-muted';
                 footerDiv.textContent = `${'<?= esc(lang('Inventory.recordedBy'), 'js') ?>'}: ${usage.recorded_by_name} | ${formatDate(usage.created_at)}`;
                 container.appendChild(footerDiv);
 
                 if (usage.finance_entry_id) {
                     const financeRow = document.createElement('div');
-                    financeRow.className = 'pt-2 border-t border-gray-200';
+                    financeRow.className = 'pt-2 border-t v3-border-default';
 
                     const financeLink = document.createElement('a');
                     financeLink.href = `<?= base_url() ?>finance/${usage.finance_entry_id}`;
-                    financeLink.className = 'inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors';
+                    financeLink.className = 'inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold v3-bg-alert v3-text-danger v3-hover-danger transition-colors';
                     const financeIcon = document.createElement('i');
                     financeIcon.className = 'fas fa-file-invoice-dollar mr-2';
                     const financeText = document.createElement('span');
@@ -625,10 +625,10 @@ function renderError(message) {
     contentDiv.textContent = '';
 
     const errorDiv = document.createElement('div');
-    errorDiv.className = 'p-4 bg-red-50 rounded-lg';
+    errorDiv.className = 'p-4 v3-bg-alert rounded-lg';
 
     const p = document.createElement('p');
-    p.className = 'text-red-600';
+    p.className = 'v3-text-danger';
     p.textContent = message;
 
     errorDiv.appendChild(p);
@@ -761,13 +761,13 @@ $(document).ready(function() {
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 7;
-                td.className = 'text-center py-8 text-gray-500';
+                td.className = 'text-center py-8 v3-text-muted';
 
                 const container = document.createElement('div');
                 container.className = 'flex flex-col items-center space-y-2';
 
                 const icon = document.createElement('i');
-                icon.className = 'fas fa-exclamation-triangle text-4xl text-yellow-500';
+                icon.className = 'fas fa-exclamation-triangle text-4xl v3-text-warning';
 
                 const title = document.createElement('p');
                 title.className = 'text-lg font-medium';
@@ -779,7 +779,7 @@ $(document).ready(function() {
 
                 const btn = document.createElement('button');
                 btn.onclick = () => location.reload();
-                btn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
+                btn.className = 'mt-4 px-4 py-2 v3-bg-primary v3-text-on-primary rounded-md v3-hover-primary';
 
                 const btnIcon = document.createElement('i');
                 btnIcon.className = 'fas fa-refresh mr-2';
@@ -828,7 +828,7 @@ $(document).ready(function() {
                 previous: "<?= lang('Inventory.paginate.previous') ?>"
             }
         },
-        dom: '<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: '<"px-6 py-4 border-b v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         responsive: true,
         initComplete: function(settings, json) {
             console.log('Usage History DataTable initialization complete:', json);

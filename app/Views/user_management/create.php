@@ -9,7 +9,7 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-0 text-gray-800"><?= $title ?></h1>
+            <h1 class="h3 mb-0 v3-text-ink"><?= $title ?></h1>
             <p class="text-muted mb-0"><?= lang('UserRole.createNewUserWithRolesPermissions') ?></p>
         </div>
         <a href="<?= base_url('user-management') ?>" class="btn btn-outline-secondary">
@@ -27,7 +27,7 @@
                     <li><?= esc($error) ?></li>
                 <?php endforeach; ?>
             </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close v3-btn v3-btn--secondary" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
@@ -35,7 +35,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle"></i>
             <?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close v3-btn v3-btn--secondary" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
@@ -50,37 +50,37 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="first_name" class="form-label"><?= lang('UserRole.firstName') ?> <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                            <input type="text" class="form-control v3-input" id="first_name" name="first_name"
                                    value="<?= old('first_name') ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="last_name" class="form-label"><?= lang('UserRole.lastName') ?> <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                            <input type="text" class="form-control v3-input" id="last_name" name="last_name"
                                    value="<?= old('last_name') ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label"><?= lang('UserRole.emailAddress') ?> <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" name="email" 
+                            <input type="email" class="form-control v3-input" id="email" name="email"
                                    value="<?= old('email') ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="phone" class="form-label"><?= lang('UserRole.phoneNumber') ?></label>
-                            <input type="tel" class="form-control" id="phone" name="phone" 
+                            <input type="tel" class="form-control v3-input" id="phone" name="phone"
                                    value="<?= old('phone') ?>">
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label"><?= lang('UserRole.password') ?> <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control v3-input" id="password" name="password" required>
                             <div class="form-text"><?= lang('UserRole.minimumEightCharacters') ?></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password_confirm" class="form-label"><?= lang('UserRole.confirmPassword') ?> <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+                            <input type="password" class="form-control v3-input" id="password_confirm" name="password_confirm" required>
                         </div>
                     </div>
                 </div>
@@ -94,12 +94,12 @@
                     </div>
                     <div class="card-body">
                         <p class="text-muted small mb-3"><?= lang('UserRole.selectOneOrMoreRoles') ?></p>
-                        
+
                         <?php foreach ($roles as $role): ?>
                             <div class="form-check mb-2">
-                                <input class="form-check-input role-checkbox" 
-                                       type="checkbox" 
-                                       name="roles[]" 
+                                <input class="form-check-input role-checkbox v3-checkbox"
+                                       type="checkbox"
+                                       name="roles[]"
                                        value="<?= $role['id'] ?>"
                                        id="role_<?= $role['id'] ?>"
                                        <?= old('roles') && in_array($role['id'], old('roles')) ? 'checked' : '' ?>>
@@ -136,7 +136,7 @@
                     </div>
                     <div class="card-body">
                         <p class="text-muted small mb-3"><?= lang('UserRole.grantAdditionalPermissions') ?></p>
-                        
+
                         <div class="permission-list" style="max-height: 400px; overflow-y: auto;">
                             <?php foreach ($permissions as $module => $modulePermissions): ?>
                                 <div class="permission-module mb-3">
@@ -144,12 +144,12 @@
                                         <i class="fas fa-<?= getModuleIcon($module) ?>"></i>
                                         <?= esc($categories[$module] ?? ucfirst($module)) ?>
                                     </h6>
-                                    
+
                                     <?php foreach ($modulePermissions as $permission): ?>
                                         <div class="form-check mb-1">
-                                            <input class="form-check-input permission-checkbox" 
-                                                   type="checkbox" 
-                                                   name="permissions[]" 
+                                            <input class="form-check-input permission-checkbox v3-checkbox"
+                                                   type="checkbox"
+                                                   name="permissions[]"
                                                    value="<?= $permission['id'] ?>"
                                                    id="perm_<?= $permission['id'] ?>"
                                                    <?= old('permissions') && in_array($permission['id'], old('permissions')) ? 'checked' : '' ?>>
@@ -175,7 +175,7 @@
                             <a href="<?= base_url('user-management') ?>" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i> <?= lang('UserRole.cancel') ?>
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary v3-btn v3-btn--primary">
                                 <i class="fas fa-save"></i> <?= lang('UserRole.createUser') ?>
                             </button>
                         </div>
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Password confirmation validation
     const password = document.getElementById('password');
     const passwordConfirm = document.getElementById('password_confirm');
-    
+
     function validatePassword() {
         if (password.value !== passwordConfirm.value) {
             passwordConfirm.setCustomValidity(<?= json_encode(lang('UserRole.passwordsDoNotMatch')) ?>);
@@ -199,13 +199,13 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordConfirm.setCustomValidity('');
         }
     }
-    
+
     password.addEventListener('change', validatePassword);
     passwordConfirm.addEventListener('keyup', validatePassword);
 
     // Role selection counter
     updateRoleCounter();
-    
+
     document.querySelectorAll('.role-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', updateRoleCounter);
     });
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateRoleCounter() {
     const totalRoles = document.querySelectorAll('.role-checkbox').length;
     const selectedRoles = document.querySelectorAll('.role-checkbox:checked').length;
-    
+
     // Update any counters if they exist
     const counters = document.querySelectorAll('.role-counter');
     counters.forEach(counter => {

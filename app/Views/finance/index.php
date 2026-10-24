@@ -26,21 +26,21 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 <div>
     <div class="finance-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <header class="v3-command-header"><div><h1><?= lang('Finance.financeManagement') ?></h1><p><?= esc($tr('cashBasisShort')) ?></p></div><div class="v3-command-actions"><?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="payment" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm text-emerald-800 transition hover:bg-emerald-50 sm:w-auto">
+                            <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="payment" class="inline-flex w-full items-center justify-center gap-2 v3-radius v3-bg-panel px-4 py-2.5 text-sm v3-text-primary transition v3-hover-primary sm:w-auto v3-btn v3-btn--secondary">
                                 <i class="fas fa-hand-holding-dollar"></i>
                                 <?= esc($tr('recordPayment')) ?>
                             </a>
-                            <a href="<?= base_url('finance/income/create') ?>" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="invoice" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-2.5 text-sm transition hover:bg-teal-600 sm:w-auto">
+                            <a href="<?= base_url('finance/income/create') ?>" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="invoice" class="inline-flex w-full items-center justify-center gap-2 v3-radius v3-bg-primary px-4 py-2.5 text-sm transition v3-hover-primary sm:w-auto v3-btn v3-btn--secondary">
                                 <i class="fas fa-file-invoice-dollar"></i>
                                 <?= esc($tr('createInvoice')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm transition hover:bg-rose-600 sm:w-auto">
+                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full items-center justify-center gap-2 v3-radius v3-bg-danger px-4 py-2.5 text-sm transition v3-hover-danger sm:w-auto v3-btn v3-btn--danger">
                                 <i class="fas fa-receipt"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
                         <?php if (!empty($can_access_finance_reports)): ?>
-                            <a href="<?= base_url('finance/reports') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm transition hover:bg-white/20 sm:w-auto">
+                            <a href="<?= base_url('finance/reports') ?>" class="finance-hero-chip inline-flex w-full items-center justify-center gap-2 v3-radius px-4 py-2.5 text-sm transition v3-hover-soft sm:w-auto v3-btn v3-btn--secondary">
                                 <i class="fas fa-chart-bar"></i>
                                 <?= esc($tr('reports')) ?>
                             </a>
@@ -58,17 +58,17 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 
 
         <nav class="v3-finance-navigation" aria-label="<?= esc($tr('financeAreas')) ?>">
-            <span class="shrink-0 text-xs uppercase tracking-wide text-slate-500"><?= esc($tr('financeAreas')) ?></span>
+            <span class="shrink-0 text-xs uppercase tracking-wide v3-text-muted"><?= esc($tr('financeAreas')) ?></span>
             <div class="flex flex-wrap gap-2">
-                <a href="<?= base_url('finance/payables') ?>" class="inline-flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800 transition hover:bg-amber-100">
+                <a href="<?= base_url('finance/payables') ?>" class="inline-flex items-center gap-2 v3-radius v3-bg-waiting px-3 py-2 text-sm font-bold v3-text-warning transition v3-hover-primary v3-btn v3-btn--secondary">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <?= esc($tr('supplierPayablesNav')) ?>
                 </a>
-                <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-bold text-sky-800 transition hover:bg-sky-100">
+                <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center gap-2 v3-radius v3-bg-scheduled px-3 py-2 text-sm font-bold v3-text-primary transition v3-hover-primary v3-btn v3-btn--secondary">
                     <i class="fas fa-user-doctor"></i>
                     <?= esc($tr('providerPayoutsNav')) ?>
                 </a>
-                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-200">
+                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center gap-2 v3-radius v3-bg-soft px-3 py-2 text-sm font-bold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                     <i class="fas fa-right-left"></i>
                     <?= esc($tr('treasuryTransfers')) ?>
                 </a>
@@ -83,25 +83,25 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 <div class="finance-table-header v3-panel-toolbar">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl v3-warm-surface">
+                            <div class="flex h-10 w-10 items-center justify-center v3-radius v3-warm-surface">
                                 <i class="fas fa-table-list"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg text-slate-950"><?= lang('Finance.financialTransactions') ?></h3>
+                                <h3 class="text-lg v3-text-ink"><?= lang('Finance.financialTransactions') ?></h3>
                             </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <!-- Export Buttons -->
-                            <button onclick="exportToPDF()" class="finance-export-btn">
-                                <i class="fas fa-file-pdf text-red-600"></i>
+                            <button onclick="exportToPDF()" class="finance-export-btn v3-btn v3-btn--secondary">
+                                <i class="fas fa-file-pdf v3-text-danger"></i>
                                 <?= esc($tr('exportPdf')) ?>
                             </button>
-                            <button onclick="printTransactions()" class="finance-export-btn">
-                                <i class="fas fa-print text-gray-600"></i>
+                            <button onclick="printTransactions()" class="finance-export-btn v3-btn v3-btn--secondary">
+                                <i class="fas fa-print v3-text-muted"></i>
                                 <?= esc($tr('print')) ?>
                             </button>
-                            <button onclick="exportToCSV()" class="finance-export-btn">
-                                <i class="fas fa-file-csv text-green-600"></i>
+                            <button onclick="exportToCSV()" class="finance-export-btn v3-btn v3-btn--secondary">
+                                <i class="fas fa-file-csv v3-text-primary"></i>
                                 <?= esc($tr('exportCsv')) ?>
                             </button>
                         </div>
@@ -112,58 +112,58 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                     <div class="overflow-x-auto">
                         <div class="dataTables-wrapper">
                             <table id="transactionsTable" class="w-full min-w-full">
-                            <thead class="bg-gray-50">
+                            <thead class="v3-bg-panel">
                                 <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-receipt text-green-600"></i>
+                                            <i class="fas fa-receipt v3-text-primary"></i>
                                             <span><?= lang('Finance.transactionId') ?></span>
                             </div>
                                     </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-user text-green-600"></i>
+                                            <i class="fas fa-user v3-text-primary"></i>
                                             <span><?= lang('Finance.patient') ?></span>
                         </div>
                                     </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-tag text-green-600"></i>
+                                            <i class="fas fa-tag v3-text-primary"></i>
                                             <span><?= lang('Finance.type') ?></span>
                     </div>
                                     </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-dollar-sign text-green-600"></i>
+                                            <i class="fas fa-dollar-sign v3-text-primary"></i>
                                             <span><?= lang('Finance.total') ?></span>
                                 </div>
                                     </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-info-circle text-green-600"></i>
+                                            <i class="fas fa-info-circle v3-text-primary"></i>
                                             <span><?= lang('Finance.status') ?></span>
                             </div>
                                     </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-calendar text-green-600"></i>
+                                            <i class="fas fa-calendar v3-text-primary"></i>
                                             <span><?= lang('Finance.date') ?></span>
                             </div>
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
-                                            <i class="fas fa-cogs text-green-600"></i>
+                                            <i class="fas fa-cogs v3-text-primary"></i>
                                             <span><?= lang('Finance.actions') ?></span>
                         </div>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody id="transactionsTableBody" class="bg-white divide-y divide-gray-200">
+                            <tbody id="transactionsTableBody" class="v3-bg-panel divide-y v3-border-default">
                                     <!-- Data will be loaded via DataTables -->
                                     <tr id="loadingRow">
-                                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                        <td colspan="7" class="px-6 py-4 text-center v3-text-muted">
                                             <div class="flex items-center justify-center space-x-2">
-                                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 v3-border-default"></div>
                                                 <span><?= lang('Finance.loadingTransactions') ?></span>
                                 </div>
                                         </td>
@@ -179,35 +179,35 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 
 <?php if (has_permission('finance', 'create')): ?>
     <div id="financeIncomeModal" class="finance-create-modal v3-context-drawer fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeIncomeModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="finance-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 bg-slate-950/45" data-finance-create-modal-close></div>
+        <div class="finance-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 v3-backdrop" data-finance-create-modal-close></div>
         <div class="finance-create-modal__shell v3-context-drawer__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
             <form id="financeIncomeQuickCreateForm" action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel v3-context-drawer__panel " data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="finance">
                 <input type="hidden" name="source_modal" value="finance_income_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4">
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl v3-warm-surface">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-warm-surface">
                             <i class="fas fa-circle-plus"></i>
                         </span>
                         <div>
-                            <h2 id="financeIncomeModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('addIncome')) ?></h2>
-                            <a href="<?= workflow_context_url('finance/income/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                            <h2 id="financeIncomeModalTitle" class="text-lg font-bold v3-text-ink"><?= esc($tr('addIncome')) ?></h2>
+                            <a href="<?= workflow_context_url('finance/income/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-primary v3-hover-text-primary">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-finance-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-finance-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto v3-bg-panel p-5">
                     <?php if (session('error') && $shouldOpenIncomeModal): ?>
-                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><?= esc(session('error')) ?></div>
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger"><?= esc(session('error')) ?></div>
                     <?php endif; ?>
-                    <section class="rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+                    <section class="v3-radius border v3-border-default v3-bg-panel p-5 md:p-6">
                         <?= view('finance/partials/form_fields', [
                             'contextual' => false,
                             'patients' => $patients ?? [],
@@ -224,11 +224,11 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                     </section>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-finance-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4 sm:flex-row sm:justify-end">
+                    <button type="button" data-finance-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-save me-2"></i>
                         <?= esc($tr('addIncome')) ?>
                     </button>
@@ -238,35 +238,35 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
     </div>
 
     <div id="financeExpenseModal" class="finance-create-modal v3-context-drawer fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeExpenseModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="finance-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 bg-slate-950/45" data-finance-create-modal-close></div>
+        <div class="finance-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 v3-backdrop" data-finance-create-modal-close></div>
         <div class="finance-create-modal__shell v3-context-drawer__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
             <form id="financeExpenseQuickCreateForm" action="<?= base_url('finance/expenses/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel v3-context-drawer__panel " data-select2-dropdown-parent data-finance-calc data-base-currency="<?= esc($base_currency ?? 'ILS') ?>" onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="finance">
                 <input type="hidden" name="source_modal" value="finance_expense_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4">
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl v3-warm-surface">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-warm-surface">
                             <i class="fas fa-receipt"></i>
                         </span>
                         <div>
-                            <h2 id="financeExpenseModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('newExpense')) ?></h2>
-                            <a href="<?= workflow_context_url('finance/expenses/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-rose-700 hover:text-rose-800">
+                            <h2 id="financeExpenseModalTitle" class="text-lg font-bold v3-text-ink"><?= esc($tr('newExpense')) ?></h2>
+                            <a href="<?= workflow_context_url('finance/expenses/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-danger v3-hover-text-danger">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-finance-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-finance-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto v3-bg-panel p-5">
                     <?php if (session('error') && $shouldOpenExpenseModal): ?>
-                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><?= esc(session('error')) ?></div>
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger"><?= esc(session('error')) ?></div>
                     <?php endif; ?>
-                    <section class="rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+                    <section class="v3-radius border v3-border-default v3-bg-panel p-5 md:p-6">
                         <?= view('finance/partials/expense_form_fields', [
                             'base_currency' => $base_currency ?? 'ILS',
                             'currency_options' => $currency_options ?? [],
@@ -280,11 +280,11 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                     </section>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-finance-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4 sm:flex-row sm:justify-end">
+                    <button type="button" data-finance-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-save me-2"></i>
                         <?= esc($tr('recordExpense')) ?>
                     </button>

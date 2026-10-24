@@ -56,7 +56,7 @@ if ($selectedProviderId !== '') {
     <?php else: ?>
         <div>
             <label for="<?= esc($fieldPrefix) ?>patientSelect" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentPatientRequired')) ?></label>
-            <select name="patient_id" id="<?= esc($fieldPrefix) ?>patientSelect" class="<?= esc($inputClass) ?>" data-searchable-select data-minimum-input-length="0" data-limit="5" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc(lang('UI.appointmentSearchPatientPlaceholder')) ?>" required>
+            <select name="patient_id" id="<?= esc($fieldPrefix) ?>patientSelect" class="<?= esc($inputClass) ?> v3-select" data-searchable-select data-minimum-input-length="0" data-limit="5" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc(lang('UI.appointmentSearchPatientPlaceholder')) ?>" required>
                 <option value=""><?= esc(lang('UI.appointmentSelectPatient')) ?></option>
                 <?php if (!empty($selectedPatient)): ?><option value="<?= (int) $selectedPatient['id'] ?>" selected><?= esc($selectedPatient['first_name'] . ' ' . $selectedPatient['last_name']) ?> (<?= esc($selectedPatient['phone'] ?? $selectedPatient['patient_id'] ?? 'N/A') ?>)</option><?php endif; ?>
             </select>
@@ -65,7 +65,7 @@ if ($selectedProviderId !== '') {
     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div>
             <label for="<?= esc($fieldPrefix) ?>appointmentType" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentTypeRequired')) ?></label>
-            <select name="appointment_type" id="<?= esc($fieldPrefix) ?>appointmentType" class="<?= esc($inputClass) ?>" data-force-select2 data-allow-clear="false" required>
+            <select name="appointment_type" id="<?= esc($fieldPrefix) ?>appointmentType" class="<?= esc($inputClass) ?> v3-select" data-force-select2 data-allow-clear="false" required>
                 <option value=""><?= esc(lang('UI.appointmentSelectType')) ?></option>
                 <?php foreach (['consultation', 'treatment', 'follow_up', 'emergency', 'cleaning', 'checkup'] as $type): ?>
                     <option value="<?= esc($type) ?>" <?= $selectedType === $type ? 'selected' : '' ?>><?= esc(lang('UI.appointmentType' . str_replace(' ', '', ucwords(str_replace('_', ' ', $type))))) ?></option>
@@ -76,23 +76,23 @@ if ($selectedProviderId !== '') {
             <div>
                 <label for="<?= esc($fieldPrefix) ?>providerSelect" class="mb-2 block text-sm font-semibold"><?= esc(lang('DoctorScheduling.doctorRequired')) ?> *</label>
                 <?php if (!$schemaReady): ?>
-                    <div class="mb-2 border border-amber-300 bg-amber-50 p-2.5 text-xs font-semibold text-amber-900">
-                        <i class="fas fa-triangle-exclamation me-1 text-amber-600"></i>
+                    <div class="mb-2 border v3-border-default v3-bg-waiting p-2.5 text-xs font-semibold v3-text-warning">
+                        <i class="fas fa-triangle-exclamation me-1 v3-text-warning"></i>
                         <?= esc(lang('DoctorScheduling.schemaNotReady')) ?>
                     </div>
-                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed" data-appointment-provider disabled required>
+                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed v3-select" data-appointment-provider disabled required>
                         <option value=""><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
                     </select>
                 <?php elseif (empty($providers)): ?>
-                    <div class="mb-2 border border-amber-200 bg-amber-50 p-2.5 text-xs font-semibold text-amber-800">
+                    <div class="mb-2 border v3-border-default v3-bg-waiting p-2.5 text-xs font-semibold v3-text-warning">
                         <i class="fas fa-triangle-exclamation me-1"></i>
                         <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
                     </div>
-                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed" data-appointment-provider disabled required>
+                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> cursor-not-allowed v3-select" data-appointment-provider disabled required>
                         <option value=""><?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
                     </select>
                 <?php else: ?>
-                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?>" data-appointment-provider data-force-select2 data-allow-clear="false" required>
+                    <select dir="ltr" style="text-align: start;" name="provider_user_id" id="<?= esc($fieldPrefix) ?>providerSelect" class="<?= esc($inputClass) ?> v3-select" data-appointment-provider data-force-select2 data-allow-clear="false" required>
                         <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
                         <?php foreach ($providers as $provider): ?>
                             <?php
@@ -108,7 +108,7 @@ if ($selectedProviderId !== '') {
         <?php else: ?>
             <div>
                 <label for="<?= esc($fieldPrefix) ?>chairSelect" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentDoctorLabel')) ?></label>
-                <select name="chair_name" id="<?= esc($fieldPrefix) ?>chairSelect" class="<?= esc($inputClass) ?>" data-appointment-chair data-force-select2 data-allow-clear="false" required>
+                <select name="chair_name" id="<?= esc($fieldPrefix) ?>chairSelect" class="<?= esc($inputClass) ?> v3-select" data-appointment-chair data-force-select2 data-allow-clear="false" required>
                     <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
                     <?php foreach (($chairOptions ?? []) as $chairOption): ?>
                         <option value="<?= esc($chairOption) ?>" <?= $selectedChair === $chairOption ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
@@ -118,11 +118,11 @@ if ($selectedProviderId !== '') {
         <?php endif; ?>
         <div>
             <label for="<?= esc($fieldPrefix) ?>appointmentDate" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentDateRequired')) ?></label>
-            <input type="text" name="appointment_date" id="<?= esc($fieldPrefix) ?>appointmentDate" data-appointment-date data-clinic-date="1" value="<?= esc(old('appointment_date', $requested_date ?? date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?> appointment-date-input" required>
+            <input type="text" name="appointment_date" id="<?= esc($fieldPrefix) ?>appointmentDate" data-appointment-date data-clinic-date="1" value="<?= esc(old('appointment_date', $requested_date ?? date('Y-m-d'))) ?>" class="<?= esc($inputClass) ?> appointment-date-input v3-input" required>
         </div>
         <div>
             <label for="<?= esc($fieldPrefix) ?>durationSelect" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentDurationRequired')) ?></label>
-            <select name="duration" id="<?= esc($fieldPrefix) ?>durationSelect" class="<?= esc($inputClass) ?>" data-appointment-duration data-force-select2 data-allow-clear="false" required>
+            <select name="duration" id="<?= esc($fieldPrefix) ?>durationSelect" class="<?= esc($inputClass) ?> v3-select" data-appointment-duration data-force-select2 data-allow-clear="false" required>
                 <?php foreach ($durationOptions as $duration): ?>
                     <option value="<?= (int) $duration ?>" <?= $selectedDuration === (int) $duration ? 'selected' : '' ?>><?= (int) $duration ?> <?= esc(lang('UI.patientMinutes')) ?></option>
                 <?php endforeach; ?>
@@ -130,13 +130,13 @@ if ($selectedProviderId !== '') {
         </div>
         <div class="md:col-span-2">
             <label for="<?= esc($fieldPrefix) ?>appointmentTime" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentTimeRequired')) ?></label>
-            <select name="appointment_time" id="<?= esc($fieldPrefix) ?>appointmentTime" class="<?= esc($inputClass) ?>" data-appointment-time data-force-select2 data-allow-clear="false" required>
+            <select name="appointment_time" id="<?= esc($fieldPrefix) ?>appointmentTime" class="<?= esc($inputClass) ?> v3-select" data-appointment-time data-force-select2 data-allow-clear="false" required>
                 <option value=""><?= esc(lang('UI.appointmentSelectPrerequisites')) ?></option>
             </select>
         </div>
     </div>
     <div class="mt-5">
         <label for="<?= esc($fieldPrefix) ?>notes" class="mb-2 block text-sm font-semibold"><?= esc(lang('UI.appointmentAdditionalNotes')) ?></label>
-        <textarea name="notes" id="<?= esc($fieldPrefix) ?>notes" rows="4" class="<?= esc($inputClass) ?> resize-y" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes')) ?></textarea>
+        <textarea name="notes" id="<?= esc($fieldPrefix) ?>notes" rows="4" class="<?= esc($inputClass) ?> resize-y v3-textarea" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes')) ?></textarea>
     </div>
 </div>

@@ -200,7 +200,7 @@ $errorMessage = session('error');
                     </span>
                     <div class="min-w-0">
                         <p class="text-xs font-extrabold uppercase tracking-[0.28em] cp-accent"><?= esc(lang('V3Platform.controlPlane')) ?></p>
-                        <h1 class="mt-1 cp-title font-black tracking-tight text-white"><?= esc(lang('V3Platform.onboardClinic')) ?></h1>
+                        <h1 class="mt-1 cp-title font-black tracking-tight v3-text-on-primary"><?= esc(lang('V3Platform.onboardClinic')) ?></h1>
                         <p class="mt-1.5 max-w-3xl text-sm font-semibold leading-5 cp-accent">
                             <?= esc(lang('V3Platform.createTheTenantClinicInitialAdministratorAndStartingSubscriptionPlanInOneControlledWorkflow')) ?>
                         </p>
@@ -233,13 +233,13 @@ $errorMessage = session('error');
         </section>
 
         <?php if (!empty($errors) || !empty($errorMessage)): ?>
-            <div class="cp-radius border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
+            <div class="cp-radius border v3-border-default v3-bg-alert p-4 text-sm font-bold v3-text-danger">
                 <div class="flex items-start gap-3">
-                    <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center cp-radius bg-rose-600 text-white">
+                    <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center cp-radius v3-bg-danger v3-text-on-primary">
                         <i class="fas fa-triangle-exclamation text-sm"></i>
                     </span>
                     <div>
-                        <p class="font-black text-rose-800"><?= esc(lang('V3Platform.reviewTheOnboardingDetails')) ?></p>
+                        <p class="font-black v3-text-danger"><?= esc(lang('V3Platform.reviewTheOnboardingDetails')) ?></p>
                         <?php if (!empty($errorMessage)): ?>
                             <p class="mt-1"><?= esc($errorMessage) ?></p>
                         <?php endif; ?>
@@ -262,23 +262,23 @@ $errorMessage = session('error');
                 <section class="clinic-form-card">
                     <div class="clinic-card-header px-5 py-3.5">
                         <div class="flex items-center gap-3">
-                            <span class="clinic-section-icon cp-surface ring-1 ring-white/22">
+                            <span class="clinic-section-icon cp-surface border v3-border-default">
                                 <i class="fas fa-hospital-alt text-sm"></i>
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-white"><?= esc(lang('V3Platform.clinicDetails')) ?></h2>
+                                <h2 class="text-lg font-black v3-text-on-primary"><?= esc(lang('V3Platform.clinicDetails')) ?></h2>
                                 <p class="text-sm font-semibold cp-accent"><?= esc(lang('V3Platform.nameTheTenantExactlyAsOperatorsShouldSeeIt')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="p-4 sm:p-5">
                         <label class="block">
-                            <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
+                            <span class="mb-2 flex items-center gap-2 text-sm font-black v3-text-ink">
                                 <i class="fas fa-signature cp-accent"></i>
                                 <span><?= esc(lang('V3Platform.clinicName')) ?></span>
                             </span>
                             <input type="text" name="clinic_name" value="<?= old('clinic_name') ?>"
-                                   class="clinic-input"
+                                   class="clinic-input v3-input"
                                    placeholder="<?= esc(lang('V3Platform.eGSpringfieldDental'), 'attr') ?>" required>
                         </label>
                     </div>
@@ -287,28 +287,28 @@ $errorMessage = session('error');
                 <section class="clinic-form-card clinic-form-card-admin">
                     <div class="clinic-card-header clinic-card-header-admin px-5 py-3.5">
                         <div class="flex items-center gap-3">
-                            <span class="clinic-section-icon cp-surface ring-1 ring-white/22">
+                            <span class="clinic-section-icon cp-surface border v3-border-default">
                                 <i class="fas fa-user-shield text-sm"></i>
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-white"><?= esc(lang('V3Platform.initialAdminUser')) ?></h2>
+                                <h2 class="text-lg font-black v3-text-on-primary"><?= esc(lang('V3Platform.initialAdminUser')) ?></h2>
                                 <p class="text-sm font-semibold cp-accent"><?= esc(lang('V3Platform.createOrLinkTheFirstClinicAdministrator')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
                         <label class="block">
-                            <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
+                            <span class="mb-2 flex items-center gap-2 text-sm font-black v3-text-ink">
                                 <i class="fas fa-user cp-accent"></i>
                                 <span><?= esc(lang('V3Platform.adminName')) ?></span>
                             </span>
                             <input type="text" name="admin_name" value="<?= old('admin_name') ?>"
-                                   class="clinic-input"
+                                   class="clinic-input v3-input"
                                    placeholder="<?= esc(lang('V3Platform.eGJohnDoe'), 'attr') ?>" required>
                         </label>
 
                         <label class="block">
-                            <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
+                            <span class="mb-2 flex items-center gap-2 text-sm font-black v3-text-ink">
                                 <i class="fas fa-envelope cp-accent"></i>
                                 <span><?= esc(lang('V3Platform.adminEmail')) ?></span>
                             </span>
@@ -316,25 +316,25 @@ $errorMessage = session('error');
                                    data-user-email-check
                                    data-password-targets="#admin_password"
                                    data-existing-note-target="#onboarding-email-exists-note"
-                                   class="clinic-input"
+                                   class="clinic-input v3-input"
                                    placeholder="admin@clinic.com" required>
                         </label>
 
                         <label class="block md:col-span-2">
-                            <span class="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
+                            <span class="mb-2 flex items-center gap-2 text-sm font-black v3-text-ink">
                                 <i class="fas fa-key cp-accent"></i>
                                 <span><?= esc(lang('V3Platform.password')) ?></span>
                             </span>
                             <input type="password" name="admin_password" id="admin_password"
-                                   class="clinic-input"
+                                   class="clinic-input v3-input"
                                    placeholder="<?= esc(lang('V3Platform.minimum8Characters'), 'attr') ?>" required minlength="8">
-                            <span class="mt-2 flex items-center gap-2 text-xs font-bold text-slate-500">
+                            <span class="mt-2 flex items-center gap-2 text-xs font-bold v3-text-muted">
                                 <i class="fas fa-info-circle"></i>
                                 <span><?= esc(lang('V3Platform.shareThisSecurelyWithTheClinicOwner')) ?></span>
                             </span>
                         </label>
 
-                        <p id="onboarding-email-exists-note" class="hidden cp-radius border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 md:col-span-2" role="status">
+                        <p id="onboarding-email-exists-note" class="hidden cp-radius border v3-border-default v3-bg-waiting px-3 py-2 text-xs font-bold v3-text-warning md:col-span-2" role="status">
                             <i class="fas fa-info-circle me-1"></i>
                             <span data-note-text></span>
                         </p>
@@ -344,18 +344,18 @@ $errorMessage = session('error');
                 <section class="clinic-form-card clinic-form-card-plan">
                     <div class="clinic-card-header clinic-card-header-plan px-5 py-3.5">
                         <div class="flex items-center gap-3">
-                            <span class="clinic-section-icon cp-surface ring-1 ring-white/22">
+                            <span class="clinic-section-icon cp-surface border v3-border-default">
                                 <i class="fas fa-layer-group text-sm"></i>
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-white"><?= esc(lang('V3Platform.subscriptionPlan')) ?></h2>
-                                <p class="text-sm font-semibold text-emerald-50/88"><?= esc(lang('V3Platform.chooseTheStartingLimitsAndBillingPackage')) ?></p>
+                                <h2 class="text-lg font-black v3-text-on-primary"><?= esc(lang('V3Platform.subscriptionPlan')) ?></h2>
+                                <p class="text-sm font-semibold v3-text-primary"><?= esc(lang('V3Platform.chooseTheStartingLimitsAndBillingPackage')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="grid gap-3 p-4 sm:p-5">
                         <?php if (empty($plans)): ?>
-                            <div class="cp-radius border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+                            <div class="cp-radius border v3-border-default v3-bg-waiting p-4 text-sm font-bold v3-text-warning">
                                 <i class="fas fa-triangle-exclamation me-2"></i><?= esc(lang('V3Platform.noActivePlansAreAvailable')) ?>
                             </div>
                         <?php endif; ?>
@@ -369,25 +369,25 @@ $errorMessage = session('error');
                             <label class="clinic-plan-option cursor-pointer">
                                 <span class="mt-1 flex h-6 w-6 items-center justify-center">
                                     <input type="radio" name="plan_id" value="<?= esc($plan['id']) ?>"
-                                           class="h-5 w-5 cp-border text-emerald-600 focus:ring-emerald-500"
+                                           class="h-5 w-5 cp-border v3-text-primary v3-focus-control v3-radio"
                                            <?= $selectedPlan === (int) $plan['id'] ? 'checked' : '' ?> required>
                                 </span>
                                 <span class="min-w-0 flex-1">
                                     <span class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <span class="text-lg font-black text-slate-950"><?= esc($plan['name']) ?></span>
-                                        <span class="inline-flex w-fit items-center rounded-full border border-emerald-200 cp-soft-surface px-3 py-1 text-xs font-black text-emerald-700">
+                                        <span class="text-lg font-black v3-text-ink"><?= esc($plan['name']) ?></span>
+                                        <span class="inline-flex w-fit items-center rounded-full border v3-border-default cp-soft-surface px-3 py-1 text-xs font-black v3-text-primary">
                                             <?= $price !== null ? '$' . esc($price) : 'Custom' ?><?= $duration ? '/' . esc(substr($duration, 0, 2)) : '' ?>
                                         </span>
                                     </span>
-                                    <span class="mt-3 flex flex-wrap gap-2 text-xs font-bold text-slate-600">
-                                        <span class="rounded-full border cp-border bg-slate-100 px-2.5 py-1">
-                                            <i class="fas fa-users me-1 text-slate-400"></i><?= esc($limits['patients_active_max'] ?? '0') ?> <?= esc(lang('V3Platform.pts')) ?>
+                                    <span class="mt-3 flex flex-wrap gap-2 text-xs font-bold v3-text-muted">
+                                        <span class="rounded-full border cp-border v3-bg-soft px-2.5 py-1">
+                                            <i class="fas fa-users me-1 v3-text-muted"></i><?= esc($limits['patients_active_max'] ?? '0') ?> <?= esc(lang('V3Platform.pts')) ?>
                                         </span>
-                                        <span class="rounded-full border cp-border bg-slate-100 px-2.5 py-1">
-                                            <i class="fas fa-user-shield me-1 text-slate-400"></i><?= esc($limits['users_max'] ?? '0') ?> <?= esc(lang('V3Platform.users')) ?>
+                                        <span class="rounded-full border cp-border v3-bg-soft px-2.5 py-1">
+                                            <i class="fas fa-user-shield me-1 v3-text-muted"></i><?= esc($limits['users_max'] ?? '0') ?> <?= esc(lang('V3Platform.users')) ?>
                                         </span>
-                                        <span class="rounded-full border cp-border bg-slate-100 px-2.5 py-1">
-                                            <i class="fas fa-hdd me-1 text-slate-400"></i><?= esc($limits['storage_gb'] ?? '0') ?> GB
+                                        <span class="rounded-full border cp-border v3-bg-soft px-2.5 py-1">
+                                            <i class="fas fa-hdd me-1 v3-text-muted"></i><?= esc($limits['storage_gb'] ?? '0') ?> GB
                                         </span>
                                     </span>
                                 </span>
@@ -400,15 +400,15 @@ $errorMessage = session('error');
             <aside class="space-y-4">
                 <section class="clinic-submit-card p-4 sm:p-5">
                     <p class="text-xs font-black uppercase tracking-[0.22em] cp-accent"><?= esc(lang('V3Platform.readyToProvision')) ?></p>
-                    <h2 class="mt-1 text-xl font-black text-white"><?= esc(lang('V3Platform.createClinicWorkspace')) ?></h2>
+                    <h2 class="mt-1 text-xl font-black v3-text-on-primary"><?= esc(lang('V3Platform.createClinicWorkspace')) ?></h2>
                     <p class="mt-2 text-sm font-semibold leading-5 cp-accent">
                         <?= esc(lang('V3Platform.thisActionCreatesTheClinicTenantLinksTheInitialAdminAndActivatesTheSelectedPlan')) ?>
                     </p>
-                    <button type="submit" class="mt-4 inline-flex w-full items-center justify-center gap-2 cp-radius cp-surface px-5 py-3 text-sm font-black cp-accent transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-white/30">
+                    <button type="submit" class="mt-4 inline-flex w-full items-center justify-center gap-2 cp-radius cp-surface px-5 py-3 text-sm font-black cp-accent transition v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--primary">
                         <i class="fas fa-magic"></i>
                         <span><?= esc(lang('V3Platform.createClinic')) ?></span>
                     </button>
-                    <a href="<?= base_url('controlplane/dashboard') ?>" class="mt-2 inline-flex w-full items-center justify-center cp-radius border cp-border cp-surface px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-white/20">
+                    <a href="<?= base_url('controlplane/dashboard') ?>" class="mt-2 inline-flex w-full items-center justify-center cp-radius border cp-border cp-surface px-5 py-2.5 text-sm font-extrabold v3-text-on-primary transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('V3Platform.cancel')) ?>
                     </a>
                 </section>
@@ -419,24 +419,24 @@ $errorMessage = session('error');
                             <i class="fas fa-list-check text-sm"></i>
                         </span>
                         <div>
-                            <h3 class="text-base font-black text-slate-950"><?= esc(lang('V3Platform.checklist')) ?></h3>
-                            <p class="text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.whatThisFlowPrepares')) ?></p>
+                            <h3 class="text-base font-black v3-text-ink"><?= esc(lang('V3Platform.checklist')) ?></h3>
+                            <p class="text-xs font-bold v3-text-muted"><?= esc(lang('V3Platform.whatThisFlowPrepares')) ?></p>
                         </div>
                     </div>
-                    <ul class="mt-4 space-y-2.5 text-sm font-bold text-slate-600">
+                    <ul class="mt-4 space-y-2.5 text-sm font-bold v3-text-muted">
                         <li class="flex items-center gap-2.5">
-                            <i class="fas fa-check-circle text-emerald-600"></i>
+                            <i class="fas fa-check-circle v3-text-primary"></i>
                             <span><?= esc(lang('V3Platform.clinicProfileCreation')) ?></span>
                         </li>
                         <li class="flex items-center gap-2.5">
-                            <i class="fas fa-check-circle text-emerald-600"></i>
+                            <i class="fas fa-check-circle v3-text-primary"></i>
                             <span><?= esc(lang('V3Platform.adminAccountSetup')) ?></span>
                         </li>
                         <li class="flex items-center gap-2.5">
-                            <i class="fas fa-check-circle text-emerald-600"></i>
+                            <i class="fas fa-check-circle v3-text-primary"></i>
                             <span><?= esc(lang('V3Platform.planActivation')) ?></span>
                         </li>
-                        <li class="flex items-center gap-2.5 text-slate-400">
+                        <li class="flex items-center gap-2.5 v3-text-muted">
                             <i class="far fa-circle"></i>
                             <span><?= esc(lang('V3Platform.welcomeEmailRemainsManual')) ?></span>
                         </li>
@@ -449,11 +449,11 @@ $errorMessage = session('error');
                             <i class="fas fa-shield-alt text-sm"></i>
                         </span>
                         <div>
-                            <h3 class="text-base font-black text-slate-950"><?= esc(lang('V3Platform.defaultPolicy')) ?></h3>
-                            <p class="text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.inheritedPlatformControls')) ?></p>
+                            <h3 class="text-base font-black v3-text-ink"><?= esc(lang('V3Platform.defaultPolicy')) ?></h3>
+                            <p class="text-xs font-bold v3-text-muted"><?= esc(lang('V3Platform.inheritedPlatformControls')) ?></p>
                         </div>
                     </div>
-                    <p class="mt-4 text-sm font-semibold leading-6 text-slate-600">
+                    <p class="mt-4 text-sm font-semibold leading-6 v3-text-muted">
                         <?= esc(lang('V3Platform.theClinicInheritsGlobalSecurityDefaultsBillingCadenceAndAuditRetentionPolicies')) ?>
                     </p>
                     <div class="mt-4 cp-radius border cp-border cp-soft-surface px-3 py-2 text-sm font-black cp-accent">

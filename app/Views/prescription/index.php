@@ -27,17 +27,17 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
         <section class="v3-command-section prescription-command-header mb-5 overflow-hidden v3-corner">
             <div class="v3-command-layout">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface text-white ring-1 ring-white/20">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface v3-text-on-primary border v3-border-default">
                         <i class="fas fa-prescription-bottle-alt text-xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-teal-100"><?= lang('Prescription.prescription_registry') ?></p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= lang('Prescription.management_title') ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-teal-50/88"><?= lang('Prescription.management_subtitle') ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.22em] v3-text-primary"><?= lang('Prescription.prescription_registry') ?></p>
+                        <h1 class="mt-1 text-2xl font-black leading-tight v3-text-on-primary sm:text-3xl"><?= lang('Prescription.management_title') ?></h1>
+                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 v3-text-primary"><?= lang('Prescription.management_subtitle') ?></p>
                     </div>
                 </div>
                 <?php if (has_permission('prescriptions', 'create')): ?>
-                    <a href="<?= base_url('prescription/create') ?>" id="newPrescriptionModalTrigger" data-prescription-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-5 py-3 text-sm font-black text-teal-800 transition hover:bg-teal-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                    <a href="<?= base_url('prescription/create') ?>" id="newPrescriptionModalTrigger" data-prescription-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-5 py-3 text-sm font-black v3-text-primary transition v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                         <i class="fas fa-plus"></i>
                         <?= lang('Prescription.new_prescription') ?>
                     </a>
@@ -49,28 +49,28 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-100"><?= lang('Prescription.total_prescriptions') ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= lang('Prescription.total_prescriptions') ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="totalPrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-prescription-bottle-alt"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-prescription-bottle-alt"></i></span>
                 </div>
             </article>
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= lang('Prescription.active_prescriptions') ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= lang('Prescription.active_prescriptions') ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="activePrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-check-circle"></i></span>
                 </div>
             </article>
             <article class="v3-metric v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-amber-100"><?= lang('Prescription.expired_prescriptions') ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-warning"><?= lang('Prescription.expired_prescriptions') ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="expiredPrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-exclamation-triangle"></i></span>
                 </div>
             </article>
             <article class="v3-metric v3-corner p-4">
@@ -79,7 +79,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         <p class="text-xs font-black uppercase tracking-wide v3-accent-text"><?= lang('Prescription.this_month') ?></p>
                         <p class="mt-2 v3-title-scale font-black" id="monthlyPrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-calendar-day"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-calendar-day"></i></span>
                 </div>
             </article>
         </section>
@@ -88,25 +88,25 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             <div class="v3-surface-heading border-b v3-border px-4 py-4 sm:px-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center v3-corner bg-teal-100 text-teal-700">
+                        <span class="inline-flex h-10 w-10 items-center justify-center v3-corner v3-bg-scheduled v3-text-primary">
                             <i class="fas fa-list-check"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= lang('Prescription.prescription_registry') ?></h3>
-                            <p class="mt-1 text-xs font-bold text-slate-500"><?= lang('Prescription.management_subtitle') ?></p>
+                            <h3 class="text-lg font-black v3-text-ink"><?= lang('Prescription.prescription_registry') ?></h3>
+                            <p class="mt-1 text-xs font-bold v3-text-muted"><?= lang('Prescription.management_subtitle') ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-red-50 hover:text-red-700">
-                            <i class="fas fa-file-pdf text-red-600"></i>
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold v3-text-ink transition v3-hover-danger v3-hover-text-danger v3-btn v3-btn--secondary">
+                            <i class="fas fa-file-pdf v3-text-danger"></i>
                             <?= lang('Prescription.export_pdf') ?>
                         </button>
-                        <button onclick="printPrescriptions()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950">
-                            <i class="fas fa-print text-slate-600"></i>
+                        <button onclick="printPrescriptions()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold v3-text-ink transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--secondary">
+                            <i class="fas fa-print v3-text-muted"></i>
                             <?= lang('Prescription.export_print') ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700">
-                            <i class="fas fa-file-csv text-emerald-600"></i>
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold v3-text-ink transition v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary">
+                            <i class="fas fa-file-csv v3-text-primary"></i>
                             <?= lang('Prescription.export_csv') ?>
                         </button>
                     </div>
@@ -117,49 +117,49 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                 <table id="prescriptionsTable" class="w-full min-w-full">
                     <thead>
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-prescription-bottle-alt text-teal-700"></i>
+                                    <i class="fas fa-prescription-bottle-alt v3-text-primary"></i>
                                     <span><?= lang('Prescription.prescription_id') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-user text-teal-700"></i>
+                                    <i class="fas fa-user v3-text-primary"></i>
                                     <span><?= lang('Prescription.patient') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-pills text-teal-700"></i>
+                                    <i class="fas fa-pills v3-text-primary"></i>
                                     <span><?= lang('Prescription.medicines') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar-alt text-teal-700"></i>
+                                    <i class="fas fa-calendar-alt v3-text-primary"></i>
                                     <span><?= lang('Prescription.date_col') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-teal-700"></i>
+                                    <i class="fas fa-info-circle v3-text-primary"></i>
                                     <span><?= lang('Prescription.status') ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-cogs text-teal-700"></i>
+                                    <i class="fas fa-cogs v3-text-primary"></i>
                                     <span><?= lang('Prescription.actions') ?></span>
                                 </div>
                             </th>
                         </tr>
                     </thead>
-                    <tbody id="prescriptionsTableBody" class="divide-y divide-slate-100 v3-surface">
+                    <tbody id="prescriptionsTableBody" class="divide-y v3-border-default v3-surface">
                         <tr id="loadingRow">
-                            <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                            <td colspan="6" class="px-6 py-4 text-center v3-text-muted">
                                 <div class="flex items-center justify-center gap-2">
-                                    <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-teal-700"></div>
+                                    <div class="h-4 w-4 animate-spin rounded-full border-b-2 v3-border-default"></div>
                                     <span><?= lang('Prescription.loading_prescriptions') ?></span>
                                 </div>
                             </td>
@@ -173,7 +173,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
 <?php if (has_permission('prescriptions', 'create')): ?>
     <div id="newPrescriptionModal" class="app-scale-modal prescription-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPrescriptionModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="prescription-create-modal__backdrop fixed inset-0 bg-slate-950/45" data-prescription-create-modal-close></div>
+        <div class="prescription-create-modal__backdrop fixed inset-0 v3-backdrop" data-prescription-create-modal-close></div>
         <div class="prescription-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-prescription-create-modal-close>
             <form id="newPrescriptionQuickCreateForm" action="<?= base_url('prescription/store') ?>" method="POST" class="prescription-create-modal__panel flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden v3-radius border v3-border v3-surface" data-prescription-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
@@ -186,25 +186,25 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                             <i class="fas fa-prescription-bottle-alt"></i>
                         </span>
                         <div>
-                            <h2 id="newPrescriptionModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Prescription.new_prescription')) ?></h2>
-                            <a href="<?= workflow_context_url('prescription/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-800">
+                            <h2 id="newPrescriptionModalTitle" class="text-lg font-bold v3-text-ink"><?= esc(lang('Prescription.new_prescription')) ?></h2>
+                            <a href="<?= workflow_context_url('prescription/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-primary v3-hover-text-primary">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-prescription-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-prescription-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <div class="min-h-0 flex-1 space-y-5 overflow-y-auto v3-surface p-5">
                     <?php if (session('error') && $shouldOpenPrescriptionCreateModal): ?>
-                        <div class="v3-radius border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
                     <?php if (session('errors') && $shouldOpenPrescriptionCreateModal): ?>
-                        <div class="v3-radius border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?php foreach ((array) session('errors') as $error): ?>
                                 <div><?= esc($error) ?></div>
                             <?php endforeach; ?>
@@ -221,10 +221,10 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                 </div>
 
                 <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border v3-surface px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-prescription-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    <button type="button" data-prescription-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('Prescription.cancel')) ?>
                     </button>
-                    <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center v3-radius px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center v3-radius px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-prescription-bottle-alt me-2"></i>
                         <?= esc(lang('Prescription.create_prescription')) ?>
                     </button>
@@ -288,9 +288,9 @@ const prescriptionI18n = {
 
 function getPatientAvatar(gender) {
     const avatarMap = {
-        male: { icon: 'fas fa-person', color: 'text-blue-700' },
-        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
-        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+        male: { icon: 'fas fa-person', color: 'v3-text-primary' },
+        female: { icon: 'fas fa-person-dress', color: 'v3-text-danger' },
+        other: { icon: 'fas fa-user', color: 'v3-text-muted' }
     };
 
     return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
@@ -469,7 +469,7 @@ $(document).ready(function() {
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
                     td.setAttribute('colspan', '6');
-                    td.className = 'px-6 py-4 text-center text-red-500';
+                    td.className = 'px-6 py-4 text-center v3-text-danger';
 
                     const flexDiv = document.createElement('div');
                     flexDiv.className = 'flex items-center justify-center gap-2';
@@ -497,18 +497,18 @@ $(document).ready(function() {
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     const identityHtml = `
                             <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-teal-700">
+                            <div class="flex h-10 w-10 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary">
                                 <i class="fas fa-prescription-bottle-alt text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-extrabold text-slate-950">${data}</div>
-                                <div class="text-xs font-bold text-slate-500">${prescriptionI18n.prescriptionId}</div>
+                                <div class="text-sm font-extrabold v3-text-ink">${data}</div>
+                                <div class="text-xs font-bold v3-text-muted">${prescriptionI18n.prescriptionId}</div>
                             </div>
                             </div>
                     `;
                     if (permissions.prescriptions.view) {
                         return `
-                            <a href="<?= base_url('prescription') ?>/${row.id}" class="block cursor-pointer rounded-xl transition-colors duration-200 hover:bg-teal-50/70">
+                            <a href="<?= base_url('prescription') ?>/${row.id}" class="block cursor-pointer v3-radius transition-colors duration-200 v3-hover-primary">
                                 ${identityHtml}
                             </a>
                         `;
@@ -527,8 +527,8 @@ $(document).ready(function() {
                                     <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
                                 </span>
                                 <div>
-                                    <div class="text-sm font-extrabold text-slate-950">${data}</div>
-                                    <div class="text-xs font-bold text-slate-500">${row.patient_number || row.phone || prescriptionI18n.noPhone}</div>
+                                    <div class="text-sm font-extrabold v3-text-ink">${data}</div>
+                                    <div class="text-xs font-bold v3-text-muted">${row.patient_number || row.phone || prescriptionI18n.noPhone}</div>
                                 </div>
                             </div>
                     `;
@@ -543,8 +543,8 @@ $(document).ready(function() {
                         if (medicines.length > 0) {
                             return `
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-pills text-teal-700 text-xs"></i>
-                                    <span class="text-sm font-bold text-slate-900">${medicines.length} ${medicines.length > 1 ? prescriptionI18n.medicinePlural : prescriptionI18n.medicineSingular}</span>
+                                    <i class="fas fa-pills v3-text-primary text-xs"></i>
+                                    <span class="text-sm font-bold v3-text-ink">${medicines.length} ${medicines.length > 1 ? prescriptionI18n.medicinePlural : prescriptionI18n.medicineSingular}</span>
                                 </div>
                             `;
                         }
@@ -553,13 +553,13 @@ $(document).ready(function() {
                         if (data) {
                             return `
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-pills text-teal-700 text-xs"></i>
-                                    <span class="text-sm font-bold text-slate-900">${prescriptionI18n.oneMedicine}</span>
+                                    <i class="fas fa-pills v3-text-primary text-xs"></i>
+                                    <span class="text-sm font-bold v3-text-ink">${prescriptionI18n.oneMedicine}</span>
             </div>
         `;
                         }
                     }
-                    return `<span class="text-sm font-bold text-slate-400">${prescriptionI18n.noMedicines}</span>`;
+                    return `<span class="text-sm font-bold v3-text-muted">${prescriptionI18n.noMedicines}</span>`;
                 }
             },
             {
@@ -568,8 +568,8 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-calendar-alt text-teal-700 text-xs"></i>
-                            <span class="text-sm font-bold text-slate-900">${row.prescribed_date_formatted || data}</span>
+                            <i class="fas fa-calendar-alt v3-text-primary text-xs"></i>
+                            <span class="text-sm font-bold v3-text-ink">${row.prescribed_date_formatted || data}</span>
                         </div>
                     `;
                 }
@@ -579,10 +579,10 @@ $(document).ready(function() {
                 name: 'status',
                 render: function(data, type, row) {
                     const statusColors = {
-                        'active': 'border-emerald-200 bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800',
-                        'expired': 'border-red-200 bg-gradient-to-r from-red-100 to-rose-100 text-red-800',
-                        'cancelled': 'border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800',
-                        'pending': 'border-amber-200 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800'
+                        'active': 'v3-border-default bg-gradient-to-r from-emerald-100 to-green-100 v3-text-primary',
+                        'expired': 'v3-border-default bg-gradient-to-r from-red-100 to-rose-100 v3-text-danger',
+                        'cancelled': 'v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 v3-text-ink',
+                        'pending': 'v3-border-default bg-gradient-to-r from-amber-100 to-yellow-100 v3-text-warning'
                     };
                     const statusIcons = {
                         'active': 'fas fa-check-circle',
@@ -590,11 +590,11 @@ $(document).ready(function() {
                         'cancelled': 'fas fa-ban',
                         'pending': 'fas fa-clock'
                     };
-                    const colorClass = statusColors[data] || 'border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800';
+                    const colorClass = statusColors[data] || 'v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 v3-text-ink';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
 
                     return `
-                        <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${colorClass}">
+                        <span class="inline-flex items-center v3-radius border px-3 py-1.5 text-xs font-extrabold ${colorClass}">
                             <i class="${iconClass} me-2"></i>
                             ${prescriptionI18n.statusLabels[data] || prescriptionI18n.statusLabels.pending}
                         </span>
@@ -614,7 +614,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.view) {
                         actions += `
                             <a href="<?= base_url('prescription') ?>/${data}"
-                               class="rounded-xl p-2 text-teal-700 transition-all duration-200 hover:scale-105 hover:bg-teal-50 hover:text-teal-800" title="${prescriptionI18n.viewDetails}">
+                               class="v3-radius p-2 v3-text-primary transition-all duration-200  v3-hover-primary v3-hover-text-primary" title="${prescriptionI18n.viewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -623,7 +623,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.print) {
                         actions += `
                             <a href="<?= base_url('prescription') ?>/${data}/print"
-                               class="rounded-xl p-2 text-emerald-700 transition-all duration-200 hover:scale-105 hover:bg-emerald-50 hover:text-emerald-800" title="${prescriptionI18n.printPrescription}">
+                               class="v3-radius p-2 v3-text-primary transition-all duration-200  v3-hover-primary v3-hover-text-primary" title="${prescriptionI18n.printPrescription}">
                                 <i class="fas fa-print"></i>
                             </a>`;
                     }
@@ -632,7 +632,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.edit) {
                         actions += `
                             <a href="<?= base_url('prescription') ?>/${data}/edit"
-                               class="rounded-xl p-2 text-sky-700 transition-all duration-200 hover:scale-105 hover:bg-sky-50 hover:text-sky-800" title="${prescriptionI18n.editPrescription}">
+                               class="v3-radius p-2 v3-text-primary transition-all duration-200  v3-hover-primary v3-hover-text-primary" title="${prescriptionI18n.editPrescription}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -641,7 +641,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.delete) {
                         actions += `
                             <button onclick="deletePrescription(${data})"
-                                    class="rounded-xl p-2 text-red-700 transition-all duration-200 hover:scale-105 hover:bg-red-50 hover:text-red-800" title="${prescriptionI18n.deletePrescription}">
+                                    class="v3-radius p-2 v3-text-danger transition-all duration-200  v3-hover-danger v3-hover-text-danger v3-btn v3-btn--danger" title="${prescriptionI18n.deletePrescription}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
@@ -651,7 +651,7 @@ $(document).ready(function() {
                 }
             }
         ],
-        dom: 'B<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: 'B<"border-b v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         order: [[0, 'desc']],
@@ -710,7 +710,7 @@ $(document).ready(function() {
             // Apply custom styling after each draw
             applyDataTablesStyling();
             if (permissions.prescriptions.view) {
-                $('#prescriptionsTable tbody tr').addClass('cursor-pointer hover:bg-teal-50/40 transition-colors duration-150');
+                $('#prescriptionsTable tbody tr').addClass('cursor-pointer v3-hover-primary transition-colors duration-150');
             }
         }
     });
@@ -731,18 +731,18 @@ $(document).ready(function() {
     }
 
     function applyDataTablesStyling() {
-        $('.dataTables_length select').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:border-teal-400 focus:ring-4 focus:ring-teal-100');
-        $('.dataTables_filter input').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100');
-        $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold text-slate-600');
-        $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100');
-        $('.dataTables_paginate .paginate_button.current').addClass('!border-teal-600 !bg-teal-600 !text-white');
-        $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!border-slate-200 hover:!bg-white hover:!text-slate-500');
-        $('.dataTables_processing').removeClass().addClass('rounded-xl border-0 bg-teal-600 px-4 py-3 text-sm font-extrabold text-white shadow-xl');
+        $('.dataTables_length select').removeClass().addClass('v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-bold v3-text-ink v3-elevation-none outline-none transition v3-focus-control focus:ring-4 v3-focus-control');
+        $('.dataTables_filter input').removeClass().addClass('v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-bold v3-text-ink v3-elevation-none outline-none transition placeholder:v3-text-muted v3-focus-control focus:ring-4 v3-focus-control');
+        $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold v3-text-muted');
+        $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 v3-radius border v3-border-default v3-bg-panel px-3 py-2 text-sm font-extrabold v3-text-ink v3-elevation-none transition v3-border-default v3-hover-primary v3-hover-text-primary focus:outline-none focus:ring-4 v3-focus-control');
+        $('.dataTables_paginate .paginate_button.current').addClass('!v3-border-default !v3-bg-primary !v3-text-on-primary');
+        $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!v3-border-default hover:!v3-bg-panel hover:!v3-text-muted');
+        $('.dataTables_processing').removeClass().addClass('v3-radius border-0 v3-bg-primary px-4 py-3 text-sm font-extrabold v3-text-on-primary v3-elevation-none');
         $('.dataTables_length').addClass('order-1 flex items-center gap-3');
         $('.dataTables_filter').addClass('order-2 ms-auto flex items-center gap-3');
         $('.dataTables_info').addClass('order-1 flex items-center');
         $('.dataTables_paginate').addClass('order-2 ms-auto flex items-center gap-2');
-        $('.dataTables_length label, .dataTables_filter label').addClass('text-sm font-extrabold text-slate-700');
+        $('.dataTables_length label, .dataTables_filter label').addClass('text-sm font-extrabold v3-text-ink');
     }
 
     // Load statistics

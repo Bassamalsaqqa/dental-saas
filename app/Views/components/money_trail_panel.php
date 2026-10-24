@@ -50,10 +50,10 @@ $providerStatusLabel = static function (?string $status): string {
 };
 $providerStatusClass = static function (?string $status): string {
     return match (trim((string) $status)) {
-        'paid' => 'bg-emerald-100 text-emerald-700',
-        'partial' => 'bg-amber-100 text-amber-700',
-        'void' => 'bg-slate-100 text-slate-600',
-        default => 'bg-rose-100 text-rose-700',
+        'paid' => 'v3-bg-paid v3-text-primary',
+        'partial' => 'v3-bg-waiting v3-text-warning',
+        'void' => 'v3-bg-soft v3-text-muted',
+        default => 'v3-bg-alert v3-text-danger',
     };
 };
 $stats = [
@@ -67,24 +67,24 @@ if ((float) ($summary['inventory_cost'] ?? 0) > 0.009) {
     $stats[] = ['key' => 'inventory_cost', 'label' => $moneyLabel('moneyTrailInventoryCost'), 'value' => $summary['inventory_cost'], 'tone' => 'rose'];
 }
 $toneClasses = [
-    'slate' => 'border-slate-200 bg-slate-50 text-slate-800',
-    'emerald' => 'border-emerald-200 bg-emerald-50 text-emerald-800',
-    'amber' => 'border-amber-200 bg-amber-50 text-amber-800',
-    'sky' => 'border-sky-200 bg-sky-50 text-sky-800',
-    'violet' => 'border-violet-200 bg-violet-50 text-violet-800',
-    'rose' => 'border-rose-200 bg-rose-50 text-rose-800',
-    'indigo' => 'border-indigo-200 bg-indigo-50 text-indigo-800',
+    'slate' => 'v3-border-default v3-bg-panel v3-text-ink',
+    'emerald' => 'v3-border-default v3-bg-paid v3-text-primary',
+    'amber' => 'v3-border-default v3-bg-waiting v3-text-warning',
+    'sky' => 'v3-border-default v3-bg-scheduled v3-text-primary',
+    'violet' => 'v3-border-default v3-bg-chair v3-text-chair',
+    'rose' => 'v3-border-default v3-bg-alert v3-text-danger',
+    'indigo' => 'v3-border-default v3-bg-chair v3-text-chair',
 ];
 ?>
 
-<section class="rounded-2xl border border-emerald-100 bg-white shadow-sm overflow-hidden" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="border-b border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-sky-50 px-4 py-3 sm:px-5">
+<section class="v3-radius border v3-border-default v3-bg-panel v3-elevation-none overflow-hidden" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+    <div class="border-b v3-border-default bg-gradient-to-r from-emerald-50 via-white to-sky-50 px-4 py-3 sm:px-5">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-base font-bold text-slate-900"><?= esc($moneyLabel('moneyTrailTitle')) ?></h3>
-                <p class="mt-0.5 text-xs text-slate-500"><?= esc($moneyLabel('moneyTrailSubtitle')) ?></p>
+                <h3 class="text-base font-bold v3-text-ink"><?= esc($moneyLabel('moneyTrailTitle')) ?></h3>
+                <p class="mt-0.5 text-xs v3-text-muted"><?= esc($moneyLabel('moneyTrailSubtitle')) ?></p>
             </div>
-            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-700">
+            <span class="inline-flex w-fit items-center gap-2 rounded-full border v3-border-default v3-bg-panel px-3 py-1 text-xs font-semibold v3-text-primary">
                 <i class="fas fa-link"></i>
                 <span><?= esc($moneyLabel('moneyTrailLinkedRecords')) ?></span>
             </span>
@@ -94,7 +94,7 @@ $toneClasses = [
     <div class="p-4 sm:p-5">
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <?php foreach ($stats as $stat): ?>
-                <div class="rounded-xl border p-3 <?= esc($toneClasses[$stat['tone']] ?? $toneClasses['slate']) ?>">
+                <div class="v3-radius border p-3 <?= esc($toneClasses[$stat['tone']] ?? $toneClasses['slate']) ?>">
                     <p class="text-[0.68rem] font-semibold uppercase tracking-wide opacity-75"><?= esc($stat['label']) ?></p>
                     <p class="mt-1 text-lg font-extrabold" dir="ltr"><?= esc($stat['key'] === 'provider_remaining' ? \App\Services\ProviderCurrencySummary::format($summary['provider_currency_summary'], 'provider_remaining') : $formatMoney($stat['value'])) ?></p>
                 </div>
@@ -102,23 +102,23 @@ $toneClasses = [
         </div>
 
         <?php if ($payoutRows !== []): ?>
-            <p class="mt-2 text-xs text-slate-500"><?= esc(lang('Finance.providerVoidBalanceHelp') . ' ' . lang('Finance.providerCurrencyWarning')) ?></p>
+            <p class="mt-2 text-xs v3-text-muted"><?= esc(lang('Finance.providerVoidBalanceHelp') . ' ' . lang('Finance.providerCurrencyWarning')) ?></p>
         <?php endif; ?>
 
         <?php if (!$hasRecords): ?>
-            <div class="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
-                <i class="fas fa-route mb-2 text-2xl text-slate-300"></i>
-                <p class="text-sm font-semibold text-slate-700"><?= esc($moneyLabel('moneyTrailEmpty')) ?></p>
-                <p class="mt-1 text-xs text-slate-500"><?= esc($moneyLabel('moneyTrailEmptyHint')) ?></p>
+            <div class="mt-4 v3-radius border border-dashed v3-border-default v3-bg-panel px-4 py-5 text-center">
+                <i class="fas fa-route mb-2 text-2xl v3-text-muted"></i>
+                <p class="text-sm font-semibold v3-text-ink"><?= esc($moneyLabel('moneyTrailEmpty')) ?></p>
+                <p class="mt-1 text-xs v3-text-muted"><?= esc($moneyLabel('moneyTrailEmptyHint')) ?></p>
             </div>
         <?php else: ?>
             <div class="mt-5 grid gap-4 xl:grid-cols-2">
                 <?php if (!empty($chargeLines)): ?>
-                <div class="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 xl:col-span-2">
+                <div class="v3-radius border v3-border-default v3-bg-chair p-4 xl:col-span-2">
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <h4 class="text-sm font-bold text-indigo-950"><?= esc($moneyLabel('moneyTrailChargeLines')) ?></h4>
+                        <h4 class="text-sm font-bold v3-text-chair"><?= esc($moneyLabel('moneyTrailChargeLines')) ?></h4>
                         <?php if ((int) ($summary['open_charge_lines'] ?? 0) > 0): ?>
-                            <span class="text-xs font-semibold text-indigo-700"><?= esc(lang('UI.moneyTrailOpenChargeLines', ['count' => (int) $summary['open_charge_lines']])) ?></span>
+                            <span class="text-xs font-semibold v3-text-chair"><?= esc(lang('UI.moneyTrailOpenChargeLines', ['count' => (int) $summary['open_charge_lines']])) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="mt-3 grid gap-2 md:grid-cols-2">
@@ -128,19 +128,19 @@ $toneClasses = [
                             $chargeTransactionId = trim((string) ($row['transaction_id'] ?? ''));
                             $chargeInvoiceHref = $chargeFinanceId > 0 ? workflow_context_url('finance/' . $chargeFinanceId, $returnTo) : '';
                             ?>
-                            <div class="flex flex-col gap-2 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
+                            <div class="flex flex-col gap-2 rounded-lg border v3-border-default v3-bg-panel px-3 py-2 text-sm v3-elevation-none">
                                 <div class="flex items-start justify-between gap-3">
                                     <span class="min-w-0">
-                                        <span class="block truncate font-semibold text-slate-800"><?= esc($row['procedure_name'] ?? lang('UI.patientNa')) ?></span>
+                                        <span class="block truncate font-semibold v3-text-ink"><?= esc($row['procedure_name'] ?? lang('UI.patientNa')) ?></span>
                                         <?php if ($chargeInvoiceHref !== ''): ?>
-                                            <a href="<?= esc($chargeInvoiceHref) ?>" class="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100">
+                                            <a href="<?= esc($chargeInvoiceHref) ?>" class="mt-1 inline-flex items-center gap-1 rounded-full border v3-border-default v3-bg-paid px-2 py-0.5 text-[11px] font-semibold v3-text-primary v3-hover-primary v3-btn v3-btn--secondary">
                                                 <i class="fas fa-file-invoice-dollar"></i>
                                                 <span><?= esc(lang('Finance.invoice')) ?> <?= esc($chargeTransactionId !== '' ? $chargeTransactionId : ('#' . $chargeFinanceId)) ?></span>
                                             </a>
                                         <?php endif; ?>
-                                        <span class="block truncate text-xs text-slate-500"><?= esc($row['status'] ?? '') ?><?= !empty($row['transaction_id']) ? ' · ' . esc($row['transaction_id']) : '' ?></span>
+                                        <span class="block truncate text-xs v3-text-muted"><?= esc($row['status'] ?? '') ?><?= !empty($row['transaction_id']) ? ' · ' . esc($row['transaction_id']) : '' ?></span>
                                     </span>
-                                    <span class="shrink-0 font-bold text-indigo-700" dir="ltr"><?= esc($formatMoney($row['net_production_amount'] ?? 0)) ?></span>
+                                    <span class="shrink-0 font-bold v3-text-chair" dir="ltr"><?= esc($formatMoney($row['net_production_amount'] ?? 0)) ?></span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -148,8 +148,8 @@ $toneClasses = [
                 </div>
                 <?php endif; ?>
 
-                <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                    <h4 class="text-sm font-bold text-slate-900"><?= esc($moneyLabel('moneyTrailFinanceRecords')) ?></h4>
+                <div class="v3-radius border v3-border-default v3-bg-panel p-4">
+                    <h4 class="text-sm font-bold v3-text-ink"><?= esc($moneyLabel('moneyTrailFinanceRecords')) ?></h4>
                     <div class="mt-3 space-y-2">
                         <?php if (!empty($financeRows)): ?>
                             <?php foreach (array_slice($financeRows, 0, 6) as $row): ?>
@@ -161,38 +161,38 @@ $toneClasses = [
                                 $rowPaid = max(0, (float) ($row['amount_paid'] ?? 0));
                                 $rowBalance = max(0, (float) ($row['balance_due'] ?? 0));
                                 ?>
-                                <a href="<?= esc($href) ?>" class="flex items-center justify-between gap-3 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm hover:border-emerald-200 hover:bg-emerald-50/60">
+                                <a href="<?= esc($href) ?>" class="flex items-center justify-between gap-3 rounded-lg border v3-border-default v3-bg-panel px-3 py-2 text-sm v3-elevation-none v3-border-default v3-hover-primary">
                                     <span class="min-w-0">
-                                        <span class="block truncate font-semibold text-slate-800"><?= esc($reference) ?> · <?= esc($financeType($row['transaction_type'] ?? '')) ?></span>
-                                        <span class="block truncate text-xs text-slate-500"><?= esc($row['description'] ?? $row['service_type'] ?? lang('UI.patientNa')) ?></span>
+                                        <span class="block truncate font-semibold v3-text-ink"><?= esc($reference) ?> · <?= esc($financeType($row['transaction_type'] ?? '')) ?></span>
+                                        <span class="block truncate text-xs v3-text-muted"><?= esc($row['description'] ?? $row['service_type'] ?? lang('UI.patientNa')) ?></span>
                                         <?php if (($row['transaction_type'] ?? '') === 'invoice'): ?>
-                                            <span class="mt-1 block truncate text-[11px] font-semibold <?= $rowBalance > 0.009 ? 'text-amber-700' : 'text-emerald-700' ?>">
+                                            <span class="mt-1 block truncate text-[11px] font-semibold <?= $rowBalance > 0.009 ? 'v3-text-warning' : 'v3-text-primary' ?>">
                                                 <?= esc($moneyLabel('moneyTrailPaid')) ?> <?= esc($formatMoney($rowPaid)) ?>
                                                 · <?= esc($moneyLabel('moneyTrailBalanceDue')) ?> <?= esc($formatMoney($rowBalance)) ?>
                                             </span>
                                         <?php endif; ?>
                                     </span>
-                                    <span class="shrink-0 font-bold text-slate-900" dir="ltr"><?= esc($formatMoney($rowTotal)) ?></span>
+                                    <span class="shrink-0 font-bold v3-text-ink" dir="ltr"><?= esc($formatMoney($rowTotal)) ?></span>
                                 </a>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-sm text-slate-500"><?= esc($moneyLabel('moneyTrailNoFinanceRecords')) ?></p>
+                            <p class="text-sm v3-text-muted"><?= esc($moneyLabel('moneyTrailNoFinanceRecords')) ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                    <h4 class="text-sm font-bold text-slate-900"><?= esc($moneyLabel('moneyTrailPaymentsAndProviders')) ?></h4>
+                <div class="v3-radius border v3-border-default v3-bg-panel p-4">
+                    <h4 class="text-sm font-bold v3-text-ink"><?= esc($moneyLabel('moneyTrailPaymentsAndProviders')) ?></h4>
                     <div class="mt-3 space-y-2">
                         <?php foreach (array_slice($paymentRows, 0, 4) as $row): ?>
                             <?php
                             $paymentType = strtolower((string) ($row['type'] ?? 'payment'));
-                            $paymentTone = in_array($paymentType, ['refund', 'void'], true) ? 'text-rose-700' : 'text-emerald-700';
+                            $paymentTone = in_array($paymentType, ['refund', 'void'], true) ? 'v3-text-danger' : 'v3-text-primary';
                             ?>
-                            <div class="flex items-center justify-between gap-3 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
+                            <div class="flex items-center justify-between gap-3 rounded-lg border v3-border-default v3-bg-panel px-3 py-2 text-sm v3-elevation-none">
                                 <span class="min-w-0">
-                                    <span class="block truncate font-semibold text-slate-800"><?= esc($financeType($row['type'] ?? 'payment')) ?> · <?= esc($row['transaction_id'] ?? '') ?></span>
-                                    <span class="block truncate text-xs text-slate-500">
+                                    <span class="block truncate font-semibold v3-text-ink"><?= esc($financeType($row['type'] ?? 'payment')) ?> · <?= esc($row['transaction_id'] ?? '') ?></span>
+                                    <span class="block truncate text-xs v3-text-muted">
                                         <?= !empty($row['payment_date']) ? formatDate($row['payment_date']) : esc(lang('UI.patientNa')) ?>
                                         <?php if (!empty($row['payment_method'])): ?>
                                             · <?= esc($paymentVerb($row['payment_method'])) ?>
@@ -208,19 +208,19 @@ $toneClasses = [
                             $providerTransactionId = trim((string) ($row['transaction_id'] ?? ''));
                             $providerHref = $providerFinanceId > 0 ? workflow_context_url('finance/' . $providerFinanceId, $returnTo) : '';
                             ?>
-                            <div class="flex flex-col gap-2 rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
+                            <div class="flex flex-col gap-2 rounded-lg border v3-border-default v3-bg-panel px-3 py-2 text-sm v3-elevation-none">
                                 <span class="min-w-0">
-                                    <span class="block truncate font-semibold text-slate-800"><?= esc($providerName($row)) ?></span>
+                                    <span class="block truncate font-semibold v3-text-ink"><?= esc($providerName($row)) ?></span>
                                     <span class="mt-1 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-bold <?= esc($providerStatusClass($row['status'] ?? '')) ?>"><?= esc($providerStatusLabel($row['status'] ?? '')) ?></span>
-                                    <span class="block truncate text-xs text-slate-500"><?= esc($moneyLabel('moneyTrailProviderShare')) ?></span>
+                                    <span class="block truncate text-xs v3-text-muted"><?= esc($moneyLabel('moneyTrailProviderShare')) ?></span>
                                 </span>
-                                <span class="shrink-0 font-bold text-violet-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_share_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
-                                <div class="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
-                                    <span><?= esc($moneyLabel('moneyTrailPaid')) ?>: <strong class="text-emerald-700" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_paid_amount'] ?? 0, $row['currency'] ?? null)) ?></strong></span>
-                                    <span><?= esc($moneyLabel('moneyTrailProviderRemaining')) ?>: <strong class="<?= ((float) ($row['provider_balance_due'] ?? 0) > 0.009) ? 'text-rose-700' : 'text-emerald-700' ?>" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_balance_due'] ?? 0, $row['currency'] ?? null)) ?></strong></span>
+                                <span class="shrink-0 font-bold v3-text-chair" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_share_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
+                                <div class="mt-2 grid gap-1 text-xs v3-text-muted sm:grid-cols-2">
+                                    <span><?= esc($moneyLabel('moneyTrailPaid')) ?>: <strong class="v3-text-primary" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_paid_amount'] ?? 0, $row['currency'] ?? null)) ?></strong></span>
+                                    <span><?= esc($moneyLabel('moneyTrailProviderRemaining')) ?>: <strong class="<?= ((float) ($row['provider_balance_due'] ?? 0) > 0.009) ? 'v3-text-danger' : 'v3-text-primary' ?>" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_balance_due'] ?? 0, $row['currency'] ?? null)) ?></strong></span>
                                 </div>
                                 <?php if ($providerHref !== ''): ?>
-                                    <a href="<?= esc($providerHref) ?>" class="mt-2 inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100">
+                                    <a href="<?= esc($providerHref) ?>" class="mt-2 inline-flex items-center gap-1 rounded-full border v3-border-default v3-bg-chair px-2 py-0.5 text-[11px] font-semibold v3-text-chair v3-hover-primary v3-btn v3-btn--secondary">
                                         <i class="fas fa-file-invoice-dollar"></i>
                                         <span><?= esc(lang('Finance.invoice')) ?> <?= esc($providerTransactionId !== '' ? $providerTransactionId : ('#' . $providerFinanceId)) ?></span>
                                     </a>
@@ -228,23 +228,23 @@ $toneClasses = [
                             </div>
                         <?php endforeach; ?>
                         <?php if (empty($paymentRows) && empty($payoutRows)): ?>
-                            <p class="text-sm text-slate-500"><?= esc($moneyLabel('moneyTrailNoPaymentsOrProviders')) ?></p>
+                            <p class="text-sm v3-text-muted"><?= esc($moneyLabel('moneyTrailNoPaymentsOrProviders')) ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
 
             <?php if (!empty($inventoryRows)): ?>
-                <div class="mt-4 rounded-xl border border-rose-100 bg-rose-50/60 p-4">
-                    <h4 class="text-sm font-bold text-rose-900"><?= esc($moneyLabel('moneyTrailInventoryUsage')) ?></h4>
+                <div class="mt-4 v3-radius border v3-border-default v3-bg-alert p-4">
+                    <h4 class="text-sm font-bold v3-text-danger"><?= esc($moneyLabel('moneyTrailInventoryUsage')) ?></h4>
                     <div class="mt-3 grid gap-2 md:grid-cols-2">
                         <?php foreach (array_slice($inventoryRows, 0, 4) as $row): ?>
-                            <div class="rounded-lg border border-white bg-white px-3 py-2 text-sm shadow-sm">
+                            <div class="rounded-lg border v3-border-default v3-bg-panel px-3 py-2 text-sm v3-elevation-none">
                                 <div class="flex items-center justify-between gap-3">
-                                    <span class="truncate font-semibold text-slate-800"><?= esc($row['treatment_name'] ?? $row['treatment_number'] ?? lang('UI.patientNa')) ?></span>
-                                    <span class="font-bold text-rose-700" dir="ltr"><?= esc($formatMoney($row['total_cost'] ?? 0)) ?></span>
+                                    <span class="truncate font-semibold v3-text-ink"><?= esc($row['treatment_name'] ?? $row['treatment_number'] ?? lang('UI.patientNa')) ?></span>
+                                    <span class="font-bold v3-text-danger" dir="ltr"><?= esc($formatMoney($row['total_cost'] ?? 0)) ?></span>
                                 </div>
-                                <p class="mt-0.5 text-xs text-slate-500"><?= !empty($row['usage_date']) ? formatDate($row['usage_date']) : esc(lang('UI.patientNa')) ?></p>
+                                <p class="mt-0.5 text-xs v3-text-muted"><?= !empty($row['usage_date']) ? formatDate($row['usage_date']) : esc(lang('UI.patientNa')) ?></p>
                             </div>
                         <?php endforeach; ?>
                     </div>

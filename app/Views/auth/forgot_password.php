@@ -35,12 +35,12 @@
         }
     </style>
 </head>
-<body class="h-screen relative flex flex-col overflow-hidden text-slate-900 antialiased font-sans">
+<body class="h-screen relative flex flex-col overflow-hidden v3-text-ink antialiased font-sans">
     
     <!-- Background -->
     <div class="fixed inset-0 z-0">
         <img src="<?= base_url('assets/images/login-background.jpg') ?>" class="w-full h-full object-cover" alt="background">
-        <div class="absolute inset-0 bg-slate-900/50"></div>
+        <div class="absolute inset-0 v3-backdrop"></div>
         <div class="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-transparent to-slate-900/90"></div>
         <div class="absolute inset-0 backdrop-blur-[2px]"></div>
     </div>
@@ -49,65 +49,65 @@
     <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
         <div class="w-full max-w-4xl max-h-full animate-card-entry">
             <div class="group relative">
-                <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
+                <div class="relative glass-card border v3-border-default rounded-[2.5rem] v3-elevation-none shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
                     
                     <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
 
                     <!-- Left Side -->
-                    <div class="relative z-10 hidden md:flex md:w-5/12 bg-white/5 border-r border-white/10 p-10 flex-col justify-between overflow-hidden">
-                        <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 blur-[80px]"></div>
+                    <div class="relative z-10 hidden md:flex md:w-5/12 v3-bg-panel border-r v3-border-default p-10 flex-col justify-between overflow-hidden">
+                        <div class="absolute -top-24 -left-24 w-48 h-48 v3-bg-primary blur-[80px]"></div>
                         <div class="relative z-10">
-                            <div class="w-16 h-16 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-8">
-                                <i class="fas fa-key text-white text-3xl"></i>
+                            <div class="w-16 h-16 v3-bg-panel backdrop-blur-md border v3-border-default v3-radius flex items-center justify-center v3-elevation-none mb-8">
+                                <i class="fas fa-key v3-text-on-primary text-3xl"></i>
                             </div>
-                            <h2 class="text-3xl font-black text-white leading-tight mb-4 drop-shadow-lg">Account Recovery</h2>
-                            <p class="text-sm font-medium text-white/60 leading-relaxed">Don't worry, we'll help you get back into your account in no time.</p>
+                            <h2 class="text-3xl font-black v3-text-on-primary leading-tight mb-4 drop-shadow-lg">Account Recovery</h2>
+                            <p class="text-sm font-medium v3-text-on-primary leading-relaxed">Don't worry, we'll help you get back into your account in no time.</p>
                         </div>
                         <div class="relative z-10 pt-10">
-                            <p class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Clinic Admin: <?= esc($clinic_admin_email ?? 'Support') ?></p>
+                            <p class="text-[9px] font-black v3-text-on-primary uppercase tracking-[0.2em]">Clinic Admin: <?= esc($clinic_admin_email ?? 'Support') ?></p>
                         </div>
                     </div>
 
                     <!-- Right Side -->
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
                         <div class="md:hidden flex flex-col items-center mb-8">
-                             <div class="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-4">
-                                <i class="fas fa-key text-white text-2xl"></i>
+                             <div class="w-14 h-14 v3-bg-panel backdrop-blur-md border v3-border-default v3-radius flex items-center justify-center v3-elevation-none mb-4">
+                                <i class="fas fa-key v3-text-on-primary text-2xl"></i>
                             </div>
-                            <h1 class="text-2xl font-black text-white tracking-tight">Recovery</h1>
+                            <h1 class="text-2xl font-black v3-text-on-primary tracking-tight">Recovery</h1>
                         </div>
 
                         <div class="mb-8">
-                            <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md">Lost access?</h3>
-                            <p class="text-sm font-bold text-white/50 uppercase tracking-widest">Enter email for reset link</p>
+                            <h3 class="text-2xl font-black v3-text-on-primary mb-2 drop-shadow-md">Lost access?</h3>
+                            <p class="text-sm font-bold v3-text-on-primary uppercase tracking-widest">Enter email for reset link</p>
                         </div>
 
                         <?php if (session()->getFlashdata('message')): ?>
-                            <div class="mb-6 p-4 bg-blue-500/20 backdrop-blur-md border border-blue-500/30 rounded-2xl flex items-center animate-fadeIn relative z-20 shadow-lg">
-                                <i class="fas fa-info-circle text-blue-400 mr-3"></i>
-                                <p class="text-xs font-bold text-white"><?= session()->getFlashdata('message') ?></p>
+                            <div class="mb-6 p-4 v3-bg-primary backdrop-blur-md border v3-border-default v3-radius flex items-center animate-fadeIn relative z-20 v3-elevation-none">
+                                <i class="fas fa-info-circle v3-text-primary mr-3"></i>
+                                <p class="text-xs font-bold v3-text-on-primary"><?= session()->getFlashdata('message') ?></p>
                             </div>
                         <?php endif; ?>
 
                         <?= form_open('auth/forgot-password', ['class' => 'space-y-6 relative z-20', 'novalidate' => true]) ?>
                             <div class="space-y-2">
-                                <label for="identity" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2"><?= $identity_label ?></label>
+                                <label for="identity" class="text-[10px] font-black v3-text-on-primary uppercase tracking-widest ml-2"><?= $identity_label ?></label>
                                 <div class="relative group/input">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-envelope text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
+                                        <i class="fas fa-envelope v3-text-on-primary group-focus-within/input:v3-text-primary transition-colors"></i>
                                     </div>
-                                    <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => 'Your email address']) ?>
+                                    <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 v3-bg-panel border v3-border-default v3-radius v3-text-on-primary v3-placeholder focus:outline-none focus:ring-4 v3-focus-control v3-focus-control v3-focus-control transition-all duration-300 text-sm font-medium', 'placeholder' => 'Your email address']) ?>
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full py-4 backdrop-blur-md bg-blue-500/30 border border-blue-400/30 text-white font-black rounded-2xl shadow-xl hover:bg-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-3 group/btn">
+                            <button type="submit" class="w-full py-4 backdrop-blur-md v3-bg-primary border v3-border-default v3-text-on-primary font-black v3-radius v3-elevation-none v3-hover-primary hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-3 group/btn v3-btn v3-btn--primary">
                                 <span class="text-sm uppercase tracking-widest drop-shadow-sm">Send Link</span>
                                 <i class="fas fa-paper-plane text-[10px] transform group-hover/btn:translate-x-1 transition-transform"></i>
                             </button>
                         <?= form_close() ?>
 
                         <div class="mt-8 text-center">
-                            <a href="<?= base_url('auth/login') ?>" class="text-[11px] font-bold text-white/60 hover:text-white transition-colors inline-flex items-center space-x-2">
+                            <a href="<?= base_url('auth/login') ?>" class="text-[11px] font-bold v3-text-on-primary v3-hover-text-on-primary transition-colors inline-flex items-center space-x-2">
                                 <i class="fas fa-arrow-left text-[10px]"></i>
                                 <span>Back to Login</span>
                             </a>
@@ -121,23 +121,23 @@
     <!-- Footer -->
     <footer class="relative z-10 w-full p-4 md:p-6 pb-6 md:pb-8 flex-shrink-0 animate-footer-entry">
         <div class="max-w-5xl mx-auto">
-            <div class="relative glass-card border border-white/20 rounded-[2rem] p-4 px-8 shadow-2xl shadow-black/20 overflow-hidden">
+            <div class="relative glass-card border v3-border-default rounded-[2rem] p-4 px-8 v3-elevation-none shadow-black/20 overflow-hidden">
                 <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
                 <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div class="flex items-center space-x-5">
-                        <div class="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-                            <i class="fas fa-tooth text-white text-lg"></i>
+                        <div class="w-10 h-10 v3-bg-panel v3-radius flex items-center justify-center border v3-border-default">
+                            <i class="fas fa-tooth v3-text-on-primary text-lg"></i>
                         </div>
                         <div class="flex flex-col">
-                            <span class="text-sm font-black text-white tracking-widest uppercase">Palsync Dental</span>
-                            <span class="text-[10px] font-bold text-white/40 uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
+                            <span class="text-sm font-black v3-text-on-primary tracking-widest uppercase">Palsync Dental</span>
+                            <span class="text-[10px] font-bold v3-text-on-primary uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
                         </div>
                     </div>
-                    <div class="flex items-center bg-black/20 rounded-2xl p-1.5 px-3 border border-white/10">
-                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest mr-4 ml-1">Live Support</span>
+                    <div class="flex items-center v3-backdrop v3-radius p-1.5 px-3 border v3-border-default">
+                        <span class="hidden lg:inline-block text-[10px] font-black v3-text-on-primary uppercase tracking-widest mr-4 ml-1">Live Support</span>
                         <div class="flex items-center space-x-2">
-                            <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
-                            <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center v3-bg-primary v3-hover-primary v3-text-primary v3-hover-text-on-primary v3-radius transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center v3-bg-primary v3-hover-primary v3-text-primary v3-hover-text-on-primary v3-radius transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
                         </div>
                     </div>
                 </div>

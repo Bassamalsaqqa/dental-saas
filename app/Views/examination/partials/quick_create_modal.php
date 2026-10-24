@@ -76,39 +76,39 @@ if (!empty($modalSelectedAppointmentId)) {
     </style>
 
     <div id="newExaminationModal" class="app-scale-modal examination-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newExaminationModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="examination-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-examination-create-modal-close></div>
+        <div class="examination-create-modal__backdrop fixed inset-0 v3-backdrop backdrop-blur-sm" data-examination-create-modal-close></div>
         <div class="examination-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-examination-create-modal-close>
-            <form id="newExaminationQuickCreateForm" action="<?= base_url('examination/store') ?>" method="POST" class="examination-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-examination-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
+            <form id="newExaminationQuickCreateForm" action="<?= base_url('examination/store') ?>" method="POST" class="examination-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden v3-radius border v3-border-default v3-bg-panel v3-elevation-none" data-examination-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
                 <input type="hidden" name="appointment_id" value="<?= esc($modalSelectedAppointmentId ?? '') ?>">
                 <input type="hidden" name="source_modal" value="examination_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 backdrop-blur">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-gradient-to-br from-orange-500 to-amber-600 v3-text-on-primary v3-elevation-none">
                             <i class="fas fa-stethoscope"></i>
                         </span>
                         <div>
-                            <h2 id="newExaminationModalTitle" class="text-lg font-bold text-slate-900"><?= esc($tr('new_examination')) ?></h2>
-                            <a href="<?= esc(base_url('examination/create?' . http_build_query($modalFullPageQuery)), 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-orange-700 hover:text-orange-800">
+                            <h2 id="newExaminationModalTitle" class="text-lg font-bold v3-text-ink"><?= esc($tr('new_examination')) ?></h2>
+                            <a href="<?= esc(base_url('examination/create?' . http_build_query($modalFullPageQuery)), 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-warning v3-hover-text-warning">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-examination-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-examination-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto v3-bg-panel p-5">
                     <?php if (session('error') && $shouldOpenExaminationCreateModal): ?>
-                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                    <div class="v3-radius border v3-border-default v3-bg-panel p-5 v3-elevation-none md:p-6">
                         <?= view('examination/partials/form_fields', [
                             'contextual' => $modalContextual,
                             'selected_patient' => $modalSelectedPatient,
@@ -119,15 +119,15 @@ if (!empty($modalSelectedAppointmentId)) {
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
-                    <button type="button" data-examination-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                    <button type="button" data-examination-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc($tr('cancel')) ?>
                     </button>
-                    <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center rounded-xl border border-cyan-200 bg-cyan-50 px-5 py-2.5 text-sm font-bold text-cyan-800 transition hover:bg-cyan-100">
+                    <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center v3-radius border v3-border-default v3-bg-scheduled px-5 py-2.5 text-sm font-bold v3-text-primary transition v3-hover-primary v3-btn v3-btn--primary">
                         <i class="fas fa-tooth me-2"></i>
                         <?= esc($tr('create_and_open_chart')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-orange-600 hover:to-amber-700 hover:shadow-xl">
+                    <button type="submit" class="inline-flex items-center justify-center v3-radius bg-gradient-to-r from-orange-500 to-amber-600 px-5 py-2.5 text-sm font-bold v3-text-on-primary v3-elevation-none transition hover:from-orange-600 hover:to-amber-700 hover:v3-elevation-none v3-btn v3-btn--primary">
                         <i class="fas fa-stethoscope me-2"></i>
                         <?= esc($tr('create_examination')) ?>
                     </button>

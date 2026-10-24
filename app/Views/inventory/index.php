@@ -23,43 +23,43 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
         <section class="v3-command-section inventory-command-header mb-5 overflow-hidden v3-corner">
             <div class="v3-command-layout">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface text-white ring-1 ring-white/20">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface v3-text-on-primary border v3-border-default">
                         <i class="fas fa-box text-xl"></i>
                     </span>
                     <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-teal-100"><?= esc($tr('inventoryItems')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= esc($tr('inventoryManagement')) ?></h1>
+                        <p class="text-xs font-black uppercase tracking-[0.22em] v3-text-primary"><?= esc($tr('inventoryItems')) ?></p>
+                        <h1 class="mt-1 text-2xl font-black leading-tight v3-text-on-primary sm:text-3xl"><?= esc($tr('inventoryManagement')) ?></h1>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <?php if (has_permission('inventory', 'create')): ?>
-                        <a href="<?= base_url('inventory/create') ?>" data-inventory-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-teal-800 transition hover:bg-teal-50 focus:outline-none focus:ring-4 focus:ring-white/25">
+                        <a href="<?= base_url('inventory/create') ?>" data-inventory-create-modal-open class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-primary transition v3-hover-primary focus:outline-none focus:ring-4 v3-focus-control v3-btn v3-btn--secondary">
                             <i class="fas fa-plus"></i>
                             <?= esc($tr('addNewItem')) ?>
                         </a>
-                        <a href="<?= base_url('inventory/templates') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/18">
+                        <a href="<?= base_url('inventory/templates') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-on-primary border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
                             <i class="fas fa-layer-group"></i>
                             <?= esc($tr('starterTemplates')) ?>
                         </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('providers') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/18">
+                    <a href="<?= base_url('providers') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-on-primary border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
                         <i class="fas fa-handshake"></i>
                         <?= esc($tr('suppliers')) ?>
                     </a>
-                    <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center justify-center gap-2 v3-radius bg-amber-400 px-4 py-2.5 text-sm font-black text-amber-950 transition hover:bg-amber-300">
+                    <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-bg-warning px-4 py-2.5 text-sm font-black v3-text-warning transition v3-hover-primary v3-btn v3-btn--secondary">
                         <i class="fas fa-cart-shopping"></i>
                         <?= esc($tr('reorderList')) ?>
-                        <span class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-amber-950 px-1 text-xs font-black text-white"><?= (int) ($open_reorder_count ?? 0) ?></span>
+                        <span class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full v3-bg-warning px-1 text-xs font-black v3-text-on-primary"><?= (int) ($open_reorder_count ?? 0) ?></span>
                     </a>
-                    <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/18">
+                    <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-on-primary border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
                         <i class="fas fa-arrows-rotate"></i>
                         <?= esc($tr('movements')) ?>
                     </a>
-                    <a href="<?= base_url('inventory/usage-history') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/18">
+                    <a href="<?= base_url('inventory/usage-history') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black v3-text-on-primary border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
                         <i class="fas fa-history"></i>
                         <?= esc($tr('usageHistory')) ?>
                     </a>
-                    <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius bg-red-500 px-4 py-2.5 text-sm font-black text-white transition hover:bg-red-600">
+                    <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-bg-danger px-4 py-2.5 text-sm font-black v3-text-on-primary transition v3-hover-danger v3-btn v3-btn--danger">
                         <i class="fas fa-exclamation-triangle"></i>
                         <?= esc($tr('lowStockAlert')) ?>
                     </a>
@@ -69,14 +69,14 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
         <!-- Flash Messages -->
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="mb-6 bg-green-50 border border-green-200 v3-radius p-4">
+            <div class="mb-6 v3-bg-paid border v3-border-default v3-radius p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                        <i class="fas fa-check-circle v3-text-primary text-xl"></i>
                     </div>
                     <div class="ms-3">
-                        <h3 class="text-sm font-medium text-green-800"><?= esc($tr('success')) ?></h3>
-                        <div class="mt-2 text-sm text-green-700">
+                        <h3 class="text-sm font-medium v3-text-primary"><?= esc($tr('success')) ?></h3>
+                        <div class="mt-2 text-sm v3-text-primary">
                             <p><?= session()->getFlashdata('success') ?></p>
                         </div>
                     </div>
@@ -85,14 +85,14 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="mb-6 bg-red-50 border border-red-200 v3-radius p-4">
+            <div class="mb-6 v3-bg-alert border v3-border-default v3-radius p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                        <i class="fas fa-exclamation-circle v3-text-danger text-xl"></i>
                     </div>
                     <div class="ms-3">
-                        <h3 class="text-sm font-medium text-red-800"><?= esc($tr('error')) ?></h3>
-                        <div class="mt-2 text-sm text-red-700">
+                        <h3 class="text-sm font-medium v3-text-danger"><?= esc($tr('error')) ?></h3>
+                        <div class="mt-2 text-sm v3-text-danger">
                             <p><?= session()->getFlashdata('error') ?></p>
                         </div>
                     </div>
@@ -102,14 +102,14 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
         <!-- Error Message -->
         <?php if (isset($error)): ?>
-            <div class="mb-6 bg-red-50 border border-red-200 v3-radius p-4">
+            <div class="mb-6 v3-bg-alert border v3-border-default v3-radius p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+                        <i class="fas fa-exclamation-triangle v3-text-danger text-xl"></i>
                     </div>
                     <div class="ms-3">
-                        <h3 class="text-sm font-medium text-red-800"><?= esc($tr('errorLoadingInventory')) ?></h3>
-                        <div class="mt-2 text-sm text-red-700">
+                        <h3 class="text-sm font-medium v3-text-danger"><?= esc($tr('errorLoadingInventory')) ?></h3>
+                        <div class="mt-2 text-sm v3-text-danger">
                             <p><?= $error ?></p>
                         </div>
                     </div>
@@ -121,37 +121,37 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-100"><?= esc($tr('totalItems')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('totalItems')) ?></p>
                         <p class="mt-2 v3-title-scale font-black total-items-count"><?= $total_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-boxes"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-boxes"></i></span>
                 </div>
             </article>
             <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= esc($tr('inStock')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('inStock')) ?></p>
                         <p class="mt-2 v3-title-scale font-black active-items-count"><?= $in_stock_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-check-circle"></i></span>
                 </div>
             </article>
             <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-amber-100"><?= esc($tr('lowStock')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-warning"><?= esc($tr('lowStock')) ?></p>
                         <p class="mt-2 v3-title-scale font-black low-stock-count"><?= $low_stock_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-exclamation-triangle"></i></span>
                 </div>
             </article>
             <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-red-100"><?= esc($tr('outOfStock')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-danger"><?= esc($tr('outOfStock')) ?></p>
                         <p class="mt-2 v3-title-scale font-black out-of-stock-count"><?= $out_of_stock_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-times-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface border v3-border-default"><i class="fas fa-times-circle"></i></span>
                 </div>
             </article>
         </section>
@@ -160,25 +160,25 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             <div class="v3-surface-heading border-b v3-border px-4 py-4 sm:px-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center v3-corner bg-teal-100 text-teal-700">
+                        <span class="inline-flex h-10 w-10 items-center justify-center v3-corner v3-bg-scheduled v3-text-primary">
                             <i class="fas fa-list-check"></i>
                         </span>
                         <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= esc($tr('inventoryItems')) ?></h3>
-                            <p class="mt-1 text-xs font-bold text-slate-500"><span class="total-items-count"><?= (int) ($total_items ?? 0) ?></span> <?= esc($tr('items')) ?></p>
+                            <h3 class="text-lg font-black v3-text-ink"><?= esc($tr('inventoryItems')) ?></h3>
+                            <p class="mt-1 text-xs font-bold v3-text-muted"><span class="total-items-count"><?= (int) ($total_items ?? 0) ?></span> <?= esc($tr('items')) ?></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-red-50 hover:text-red-700">
-                            <i class="fas fa-file-pdf text-red-600"></i>
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold v3-text-ink transition v3-hover-danger v3-hover-text-danger v3-btn v3-btn--secondary">
+                            <i class="fas fa-file-pdf v3-text-danger"></i>
                             <?= esc($tr('exportToPDF')) ?>
                         </button>
-                        <button onclick="printInventory()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950">
-                            <i class="fas fa-print text-slate-600"></i>
+                        <button onclick="printInventory()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold v3-text-ink transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--secondary">
+                            <i class="fas fa-print v3-text-muted"></i>
                             <?= esc($tr('exportToPrint')) ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700">
-                            <i class="fas fa-file-csv text-emerald-600"></i>
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-sm font-extrabold v3-text-ink transition v3-hover-primary v3-hover-text-primary v3-btn v3-btn--secondary">
+                            <i class="fas fa-file-csv v3-text-primary"></i>
                             <?= esc($tr('exportToCSV')) ?>
                         </button>
                     </div>
@@ -189,63 +189,63 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                 <table id="inventoryTable" class="w-full min-w-full">
                     <thead>
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-hashtag text-teal-700"></i>
+                                    <i class="fas fa-hashtag v3-text-primary"></i>
                                     <span><?= esc($tr('id')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-box text-teal-700"></i>
+                                    <i class="fas fa-box v3-text-primary"></i>
                                     <span><?= esc($tr('item')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-tags text-teal-700"></i>
+                                    <i class="fas fa-tags v3-text-primary"></i>
                                     <span><?= esc($tr('category')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-layer-group text-teal-700"></i>
+                                    <i class="fas fa-layer-group v3-text-primary"></i>
                                     <span><?= esc($tr('quantity')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-dollar-sign text-teal-700"></i>
+                                    <i class="fas fa-dollar-sign v3-text-primary"></i>
                                     <span><?= esc($tr('unitPrice')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-truck text-teal-700"></i>
+                                    <i class="fas fa-truck v3-text-primary"></i>
                                     <span><?= esc($tr('supplier')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar text-teal-700"></i>
+                                    <i class="fas fa-calendar v3-text-primary"></i>
                                     <span><?= esc($tr('expiryDate')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-teal-700"></i>
+                                    <i class="fas fa-info-circle v3-text-primary"></i>
                                     <span><?= esc($tr('status')) ?></span>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
+                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider v3-text-muted">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-cogs text-teal-700"></i>
+                                    <i class="fas fa-cogs v3-text-primary"></i>
                                     <span><?= esc($tr('actions')) ?></span>
                                 </div>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 v3-surface">
+                    <tbody class="divide-y v3-border-default v3-surface">
                         <!-- Data will be loaded via DataTables -->
                     </tbody>
                 </table>
@@ -321,15 +321,15 @@ class InventoryFilterManager {
                 const statusCell = cells[4];
 
                 const itemName = itemCell.querySelector('.text-sm.font-medium')?.textContent?.toLowerCase() || '';
-                const description = itemCell.querySelector('.text-sm.text-gray-500')?.textContent?.toLowerCase() || '';
+                const description = itemCell.querySelector('.text-sm.v3-text-muted')?.textContent?.toLowerCase() || '';
 
-                const category = categoryCell.querySelector('.bg-slate-100')?.textContent?.toLowerCase() || '';
+                const category = categoryCell.querySelector('.v3-bg-soft')?.textContent?.toLowerCase() || '';
 
                 // Determine status from CSS classes
                 let status = 'in_stock';
-                if (statusCell.querySelector('.bg-red-100')) {
+                if (statusCell.querySelector('.v3-bg-alert')) {
                     status = 'out_of_stock';
-                } else if (statusCell.querySelector('.bg-yellow-100')) {
+                } else if (statusCell.querySelector('.v3-bg-waiting')) {
                     status = 'low_stock';
                 }
 
@@ -409,17 +409,17 @@ class InventoryFilterManager {
                 container.className = 'flex flex-col items-center';
 
                 const iconDiv = document.createElement('div');
-                iconDiv.className = 'w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4';
+                iconDiv.className = 'w-16 h-16 v3-bg-soft rounded-full flex items-center justify-center mx-auto mb-4';
                 const icon = document.createElement('i');
-                icon.className = 'fas fa-search text-gray-400 text-2xl';
+                icon.className = 'fas fa-search v3-text-muted text-2xl';
                 iconDiv.appendChild(icon);
 
                 const title = document.createElement('h3');
-                title.className = 'text-lg font-medium text-gray-900 mb-2';
+                title.className = 'text-lg font-medium v3-text-ink mb-2';
             title.textContent = '<?= esc($tr('noInventoryItemsFound'), 'js') ?>';
 
                 const message = document.createElement('p');
-                message.className = 'text-gray-500 mb-4';
+                message.className = 'v3-text-muted mb-4';
                 message.textContent = 'Try adjusting your search criteria.';
 
                 container.appendChild(iconDiv);
@@ -533,10 +533,10 @@ function deleteItem(id) {
 
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ${
-        type === 'success' ? 'bg-green-500 text-white' :
-        type === 'error' ? 'bg-red-500 text-white' :
-        'bg-teal-600 text-white'
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg v3-elevation-none z-50 transition-all duration-300 ${
+        type === 'success' ? 'v3-bg-primary v3-text-on-primary' :
+        type === 'error' ? 'v3-bg-danger v3-text-on-primary' :
+        'v3-bg-primary v3-text-on-primary'
     }`;
 
     const container = document.createElement('div');
@@ -551,7 +551,7 @@ function showNotification(message, type = 'info') {
     container.appendChild(msgSpan);
 
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'ms-2 text-white hover:text-gray-200';
+    closeBtn.className = 'ms-2 v3-text-on-primary v3-hover-text-muted';
     closeBtn.onclick = function() { this.closest('.fixed').remove(); };
 
     const closeIcon = document.createElement('i');
@@ -693,13 +693,13 @@ $(document).ready(function() {
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 9;
-                td.className = 'py-8 text-center text-slate-500';
+                td.className = 'py-8 text-center v3-text-muted';
 
                 const container = document.createElement('div');
                 container.className = 'flex flex-col items-center gap-2';
 
                 const icon = document.createElement('i');
-                icon.className = 'fas fa-exclamation-triangle text-4xl text-yellow-500';
+                icon.className = 'fas fa-exclamation-triangle text-4xl v3-text-warning';
 
                 const title = document.createElement('p');
                 title.className = 'text-lg font-medium';
@@ -710,7 +710,7 @@ $(document).ready(function() {
                 msg.textContent = 'Please check your connection and try again.';
 
                 const btn = document.createElement('button');
-                btn.className = 'mt-4 rounded-xl bg-teal-700 px-4 py-2 text-sm font-bold text-white hover:bg-teal-800';
+                btn.className = 'mt-4 v3-radius v3-bg-primary px-4 py-2 text-sm font-bold v3-text-on-primary v3-hover-primary';
                 btn.onclick = () => location.reload();
 
                 const btnIcon = document.createElement('i');
@@ -744,13 +744,13 @@ $(document).ready(function() {
                     const itemId = rowData[0];
                     const link = document.createElement('a');
                     link.href = '<?= base_url('inventory') ?>/' + itemId;
-                    link.className = 'group block cursor-pointer rounded-xl transition-colors duration-200 hover:bg-teal-50/70';
+                    link.className = 'group block cursor-pointer v3-radius transition-colors duration-200 v3-hover-primary';
 
                     const container = document.createElement('div');
                     container.className = 'flex items-center gap-3';
 
                     const iconBox = document.createElement('div');
-                    iconBox.className = 'flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-teal-700';
+                    iconBox.className = 'flex h-10 w-10 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary';
 
                     const icon = document.createElement('i');
                     icon.className = 'fas fa-box text-sm';
@@ -759,11 +759,11 @@ $(document).ready(function() {
                     const textBox = document.createElement('div');
 
                     const nameDiv = document.createElement('div');
-                    nameDiv.className = 'text-sm font-extrabold text-slate-950 transition-colors duration-200 group-hover:text-teal-800';
+                    nameDiv.className = 'text-sm font-extrabold v3-text-ink transition-colors duration-200 v3-hover-text-primary';
                     nameDiv.textContent = cellData;
 
                     const idDiv = document.createElement('div');
-                    idDiv.className = 'text-xs font-bold text-slate-500';
+                    idDiv.className = 'text-xs font-bold v3-text-muted';
                     idDiv.textContent = 'ID: ' + rowData[0];
 
                     textBox.appendChild(nameDiv);
@@ -784,7 +784,7 @@ $(document).ready(function() {
                     td.replaceChildren();
 
                     const span = document.createElement('span');
-                    span.className = 'inline-flex items-center rounded-xl border border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100 px-3 py-1.5 text-xs font-extrabold text-slate-800';
+                    span.className = 'inline-flex items-center v3-radius border v3-border-default bg-gradient-to-r from-slate-100 to-gray-100 px-3 py-1.5 text-xs font-extrabold v3-text-ink';
                     span.textContent = cellData;
 
                     td.appendChild(span);
@@ -809,7 +809,7 @@ $(document).ready(function() {
 
                     if (!cellData || cellData === 'N/A') {
                         const span = document.createElement('span');
-                        span.className = 'text-sm font-bold text-slate-400';
+                        span.className = 'text-sm font-bold v3-text-muted';
                         span.textContent = 'N/A';
                         td.appendChild(span);
                         return;
@@ -819,10 +819,10 @@ $(document).ready(function() {
                     container.className = 'flex items-center gap-2';
 
                     const icon = document.createElement('i');
-                    icon.className = 'fas fa-calendar text-orange-600 text-xs';
+                    icon.className = 'fas fa-calendar v3-text-warning text-xs';
 
                     const dateText = document.createElement('span');
-                    dateText.className = 'text-sm font-bold text-slate-900';
+                    dateText.className = 'text-sm font-bold v3-text-ink';
                     dateText.textContent = cellData;
 
                     container.appendChild(icon);
@@ -859,7 +859,7 @@ $(document).ready(function() {
                 previous: <?= json_encode(lang('Inventory.paginate.previous'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
             }
         },
-        dom: '<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: '<"border-b v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t v3-border-default v3-bg-panel px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
         responsive: true,
         initComplete: function(settings, json) {
             // Hide all loading indicators

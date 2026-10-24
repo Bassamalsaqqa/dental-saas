@@ -15,7 +15,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/tailwind.css') ?: '1' ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= @filemtime(FCPATH . 'assets/vendor/fontawesome/css/all.min.css') ?: '1' ?>">
+    <link rel="stylesheet" media="print" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= @filemtime(FCPATH . 'assets/vendor/fontawesome/css/all.min.css') ?: '1' ?>">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <?php if (!isset($disableDataTables) || !$disableDataTables): ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -32,7 +32,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <?php endif; ?>
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#162421">
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
@@ -46,6 +46,8 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/' . $flowAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $flowAsset) ?: '1' ?>">
 <?php endforeach; ?>
 <?php endif; ?>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
 </head>
 <body class="denta-v3 denta-cp min-h-screen overflow-x-hidden">
     <?= view('components/toast') ?>
@@ -55,21 +57,21 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         <?php if (!$hideCpNav): ?>
             <aside class="w-64 overflow-hidden z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
                 <!-- Sidebar Header -->
-                <div class="px-3 py-3 border-b border-white/10" id="sidebar-header">
+                <div class="px-3 py-3 border-b v3-border-default" id="sidebar-header">
                     <div class="flex items-center justify-between">
                         <a href="<?= base_url('controlplane/dashboard') ?>" class="cp-brand-link flex items-center gap-3">
                             <div class="cp-brand-icon">
                                 <i class="fas fa-shield-alt text-base"></i>
                             </div>
                             <div id="sidebar-title" class="min-w-0 flex-1">
-                                <h1 class="text-sm font-bold text-white leading-tight tracking-tight whitespace-nowrap"><?= lang('UI.cpControlPlane') ?></h1>
+                                <h1 class="text-sm font-bold v3-text-on-primary leading-tight tracking-tight whitespace-nowrap"><?= lang('UI.cpControlPlane') ?></h1>
                                 <div class="flex items-center gap-1.5 mt-0.5">
-                                    <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
+                                    <div class="w-1.5 h-1.5 v3-bg-primary rounded-full"></div>
                                     <p class="text-[11px] text-[#A2B5AB] font-semibold whitespace-nowrap"><?= lang('UI.cpGlobalAdmin') ?></p>
                                 </div>
                             </div>
                         </a>
-                        <button class="p-1.5 text-[#A2B5AB] hover:text-white hover:bg-white/10 rounded-md transition md:block hidden" onclick="toggleSidebar()" title="<?= esc(lang('V3Platform.toggleSidebarCtrlB'), 'attr') ?>">
+                        <button class="p-1.5 text-[#A2B5AB] v3-hover-text-on-primary v3-hover-soft rounded-md transition md:block hidden" onclick="toggleSidebar()" title="<?= esc(lang('V3Platform.toggleSidebarCtrlB'), 'attr') ?>">
                             <i class="fas fa-bars text-sm"></i>
                         </button>
                     </div>
@@ -187,15 +189,15 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                 </nav>
 
                 <!-- Sidebar Footer -->
-                <div class="p-3 border-t border-white/10" id="sidebar-footer">
+                <div class="p-3 border-t v3-border-default" id="sidebar-footer">
                     <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
-                    <div class="cursor-pointer hover:bg-white/5 rounded-md p-2 transition flex items-center justify-between" onclick="toggleUserMenu()">
+                    <div class="cursor-pointer v3-hover-soft rounded-md p-2 transition flex items-center justify-between" onclick="toggleUserMenu()">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded bg-[#0F6B63] flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0">
+                            <div class="w-7 h-7 rounded bg-[#0F6B63] flex items-center justify-center v3-text-on-primary text-[11px] font-bold flex-shrink-0">
                                 <?= esc(ui_badge_text($userEmail ?? '', 2, 'SA')) ?>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-xs font-bold text-white truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
+                                <div class="text-xs font-bold v3-text-on-primary truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
                                 <div class="text-[10px] text-[#A2B5AB] font-medium truncate"><?= lang('UI.cpGlobalAdmin') ?></div>
                             </div>
                         </div>
@@ -203,16 +205,16 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                     </div>
 
                     <!-- User Menu Dropdown -->
-                    <div id="userMenu" class="hidden absolute bottom-20 left-3 w-56 cp-modal-box p-1.5 space-y-0.5 shadow-xl">
-                        <a href="<?= base_url('controlplane/settings') ?>" class="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-black/5 text-xs font-semibold text-slate-800">
-                            <i class="fas fa-cog text-slate-500 w-4"></i>
+                    <div id="userMenu" class="hidden absolute bottom-20 left-3 w-56 cp-modal-box p-1.5 space-y-0.5 v3-elevation-none">
+                        <a href="<?= base_url('controlplane/settings') ?>" class="flex items-center gap-2.5 px-3 py-2 rounded-md v3-backdrop text-xs font-semibold v3-text-ink">
+                            <i class="fas fa-cog v3-text-muted w-4"></i>
                             <span><?= lang('UI.cpSettings') ?></span>
                         </a>
-                        <div class="h-px bg-slate-300 my-1"></div>
+                        <div class="h-px v3-bg-sand my-1"></div>
                         <form action="<?= base_url('controlplane/exit') ?>" method="post">
                             <?= csrf_field() ?>
-                            <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-rose-50 text-xs font-semibold text-rose-700 text-left">
-                                <i class="fas fa-sign-out-alt text-rose-600 w-4"></i>
+                            <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md v3-hover-danger text-xs font-semibold v3-text-danger text-left">
+                                <i class="fas fa-sign-out-alt v3-text-danger w-4"></i>
                                 <span><?= lang('UI.cpExitControlPlane') ?></span>
                             </button>
                         </form>
@@ -221,7 +223,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
             </aside>
         <?php endif; ?>
 
-        <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden" onclick="closeCpSidebar()"></div>
+        <div id="cp-sidebar-backdrop" class="fixed inset-0 v3-backdrop z-30 hidden md:hidden" onclick="closeCpSidebar()"></div>
 
         <div class="flex-1 flex flex-col min-h-screen min-w-0">
             <header class="cp-top-bar">
@@ -266,13 +268,13 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
 
 
                 <?php if (session()->getFlashdata('success')): ?>
-                    <noscript><div class="relative mb-6 glass-card v3-corner px-4 py-3 text-emerald-800" role="status" aria-live="polite">
+                    <noscript><div class="relative mb-6 glass-card v3-corner px-4 py-3 v3-text-primary" role="status" aria-live="polite">
                         <?= session()->getFlashdata('success') ?>
                     </div></noscript>
                 <?php endif; ?>
 
                 <?php if (session()->getFlashdata('error')): ?>
-                    <noscript><div class="relative mb-6 glass-card v3-corner px-4 py-3 text-rose-800" role="alert" aria-live="assertive">
+                    <noscript><div class="relative mb-6 glass-card v3-corner px-4 py-3 v3-text-danger" role="alert" aria-live="assertive">
                         <?= session()->getFlashdata('error') ?>
                     </div></noscript>
                 <?php endif; ?>
@@ -284,11 +286,11 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         </div>
     </div>
 
-    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/50 px-4 py-10 backdrop-blur-sm">
+    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center v3-backdrop px-4 py-10 backdrop-blur-sm">
         <div class="w-full max-w-2xl cp-modal-box">
             <div class="cp-modal-head">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded bg-[var(--denta-emerald-pine)] flex items-center justify-center text-white text-xs">
+                    <div class="w-7 h-7 rounded bg-[var(--denta-emerald-pine)] flex items-center justify-center v3-text-on-primary text-xs">
                         <i class="fas fa-terminal"></i>
                     </div>
                     <div>
@@ -296,7 +298,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                         <h3 class="text-xs font-bold text-[var(--denta-ink)] m-0"><?= lang('UI.cpSearchPlaceholder') ?></h3>
                     </div>
                 </div>
-                <button type="button" id="cp-command-close" class="p-1.5 text-slate-500 hover:text-slate-800 rounded">
+                <button type="button" id="cp-command-close" class="p-1.5 v3-text-muted v3-hover-text-ink rounded">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
@@ -304,12 +306,12 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                 <div class="flex items-center gap-2.5 bg-[var(--denta-ivory-input)] border border-[var(--denta-taupe-border)] rounded-md px-3 py-2">
                     <i class="fas fa-search text-[var(--denta-emerald-pine)] text-sm"></i>
                     <input id="cp-command-input" type="text" placeholder="<?= esc(lang('UI.cpSearchPlaceholder')) ?>"
-                           class="w-full bg-transparent text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none border-none p-0">
+                           class="w-full bg-transparent text-xs font-semibold v3-text-ink placeholder:v3-text-muted focus:outline-none border-none p-0">
                     <span class="cp-kbd">Esc</span>
                 </div>
             </div>
             <div class="p-3 max-h-96 overflow-y-auto">
-                <div id="cp-command-status" class="px-2 pb-2 text-xs text-slate-500 font-medium"></div>
+                <div id="cp-command-status" class="px-2 pb-2 text-xs v3-text-muted font-medium"></div>
                 <div id="cp-command-results" class="space-y-2"></div>
             </div>
             <div class="cp-modal-foot justify-between text-[11px] font-semibold text-[var(--denta-muted)]">
@@ -472,9 +474,9 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         function updateActiveItem() {
             cpItems.forEach((item, index) => {
                 if (index === cpActiveIndex) {
-                    item.classList.add('bg-indigo-50');
+                    item.classList.add('v3-bg-chair');
                 } else {
-                    item.classList.remove('bg-indigo-50');
+                    item.classList.remove('v3-bg-chair');
                 }
             });
         }
@@ -482,10 +484,10 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         function createSection(title, iconClass) {
             const section = document.createElement('div');
             const heading = document.createElement('div');
-            heading.className = 'px-3 text-xs font-semibold uppercase tracking-widest text-slate-400 flex items-center gap-2';
+            heading.className = 'px-3 text-xs font-semibold uppercase tracking-widest v3-text-muted flex items-center gap-2';
             if (iconClass) {
                 const icon = document.createElement('i');
-                icon.className = `${iconClass} text-slate-400`;
+                icon.className = `${iconClass} v3-text-muted`;
                 heading.appendChild(icon);
             }
             const label = document.createElement('span');
@@ -498,12 +500,12 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         function createResultButton(label, meta, onClick) {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'w-full text-left rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm transition hover:border-indigo-100 hover:bg-indigo-50';
+            button.className = 'w-full text-left v3-radius border v3-border-default v3-bg-panel px-4 py-3 v3-elevation-none transition v3-border-default v3-hover-primary';
             const title = document.createElement('div');
-            title.className = 'text-sm font-semibold text-slate-800';
+            title.className = 'text-sm font-semibold v3-text-ink';
             title.textContent = label;
             const subtitle = document.createElement('div');
-            subtitle.className = 'text-xs text-slate-500';
+            subtitle.className = 'text-xs v3-text-muted';
             subtitle.textContent = meta;
             button.appendChild(title);
             button.appendChild(subtitle);

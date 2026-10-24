@@ -53,6 +53,8 @@
     <?php foreach (['warm-clinical.css', 'v3-clinical-kiosk.css'] as $themeAsset): ?>
         <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
     <?php endforeach; ?>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
 </head>
 <body class="denta-v3 denta-kiosk min-h-screen">
     <?= view('components/toast') ?>

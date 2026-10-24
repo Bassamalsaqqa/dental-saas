@@ -186,7 +186,7 @@ class Input {
 
     const clearButton = document.createElement('button')
     clearButton.type = 'button'
-    clearButton.className = 'input-clear absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
+    clearButton.className = 'input-clear absolute right-2 top-1/2 -translate-y-1/2 v3-text-muted v3-hover-text-muted transition-colors'
     clearButton.innerHTML = '<i class="fas fa-times"></i>'
     
     // Position the input relatively and add clear button

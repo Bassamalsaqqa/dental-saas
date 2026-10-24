@@ -6,8 +6,8 @@
                                     <i class="fas fa-satellite-dish v3-accent-text text-xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold text-white"><?= lang('UI.settingsCommunications') ?></h3>
-                                    <p class="text-slate-300"><?= lang('UI.settingsConfigureSystem') ?></p>
+                                    <h3 class="text-2xl font-bold v3-text-on-primary"><?= lang('UI.settingsCommunications') ?></h3>
+                                    <p class="v3-text-muted"><?= lang('UI.settingsConfigureSystem') ?></p>
                                 </div>
                             </div>
                         </div>

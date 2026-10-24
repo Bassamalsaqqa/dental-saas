@@ -4,7 +4,7 @@ $drawerTitle = (string) ($title ?? '');
 $drawerDescription = (string) ($description ?? '');
 $drawerIcon = (string) ($icon ?? 'fas fa-pen');
 $drawerSize = in_array(($size ?? 'form'), ['compact', 'form', 'wide', 'full'], true) ? (string) $size : 'form';
-$drawerTone = (string) ($tone ?? 'bg-sky-600');
+$drawerTone = (string) ($tone ?? 'v3-bg-primary');
 $drawerBody = (string) ($body ?? '');
 $drawerFooter = (string) ($footer ?? '');
 $closeLabel = (string) ($close_label ?? lang('UI.closeDrawer'));
@@ -16,17 +16,17 @@ $closeLabel = (string) ($close_label ?? lang('UI.closeDrawer'));
             <header class="app-drawer__header">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex min-w-0 items-start gap-3">
-                        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm <?= esc($drawerTone) ?>">
+                        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-text-on-primary v3-elevation-none <?= esc($drawerTone) ?>">
                             <i class="<?= esc($drawerIcon) ?>"></i>
                         </span>
                         <div class="min-w-0">
-                            <h2 id="<?= esc($drawerId) ?>Title" class="text-lg font-bold leading-6 text-slate-950"><?= esc($drawerTitle) ?></h2>
+                            <h2 id="<?= esc($drawerId) ?>Title" class="text-lg font-bold leading-6 v3-text-ink"><?= esc($drawerTitle) ?></h2>
                             <?php if ($drawerDescription !== ''): ?>
-                                <p class="mt-1 text-sm leading-5 text-slate-500"><?= esc($drawerDescription) ?></p>
+                                <p class="mt-1 text-sm leading-5 v3-text-muted"><?= esc($drawerDescription) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900" data-app-drawer-close="<?= esc($drawerId) ?>" aria-label="<?= esc($closeLabel) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full v3-text-muted transition v3-hover-soft v3-hover-text-ink v3-btn v3-btn--icon" data-app-drawer-close="<?= esc($drawerId) ?>" aria-label="<?= esc($closeLabel) ?>">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

@@ -41,12 +41,12 @@
             </div>
             <div class="mt-6 flex flex-wrap gap-3">
                     <?php if (has_permission('settings', 'edit')): ?>
-                        <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm transition">
+                        <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm transition v3-btn v3-btn--secondary">
                             <i class="fas fa-cog mr-2"></i><?= lang('UserRole.rbacSetup') ?>
                         </a>
                     <?php endif; ?>
                     <?php if (has_permission('users', 'create')): ?>
-                        <a href="<?= workflow_context_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm transition hover:-translate-y-0.5">
+                        <a href="<?= workflow_context_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm transition hover:-translate-y-0.5 v3-btn v3-btn--secondary">
                             <i class="fas fa-plus mr-2"></i><?= lang('UserRole.createUser') ?>
                         </a>
                     <?php endif; ?>
@@ -55,17 +55,17 @@
 
         <!-- RBAC Status -->
         <?php if (isset($diagnostics) && !$diagnostics['rbac_ready']): ?>
-            <div class="mb-6 bg-yellow-50 border border-yellow-200 p-4">
+            <div class="mb-6 v3-bg-waiting border v3-border-default p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                        <i class="fas fa-exclamation-triangle v3-text-warning text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800"><?= lang('UserRole.rbacSystemNotReady') ?></h3>
-                        <div class="mt-2 text-sm text-yellow-700">
+                        <h3 class="text-sm font-medium v3-text-warning"><?= lang('UserRole.rbacSystemNotReady') ?></h3>
+                        <div class="mt-2 text-sm v3-text-warning">
                             <p><?= lang('UserRole.rbacNotInitializedUsers') ?></p>
                             <div class="mt-3">
-                                <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-3 py-2 bg-yellow-600 text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors">
+                                <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-3 py-2 v3-bg-warning text-sm font-medium rounded-lg v3-hover-primary transition-colors v3-btn v3-btn--secondary">
                                     <i class="fas fa-cog mr-2"></i><?= lang('UserRole.initializeRbacSystem') ?>
                                 </a>
                             </div>
@@ -77,14 +77,14 @@
 
         <!-- Flash Messages -->
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="mb-6 bg-green-50 border border-green-200 p-4">
+            <div class="mb-6 v3-bg-paid border v3-border-default p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                        <i class="fas fa-check-circle v3-text-primary text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-green-800"><?= lang('UserRole.success') ?></h3>
-                        <div class="mt-2 text-sm text-green-700">
+                        <h3 class="text-sm font-medium v3-text-primary"><?= lang('UserRole.success') ?></h3>
+                        <div class="mt-2 text-sm v3-text-primary">
                             <p><?= session()->getFlashdata('success') ?></p>
                         </div>
                     </div>
@@ -93,14 +93,14 @@
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="mb-6 bg-red-50 border border-red-200 p-4">
+            <div class="mb-6 v3-bg-alert border v3-border-default p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                        <i class="fas fa-exclamation-circle v3-text-danger text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.error') ?></h3>
-                        <div class="mt-2 text-sm text-red-700">
+                        <h3 class="text-sm font-medium v3-text-danger"><?= lang('UserRole.error') ?></h3>
+                        <div class="mt-2 text-sm v3-text-danger">
                             <p><?= session()->getFlashdata('error') ?></p>
                         </div>
                     </div>
@@ -110,14 +110,14 @@
 
         <!-- Error Message -->
         <?php if (isset($error)): ?>
-            <div class="mb-6 bg-red-50 border border-red-200 p-4">
+            <div class="mb-6 v3-bg-alert border v3-border-default p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+                        <i class="fas fa-exclamation-triangle v3-text-danger text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.errorLoadingUsers') ?></h3>
-                        <div class="mt-2 text-sm text-red-700">
+                        <h3 class="text-sm font-medium v3-text-danger"><?= lang('UserRole.errorLoadingUsers') ?></h3>
+                        <div class="mt-2 text-sm v3-text-danger">
                             <p><?= $error ?></p>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
             <div class="users-stat-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.14em] text-emerald-100/80"><?= lang('UserRole.activeUsers') ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em] v3-text-primary"><?= lang('UserRole.activeUsers') ?></p>
                         <p class="mt-3 v3-title"><?= $activeUsers ?></p>
                     </div>
                     <div class="p-3"><i class="fas fa-check-circle text-xl"></i></div>
@@ -147,7 +147,7 @@
             <div class="users-stat-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.14em] text-amber-100/80"><?= lang('UserRole.inactiveUsers') ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em] v3-text-warning"><?= lang('UserRole.inactiveUsers') ?></p>
                         <p class="mt-3 v3-title"><?= $inactiveUsers ?></p>
                     </div>
                     <div class="p-3"><i class="fas fa-user-slash text-xl"></i></div>
@@ -179,10 +179,10 @@
                 </div>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div class="relative">
-                        <input type="text" id="userSearchInput" placeholder="<?= lang('UserRole.searchUsers') ?>" class="w-full border-2 px-4 py-3 <?= !empty($is_rtl) ? 'pr-10 text-right' : 'pl-10' ?> font-semibold transition focus:outline-none focus:ring-4">
-                        <i class="fas fa-search absolute top-1/2 -translate-y-1/2 <?= !empty($is_rtl) ? 'right-3' : 'left-3' ?>"></i>
+                        <input type="text" id="userSearchInput" placeholder="<?= lang('UserRole.searchUsers') ?>" class="w-full border-2 px-4 py-3 <?= !empty($is_rtl) ? 'pr-10 text-right' : 'pl-10' ?> font-semibold transition focus:outline-none focus:ring-4 v3-input">
+                        <i class="fas fa-search absolute top-1/2 /2 <?= !empty($is_rtl) ? 'right-3' : 'left-3' ?>"></i>
                     </div>
-                    <select id="groupFilter" class="w-full border-2 px-4 py-3 font-semibold transition focus:outline-none focus:ring-4">
+                    <select id="groupFilter" class="w-full border-2 px-4 py-3 font-semibold transition focus:outline-none focus:ring-4 v3-select">
                         <option value=""><?= lang('UserRole.allRoles') ?></option>
                         <?php if (!empty($roles)): ?>
                             <?php foreach ($roles as $role): ?>
@@ -194,7 +194,7 @@
                             <option value="receptionist"><?= lang('UserRole.receptionist') ?></option>
                         <?php endif; ?>
                     </select>
-                    <select id="statusFilter" class="w-full border-2 px-4 py-3 font-semibold transition focus:outline-none focus:ring-4">
+                    <select id="statusFilter" class="w-full border-2 px-4 py-3 font-semibold transition focus:outline-none focus:ring-4 v3-select">
                         <option value=""><?= lang('UserRole.allStatus') ?></option>
                         <option value="active"><?= lang('UserRole.active') ?></option>
                         <option value="inactive"><?= lang('UserRole.inactive') ?></option>
@@ -212,7 +212,7 @@
                         $userName = $userName !== '' ? $userName : (string) ($user->email ?? lang('UserRole.unknownRole'));
                         $membershipActive = ($user->membership_status ?? 'active') === 'active';
                         $membershipStatusText = $membershipActive ? lang('UserRole.active') : lang('UserRole.inactive');
-                        $membershipStatusClass = $membershipActive ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
+                        $membershipStatusClass = $membershipActive ? 'v3-bg-paid v3-text-primary border v3-border-default' : 'v3-bg-soft v3-text-ink border v3-border-default';
                         $isGloballyDisabled = (int) ($user->active ?? 0) !== 1;
                         $isSelf = (int) $user->id === $currentUserId;
                         $roleNames = [];
@@ -236,11 +236,11 @@
                                         <p class="mt-1 truncate text-sm font-bold" dir="ltr"><?= esc($user->email) ?></p>
                                         <div class="mt-3 flex flex-wrap items-center gap-2">
                                             <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs <?= $membershipStatusClass ?>" title="<?= esc(lang('UserRole.membershipStatus')) ?>">
-                                                <span class="h-1.5 w-1.5 <?= $membershipActive ? 'bg-emerald-500' : 'bg-slate-500' ?>"></span>
+                                                <span class="h-1.5 w-1.5 <?= $membershipActive ? 'v3-bg-primary' : 'v3-bg-canvas' ?>"></span>
                                                 <?= esc($membershipStatusText) ?>
                                             </span>
                                             <?php if ($isGloballyDisabled): ?>
-                                                <span class="inline-flex items-center gap-1 bg-rose-100 px-2.5 py-1 text-xs text-rose-800 ring-1 ring-rose-200" title="<?= esc(lang('UserRole.globallyDisabledWarning')) ?>">
+                                                <span class="inline-flex items-center gap-1 v3-bg-alert px-2.5 py-1 text-xs v3-text-danger border v3-border-default" title="<?= esc(lang('UserRole.globallyDisabledWarning')) ?>">
                                                     <i class="fas fa-ban text-[10px]"></i>
                                                     <?= esc(lang('UserRole.globallyDisabled')) ?>
                                                 </span>
@@ -250,25 +250,25 @@
                                 </div>
                                 <div class="flex flex-wrap gap-2 sm:justify-end">
                                         <?php if (has_permission('users', 'view')): ?>
-                                            <a href="<?= workflow_context_url('users/' . $user->id) ?>" class="user-action-btn ring-1" title="<?= lang('UserRole.viewUser') ?>">
+                                            <a href="<?= workflow_context_url('users/' . $user->id) ?>" class="user-action-btn border" title="<?= lang('UserRole.viewUser') ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('users', 'edit')): ?>
-                                            <a href="<?= workflow_context_url('users/' . $user->id . '/edit') ?>" class="user-action-btn bg-amber-50 text-amber-700 ring-1 ring-amber-100 hover:bg-amber-100" title="<?= lang('UserRole.editUser') ?>">
+                                            <a href="<?= workflow_context_url('users/' . $user->id . '/edit') ?>" class="user-action-btn v3-bg-waiting v3-text-warning border v3-border-default v3-hover-primary" title="<?= lang('UserRole.editUser') ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <?php if ($isSelf): ?>
-                                                <a href="<?= workflow_context_url('users/' . $user->id . '/change-password') ?>" class="user-action-btn bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100" title="<?= lang('UserRole.changePassword') ?>">
+                                                <a href="<?= workflow_context_url('users/' . $user->id . '/change-password') ?>" class="user-action-btn v3-bg-paid v3-text-primary border v3-border-default v3-hover-primary" title="<?= lang('UserRole.changePassword') ?>">
                                                     <i class="fas fa-key"></i>
                                                 </a>
                                             <?php endif; ?>
-                                            <button onclick="toggleStatus(<?= (int) $user->id ?>)" <?= $isGloballyDisabled && !$membershipActive ? 'disabled aria-disabled="true"' : '' ?> class="user-action-btn ring-1" title="<?= lang('UserRole.toggleStatus') ?>">
+                                            <button onclick="toggleStatus(<?= (int) $user->id ?>)" <?= $isGloballyDisabled && !$membershipActive ? 'disabled aria-disabled="true"' : '' ?> class="user-action-btn border v3-btn v3-btn--secondary" title="<?= lang('UserRole.toggleStatus') ?>">
                                                 <i class="fas fa-toggle-on"></i>
                                             </button>
                                         <?php endif; ?>
                                         <?php if (has_permission('users', 'delete')): ?>
-                                            <button onclick="deleteUser(<?= (int) $user->id ?>)" class="user-action-btn bg-rose-50 text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100" title="<?= lang('UserRole.removeClinicAccess') ?>">
+                                            <button onclick="deleteUser(<?= (int) $user->id ?>)" class="user-action-btn v3-bg-alert v3-text-danger border v3-border-default v3-hover-danger v3-btn v3-btn--danger" title="<?= lang('UserRole.removeClinicAccess') ?>">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         <?php endif; ?>
@@ -281,7 +281,7 @@
                                     <?php if (!empty($user->display_roles)): ?>
                                         <div class="flex flex-wrap gap-2">
                                             <?php foreach ($user->display_roles as $role): ?>
-                                                <span class="inline-flex items-center bg-teal-100 px-2.5 py-1 text-xs text-teal-800 ring-1 ring-teal-200">
+                                                <span class="inline-flex items-center v3-bg-scheduled px-2.5 py-1 text-xs v3-text-primary border v3-border-default">
                                                     <i class="fas fa-user-tag mr-2"></i>
                                                     <?php
                                                     // Handle both array and object formats
@@ -309,7 +309,7 @@
                                             <span class="truncate" dir="ltr"><?= esc($user->phone ?? lang('UserRole.notProvided')) ?></span>
                                         </div>
                                         <div class="flex min-w-0 items-center text-sm font-semibold">
-                                            <i class="fas fa-envelope w-4 text-teal-500 <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i>
+                                            <i class="fas fa-envelope w-4 v3-text-primary <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i>
                                             <span class="truncate" dir="ltr"><?= esc($user->email) ?></span>
                                         </div>
                                     </div>
@@ -340,7 +340,7 @@
                     </div>
                     <h3 class="mb-3 v3-section-title"><?= lang('UserRole.noUsersFound') ?></h3>
                     <p class="mx-auto mb-8 max-w-md text-sm font-semibold"><?= lang('UserRole.noUsersFoundDescription') ?></p>
-                    <a href="<?= workflow_context_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-6 py-3 text-base transition">
+                    <a href="<?= workflow_context_url('users/create') ?>" data-user-create-modal-open class="inline-flex items-center px-6 py-3 text-base transition v3-btn v3-btn--secondary">
                         <i class="fas fa-plus mr-3"></i><?= lang('UserRole.createFirstUser') ?>
                     </a>
                 </div>

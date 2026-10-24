@@ -116,7 +116,7 @@
                             <?= form_hidden($user_id) ?>
 
                             <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-primary btn-change">
+                                <button type="submit" class="btn btn-primary btn-change v3-btn v3-btn--primary">
                                     <i class="fas fa-save me-2"></i>Change Password
                                 </button>
                             </div>

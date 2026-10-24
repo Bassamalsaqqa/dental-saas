@@ -45,10 +45,10 @@ class Button {
       secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
       ghost: 'hover:bg-accent hover:text-accent-foreground',
       link: 'text-primary underline-offset-4 hover:underline',
-      dental: 'bg-dental-600 text-white hover:bg-dental-700 focus:ring-dental-500',
-      success: 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500',
-      warning: 'bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500',
-      error: 'bg-error-600 text-white hover:bg-error-700 focus:ring-error-500'
+      dental: 'bg-dental-600 v3-text-on-primary hover:bg-dental-700 focus:ring-dental-500',
+      success: 'bg-success-600 v3-text-on-primary hover:bg-success-700 focus:ring-success-500',
+      warning: 'bg-warning-600 v3-text-on-primary hover:bg-warning-700 focus:ring-warning-500',
+      error: 'bg-error-600 v3-text-on-primary hover:bg-error-700 focus:ring-error-500'
     }
     return variants[variant] || variants.default
   }

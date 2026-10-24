@@ -16,7 +16,7 @@
 <div class="v3-record-flow">
     <header class="v3-flow-command">
         <div><h1><?= esc(lang('UI.patientCreateTitle')) ?></h1><p><?= esc(lang('UI.patientCreateSubtitle')) ?></p></div>
-        <div class="v3-flow-navigation"><a href="<?= esc(workflow_back('patient')) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold">
+        <div class="v3-flow-navigation"><a href="<?= esc(workflow_back('patient')) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
                             <i class="fas fa-arrow-left rtl-back-icon me-2"></i>
                             <span><?= esc(lang('UI.patientBack')) ?></span>
                         </a></div>
@@ -37,14 +37,14 @@
                         ]) ?>
 
                         <div class="v3-flow-actions">
-                            <a href="<?= esc(workflow_cancel('patient', $return_to ?? null)) ?>" class="inline-flex items-center justify-center px-6 py-3 border text-sm font-semibold">
+                            <a href="<?= esc(workflow_cancel('patient', $return_to ?? null)) ?>" class="inline-flex items-center justify-center px-6 py-3 border text-sm font-semibold v3-btn v3-btn--secondary">
                                 <?= esc(lang('UI.cancel')) ?>
                             </a>
-                            <button type="submit" name="post_submit_action" value="save_only" class="v3-flow-submit inline-flex items-center justify-center px-6 py-3 border text-sm font-bold duration-200">
+                            <button type="submit" name="post_submit_action" value="save_only" class="v3-flow-submit inline-flex items-center justify-center px-6 py-3 border text-sm font-bold duration-200 v3-btn v3-btn--primary">
                                 <i class="fas fa-user-plus me-2"></i>
                                 <?= esc(lang('UI.settingsSave')) ?>
                             </button>
-                            <button type="submit" name="post_submit_action" value="save_and_book" class="v3-flow-submit inline-flex items-center justify-center px-6 py-3 text-sm font-bold duration-200">
+                            <button type="submit" name="post_submit_action" value="save_and_book" class="v3-flow-submit inline-flex items-center justify-center px-6 py-3 text-sm font-bold duration-200 v3-btn v3-btn--primary">
                                 <i class="fas fa-calendar-plus me-2"></i>
                                 <?= esc(lang('UI.patientSaveAndBookAppointment')) ?>
                             </button>

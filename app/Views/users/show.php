@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="v3-operational-view">
-<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
+<p class="px-4 py-2 text-sm v3-text-warning"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php
     $isRtl = !empty($is_rtl);
     $viewedUser = $viewed_user ?? null;
@@ -29,8 +29,8 @@
         ? 'patient-hero-status patient-hero-status-active'
         : 'patient-hero-status patient-hero-status-inactive';
     $contentStatusClass = $membershipActive
-        ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-        : 'bg-slate-100 text-slate-700 ring-slate-200';
+        ? 'v3-bg-paid v3-text-primary v3-border-default'
+        : 'v3-bg-soft v3-text-ink v3-border-default';
     $isSelf = !empty($is_self) || ((int) ($viewedUser->id ?? 0) === (int) ($current_user->id ?? 0));
     $providerSummary = $provider_finance_summary ?? [
         'payout_count' => 0,
@@ -91,21 +91,21 @@
     $patientAvatarFor = static function (?string $gender): array {
         $normalized = strtolower((string) ($gender ?? 'other'));
         return match ($normalized) {
-            'male' => ['icon' => 'fas fa-person', 'color' => 'text-blue-700'],
-            'female' => ['icon' => 'fas fa-person-dress', 'color' => 'text-rose-700'],
-            default => ['icon' => 'fas fa-user', 'color' => 'text-slate-600'],
+            'male' => ['icon' => 'fas fa-person', 'color' => 'v3-text-primary'],
+            'female' => ['icon' => 'fas fa-person-dress', 'color' => 'v3-text-danger'],
+            default => ['icon' => 'fas fa-user', 'color' => 'v3-text-muted'],
         };
     };
 
     $transactionMetaFor = static function (?string $type): array {
         $normalized = strtolower((string) ($type ?? ''));
         return match ($normalized) {
-            'payment' => ['icon' => 'fas fa-money-check-dollar', 'color' => 'text-emerald-700'],
-            'invoice' => ['icon' => 'fas fa-file-invoice-dollar', 'color' => 'text-blue-700'],
-            'refund' => ['icon' => 'fas fa-rotate-left', 'color' => 'text-rose-700'],
-            'adjustment' => ['icon' => 'fas fa-sliders', 'color' => 'text-amber-700'],
-            'expense' => ['icon' => 'fas fa-receipt', 'color' => 'text-orange-700'],
-            default => ['icon' => 'fas fa-tag', 'color' => 'text-slate-600'],
+            'payment' => ['icon' => 'fas fa-money-check-dollar', 'color' => 'v3-text-primary'],
+            'invoice' => ['icon' => 'fas fa-file-invoice-dollar', 'color' => 'v3-text-primary'],
+            'refund' => ['icon' => 'fas fa-rotate-left', 'color' => 'v3-text-danger'],
+            'adjustment' => ['icon' => 'fas fa-sliders', 'color' => 'v3-text-warning'],
+            'expense' => ['icon' => 'fas fa-receipt', 'color' => 'v3-text-warning'],
+            default => ['icon' => 'fas fa-tag', 'color' => 'v3-text-muted'],
         };
     };
 ?>
@@ -191,7 +191,7 @@
                                         <span><?= esc(lang('UserRole.changePassword')) ?></span>
                                     </a>
                                 <?php endif; ?>
-                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" <?= $isGloballyDisabled && !$membershipActive ? 'disabled aria-disabled="true"' : '' ?> class="user-inline-toggle <?= $membershipActive ? 'is-active' : '' ?>">
+                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" <?= $isGloballyDisabled && !$membershipActive ? 'disabled aria-disabled="true"' : '' ?> class="user-inline-toggle <?= $membershipActive ? 'is-active' : '' ?> v3-btn v3-btn--secondary">
                                     <span class="user-inline-toggle-track" aria-hidden="true"></span>
                                     <span><?= esc(($membershipActive ? lang('UserRole.deactivate') : lang('UserRole.activate')) . ' ' . lang('UserRole.clinicAccess')) ?></span>
                                 </button>
@@ -199,7 +199,7 @@
                         </div>
                         <?php if ($canDeleteUsers): ?>
                             <div class="grid gap-2 sm:grid-cols-1">
-                                <button type="button" onclick="deleteUser(<?= (int) $viewedUser->id ?>)" class="v3-context-action patient-header-action-danger">
+                                <button type="button" onclick="deleteUser(<?= (int) $viewedUser->id ?>)" class="v3-context-action patient-header-action-danger v3-btn v3-btn--secondary">
                                     <i class="fas fa-trash"></i>
                                     <span><?= esc(lang('UserRole.removeClinicAccess')) ?></span>
                                 </button>
@@ -246,7 +246,7 @@
             </section>
 
             <p class="p-4 text-sm"><?= esc(lang('UserRole.identityManagedByOwner')) ?> <a href="<?= base_url('profile') ?>" class="underline"><?= esc(lang('UserRole.profileRedirectNotice')) ?></a></p>
-            <?php if ($isGloballyDisabled): ?><p class="bg-rose-50 p-4 text-sm text-rose-900"><?= esc(lang('UserRole.globallyDisabledWarning')) ?></p><?php endif; ?>
+            <?php if ($isGloballyDisabled): ?><p class="v3-bg-alert p-4 text-sm v3-text-danger"><?= esc(lang('UserRole.globallyDisabledWarning')) ?></p><?php endif; ?>
             <div class="user-workspace-section">
             <div class="user-profile-grid">
                 <section class="user-section-card user-section-card-roles">
@@ -283,12 +283,12 @@
                                 <p class="user-info-help"><?= esc(lang('UserRole.availableRoles')) ?></p>
                             </div>
                             <div class="user-info-tile">
-                                <p class="user-info-label"><i class="fas fa-building-user text-sky-500"></i><?= esc(lang('UserRole.department')) ?></p>
+                                <p class="user-info-label"><i class="fas fa-building-user v3-text-primary"></i><?= esc(lang('UserRole.department')) ?></p>
                                 <p class="user-info-value"><?= esc($departmentText) ?></p>
                                 <p class="user-info-help"><?= esc(lang('UserRole.userDetails')) ?></p>
                             </div>
                             <div class="user-info-tile">
-                                <p class="user-info-label"><i class="fas fa-calendar-check text-emerald-500"></i><?= esc(lang('UserRole.hireDateRequired')) ?></p>
+                                <p class="user-info-label"><i class="fas fa-calendar-check v3-text-primary"></i><?= esc(lang('UserRole.hireDateRequired')) ?></p>
                                 <p class="user-info-value"><?= esc($hireDateText) ?></p>
                                 <p class="user-info-help"><?= esc(lang('UserRole.createdColon')) ?> <?= esc($createdAtText) ?></p>
                             </div>
@@ -309,12 +309,12 @@
                             <?php if ($canEditUsers): ?>
                                 <a href="<?= workflow_context_url('users/' . (int) $viewedUser->id . '/edit') ?>" class="user-action-row">
                                     <span class="user-action-row-main">
-                                        <span class="user-action-row-title"><i class="fas fa-pen text-sky-500"></i><?= esc(lang('UserRole.editUser')) ?></span>
+                                        <span class="user-action-row-title"><i class="fas fa-pen v3-text-primary"></i><?= esc(lang('UserRole.editUser')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></span>
                                     </span>
                                     <span class="user-action-row-icon"><i class="fas fa-arrow-right user-action-row-arrow"></i></span>
                                 </a>
-                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-row user-action-row-modal">
+                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-row user-action-row-modal v3-btn v3-btn--secondary">
                                     <span class="user-action-row-main">
                                         <span class="user-action-row-title"><i class="fas fa-user-tag"></i><?= esc(lang('UserRole.roleAssignment')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('UserRole.chooseRole')) ?></span>
@@ -324,7 +324,7 @@
                                 <?php if ($isSelf): ?>
                                     <a href="<?= workflow_context_url('users/' . (int) $viewedUser->id . '/change-password') ?>" class="user-action-row">
                                         <span class="user-action-row-main">
-                                            <span class="user-action-row-title"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
+                                            <span class="user-action-row-title"><i class="fas fa-key v3-text-warning"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
                                             <span class="user-action-row-copy"><?= esc(lang('UserRole.changePassword')) ?></span>
                                         </span>
                                         <span class="user-action-row-icon"><i class="fas fa-arrow-right user-action-row-arrow"></i></span>
@@ -341,7 +341,7 @@
                             <?php if ($canViewFinance): ?>
                                 <a href="<?= base_url('finance/payouts') ?>" class="user-action-row">
                                     <span class="user-action-row-main">
-                                        <span class="user-action-row-title"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.openPayoutLedger')) ?></span>
+                                        <span class="user-action-row-title"><i class="fas fa-wallet v3-text-primary"></i><?= esc(lang('Finance.openPayoutLedger')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('Finance.payoutLedger')) ?></span>
                                     </span>
                                     <span class="user-action-row-icon"><i class="fas fa-arrow-right user-action-row-arrow"></i></span>
@@ -364,11 +364,11 @@
                                 <p class="user-section-subtitle"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition">
+                                <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition v3-btn v3-btn--secondary">
                                     <i class="fas fa-wallet text-xs"></i>
                                     <span><?= esc(lang('Finance.openPayoutLedger')) ?></span>
                                 </a>
-                                <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition">
+                                <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition v3-btn v3-btn--secondary">
                                     <i class="fas text-xs"></i>
                                     <span><?= esc(lang('Finance.finance')) ?></span>
                                 </a>
@@ -382,11 +382,11 @@
                                 <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_share_total')) ?></p>
                             </div>
                             <div class="user-info-tile user-finance-tile">
-                                <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
+                                <p class="user-info-label"><i class="fas fa-money-bill-wave v3-text-primary"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
                                 <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_paid_total')) ?></p>
                             </div>
                             <div class="user-info-tile user-finance-tile">
-                                <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
+                                <p class="user-info-label"><i class="fas fa-triangle-exclamation v3-text-danger"></i><?= esc(lang('Finance.balance')) ?></p>
                                 <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_balance_total')) ?></p>
                             </div>
                             <div class="user-info-tile user-finance-tile">
@@ -398,7 +398,7 @@
                             <div class="user-payment-summary-card">
                                 <div class="user-payment-summary-head">
                                     <span class="user-payment-summary-title">
-                                        <i class="fas fa-money-bill-wave text-emerald-500 text-xs"></i>
+                                        <i class="fas fa-money-bill-wave v3-text-primary text-xs"></i>
                                         <span><?= esc(lang('Finance.paymentHistory')) ?></span>
                                     </span>
                                     <span class="user-summary-badge">
@@ -444,11 +444,11 @@
                                 </div>
                                 <div class="space-y-3">
                                     <div class="user-info-tile user-finance-tile">
-                                        <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
+                                        <p class="user-info-label"><i class="fas fa-money-bill-wave v3-text-primary"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
                                         <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_paid_total')) ?></p>
                                     </div>
                                     <div class="user-info-tile user-finance-tile">
-                                        <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
+                                        <p class="user-info-label"><i class="fas fa-triangle-exclamation v3-text-danger"></i><?= esc(lang('Finance.balance')) ?></p>
                                         <p class="user-info-value"><?= esc(\App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_balance_total')) ?></p>
                                     </div>
                                 </div>
@@ -521,7 +521,7 @@
                                                         <span class="user-record-title"><?= esc((string) ($row['transaction_id'] ?? '-')) ?></span>
                                                         <?php if ((int) ($row['clinical_line_count'] ?? 0) > 0): ?>
                                                             <span class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
-                                                                <span class="inline-flex items-center bg-emerald-50 px-2 py-0.5 text-emerald-700">
+                                                                <span class="inline-flex items-center v3-bg-paid px-2 py-0.5 v3-text-primary">
                                                                     <?= esc(lang('Finance.clinicalTraceLines')) ?>: <?= esc((string) ($row['clinical_line_count'] ?? 0)) ?>
                                                                 </span>
                                                                 <span class="inline-flex items-center px-2 py-0.5">
@@ -556,8 +556,8 @@
                                             <td>
                                                 <div class="inline-flex max-w-full items-center gap-1.5 whitespace-nowrap">
                                                     <span class="font-semibold"><?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_share_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
-                                                    <span class="text-emerald-700"><?= esc(lang('Finance.paid')) ?> <?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_paid_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
-                                                    <span class="text-rose-700"><?= esc(lang('Finance.balance')) ?> <?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_balance_due'] ?? 0, $row['currency'] ?? null)) ?></span>
+                                                    <span class="v3-text-primary"><?= esc(lang('Finance.paid')) ?> <?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_paid_amount'] ?? 0, $row['currency'] ?? null)) ?></span>
+                                                    <span class="v3-text-danger"><?= esc(lang('Finance.balance')) ?> <?= esc(\App\Services\ProviderCurrencySummary::native($row['provider_balance_due'] ?? 0, $row['currency'] ?? null)) ?></span>
                                                 </div>
                                             </td>
                                             <td>
@@ -572,10 +572,10 @@
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <?php if ($canSettlePayout): ?>
-                                                        <button type="button" data-row-action="true" onclick="openPayoutModal(<?= (int) $row['id'] ?>, <?= esc(number_format((float) ($row['provider_balance_due'] ?? 0), 2, '.', '')) ?>, <?= esc(json_encode(\App\Services\ProviderCurrencySummary::currency($row['currency'] ?? null)), 'attr') ?>)" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= esc(lang('Finance.recordPaymentFromLedger')) ?>">
+                                                        <button type="button" data-row-action="true" onclick="openPayoutModal(<?= (int) $row['id'] ?>, <?= esc(number_format((float) ($row['provider_balance_due'] ?? 0), 2, '.', '')) ?>, <?= esc(json_encode(\App\Services\ProviderCurrencySummary::currency($row['currency'] ?? null)), 'attr') ?>)" class="p-2 v3-text-primary v3-hover-text-primary rounded-md v3-hover-primary transition-colors duration-200 v3-btn v3-btn--secondary" title="<?= esc(lang('Finance.recordPaymentFromLedger')) ?>">
                                                             <i class="fas fa-money-bill-wave"></i>
                                                         </button>
-                                                        <button type="button" data-row-action="true" onclick="markPayoutPaid(<?= (int) $row['id'] ?>)" class="p-2 rounded-md transition-colors duration-200" title="<?= esc(lang('Finance.markFullyPaid')) ?>">
+                                                        <button type="button" data-row-action="true" onclick="markPayoutPaid(<?= (int) $row['id'] ?>)" class="p-2 rounded-md transition-colors duration-200 v3-btn v3-btn--secondary" title="<?= esc(lang('Finance.markFullyPaid')) ?>">
                                                             <i class="fas fa-check-double"></i>
                                                         </button>
                                                     <?php endif; ?>
@@ -609,14 +609,14 @@
                         <h4 class="text-base font-semibold"><?= esc(lang('UserRole.roleAssignment')) ?></h4>
                         <p class="mt-1 text-sm"><?= esc(lang('UserRole.chooseRole')) ?></p>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closeInlineModal('roleModal')">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closeInlineModal('roleModal')">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
                 <form id="inlineRoleForm" class="space-y-5">
                     <div>
                         <label for="inlineRoleSelect" class="mb-1 block text-sm font-semibold"><?= esc(lang('UserRole.role')) ?></label>
-                        <select id="inlineRoleSelect" name="role_id" class="user-modal-select w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('UserRole.selectRole')) ?>" required>
+                        <select id="inlineRoleSelect" name="role_id" class="user-modal-select w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('UserRole.selectRole')) ?>" required>
                             <option value=""><?= esc(lang('UserRole.selectRole')) ?></option>
                             <?php foreach ($assignableRoles as $role): ?>
                                 <option value="<?= (int) ($role['id'] ?? 0) ?>" <?= $currentRoleId === (int) ($role['id'] ?? 0) ? 'selected' : '' ?>><?= esc((string) ($role['name'] ?? '')) ?></option>
@@ -624,11 +624,11 @@
                         </select>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
-                        <button type="button" onclick="closeInlineModal('roleModal')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition">
+                        <button type="button" onclick="closeInlineModal('roleModal')" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                             <i class="fas fa-times text-xs"></i>
                             <span><?= esc(lang('UserRole.cancel')) ?></span>
                         </button>
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition">
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--primary">
                             <i class="fas fa-user-tag text-xs"></i>
                             <span><?= esc(lang('UserRole.assignRole')) ?></span>
                         </button>
@@ -647,7 +647,7 @@
             <div class="w-full max-w-md border" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b px-5 py-4">
                     <h4 class="text-base font-semibold"><?= esc(lang('Finance.recordProviderPayout')) ?></h4>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closePayoutModal()">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closePayoutModal()">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
@@ -655,12 +655,12 @@
                     <input type="hidden" id="payoutIdInput">
                     <div>
                         <label for="payoutAmountInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></label>
-                        <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:ring-4" required>
+                        <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:ring-4 v3-input" required>
                         <p id="payoutAmountHelp" class="mt-1 text-xs"></p>
                     </div>
                     <div>
                         <label for="payoutMethodInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider"><?= esc(lang('Finance.paymentMethod')) ?></label>
-                        <select id="payoutMethodInput" class="user-modal-select w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>" data-allow-clear="false">
+                        <select id="payoutMethodInput" class="user-modal-select w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>" data-allow-clear="false">
                             <option value="cash"><?= esc(lang('Finance.cash')) ?></option>
                             <option value="card"><?= esc(lang('Finance.card')) ?></option>
                             <option value="bank_transfer"><?= esc(lang('Finance.bankTransfer')) ?></option>
@@ -670,7 +670,7 @@
                     </div>
                     <div id="payoutLiquidityAccountField" class="hidden">
                         <label for="payoutLiquidityAccountInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider"><?= esc(lang('Finance.paidFromAccount')) ?></label>
-                        <select id="payoutLiquidityAccountInput" class="user-modal-select w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>" data-allow-clear="false">
+                        <select id="payoutLiquidityAccountInput" class="user-modal-select w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>" data-allow-clear="false">
                             <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                             <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                         </select>
@@ -678,18 +678,18 @@
                     </div>
                     <div>
                         <label for="payoutDateInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider"><?= esc(lang('Finance.paidDate')) ?></label>
-                        <input type="date" id="payoutDateInput" class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:ring-4" required>
+                        <input type="date" id="payoutDateInput" class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:ring-4 v3-input" required>
                     </div>
                     <div>
                         <label for="payoutNotesInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider"><?= esc(lang('Finance.notes')) ?></label>
-                        <textarea id="payoutNotesInput" rows="2" class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:ring-4" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
+                        <textarea id="payoutNotesInput" rows="2" class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:ring-4 v3-textarea" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
-                        <button type="button" onclick="closePayoutModal()" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition">
+                        <button type="button" onclick="closePayoutModal()" class="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                             <i class="fas fa-times text-xs"></i>
                             <span><?= esc(lang('Finance.cancel')) ?></span>
                         </button>
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition">
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition v3-btn v3-btn--primary">
                             <i class="fas fa-money-bill-wave text-xs"></i>
                             <span><?= esc(lang('Finance.recordPaymentFromLedger')) ?></span>
                         </button>

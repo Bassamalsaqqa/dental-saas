@@ -87,7 +87,7 @@ function showTooltip(event) {
   if (!text) return
   
   const tooltip = document.createElement('div')
-  tooltip.className = 'tooltip absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg'
+  tooltip.className = 'tooltip absolute z-50 px-2 py-1 text-xs v3-text-on-primary v3-bg-forest rounded v3-elevation-none'
   tooltip.textContent = text
   tooltip.id = 'tooltip-' + Date.now()
   

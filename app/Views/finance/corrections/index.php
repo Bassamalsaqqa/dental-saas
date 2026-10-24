@@ -23,11 +23,11 @@
 <?= csrf_field() ?><input type="hidden" name="idempotency_key" value="<?= esc($idempotencyKey, 'attr') ?>">
 <h2><?= esc($tr('preview')) ?></h2>
 <label for="ic-amount"><?= esc($tr('amount')) ?></label>
-<input id="ic-amount" name="amount_original" type="text" inputmode="decimal" pattern="[0-9]+([.][0-9]{1,2})?" maxlength="20" value="<?= esc(old('amount_original', ''), 'attr') ?>" dir="ltr" required>
+<input id="ic-amount" name="amount_original" type="text" inputmode="decimal" pattern="[0-9]+([.][0-9]{1,2})?" maxlength="20" value="<?= esc(old('amount_original', ''), 'attr') ?>" dir="ltr" required class="v3-input">
 <label for="ic-reason"><?= esc($tr('reason')) ?></label>
-<textarea id="ic-reason" name="reason" minlength="3" maxlength="2000" aria-describedby="ic-reason-help" required><?= esc(old('reason', '')) ?></textarea>
+<textarea id="ic-reason" name="reason" minlength="3" maxlength="2000" aria-describedby="ic-reason-help" required class="v3-textarea"><?= esc(old('reason', '')) ?></textarea>
 <p id="ic-reason-help" class="ic-help"><?= esc($tr('reasonHelp')) ?></p>
-<div class="ic-actions"><button class="ic-button" type="submit"><?= esc($tr('previewAction')) ?></button></div>
+<div class="ic-actions"><button class="ic-button v3-btn v3-btn--primary" type="submit"><?= esc($tr('previewAction')) ?></button></div>
 </form>
 <?php endif ?>
 <section class="ic-card"><h2><?= esc($tr('history')) ?></h2>
@@ -40,9 +40,9 @@
 <form class="ic-card" method="post" action="<?= esc(site_url('finance/' . $invoiceId . '/corrections/link-replacement'), 'attr') ?>">
 <?= csrf_field() ?><h2><?= esc($tr('replacement')) ?></h2><p class="ic-help"><?= esc($tr('replacementHelp')) ?></p>
 <p><a href="<?= esc(site_url('finance/create?patient_id=' . (int) ($invoice['patient_id'] ?? 0)), 'attr') ?>"><?= esc($tr('createReplacement')) ?></a></p>
-<label for="ic-replacement"><?= esc($tr('replacementId')) ?></label><input id="ic-replacement" type="text" inputmode="numeric" name="target_finance_id" pattern="[0-9]+" maxlength="18" required>
-<label class="ic-check"><input type="checkbox" name="confirm" value="1" required><span><?= esc($tr('linkConfirm')) ?></span></label>
-<button class="ic-button" type="submit"><?= esc($tr('linkAction')) ?></button>
+<label for="ic-replacement"><?= esc($tr('replacementId')) ?></label><input id="ic-replacement" type="text" inputmode="numeric" name="target_finance_id" pattern="[0-9]+" maxlength="18" required class="v3-input">
+<label class="ic-check"><input type="checkbox" name="confirm" value="1" required class="v3-checkbox"><span><?= esc($tr('linkConfirm')) ?></span></label>
+<button class="ic-button v3-btn v3-btn--primary" type="submit"><?= esc($tr('linkAction')) ?></button>
 </form><?php endif ?>
 <p class="ic-help"><?= esc($tr('separateRefund')) ?></p><div class="ic-actions"><a href="<?= esc(site_url('finance/' . $invoiceId), 'attr') ?>"><?= esc($tr('back')) ?></a></div>
 </main>

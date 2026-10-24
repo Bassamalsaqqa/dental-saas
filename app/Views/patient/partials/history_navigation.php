@@ -1,5 +1,5 @@
 <?php if (is_array($history_page ?? null) && is_array($history_navigation ?? null)): ?>
-<nav class="mb-4 space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm" aria-label="<?= esc(lang('UI.patientHistory')) ?>">
+<nav class="mb-4 space-y-2 v3-radius border v3-border-default v3-bg-panel p-4 text-sm" aria-label="<?= esc(lang('UI.patientHistory')) ?>">
     <p><?= esc(lang('PatientHistory.page')) ?></p>
     <?php if (empty($history_page['items'])): ?><p><?= esc(lang('PatientHistory.none')) ?></p><?php endif; ?>
     <p><?= esc(lang(!empty($history_navigation['next']) ? 'PatientHistory.unfinished' : 'PatientHistory.complete')) ?></p>

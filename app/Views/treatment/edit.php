@@ -25,7 +25,7 @@
                         </div>
 
                         <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('treatment/' . $treatment['id'], $return_to ?? null)) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold">
+                            <a href="<?= esc(workflow_back('treatment/' . $treatment['id'], $return_to ?? null)) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Treatment.back') ?></span>
@@ -48,7 +48,7 @@
                                 <span><?= lang('Treatment.select_patient_required') ?></span>
                             </label>
                                                             <div class="relative">
-                                                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4"
+                                                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select"
                                                                         data-searchable-select
                                                                         data-minimum-input-length="0"
                                                                         data-limit="5"
@@ -68,7 +68,7 @@
                                                                     <i class="fas fa-chevron-down"></i>
                                                                 </div>
                                                             </div>                            <?php if ($validation && $validation->hasError('patient_id')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span><?= $validation->getError('patient_id') ?></span>
                                 </p>
@@ -84,7 +84,7 @@
                                 </label>
                                 <div class="relative">
                                     <select id="treatment_type" name="treatment_type"
-                                            class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4"
+                                            class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-select"
                                             data-searchable-select
                                             data-minimum-input-length="0"
                                             data-limit="5"
@@ -105,7 +105,7 @@
                                     </div>
                                 </div>
                                 <?php if ($validation && $validation->hasError('treatment_type')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= $validation->getError('treatment_type') ?></span>
                                     </p>
@@ -119,14 +119,14 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="tooth_number" name="tooth_number"
-                                           class="treatment-leading-input w-full py-3 border-2 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                           class="treatment-leading-input w-full py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control v3-input"
                                            value="<?= old('tooth_number', $treatment['tooth_number']) ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tooth"></i>
                                     </div>
                                 </div>
                                 <?php if ($validation && $validation->hasError('tooth_number')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= $validation->getError('tooth_number') ?></span>
                                     </p>
@@ -146,14 +146,14 @@
                             </label>
                             <div class="relative">
                                 <textarea id="description" name="description" rows="4"
-                                          class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 resize-none"
+                                          class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 resize-none v3-textarea"
                                           placeholder="<?= lang('Treatment.treatment_description_placeholder') ?>" required><?= old('description', $treatment['treatment_description']) ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
                             <?php if ($validation && $validation->hasError('description')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span><?= $validation->getError('description') ?></span>
                                 </p>
@@ -162,12 +162,12 @@
 
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
-                                <i class="fas fa-sticky-note text-amber-600"></i>
+                                <i class="fas fa-sticky-note v3-text-warning"></i>
                                 <span><?= lang('Treatment.treatment_notes') ?></span>
                             </label>
                             <div class="relative">
                                 <textarea id="treatment_notes" name="treatment_notes" rows="3"
-                                          class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 resize-none"
+                                          class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control resize-none v3-textarea"
                                           placeholder="<?= lang('Treatment.optional_treatment_notes_placeholder') ?>"><?= old('treatment_notes', $treatment['treatment_notes'] ?? '') ?></textarea>
                             </div>
                         </div>
@@ -176,19 +176,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2">
                             <div class="relative">
                                 <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-clock text-amber-600"></i>
+                                    <i class="fas fa-clock v3-text-warning"></i>
                                     <span><?= lang('Treatment.estimated_duration_days_required') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" id="estimated_duration" name="estimated_duration"
-                                           class="treatment-leading-input w-full py-3 border-2 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500"
+                                           class="treatment-leading-input w-full py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control v3-input"
                                            value="<?= old('estimated_duration', $treatment['estimated_duration']) ?>" min="1" placeholder="<?= lang('Treatment.estimated_duration_placeholder') ?>" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-clock"></i>
                                     </div>
                                 </div>
                                 <?php if ($validation && $validation->hasError('estimated_duration')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= $validation->getError('estimated_duration') ?></span>
                                     </p>
@@ -199,19 +199,19 @@
                         <!-- Start Date -->
                         <div class="relative">
                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
-                                <i class="fas fa-calendar text-rose-600"></i>
+                                <i class="fas fa-calendar v3-text-danger"></i>
                                 <span><?= lang('Treatment.start_date_required') ?></span>
                             </label>
                             <div class="relative">
                                 <input type="text" id="start_date" name="start_date" data-clinic-date="1"
-                                       class="treatment-date-input w-full py-3 border-2 focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500"
+                                       class="treatment-date-input w-full py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control v3-input"
                                        value="<?= old('start_date', $treatment['start_date']) ?>" required>
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-calendar"></i>
                                 </div>
                             </div>
                             <?php if ($validation && $validation->hasError('start_date')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span><?= $validation->getError('start_date') ?></span>
                                 </p>
@@ -239,7 +239,7 @@
                                         </div>
                                     </div>
                                     <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only">
+                                        <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only v3-checkbox">
                                         <div class="toggle-track w-11 h-6 relative duration-200">
                                             <div class="toggle-dot absolute left-1 top-1 w-4 h-4 duration-200"></div>
                                         </div>
@@ -251,7 +251,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium mb-2"><?= lang('Treatment.usage_date_required') ?></label>
-                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="treatment-date-input w-full py-3 border focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 duration-200">
+                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="treatment-date-input w-full py-3 border focus:ring-2 v3-focus-control v3-focus-control duration-200 v3-input">
                                         </div>
                                         <div class="flex items-end">
                                             <p class="text-sm"><?= lang('Treatment.items_must_be_in_stock') ?></p>
@@ -263,7 +263,7 @@
                                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                                 <div>
                                                     <label class="block text-sm font-medium mb-2"><?= lang('Treatment.item_required') ?></label>
-                                                    <select name="usage_items[0][item_id]" class="w-full px-3 py-2 border rounded-lg item-select">
+                                                    <select name="usage_items[0][item_id]" class="w-full px-3 py-2 border rounded-lg item-select v3-select">
                                                         <option value=""><?= lang('Treatment.select_item') ?></option>
                                                         <?php foreach ($inventory_items ?? [] as $item): ?>
                                                             <option value="<?= $item['id'] ?>" data-quantity="<?= $item['quantity'] ?>" data-unit="<?= $item['unit'] ?>" data-price="<?= $item['unit_price'] ?>">
@@ -274,19 +274,19 @@
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-medium mb-2"><?= lang('Treatment.quantity_required') ?></label>
-                                                    <input type="number" name="usage_items[0][quantity]" min="1" class="w-full px-3 py-2 border rounded-lg quantity-input">
+                                                    <input type="number" name="usage_items[0][quantity]" min="1" class="w-full px-3 py-2 border rounded-lg quantity-input v3-input">
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-medium mb-2"><?= lang('Treatment.unit_cost') ?></label>
-                                                    <input type="text" class="w-full px-3 py-2 border rounded-lg unit-cost" readonly>
+                                                    <input type="text" class="w-full px-3 py-2 border rounded-lg unit-cost v3-input" readonly>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-medium mb-2"><?= lang('Treatment.total_cost') ?></label>
-                                                    <input type="text" class="w-full px-3 py-2 border rounded-lg total-cost" readonly>
+                                                    <input type="text" class="w-full px-3 py-2 border rounded-lg total-cost v3-input" readonly>
                                                 </div>
                                             </div>
                                             <div class="mt-3 flex justify-end">
-                                                <button type="button" class="text-red-600 hover:text-red-800 remove-usage-item hidden">
+                                                <button type="button" class="v3-text-danger v3-hover-text-danger remove-usage-item hidden v3-btn v3-btn--danger">
                                                     <i class="fas fa-trash mr-1"></i><?= lang('Treatment.remove') ?>
                                                 </button>
                                             </div>
@@ -294,7 +294,7 @@
                                     </div>
 
                                     <div class="flex items-center justify-between">
-                                        <button type="button" id="addUsageItem" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-sm font-semibold rounded-lg hover:bg-emerald-700">
+                                        <button type="button" id="addUsageItem" class="inline-flex items-center px-4 py-2 v3-bg-primary text-sm font-semibold rounded-lg v3-hover-primary v3-btn v3-btn--primary">
                                             <i class="fas fa-plus mr-2"></i><?= lang('Treatment.add_item') ?>
                                         </button>
                                         <div class="text-sm font-semibold">
@@ -304,7 +304,7 @@
 
                                     <div>
                                         <label class="block text-sm font-medium mb-2"><?= lang('Treatment.usage_notes') ?></label>
-                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border" placeholder="<?= lang('Treatment.optional_usage_notes_placeholder') ?>"></textarea>
+                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border v3-textarea" placeholder="<?= lang('Treatment.optional_usage_notes_placeholder') ?>"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -312,12 +312,12 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t">
-                            <a href="<?= esc(workflow_cancel('treatment/' . $treatment['id'], $return_to ?? ('treatment/' . $treatment['id']))) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold">
+                            <a href="<?= esc(workflow_cancel('treatment/' . $treatment['id'], $return_to ?? ('treatment/' . $treatment['id']))) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Treatment.cancel') ?></span>
                             </a>
-                            <button type="submit" class="relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold">
+                            <button type="submit" class="relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold v3-btn v3-btn--primary">
 
                                 <i class="fas fa-tooth mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Treatment.update_treatment') ?></span>
@@ -348,13 +348,13 @@ document.addEventListener('DOMContentLoaded', function() {
         usageToggle.addEventListener('change', function() {
             if (this.checked) {
                 usageSection.classList.remove('hidden');
-                toggleTrack?.classList.add('bg-emerald-500');
-                toggleTrack?.classList.remove('bg-gray-200');
+                toggleTrack?.classList.add('v3-bg-primary');
+                toggleTrack?.classList.remove('v3-bg-sand');
                 window.applyToggleDotState?.(toggleDot, true);
             } else {
                 usageSection.classList.add('hidden');
-                toggleTrack?.classList.remove('bg-emerald-500');
-                toggleTrack?.classList.add('bg-gray-200');
+                toggleTrack?.classList.remove('v3-bg-primary');
+                toggleTrack?.classList.add('v3-bg-sand');
                 window.applyToggleDotState?.(toggleDot, false);
             }
         });

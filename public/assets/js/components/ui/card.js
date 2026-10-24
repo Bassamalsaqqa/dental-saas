@@ -20,9 +20,9 @@ class Card {
     
     // Base classes
     this.element.className = this.cn(
-      'rounded-lg border bg-card text-card-foreground shadow-sm',
+      'rounded-lg border bg-card text-card-foreground v3-elevation-none',
       this.getVariantClasses(variant),
-      interactive ? 'cursor-pointer hover:shadow-md transition-shadow duration-200' : '',
+      interactive ? 'cursor-pointer hover:v3-elevation-none transition-shadow duration-200' : '',
       this.element.className
     )
   }
@@ -30,9 +30,9 @@ class Card {
   getVariantClasses(variant) {
     const variants = {
       default: 'border-border',
-      elevated: 'shadow-md border-border',
+      elevated: 'v3-elevation-none border-border',
       flat: 'shadow-none border-2 border-border',
-      interactive: 'hover:shadow-md transition-shadow duration-200 cursor-pointer',
+      interactive: 'hover:v3-elevation-none transition-shadow duration-200 cursor-pointer',
       success: 'border-success-200 bg-success-50',
       warning: 'border-warning-200 bg-warning-50',
       error: 'border-error-200 bg-error-50',

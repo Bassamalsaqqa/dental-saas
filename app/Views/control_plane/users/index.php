@@ -40,12 +40,12 @@ button.dt-button:hover, button.dt-button:active {
             <div class="cp-surface border cp-border cp-radius p-6">
                 <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                     <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 cp-radius flex items-center justify-center text-white">
+                        <div class="w-12 h-12 cp-radius flex items-center justify-center v3-text-on-primary">
                             <i class="fas fa-users text-xl"></i>
                         </div>
                         <div>
-                            <h1 class="cp-title font-bold text-gray-900"><?= esc(lang('V3Platform.userRegistry')) ?></h1>
-                            <p class="text-gray-600"><?= esc(lang('V3Platform.managePlatformUsersAndAccess')) ?></p>
+                            <h1 class="cp-title font-bold v3-text-ink"><?= esc(lang('V3Platform.userRegistry')) ?></h1>
+                            <p class="v3-text-muted"><?= esc(lang('V3Platform.managePlatformUsersAndAccess')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ button.dt-button:hover, button.dt-button:active {
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
 
-                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
+                                <div class="relative p-3 cp-radius v3-text-on-primary transition-all duration-200">
                                     <i class="fas fa-users text-xl"></i>
                                 </div>
                             </div>
@@ -72,14 +72,14 @@ button.dt-button:hover, button.dt-button:active {
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.totalUsers')) ?></p>
+                            <p class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.totalUsers')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="cp-title font-black cp-accent"><?= number_format($stats['total'] ?? 0) ?></p>
                                 <div class="w-12 h-1 rounded-full overflow-hidden">
 
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.platformUsers')) ?></p>
+                            <p class="text-xs v3-text-muted font-medium"><?= esc(lang('V3Platform.platformUsers')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -91,24 +91,24 @@ button.dt-button:hover, button.dt-button:active {
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
 
-                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
+                                <div class="relative p-3 cp-radius v3-text-on-primary transition-all duration-200">
                                     <i class="fas fa-user-check text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <span class="text-green-700 font-bold text-xs"><?= esc(lang('V3Platform.active')) ?></span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border v3-border-default">
+                                <div class="w-2 h-2 v3-bg-primary rounded-full"></div>
+                                <span class="v3-text-primary font-bold text-xs"><?= esc(lang('V3Platform.active')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.activeUsers')) ?></p>
+                            <p class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.activeUsers')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="cp-title font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
+                                <p class="cp-title font-black v3-text-primary"><?= number_format($stats['active'] ?? 0) ?></p>
                                 <div class="w-16 h-1 rounded-full overflow-hidden">
 
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.currentlyOnline')) ?></p>
+                            <p class="text-xs v3-text-muted font-medium"><?= esc(lang('V3Platform.currentlyOnline')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@ button.dt-button:hover, button.dt-button:active {
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
 
-                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
+                                <div class="relative p-3 cp-radius v3-text-on-primary transition-all duration-200">
                                     <i class="fas fa-user-plus text-xl"></i>
                                 </div>
                             </div>
@@ -130,14 +130,14 @@ button.dt-button:hover, button.dt-button:active {
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.newSignups')) ?></p>
+                            <p class="text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.newSignups')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="cp-title font-black cp-accent"><?= number_format($stats['new'] ?? 0) ?></p>
                                 <div class="w-12 h-1 rounded-full overflow-hidden">
 
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.monthlyGrowth')) ?></p>
+                            <p class="text-xs v3-text-muted font-medium"><?= esc(lang('V3Platform.monthlyGrowth')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -151,19 +151,19 @@ button.dt-button:hover, button.dt-button:active {
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('V3Platform.userRegistry')) ?></h3>
+                            <h3 class="text-lg font-semibold v3-text-ink"><?= esc(lang('V3Platform.userRegistry')) ?></h3>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
                             <!-- Search -->
                             <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <i class="fas fa-search absolute left-3 top-1/2 transform /2 v3-text-muted"></i>
                                 <input type="text" id="userSearch" placeholder="<?= esc(lang('V3Platform.searchUsers'), 'attr') ?>"
-                                       class="pl-10 pr-4 py-2 rounded-lg border cp-border text-sm focus:ring-indigo-500 focus:border-indigo-500 w-64">
+                                       class="pl-10 pr-4 py-2 rounded-lg border cp-border text-sm v3-focus-control v3-focus-control w-64 v3-input">
                             </div>
 
                             <!-- Status Filter -->
-                            <select id="userStatus" class="py-2 pl-3 pr-8 rounded-lg border cp-border text-sm focus:ring-indigo-500 focus:border-indigo-500 cp-surface">
+                            <select id="userStatus" class="py-2 pl-3 pr-8 rounded-lg border cp-border text-sm v3-focus-control v3-focus-control cp-surface v3-select">
                                 <option value=""><?= esc(lang('V3Platform.allStatus')) ?></option>
                                 <option value="active"><?= esc(lang('V3Platform.active')) ?></option>
                                 <option value="inactive"><?= esc(lang('V3Platform.inactive')) ?></option>
@@ -171,16 +171,16 @@ button.dt-button:hover, button.dt-button:active {
 
                             <!-- Export Actions -->
                             <div class="flex items-center space-x-2 border-l cp-border pl-3">
-                                <button onclick="exportToPDF()" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.exportPdf'), 'attr') ?>">
+                                <button onclick="exportToPDF()" class="p-2 v3-text-danger v3-hover-danger rounded-lg transition-colors v3-btn v3-btn--danger" title="<?= esc(lang('V3Platform.exportPdf'), 'attr') ?>">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
-                                <button onclick="exportToCSV()" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.exportCsv'), 'attr') ?>">
+                                <button onclick="exportToCSV()" class="p-2 v3-text-primary v3-hover-primary rounded-lg transition-colors v3-btn v3-btn--secondary" title="<?= esc(lang('V3Platform.exportCsv'), 'attr') ?>">
                                     <i class="fas fa-file-csv"></i>
                                 </button>
-                                <button onclick="printTable()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.printTable'), 'attr') ?>">
+                                <button onclick="printTable()" class="p-2 v3-text-muted v3-hover-soft rounded-lg transition-colors v3-btn v3-btn--secondary" title="<?= esc(lang('V3Platform.printTable'), 'attr') ?>">
                                     <i class="fas fa-print"></i>
                                 </button>
-                                <a href="<?= base_url('controlplane/users') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.resetFilters'), 'attr') ?>">
+                                <a href="<?= base_url('controlplane/users') ?>" class="p-2 v3-text-muted v3-hover-soft rounded-lg transition-colors" title="<?= esc(lang('V3Platform.resetFilters'), 'attr') ?>">
                                     <i class="fas fa-undo"></i>
                                 </a>
                             </div>
@@ -189,18 +189,18 @@ button.dt-button:hover, button.dt-button:active {
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table id="usersTable" class="min-w-full divide-y divide-gray-200">
+                    <table id="usersTable" class="min-w-full divide-y v3-border-default">
                         <thead class="cp-surface">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.user')) ?></th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.primaryRole')) ?></th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.clinics')) ?></th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.status')) ?></th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.joined')) ?></th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.actions')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.user')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.primaryRole')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.clinics')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.status')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.joined')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold v3-text-muted uppercase tracking-wider"><?= esc(lang('V3Platform.actions')) ?></th>
                             </tr>
                         </thead>
-                        <tbody class="cp-surface divide-y divide-gray-200"></tbody>
+                        <tbody class="cp-surface divide-y v3-border-default"></tbody>
                     </table>
                 </div>
             </div>
@@ -209,7 +209,7 @@ button.dt-button:hover, button.dt-button:active {
 </div>
 
 <!-- Delete Modal -->
-<p class="mb-4 text-sm text-slate-600" role="note"><?= esc(lang('IonAuth.delete_history_protected')) ?></p>
+<p class="mb-4 text-sm v3-text-muted" role="note"><?= esc(lang('IonAuth.delete_history_protected')) ?></p>
 
 <script>
 let usersTable;
@@ -327,17 +327,17 @@ $(document).ready(function() {
                     const initials = row.avatar || data.substring(0,2).toUpperCase();
                     const identityHtml = `
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-700 shadow-sm">
+                                <div class="w-10 h-10 rounded-full v3-bg-chair flex items-center justify-center text-sm font-bold v3-text-chair v3-elevation-none">
                                     ${initials}
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">${data}</div>
-                                    <div class="text-xs text-gray-500">${row.email}</div>
+                                    <div class="text-sm font-medium v3-text-ink">${data}</div>
+                                    <div class="text-xs v3-text-muted">${row.email}</div>
                                 </div>
                             </div>
                         `;
                     return `
-                        <a href="${baseUrl}controlplane/users/${row.id}" class="block rounded-md hover:bg-indigo-50/70 transition-colors duration-200 cursor-pointer">
+                        <a href="${baseUrl}controlplane/users/${row.id}" class="block rounded-md v3-hover-primary transition-colors duration-200 cursor-pointer">
                             ${identityHtml}
                         </a>
                     `;
@@ -346,9 +346,9 @@ $(document).ready(function() {
             {
                 data: 'role',
                 render: function(data) {
-                    let color = 'bg-gray-100 text-gray-800';
-                    if (data === 'Super Admin') color = 'bg-purple-100 text-purple-800';
-                    if (data === 'Clinic Staff') color = 'bg-blue-100 text-blue-800';
+                    let color = 'v3-bg-soft v3-text-ink';
+                    if (data === 'Super Admin') color = 'v3-bg-chair v3-text-chair';
+                    if (data === 'Clinic Staff') color = 'v3-bg-scheduled v3-text-primary';
                     return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}">${data}</span>`;
                 }
             },
@@ -357,12 +357,12 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const names = Array.isArray(data) ? data : [];
                     if (names.length === 0) {
-                        return `<span class="text-xs text-gray-400">No clinic</span>`;
+                        return `<span class="text-xs v3-text-muted">No clinic</span>`;
                     }
                     const preview = names.slice(0, 2);
                     const extra = names.length - preview.length;
-                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">${name}</span>`).join(' ');
-                    const extraBadge = extra > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">+${extra}</span>` : '';
+                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold v3-bg-scheduled v3-text-primary border v3-border-default">${name}</span>`).join(' ');
+                    const extraBadge = extra > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold v3-bg-soft v3-text-muted border v3-border-default">+${extra}</span>` : '';
                     return `<div class="flex flex-wrap gap-1">${badges}${extraBadge}</div>`;
                 }
             },
@@ -370,8 +370,8 @@ $(document).ready(function() {
                 data: 'status',
                 render: function(data) {
                     const isActive = data === 'active';
-                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                        <i class="fas fa-circle text-[8px] mr-1 ${isActive ? 'text-green-500' : 'text-red-500'}"></i>
+                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isActive ? 'v3-bg-paid v3-text-primary' : 'v3-bg-alert v3-text-danger'}">
+                        <i class="fas fa-circle text-[8px] mr-1 ${isActive ? 'v3-text-primary' : 'v3-text-danger'}"></i>
                         ${isActive ? 'Active' : 'Inactive'}
                     </span>`;
                 }
@@ -379,7 +379,7 @@ $(document).ready(function() {
             {
                 data: 'created_on',
                 render: function(data) {
-                    return `<span class="text-sm text-gray-500">${data}</span>`;
+                    return `<span class="text-sm v3-text-muted">${data}</span>`;
                 }
             },
             {
@@ -394,24 +394,24 @@ $(document).ready(function() {
                     // View
                     actions += `
                         <a href="${baseUrl}controlplane/users/${data}"
-                           class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="View Details">
+                           class="p-2 v3-text-primary v3-hover-text-primary rounded-md v3-hover-primary transition-colors duration-200" title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>`;
 
                     // Toggle Status (Suspend/Activate)
                     if (isActive) {
                         actions += `
-                            <button onclick="toggleUserStatus('${data}', 'deactivate')" class="p-2 text-amber-600 hover:text-amber-700 rounded-md hover:bg-amber-50 transition-colors duration-200" title="Deactivate">
+                            <button onclick="toggleUserStatus('${data}', 'deactivate')" class="p-2 v3-text-warning v3-hover-text-warning rounded-md v3-hover-primary transition-colors duration-200 v3-btn v3-btn--secondary" title="Deactivate">
                                 <i class="fas fa-pause"></i>
                             </button>`;
                     } else {
                         actions += `
-                            <button onclick="toggleUserStatus('${data}', 'activate')" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="Activate">
+                            <button onclick="toggleUserStatus('${data}', 'activate')" class="p-2 v3-text-primary v3-hover-text-primary rounded-md v3-hover-primary transition-colors duration-200 v3-btn v3-btn--secondary" title="Activate">
                                 <i class="fas fa-play"></i>
                             </button>`;
                     }
 
-                    actions += `<button type="button" disabled class="p-2 text-slate-400 cursor-not-allowed" title="<?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?>"><i class="fas fa-lock" aria-hidden="true"></i><span class="sr-only"><?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?></span></button>`;
+                    actions += `<button type="button" disabled class="p-2 v3-text-muted cursor-not-allowed v3-btn v3-btn--secondary" title="<?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?>"><i class="fas fa-lock" aria-hidden="true"></i><span class="sr-only"><?= esc(lang('IonAuth.delete_disabled_label'), 'js') ?></span></button>`;
                     actions += '</div>';
                     return actions;
                 }

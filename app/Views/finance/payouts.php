@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="v3-operational-view">
-<p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
+<p class="px-4 py-2 text-sm v3-text-warning"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php $isRtl = !empty($is_rtl); ?>
 
 
@@ -12,11 +12,11 @@
         <section class="finance-payouts-hero overflow-hidden border sm:p-6 lg:p-7">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center ring-1">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center border">
                         <i class="fas fa-hand-holding-dollar text-xl"></i>
                     </div>
                     <div>
-                        <div class="inline-flex items-center gap-2 px-3 py-1 text-xs uppercase tracking-wide ring-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 text-xs uppercase tracking-wide border">
                             <i class="fas fa-user-doctor"></i>
                             <span><?= lang('Finance.providerPayouts') ?></span>
                         </div>
@@ -25,11 +25,11 @@
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                     <?php if (!empty($can_access_finance_reports)): ?>
-                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold ring-1 transition">
+                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold border transition v3-btn v3-btn--secondary">
                         <i class="fas fa-chart-bar <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.reports') ?>
                     </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold text-teal-800 transition hover:-translate-y-0.5">
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold v3-text-primary transition hover:-translate-y-0.5 v3-btn v3-btn--secondary">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?>"></i><?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
@@ -43,7 +43,7 @@
                         <p class="text-xs uppercase tracking-wide"><?= lang('Finance.providerShareTotal') ?></p>
                         <p class="mt-3 v3-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_share')) ?></p>
                     </div>
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center border">
                         <i class="fas fa-percent text-lg"></i>
                     </div>
                 </div>
@@ -52,11 +52,11 @@
             <div class="finance-payouts-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-rose-50/90"><?= lang('Finance.outstandingPayable') ?></p>
+                        <p class="text-xs uppercase tracking-wide v3-text-danger"><?= lang('Finance.outstandingPayable') ?></p>
                         <p class="mt-3 v3-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_provider_balance')) ?></p>
-                        <p class="mt-2 text-xs text-rose-50/90"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
+                        <p class="mt-2 text-xs v3-text-danger"><?= esc(lang('Finance.providerVoidBalanceHelp')) ?></p>
                     </div>
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center border">
                         <i class="fas fa-triangle-exclamation text-lg"></i>
                     </div>
                 </div>
@@ -65,10 +65,10 @@
             <div class="finance-payouts-card">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-emerald-50/90"><?= lang('Finance.clinicShareTotal') ?></p>
+                        <p class="text-xs uppercase tracking-wide v3-text-primary"><?= lang('Finance.clinicShareTotal') ?></p>
                         <p class="mt-3 v3-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats, 'total_clinic_share')) ?></p>
                     </div>
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center border">
                         <i class="fas fa-building text-lg"></i>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
             <div class="border-b px-5 py-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <span class="flex h-11 w-11 items-center justify-center bg-teal-700">
+                        <span class="flex h-11 w-11 items-center justify-center v3-bg-primary">
                             <i class="fas fa-list-check"></i>
                         </span>
                         <div>
@@ -87,7 +87,7 @@
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <select id="statusFilter" class="finance-payouts-input sm:w-48">
+                        <select id="statusFilter" class="finance-payouts-input sm:w-48 v3-select">
                             <option value=""><?= lang('Finance.allStatuses') ?></option>
                             <option value="unpaid"><?= lang('Finance.unpaid') ?></option>
                             <option value="partial"><?= lang('Finance.partial') ?></option>
@@ -96,7 +96,7 @@
                         </select>
                         <div class="relative">
                             <span class="absolute <?= $isRtl ? 'right-3' : 'left-3' ?> top-3 text-sm"><i class="fas fa-search"></i></span>
-                            <input id="payoutSearch" type="text" class="finance-payouts-input <?= $isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3' ?> sm:w-80" placeholder="<?= esc(lang('Finance.searchProviderPatientTxn')) ?>">
+                            <input id="payoutSearch" type="text" class="finance-payouts-input <?= $isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3' ?> sm:w-80 v3-input" placeholder="<?= esc(lang('Finance.searchProviderPatientTxn')) ?>">
                         </div>
                     </div>
                 </div>
@@ -105,17 +105,17 @@
                 <table id="providerPayoutsTable" class="w-full min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                     <thead class="border-b">
                         <tr>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-receipt text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-user text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-user-doctor text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-wallet text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-info-circle text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-calendar text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
-                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-cogs text-teal-700 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-receipt v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-user v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-user-doctor v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-money-bill-trend-up v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-wallet v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-info-circle v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-calendar v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
+                            <th class="px-6 py-4 text-start text-xs uppercase tracking-wider"><i class="fas fa-cogs v3-text-primary <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
                         </tr>
                     </thead>
-                    <tbody id="providerPayoutsTableBody" class="divide-y divide-slate-100"></tbody>
+                    <tbody id="providerPayoutsTableBody" class="divide-y v3-border-default"></tbody>
                 </table>
             </div>
         </section>
@@ -128,24 +128,24 @@
         <div class="w-full max-w-lg overflow-hidden rounded-[1.65rem] border">
             <div class="flex items-center justify-between gap-4 px-5 py-4">
                 <div class="flex items-center gap-3">
-                    <span class="flex h-11 w-11 items-center justify-center ring-1">
+                    <span class="flex h-11 w-11 items-center justify-center border">
                         <i class="fas fa-hand-holding-dollar"></i>
                     </span>
                     <h4 class="text-base"><?= lang('Finance.recordProviderPayout') ?></h4>
                 </div>
-                <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" onclick="closePayoutModal()"><i class="fas fa-times"></i></button>
+                <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--secondary" onclick="closePayoutModal()"><i class="fas fa-times"></i></button>
             </div>
             <form id="recordPayoutForm" class="space-y-4">
                 <input type="hidden" id="payoutIdInput">
-                <div class="p-4 ring-1">
+                <div class="p-4 border">
                     <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.amount') ?></label>
-                    <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="finance-payouts-input" required>
+                    <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="finance-payouts-input v3-input" required>
                     <p id="payoutAmountHelp" class="mt-2 text-xs font-semibold"></p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.paymentMethod') ?></label>
-                    <select id="payoutMethodInput" class="finance-payouts-input">
+                    <select id="payoutMethodInput" class="finance-payouts-input v3-select">
                         <option value="cash"><?= lang('Finance.cash') ?></option>
                         <option value="card"><?= lang('Finance.card') ?></option>
                         <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
@@ -155,12 +155,12 @@
                 </div>
                 <div>
                     <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
-                    <input type="date" id="payoutDateInput" class="finance-payouts-input" required>
+                    <input type="date" id="payoutDateInput" class="finance-payouts-input v3-input" required>
                 </div>
                 </div>
                 <div id="payoutLiquidityAccountField" class="hidden">
                     <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.paidFromAccount') ?></label>
-                    <select id="payoutLiquidityAccountInput" class="finance-payouts-input">
+                    <select id="payoutLiquidityAccountInput" class="finance-payouts-input v3-select">
                         <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                         <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                     </select>
@@ -168,11 +168,11 @@
                 </div>
                 <div>
                     <label class="block text-xs uppercase tracking-wide mb-1"><?= lang('Finance.notes') ?></label>
-                    <textarea id="payoutNotesInput" rows="2" class="finance-payouts-input" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
+                    <textarea id="payoutNotesInput" rows="2" class="finance-payouts-input v3-textarea" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closePayoutModal()" class="border px-4 py-2.5 text-sm font-extrabold transition"><?= lang('Finance.cancel') ?></button>
-                    <button type="submit" class="px-4 py-2.5 text-sm transition hover:-translate-y-0.5"><?= lang('Finance.recordPayment') ?></button>
+                    <button type="button" onclick="closePayoutModal()" class="border px-4 py-2.5 text-sm font-extrabold transition v3-btn v3-btn--secondary"><?= lang('Finance.cancel') ?></button>
+                    <button type="submit" class="px-4 py-2.5 text-sm transition hover:-translate-y-0.5 v3-btn v3-btn--primary"><?= lang('Finance.recordPayment') ?></button>
                 </div>
             </form>
         </div>
@@ -196,9 +196,9 @@ const payoutStatusLabels = {
 function getPatientAvatar(gender) {
     const normalized = String(gender || 'other').toLowerCase();
     const map = {
-        male: { icon: 'fas fa-person', color: 'text-blue-700' },
-        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
-        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+        male: { icon: 'fas fa-person', color: 'v3-text-primary' },
+        female: { icon: 'fas fa-person-dress', color: 'v3-text-danger' },
+        other: { icon: 'fas fa-user', color: 'v3-text-muted' }
     };
     return map[normalized] || map.other;
 }
@@ -206,13 +206,13 @@ function getPatientAvatar(gender) {
 function getTransactionTypeMeta(type) {
     const normalized = String(type || '').toLowerCase();
     const map = {
-        payment: { icon: 'fas fa-money-check-dollar', iconColor: 'text-emerald-700' },
-        invoice: { icon: 'fas fa-file-invoice-dollar', iconColor: 'text-blue-700' },
-        refund: { icon: 'fas fa-rotate-left', iconColor: 'text-rose-700' },
-        adjustment: { icon: 'fas fa-sliders', iconColor: 'text-amber-700' },
-        expense: { icon: 'fas fa-receipt', iconColor: 'text-orange-700' }
+        payment: { icon: 'fas fa-money-check-dollar', iconColor: 'v3-text-primary' },
+        invoice: { icon: 'fas fa-file-invoice-dollar', iconColor: 'v3-text-primary' },
+        refund: { icon: 'fas fa-rotate-left', iconColor: 'v3-text-danger' },
+        adjustment: { icon: 'fas fa-sliders', iconColor: 'v3-text-warning' },
+        expense: { icon: 'fas fa-receipt', iconColor: 'v3-text-warning' }
     };
-    return map[normalized] || { icon: 'fas fa-tag', iconColor: 'text-slate-600' };
+    return map[normalized] || { icon: 'fas fa-tag', iconColor: 'v3-text-muted' };
 }
 
 function formatCurrency(value, currency = null) {
@@ -237,12 +237,12 @@ function notify(type, title, message) {
 function statusBadge(status) {
     const normalized = (status || '').toLowerCase();
     const map = {
-        unpaid: { cls: 'bg-rose-100 text-rose-700', icon: 'fas fa-triangle-exclamation' },
-        partial: { cls: 'bg-amber-100 text-amber-700', icon: 'fas fa-clock' },
-        paid: { cls: 'bg-emerald-100 text-emerald-700', icon: 'fas fa-check-circle' },
-        void: { cls: 'bg-gray-100 text-gray-700', icon: 'fas fa-ban' }
+        unpaid: { cls: 'v3-bg-alert v3-text-danger', icon: 'fas fa-triangle-exclamation' },
+        partial: { cls: 'v3-bg-waiting v3-text-warning', icon: 'fas fa-clock' },
+        paid: { cls: 'v3-bg-paid v3-text-primary', icon: 'fas fa-check-circle' },
+        void: { cls: 'v3-bg-soft v3-text-ink', icon: 'fas fa-ban' }
     };
-    const config = map[normalized] || { cls: 'bg-gray-100 text-gray-700', icon: 'fas fa-circle-question' };
+    const config = map[normalized] || { cls: 'v3-bg-soft v3-text-ink', icon: 'fas fa-circle-question' };
     const label = payoutStatusLabels[normalized] || payoutStatusLabels.unknown;
     return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black ${config.cls}"><i class="${config.icon} me-1"></i>${label}</span>`;
 }
@@ -298,14 +298,14 @@ $(document).ready(function () {
                 render: function (data, type, row) {
                     const typeMeta = getTransactionTypeMeta(row.transaction_type);
                     return `
-                        <a href="<?= base_url('finance') ?>/${row.finance_id}" class="block rounded-2xl p-2 transition-colors duration-200 hover:bg-teal-50/80">
+                        <a href="<?= base_url('finance') ?>/${row.finance_id}" class="block v3-radius p-2 transition-colors duration-200 v3-hover-primary">
                             <div class="flex items-center gap-3">
-                                <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100">
+                                <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center v3-radius v3-bg-soft">
                                     <i class="${typeMeta.icon} ${typeMeta.iconColor} text-lg"></i>
                                 </span>
                                 <div>
-                                    <div class="text-sm font-black text-slate-950">${data || '-'}</div>
-                                    <div class="text-xs font-semibold text-slate-500"><?= lang('Finance.financeTransaction') ?></div>
+                                    <div class="text-sm font-black v3-text-ink">${data || '-'}</div>
+                                    <div class="text-xs font-semibold v3-text-muted"><?= lang('Finance.financeTransaction') ?></div>
                                 </div>
                             </div>
                         </a>`;
@@ -317,12 +317,12 @@ $(document).ready(function () {
                     const avatar = getPatientAvatar(row.patient_gender);
                     const patient = data && data.trim() !== '' ? data : '<?= esc(lang('Finance.notAvailable')) ?>';
                     return `<div class="flex items-center gap-3">
-                        <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100">
+                        <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center v3-radius v3-bg-soft">
                             <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
                         </span>
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-950 truncate">${patient}</div>
-                            <div class="text-xs font-semibold text-slate-500"><?= esc(lang('Finance.patient')) ?></div>
+                            <div class="text-sm font-black v3-text-ink truncate">${patient}</div>
+                            <div class="text-xs font-semibold v3-text-muted"><?= esc(lang('Finance.patient')) ?></div>
                         </div>
                     </div>`;
                 }
@@ -331,16 +331,16 @@ $(document).ready(function () {
                 data: 'provider_name',
                 render: function (data, type, row) {
                     const isGuest = (row.provider_type || '') === 'guest';
-                    const iconClass = isGuest ? 'fas fa-user-tie text-amber-600' : 'fas fa-user-doctor text-indigo-600';
+                    const iconClass = isGuest ? 'fas fa-user-tie v3-text-warning' : 'fas fa-user-doctor v3-text-chair';
                     const subtitle = isGuest ? '<?= esc(lang('Finance.guestProvider')) ?>' : '<?= esc(lang('Finance.clinicUser')) ?>';
                     return `
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 ${isGuest ? 'bg-amber-100' : 'bg-teal-100'} rounded-2xl flex items-center justify-center">
+                            <div class="w-10 h-10 ${isGuest ? 'v3-bg-waiting' : 'v3-bg-scheduled'} v3-radius flex items-center justify-center">
                                 <i class="${iconClass} text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-black text-slate-950">${data || '<?= lang('Finance.provider') ?>'}</div>
-                                <div class="text-xs font-semibold text-slate-500">${subtitle}</div>
+                                <div class="text-sm font-black v3-text-ink">${data || '<?= lang('Finance.provider') ?>'}</div>
+                                <div class="text-xs font-semibold v3-text-muted">${subtitle}</div>
                             </div>
                         </div>`;
                 }
@@ -350,11 +350,11 @@ $(document).ready(function () {
                 render: function (value, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="flex items-center gap-2 text-sm font-black text-blue-800">
-                                <i class="fas fa-arrow-down text-rose-500 text-xs"></i>
+                            <div class="flex items-center gap-2 text-sm font-black v3-text-primary">
+                                <i class="fas fa-arrow-down v3-text-danger text-xs"></i>
                                 <span>${formatCurrency(value, row.currency)}</span>
                             </div>
-                            <div class="text-xs font-semibold text-slate-500"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0, row.currency)}</div>
+                            <div class="text-xs font-semibold v3-text-muted"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0, row.currency)}</div>
                         </div>`;
                 }
             },
@@ -363,11 +363,11 @@ $(document).ready(function () {
                 render: function (value, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="flex items-center gap-2 text-sm font-black text-emerald-700">
-                                <i class="fas fa-arrow-up text-emerald-500 text-xs"></i>
+                            <div class="flex items-center gap-2 text-sm font-black v3-text-primary">
+                                <i class="fas fa-arrow-up v3-text-primary text-xs"></i>
                                 <span>${formatCurrency(value, row.currency)}</span>
                             </div>
-                            <div class="text-xs font-bold ${Number(row.provider_balance_due || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}">
+                            <div class="text-xs font-bold ${Number(row.provider_balance_due || 0) > 0 ? 'v3-text-danger' : 'v3-text-primary'}">
                                 <?= lang('Finance.balance') ?>: ${formatCurrency(row.provider_balance_due || 0, row.currency)}
                             </div>
                         </div>`;
@@ -384,8 +384,8 @@ $(document).ready(function () {
                 render: function (value) {
                     return `
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-calendar text-teal-700 text-xs"></i>
-                            <span class="text-sm font-bold text-slate-700">${value || '-'}</span>
+                            <i class="fas fa-calendar v3-text-primary text-xs"></i>
+                            <span class="text-sm font-bold v3-text-ink">${value || '-'}</span>
                         </div>`;
                 }
             },
@@ -396,10 +396,10 @@ $(document).ready(function () {
                 render: function (id, type, row) {
                     const canSettle = row.status !== 'paid' && row.status !== 'void';
                     let actions = '<div class="flex items-center gap-2">';
-                    actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition hover:bg-blue-100" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
+                    actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default transition v3-hover-primary" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
                     if (canSettle) {
-                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)}, '${row.currency}')" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
-                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 ring-1 ring-teal-100 transition hover:bg-teal-100" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
+                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)}, '${row.currency}')" class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-paid v3-text-primary border v3-border-default transition v3-hover-primary v3-btn v3-btn--secondary" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
+                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default transition v3-hover-primary v3-btn v3-btn--secondary" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
                     }
                     actions += '</div>';
                     return actions;
@@ -408,7 +408,7 @@ $(document).ready(function () {
         ],
         pageLength: 10,
         order: [[0, 'desc']],
-        dom: 'rt<"px-6 py-4 border-t border-slate-100 bg-slate-50/80"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: 'rt<"px-6 py-4 border-t v3-border-default v3-bg-panel"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         language: {
             processing: '<?= lang('Finance.loadingPayouts') ?>',
             zeroRecords: '<?= lang('Finance.noProviderPayoutsFound') ?>',
@@ -423,7 +423,7 @@ $(document).ready(function () {
             }
         },
         createdRow: function (row) {
-            $(row).addClass('hover:bg-teal-50/35 transition-colors duration-150');
+            $(row).addClass('v3-hover-primary transition-colors duration-150');
         }
     });
 

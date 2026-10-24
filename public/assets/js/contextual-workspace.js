@@ -117,7 +117,7 @@
             function showSlotError(msg) {
                 clearSlotError();
                 const errDiv = document.createElement('div');
-                errDiv.className = 'slot-load-error text-red-500 text-xs mt-1.5 flex items-center gap-1';
+                errDiv.className = 'slot-load-error v3-text-danger text-xs mt-1.5 flex items-center gap-1';
                 const icon = document.createElement('i');
                 icon.className = 'fas fa-exclamation-circle';
                 errDiv.appendChild(icon);
@@ -381,8 +381,8 @@
                 const track = document.getElementById(toggle.dataset.trackId || '');
                 const dot = document.getElementById(toggle.dataset.dotId || '');
                 if (track) {
-                    track.classList.toggle('bg-blue-500', toggle.checked);
-                    track.classList.toggle('bg-gray-200', !toggle.checked);
+                    track.classList.toggle('v3-bg-primary', toggle.checked);
+                    track.classList.toggle('v3-bg-sand', !toggle.checked);
                 }
                 if (typeof window.applyToggleDotState === 'function') {
                     window.applyToggleDotState(dot, toggle.checked);

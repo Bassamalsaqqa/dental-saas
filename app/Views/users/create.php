@@ -21,7 +21,7 @@
                             </div>
                         </div>
 
-                        <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border-2 text-sm font-bold">
+                        <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
                             <i class="fas fa-arrow-left rtl-back-icon me-2"></i>
                             <span><?= lang('UserRole.backToUsers') ?></span>
                         </a>
@@ -41,11 +41,11 @@
                         ]) ?>
 
                         <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
-                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
                                 <i class="fas fa-times me-2"></i>
                                 <span><?= lang('UserRole.cancel') ?></span>
                             </a>
-                            <button type="submit" class="inline-flex items-center justify-center px-8 py-3 text-sm font-bold">
+                            <button type="submit" class="inline-flex items-center justify-center px-8 py-3 text-sm font-bold v3-btn v3-btn--primary">
                                 <i class="fas fa-user-plus me-2"></i>
                                 <span><?= lang('UserRole.createUser') ?></span>
                             </button>

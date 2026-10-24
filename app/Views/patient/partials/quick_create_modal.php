@@ -27,14 +27,14 @@ $shouldOpenPatientCreateModal = old('source_modal') === 'patient_quick_create';
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition" data-patient-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center transition v3-btn v3-btn--icon" data-patient-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
                         <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <div class="v3-context-drawer__body">
                     <?php if (session('error') && $shouldOpenPatientCreateModal): ?>
-                        <div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="border v3-border-default v3-bg-alert p-4 text-sm v3-text-danger">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -47,14 +47,14 @@ $shouldOpenPatientCreateModal = old('source_modal') === 'patient_quick_create';
                 </div>
 
                 <div class="v3-context-drawer__footer">
-                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-semibold transition">
+                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-semibold transition v3-btn v3-btn--secondary">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center border px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-user-plus me-2"></i>
                         <?= esc(lang('UI.settingsSave')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold transition v3-btn v3-btn--primary">
                         <i class="fas fa-calendar-plus me-2"></i>
                         <?= esc(lang('UI.patientSaveAndBookAppointment')) ?>
                     </button>

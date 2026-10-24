@@ -17,17 +17,17 @@
                             <div class="relative">
 
                                 <div class="v3-icon relative w-12 h-12 v3-corner flex items-center justify-center transition-all duration-300">
-                                    <i class="fas fa-prescription-bottle-alt text-white text-lg"></i>
+                                    <i class="fas fa-prescription-bottle-alt v3-text-on-primary text-lg"></i>
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-emerald-900 transition-colors duration-300"><?= lang('Prescription.new_prescription') ?></h3>
-                                <p class="text-gray-600 font-medium"><?= lang('Prescription.new_prescription_description') ?></p>
+                                <h3 class="text-2xl font-black v3-text-ink v3-hover-text-primary transition-colors duration-300"><?= lang('Prescription.new_prescription') ?></h3>
+                                <p class="v3-text-muted font-medium"><?= lang('Prescription.new_prescription_description') ?></p>
                             </div>
                         </div>
 
                         <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('prescription', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 v3-border text-gray-700 text-sm font-bold v3-radius hover:border-gray-400 transition-all duration-300">
+                            <a href="<?= esc(workflow_back('prescription', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 v3-border v3-text-ink text-sm font-bold v3-radius v3-border-default transition-all duration-300 v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-arrow-left rtl-back-icon mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.back') ?></span>
@@ -46,12 +46,12 @@
                         <?php endif; ?>
                         <!-- Patient Selection -->
                         <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-user text-emerald-600"></i>
+                            <label class="block text-sm font-bold v3-text-ink mb-3 flex items-center space-x-2">
+                                <i class="fas fa-user v3-text-primary"></i>
                                 <span><?= lang('Prescription.patient_required') ?></span>
                             </label>
                             <div class="relative">
-                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300"
+                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 v3-select"
                                         data-searchable-select
                                         data-minimum-input-length="0"
                                         data-limit="5"
@@ -72,11 +72,11 @@
                                     <?php endif; ?>
                                 </select>
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                    <i class="fas fa-chevron-down v3-text-muted"></i>
                                 </div>
                             </div>
                             <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('patient_id')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span><?= session()->getFlashdata('validation')->getError('patient_id') ?></span>
                                 </p>
@@ -90,11 +90,11 @@
                                 <div class="flex items-center justify-between mb-6">
                                     <div class="flex items-center space-x-3">
                                         <div class="v3-icon w-10 h-10 v3-radius flex items-center justify-center">
-                                            <i class="fas fa-pills text-white"></i>
+                                            <i class="fas fa-pills v3-text-on-primary"></i>
                                         </div>
-                                        <h3 class="text-xl font-bold text-gray-900"><?= lang('Prescription.medicines') ?></h3>
+                                        <h3 class="text-xl font-bold v3-text-ink"><?= lang('Prescription.medicines') ?></h3>
                                     </div>
-                                    <button type="button" onclick="addMedicine()" class="v3-action v3-action-primary group/btn relative inline-flex items-center px-4 py-2 text-sm font-bold v3-radius transition-all duration-300">
+                                    <button type="button" onclick="addMedicine()" class="v3-action v3-action-primary group/btn relative inline-flex items-center px-4 py-2 text-sm font-bold v3-radius transition-all duration-300 v3-btn v3-btn--secondary">
 
                                         <i class="fas fa-plus mr-2 relative z-10"></i>
                                         <span class="relative z-10"><?= lang('Prescription.add_medicine') ?></span>
@@ -111,8 +111,8 @@
                                     <div class="v3-icon w-16 h-16 v3-corner flex items-center justify-center mx-auto mb-4">
                                         <i class="fas fa-pills v3-accent-text text-2xl"></i>
                                     </div>
-                                    <p class="text-gray-600 font-medium"><?= lang('Prescription.no_medicines_added') ?></p>
-                                    <p class="text-sm text-gray-500"><?= lang('Prescription.click_add_medicine') ?></p>
+                                    <p class="v3-text-muted font-medium"><?= lang('Prescription.no_medicines_added') ?></p>
+                                    <p class="text-sm v3-text-muted"><?= lang('Prescription.click_add_medicine') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -120,18 +120,18 @@
                         <!-- Prescribed and Expiry Dates -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                <label class="block text-sm font-bold v3-text-ink mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar v3-accent-text"></i>
                                     <span><?= lang('Prescription.prescribed_date_required') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', date('Y-m-d')) ?>" class="prescription-date-input w-full py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300" required>
+                                    <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', date('Y-m-d')) ?>" class="prescription-date-input w-full py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 v3-input" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-calendar text-gray-400"></i>
+                                        <i class="fas fa-calendar v3-text-muted"></i>
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('prescribed_date')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('prescribed_date') ?></span>
                                     </p>
@@ -139,18 +139,18 @@
                             </div>
 
                             <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-calendar-times text-red-600"></i>
+                                <label class="block text-sm font-bold v3-text-ink mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-calendar-times v3-text-danger"></i>
                                     <span><?= lang('Prescription.expiry_date') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', date('Y-m-d', strtotime('+30 days'))) ?>" class="prescription-date-input w-full py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300">
+                                    <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', date('Y-m-d', strtotime('+30 days'))) ?>" class="prescription-date-input w-full py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 v3-input">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-calendar text-gray-400"></i>
+                                        <i class="fas fa-calendar v3-text-muted"></i>
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('expiry_date')): ?>
-                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                    <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('expiry_date') ?></span>
                                     </p>
@@ -160,18 +160,18 @@
 
                         <!-- Instructions Section -->
                         <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-sticky-note text-teal-600"></i>
+                            <label class="block text-sm font-bold v3-text-ink mb-3 flex items-center space-x-2">
+                                <i class="fas fa-sticky-note v3-text-primary"></i>
                                 <span><?= lang('Prescription.instructions') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="instructions" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 resize-none" placeholder="<?= esc(lang('Prescription.instructions_placeholder')) ?>"><?= old('instructions') ?></textarea>
-                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
+                                <textarea name="instructions" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 v3-focus-control v3-focus-control transition-all duration-300 resize-none v3-textarea" placeholder="<?= esc(lang('Prescription.instructions_placeholder')) ?>"><?= old('instructions') ?></textarea>
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> v3-text-muted text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
                             <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('instructions')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span><?= session()->getFlashdata('validation')->getError('instructions') ?></span>
                                 </p>
@@ -180,12 +180,12 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t v3-border">
-                            <a href="<?= esc(workflow_cancel('prescription', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 v3-border text-gray-700 text-sm font-bold v3-radius hover:border-gray-400 transition-all duration-300">
+                            <a href="<?= esc(workflow_cancel('prescription', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 v3-border v3-text-ink text-sm font-bold v3-radius v3-border-default transition-all duration-300 v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.cancel') ?></span>
                             </a>
-                            <button type="submit" class="v3-action v3-action-primary group/btn relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold v3-radius transition-all duration-300">
+                            <button type="submit" class="v3-action v3-action-primary group/btn relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold v3-radius transition-all duration-300 v3-btn v3-btn--primary">
 
                                 <i class="fas fa-prescription-bottle-alt mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.create_prescription') ?></span>
@@ -222,7 +222,7 @@ function addMedicine() {
 
     // Create medicine item
     const medicineItem = document.createElement('div');
-    medicineItem.className = 'medicine-item bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300';
+    medicineItem.className = 'medicine-item v3-bg-panel v3-radius border v3-border-default p-4 v3-elevation-none hover:v3-elevation-none transition-all duration-300';
 
     // Header section
     const headerDiv = document.createElement('div');
@@ -234,11 +234,11 @@ function addMedicine() {
     const iconContainer = document.createElement('div');
     iconContainer.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center';
     const pillIcon = document.createElement('i');
-    pillIcon.className = 'fas fa-pills text-white text-sm';
+    pillIcon.className = 'fas fa-pills v3-text-on-primary text-sm';
     iconContainer.appendChild(pillIcon);
 
     const titleH4 = document.createElement('h4');
-    titleH4.className = 'text-lg font-semibold text-gray-900';
+    titleH4.className = 'text-lg font-semibold v3-text-ink';
     titleH4.textContent = prescriptionI18n.medicineNumber.replace('{number}', medicineCount);
 
     titleContainer.appendChild(iconContainer);
@@ -246,7 +246,7 @@ function addMedicine() {
 
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
-    removeBtn.className = 'group/btn relative p-2 text-red-600 hover:text-red-800 rounded-lg hover:bg-red-50 transition-all duration-300';
+    removeBtn.className = 'group/btn relative p-2 v3-text-danger v3-hover-text-danger rounded-lg v3-hover-danger transition-all duration-300';
     removeBtn.onclick = function() {
         removeMedicine(this);
     };
@@ -274,7 +274,7 @@ function addMedicine() {
         fieldContainer.className = 'group/field relative';
 
         const labelElem = document.createElement('label');
-        labelElem.className = 'block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2';
+        labelElem.className = 'block text-sm font-bold v3-text-ink mb-2 flex items-center space-x-2';
         const labelIcon = document.createElement('i');
         labelIcon.className = iconClass + ' ' + iconColor;
         const labelSpan = document.createElement('span');
@@ -288,7 +288,7 @@ function addMedicine() {
         const input = document.createElement('input');
         input.type = 'text';
         input.name = inputName;
-        input.className = 'prescription-leading-input w-full py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300';
+        input.className = 'prescription-leading-input w-full py-2 v3-bg-panel border v3-border-default rounded-lg focus:outline-none focus:ring-2 v3-focus-control v3-focus-control transition-all duration-300';
         input.placeholder = placeholder;
         input.required = true;
 
@@ -297,7 +297,7 @@ function addMedicine() {
             ? 'absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'
             : 'absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none';
         const innerIcon = document.createElement('i');
-        innerIcon.className = iconClass + ' text-gray-400 text-xs';
+        innerIcon.className = iconClass + ' v3-text-muted text-xs';
         innerIconContainer.appendChild(innerIcon);
 
         relativeDiv.appendChild(input);
@@ -308,10 +308,10 @@ function addMedicine() {
         return fieldContainer;
     };
 
-    gridDiv.appendChild(createField(prescriptionI18n.medicineNameRequired.replace(' *', ''), 'fas fa-pills', `medicines[${medicineCount}][name]`, prescriptionI18n.placeholderAmoxicillin, 'text-blue-600'));
-    gridDiv.appendChild(createField(prescriptionI18n.dosageRequired.replace(' *', ''), 'fas fa-weight', `medicines[${medicineCount}][dosage]`, prescriptionI18n.placeholder500mg, 'text-purple-600'));
-    gridDiv.appendChild(createField(prescriptionI18n.frequencyRequired.replace(' *', ''), 'fas fa-clock', `medicines[${medicineCount}][frequency]`, prescriptionI18n.placeholderTwiceDaily, 'text-amber-600'));
-    gridDiv.appendChild(createField(prescriptionI18n.durationRequired.replace(' *', ''), 'fas fa-calendar-alt', `medicines[${medicineCount}][duration]`, prescriptionI18n.placeholder7Days, 'text-rose-600'));
+    gridDiv.appendChild(createField(prescriptionI18n.medicineNameRequired.replace(' *', ''), 'fas fa-pills', `medicines[${medicineCount}][name]`, prescriptionI18n.placeholderAmoxicillin, 'v3-text-primary'));
+    gridDiv.appendChild(createField(prescriptionI18n.dosageRequired.replace(' *', ''), 'fas fa-weight', `medicines[${medicineCount}][dosage]`, prescriptionI18n.placeholder500mg, 'v3-text-chair'));
+    gridDiv.appendChild(createField(prescriptionI18n.frequencyRequired.replace(' *', ''), 'fas fa-clock', `medicines[${medicineCount}][frequency]`, prescriptionI18n.placeholderTwiceDaily, 'v3-text-warning'));
+    gridDiv.appendChild(createField(prescriptionI18n.durationRequired.replace(' *', ''), 'fas fa-calendar-alt', `medicines[${medicineCount}][duration]`, prescriptionI18n.placeholder7Days, 'v3-text-danger'));
 
     medicineItem.appendChild(gridDiv);
 

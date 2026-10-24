@@ -13,14 +13,14 @@
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div class="flex items-center gap-4">
                         <div class="v3-icon w-12 h-12 v3-corner flex items-center justify-center">
-                            <i class="fas fa-boxes text-white text-lg"></i>
+                            <i class="fas fa-boxes v3-text-on-primary text-lg"></i>
                         </div>
                         <div>
-                            <h1 class="text-xl font-black text-gray-900"><?= lang('Inventory.addNewInventoryItem') ?></h1>
-                            <p class="text-sm text-gray-500"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
+                            <h1 class="text-xl font-black v3-text-ink"><?= lang('Inventory.addNewInventoryItem') ?></h1>
+                            <p class="text-sm v3-text-muted"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
                         </div>
                     </div>
-                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border v3-border text-gray-700 text-sm font-semibold v3-radius hover:bg-gray-50 transition-colors">
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border v3-border v3-text-ink text-sm font-semibold v3-radius v3-hover-soft transition-colors v3-btn v3-btn--secondary">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                         <?= lang('Inventory.backToInventory') ?>
                     </a>
@@ -40,11 +40,11 @@
             ]) ?>
 
             <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
-                <a href="<?= workflow_cancel('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border v3-border text-gray-700 text-sm font-semibold v3-radius hover:bg-gray-50 transition-colors">
+                <a href="<?= workflow_cancel('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border v3-border v3-text-ink text-sm font-semibold v3-radius v3-hover-soft transition-colors v3-btn v3-btn--secondary">
                     <i class="fas fa-times text-xs"></i>
                     <?= lang('Inventory.cancel') ?>
                 </a>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 text-white text-sm font-semibold v3-radius hover:bg-emerald-700 transition-colors">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 v3-bg-primary v3-text-on-primary text-sm font-semibold v3-radius v3-hover-primary transition-colors v3-btn v3-btn--primary">
                     <i class="fas fa-plus text-xs"></i>
                     <?= lang('Inventory.addItem') ?>
                 </button>

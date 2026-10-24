@@ -18,31 +18,31 @@
         <header class="v3-command-header"><div class="v3-command-title"><h1><?= lang('UI.systemSettings') ?></h1><p><?= lang('UI.settingsConfigureSystem') ?></p></div></header><section class="v3-settings-context"><div class="v3-settings-summary-strip">
                     <div class="settings-hero-chip v3-corner px-4 py-3">
                         <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsClinicProfile') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($clinicDisplayName) ?></p>
+                        <p class="mt-1 truncate text-sm font-black v3-text-on-primary"><?= esc($clinicDisplayName) ?></p>
                     </div>
                     <div class="settings-hero-chip v3-corner px-4 py-3">
                         <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSubscription') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($planDisplayName) ?> <span class="font-bold v3-accent-text">/ <?= esc($subscriptionStatus) ?></span></p>
+                        <p class="mt-1 truncate text-sm font-black v3-text-on-primary"><?= esc($planDisplayName) ?> <span class="font-bold v3-accent-text">/ <?= esc($subscriptionStatus) ?></span></p>
                     </div>
                     <div class="settings-hero-chip v3-corner px-4 py-3">
                         <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSystemTab') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold v3-accent-text">/ <?= esc($languageDisplay) ?></span></p>
+                        <p class="mt-1 truncate text-sm font-black v3-text-on-primary"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold v3-accent-text">/ <?= esc($languageDisplay) ?></span></p>
                     </div>
                 </div></section>
 
-        <nav class="settings-shell-breadcrumb mb-5 flex items-center space-x-1 v3-corner px-4 py-3 text-sm text-slate-500" id="settings-breadcrumb">
-            <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors"><?= lang('UI.home') ?></a>
-            <i class="fas fa-chevron-right text-xs text-gray-300"></i>
-            <span class="text-gray-700 font-medium"><?= lang('UI.menuSettings') ?></span>
-            <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-2" style="display:none"></i>
-            <span id="breadcrumb-tab" class="text-gray-900 font-semibold"></span>
+        <nav class="settings-shell-breadcrumb mb-5 flex items-center space-x-1 v3-corner px-4 py-3 text-sm v3-text-muted" id="settings-breadcrumb">
+            <a href="<?= base_url('dashboard') ?>" class="v3-hover-text-primary transition-colors"><?= lang('UI.home') ?></a>
+            <i class="fas fa-chevron-right text-xs v3-text-muted"></i>
+            <span class="v3-text-ink font-medium"><?= lang('UI.menuSettings') ?></span>
+            <i class="fas fa-chevron-right text-xs v3-text-muted" id="breadcrumb-sep-2" style="display:none"></i>
+            <span id="breadcrumb-tab" class="v3-text-ink font-semibold"></span>
         </nav>
 
         <?php $settingsErrors = session('errors'); ?>
         <?php if (session('error') || (!empty($settingsErrors) && is_array($settingsErrors))): ?>
-            <div id="settings-validation-summary" class="mb-6 v3-corner border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800">
+            <div id="settings-validation-summary" class="mb-6 v3-corner border v3-border-default v3-bg-alert px-5 py-4 v3-text-danger">
                 <div class="flex items-start gap-3">
-                    <div class="mt-0.5 text-rose-600">
+                    <div class="mt-0.5 v3-text-danger">
                         <i class="fas fa-circle-exclamation"></i>
                     </div>
                     <div class="space-y-2">
@@ -72,22 +72,22 @@
                     </div>
                     <nav class="space-y-3">
                         <div class="settings-nav-group space-y-2">
-                        <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn">
+                        <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn v3-btn v3-btn--secondary">
                             <i class="fas fa-building w-5 h-5"></i> <span><?= lang('UI.settingsClinicProfile') ?></span>
                         </button>
-                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn">
+                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn v3-btn v3-btn--secondary">
                             <i class="fas fa-layer-group w-5 h-5"></i> <span><?= lang('UI.settingsSubscription') ?></span>
                         </button>
-                        <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn">
+                        <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn v3-btn v3-btn--secondary">
                             <i class="fas fa-cog w-5 h-5"></i> <span><?= lang('UI.settingsSystemTab') ?></span>
                         </button>
-                        <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn">
+                        <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn v3-btn v3-btn--secondary">
                             <i class="fas fa-clock w-5 h-5"></i> <span><?= lang('UI.settingsOperations') ?></span>
                         </button>
-                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn">
+                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn v3-btn v3-btn--secondary">
                             <i class="fas fa-tablet-alt w-5 h-5"></i> <span><?= lang('UI.settingsKiosk') ?></span>
                         </button>
-                        <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn">
+                        <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn v3-btn v3-btn--secondary">
                             <i class="fas fa-database w-5 h-5"></i> <span><?= lang('UI.settingsBackupRestore') ?></span>
                         </button>
                         </div>
@@ -97,19 +97,19 @@
                                 <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsCommunications') ?></p>
                             </div>
                             <div class="space-y-2">
-                            <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn">
+                            <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn v3-btn v3-btn--secondary">
                                 <i class="fas fa-th-large w-5 h-5"></i> <span><?= lang('UI.settingsChannels') ?></span>
                             </button>
-                            <button onclick="showSettingsTab('email')" id="tab-email" class="settings-menu-btn">
+                            <button onclick="showSettingsTab('email')" id="tab-email" class="settings-menu-btn v3-btn v3-btn--secondary">
                                 <i class="fas fa-envelope w-5 h-5"></i> <span><?= lang('UI.settingsEmail') ?></span>
                             </button>
-                            <button onclick="showSettingsTab('sms')" id="tab-sms" class="settings-menu-btn">
+                            <button onclick="showSettingsTab('sms')" id="tab-sms" class="settings-menu-btn v3-btn v3-btn--secondary">
                                 <i class="fas fa-sms w-5 h-5"></i> <span><?= lang('UI.settingsSms') ?></span>
                             </button>
-                            <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="settings-menu-btn">
+                            <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="settings-menu-btn v3-btn v3-btn--secondary">
                                 <i class="fab fa-whatsapp w-5 h-5"></i> <span><?= lang('UI.settingsWhatsApp') ?></span>
                             </button>
-                            <button onclick="showSettingsTab('alerts')" id="tab-alerts" class="settings-menu-btn">
+                            <button onclick="showSettingsTab('alerts')" id="tab-alerts" class="settings-menu-btn v3-btn v3-btn--secondary">
                                 <i class="fas fa-user-cog w-5 h-5"></i> <span><?= lang('UI.settingsMyAlerts') ?></span>
                             </button>
                             </div>
@@ -135,22 +135,22 @@
     </div>
 </div>
 
-<div id="confirm-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+<div id="confirm-modal" class="fixed inset-0 v3-backdrop z-50 hidden items-center justify-center p-4">
     <div class="v3-surface v3-corner max-w-md w-full p-8">
         <div class="flex items-start space-x-4 mb-6">
-            <div id="confirm-modal-icon" class="w-12 h-12 bg-red-100 v3-radius flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            <div id="confirm-modal-icon" class="w-12 h-12 v3-bg-alert v3-radius flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-exclamation-triangle v3-text-danger text-xl"></i>
             </div>
             <div>
-                <h3 id="confirm-modal-title" class="text-xl font-bold text-gray-900 mb-1"><?= lang('UI.confirmAreYouSure') ?></h3>
-                <p id="confirm-modal-message" class="text-gray-500 text-sm"><?= lang('UI.confirmCannotUndo') ?></p>
+                <h3 id="confirm-modal-title" class="text-xl font-bold v3-text-ink mb-1"><?= lang('UI.confirmAreYouSure') ?></h3>
+                <p id="confirm-modal-message" class="v3-text-muted text-sm"><?= lang('UI.confirmCannotUndo') ?></p>
             </div>
         </div>
         <div class="flex justify-end space-x-3">
-            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 v3-surface border v3-border text-gray-700 font-semibold v3-radius hover:bg-gray-50 transition-all">
+            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 v3-surface border v3-border v3-text-ink font-semibold v3-radius v3-hover-soft transition-all v3-btn v3-btn--secondary">
                 <?= lang('UI.cancel') ?>
             </button>
-            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 bg-red-600 text-white font-semibold v3-radius hover:bg-red-700 transition-all" onclick="confirmModalProceed()">
+            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 v3-bg-danger v3-text-on-primary font-semibold v3-radius v3-hover-danger transition-all v3-btn v3-btn--danger" onclick="confirmModalProceed()">
                 <?= lang('UI.confirm') ?>
             </button>
         </div>
@@ -277,7 +277,7 @@ function getFieldErrorElement(input) {
     let errorEl = input.parentNode.querySelector(`.field-error[data-for="${input.id || input.name}"]`);
     if (!errorEl) {
         errorEl = document.createElement('p');
-        errorEl.className = 'field-error text-xs text-red-600 mt-1 hidden';
+        errorEl.className = 'field-error text-xs v3-text-danger mt-1 hidden';
         errorEl.dataset.for = input.id || input.name || '';
         input.parentNode.insertBefore(errorEl, input.nextSibling);
     }
@@ -288,8 +288,8 @@ function setFieldError(input, message) {
     if (!input) return false;
     const errorEl = getFieldErrorElement(input);
     if (message) {
-        input.classList.add('border-red-400');
-        input.classList.remove('border-gray-200', 'border-green-400');
+        input.classList.add('v3-border-default');
+        input.classList.remove('v3-border-default', 'v3-border-default');
         if (errorEl) {
             errorEl.textContent = message;
             errorEl.classList.remove('hidden');
@@ -297,13 +297,13 @@ function setFieldError(input, message) {
         return false;
     }
 
-    input.classList.remove('border-red-400');
+    input.classList.remove('v3-border-default');
     if ((input.value || '').trim()) {
-        input.classList.add('border-green-400');
-        input.classList.remove('border-gray-200');
+        input.classList.add('v3-border-default');
+        input.classList.remove('v3-border-default');
     } else {
-        input.classList.remove('border-green-400');
-        input.classList.add('border-gray-200');
+        input.classList.remove('v3-border-default');
+        input.classList.add('v3-border-default');
     }
     if (errorEl) {
         errorEl.textContent = '';
@@ -411,15 +411,15 @@ function showSubTab(name, options = {}) {
     const normalizedName = (name === 'notifications' || name === 'alerts') ? 'alerts' : name;
     document.querySelectorAll('.sub-tab-panel').forEach(panel => panel.classList.add('hidden'));
     document.querySelectorAll('.subtab-btn').forEach(btn => {
-        btn.classList.remove('bg-blue-50', 'text-blue-600', 'border-b-2', 'border-blue-600');
-        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+        btn.classList.remove('v3-bg-scheduled', 'v3-text-primary', 'border-b-2', 'v3-border-default');
+        btn.classList.add('v3-text-muted', 'v3-hover-text-ink');
     });
 
     document.getElementById('sub-' + normalizedName)?.classList.remove('hidden');
     const activeBtn = document.getElementById('subtab-' + normalizedName);
     if (activeBtn) {
-        activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border-b-2', 'border-blue-600');
-        activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
+        activeBtn.classList.add('v3-bg-scheduled', 'v3-text-primary', 'border-b-2', 'v3-border-default');
+        activeBtn.classList.remove('v3-text-muted', 'v3-hover-text-ink');
     }
 
     if (options.updateUrl === false) {
@@ -445,10 +445,10 @@ function toggleChannel(clinicId, type, enabled, buttonElement = null) {
 
         const isNowEnabled = enabled === 1;
         if (buttonElement) {
-            buttonElement.className = `w-10 h-6 rounded-full transition-all ${isNowEnabled ? 'bg-green-500' : 'bg-gray-300'}`;
+            buttonElement.className = `w-10 h-6 rounded-full transition-all ${isNowEnabled ? 'v3-bg-primary' : 'v3-bg-sand'}`;
             const knob = buttonElement.querySelector('div');
             if (knob) {
-                knob.className = `w-4 h-4 bg-white rounded-full transition-all ml-1 ${isNowEnabled ? 'translate-x-4' : ''}`;
+                knob.className = `w-4 h-4 v3-bg-panel rounded-full transition-all ml-1 ${isNowEnabled ? 'translate-x-4' : ''}`;
             }
             buttonElement.setAttribute('onclick', `toggleChannel(${clinicId}, '${type}', ${isNowEnabled ? 0 : 1}, this)`);
         }
@@ -534,8 +534,8 @@ function openConfirmModal(options = {}) {
     if (title) title.textContent = options.title || settingsI18n.confirmAreYouSure;
     if (message) message.textContent = options.message || settingsI18n.actionCannotBeUndone;
     if (confirmBtn) confirmBtn.textContent = options.confirmText || settingsI18n.confirmText;
-    if (iconWrap) iconWrap.className = 'w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0';
-    if (icon) icon.className = 'fas fa-exclamation-triangle text-red-600 text-xl';
+    if (iconWrap) iconWrap.className = 'w-12 h-12 v3-bg-alert v3-radius flex items-center justify-center flex-shrink-0';
+    if (icon) icon.className = 'fas fa-exclamation-triangle v3-text-danger text-xl';
 
     confirmModalAction = typeof options.onConfirm === 'function' ? options.onConfirm : null;
     modal.classList.remove('hidden');
@@ -616,13 +616,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('input, select, textarea').forEach((field) => {
         field.addEventListener('input', () => {
-            if (field.classList.contains('border-red-400')) {
+            if (field.classList.contains('v3-border-default')) {
                 setFieldError(field, '');
             }
             clearSettingsSummary();
         });
         field.addEventListener('change', () => {
-            if (field.classList.contains('border-red-400')) {
+            if (field.classList.contains('v3-border-default')) {
                 setFieldError(field, '');
             }
             clearSettingsSummary();

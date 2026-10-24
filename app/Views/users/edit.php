@@ -24,7 +24,7 @@
                         </div>
 
                         <div class="flex items-center space-x-3 <?= !empty($is_rtl) ? 'space-x-reverse' : '' ?>">
-                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
 
                                 <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?> relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UserRole.backToUsers') ?></span>
@@ -38,18 +38,18 @@
 
                     <!-- Flash messages -->
                     <?php if (session()->getFlashdata('error')): ?>
-                        <div class="mb-6 border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+                        <div class="mb-6 border v3-border-default v3-bg-alert p-4 text-sm font-semibold v3-text-danger">
                             <div class="flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                                <i class="fas fa-exclamation-circle v3-text-danger"></i>
                                 <span><?= esc(session()->getFlashdata('error')) ?></span>
                             </div>
                         </div>
                     <?php endif; ?>
 
                     <?php if (session()->getFlashdata('success')): ?>
-                        <div class="mb-6 border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-800">
+                        <div class="mb-6 border v3-border-default v3-bg-paid p-4 text-sm font-semibold v3-text-primary">
                             <div class="flex items-center gap-2">
-                                <i class="fas fa-check-circle text-green-500"></i>
+                                <i class="fas fa-check-circle v3-text-primary"></i>
                                 <span><?= esc(session()->getFlashdata('success')) ?></span>
                             </div>
                         </div>
@@ -66,7 +66,7 @@
                                 <p class="mt-1 text-sm font-semibold"><?= esc(lang('UserRole.identityManagedByOwner')) ?></p>
                                 <?php if (!empty($is_self)): ?>
                                     <div class="mt-3">
-                                        <a href="<?= base_url('profile') ?>" class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition">
+                                        <a href="<?= base_url('profile') ?>" class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition v3-btn v3-btn--secondary">
                                             <i class="fas fa-user-circle"></i>
                                             <span><?= esc(lang('UserRole.profileRedirectNotice')) ?></span>
                                         </a>
@@ -91,7 +91,7 @@
                                         <i class="fas fa-user text-sm"></i>
                                     </div>
                                     <h4 class="text-xl font-bold"><?= lang('UserRole.personalInformation') ?></h4>
-                                    <span class="px-3 py-1 text-xs font-bold ring-1"><?= lang('UserRole.readOnly') ?></span>
+                                    <span class="px-3 py-1 text-xs font-bold border"><?= lang('UserRole.readOnly') ?></span>
                                 </div>
 
                                 <div class="">
@@ -103,7 +103,7 @@
                                             </label>
                                             <div class="relative">
                                                 <input type="text" id="display_first_name"
-                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed"
+                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed v3-input"
                                                        value="<?= esc($user->first_name ?? '') ?>" readonly disabled>
                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-xs"></i>
@@ -118,7 +118,7 @@
                                             </label>
                                             <div class="relative">
                                                 <input type="text" id="display_last_name"
-                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed"
+                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed v3-input"
                                                        value="<?= esc($user->last_name ?? '') ?>" readonly disabled>
                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-xs"></i>
@@ -135,7 +135,7 @@
                                             </label>
                                             <div class="relative">
                                                 <input type="email" id="display_email"
-                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed"
+                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed v3-input"
                                                        value="<?= esc($user->email ?? '') ?>" readonly disabled>
                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-xs"></i>
@@ -147,12 +147,12 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2">
                                         <div class="relative">
                                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2 <?= !empty($is_rtl) ? 'space-x-reverse' : '' ?>">
-                                                <i class="fas fa-phone text-emerald-600"></i>
+                                                <i class="fas fa-phone v3-text-primary"></i>
                                                 <span><?= lang('UserRole.phone') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="tel" id="display_phone"
-                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed"
+                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed v3-input"
                                                        value="<?= esc($user->phone ?? lang('UserRole.notProvided')) ?>" readonly disabled>
                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-xs"></i>
@@ -162,12 +162,12 @@
 
                                         <div class="relative">
                                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2 <?= !empty($is_rtl) ? 'space-x-reverse' : '' ?>">
-                                                <i class="fas fa-calendar text-amber-600"></i>
+                                                <i class="fas fa-calendar v3-text-warning"></i>
                                                 <span><?= lang('UserRole.hireDateRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="text" id="display_hire_date"
-                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed"
+                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed v3-input"
                                                        value="<?= esc(!empty($user->hire_date) ? formatDate((string) $user->hire_date) : lang('UserRole.na')) ?>" readonly disabled>
                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-xs"></i>
@@ -199,7 +199,7 @@
                                             </p>
                                         </div>
                                         <?php if (!empty($is_self)): ?>
-                                            <a href="<?= base_url('users/' . (int) $user->id . '/change-password') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold transition">
+                                            <a href="<?= base_url('users/' . (int) $user->id . '/change-password') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold transition v3-btn v3-btn--secondary">
                                                 <i class="fas fa-key"></i>
                                                 <span><?= lang('UserRole.changePassword') ?></span>
                                             </a>
@@ -233,12 +233,12 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2">
                                         <div class="relative">
                                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2 <?= !empty($is_rtl) ? 'space-x-reverse' : '' ?>">
-                                                <i class="fas fa-user-tag text-green-600"></i>
+                                                <i class="fas fa-user-tag v3-text-primary"></i>
                                                 <span><?= lang('UserRole.roleRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <select id="role" name="role"
-                                                        class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('role')) ? 'border-red-500 ring-red-500/20' : '' ?>"
+                                                        class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 v3-focus-control v3-focus-control <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('role')) ? 'v3-border-default v3-border-default' : '' ?> v3-select"
                                                         data-searchable-select
                                                         data-search-url="<?= base_url('api/v1/search/roles') ?>"
                                                         data-placeholder="<?= lang('UserRole.searchRoles') ?>"
@@ -255,7 +255,7 @@
                                                 </div>
                                             </div>
                                             <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('role')): ?>
-                                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                                <p class="v3-text-danger text-sm mt-2 flex items-center space-x-1">
                                                     <i class="fas fa-exclamation-circle"></i>
                                                     <span><?= session()->getFlashdata('validation')->getError('role') ?></span>
                                                 </p>
@@ -264,12 +264,12 @@
 
                                         <div class="relative">
                                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2 <?= !empty($is_rtl) ? 'space-x-reverse' : '' ?>">
-                                                <i class="fas fa-building text-green-600"></i>
+                                                <i class="fas fa-building v3-text-primary"></i>
                                                 <span><?= lang('UserRole.department') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="text" id="display_department"
-                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed"
+                                                       class="w-full px-4 py-3 border-2 font-semibold cursor-not-allowed v3-input"
                                                        value="<?= esc(!empty($user->department) && isset($departments[$user->department]) ? $departments[$user->department] : ($user->department ?? lang('UserRole.na'))) ?>" readonly disabled>
                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-xs"></i>
@@ -282,13 +282,13 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2">
                                         <div class="relative">
                                             <label class="block text-sm font-bold mb-3 flex items-center space-x-2 <?= !empty($is_rtl) ? 'space-x-reverse' : '' ?>">
-                                                <i class="fas fa-toggle-on text-green-600"></i>
+                                                <i class="fas fa-toggle-on v3-text-primary"></i>
                                                 <span><?= lang('UserRole.membershipStatus') ?></span>
                                             </label>
                                             <div class="flex items-center justify-between p-3.5 border-2">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="inline-flex items-center gap-2 px-3 py-1 text-xs <?= ($membership_status ?? 'active') === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700' ?>">
-                                                        <span class="h-1.5 w-1.5 <?= ($membership_status ?? 'active') === 'active' ? 'bg-emerald-500' : 'bg-slate-500' ?>"></span>
+                                                    <span class="inline-flex items-center gap-2 px-3 py-1 text-xs <?= ($membership_status ?? 'active') === 'active' ? 'v3-bg-paid v3-text-primary' : 'v3-bg-sand v3-text-ink' ?>">
+                                                        <span class="h-1.5 w-1.5 <?= ($membership_status ?? 'active') === 'active' ? 'v3-bg-primary' : 'v3-bg-canvas' ?>"></span>
                                                         <?= esc(($membership_status ?? 'active') === 'active' ? lang('UserRole.active') : lang('UserRole.inactive')) ?>
                                                     </span>
                                                     <span class="text-xs font-semibold"><?= lang('UserRole.clinicAccess') ?></span>
@@ -305,12 +305,12 @@
                                             <div class="flex items-center justify-between p-3.5 border-2">
                                                 <div class="flex items-center gap-2">
                                                     <?php if (!empty($is_globally_disabled)): ?>
-                                                        <span class="inline-flex items-center gap-1.5 bg-rose-100 px-3 py-1 text-xs text-rose-800 ring-1 ring-rose-200">
+                                                        <span class="inline-flex items-center gap-1.5 v3-bg-alert px-3 py-1 text-xs v3-text-danger border v3-border-default">
                                                             <i class="fas fa-ban text-xs"></i>
                                                             <?= esc(lang('UserRole.globallyDisabled')) ?>
                                                         </span>
                                                     <?php else: ?>
-                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs ring-1">
+                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs border">
                                                             <i class="fas fa-check text-xs"></i>
                                                             <?= esc(lang('UserRole.globalAccountActive')) ?>
                                                         </span>
@@ -326,12 +326,12 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t">
-                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold">
+                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold v3-btn v3-btn--secondary">
 
                                 <i class="fas fa-times <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?> relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UserRole.cancel') ?></span>
                             </a>
-                            <button type="submit" class="relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold">
+                            <button type="submit" class="relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold v3-btn v3-btn--primary">
 
                                 <i class="fas fa-save <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?> relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UserRole.updateUser') ?></span>

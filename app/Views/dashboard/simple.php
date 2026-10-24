@@ -7,8 +7,8 @@
     <!-- Page Header -->
     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
         <div>
-            <h1 class="v3-title-scale font-bold text-gray-800 mb-3"><?= lang('TenantMisc.dashboardSimpleTitle') ?></h1>
-            <p class="text-gray-600 text-lg"><?= lang('TenantMisc.dashboardSimpleSubtitle') ?></p>
+            <h1 class="v3-title-scale font-bold v3-text-ink mb-3"><?= lang('TenantMisc.dashboardSimpleTitle') ?></h1>
+            <p class="v3-text-muted text-lg"><?= lang('TenantMisc.dashboardSimpleSubtitle') ?></p>
         </div>
     </div>
 
@@ -21,8 +21,8 @@
                         <i class="fas fa-users text-2xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('TenantMisc.totalPatients') ?></p>
-                        <p class="v3-title-scale font-bold text-gray-900">0</p>
+                        <p class="text-sm font-medium v3-text-muted mb-1"><?= lang('TenantMisc.totalPatients') ?></p>
+                        <p class="v3-title-scale font-bold v3-text-ink">0</p>
                     </div>
                 </div>
             </div>
@@ -35,8 +35,8 @@
                         <i class="fas fa-calendar-check text-2xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('TenantMisc.todaysAppointments') ?></p>
-                        <p class="v3-title-scale font-bold text-gray-900">0</p>
+                        <p class="text-sm font-medium v3-text-muted mb-1"><?= lang('TenantMisc.todaysAppointments') ?></p>
+                        <p class="v3-title-scale font-bold v3-text-ink">0</p>
                     </div>
                 </div>
             </div>
@@ -49,8 +49,8 @@
                         <i class="fas fa-clipboard-list text-2xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('TenantMisc.examinations') ?></p>
-                        <p class="v3-title-scale font-bold text-gray-900">0</p>
+                        <p class="text-sm font-medium v3-text-muted mb-1"><?= lang('TenantMisc.examinations') ?></p>
+                        <p class="v3-title-scale font-bold v3-text-ink">0</p>
                     </div>
                 </div>
             </div>
@@ -63,8 +63,8 @@
                         <i class="fas fa-dollar-sign text-2xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('TenantMisc.revenue') ?></p>
-                        <p class="v3-title-scale font-bold text-gray-900"><?= formatCurrency(0) ?></p>
+                        <p class="text-sm font-medium v3-text-muted mb-1"><?= lang('TenantMisc.revenue') ?></p>
+                        <p class="v3-title-scale font-bold v3-text-ink"><?= formatCurrency(0) ?></p>
                     </div>
                 </div>
             </div>
@@ -74,16 +74,16 @@
     <!-- Simple Content -->
     <div class="bg-[#F3EFE6] rounded-[9px] border border-[#C4B9A8] group transition-all duration-300">
         <div class="mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-2"><?= lang('TenantMisc.dashboardStatus') ?></h3>
-            <p class="text-sm text-gray-600"><?= lang('TenantMisc.dashboardStatusRunning') ?></p>
+            <h3 class="text-xl font-bold v3-text-ink mb-2"><?= lang('TenantMisc.dashboardStatus') ?></h3>
+            <p class="text-sm v3-text-muted"><?= lang('TenantMisc.dashboardStatusRunning') ?></p>
         </div>
 
         <div class="text-center py-12">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check text-green-600 text-2xl"></i>
+            <div class="w-16 h-16 v3-bg-paid rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check v3-text-primary text-2xl"></i>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2"><?= lang('TenantMisc.dashboardWorkingTitle') ?></h3>
-            <p class="text-gray-500"><?= lang('TenantMisc.dashboardWorkingDesc') ?></p>
+            <h3 class="text-lg font-medium v3-text-ink mb-2"><?= lang('TenantMisc.dashboardWorkingTitle') ?></h3>
+            <p class="v3-text-muted"><?= lang('TenantMisc.dashboardWorkingDesc') ?></p>
         </div>
     </div>
 </div>
