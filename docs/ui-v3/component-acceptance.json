@@ -1,0 +1,99 @@
+{
+  "runtime": "7bb13d30517cd3e941646f7402c5442ed2707917",
+  "actual_captures": 176,
+  "reference_views": 13,
+  "errors": [],
+  "overflow": [],
+  "intentional_unavailable": [
+    {
+      "label": "notification-dropdown",
+      "lang": "en",
+      "width": 390,
+      "unavailable": "Notification trigger is intentionally hidden in compact toolbar; desktop sample available"
+    },
+    {
+      "label": "notification-dropdown",
+      "lang": "ar",
+      "width": 390,
+      "unavailable": "Notification trigger is intentionally hidden in compact toolbar; desktop sample available"
+    }
+  ],
+  "assets": [
+    {
+      "asset": "public/assets/css/app-drawer.css",
+      "before": 10023,
+      "after": 10023
+    },
+    {
+      "asset": "public/assets/css/patient-workspace.css",
+      "before": 12812,
+      "after": 12812
+    },
+    {
+      "asset": "public/assets/css/tailwind.css",
+      "before": 243084,
+      "after": 185199
+    },
+    {
+      "asset": "public/assets/css/v3-chart-chrome.css",
+      "before": 1622,
+      "after": 4482
+    },
+    {
+      "asset": "public/assets/css/v3-clinical-kiosk.css",
+      "before": 4077,
+      "after": 4073
+    },
+    {
+      "asset": "public/assets/css/v3-components.css",
+      "before": 0,
+      "after": 8293
+    },
+    {
+      "asset": "public/assets/css/v3-control-plane.css",
+      "before": 25565,
+      "after": 25653
+    },
+    {
+      "asset": "public/assets/css/v3-flow-forms.css",
+      "before": 17989,
+      "after": 17979
+    },
+    {
+      "asset": "public/assets/css/v3-icons.css",
+      "before": 0,
+      "after": 42690
+    },
+    {
+      "asset": "public/assets/css/v3-inventory-forms.css",
+      "before": 2575,
+      "after": 2575
+    },
+    {
+      "asset": "public/assets/css/v3-support-views.css",
+      "before": 39895,
+      "after": 39895
+    },
+    {
+      "asset": "public/assets/css/warm-clinical.css",
+      "before": 20216,
+      "after": 22888
+    },
+    {
+      "asset": "public/assets/css/warm-secondary-layout.css",
+      "before": 44934,
+      "after": 33295
+    },
+    {
+      "asset": "public/assets/css/warm-secondary.css",
+      "before": 17279,
+      "after": 17271
+    },
+    {
+      "asset": "public/assets/css/warm-workspaces.css",
+      "before": 13963,
+      "after": 13951
+    }
+  ],
+  "review": "AGY timed out without verdict; fresh GitHub exact-head review pending"
+}

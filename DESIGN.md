@@ -14,3 +14,6 @@ See [acceptance record](docs/UI_V3_ACCEPTANCE.md) for evidence, curated screensh
 
 
 Architectural components: `v3-flow-forms.css`, scoped `v3-support-views.css`, `v3-control-plane.css`, touch-first `v3-clinical-kiosk.css` and `v3-inventory-forms.css`. `v3-chart-chrome.css` styles outer screen chrome only, never SVG/snapshots. Screen-only links protect print output. Replace obsolete markup instead of stacking specificity overrides.
+
+
+The authoritative small-control layer is `v3-components.css`; `v3-icons.css` supplies the locally bundled reference-style outline set. Preserve fa-name event hooks while rendering one outline identity. Small copy uses approved Ink where Muted fails contrast against warm backgrounds. Select2 injected CSS uses the same tokens; native hidden/responsive classes retain precedence.

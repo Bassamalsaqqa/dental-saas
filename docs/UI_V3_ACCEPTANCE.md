@@ -1,6 +1,6 @@
 # V3 architectural redesign acceptance
 
-2026-10-24. Protected release: `89352fd20e0d5166e81f631cb743bead1f596a68`. Runtime: `8a720c3593c961c0926ad258d0a3d3c9838359aa`; subsequent evidence commits do not change runtime. Draft PR #21 awaits Owner visual acceptance and finished-candidate independent review. No deployment requested.
+2026-10-24. Protected release: `89352fd20e0d5166e81f631cb743bead1f596a68`. Runtime: `7bb13d30517cd3e941646f7402c5442ed2707917`; subsequent evidence commits do not change runtime. Draft PR #21 awaits Owner visual acceptance and finished-candidate independent review. No deployment requested.
 
 ## Actual visual evidence
 
@@ -80,3 +80,20 @@ Support CSS consolidates repeated inline styles; secondary CSS pruned. New compo
 ## Preserved / unsupported
 
 No invented prototype statistics, medical inference, checkout, supplier finance or dynamic resources. Corrections, scheduling, WhatsApp, checkout, contact history and derivatives retain OFF state. Legal documents, signatures and native odontogram remain stable. Localization exceptions above are explicit. Production and reference kit untouched. Full captures/private credentials remain outside source; curated screenshots are synthetic only. Ready for visual acceptance and independent review, not deployment.
+
+
+## Final component-purity pass
+
+Runtime freeze: `7bb13d30517cd3e941646f7402c5442ed2707917`. V3-native button/input/select/checkbox/switch/table/dialog tokens replace legacy colour utilities in active source, including generated controls. A local 1.8px outline SVG-mask catalog follows the supplied prototype geometry; retained `fa-*` names are functional selector aliases, not Font Awesome screen glyphs. Original third-party assets/notices remain preserved for protected print surfaces. No new runtime dependency.
+
+`warm-secondary-layout.css` compatibility declarations fall from 252 to 58 `!important` uses; remaining declarations preserve visibility/position/order/plugin mechanics. Pure visual declarations were replaced at source. Source CSS totals fall from 454,034 to 441,079 bytes including the new icon/component assets; Tailwind falls from 243,084 to 185,199 bytes. These are uncompressed repository sizes, not network or latency measurements. Existing paired query/latency evidence above remains applicable as a bounded backend observation; no new global speed claim.
+
+Actual visual inspection corrected source gradients, raw white surfaces, excessive radii/shadows, Select2's dynamically injected blue theme, native-chart outer dialog chrome, destructive variants, hidden-state precedence and icon contrast. A discovered finance widget startup race was fixed by moving the existing CSRF bootstrap unchanged before dependent page scripts and deferring the finance script. The affected 12 EN/AR finance/drawer captures pass without errors; 42 HTTP/security checks and SaaS guardrails pass afterward.
+
+The offline Owner gallery is outside the repository: `C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/v3-owner-review/index.html`. Double-click it in Explorer; no server required. It includes all 13 original reference images, matching actual CI4 workspaces, EN/AR desktop/mobile selectors, and real component/form/dialog/drawer states. Identity-board content remains reference-only. The full archive stays local; this directory contains only curated synthetic previews.
+
+Remaining intentional exceptions: native odontogram geometry, clinical condition colours/internal labels, signed snapshots and legal print documents are protected; browser-native date/validation chrome follows the operating system. Kiosk signing preview is captured from an existing eligible synthetic contract, but signature submission is disabled by existing entitlement and no consent is fabricated. Disabled prototype features stay OFF. Existing dynamic technical labels may remain English. These exceptions are not a blanket claim that every historical component is visually accepted.
+
+Independent AGY source review timed out without a final verdict; it is not approval. The previous GitHub COMMENTED review applies to `6612d175`, not this new source. A fresh exact-head decision is requested on the finished draft; Owner visual acceptance remains outstanding. No merge/deployment is authorized.
+
+Final gallery confirmation: **176 actual captures, 13 reference views, zero accepted overflow or recorded page errors**. Offline gallery opens with 13 comparison sections, no broken images and no script errors. Curated components: [income drawer](ui-v3/v3-drawer-income-en-1586.png), [AR autocomplete](ui-v3/v3-select2-open-ar-390.png), [native chart dialog](ui-v3/v3-native-chart-dialog-ar-390.png), [kiosk contract review](ui-v3/v3-kiosk-sign-review-ar-390.png). Full gallery stays outside source.
