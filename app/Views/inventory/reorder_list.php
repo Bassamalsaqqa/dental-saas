@@ -31,13 +31,13 @@ $statusClasses = [
     'cancelled' => 'bg-slate-100 text-slate-700 ring-slate-200/70',
 ];
 ?>
-<div class="w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="overflow-hidden rounded-[1.65rem] border border-white/20 bg-slate-950 text-white shadow-2xl shadow-amber-900/20">
+<div class="v3-operational-view w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
+    <section class="overflow-hidden rounded-[1.65rem] border v3-border bg-slate-950 text-white">
         <div class="relative p-5 sm:p-6 lg:p-7">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(245,158,11,.56),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(20,184,166,.38),transparent_28%),linear-gradient(135deg,#92400e_0%,#b45309_42%,#0f766e_100%)]"></div>
             <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,.76fr)] xl:items-center">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
+                    <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center v3-radius v3-surface text-white ring-1 ring-white/20">
                         <i class="fas fa-cart-shopping text-2xl"></i>
                     </span>
                     <div class="min-w-0">
@@ -48,15 +48,15 @@ $statusClasses = [
                 </div>
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div class="rounded-2xl border border-white/15 bg-white/14 p-4 shadow-inner backdrop-blur">
+                    <div class="v3-radius border v3-border v3-surface p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide text-amber-100"><?= esc($tr('draftLines')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $draftCount ?></p>
                     </div>
-                    <div class="rounded-2xl border border-white/15 bg-blue-400/18 p-4 shadow-inner backdrop-blur">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-blue-100"><?= esc($tr('orderedLines')) ?></p>
+                    <div class="v3-radius border v3-border v3-soft-surface p-4">
+                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('orderedLines')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $orderedCount ?></p>
                     </div>
-                    <div class="rounded-2xl border border-white/15 bg-emerald-400/18 p-4 shadow-inner backdrop-blur">
+                    <div class="v3-radius border v3-border bg-emerald-400/18 p-4">
                         <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc($tr('suppliersInvolved')) ?></p>
                         <p class="mt-1 text-2xl font-black text-white"><?= $supplierCount ?></p>
                     </div>
@@ -64,15 +64,15 @@ $statusClasses = [
             </div>
 
             <div class="relative mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
                     <i class="fas fa-arrows-rotate"></i>
                     <span><?= esc($tr('movements')) ?></span>
                 </a>
-                <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-rose-900/20 transition hover:-translate-y-0.5 hover:bg-rose-600">
+                <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius bg-rose-500 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-600">
                     <i class="fas fa-exclamation-triangle"></i>
                     <span><?= esc($tr('lowStockItems')) ?></span>
                 </a>
-                <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-amber-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-50">
+                <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 v3-radius v3-surface px-4 py-2.5 text-sm font-black text-amber-800 transition hover:bg-amber-50">
                     <i class="fas fa-arrow-left rtl:rotate-180"></i>
                     <span><?= esc($tr('backToInventory')) ?></span>
                 </a>
@@ -81,20 +81,20 @@ $statusClasses = [
     </section>
 
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
+        <div class="v3-radius border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
             <?= esc(session()->getFlashdata('success')) ?>
         </div>
     <?php endif; ?>
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
+        <div class="v3-radius border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
             <?= esc(session()->getFlashdata('error')) ?>
         </div>
     <?php endif; ?>
 
-    <section class="overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-200/60">
-        <div class="flex flex-col gap-4 border-b border-slate-200/80 bg-gradient-to-r from-white via-amber-50/90 to-orange-50/80 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+    <section class="overflow-hidden rounded-[1.5rem] border v3-border v3-surface">
+        <div class="flex flex-col gap-4 border-b v3-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex min-w-0 items-center gap-3">
-                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-700 text-white shadow-lg shadow-amber-500/20">
+                <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center v3-radius text-white">
                     <i class="fas fa-list-check"></i>
                 </span>
                 <div class="min-w-0">
@@ -106,8 +106,8 @@ $statusClasses = [
                 <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1.5 text-amber-800 ring-1 ring-amber-200/70">
                     <span class="h-2 w-2 rounded-full bg-amber-500"></span><?= esc($tr('draftLines')) ?>
                 </span>
-                <span class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1.5 text-blue-800 ring-1 ring-blue-200/70">
-                    <span class="h-2 w-2 rounded-full bg-blue-500"></span><?= esc($tr('orderedLines')) ?>
+                <span class="inline-flex items-center gap-2 rounded-full v3-soft-surface px-3 py-1.5 v3-accent-text ring-1 ring-blue-200/70">
+                    <span class="h-2 w-2 rounded-full v3-soft-surface"></span><?= esc($tr('orderedLines')) ?>
                 </span>
             </div>
         </div>
@@ -115,7 +115,7 @@ $statusClasses = [
         <?php if (!empty($reorderItems)): ?>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
-                    <thead class="bg-slate-50">
+                    <thead class="v3-surface">
                         <tr>
                             <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('item')) ?></th>
                             <th class="px-5 py-4 text-start text-xs font-black uppercase tracking-wide text-slate-500"><?= esc($tr('stockDetails')) ?></th>
@@ -142,7 +142,7 @@ $statusClasses = [
                                             <span><?= esc(ucfirst((string) $row['category'])) ?></span>
                                             <span aria-hidden="true">&middot;</span>
                                         <?php endif; ?>
-                                        <a class="font-black text-blue-700 hover:text-blue-900" href="<?= base_url('inventory/' . $inventoryId) ?>"><?= esc($tr('viewItem')) ?></a>
+                                        <a class="font-black v3-accent-text hover:text-blue-900" href="<?= base_url('inventory/' . $inventoryId) ?>"><?= esc($tr('viewItem')) ?></a>
                                     </div>
                                 </td>
                                 <td class="px-5 py-4 text-sm">
@@ -164,7 +164,7 @@ $statusClasses = [
                                             </a>
                                         <?php endif; ?>
                                         <?php if (!empty($row['supplier_email'])): ?>
-                                            <a href="mailto:<?= esc((string) $row['supplier_email']) ?>" class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-black text-blue-700 transition hover:bg-blue-100">
+                                            <a href="mailto:<?= esc((string) $row['supplier_email']) ?>" class="inline-flex items-center gap-1 rounded-lg v3-soft-surface px-2.5 py-1 text-xs font-black v3-accent-text transition hover:bg-blue-100">
                                                 <i class="fas fa-envelope"></i><?= esc($tr('emailShort')) ?>
                                             </a>
                                         <?php endif; ?>
@@ -187,16 +187,16 @@ $statusClasses = [
                                     <div class="min-w-[20rem] space-y-3">
                                         <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/status') ?>" class="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] gap-2">
                                             <?= csrf_field() ?>
-                                            <input type="number" name="requested_qty" min="1" value="<?= (int) ($row['requested_qty'] ?? 1) ?>" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
-                                            <select name="status" data-force-select2 data-allow-clear="false" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                                            <input type="number" name="requested_qty" min="1" value="<?= (int) ($row['requested_qty'] ?? 1) ?>" class="w-full v3-radius border v3-border px-3 py-2 text-sm font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                                            <select name="status" data-force-select2 data-allow-clear="false" class="w-full v3-radius border v3-border px-3 py-2 text-sm font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
                                                 <?php foreach (['draft', 'ordered', 'received', 'cancelled'] as $statusOption): ?>
                                                     <option value="<?= esc($statusOption) ?>" <?= $status === $statusOption ? 'selected' : '' ?>><?= esc(ucfirst($statusOption)) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-blue-700"><?= esc($tr('apply')) ?></button>
+                                            <button type="submit" class="v3-radius v3-soft-surface px-4 py-2 text-xs font-black text-white transition hover:bg-blue-700"><?= esc($tr('apply')) ?></button>
                                         </form>
 
-                                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                                        <div class="v3-radius border v3-border v3-surface p-3">
                                             <div class="mb-2 flex items-center justify-between gap-3">
                                                 <div class="text-[11px] font-black uppercase tracking-wide text-slate-500"><?= esc($tr('supplierContact')) ?></div>
                                                 <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/delete') ?>" onsubmit="return confirm('<?= esc(lang('Inventory.removeReorderLineConfirm'), 'js') ?>');">
@@ -221,7 +221,7 @@ $statusClasses = [
                                                     <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/contacted') ?>">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="method" value="<?= esc($methodKey) ?>">
-                                                        <button type="submit" class="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-black text-slate-700 transition hover:bg-slate-100"><?= esc($label) ?></button>
+                                                        <button type="submit" class="w-full rounded-lg border v3-border v3-surface px-2 py-1.5 text-[11px] font-black text-slate-700 transition hover:bg-slate-100"><?= esc($label) ?></button>
                                                     </form>
                                                 <?php endforeach; ?>
                                             </div>
@@ -236,17 +236,17 @@ $statusClasses = [
         <?php else: ?>
             <div class="px-5 py-14 text-center">
                 <div class="mx-auto flex max-w-md flex-col items-center">
-                    <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                    <span class="flex h-14 w-14 items-center justify-center v3-radius bg-amber-100 text-amber-700">
                         <i class="fas fa-cart-shopping text-xl"></i>
                     </span>
                     <p class="mt-4 text-sm font-black text-slate-700"><?= esc($tr('noReorderLinesYet')) ?></p>
                     <p class="mt-1 text-sm font-semibold text-slate-500"><?= esc($tr('addItemsFromLowStock')) ?></p>
                     <div class="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
-                        <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-700">
+                        <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center justify-center gap-2 v3-radius bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700">
                             <i class="fas fa-exclamation-triangle"></i>
                             <span><?= esc($tr('openLowStock')) ?></span>
                         </a>
-                        <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-200">
+                        <a href="<?= base_url('inventory') ?>" class="inline-flex items-center justify-center gap-2 v3-radius border v3-border bg-slate-100 px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-200">
                             <i class="fas fa-boxes"></i>
                             <span><?= esc($tr('inventoryItems')) ?></span>
                         </a>

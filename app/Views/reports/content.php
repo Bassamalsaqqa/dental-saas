@@ -1,3 +1,4 @@
+<div class="v3-operational-view">
 
 <?php
 $tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params);
@@ -21,242 +22,24 @@ $currentMeta = [
     'treatments' => ['headline' => $tm('reportTreatmentsHeadline'), 'summary' => $tm('reportTreatmentsSummary')],
 ][$activeReportType] ?? ['headline' => $tm('reportsAnalyticsTitle'), 'summary' => $tm('reportsAnalyticsDesc')];
 ?>
-<style>
-    .report-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: 1.6rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background:
-            radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.22), transparent 30%),
-            radial-gradient(circle at 88% 4%, rgba(16, 185, 129, 0.22), transparent 28%),
-            linear-gradient(135deg, #0f3f90 0%, #1656c1 52%, #0f766e 100%);
-        color: #fff;
-        box-shadow: 0 30px 70px -44px rgba(15, 23, 42, 0.82);
-    }
 
-    [dir="rtl"] .report-hero {
-        background:
-            radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.22), transparent 30%),
-            radial-gradient(circle at 12% 4%, rgba(16, 185, 129, 0.22), transparent 28%),
-            linear-gradient(225deg, #0f3f90 0%, #1656c1 52%, #0f766e 100%);
-    }
-
-    .report-hero::after {
-        content: "";
-        position: absolute;
-        inset: auto -4rem -7rem auto;
-        width: 24rem;
-        aspect-ratio: 1;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.1);
-        pointer-events: none;
-    }
-
-    .report-hero > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .report-card {
-        border-radius: 1.35rem;
-        border: 1px solid rgba(226, 232, 240, 0.86);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.07), transparent 30%),
-            linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
-        box-shadow: 0 22px 54px -42px rgba(15, 23, 42, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.86);
-    }
-
-    .report-workspace-card {
-        min-height: 74px;
-    }
-
-    .report-workspace-desc {
-        display: none;
-    }
-
-    .report-workspace-card[aria-current="page"] {
-        background: linear-gradient(135deg, #0f3f90, #1656c1 55%, #0f766e) !important;
-        border-color: rgba(37, 99, 235, 0.45) !important;
-        color: #ffffff !important;
-        box-shadow: 0 18px 36px -26px rgba(37, 99, 235, 0.75) !important;
-    }
-
-    .report-detail-tab[data-active="true"] {
-        background: linear-gradient(135deg, #16a34a, #059669) !important;
-        border-color: #059669 !important;
-        color: #ffffff !important;
-    }
-
-    .report-detail-tab[data-active="true"] span {
-        color: #e0f2fe !important;
-    }
-
-    .report-table-control {
-        padding: 8px 12px;
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        color: #374151;
-        outline: none;
-        transition: all 0.2s ease;
-    }
-
-    .report-table-control:focus {
-        border-color: #10b981;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-    .report-table-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .report-table-control-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #374151;
-    }
-
-    .report-table-export-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 8px 12px;
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        color: #374151;
-        transition: all 0.2s ease;
-    }
-
-    .report-table-export-button:hover {
-        background-color: #f9fafb;
-        border-color: #9ca3af;
-    }
-
-    .report-table-card {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.07), transparent 28%),
-            linear-gradient(135deg, #ffffff, #f8fafc);
-        border: 1px solid rgba(226, 232, 240, 0.92);
-        border-radius: 1.35rem;
-        box-shadow: 0 22px 54px -42px rgba(15, 23, 42, 0.48);
-        overflow: hidden;
-    }
-
-    .report-table-head {
-        border-bottom: 1px solid #e2e8f0;
-        background: rgba(248, 250, 252, 0.82);
-        padding: 16px 24px;
-    }
-
-    .report-table-scroll {
-        overflow-x: auto;
-    }
-
-    .report-detail-panel {
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-        overflow: hidden;
-        background-color: #ffffff;
-    }
-
-    .report-kpi-grid > div {
-        position: relative;
-        overflow: hidden;
-        min-height: 8rem;
-        border-radius: 1.25rem;
-        padding: 1.15rem;
-        color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 20px 38px -30px rgba(15, 23, 42, 0.65);
-    }
-
-    .report-kpi-grid > div::after {
-        content: "";
-        position: absolute;
-        inset-block-start: -42%;
-        inset-inline-end: -12%;
-        width: 9rem;
-        aspect-ratio: 1;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.15);
-    }
-
-    .report-kpi-grid > div > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .report-kpi-grid > div:nth-child(1) { background: linear-gradient(135deg, #2563eb, #1d4ed8 58%, #1e3a8a); }
-    .report-kpi-grid > div:nth-child(2) { background: linear-gradient(135deg, #059669, #047857 58%, #064e3b); }
-    .report-kpi-grid > div:nth-child(3) { background: linear-gradient(135deg, #7c3aed, #6d28d9 58%, #4c1d95); }
-    .report-kpi-grid > div:nth-child(4) { background: linear-gradient(135deg, #d97706, #b45309 58%, #92400e); }
-
-    .report-kpi-grid p {
-        color: inherit !important;
-    }
-
-    .report-kpi-grid p:first-child {
-        color: rgba(255, 255, 255, 0.86) !important;
-        font-weight: 900;
-    }
-
-    .report-kpi-grid p:last-child {
-        color: #fff !important;
-        font-weight: 900;
-    }
-
-    .report-breakdown-card {
-        border-radius: 1.15rem;
-        border: 1px solid rgba(226, 232, 240, 0.88);
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 14px 34px -30px rgba(15, 23, 42, 0.55);
-    }
-
-    @media (max-width: 767.98px) {
-        .report-table-toolbar,
-        .report-table-control-group {
-            align-items: stretch;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .report-table-control,
-        .report-table-export-button {
-            width: 100%;
-        }
-    }
-</style>
 <div class="report-page-shell min-h-screen">
-<div class="space-y-6 px-3 py-4 sm:px-4 sm:py-6">
-    <div class="mx-auto max-w-7xl space-y-6">
+<div class="px-3 py-4 sm:px-4 sm:py-6">
+    <div class="mx-auto max-w-7xl">
     <div class="mb-6 sm:mb-8">
-            <div class="report-hero p-5 sm:p-6">
+            <div class="report-hero sm:p-6">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div class="flex items-start gap-3">
-                        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg ring-1 ring-white/20">
+                        <div class="flex h-14 w-14 shrink-0 items-center justify-center ring-1">
                             <i class="fas fa-chart-pie text-xl"></i>
                         </div>
                         <div class="max-w-2xl">
-                            <p class="text-xs font-black uppercase tracking-[0.2em] text-blue-100/90"><?= esc($tm('reportsAnalyticsTitle')) ?></p>
-                            <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc($currentMeta['headline']) ?></h1>
+                            <p class="text-xs uppercase tracking-[0.2em]"><?= esc($tm('reportsAnalyticsTitle')) ?></p>
+                            <h1 class="mt-1 v3-section-title tracking-tight v3-title"><?= esc($currentMeta['headline']) ?></h1>
                         </div>
                     </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[28rem]">
-                        <span class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/20">
+                        <span class="inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-xs font-bold ring-1">
                             <i class="fas fa-calendar-days"></i>
                             <span><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?></span>
                         </span>
@@ -266,7 +49,7 @@ $currentMeta = [
                                 <?= esc($tf('exportPdf')) ?>
                             </button>
                             <button onclick="printReport()" class="report-table-export-button">
-                                <i class="fas fa-print text-gray-600"></i>
+                                <i class="fas fa-print"></i>
                                 <?= esc($tf('print')) ?>
                             </button>
                             <button onclick="exportReport('excel')" class="report-table-export-button">
@@ -286,11 +69,11 @@ $currentMeta = [
                     <?php $isActiveCard = $activeReportType === $card['type']; ?>
                     <?php $tabQuery = array_merge($workspaceBaseQuery, ['report_type' => $card['type']]); ?>
                     <a
-                        class="report-workspace-card group flex items-center gap-3 rounded-xl border p-3 text-start transition-all <?= $isActiveCard ? 'border-blue-600 bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'border-slate-200 bg-white/90 text-slate-700 hover:border-blue-300 hover:bg-blue-50/70 hover:shadow-md' ?>"
+                        class="report-workspace-card flex items-center gap-3 border p-3 text-start <?= $isActiveCard ? 'border-blue-600 bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'border-slate-200 bg-white/90 text-slate-700 hover:border-blue-300 hover:bg-blue-50/70 hover:shadow-md' ?>"
                         href="<?= esc(current_url() . '?' . http_build_query($tabQuery)) ?>"
                         aria-current="<?= $isActiveCard ? 'page' : 'false' ?>"
                     >
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl <?= $isActiveCard ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700 group-hover:bg-white' ?>">
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center <?= $isActiveCard ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700 group-hover:bg-white' ?>">
                             <i class="fas <?= esc($card['icon']) ?>"></i>
                         </span>
                         <span class="min-w-0">
@@ -305,17 +88,17 @@ $currentMeta = [
 
         <!-- Report Controls -->
     <div class="mb-6 sm:mb-8">
-            <div class="report-card p-5 sm:p-6">
+            <div class="report-card sm:p-6">
             <div class="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <h2 class="text-base font-bold text-slate-900"><?= esc($tm('reportControlsTitle')) ?></h2>
-                <span class="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                <h2 class="text-base font-bold"><?= esc($tm('reportControlsTitle')) ?></h2>
+                <span class="inline-flex w-fit items-center gap-2 px-3 py-1 text-xs font-bold">
                     <i class="fas fa-sliders"></i><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?>
                 </span>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:flex xl:flex-row xl:flex-nowrap xl:items-end xl:gap-3">
                 <div class="xl:flex-1 xl:min-w-0">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.quickRange') ?></label>
-                    <select id="dateRange" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= lang('TenantMisc.quickRange') ?></label>
+                    <select id="dateRange" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value="7" <?= ($date_range ?? '30') === '7' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.last7Days')) ?></option>
                         <option value="30" <?= ($date_range ?? '30') === '30' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.last30Days')) ?></option>
                         <option value="90" <?= ($date_range ?? '30') === '90' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.last90Days')) ?></option>
@@ -323,23 +106,23 @@ $currentMeta = [
                     </select>
                 </div>
                 <div class="xl:flex-1 xl:min-w-0">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.from') ?></label>
-                    <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_from'] ?? '') ?: ($filters['start_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= lang('TenantMisc.from') ?></label>
+                    <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_from'] ?? '') ?: ($filters['start_date'] ?? '')) ?>" class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                 </div>
                 <div class="xl:flex-1 xl:min-w-0">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.to') ?></label>
-                    <input id="customTo" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_to'] ?? '') ?: ($filters['end_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= lang('TenantMisc.to') ?></label>
+                    <input id="customTo" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_to'] ?? '') ?: ($filters['end_date'] ?? '')) ?>" class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                 </div>
                 <div class="xl:flex-1 xl:min-w-0">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.compareMode') ?></label>
-                    <select id="compareMode" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= lang('TenantMisc.compareMode') ?></label>
+                    <select id="compareMode" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value="none" <?= ($filters['compare_mode'] ?? 'none') === 'none' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.noComparison')) ?></option>
                         <option value="previous_period" <?= ($filters['compare_mode'] ?? '') === 'previous_period' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.previousPeriodComparison')) ?></option>
                     </select>
                 </div>
                 <div id="patientFilterWrap" class="xl:flex-1 xl:min-w-0">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.patientOptional') ?></label>
-                    <select id="patientFilter" data-searchable-select data-minimum-input-length="0" data-limit="10" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc($tm('searchPatientsPlaceholder')) ?>" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= lang('TenantMisc.patientOptional') ?></label>
+                    <select id="patientFilter" data-searchable-select data-minimum-input-length="0" data-limit="10" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc($tm('searchPatientsPlaceholder')) ?>" class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value=""><?= lang('TenantMisc.allPatients') ?></option>
                         <?php foreach (($report_patients ?? []) as $patient): ?>
                             <?php
@@ -357,8 +140,8 @@ $currentMeta = [
                     </select>
                 </div>
                 <div id="examinationTypeWrap" class="<?= $activeReportType === 'examinations' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('examinationType') ?></label>
-                    <select id="examinationTypeFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= $tm('examinationType') ?></label>
+                    <select id="examinationTypeFilter" data-force-select2 class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value=""><?= esc($tm('anyExaminationType')) ?></option>
                         <?php foreach (($reports['examination_types'] ?? []) as $type): ?>
                             <?php $typeValue = (string) ($type['examination_type'] ?? ''); ?>
@@ -368,8 +151,8 @@ $currentMeta = [
                     </select>
                 </div>
                 <div id="appointmentStatusWrap" class="<?= $activeReportType === 'appointments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('appointmentStatus') ?></label>
-                    <select id="appointmentStatusFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= $tm('appointmentStatus') ?></label>
+                    <select id="appointmentStatusFilter" data-force-select2 class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value=""><?= $tm('allStatuses') ?></option>
                         <option value="scheduled" <?= ($filters['appointment_status'] ?? '') === 'scheduled' ? 'selected' : '' ?>><?= $tm('scheduled') ?></option>
                         <option value="confirmed" <?= ($filters['appointment_status'] ?? '') === 'confirmed' ? 'selected' : '' ?>><?= $tm('confirmed') ?></option>
@@ -380,8 +163,8 @@ $currentMeta = [
                     </select>
                 </div>
                 <div id="appointmentTypeWrap" class="<?= $activeReportType === 'appointments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('appointmentType') ?></label>
-                    <select id="appointmentTypeFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= $tm('appointmentType') ?></label>
+                    <select id="appointmentTypeFilter" data-force-select2 class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value=""><?= esc($tm('anyAppointmentType')) ?></option>
                         <?php foreach (($reports['appointment_types'] ?? []) as $type): ?>
                             <?php $typeValue = (string) ($type['appointment_type'] ?? ''); ?>
@@ -391,8 +174,8 @@ $currentMeta = [
                     </select>
                 </div>
                 <div id="treatmentStatusWrap" class="<?= $activeReportType === 'treatments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('treatmentStatus') ?></label>
-                    <select id="treatmentStatusFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= $tm('treatmentStatus') ?></label>
+                    <select id="treatmentStatusFilter" data-force-select2 class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value=""><?= $tm('allStatuses') ?></option>
                         <option value="planned" <?= ($filters['treatment_status'] ?? '') === 'planned' ? 'selected' : '' ?>><?= $tm('planned') ?></option>
                         <option value="in_progress" <?= ($filters['treatment_status'] ?? '') === 'in_progress' ? 'selected' : '' ?>><?= $tm('inProgress') ?></option>
@@ -402,8 +185,8 @@ $currentMeta = [
                     </select>
                 </div>
                 <div id="treatmentTypeWrap" class="<?= $activeReportType === 'treatments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('treatmentType') ?></label>
-                    <select id="treatmentTypeFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
+                    <label class="block text-xs font-semibold uppercase tracking-wide mb-2"><?= $tm('treatmentType') ?></label>
+                    <select id="treatmentTypeFilter" data-force-select2 class="w-full px-4 py-3 border text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900">
                         <option value=""><?= esc($tm('anyTreatmentType')) ?></option>
                         <?php foreach (($reports['treatment_types'] ?? []) as $type): ?>
                             <?php $typeValue = (string) ($type['treatment_type'] ?? ''); ?>
@@ -413,19 +196,19 @@ $currentMeta = [
                     </select>
                 </div>
                 <div class="flex items-end xl:flex-none xl:justify-end">
-                    <button onclick="generateReport()" class="inline-flex h-[46px] min-w-[6.5rem] items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-green-600 hover:to-emerald-700">
+                    <button onclick="generateReport()" class="inline-flex h-[46px] min-w-[6.5rem] items-center justify-center px-4 py-2.5 text-sm font-semibold transition">
                         <?= esc(lang('TenantMisc.applyFilters')) ?>
                     </button>
                 </div>
             </div>
             <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
                 <?php if (!empty($filters['patient_id'])): ?>
-                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
+                <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
                     <i class="fas fa-user"></i><?= lang('TenantMisc.patientScoped') ?>
                 </span>
                 <?php endif; ?>
                 <?php if (($filters['compare_mode'] ?? 'none') === 'previous_period'): ?>
-                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
+                <span class="inline-flex items-center gap-2 px-3 py-1 border font-semibold">
                     <i class="fas fa-arrow-right-arrow-left"></i><?= lang('TenantMisc.previousPeriodComparison') ?>
                 </span>
                 <?php endif; ?>
@@ -436,83 +219,83 @@ $currentMeta = [
     <!-- Overview Report -->
     <?php if (($report_type ?? 'overview') === 'overview'): ?>
         <div class="mb-8">
-            <div class="space-y-6">
+            <div class="">
                 <!-- Summary Stats -->
-                    <div class="report-card p-5 sm:p-6">
+                    <div class="report-card sm:p-6">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-slate-900 mb-2"><?= lang('TenantMisc.summaryStatistics') ?></h3>
+                        <h3 class="text-xl font-bold mb-2"><?= lang('TenantMisc.summaryStatistics') ?></h3>
                     </div>
                 <div class="report-kpi-grid grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                             <div class="flex justify-between items-center p-4">
                         <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-sky-700 rounded-xl flex items-center justify-center text-white">
+                                    <div class="w-10 h-10 bg-sky-700 flex items-center justify-center">
                                         <i class="fas fa-users"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-slate-900"><?= lang('TenantMisc.totalPatients') ?></p>
-                                <p class="text-xs text-slate-500"><?= lang('TenantMisc.allTime') ?></p>
+                                        <p class="text-sm font-semibold"><?= lang('TenantMisc.totalPatients') ?></p>
+                                <p class="text-xs"><?= lang('TenantMisc.allTime') ?></p>
                             </div>
                         </div>
                         <div class="text-end">
-                            <p class="text-2xl font-bold text-slate-900"><?= $reports['summary']['total_patients'] ?? 0 ?></p>
+                            <p class="v3-section-title font-bold"><?= $reports['summary']['total_patients'] ?? 0 ?></p>
                                     <p class="text-xs text-emerald-700 font-semibold">+<?= $reports['summary']['new_patients'] ?? 0 ?> <?= lang('TenantMisc.new') ?></p>
                         </div>
                     </div>
 
                             <div class="flex justify-between items-center p-4">
                         <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white">
+                                    <div class="w-10 h-10 bg-emerald-600 flex items-center justify-center">
                                         <i class="fas fa-stethoscope"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-slate-900"><?= lang('TenantMisc.examinations') ?></p>
-                                <p class="text-xs text-slate-500"><?= lang('TenantMisc.thisPeriod') ?></p>
+                                        <p class="text-sm font-semibold"><?= lang('TenantMisc.examinations') ?></p>
+                                <p class="text-xs"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
                         <div class="text-end">
-                            <p class="text-2xl font-bold text-slate-900"><?= $reports['summary']['examinations_this_period'] ?? 0 ?></p>
-                                    <p class="text-xs text-slate-500 font-semibold"><?= $reports['summary']['total_examinations'] ?? 0 ?> <?= $tm('totalLower') ?></p>
+                            <p class="v3-section-title font-bold"><?= $reports['summary']['examinations_this_period'] ?? 0 ?></p>
+                                    <p class="text-xs font-semibold"><?= $reports['summary']['total_examinations'] ?? 0 ?> <?= $tm('totalLower') ?></p>
                         </div>
                     </div>
 
                             <div class="flex justify-between items-center p-4">
                         <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white">
+                                    <div class="w-10 h-10 bg-amber-500 flex items-center justify-center">
                                         <i class="fas fa-calendar"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-slate-900"><?= lang('TenantMisc.appointments') ?></p>
-                                <p class="text-xs text-slate-500"><?= lang('TenantMisc.thisPeriod') ?></p>
+                                        <p class="text-sm font-semibold"><?= lang('TenantMisc.appointments') ?></p>
+                                <p class="text-xs"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
                         <div class="text-end">
-                            <p class="text-2xl font-bold text-slate-900"><?= $reports['summary']['appointments_this_period'] ?? 0 ?></p>
-                                    <p class="text-xs text-slate-500 font-semibold"><?= $reports['summary']['total_appointments'] ?? 0 ?> <?= $tm('totalLower') ?></p>
+                            <p class="v3-section-title font-bold"><?= $reports['summary']['appointments_this_period'] ?? 0 ?></p>
+                                    <p class="text-xs font-semibold"><?= $reports['summary']['total_appointments'] ?? 0 ?> <?= $tm('totalLower') ?></p>
                         </div>
                     </div>
 
                             <div class="flex justify-between items-center p-4">
                         <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center text-white">
+                                    <div class="w-10 h-10 bg-rose-600 flex items-center justify-center">
                                         <i class="fas fa-dollar-sign"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-slate-900"><?= lang('TenantMisc.revenue') ?></p>
-                                <p class="text-xs text-slate-500"><?= lang('TenantMisc.thisPeriod') ?></p>
+                                        <p class="text-sm font-semibold"><?= lang('TenantMisc.revenue') ?></p>
+                                <p class="text-xs"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
                         <div class="text-end">
-                            <p class="text-2xl font-bold text-slate-900"><?= formatCurrency($reports['summary']['revenue_this_period'] ?? 0) ?></p>
-                                    <p class="text-xs text-slate-500 font-semibold"><?= formatCurrency($reports['summary']['total_revenue'] ?? 0) ?> <?= $tm('totalLower') ?></p>
+                            <p class="v3-section-title font-bold"><?= formatCurrency($reports['summary']['revenue_this_period'] ?? 0) ?></p>
+                                    <p class="text-xs font-semibold"><?= formatCurrency($reports['summary']['total_revenue'] ?? 0) ?> <?= $tm('totalLower') ?></p>
                     </div>
                 </div>
                 </div>
             </div>
 
                     <!-- Monthly Revenue Chart -->
-                    <div class="report-card p-5 sm:p-6">
+                    <div class="report-card sm:p-6">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-slate-900 mb-2"><?= $tm('monthlyRevenueTitle') ?></h3>
+                    <h3 class="text-xl font-bold mb-2"><?= $tm('monthlyRevenueTitle') ?></h3>
                 </div>
                 <div class="relative h-64">
                     <canvas id="revenueChart" width="400" height="200"></canvas>
@@ -523,19 +306,19 @@ $currentMeta = [
 
         <!-- Additional Charts -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="report-card p-5 sm:p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="report-card sm:p-6">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-slate-900 mb-2"><?= $tm('examinationTypesTitle') ?></h3>
+                        <h3 class="text-xl font-bold mb-2"><?= $tm('examinationTypesTitle') ?></h3>
                     </div>
                     <div class="relative h-64">
                         <canvas id="examinationChart" width="400" height="200"></canvas>
                     </div>
                 </div>
 
-                    <div class="report-card p-5 sm:p-6">
+                    <div class="report-card sm:p-6">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-slate-900 mb-2"><?= $tm('appointmentStatusTitle') ?></h3>
+                        <h3 class="text-xl font-bold mb-2"><?= $tm('appointmentStatusTitle') ?></h3>
                     </div>
                     <div class="relative h-64">
                         <canvas id="appointmentChart" width="400" height="200"></canvas>
@@ -544,13 +327,13 @@ $currentMeta = [
             </div>
         </div>
         <div class="mb-8">
-            <div class="overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-600 to-teal-800 p-5 text-white shadow-xl shadow-emerald-500/20 sm:p-6">
+            <div class="overflow-hidden border border-emerald-200 sm:p-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="max-w-3xl">
-                        <h3 class="text-xl font-black text-white"><?= $tm('primaryFinanceWorkspaceTitle') ?></h3>
+                        <h3 class="text-xl"><?= $tm('primaryFinanceWorkspaceTitle') ?></h3>
                     </div>
-                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-50">
-                        <i class="fas fa-arrow-up-right-from-square"></i><?= $tm('openFinanceReports') ?>
+                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-50">
+                        <i class="fas"></i><?= $tm('openFinanceReports') ?>
                     </a>
                 </div>
             </div>
@@ -558,10 +341,10 @@ $currentMeta = [
         <?php if (!empty($reports['comparison']['summary'] ?? [])): ?>
         <?php $cmp = $reports['comparison']['summary']; ?>
         <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+            <div class="border">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800"><?= $tm('previousPeriodComparison') ?></h3>
-                    <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? $tm('previousPeriodLabel')) ?></span>
+                    <h3 class="text-lg font-bold"><?= $tm('previousPeriodComparison') ?></h3>
+                    <span class="text-xs font-semibold border px-3 py-1"><?= esc($reports['comparison']['label'] ?? $tm('previousPeriodLabel')) ?></span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <?php
@@ -575,9 +358,9 @@ $currentMeta = [
                         $delta = $card['current'] - $card['previous'];
                         $up = $delta >= 0;
                     ?>
-                    <div class="rounded-lg border border-gray-200 bg-white p-4">
-                        <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($card['label']) ?></p>
-                        <p class="mt-1 text-lg font-bold text-gray-900"><?= $card['currency'] ? formatCurrency($card['current']) : number_format($card['current']) ?></p>
+                    <div class="rounded-lg border p-4">
+                        <p class="text-xs uppercase tracking-wide font-semibold"><?= esc($card['label']) ?></p>
+                        <p class="mt-1 text-lg font-bold"><?= $card['currency'] ? formatCurrency($card['current']) : number_format($card['current']) ?></p>
                         <p class="mt-1 text-xs <?= $up ? 'text-emerald-600' : 'text-rose-600' ?> font-semibold">
                             <i class="fas <?= $up ? 'fa-arrow-up' : 'fa-arrow-down' ?>"></i>
                             <?= $card['currency'] ? formatCurrency(abs($delta)) : number_format(abs($delta)) ?>
@@ -606,14 +389,14 @@ $currentMeta = [
             $reportPeriodLabel = $filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'));
             $patientScopeLabel = !empty($filters['patient_id']) ? $tm('patientScoped') : $tm('allPatients');
         ?>
-        <div class="mb-8 space-y-6">
-            <div class="report-card p-5 sm:p-6">
+        <div class="mb-8">
+            <div class="report-card sm:p-6">
                 <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc($reportPeriodLabel) ?></p>
-                        <h3 class="mt-2 text-2xl font-bold text-slate-900"><?= esc($reportTitle) ?></h3>
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em]"><?= esc($reportPeriodLabel) ?></p>
+                        <h3 class="mt-2 v3-section-title font-bold"><?= esc($reportTitle) ?></h3>
                     </div>
-                    <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
+                    <div class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold">
                         <i class="fas fa-crosshairs"></i>
                         <span><?= esc($patientScopeLabel) ?></span>
                     </div>
@@ -624,70 +407,70 @@ $currentMeta = [
                 <div class="report-kpi-grid grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div>
                         <p class="text-sm font-semibold text-sky-800"><?= $tm('totalPatients') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['patients'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['patients'] ?? []) ?></p>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-emerald-800"><?= $tm('new') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= (int) ($reports['new_vs_returning']['new'] ?? 0) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= (int) ($reports['new_vs_returning']['new'] ?? 0) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-indigo-800"><?= $tm('returning') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= (int) ($reports['new_vs_returning']['returning'] ?? 0) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('returning') ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= (int) ($reports['new_vs_returning']['returning'] ?? 0) ?></p>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-amber-800"><?= $tm('patientsWithBalance') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= (int) ($reports['financial_snapshot']['patients_with_balance'] ?? 0) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= (int) ($reports['financial_snapshot']['patients_with_balance'] ?? 0) ?></p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr,0.9fr]">
-                    <div class="report-card p-5 sm:p-6">
+                <div class="grid grid-cols-1 xl:grid-cols-[1.1fr,0.9fr]">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('patientMixTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('patientMixTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <span class="text-sm font-medium text-slate-600"><?= $tm('newVsReturningTitle') ?></span>
-                                <span class="text-sm font-semibold text-slate-900"><?= (int) ($reports['new_vs_returning']['new'] ?? 0) ?> / <?= (int) ($reports['new_vs_returning']['returning'] ?? 0) ?></span>
+                            <div class="flex items-center justify-between border px-4 py-3">
+                                <span class="text-sm font-medium"><?= $tm('newVsReturningTitle') ?></span>
+                                <span class="text-sm font-semibold"><?= (int) ($reports['new_vs_returning']['new'] ?? 0) ?> / <?= (int) ($reports['new_vs_returning']['returning'] ?? 0) ?></span>
                             </div>
                             <?php if (!empty($reports['gender_distribution'])): ?>
                                 <?php foreach (array_slice($reports['gender_distribution'], 0, 5) as $gender): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc(ucfirst((string) ($gender['gender'] ?? $tm('unknown')))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($gender['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc(ucfirst((string) ($gender['gender'] ?? $tm('unknown')))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($gender['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-600 to-teal-800 p-5 text-white shadow-xl shadow-emerald-500/20 sm:p-6">
+                    <div class="overflow-hidden border border-emerald-200 sm:p-6">
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div>
-                                <h4 class="text-lg font-black text-white"><?= $tm('patientBalanceTitle') ?></h4>
+                                <h4 class="text-lg"><?= $tm('patientBalanceTitle') ?></h4>
                             </div>
-                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-50">
-                                <i class="fas fa-arrow-up-right-from-square"></i><?= $tm('openFinanceReports') ?>
+                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-50">
+                                <i class="fas"></i><?= $tm('openFinanceReports') ?>
                             </a>
                         </div>
                         <div class="mt-5 grid grid-cols-2 gap-3">
-                            <div class="rounded-xl border border-white/20 bg-white/10 px-4 py-4">
-                                <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= $tm('balanceDue') ?></p>
-                                <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($reports['financial_snapshot']['balance_due_total'] ?? 0) ?></p>
+                            <div class="border px-4 py-4">
+                                <p class="text-xs uppercase tracking-wide text-emerald-50/90"><?= $tm('balanceDue') ?></p>
+                                <p class="mt-2 v3-section-title"><?= formatCurrency($reports['financial_snapshot']['balance_due_total'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-white/20 bg-white/10 px-4 py-4">
-                                <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= $tm('outstandingInvoices') ?></p>
-                                <p class="mt-2 text-2xl font-black text-white"><?= (int) ($reports['financial_snapshot']['open_invoices'] ?? 0) ?></p>
+                            <div class="border px-4 py-4">
+                                <p class="text-xs uppercase tracking-wide text-emerald-50/90"><?= $tm('outstandingInvoices') ?></p>
+                                <p class="mt-2 v3-section-title"><?= (int) ($reports['financial_snapshot']['open_invoices'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-white/20 bg-white/10 px-4 py-4">
-                                <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= $tm('patientsWithBalance') ?></p>
-                                <p class="mt-2 text-2xl font-black text-white"><?= (int) ($reports['financial_snapshot']['patients_with_balance'] ?? 0) ?></p>
+                            <div class="border px-4 py-4">
+                                <p class="text-xs uppercase tracking-wide text-emerald-50/90"><?= $tm('patientsWithBalance') ?></p>
+                                <p class="mt-2 v3-section-title"><?= (int) ($reports['financial_snapshot']['patients_with_balance'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-white/20 bg-white/10 px-4 py-4">
-                                <p class="text-xs font-black uppercase tracking-wide text-emerald-50/90"><?= $tm('overdueBalance') ?></p>
-                                <p class="mt-2 text-2xl font-black text-white"><?= formatCurrency($reports['financial_snapshot']['overdue_balance_total'] ?? 0) ?></p>
+                            <div class="border px-4 py-4">
+                                <p class="text-xs uppercase tracking-wide text-emerald-50/90"><?= $tm('overdueBalance') ?></p>
+                                <p class="mt-2 v3-section-title"><?= formatCurrency($reports['financial_snapshot']['overdue_balance_total'] ?? 0) ?></p>
                             </div>
                         </div>
                     </div>
@@ -698,10 +481,10 @@ $currentMeta = [
                     <div class="report-table-head">
                         <div class="report-table-toolbar">
                             <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <div class="w-2 h-2 bg-green-500"></div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-gray-900"><?= esc($tm('topBalancePatientsTitle')) ?></h4>
-                                    <p class="text-sm text-gray-600"><?= esc($tm('topBalancePatientsDesc')) ?></p>
+                                    <h4 class="text-lg font-semibold"><?= esc($tm('topBalancePatientsTitle')) ?></h4>
+                                    <p class="text-sm"><?= esc($tm('topBalancePatientsDesc')) ?></p>
                                 </div>
                             </div>
                             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -710,7 +493,7 @@ $currentMeta = [
                                     <?= esc($tf('exportPdf')) ?>
                                 </button>
                                 <button onclick="printReport()" class="report-table-export-button">
-                                    <i class="fas fa-print text-gray-600"></i>
+                                    <i class="fas fa-print"></i>
                                     <?= esc($tf('print')) ?>
                                 </button>
                                 <button onclick="exportReport('excel')" class="report-table-export-button">
@@ -723,27 +506,27 @@ $currentMeta = [
                     <div class="report-table-scroll">
                         <div class="dataTables-wrapper">
                         <table id="topBalancePatientsTable" class="w-full min-w-full text-sm">
-                            <thead class="bg-gray-50">
+                            <thead class="">
                                 <tr>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-user text-green-600"></i>
                                             <span><?= $tm('patient') ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-file-invoice text-green-600"></i>
                                             <span><?= $tm('outstandingInvoices') ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-clock text-green-600"></i>
                                             <span><?= $tm('daysPastDue') ?></span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-dollar-sign text-green-600"></i>
                                             <span><?= $tm('balanceDue') ?></span>
@@ -751,15 +534,15 @@ $currentMeta = [
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
                                 <?php foreach (($reports['top_balance_patients'] ?? []) as $row): ?>
                                 <tr class="cursor-pointer transition-colors hover:bg-green-50/50" data-href="<?= esc((string) ($row['row_href'] ?? ''), 'attr') ?>">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900 truncate"><?= esc((string) ($row['full_name'] ?? '')) ?></div>
+                                        <div class="text-sm font-medium truncate"><?= esc((string) ($row['full_name'] ?? '')) ?></div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= (int) ($row['open_invoices'] ?? 0) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm"><?= (int) ($row['open_invoices'] ?? 0) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium <?= ((int) ($row['max_days_past_due'] ?? 0)) > 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium <?= ((int) ($row['max_days_past_due'] ?? 0)) > 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>">
                                             <i class="fas fa-clock"></i>
                                             <?= (int) ($row['max_days_past_due'] ?? 0) ?>
                                         </span>
@@ -783,55 +566,55 @@ $currentMeta = [
                 <div class="report-kpi-grid grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div>
                         <p class="text-sm font-semibold text-emerald-800"><?= $tm('examinations') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['examinations'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['examinations'] ?? []) ?></p>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-sky-800"><?= $tm('type') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['examination_types'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['examination_types'] ?? []) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-indigo-800"><?= $tm('monthsTracked') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['monthly_examinations'] ?? []) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('monthsTracked') ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['monthly_examinations'] ?? []) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-slate-700"><?= $tm('patientScope') ?></p>
-                        <p class="mt-3 text-2xl font-bold text-slate-900"><?= esc($patientScopeLabel) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('patientScope') ?></p>
+                        <p class="mt-3 v3-section-title font-bold"><?= esc($patientScopeLabel) ?></p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div class="report-card p-5 sm:p-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('clinicalMixTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('clinicalMixTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
                             <?php if (!empty($reports['examination_types'])): ?>
                                 <?php foreach (array_slice($reports['examination_types'], 0, 6) as $type): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc(ucfirst((string) ($type['examination_type'] ?? $tm('unknown')))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($type['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc(ucfirst((string) ($type['examination_type'] ?? $tm('unknown')))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($type['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="report-card p-5 sm:p-6">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('activityTrendTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('activityTrendTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
                             <?php if (!empty($reports['monthly_examinations'])): ?>
                                 <?php foreach (array_slice($reports['monthly_examinations'], -6) as $row): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc((string) ($row['month'] ?? $tm('unknown'))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($row['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc((string) ($row['month'] ?? $tm('unknown'))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($row['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -841,55 +624,55 @@ $currentMeta = [
                 <div class="report-kpi-grid grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div>
                         <p class="text-sm font-semibold text-amber-800"><?= $tm('appointments') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['appointments'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['appointments'] ?? []) ?></p>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-sky-800"><?= $tm('statuses') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['status_distribution'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['status_distribution'] ?? []) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-indigo-800"><?= $tm('type') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['appointment_types'] ?? []) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('type') ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['appointment_types'] ?? []) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-slate-700"><?= $tm('patientScope') ?></p>
-                        <p class="mt-3 text-2xl font-bold text-slate-900"><?= esc($patientScopeLabel) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('patientScope') ?></p>
+                        <p class="mt-3 v3-section-title font-bold"><?= esc($patientScopeLabel) ?></p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div class="report-card p-5 sm:p-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('statusBreakdownTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('statusBreakdownTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
                             <?php if (!empty($reports['status_distribution'])): ?>
                                 <?php foreach (array_slice($reports['status_distribution'], 0, 6) as $status): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc(ucfirst((string) ($status['status'] ?? $tm('unknown')))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($status['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc(ucfirst((string) ($status['status'] ?? $tm('unknown')))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($status['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="report-card p-5 sm:p-6">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('typeBreakdownTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('typeBreakdownTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
                             <?php if (!empty($reports['appointment_types'])): ?>
                                 <?php foreach (array_slice($reports['appointment_types'], 0, 6) as $type): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc(ucfirst((string) ($type['appointment_type'] ?? $tm('unknown')))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($type['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc(ucfirst((string) ($type['appointment_type'] ?? $tm('unknown')))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($type['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -899,98 +682,98 @@ $currentMeta = [
                 <div class="report-kpi-grid grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div>
                         <p class="text-sm font-semibold text-rose-800"><?= $tm('reportTreatments') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['treatments'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['treatments'] ?? []) ?></p>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-sky-800"><?= $tm('type') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['treatment_types'] ?? []) ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['treatment_types'] ?? []) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-indigo-800"><?= $tm('statuses') ?></p>
-                        <p class="mt-3 text-3xl font-bold text-slate-900"><?= count($reports['status_distribution'] ?? []) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('statuses') ?></p>
+                        <p class="mt-3 v3-title font-bold"><?= count($reports['status_distribution'] ?? []) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-slate-700"><?= $tm('patientScope') ?></p>
-                        <p class="mt-3 text-2xl font-bold text-slate-900"><?= esc($patientScopeLabel) ?></p>
+                        <p class="text-sm font-semibold"><?= $tm('patientScope') ?></p>
+                        <p class="mt-3 v3-section-title font-bold"><?= esc($patientScopeLabel) ?></p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div class="report-card p-5 sm:p-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('statusBreakdownTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('statusBreakdownTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
                             <?php if (!empty($reports['status_distribution'])): ?>
                                 <?php foreach (array_slice($reports['status_distribution'], 0, 6) as $status): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc(ucfirst((string) ($status['status'] ?? $tm('unknown')))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($status['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc(ucfirst((string) ($status['status'] ?? $tm('unknown')))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($status['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="report-card p-5 sm:p-6">
+                    <div class="report-card sm:p-6">
                         <div class="mb-5">
-                            <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('typeBreakdownTitle')) ?></h4>
+                            <h4 class="text-lg font-bold"><?= esc($tm('typeBreakdownTitle')) ?></h4>
                         </div>
                         <div class="space-y-3">
                             <?php if (!empty($reports['treatment_types'])): ?>
                                 <?php foreach (array_slice($reports['treatment_types'], 0, 6) as $type): ?>
-                                    <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
-                                        <span class="text-sm text-slate-600"><?= esc(ucfirst((string) ($type['treatment_type'] ?? $tm('unknown')))) ?></span>
-                                        <span class="text-sm font-semibold text-slate-900"><?= (int) ($type['count'] ?? 0) ?></span>
+                                    <div class="flex items-center justify-between border px-4 py-3">
+                                        <span class="text-sm"><?= esc(ucfirst((string) ($type['treatment_type'] ?? $tm('unknown')))) ?></span>
+                                        <span class="text-sm font-semibold"><?= (int) ($type['count'] ?? 0) ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500"><?= esc($tm('noBreakdownAvailable')) ?></div>
+                                <div class="border border-dashed px-4 py-6 text-sm"><?= esc($tm('noBreakdownAvailable')) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
             <?php else: ?>
-                <div class="rounded-xl border border-gray-200 bg-white px-6 py-10 text-center shadow-lg">
-                    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-sky-50 text-sky-700">
+                <div class="border px-6 py-10 text-center">
+                    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center bg-sky-50 text-sky-700">
                         <i class="fas fa-chart-bar text-xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-slate-900"><?= $tm('reportData') ?></h3>
-                    <p class="mt-2 text-sm text-slate-600"><?= $tm('reportUnderDevelopment') ?></p>
+                    <h3 class="text-lg font-semibold"><?= $tm('reportData') ?></h3>
+                    <p class="mt-2 text-sm"><?= $tm('reportUnderDevelopment') ?></p>
                 </div>
             <?php endif; ?>
         </div>
     <?php endif; ?>
 
         <?php if (!empty($detail_tables ?? []) && $activeReportType !== 'finance'): ?>
-        <details class="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl shadow-slate-200/70">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 px-6 py-5 text-white">
+        <details class="mb-8 overflow-hidden border">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
                 <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
+                    <span class="flex h-10 w-10 items-center justify-center ring-1">
                         <i class="fas fa-table"></i>
                     </span>
                     <div>
-                        <h3 class="text-lg font-black text-white"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
+                        <h3 class="text-lg"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
                     </div>
                 </div>
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center ring-1">
                     <i class="fas fa-chevron-down text-xs"></i>
                 </span>
             </summary>
-            <div id="reportDetailTables" class="report-table-card rounded-none border-0 shadow-none">
+            <div id="reportDetailTables" class="report-table-card rounded-none border-0">
                 <div class="report-table-head">
                 <div class="report-table-toolbar">
-                    <div class="text-sm font-bold text-slate-600"><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?></div>
+                    <div class="text-sm font-bold"><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?></div>
                     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <button onclick="exportReport('pdf')" class="report-table-export-button">
                             <i class="fas fa-file-pdf text-red-600"></i>
                             <?= esc($tf('exportPdf')) ?>
                         </button>
                         <button onclick="printReport()" class="report-table-export-button">
-                            <i class="fas fa-print text-gray-600"></i>
+                            <i class="fas fa-print"></i>
                             <?= esc($tf('print')) ?>
                         </button>
                         <button onclick="exportReport('excel')" class="report-table-export-button">
@@ -1003,22 +786,22 @@ $currentMeta = [
                             <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
                             <button
                                 type="button"
-                                class="report-detail-tab flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm font-semibold transition-all <?= $idx === 0 ? 'border-green-600 bg-green-600 text-white shadow-md shadow-green-500/15' : 'border-gray-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50' ?>"
+                                class="report-detail-tab flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm font-semibold <?= $idx === 0 ? 'border-green-600 bg-green-600 text-white shadow-md shadow-green-500/15' : 'border-gray-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50' ?>"
                                 data-target="<?= esc($table['id']) ?>"
                                 data-active="<?= $idx === 0 ? 'true' : 'false' ?>"
                             >
                                 <span class="truncate"><?= esc($table['title']) ?></span>
-                                <span class="rounded-full px-2 py-0.5 text-xs <?= $idx === 0 ? 'bg-white/20 text-green-50' : 'bg-gray-100 text-slate-500' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
+                                <span class="px-2 py-0.5 text-xs <?= $idx === 0 ? 'bg-white/20 text-green-50' : 'bg-gray-100 text-slate-500' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
                             </button>
                             <?php endforeach; ?>
                     </div>
                 </div>
-                <div class="p-6">
+                <div class="">
                     <div id="reportDrillBadge" class="hidden mb-4">
-                        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-sm font-semibold">
+                        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold">
                             <i class="fas fa-filter"></i>
                             <span id="reportDrillBadgeText"><?= lang('TenantMisc.drillthroughActive') ?></span>
-                            <button type="button" id="clearDrillthroughBtn" class="inline-flex items-center px-2 py-1 rounded bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 text-xs font-semibold">
+                            <button type="button" id="clearDrillthroughBtn" class="inline-flex items-center px-2 py-1 rounded border text-xs font-semibold">
                                 <?= lang('TenantMisc.clear') ?>
                             </button>
                         </div>
@@ -1029,8 +812,8 @@ $currentMeta = [
                     <div class="report-table-head rounded-none">
                         <div class="report-table-toolbar">
                             <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <h4 class="text-lg font-semibold text-gray-900"><?= esc($table['title']) ?></h4>
+                                <div class="w-2 h-2 bg-green-500"></div>
+                                <h4 class="text-lg font-semibold"><?= esc($table['title']) ?></h4>
                             </div>
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                                 <label class="report-table-control-group">
@@ -1051,10 +834,10 @@ $currentMeta = [
                     <div class="report-table-scroll">
                         <div class="dataTables-wrapper">
                         <table class="w-full min-w-full text-sm report-detail-table">
-                            <thead class="bg-gray-50">
+                            <thead class="">
                                 <tr>
                                     <?php foreach (($table['columns'] ?? []) as $column): ?>
-                                    <th data-key="<?= esc($column['key'] ?? '') ?>" class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                                    <th data-key="<?= esc($column['key'] ?? '') ?>" class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-table text-green-600"></i>
                                             <span><?= esc($column['label'] ?? $column['key']) ?></span>
@@ -1063,17 +846,17 @@ $currentMeta = [
                                     <?php endforeach; ?>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
                                 <?php if (empty($table['rows'])): ?>
                                 <tr>
-                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-6 py-8 text-center text-gray-500"><?= lang('TenantMisc.noRowsForPeriod') ?></td>
+                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-6 py-8 text-center"><?= lang('TenantMisc.noRowsForPeriod') ?></td>
                                 </tr>
                                 <?php else: ?>
                                 <?php foreach ($table['rows'] as $row): ?>
                                 <tr class="report-detail-row <?= !empty($row['row_href'] ?? '') ? 'cursor-pointer hover:bg-green-50/50' : 'hover:bg-green-50/30' ?> transition-colors"<?= !empty($row['row_href'] ?? '') ? ' data-href="' . esc((string) $row['row_href'], 'attr') . '"' : '' ?>>
                                     <?php foreach (($table['columns'] ?? []) as $column): ?>
                                     <?php $key = $column['key'] ?? ''; $value = $row[$key] ?? ''; ?>
-                                    <td class="px-6 py-4 text-gray-700 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if (is_numeric($value) && preg_match('/amount|balance|total|share|paid/i', (string) $key)): ?>
                                             <div class="flex items-center gap-2">
                                                 <i class="fas fa-arrow-up text-green-600 text-xs"></i>
@@ -1091,12 +874,12 @@ $currentMeta = [
                         </table>
                         </div>
                     </div>
-                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                        <div class="text-sm text-gray-500 report-detail-pagination-info"><?= lang('TenantMisc.showing') ?> <?= (int) min(($table['row_count'] ?? 0), 25) ?> <?= lang('TenantMisc.of') ?> <?= (int) ($table['row_count'] ?? 0) ?> <?= lang('TenantMisc.rows') ?></div>
+                    <div class="px-6 py-4 border-t flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div class="text-sm report-detail-pagination-info"><?= lang('TenantMisc.showing') ?> <?= (int) min(($table['row_count'] ?? 0), 25) ?> <?= lang('TenantMisc.of') ?> <?= (int) ($table['row_count'] ?? 0) ?> <?= lang('TenantMisc.rows') ?></div>
                         <div class="flex items-center gap-2">
-                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-green-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.previous') ?></button>
-                            <span class="report-detail-page-label text-sm text-gray-600 min-w-[110px] text-center"><?= lang('TenantMisc.page') ?> 1</span>
-                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-green-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.next') ?></button>
+                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border hover:border-green-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.previous') ?></button>
+                            <span class="report-detail-page-label text-sm min-w-[110px] text-center"><?= lang('TenantMisc.page') ?> 1</span>
+                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border hover:border-green-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.next') ?></button>
                         </div>
                     </div>
                 </div>
@@ -1262,7 +1045,7 @@ function generateReport() {
     const compareMode = document.getElementById('compareMode')?.value || 'none';
     const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
     const customTo = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customToRaw) || '') : customToRaw;
-    
+
     const url = new URL(window.location);
     url.searchParams.set('report_type', reportType);
     url.searchParams.set('date_range', dateRange);
@@ -1277,7 +1060,7 @@ function generateReport() {
             url.searchParams.delete(key);
         }
     });
-    
+
     window.location.href = url.toString();
 }
 
@@ -1663,7 +1446,7 @@ const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
 if (revenueCtx) {
     // Get real revenue data from PHP
     const revenueData = <?= json_encode($reports['charts']['monthly_revenue'] ?? []) ?>;
-    
+
     // Extract labels and data
     const labels = revenueData.map(item => item.month || '');
     const data = revenueData.map(item => parseFloat(item.total_amount ?? item.amount) || 0);
@@ -1672,7 +1455,7 @@ if (revenueCtx) {
         labels.length = 0;
         data.length = 0;
     }
-    
+
     const revenueChart = new Chart(revenueCtx, {
         type: 'line',
         data: {
@@ -1720,7 +1503,7 @@ const examinationCtx = document.getElementById('examinationChart')?.getContext('
 if (examinationCtx) {
     // Get real examination data from PHP
     const examinationData = <?= json_encode($reports['charts']['examination_types'] ?? []) ?>;
-    
+
     // Extract labels and data
     const labels = examinationData.map(item => item.examination_type || reportI18n.unknown);
     const data = examinationData.map(item => parseInt(item.count) || 0);
@@ -1729,13 +1512,13 @@ if (examinationCtx) {
         labels.length = 0;
         data.length = 0;
     }
-    
+
     // Define colors for different examination types
     const colors = [
         '#0284c7', '#059669', '#d97706', '#dc2626', '#7c3aed',
         '#f59e0b', '#ef4444', '#6b7280', '#10b981', '#8b5cf6'
     ];
-    
+
     const examinationChart = new Chart(examinationCtx, {
         type: 'doughnut',
         data: {
@@ -1769,7 +1552,7 @@ const appointmentCtx = document.getElementById('appointmentChart')?.getContext('
 if (appointmentCtx) {
     // Get real appointment data from PHP
     const appointmentData = <?= json_encode($reports['charts']['appointment_status'] ?? []) ?>;
-    
+
     // Extract labels and data
     const labels = appointmentData.map(item => item.status || reportI18n.unknown);
     const data = appointmentData.map(item => parseInt(item.count) || 0);
@@ -1778,7 +1561,7 @@ if (appointmentCtx) {
         labels.length = 0;
         data.length = 0;
     }
-    
+
     // Define colors for different appointment statuses
     const statusColors = {
         'scheduled': '#0284c7',
@@ -1788,9 +1571,9 @@ if (appointmentCtx) {
         'pending': '#f59e0b',
         'confirmed': '#10b981'
     };
-    
+
     const colors = labels.map(status => statusColors[status.toLowerCase()] || '#6b7280');
-    
+
     const appointmentChart = new Chart(appointmentCtx, {
         type: 'bar',
         data: {
@@ -1968,3 +1751,5 @@ function formatCurrency(value) {
 
 
 
+
+</div>

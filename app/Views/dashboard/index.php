@@ -79,7 +79,7 @@ $formatHumanLabel = static function (?string $value): string {
                         <p class="dashboard-stat-value" dir="ltr"><?= esc(number_format($totalPatients)) ?></p>
                         <p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentPatients')) ?>: <?= esc(number_format($recentPatientCount)) ?></p>
                     </div>
-                    <i class="fas fa-users text-3xl"></i>
+                    <i class="fas fa-users v3-title-scale"></i>
                 </div>
             </a>
 
@@ -90,7 +90,7 @@ $formatHumanLabel = static function (?string $value): string {
                         <p class="dashboard-stat-value" dir="ltr"><?= esc(number_format($todayExaminations)) ?></p>
                         <p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentExaminations')) ?>: <?= esc(number_format($recentExamCount)) ?></p>
                     </div>
-                    <i class="fas fa-stethoscope text-3xl"></i>
+                    <i class="fas fa-stethoscope v3-title-scale"></i>
                 </div>
             </a>
 
@@ -101,7 +101,7 @@ $formatHumanLabel = static function (?string $value): string {
                         <p class="dashboard-stat-value" dir="ltr"><?= esc(number_format($todayAppointments)) ?></p>
                         <p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardUpcomingAppointments')) ?>: <?= esc(number_format($upcomingAppointmentsCount)) ?></p>
                     </div>
-                    <i class="fas fa-calendar-days text-3xl"></i>
+                    <i class="fas fa-calendar-days v3-title-scale"></i>
                 </div>
             </a>
 
@@ -112,16 +112,22 @@ $formatHumanLabel = static function (?string $value): string {
                         <p class="dashboard-stat-value" dir="ltr"><?= esc(formatCurrencyAbbreviated($totalRevenue)) ?></p>
                         <p class="dashboard-stat-meta"><?= esc(lang('Finance.pendingPayments')) ?>: <?= esc(formatCurrencyAbbreviated($pendingPayments)) ?></p>
                     </div>
-                    <i class="fas fa-chart-line text-3xl"></i>
+                    <i class="fas fa-chart-line v3-title-scale"></i>
                 </div>
             </a>
         </section>
 
+
+
+
+
+        <div class="dashboard-content-grid v3-command-center-grid">
+            <section class="dashboard-panel-stack v3-command-center-live">
 <?php if ($canRouteAppointments): ?>
             <section class="dashboard-routing mb-5" aria-labelledby="today-routing-title">
                 <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl v3-warm-surface">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center v3-radius v3-warm-surface">
                             <i class="fas fa-route"></i>
                         </span>
                         <div>
@@ -130,7 +136,7 @@ $formatHumanLabel = static function (?string $value): string {
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="rounded-full bg-blue-100 px-3 py-1.5 text-xs text-blue-800">
+                        <span class="rounded-full v3-soft-surface px-3 py-1.5 text-xs v3-accent-text">
                             <?= esc(lang('UI.dashboardRoutingOpenCount', ['count' => (int) ($todayRouting['open_count'] ?? 0)])) ?>
                         </span>
                         <span class="rounded-full bg-emerald-100 px-3 py-1.5 text-xs text-emerald-800">
@@ -152,7 +158,7 @@ $formatHumanLabel = static function (?string $value): string {
                                     <i class="fas <?= esc($groupConfig['icon'], 'attr') ?>"></i>
                                     <span><?= esc($groupConfig['label']) ?></span>
                                 </span>
-                                <span class="flex h-7 min-w-7 items-center justify-center rounded-full bg-white px-2 text-xs text-slate-700" dir="ltr"><?= count($groupRows) ?></span>
+                                <span class="flex h-7 min-w-7 items-center justify-center rounded-full v3-surface px-2 text-xs text-slate-700" dir="ltr"><?= count($groupRows) ?></span>
                             </header>
 
                             <div class="space-y-2">
@@ -190,7 +196,7 @@ $formatHumanLabel = static function (?string $value): string {
 
                                         <div class="mt-3 flex items-center gap-2">
                                             <?php if ($patientId > 0): ?>
-                                                <a href="<?= esc(workflow_context_url('patient/' . $patientId, 'dashboard')) ?>" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition hover:bg-slate-200" title="<?= esc(lang('UI.patientProfile'), 'attr') ?>">
+                                                <a href="<?= esc(workflow_context_url('patient/' . $patientId, 'dashboard')) ?>" class="inline-flex h-9 w-9 shrink-0 items-center justify-center v3-radius bg-slate-100 text-slate-700 transition hover:bg-slate-200" title="<?= esc(lang('UI.patientProfile'), 'attr') ?>">
                                                     <i class="fas fa-user"></i>
                                                 </a>
                                             <?php endif; ?>
@@ -213,7 +219,7 @@ $formatHumanLabel = static function (?string $value): string {
                                 <?php endforeach; ?>
 
                                 <?php if (!$groupRows): ?>
-                                    <div class="rounded-xl border border-dashed border-white bg-white/55 px-3 py-5 text-center text-xs font-bold text-slate-500">
+                                    <div class="v3-radius border border-dashed v3-border v3-surface px-3 py-5 text-center text-xs font-bold text-slate-500">
                                         <?= esc(lang('UI.dashboardRoutingEmpty')) ?>
                                     </div>
                                 <?php endif; ?>
@@ -223,11 +229,6 @@ $formatHumanLabel = static function (?string $value): string {
                 </div>
             </section>
         <?php endif; ?>
-
-
-
-        <div class="dashboard-content-grid">
-            <section class="dashboard-panel-stack">
                 <div class="dashboard-panel">
                     <div class="dashboard-panel-header">
                         <div class="dashboard-panel-title">
@@ -313,13 +314,13 @@ $formatHumanLabel = static function (?string $value): string {
                 </div>
             </section>
 
-            <aside class="dashboard-panel-stack">
+            <aside class="dashboard-panel-stack v3-command-center-actions">
                 <?php if (has_permission('examinations', 'view')): ?>
                 <div class="dashboard-panel overflow-hidden">
                     <div class="v3-warm-surface px-5 py-4">
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
-                                <span class="dashboard-panel-icon bg-white/15 ring-1"><i class="fas fa-file-signature"></i></span>
+                                <span class="dashboard-panel-icon v3-surface ring-1"><i class="fas fa-file-signature"></i></span>
                                 <div>
                                     <h2 class="text-base"><?= esc(lang('Examination.documentation_queue')) ?></h2>
                                     <p class="mt-1 text-xs font-medium text-slate-600"><?= esc(lang('Examination.documentation_queue_help')) ?></p>
@@ -328,11 +329,11 @@ $formatHumanLabel = static function (?string $value): string {
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-                        <a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="rounded-2xl bg-indigo-50 p-4 ring-1 ring-indigo-100 transition hover:bg-indigo-100">
-                            <p class="text-xs text-indigo-700"><?= esc(lang('Examination.documentation_ready_to_sign')) ?></p>
-                            <p class="mt-2 text-2xl text-indigo-950" dir="ltr"><?= $readyToSignCount ?></p>
+                        <a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="v3-radius v3-soft-surface p-4 ring-1 ring-indigo-100 transition hover:bg-indigo-100">
+                            <p class="text-xs v3-accent-text"><?= esc(lang('Examination.documentation_ready_to_sign')) ?></p>
+                            <p class="mt-2 text-2xl v3-accent-text" dir="ltr"><?= $readyToSignCount ?></p>
                         </a>
-                        <a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100 transition hover:bg-amber-100">
+                        <a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="v3-radius bg-amber-50 p-4 ring-1 ring-amber-100 transition hover:bg-amber-100">
                             <p class="text-xs text-amber-800"><?= esc(lang('Examination.documentation_overdue_draft')) ?></p>
                             <p class="mt-2 text-2xl text-amber-950" dir="ltr"><?= $overdueDraftCount ?></p>
                         </a>
@@ -348,13 +349,13 @@ $formatHumanLabel = static function (?string $value): string {
                         <div class="v3-warm-surface px-5 py-4">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3">
-                                    <span class="dashboard-panel-icon bg-white/15 ring-1"><i class="fas fa-calendar-plus"></i></span>
+                                    <span class="dashboard-panel-icon v3-surface ring-1"><i class="fas fa-calendar-plus"></i></span>
                                     <div>
                                         <h2 class="text-base"><?= esc(lang('Treatment.unscheduled_queue')) ?></h2>
                                         <p class="mt-1 text-xs font-medium text-slate-600"><?= esc(lang('Treatment.unscheduled_queue_help')) ?></p>
                                     </div>
                                 </div>
-                                <span class="rounded-full bg-white/15 px-3 py-1 text-sm ring-1"><?= (int) ($acceptedTreatmentQueue['count'] ?? 0) ?></span>
+                                <span class="rounded-full v3-surface px-3 py-1 text-sm ring-1"><?= (int) ($acceptedTreatmentQueue['count'] ?? 0) ?></span>
                             </div>
                         </div>
                         <div class="dashboard-list">
@@ -369,7 +370,7 @@ $formatHumanLabel = static function (?string $value): string {
                                     <?php if (has_permission('appointments', 'create')): ?>
                                         <a href="<?= base_url('appointment/create?' . http_build_query(['patient_id' => (int) $item['patient_id'], 'clinical_procedure_id' => (int) $item['procedure_id'], 'appointment_type' => 'treatment', 'return_to' => 'dashboard'])) ?>"
                                            data-appointment-create-modal-open data-patient-id="<?= (int) $item['patient_id'] ?>" data-clinical-procedure-id="<?= (int) $item['procedure_id'] ?>" data-appointment-type="treatment"
-                                           class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 transition hover:bg-indigo-700" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">
+                                           class="inline-flex h-9 w-9 shrink-0 items-center justify-center v3-radius v3-soft-surface transition hover:bg-indigo-700" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">
                                             <i class="fas fa-calendar-plus"></i>
                                         </a>
                                     <?php endif; ?>
@@ -392,11 +393,11 @@ $formatHumanLabel = static function (?string $value): string {
                     </div>
                     <div class="dashboard-mini-grid">
                         <div class="dashboard-mini-card v3-warm-surface">
-                            <p class="text-xs uppercase tracking-wider text-violet-100"><?= esc(lang('UI.dashboardTotalRevenue')) ?></p>
+                            <p class="text-xs uppercase tracking-wider v3-accent-text"><?= esc(lang('UI.dashboardTotalRevenue')) ?></p>
                             <p class="mt-2 text-2xl" dir="ltr"><?= esc(formatCurrency($totalRevenue)) ?></p>
                         </div>
                         <div class="dashboard-mini-card v3-warm-surface">
-                            <p class="text-xs uppercase tracking-wider text-rose-100"><?= esc(lang('Finance.overdue')) ?></p>
+                            <p class="text-xs uppercase tracking-wider text-rose-800"><?= esc(lang('Finance.overdue')) ?></p>
                             <p class="mt-2 text-2xl" dir="ltr"><?= esc(formatCurrency($overduePayments)) ?></p>
                         </div>
                     </div>
@@ -419,11 +420,11 @@ $formatHumanLabel = static function (?string $value): string {
                     </div>
                     <div class="dashboard-mini-grid">
                         <div class="dashboard-mini-card v3-warm-surface">
-                            <p class="text-xs uppercase tracking-wider text-sky-100"><?= esc(lang('UI.dashboardTotalTreatments')) ?></p>
+                            <p class="text-xs uppercase tracking-wider v3-accent-text"><?= esc(lang('UI.dashboardTotalTreatments')) ?></p>
                             <p class="mt-2 text-2xl" dir="ltr"><?= esc(number_format($activeTreatments + $completedTreatments)) ?></p>
                         </div>
                         <div class="dashboard-mini-card v3-warm-surface">
-                            <p class="text-xs uppercase tracking-wider text-emerald-100"><?= esc(lang('UI.dashboardCompleted')) ?></p>
+                            <p class="text-xs uppercase tracking-wider text-emerald-800"><?= esc(lang('UI.dashboardCompleted')) ?></p>
                             <p class="mt-2 text-2xl" dir="ltr"><?= esc(number_format($completedTreatments)) ?></p>
                         </div>
                     </div>

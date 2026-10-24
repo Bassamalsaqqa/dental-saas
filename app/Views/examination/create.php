@@ -32,15 +32,15 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
 
 
 
-<div class="denta-examination-workspace min-h-screen bg-slate-50">
+<div class="denta-examination-workspace min-h-screen v3-surface">
     <div class="container mx-auto px-4 py-6 max-w-7xl">
         <div class="group relative">
             <div class="relative v3-surface v3-corner group-hover:shadow-cyan-500/20 transition-all duration-500 overflow-hidden">
-                <div class="p-8 border-b border-slate-100">
+                <div class="p-8 border-b v3-border">
                     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                         <div class="flex items-center space-x-4">
                             <div class="relative">
-                                <div class="v3-surface-heading absolute inset-0 v3-corner opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+
                                 <div class="v3-icon relative w-12 h-12 v3-corner flex items-center justify-center transition-all duration-300">
                                     <i class="fas fa-stethoscope text-white text-lg"></i>
                                 </div>
@@ -52,8 +52,8 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                         </div>
 
                         <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('examination', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <a href="<?= esc(workflow_back('examination', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 v3-border text-gray-700 text-sm font-bold v3-radius hover:border-gray-400 transition-all duration-300">
+
                                 <i class="fas fa-arrow-left rtl-back-icon mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc($tr('back')) ?></span>
                             </a>
@@ -69,9 +69,9 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>
 
-                        <div class="bg-slate-50/80 v3-corner border border-slate-200/80 p-6">
+                        <div class="v3-surface v3-corner border v3-border p-6">
                             <h4 class="text-lg font-bold text-gray-900 mb-5 flex items-center space-x-2">
-                                <i class="fas fa-asterisk text-xs text-blue-600"></i>
+                                <i class="fas fa-asterisk text-xs v3-accent-text"></i>
                                 <span><?= esc($tr('required_information')) ?></span>
                             </h4>
 
@@ -81,7 +81,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                     <select
                                         name="patient_id"
                                         id="patientSelect"
-                                        class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                                        class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
                                         data-searchable-select
                                         data-minimum-input-length="0"
                                         data-limit="5"
@@ -103,7 +103,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
 
                                 <div>
                                     <label for="examination_type" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_type_required')) ?></label>
-                                    <select name="examination_type" id="examination_type" class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200" required>
+                                    <select name="examination_type" id="examination_type" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200" required>
                                         <option value=""><?= esc($tr('select_type')) ?></option>
                                         <option value="initial" <?= old('examination_type') == 'initial' ? 'selected' : '' ?>><?= esc($tr('type_initial')) ?></option>
                                         <option value="periodic" <?= old('examination_type') == 'periodic' ? 'selected' : '' ?>><?= esc($tr('type_periodic')) ?></option>
@@ -123,7 +123,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         id="examination_date"
                                         data-clinic-date="1"
                                         value="<?= old('examination_date', date('Y-m-d')) ?>"
-                                        class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                                        class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
                                         required
                                     >
                                     <?php if ($validation && $validation->hasError('examination_date')): ?>
@@ -138,7 +138,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                     name="chief_complaint"
                                     id="chief_complaint"
                                     rows="3"
-                                    class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
+                                    class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
                                     placeholder="<?= esc($tr('chief_complaint_placeholder')) ?>"
                                     required
                                 ><?= old('chief_complaint') ?></textarea>
@@ -148,10 +148,10 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                             </div>
                         </div>
 
-                        <div class="bg-slate-50/80 v3-corner border border-slate-200/80 p-6">
+                        <div class="v3-surface v3-corner border v3-border p-6">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-3">
-                                    <div class="v3-icon w-10 h-10 rounded-xl flex items-center justify-center">
+                                    <div class="v3-icon w-10 h-10 v3-radius flex items-center justify-center">
                                         <i class="fas fa-notes-medical"></i>
                                     </div>
                                     <div>
@@ -169,7 +169,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                             </div>
 
                             <div id="optionalSection" class="hidden space-y-5">
-                                <div class="rounded-xl border border-slate-200 v3-surface p-4 md:p-5">
+                                <div class="v3-radius border v3-border v3-surface p-4 md:p-5">
                                     <div class="flex items-center justify-between gap-3 mb-3">
                                         <h5 class="text-sm font-semibold text-slate-800"><?= esc($tr('health_update_since_last_visit')) ?></h5>
                                         <span class="text-xs text-slate-500"><?= esc($tr('quick_check')) ?></span>
@@ -186,7 +186,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         ?>
                                         <?php foreach ($healthUpdateItems as $item): ?>
                                             <?php $isChecked = $healthToggleChecked($item['key']); ?>
-                                            <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
+                                            <div class="rounded-lg border v3-border v3-surface p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
                                                 <div class="flex items-center justify-between gap-3">
                                                     <label for="<?= esc($item['key']) ?>" class="text-sm font-medium text-gray-700 leading-snug pr-2 flex items-start gap-2">
                                                         <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class']) ?> mt-0.5 w-4 text-center"></i>
@@ -205,10 +205,10 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                                                    data-dot-id="<?= esc($item['key']) ?>_dot"
                                                                    <?= $isChecked ? 'checked' : '' ?>>
                                                             <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'bg-blue-500' : 'bg-gray-200' ?> rounded-full relative">
-                                                                <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></div>
+                                                                <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 v3-surface w-4 h-4 rounded-full" style="transform: <?= $isChecked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></div>
                                                             </div>
                                                         </label>
-                                                        <span class="text-xs font-semibold text-blue-700"><?= esc($tr('yes')) ?></span>
+                                                        <span class="text-xs font-semibold v3-accent-text"><?= esc($tr('yes')) ?></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -227,7 +227,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                             name="health_update_details"
                                             id="health_update_details"
                                             rows="3"
-                                            class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
+                                            class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
                                             placeholder="<?= esc($tr('health_update_details_placeholder')) ?>"
                                             <?= $showHealthUpdateDetails ? '' : 'disabled' ?>
                                         ><?= old('health_update_details') ?></textarea>
@@ -237,32 +237,32 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="dental_history" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('dental_history')) ?></label>
-                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history') ?></textarea>
+                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history') ?></textarea>
                                     </div>
                                     <div>
                                         <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('clinical_findings')) ?></label>
-                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('clinical_findings_placeholder')) ?>"><?= old('clinical_findings') ?></textarea>
+                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('clinical_findings_placeholder')) ?>"><?= old('clinical_findings') ?></textarea>
                                     </div>
                                 </div>
 
                                 <div>
                                     <label for="diagnosis" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('diagnosis')) ?></label>
-                                    <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis') ?></textarea>
+                                    <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis') ?></textarea>
                                 </div>
 
                                 <div>
                                     <label for="examination_notes" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_notes')) ?></label>
-                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 v3-surface border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('examination_notes_placeholder')) ?>"><?= old('examination_notes') ?></textarea>
+                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 v3-surface border-2 v3-border v3-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('examination_notes_placeholder')) ?>"><?= old('examination_notes') ?></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-200">
-                            <a href="<?= esc(workflow_cancel('examination', $return_to ?? null)) ?>" class="inline-flex items-center justify-center px-6 py-2.5 border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">
+                        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t v3-border">
+                            <a href="<?= esc(workflow_cancel('examination', $return_to ?? null)) ?>" class="inline-flex items-center justify-center px-6 py-2.5 border v3-border text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">
                                 <i class="fas fa-times mr-2"></i>
                                 <?= esc($tr('cancel')) ?>
                             </a>
-                            <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center px-6 py-2.5 border border-cyan-200 bg-cyan-50 text-cyan-800 text-sm font-semibold rounded-lg hover:bg-cyan-100 transition-colors">
+                            <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center px-6 py-2.5 border v3-border v3-soft-surface v3-accent-text text-sm font-semibold rounded-lg hover:bg-cyan-100 transition-colors">
                                 <i class="fas fa-tooth mr-2"></i>
                                 <?= esc($tr('create_and_open_chart')) ?>
                             </button>

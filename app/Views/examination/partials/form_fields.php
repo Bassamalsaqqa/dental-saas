@@ -74,10 +74,10 @@ $anyHealthToggleChecked = $healthToggleChecked('health_update_medical_changes')
     <?php if ($validation && $validation->hasError('chief_complaint')): ?><p class="mt-2 text-sm text-red-600"><?= $validation->getError('chief_complaint') ?></p><?php endif; ?>
 </div>
 
-<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6" data-contextual-exam data-patient-gender="<?= esc($selectedPatientGender) ?>">
+<div class="v3-radius border v3-border v3-surface p-5 md:p-6" data-contextual-exam data-patient-gender="<?= esc($selectedPatientGender) ?>">
     <label class="mb-4 flex cursor-pointer flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <span class="flex min-w-0 items-center gap-3">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-sm">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center v3-radius text-white v3-form-section-header">
                 <i class="fas fa-notes-medical text-sm"></i>
             </span>
             <span class="min-w-0">
@@ -97,7 +97,7 @@ $anyHealthToggleChecked = $healthToggleChecked('health_update_medical_changes')
                        data-dot-id="<?= esc($fieldId('optionalDot')) ?>"
                        <?= $optionalEnabledByOld ? 'checked' : '' ?>>
                 <span id="<?= esc($fieldId('optionalTrack')) ?>" class="toggle-track relative h-6 w-11 rounded-full <?= $optionalEnabledByOld ? 'bg-blue-500' : 'bg-gray-200' ?>">
-                    <span id="<?= esc($fieldId('optionalDot')) ?>" class="toggle-dot absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow" style="transform: <?= $optionalEnabledByOld ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></span>
+                    <span id="<?= esc($fieldId('optionalDot')) ?>" class="toggle-dot absolute left-1 top-1 h-4 w-4 rounded-full v3-surface" style="transform: <?= $optionalEnabledByOld ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></span>
                 </span>
             </span>
         </span>
@@ -109,7 +109,7 @@ $anyHealthToggleChecked = $healthToggleChecked('health_update_medical_changes')
                 <h5 class="text-sm font-bold text-slate-900"><?= esc($tr('health_update_since_last_visit')) ?></h5>
                 <span class="text-xs font-semibold text-slate-500"><?= esc($tr('quick_check')) ?></span>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
+            <div class="v3-radius border v3-border v3-surface p-4 md:p-5">
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <?php
                 $healthUpdateItems = [
@@ -122,7 +122,7 @@ $anyHealthToggleChecked = $healthToggleChecked('health_update_medical_changes')
                 ?>
                 <?php foreach ($healthUpdateItems as $item): ?>
                     <?php $checked = $healthToggleChecked($item['key']); ?>
-                    <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
+                    <div class="rounded-lg border v3-border v3-surface p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
                         <div class="flex items-center justify-between gap-3">
                             <label for="<?= esc($fieldId($item['key'])) ?>" class="flex min-w-0 items-start gap-2 text-sm font-medium leading-snug text-slate-700">
                                 <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class']) ?> mt-0.5 w-4 shrink-0 text-center"></i>
@@ -142,10 +142,10 @@ $anyHealthToggleChecked = $healthToggleChecked('health_update_medical_changes')
                                            data-details-id="<?= esc($fieldId('healthUpdateDetailsWrap')) ?>"
                                            <?= $checked ? 'checked' : '' ?>>
                                     <span id="<?= esc($fieldId($item['key'] . '_track')) ?>" class="toggle-track relative h-6 w-11 rounded-full <?= $checked ? 'bg-blue-500' : 'bg-gray-200' ?>">
-                                        <span id="<?= esc($fieldId($item['key'] . '_dot')) ?>" class="toggle-dot absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow" style="transform: <?= $checked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></span>
+                                        <span id="<?= esc($fieldId($item['key'] . '_dot')) ?>" class="toggle-dot absolute left-1 top-1 h-4 w-4 rounded-full v3-surface" style="transform: <?= $checked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></span>
                                     </span>
                                 </label>
-                                <span class="text-xs font-semibold text-blue-700"><?= esc($tr('yes')) ?></span>
+                                <span class="text-xs font-semibold v3-accent-text"><?= esc($tr('yes')) ?></span>
                             </span>
                         </div>
                     </div>

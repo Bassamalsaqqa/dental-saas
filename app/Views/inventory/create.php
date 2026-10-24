@@ -6,10 +6,10 @@
 <?= view('inventory/partials/form_styles', ['is_rtl' => $isRtl]) ?>
 
 <div class="v3-surface-heading denta-inventory-workspace min-h-screen">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="v3-inventory-form-shell">
 
-        <div class="mb-8">
-            <div class="v3-surface v3-corner border border-gray-200 p-6">
+        <div class="mb-4">
+            <div class="v3-inventory-form-command">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div class="flex items-center gap-4">
                         <div class="v3-icon w-12 h-12 v3-corner flex items-center justify-center">
@@ -20,7 +20,7 @@
                             <p class="text-sm text-gray-500"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
                         </div>
                     </div>
-                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border v3-border text-gray-700 text-sm font-semibold v3-radius hover:bg-gray-50 transition-colors">
                         <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
                         <?= lang('Inventory.backToInventory') ?>
                     </a>
@@ -40,11 +40,11 @@
             ]) ?>
 
             <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
-                <a href="<?= workflow_cancel('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                <a href="<?= workflow_cancel('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border v3-border text-gray-700 text-sm font-semibold v3-radius hover:bg-gray-50 transition-colors">
                     <i class="fas fa-times text-xs"></i>
                     <?= lang('Inventory.cancel') ?>
                 </a>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 text-white text-sm font-semibold v3-radius hover:bg-emerald-700 transition-colors">
                     <i class="fas fa-plus text-xs"></i>
                     <?= lang('Inventory.addItem') ?>
                 </button>

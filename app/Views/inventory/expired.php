@@ -2,16 +2,16 @@
 
 <?= $this->section('content') ?>
 <?php $tr = static fn(string $key, array $params = []) => lang('Inventory.' . $key, $params); ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50 to-orange-100">
+<div class="v3-operational-view min-h-screen">
     <div class="container mx-auto px-4 py-6">
-        <div class="mb-6 bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+        <div class="mb-6 v3-surface border v3-border v3-radius p-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-orange-600 text-white flex items-center justify-center shadow-lg">
+                    <div class="w-12 h-12 v3-radius text-white flex items-center justify-center">
                         <i class="fas fa-calendar-times text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900"><?= esc($tr('expiredItems')) ?></h1>
+                        <h1 class="v3-title-scale font-bold text-gray-900"><?= esc($tr('expiredItems')) ?></h1>
                         <p class="text-gray-600"><?= esc($tr('expiredItemsSubtitle')) ?></p>
                     </div>
                 </div>
@@ -23,8 +23,8 @@
             </div>
         </div>
 
-        <div class="rounded-2xl bg-white/80 border border-white/30 shadow-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+        <div class="v3-radius v3-surface border v3-border overflow-hidden">
+            <div class="px-6 py-4 border-b v3-border v3-surface flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-slate-900"><?= esc($tr('expiredItems')) ?></h3>
                 <span class="text-sm text-slate-600"><?= esc($tr('rowsCount', ['count' => count($items ?? [])])) ?></span>
             </div>
@@ -32,7 +32,7 @@
             <?php if (!empty($items)): ?>
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
-                        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                        <thead class="v3-surface text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
                             <tr>
                                 <th class="px-4 py-3"><?= esc($tr('item')) ?></th>
                                 <th class="px-4 py-3"><?= esc($tr('category')) ?></th>

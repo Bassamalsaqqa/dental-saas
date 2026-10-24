@@ -15,37 +15,37 @@ $paymentRows = $payment_rows ?? [];
 $recentPaymentRows = array_slice($paymentRows, 0, 5);
 ?>
 
-<div class="min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+<div class="v3-operational-view min-h-screen v3-surface" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="space-y-6">
-            <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-slate-900 via-indigo-900 to-blue-700 text-white shadow-xl">
-                <div class="flex flex-col gap-6 p-6 sm:p-8 xl:flex-row xl:items-start xl:justify-between">
+            <section class="overflow-hidden rounded-[28px] border v3-border text-white">
+                <div class="flex flex-col gap-3 p-6 sm:p-8 xl:flex-row xl:items-start xl:justify-between">
                     <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] v3-accent-text">
                             <span><?= esc($tr('supplierStatement')) ?></span>
-                            <span class="h-1 w-1 rounded-full bg-blue-200"></span>
+                            <span class="h-1 w-1 rounded-full v3-soft-surface"></span>
                             <span><?= esc($supplier['name'] ?? '') ?></span>
                         </div>
                         <div class="mt-5 flex items-start gap-4">
-                            <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/14 text-3xl text-white shadow-lg ring-1 ring-white/20">
+                            <div class="flex h-16 w-16 items-center justify-center v3-radius v3-surface v3-title-scale text-white ring-1 ring-white/20">
                                 <i class="fas fa-truck-field"></i>
                             </div>
                             <div class="min-w-0">
-                                <h1 class="truncate text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($supplier['name'] ?? '') ?></h1>
-                                <p class="mt-2 max-w-2xl text-sm text-blue-100/90"><?= esc($tr('supplierPayablesSubtitle')) ?></p>
+                                <h1 class="truncate v3-title-scale font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($supplier['name'] ?? '') ?></h1>
+                                <p class="mt-2 max-w-2xl text-sm v3-accent-text"><?= esc($tr('supplierPayablesSubtitle')) ?></p>
                                 <div class="mt-4 flex flex-wrap gap-2">
                                     <?php if (!empty($supplier['contact_person'])): ?>
-                                        <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/95">
+                                        <span class="inline-flex items-center rounded-full border v3-border v3-surface px-3 py-1 text-xs font-semibold text-white/95">
                                             <i class="fas fa-user-tie <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc($supplier['contact_person']) ?>
                                         </span>
                                     <?php endif; ?>
                                     <?php if (!empty($supplier['phone'])): ?>
-                                        <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/95">
+                                        <span class="inline-flex items-center rounded-full border v3-border v3-surface px-3 py-1 text-xs font-semibold text-white/95">
                                             <i class="fas fa-phone <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc($supplier['phone']) ?>
                                         </span>
                                     <?php endif; ?>
                                     <?php if (!empty($supplier['email'])): ?>
-                                        <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/95">
+                                        <span class="inline-flex items-center rounded-full border v3-border v3-surface px-3 py-1 text-xs font-semibold text-white/95">
                                             <i class="fas fa-envelope <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc($supplier['email']) ?>
                                         </span>
                                     <?php endif; ?>
@@ -55,10 +55,10 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                     </div>
 
                     <div class="grid w-full gap-2 sm:grid-cols-2 xl:w-[20rem]">
-                        <a href="<?= base_url('finance/expenses/create?supplier_id=' . (int) ($supplier['id'] ?? 0)) ?>" class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
+                        <a href="<?= base_url('finance/expenses/create?supplier_id=' . (int) ($supplier['id'] ?? 0)) ?>" class="inline-flex items-center justify-center v3-radius bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600">
                             <i class="fas fa-plus-circle <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.newExpense')) ?>
                         </a>
-                        <a href="<?= base_url('providers') ?>" class="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
+                        <a href="<?= base_url('providers') ?>" class="inline-flex items-center justify-center v3-radius border v3-border v3-surface px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
                             <i class="fas <?= $isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?>"></i><?= esc($tr('goToSupplierDirectory')) ?>
                         </a>
                     </div>
@@ -66,28 +66,28 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
             </section>
 
             <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="v3-radius border v3-border v3-surface p-5">
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('totalBills')) ?></p>
-                    <p class="mt-3 text-3xl font-bold text-slate-900"><?= esc($formatMoney((float) ($summary['total_bills'] ?? 0))) ?></p>
+                    <p class="mt-3 v3-title-scale font-bold text-slate-900"><?= esc($formatMoney((float) ($summary['total_bills'] ?? 0))) ?></p>
                 </div>
-                <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="v3-radius border v3-border v3-surface p-5">
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('totalPaid')) ?></p>
-                    <p class="mt-3 text-3xl font-bold text-emerald-700"><?= esc($formatMoney((float) ($summary['total_paid'] ?? 0))) ?></p>
+                    <p class="mt-3 v3-title-scale font-bold text-emerald-700"><?= esc($formatMoney((float) ($summary['total_paid'] ?? 0))) ?></p>
                 </div>
-                <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="v3-radius border v3-border v3-surface p-5">
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('payableBalance')) ?></p>
-                    <p class="mt-3 text-3xl font-bold text-rose-700"><?= esc($formatMoney((float) ($summary['open_payables'] ?? 0))) ?></p>
+                    <p class="mt-3 v3-title-scale font-bold text-rose-700"><?= esc($formatMoney((float) ($summary['open_payables'] ?? 0))) ?></p>
                 </div>
-                <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="v3-radius border v3-border v3-surface p-5">
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('linkedExpenses')) ?></p>
-                    <p class="mt-3 text-3xl font-bold text-slate-900"><?= esc((string) ($summary['transaction_count'] ?? 0)) ?></p>
+                    <p class="mt-3 v3-title-scale font-bold text-slate-900"><?= esc((string) ($summary['transaction_count'] ?? 0)) ?></p>
                     <p class="mt-2 text-xs text-slate-500"><?= esc($tr('lastPaymentDate')) ?>: <?= esc(!empty($summary['last_payment_date']) ? $summary['last_payment_date'] : lang('Finance.notAvailable')) ?></p>
                 </div>
             </section>
 
             <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)]">
-                <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-                    <div class="border-b border-slate-200 px-6 py-5">
+                <div class="overflow-hidden rounded-[28px] border v3-border v3-surface">
+                    <div class="border-b v3-border px-6 py-5">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('Finance.paymentHistory')) ?></h2>
@@ -102,9 +102,9 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                     <?php if (!empty($recentPaymentRows)): ?>
                         <div class="space-y-3 px-6 py-5">
                             <?php foreach ($recentPaymentRows as $row): ?>
-                                <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-slate-50 via-emerald-50/60 to-white px-4 py-4 transition hover:from-slate-100 hover:via-emerald-50 hover:to-white">
+                                <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="flex items-center justify-between gap-4 v3-radius px-4 py-4 transition">
                                     <div class="min-w-0 flex items-center gap-3">
-                                        <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
+                                        <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center v3-radius v3-surface text-emerald-600">
                                             <i class="fas fa-money-bill-wave"></i>
                                         </span>
                                         <div class="min-w-0">
@@ -128,21 +128,21 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                     <?php endif; ?>
                 </div>
 
-                <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-                    <div class="border-b border-slate-200 px-6 py-5">
+                <div class="overflow-hidden rounded-[28px] border v3-border v3-surface">
+                    <div class="border-b v3-border px-6 py-5">
                         <h2 class="text-lg font-bold text-slate-900"><?= esc($tr('supplierPayablesSubtitle')) ?></h2>
                         <p class="mt-1 text-sm text-slate-500"><?= esc($tr('linkedFinanceRecordsHelp')) ?></p>
                     </div>
                     <div class="space-y-3 px-6 py-5">
-                        <div class="rounded-2xl bg-gradient-to-r from-slate-50 to-white px-4 py-4">
+                        <div class="v3-radius px-4 py-4">
                             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('totalPaid')) ?></p>
                             <p class="mt-2 text-xl font-bold text-emerald-700"><?= esc($formatMoney((float) ($summary['total_paid'] ?? 0))) ?></p>
                         </div>
-                        <div class="rounded-2xl bg-gradient-to-r from-rose-50 to-white px-4 py-4">
+                        <div class="v3-radius px-4 py-4">
                             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc($tr('payableBalance')) ?></p>
                             <p class="mt-2 text-xl font-bold text-rose-700"><?= esc($formatMoney((float) ($summary['open_payables'] ?? 0))) ?></p>
                         </div>
-                        <div class="rounded-2xl bg-gradient-to-r from-indigo-50 to-white px-4 py-4">
+                        <div class="v3-radius px-4 py-4">
                             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><?= esc(lang('Finance.paymentHistory')) ?></p>
                             <p class="mt-2 text-xl font-bold text-slate-900"><?= esc((string) ($summary['payment_count'] ?? 0)) ?></p>
                             <p class="mt-1 text-xs text-slate-500"><?= esc($tr('lastPaymentDate')) ?>: <?= esc(!empty($summary['last_payment_date']) ? $summary['last_payment_date'] : lang('Finance.notAvailable')) ?></p>
@@ -151,8 +151,8 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 </div>
             </section>
 
-            <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-                <div class="border-b border-slate-200 px-6 py-5">
+            <section class="overflow-hidden rounded-[28px] border v3-border v3-surface">
+                <div class="border-b v3-border px-6 py-5">
                     <h2 class="text-lg font-bold text-slate-900"><?= esc($tr('supplierStatement')) ?></h2>
                     <p class="mt-1 text-sm text-slate-500"><?= esc($tr('linkedFinanceRecordsHelp')) ?></p>
                 </div>
@@ -160,7 +160,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 <?php if (!empty($expenses)): ?>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-slate-200" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                            <thead class="bg-slate-50">
+                            <thead class="v3-surface">
                                 <tr>
                                     <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-slate-600"><?= esc(lang('Finance.transaction')) ?></th>
                                     <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-slate-600"><?= esc(lang('Finance.date')) ?></th>
@@ -172,7 +172,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                                     <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-slate-600"><?= esc(lang('Finance.actions')) ?></th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 bg-white">
+                            <tbody class="divide-y divide-slate-100 v3-surface">
                                 <?php foreach ($expenses as $row): ?>
                                     <?php
                                     $status = (string) ($row['payment_status'] ?? 'pending');
@@ -207,7 +207,7 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-1">
-                                                <a href="<?= base_url('finance/' . (int) $row['id']) ?>" class="p-2 text-blue-600 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 rounded-md" title="<?= esc(lang('Finance.viewTransaction')) ?>">
+                                                <a href="<?= base_url('finance/' . (int) $row['id']) ?>" class="p-2 v3-accent-text transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 rounded-md" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <?php if (!empty($row['can_record_payment'])): ?>
@@ -236,8 +236,8 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
 <div id="supplierPaymentModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/40" onclick="closeSupplierPaymentModal()"></div>
     <div class="relative flex min-h-full items-center justify-center p-4">
-        <div class="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <div class="w-full max-w-md v3-radius border v3-border v3-surface">
+            <div class="flex items-center justify-between border-b v3-border px-5 py-4">
                 <h4 class="text-base font-semibold text-gray-900"><?= esc(lang('Finance.recordExpensePayment')) ?></h4>
                 <button type="button" class="text-gray-500 hover:text-gray-700" onclick="closeSupplierPaymentModal()"><i class="fas fa-times"></i></button>
             </div>
@@ -245,12 +245,12 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 <input type="hidden" id="supplierPaymentFinanceId">
                 <div>
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.amount')) ?></label>
-                    <input type="number" step="0.01" min="0.01" id="supplierPaymentAmount" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" required>
+                    <input type="number" step="0.01" min="0.01" id="supplierPaymentAmount" class="w-full rounded-lg border v3-border px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" required>
                     <p id="supplierPaymentHelp" class="mt-1 text-xs text-gray-500"></p>
                 </div>
                 <div>
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.paymentMethod')) ?></label>
-                    <select id="supplierPaymentMethod" data-force-select2 data-allow-clear="false" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                    <select id="supplierPaymentMethod" data-force-select2 data-allow-clear="false" class="w-full rounded-lg border v3-border px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                         <option value="cash"><?= esc(lang('Finance.cash')) ?></option>
                         <option value="card"><?= esc(lang('Finance.card')) ?></option>
                         <option value="bank_transfer"><?= esc(lang('Finance.bankTransfer')) ?></option>
@@ -260,22 +260,22 @@ $recentPaymentRows = array_slice($paymentRows, 0, 5);
                 </div>
                 <div id="supplierLiquidityField" class="hidden">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.paidFromAccount')) ?></label>
-                    <select id="supplierLiquidityAccount" data-force-select2 data-allow-clear="false" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                    <select id="supplierLiquidityAccount" data-force-select2 data-allow-clear="false" class="w-full rounded-lg border v3-border px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                         <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                         <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                     </select>
                 </div>
                 <div>
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.date')) ?></label>
-                    <input type="date" id="supplierPaymentDate" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" required>
+                    <input type="date" id="supplierPaymentDate" class="w-full rounded-lg border v3-border px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" required>
                 </div>
                 <div>
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600"><?= esc(lang('Finance.notes')) ?></label>
-                    <textarea id="supplierPaymentNotes" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"></textarea>
+                    <textarea id="supplierPaymentNotes" rows="2" class="w-full rounded-lg border v3-border px-3 py-2 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeSupplierPaymentModal()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"><?= esc(lang('Finance.cancel')) ?></button>
-                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"><?= esc(lang('Finance.recordPayment')) ?></button>
+                    <button type="button" onclick="closeSupplierPaymentModal()" class="rounded-lg border v3-border px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"><?= esc(lang('Finance.cancel')) ?></button>
+                    <button type="submit" class="rounded-lg v3-soft-surface px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"><?= esc(lang('Finance.recordPayment')) ?></button>
                 </div>
             </form>
         </div>

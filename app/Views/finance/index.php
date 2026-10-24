@@ -46,6 +46,17 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                             </a>
                         <?php endif; ?></div></header>
 
+
+
+        <!-- Enhanced Statistics Cards with Advanced Animations -->
+        <section class="v3-metric-strip v3-finance-metrics">
+<article class="v3-metric v3-metric-tone-0"><span><?= lang('Finance.grossCollections') ?></span><strong id="totalRevenue"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
+<article class="v3-metric v3-metric-tone-1"><span><?= lang('Finance.providerPaidCash') ?></span><strong id="providerPaidCash"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
+<article class="v3-metric v3-metric-tone-2"><span><?= lang('Finance.netClinicCash') ?></span><strong id="netClinicCash"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
+<article class="v3-metric v3-metric-tone-3"><span><?= lang('Finance.openInvoices') ?></span><strong id="outstandingInvoices"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><p class="sr-only" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p></article>
+</section>
+
+
         <nav class="v3-finance-navigation" aria-label="<?= esc($tr('financeAreas')) ?>">
             <span class="shrink-0 text-xs uppercase tracking-wide text-slate-500"><?= esc($tr('financeAreas')) ?></span>
             <div class="flex flex-wrap gap-2">
@@ -63,14 +74,6 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                 </a>
             </div>
         </nav>
-                    
-        <!-- Enhanced Statistics Cards with Advanced Animations -->
-        <section class="v3-metric-strip v3-finance-metrics">
-<article class="v3-metric v3-metric-tone-0"><span><?= lang('Finance.grossCollections') ?></span><strong id="totalRevenue"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
-<article class="v3-metric v3-metric-tone-1"><span><?= lang('Finance.providerPaidCash') ?></span><strong id="providerPaidCash"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
-<article class="v3-metric v3-metric-tone-2"><span><?= lang('Finance.netClinicCash') ?></span><strong id="netClinicCash"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
-<article class="v3-metric v3-metric-tone-3"><span><?= lang('Finance.openInvoices') ?></span><strong id="outstandingInvoices"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><p class="sr-only" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p></article>
-</section>
 
         <!-- Standardized Finance Table -->
         <div class="mb-8">
@@ -175,10 +178,10 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
         </div>
 
 <?php if (has_permission('finance', 'create')): ?>
-    <div id="financeIncomeModal" class="app-scale-modal finance-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeIncomeModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="finance-create-modal__backdrop fixed inset-0 bg-slate-950/45" data-finance-create-modal-close></div>
-        <div class="finance-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
-            <form id="financeIncomeQuickCreateForm" action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white" data-select2-dropdown-parent onclick="event.stopPropagation()">
+    <div id="financeIncomeModal" class="finance-create-modal v3-context-drawer fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeIncomeModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="finance-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 bg-slate-950/45" data-finance-create-modal-close></div>
+        <div class="finance-create-modal__shell v3-context-drawer__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
+            <form id="financeIncomeQuickCreateForm" action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel v3-context-drawer__panel " data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="finance">
                 <input type="hidden" name="source_modal" value="finance_income_quick_create">
@@ -234,10 +237,10 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
         </div>
     </div>
 
-    <div id="financeExpenseModal" class="app-scale-modal finance-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeExpenseModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="finance-create-modal__backdrop fixed inset-0 bg-slate-950/45" data-finance-create-modal-close></div>
-        <div class="finance-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
-            <form id="financeExpenseQuickCreateForm" action="<?= base_url('finance/expenses/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white" data-select2-dropdown-parent data-finance-calc data-base-currency="<?= esc($base_currency ?? 'ILS') ?>" onclick="event.stopPropagation()">
+    <div id="financeExpenseModal" class="finance-create-modal v3-context-drawer fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="financeExpenseModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="finance-create-modal__backdrop v3-context-drawer__backdrop fixed inset-0 bg-slate-950/45" data-finance-create-modal-close></div>
+        <div class="finance-create-modal__shell v3-context-drawer__shell relative z-10 flex h-full items-center justify-center p-4" data-finance-create-modal-close>
+            <form id="financeExpenseQuickCreateForm" action="<?= base_url('finance/expenses/store') ?>" method="POST" enctype="multipart/form-data" class="finance-create-modal__panel v3-context-drawer__panel " data-select2-dropdown-parent data-finance-calc data-base-currency="<?= esc($base_currency ?? 'ILS') ?>" onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="finance">
                 <input type="hidden" name="source_modal" value="finance_expense_quick_create">

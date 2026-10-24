@@ -46,7 +46,7 @@ $errorLine = static function (string $field) use ($fieldError): string {
         </div>
     </div>
     <div class="mt-4">
-        <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.description') ?> <span class="text-gray-400">— <?= lang('UI.optional') ?></span></label>
+        <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.description') ?> <span class="text-gray-400">— <?= lang('V3.optional') ?></span></label>
         <textarea name="description" rows="2" class="inventory-create-textarea" placeholder="<?= lang('Inventory.itemDescriptionPlaceholder') ?>"><?= old('description') ?></textarea>
     </div>
 </section>
@@ -119,7 +119,7 @@ $errorLine = static function (string $field) use ($fieldError): string {
             <?= $errorLine('supplier') ?>
         </div>
         <div>
-            <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.supplierMappingOptional') ?> <span class="text-gray-400">— <?= lang('UI.optional') ?></span></label>
+            <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.supplierMappingOptional') ?> <span class="text-gray-400">— <?= lang('V3.optional') ?></span></label>
             <div class="grid grid-cols-2 gap-3">
                 <input type="text" name="supplier_sku" value="<?= old('supplier_sku') ?>" class="inventory-create-form-field" placeholder="<?= lang('Inventory.supplierSku') ?>">
                 <input type="text" name="pack_size_label" value="<?= old('pack_size_label') ?>" class="inventory-create-form-field" placeholder="<?= lang('Inventory.packSizeExample') ?>">
@@ -151,12 +151,12 @@ $errorLine = static function (string $field) use ($fieldError): string {
             <?= $errorLine('purchase_date') ?>
         </div>
         <div>
-            <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.expiryDate') ?> <span class="text-gray-400">— <?= lang('UI.optional') ?></span></label>
+            <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.expiryDate') ?> <span class="text-gray-400">— <?= lang('V3.optional') ?></span></label>
             <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date') ?>" class="inventory-create-form-field">
             <?= $errorLine('expiry_date') ?>
         </div>
         <div>
-            <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.location') ?> <span class="text-gray-400">— <?= lang('UI.optional') ?></span></label>
+            <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.location') ?> <span class="text-gray-400">— <?= lang('V3.optional') ?></span></label>
             <input type="text" name="location" value="<?= old('location') ?>" class="inventory-create-form-field" placeholder="<?= lang('Inventory.storageLocationExample') ?>">
             <?= $errorLine('location') ?>
         </div>
@@ -170,7 +170,7 @@ $errorLine = static function (string $field) use ($fieldError): string {
         <span><?= lang('Inventory.additionalNotes') ?></span>
     </div>
     <div>
-        <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.additionalNotes') ?> <span class="text-gray-400">— <?= lang('UI.optional') ?></span></label>
+        <label class="block text-sm text-gray-500 mb-1.5"><?= lang('Inventory.additionalNotes') ?> <span class="text-gray-400">— <?= lang('V3.optional') ?></span></label>
         <textarea name="notes" rows="3" class="inventory-create-textarea" placeholder="<?= lang('Inventory.additionalNotesPlaceholder') ?>"><?= old('notes') ?></textarea>
         <?= $errorLine('notes') ?>
     </div>

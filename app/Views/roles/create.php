@@ -5,16 +5,17 @@ $isRtl = !empty($is_rtl);
 <?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
-<div class="container mx-auto px-6 py-8">
+<div class="v3-operational-view">
+<div class="v3-operational-body">
     <!-- Page Header -->
     <div class="mb-8">
-        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800 mb-3"><?= lang('UserRole.createNewRoleTitle') ?></h1>
-                <p class="text-gray-600 text-lg"><?= lang('UserRole.createNewRoleSubtitle') ?></p>
+                <h1 class="v3-title font-bold mb-3"><?= lang('UserRole.createNewRoleTitle') ?></h1>
+                <p class="text-lg"><?= lang('UserRole.createNewRoleSubtitle') ?></p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 duration-200">
                     <i class="fas fa-arrow-left rtl-back-icon"></i>
                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.backToRoles') ?></span>
                 </a>
@@ -24,7 +25,7 @@ $isRtl = !empty($is_rtl);
 
     <!-- Flash Messages -->
     <?php if (session()->getFlashdata('validation')): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+        <div class="mb-6 bg-red-50 border border-red-200 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
@@ -44,7 +45,7 @@ $isRtl = !empty($is_rtl);
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+        <div class="mb-6 bg-red-50 border border-red-200 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
@@ -59,109 +60,109 @@ $isRtl = !empty($is_rtl);
         </div>
     <?php endif; ?>
 
-    <form action="<?= base_url($rolesRoute . '/store') ?>" method="post" id="roleForm" class="space-y-8">
+    <form action="<?= base_url($rolesRoute . '/store') ?>" method="post" id="roleForm" class="v3-flow-form ">
         <?= csrf_field() ?>
         <?php if (!empty($return_to)): ?>
             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
         <?php endif; ?>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3">
             <!-- Role Information -->
             <div class="lg:col-span-1">
-                <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg p-6 sticky top-8">
+                <div class="border sticky top-8">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+                        <div class="p-3">
                             <i class="fas fa-user-tag text-lg"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-800"><?= lang('UserRole.roleInformation') ?></h2>
+                        <h2 class="text-xl font-bold"><?= lang('UserRole.roleInformation') ?></h2>
                     </div>
 
-                    <div class="space-y-6">
+                    <div class="">
                         <!-- Role Name -->
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="name" class="block text-sm font-medium mb-2">
                                 <?= lang('UserRole.roleName') ?> <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" 
-                                   id="name" 
-                                   name="name" 
+                            <input type="text"
+                                   id="name"
+                                   name="name"
                                    value="<?= old('name') ?>"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200"
                                    placeholder="<?= lang('UserRole.roleNamePlaceholder') ?>"
                                    required>
                         </div>
 
                         <!-- Role Slug -->
                         <div>
-                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="slug" class="block text-sm font-medium mb-2">
                                 <?= lang('UserRole.roleSlug') ?> <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" 
-                                   id="slug" 
-                                   name="slug" 
+                            <input type="text"
+                                   id="slug"
+                                   name="slug"
                                    value="<?= old('slug') ?>"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200"
                                    placeholder="<?= lang('UserRole.roleSlugPlaceholder') ?>"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1"><?= lang('UserRole.roleSlugHint') ?></p>
+                            <p class="text-xs mt-1"><?= lang('UserRole.roleSlugHint') ?></p>
                         </div>
 
                         <!-- Description -->
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="description" class="block text-sm font-medium mb-2">
                                 <?= lang('UserRole.description') ?>
                             </label>
-                            <textarea id="description" 
-                                      name="description" 
+                            <textarea id="description"
+                                      name="description"
                                       rows="4"
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                      class="w-full px-4 py-3 border rounded-lg focus:ring-2 transition-colors duration-200"
                                       placeholder="<?= lang('UserRole.roleDescriptionPlaceholder') ?>"><?= old('description') ?></textarea>
                         </div>
 
                         <!-- Status -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('UserRole.status') ?></label>
+                            <label class="block text-sm font-medium mb-2"><?= lang('UserRole.status') ?></label>
                             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <label class="flex items-center">
-                                    <input type="radio" 
-                                           name="is_active" 
-                                           value="1" 
+                                    <input type="radio"
+                                           name="is_active"
+                                           value="1"
                                            <?= old('is_active', '1') == '1' ? 'checked' : '' ?>
-                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.active') ?></span>
+                                           class="h-4 w-4">
+                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.active') ?></span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="radio" 
-                                           name="is_active" 
-                                           value="0" 
+                                    <input type="radio"
+                                           name="is_active"
+                                           value="0"
                                            <?= old('is_active') == '0' ? 'checked' : '' ?>
-                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.inactive') ?></span>
+                                           class="h-4 w-4">
+                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.inactive') ?></span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Medical Role -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('UserRole.roleType') ?></label>
+                            <label class="block text-sm font-medium mb-2"><?= lang('UserRole.roleType') ?></label>
                             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <label class="flex items-center">
-                                    <input type="radio" 
-                                           name="is_medical" 
-                                           value="1" 
+                                    <input type="radio"
+                                           name="is_medical"
+                                           value="1"
                                            <?= old('is_medical') == '1' ? 'checked' : '' ?>
-                                           class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.medicalRoleDoctor') ?></span>
+                                           class="h-4 w-4 text-green-600 focus:ring-green-500">
+                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.medicalRoleDoctor') ?></span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="radio" 
-                                           name="is_medical" 
-                                           value="0" 
+                                    <input type="radio"
+                                           name="is_medical"
+                                           value="0"
                                            <?= old('is_medical', '0') == '0' ? 'checked' : '' ?>
-                                           class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.nonMedicalRole') ?></span>
+                                           class="h-4 w-4 text-green-600 focus:ring-green-500">
+                                    <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?> text-sm"><?= lang('UserRole.nonMedicalRole') ?></span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><?= lang('UserRole.medicalRoleHint') ?></p>
+                            <p class="text-xs mt-1"><?= lang('UserRole.medicalRoleHint') ?></p>
                         </div>
                     </div>
                 </div>
@@ -169,28 +170,28 @@ $isRtl = !empty($is_rtl);
 
             <!-- Permissions -->
             <div class="lg:col-span-2">
-                <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg p-6">
+                <div class="border">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
+                        <div class="p-3">
                             <i class="fas fa-shield-alt text-lg"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-800"><?= lang('UserRole.permissions') ?></h2>
+                        <h2 class="text-xl font-bold"><?= lang('UserRole.permissions') ?></h2>
                     </div>
 
                     <!-- Permission Categories -->
-                    <div class="space-y-8">
+                    <div class="">
                         <?php if (isset($permissions) && !empty($permissions)): ?>
-                            <?php 
+                            <?php
                             $categories = \App\Config\Permissions::getCategories();
                             $actionDescriptions = \App\Config\Permissions::getActionDescriptions();
                             $actionLabels = \App\Config\Permissions::getActionLabels();
                             ?>
                             <?php foreach ($permissions as $module => $modulePermissions): ?>
-                                <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                                <div class="border">
                                     <!-- Module Header -->
                                     <div class="flex items-center justify-between mb-6">
                                         <div class="flex items-center gap-3">
-                                            <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+                                            <div class="p-3">
                                                 <?php
                                                 $moduleIcons = [
                                                     'dashboard' => 'fas fa-tachometer-alt',
@@ -210,10 +211,10 @@ $isRtl = !empty($is_rtl);
                                                 <i class="<?= $icon ?> text-lg"></i>
                                             </div>
                                             <div>
-                                                <h3 class="text-xl font-bold text-gray-800">
+                                                <h3 class="text-xl font-bold">
                                                     <?= esc($categories[$module] ?? ucwords(str_replace('_', ' ', $module))) ?>
                                                 </h3>
-                                                <p class="text-sm text-gray-600">
+                                                <p class="text-sm">
                                                     <?php if (count($modulePermissions) === 1): ?>
                                                         <?= lang('UserRole.singlePermissionAvailable') ?>
                                                     <?php else: ?>
@@ -223,15 +224,15 @@ $isRtl = !empty($is_rtl);
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-3">
-                                            <button type="button" 
+                                            <button type="button"
                                                     onclick="selectAllPermissions('<?= $module ?>')"
-                                                    class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200">
                                                 <i class="fas fa-check-double"></i>
                                                 <span class="<?= $isRtl ? 'mr-1' : 'ml-1' ?>"><?= lang('UserRole.selectAll') ?></span>
                                             </button>
-                                            <button type="button" 
+                                            <button type="button"
                                                     onclick="deselectAllPermissions('<?= $module ?>')"
-                                                    class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200">
                                                 <i class="fas fa-times"></i>
                                                 <span class="<?= $isRtl ? 'mr-1' : 'ml-1' ?>"><?= lang('UserRole.deselectAll') ?></span>
                                             </button>
@@ -242,21 +243,21 @@ $isRtl = !empty($is_rtl);
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <?php foreach ($modulePermissions as $permission): ?>
                                             <?php $permissionAction = $permission['action'] ?? null; ?>
-                                            <label class="group flex items-start p-4 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200">
-                                                <input type="checkbox" 
-                                                       name="permissions[]" 
+                                            <label class="flex items-start p-4 border cursor-pointer duration-200">
+                                                <input type="checkbox"
+                                                       name="permissions[]"
                                                        value="<?= $permission['id'] ?>"
                                                        <?= in_array($permission['id'], old('permissions', [])) ? 'checked' : '' ?>
-                                                       class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5 permission-checkbox"
+                                                       class="h-5 w-5 rounded mt-0.5 permission-checkbox"
                                                        data-module="<?= $module ?>">
                                                 <div class="<?= $isRtl ? 'mr-3' : 'ml-3' ?> flex-1">
                                                     <div class="flex items-center gap-2">
-                                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-blue-800">
+                                                        <span class="text-sm font-semibold">
                                                             <?= esc($actionLabels[$permissionAction] ?? $permission['name']) ?>
                                                         </span>
                                                     </div>
                                                     <?php if ($permissionAction && isset($actionDescriptions[$permissionAction])): ?>
-                                                        <p class="text-xs text-gray-500 mt-1">
+                                                        <p class="text-xs mt-1">
                                                             <?= esc($actionDescriptions[$permissionAction]) ?>
                                                         </p>
                                                     <?php endif; ?>
@@ -268,12 +269,12 @@ $isRtl = !empty($is_rtl);
                             <?php endforeach; ?>
                         <?php else: ?>
                             <div class="text-center py-12">
-                                <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                    <i class="fas fa-exclamation-triangle text-2xl text-gray-400"></i>
+                                <div class="mx-auto w-16 h-16 flex items-center justify-center mb-4">
+                                    <i class="fas fa-exclamation-triangle v3-section-title"></i>
                                 </div>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2"><?= lang('UserRole.noPermissionsAvailable') ?></h3>
-                                <p class="text-gray-500 mb-6"><?= lang('UserRole.syncPermissionsFirstCreate') ?></p>
-                                <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                <h3 class="text-lg font-medium mb-2"><?= lang('UserRole.noPermissionsAvailable') ?></h3>
+                                <p class="mb-6"><?= lang('UserRole.syncPermissionsFirstCreate') ?></p>
+                                <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors">
                                     <i class="fas fa-sync-alt"></i>
                                     <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.syncPermissions') ?></span>
                                 </a>
@@ -285,11 +286,11 @@ $isRtl = !empty($is_rtl);
         </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col justify-end gap-3 pt-6 border-t border-gray-200 sm:flex-row sm:gap-4">
-            <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
+        <div class="flex flex-col justify-end gap-3 pt-6 border-t sm:flex-row sm:gap-4">
+            <a href="<?= workflow_back($rolesRoute ?? 'roles', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
                 <?= lang('UserRole.cancel') ?>
             </a>
-            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 duration-200">
                 <i class="fas fa-save"></i>
                 <span class="<?= $isRtl ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.createRole') ?></span>
             </button>
@@ -329,13 +330,13 @@ function deselectAllPermissions(module) {
 document.getElementById('roleForm').addEventListener('submit', function(e) {
     const name = document.getElementById('name').value.trim();
     const slug = document.getElementById('slug').value.trim();
-    
+
     if (!name || !slug) {
         e.preventDefault();
         alert('<?= esc(lang('UserRole.requiredFieldsAlert'), 'js') ?>');
         return;
     }
-    
+
     // Check if at least one permission is selected
     const selectedPermissions = document.querySelectorAll('input[name="permissions[]"]:checked');
     if (selectedPermissions.length === 0) {
@@ -346,4 +347,5 @@ document.getElementById('roleForm').addEventListener('submit', function(e) {
 });
 </script>
 
+</div>
 <?= $this->endSection() ?>

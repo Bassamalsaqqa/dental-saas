@@ -27,25 +27,25 @@ button.dt-button:hover, button.dt-button:active {
 </style>
 
 <!-- Enhanced User Management -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-100 relative overflow-hidden">
+<div class="v3-platform-workspace min-h-screen relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+
+
     </div>
 
     <div class="container mx-auto relative z-10 px-4 py-6">
         <!-- Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+        <div class="mb-4">
+            <div class="cp-surface border cp-border cp-radius p-6">
                 <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                     <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div class="w-12 h-12 cp-radius flex items-center justify-center text-white">
                             <i class="fas fa-users text-xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">User Registry</h1>
-                            <p class="text-gray-600">Manage platform users and access</p>
+                            <h1 class="cp-title font-bold text-gray-900"><?= esc(lang('V3Platform.userRegistry')) ?></h1>
+                            <p class="text-gray-600"><?= esc(lang('V3Platform.managePlatformUsersAndAccess')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -53,91 +53,91 @@ button.dt-button:hover, button.dt-button:active {
         </div>
 
         <!-- Stats Cards -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        <div class="mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
                 <!-- Total Users -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+
+                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
                                     <i class="fas fa-users text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 rounded-full border border-indigo-200">
-                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                                <span class="text-indigo-700 font-bold text-xs">All Time</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border cp-border">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                                <span class="cp-accent font-bold text-xs"><?= esc(lang('V3Platform.allTime')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Users</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.totalUsers')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-indigo-900"><?= number_format($stats['total'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-pulse"></div>
+                                <p class="cp-title font-black cp-accent"><?= number_format($stats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 rounded-full overflow-hidden">
+
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Platform Users</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.platformUsers')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active Users -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+
+                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
                                     <i class="fas fa-user-check text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span class="text-green-700 font-bold text-xs">Active</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-green-200">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span class="text-green-700 font-bold text-xs"><?= esc(lang('V3Platform.active')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Users</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.activeUsers')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
+                                <p class="cp-title font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
+                                <div class="w-16 h-1 rounded-full overflow-hidden">
+
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently Online</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.currentlyOnline')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- New Users -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+
+                                <div class="relative p-3 cp-radius text-white transition-all duration-200">
                                     <i class="fas fa-user-plus text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-3 py-1.5 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-blue-700 font-bold text-xs">This Month</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border cp-border">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                                <span class="cp-accent font-bold text-xs"><?= esc(lang('V3Platform.thisMonth')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.newSignups')) ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-blue-900"><?= number_format($stats['new'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
+                                <p class="cp-title font-black cp-accent"><?= number_format($stats['new'] ?? 0) ?></p>
+                                <div class="w-12 h-1 rounded-full overflow-hidden">
+
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Monthly Growth</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('V3Platform.monthlyGrowth')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -145,62 +145,62 @@ button.dt-button:hover, button.dt-button:active {
         </div>
 
         <!-- Users Table -->
-        <div class="mb-8">
-            <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="mb-4">
+            <div class="cp-surface cp-radius border cp-border overflow-hidden">
+                <div class="px-6 py-4 border-b cp-border cp-surface">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">User Registry</h3>
+                            <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('V3Platform.userRegistry')) ?></h3>
                         </div>
-                        
+
                         <div class="flex flex-wrap items-center gap-3">
                             <!-- Search -->
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="userSearch" placeholder="Search users..." 
-                                       class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-64">
+                                <input type="text" id="userSearch" placeholder="<?= esc(lang('V3Platform.searchUsers'), 'attr') ?>"
+                                       class="pl-10 pr-4 py-2 rounded-lg border cp-border text-sm focus:ring-indigo-500 focus:border-indigo-500 w-64">
                             </div>
 
                             <!-- Status Filter -->
-                            <select id="userStatus" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
+                            <select id="userStatus" class="py-2 pl-3 pr-8 rounded-lg border cp-border text-sm focus:ring-indigo-500 focus:border-indigo-500 cp-surface">
+                                <option value=""><?= esc(lang('V3Platform.allStatus')) ?></option>
+                                <option value="active"><?= esc(lang('V3Platform.active')) ?></option>
+                                <option value="inactive"><?= esc(lang('V3Platform.inactive')) ?></option>
                             </select>
 
                             <!-- Export Actions -->
-                            <div class="flex items-center space-x-2 border-l border-gray-300 pl-3">
-                                <button onclick="exportToPDF()" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Export PDF">
+                            <div class="flex items-center space-x-2 border-l cp-border pl-3">
+                                <button onclick="exportToPDF()" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.exportPdf'), 'attr') ?>">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
-                                <button onclick="exportToCSV()" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Export CSV">
+                                <button onclick="exportToCSV()" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.exportCsv'), 'attr') ?>">
                                     <i class="fas fa-file-csv"></i>
                                 </button>
-                                <button onclick="printTable()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Print Table">
+                                <button onclick="printTable()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.printTable'), 'attr') ?>">
                                     <i class="fas fa-print"></i>
                                 </button>
-                                <a href="<?= base_url('controlplane/users') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="Reset Filters">
+                                <a href="<?= base_url('controlplane/users') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="<?= esc(lang('V3Platform.resetFilters'), 'attr') ?>">
                                     <i class="fas fa-undo"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     <table id="usersTable" class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="cp-surface">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Primary Role</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Clinics</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.user')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.primaryRole')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.clinics')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.status')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.joined')) ?></th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.actions')) ?></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                        <tbody class="cp-surface divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -272,7 +272,7 @@ function toggleUserStatus(userId, action) {
                 usersTable.ajax.reload(null, false);
             }
             // Optional: Show toast instead of alert for smoother UX
-            // alert(data.message); 
+            // alert(data.message);
         } else {
             alert(data.message || 'Failed to update status');
         }
@@ -282,7 +282,7 @@ function toggleUserStatus(userId, action) {
         alert('An error occurred.');
     })
     .finally(() => {
-        refreshCsrfToken(); 
+        refreshCsrfToken();
     });
 }
 
@@ -376,7 +376,7 @@ $(document).ready(function() {
                     </span>`;
                 }
             },
-            { 
+            {
                 data: 'created_on',
                 render: function(data) {
                     return `<span class="text-sm text-gray-500">${data}</span>`;
@@ -390,14 +390,14 @@ $(document).ready(function() {
                     const isActive = row.status === 'active';
                     const name = encodeURIComponent(row.name);
                     let actions = '<div class="flex items-center justify-end space-x-2">';
-                    
+
                     // View
                     actions += `
-                        <a href="${baseUrl}controlplane/users/${data}" 
+                        <a href="${baseUrl}controlplane/users/${data}"
                            class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>`;
-                    
+
                     // Toggle Status (Suspend/Activate)
                     if (isActive) {
                         actions += `
@@ -423,7 +423,7 @@ $(document).ready(function() {
     $('#userStatus, #userSearch').on('change keyup', function() {
         usersTable.draw();
     });
-    
+
     // Export Functions
     window.exportToPDF = function() { usersTable.button('.btn-pdf').trigger(); };
     window.printTable = function() { usersTable.button('.btn-print').trigger(); };

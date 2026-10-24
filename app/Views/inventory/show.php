@@ -37,7 +37,7 @@ if (!empty($item['expiry_date'])) {
 }
 ?>
 
-<div class="denta-inventory-workspace inventory-detail-shell min-h-screen bg-slate-50">
+<div class="denta-inventory-workspace inventory-detail-shell min-h-screen v3-surface">
     <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
 
         <section class="inventory-hero-card mb-6">
@@ -45,7 +45,7 @@ if (!empty($item['expiry_date'])) {
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-center gap-4">
                     <div class="inventory-hero-avatar">
-                        <i class="fas fa-box-open text-3xl"></i>
+                        <i class="fas fa-box-open v3-title-scale"></i>
                     </div>
                     <div>
                         <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-teal-100/90">
@@ -53,10 +53,10 @@ if (!empty($item['expiry_date'])) {
                             <span class="h-1 w-1 rounded-full bg-teal-100"></span>
                             <span>#<?= (int) $item['id'] ?></span>
                         </div>
-                        <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($item['item_name']) ?></h1>
+                        <h1 class="mt-2 v3-title-scale font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($item['item_name']) ?></h1>
                         <div class="mt-3 flex flex-wrap items-center gap-2">
-                            <span class="inline-flex items-center rounded-full border border-white/20 v3-surface px-3 py-1 text-xs font-black text-white"><?= esc(ucfirst((string) $item['category'])) ?></span>
-                            <span class="inline-flex items-center rounded-full border border-white/20 v3-surface px-3 py-1 text-xs font-black text-white"><?= esc($statusText) ?></span>
+                            <span class="inline-flex items-center rounded-full border v3-border v3-surface px-3 py-1 text-xs font-black text-white"><?= esc(ucfirst((string) $item['category'])) ?></span>
+                            <span class="inline-flex items-center rounded-full border v3-border v3-surface px-3 py-1 text-xs font-black text-white"><?= esc($statusText) ?></span>
                         </div>
                         <?php if (!empty($item['description'])): ?>
                             <p class="mt-4 max-w-3xl text-sm font-semibold leading-6 text-teal-50/90"><?= esc($item['description']) ?></p>
@@ -102,7 +102,7 @@ if (!empty($item['expiry_date'])) {
             </div>
         </section>
 
-        <section class="v3-command-section mb-6 v3-corner border border-white/80 p-4 sm:p-5">
+        <section class="v3-command-section mb-6 v3-corner border v3-border p-4 sm:p-5">
             <div class="inventory-snapshot-grid">
                 <div class="inventory-snapshot-card inventory-snapshot-stock">
                     <p class="inventory-snapshot-label"><?= esc($tr('current')) ?></p>
@@ -178,7 +178,7 @@ if (!empty($item['expiry_date'])) {
                         <p class="text-lg font-bold text-gray-900"><?= formatCurrency($item['quantity'] * $item['unit_price']) ?></p>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm">
+                <div class="mt-4 pt-4 border-t v3-border space-y-2 text-sm">
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('location')) ?></span><span class="text-gray-900 font-medium"><?= $item['location'] ?: '—' ?></span></div>
                     <div class="flex justify-between"><span class="text-gray-500"><?= esc($tr('expiry')) ?></span><span class="text-gray-900 font-medium">
                         <?php if ($item['expiry_date']):
@@ -241,28 +241,28 @@ if (!empty($item['expiry_date'])) {
                 </div>
                 <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link') ?>" class="space-y-3">
                     <?= csrf_field() ?>
-                    <select name="link_supplier_id" data-force-select2 data-allow-clear="false" class="w-full h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm">
+                    <select name="link_supplier_id" data-force-select2 data-allow-clear="false" class="w-full h-10 px-3 border v3-border rounded-lg v3-surface text-sm">
                         <option value=""><?= esc($tr('supplier')) ?></option>
                         <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                             <option value="<?= (int) $supplier['id'] ?>"><?= esc($supplier['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" name="supplier_sku" class="h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('supplierSku')) ?>">
-                        <input type="text" name="pack_size_label" class="h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('packSize')) ?>">
-                        <input type="number" min="1" step="1" name="preferred_order_qty" class="h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('preferredQty')) ?>">
+                        <input type="text" name="supplier_sku" class="h-10 px-3 border v3-border rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('supplierSku')) ?>">
+                        <input type="text" name="pack_size_label" class="h-10 px-3 border v3-border rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('packSize')) ?>">
+                        <input type="number" min="1" step="1" name="preferred_order_qty" class="h-10 px-3 border v3-border rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('preferredQty')) ?>">
                         <div class="grid grid-cols-3 gap-2">
-                            <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('lastPrice')) ?>">
-                            <select name="link_currency" data-force-select2 data-allow-clear="false" class="h-10 px-2 border border-gray-300 rounded-lg v3-surface text-sm">
+                            <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 h-10 px-3 border v3-border rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('lastPrice')) ?>">
+                            <select name="link_currency" data-force-select2 data-allow-clear="false" class="h-10 px-2 border v3-border rounded-lg v3-surface text-sm">
                                 <?php foreach (($currencies ?? ['ILS']) as $c): ?>
                                     <option value="<?= esc($c) ?>"><?= esc($c) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
-                    <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
+                    <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
                     <label class="flex items-center gap-2 text-sm text-gray-700">
-                        <input type="checkbox" name="is_preferred" value="1" checked class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                        <input type="checkbox" name="is_preferred" value="1" checked class="rounded v3-border text-emerald-600 focus:ring-emerald-500">
                         <?= esc($tr('setAsPreferredSupplier')) ?>
                     </label>
                     <button type="submit" class="w-full py-2.5 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">
@@ -285,7 +285,7 @@ if (!empty($item['expiry_date'])) {
                 <div class="inventory-table-wrap overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                            <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b v3-border">
                                 <th class="px-3 py-2.5"><?= esc($tr('date')) ?></th>
                                 <th class="px-3 py-2.5"><?= esc($tr('status')) ?></th>
                                 <th class="px-3 py-2.5"><?= esc($tr('change')) ?></th>
@@ -333,12 +333,12 @@ if (!empty($item['expiry_date'])) {
                     <i class="fas fa-tags text-sm" style="background:#e0f2fe;color:#0284c7;"></i>
                     <span><?= esc($tr('batchesLotsFoundation')) ?></span>
                 </div>
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-700"><?= count($batches) ?> batches</span>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full v3-soft-surface v3-accent-text"><?= count($batches) ?> batches</span>
             </div>
             <div class="inventory-table-wrap overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead>
-                        <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                        <tr class="text-left text-xs font-semibold text-gray-500 uppercase border-b v3-border">
                             <th class="px-3 py-2.5"><?= esc($tr('lot')) ?></th>
                             <th class="px-3 py-2.5"><?= esc($tr('expiry')) ?></th>
                             <th class="px-3 py-2.5"><?= esc($tr('receivedQty')) ?></th>
@@ -366,7 +366,7 @@ if (!empty($item['expiry_date'])) {
 
         <!-- Bottom Actions -->
         <div class="flex flex-wrap gap-2">
-            <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="inventory-action bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20">
+            <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="inventory-action text-white">
                 <i class="fas fa-cart-plus text-xs"></i><?= esc($tr('addToReorderList')) ?>
             </button>
         </div>

@@ -72,31 +72,31 @@ $completionBalance = $completionState['balance_summary'] ?? null;
      data-pin-verified="<?= !empty($pin_verified) ? '1' : '0' ?>"
      data-reset-url="<?= esc(base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset')) ?>"
      data-timeout-ms="90000">
-    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <div class="mb-4 flex items-center justify-between gap-3">
-            <div class="inline-flex v3-corner border border-slate-200 v3-surface p-1">
+    <div class="v3-kiosk-shell">
+        <div class="v3-kiosk-access-bar">
+            <div class="inline-flex v3-corner border v3-border v3-surface p-1">
                 <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=ar') ?>"
-                   class="rounded-xl px-4 py-2 text-sm font-semibold transition-all <?= $isArabic ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-50' ?>">
+                   class="v3-radius px-4 py-2 text-sm font-semibold transition-all <?= $isArabic ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-50' ?>">
                     العربية
                 </a>
                 <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=en') ?>"
-                   class="rounded-xl px-4 py-2 text-sm font-semibold transition-all <?= !$isArabic ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-50' ?>">
+                   class="v3-radius px-4 py-2 text-sm font-semibold transition-all <?= !$isArabic ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-50' ?>">
                     English
                 </a>
             </div>
             <?php if (!empty($pin_verified)): ?>
-                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50">
+                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
                     <i class="fas fa-rotate-left text-slate-400"></i>
                     <?= esc(lang('Kiosk.notYouReenter')) ?>
                 </a>
             <?php endif; ?>
         </div>
 
-        <div class="overflow-hidden v3-corner border border-slate-200/80 v3-surface">
-            <div class="kiosk-header-banner border-b border-[var(--denta-taupe-border)] bg-[var(--denta-forest)] px-6 py-6 sm:px-8">
-                <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div class="overflow-hidden v3-corner border v3-border v3-surface">
+            <div class="kiosk-header-banner v3-kiosk-command">
+                <div class="v3-kiosk-command-content">
                     <div class="flex items-start gap-4">
-                        <div class="flex h-16 w-16 shrink-0 items-center justify-center v3-corner border border-white/15 v3-surface">
+                        <div class="v3-kiosk-brand">
                             <?php if ($logoSrc): ?>
                                 <img src="<?= esc($logoSrc) ?>" alt="<?= esc($settings['clinic_name'] ?? $clinic['name']) ?>" class="h-11 w-11 object-contain">
                             <?php else: ?>
@@ -104,12 +104,12 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                             <?php endif; ?>
                         </div>
                         <div class="space-y-2">
-                            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100/80">
+                            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] v3-accent-text">
                                 <span><?= esc(lang('Kiosk.title')) ?></span>
                                 <span class="h-1 w-1 rounded-full v3-surface"></span>
                                 <span><?= esc(!empty($pin_verified) ? $readyLabel : $secureAccessLabel) ?></span>
                             </div>
-                            <h1 class="text-2xl font-bold tracking-tight text-white sm:text-3xl" dir="auto" style="unicode-bidi: plaintext;">
+                            <h1 class="v3-kiosk-clinic-name" dir="auto" style="unicode-bidi: plaintext;">
                                 <?= esc($settings['clinic_name'] ?? $clinic['name']) ?>
                             </h1>
                             <p class="max-w-2xl text-sm leading-6 text-slate-200" dir="auto" style="unicode-bidi: plaintext;">
@@ -118,7 +118,7 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 v3-surface px-3 py-2 text-xs font-semibold text-white/85">
+                        <span class="inline-flex items-center gap-2 rounded-full border v3-border v3-surface px-3 py-2 text-xs font-semibold text-white/85">
                             <i class="fas fa-clock text-[11px]"></i>
                             <?= esc($privacyNote) ?>
                         </span>
@@ -126,7 +126,7 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                 </div>
             </div>
 
-            <div class="border-b border-[var(--denta-taupe-border)] bg-[var(--denta-sandstone)] px-6 py-4 sm:px-8">
+            <div class="v3-kiosk-progress">
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <?php foreach ($workflowSteps as $step): ?>
                         <div class="kiosk-step-pill flex items-center gap-3 v3-corner border px-4 py-3 <?= $step['active'] ? 'active border-[var(--denta-emerald-pine)] bg-[var(--denta-emerald-pine)] text-white' : 'border-[var(--denta-taupe-border)] bg-[var(--denta-parchment)] text-[var(--denta-ink)]' ?>">
@@ -137,10 +137,10 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                 </div>
             </div>
 
-            <div class="px-6 py-6 sm:px-8 sm:py-8">
+            <div class="v3-kiosk-body">
                 <?php if (!($pin_verified ?? false)): ?>
-                    <div class="mx-auto max-w-xl v3-corner border border-slate-200 v3-surface p-8">
-                        <div class="mb-6 flex h-14 w-14 items-center justify-center v3-corner bg-indigo-100 text-indigo-600">
+                    <div class="v3-kiosk-pin">
+                        <div class="v3-kiosk-security-icon">
                             <i class="fas fa-shield-halved text-xl"></i>
                         </div>
                         <h2 class="text-2xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.enterClinicPin')) ?></h2>
@@ -149,9 +149,9 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                             <?= csrf_field() ?>
                             <div>
                                 <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.clinicPin')) ?></label>
-                                <input type="password" name="kiosk_pin" inputmode="numeric" class="w-full v3-corner border-2 border-slate-200 v3-surface px-4 py-4 text-lg tracking-[0.25em] text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Kiosk.enterPin')) ?>" required>
+                                <input type="password" name="kiosk_pin" inputmode="numeric" class="w-full v3-corner border-2 v3-border v3-surface px-4 py-4 text-lg tracking-[0.25em] text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Kiosk.enterPin')) ?>" required>
                             </div>
-                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 v3-corner bg-indigo-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-indigo-700">
+                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 v3-corner v3-soft-surface px-6 py-4 text-base font-semibold text-white transition hover:bg-indigo-700">
                                 <i class="fas fa-lock-open"></i>
                                 <?= esc(lang('Kiosk.unlockKiosk')) ?>
                             </button>
@@ -174,18 +174,18 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                         <p class="text-sm leading-6 text-slate-600"><?= esc($completionState['message'] ?? lang('Kiosk.msgAppointmentConfirmed')) ?></p>
                                         <div class="flex flex-wrap gap-3 pt-1 text-sm text-slate-700">
                                             <?php if (!empty($completionState['patient_name'])): ?>
-                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 v3-surface px-3 py-2"><i class="fas fa-user text-slate-400"></i><?= esc($completionState['patient_name']) ?></span>
+                                                <span class="inline-flex items-center gap-2 rounded-full border v3-border v3-surface px-3 py-2"><i class="fas fa-user text-slate-400"></i><?= esc($completionState['patient_name']) ?></span>
                                             <?php endif; ?>
                                             <?php if (!empty($completionState['appointment_date']) || !empty($completionState['appointment_time'])): ?>
-                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 v3-surface px-3 py-2"><i class="fas fa-calendar-day text-slate-400"></i><?= esc(trim(($completionState['appointment_date'] ?? '') . ' ' . ($completionState['appointment_time'] ?? ''))) ?></span>
+                                                <span class="inline-flex items-center gap-2 rounded-full border v3-border v3-surface px-3 py-2"><i class="fas fa-calendar-day text-slate-400"></i><?= esc(trim(($completionState['appointment_date'] ?? '') . ' ' . ($completionState['appointment_time'] ?? ''))) ?></span>
                                             <?php endif; ?>
                                             <?php if (!empty($completionState['appointment_type'])): ?>
-                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 v3-surface px-3 py-2"><i class="fas fa-stethoscope text-slate-400"></i><?= esc($completionState['appointment_type']) ?></span>
+                                                <span class="inline-flex items-center gap-2 rounded-full border v3-border v3-surface px-3 py-2"><i class="fas fa-stethoscope text-slate-400"></i><?= esc($completionState['appointment_type']) ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
-                                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
                                     <i class="fas fa-rotate-left text-slate-400"></i>
                                     <?= esc(lang('Kiosk.notYouReenter')) ?>
                                 </a>
@@ -193,9 +193,9 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                         </section>
 
                         <section class="grid gap-4 md:grid-cols-2">
-                            <article class="v3-corner border border-slate-200 v3-surface p-6">
+                            <article class="v3-kiosk-station">
                                 <div class="flex items-center gap-3">
-                                    <span class="flex h-11 w-11 items-center justify-center v3-corner bg-indigo-100 text-indigo-600"><i class="fas fa-chair"></i></span>
+                                    <span class="flex h-11 w-11 items-center justify-center v3-corner v3-soft-surface v3-accent-text"><i class="fas fa-chair"></i></span>
                                     <div>
                                         <h3 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.completionNextStepTitle')) ?></h3>
                                         <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.completionNextStepHelp')) ?></p>
@@ -222,11 +222,11 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                         </section>
                     </div>
                 <?php else: ?>
-                    <div class="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(22rem,0.7fr)]">
-                        <section class="v3-corner border border-slate-200 v3-surface p-6">
-                            <div class="mb-6 flex items-start justify-between gap-4">
+                    <div class="v3-kiosk-stations">
+                        <section class="v3-kiosk-station">
+                            <div class="v3-kiosk-station-heading">
                                 <div>
-                                    <div class="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                                    <div class="v3-kiosk-station-label">
                                         <i class="fas fa-mobile-screen-button text-[11px]"></i>
                                         <?= esc($searchCardTitle) ?>
                                     </div>
@@ -239,18 +239,18 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                 <?= csrf_field() ?>
                                 <div>
                                     <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
-                                    <input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" class="w-full v3-corner border-2 border-slate-200 bg-slate-50 px-5 py-4 text-xl tracking-[0.08em] text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Kiosk.mobilePlaceholder')) ?>" required>
+                                    <input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" class="w-full v3-corner border-2 v3-border v3-surface px-5 py-4 text-xl tracking-[0.08em] text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Kiosk.mobilePlaceholder')) ?>" required>
                                 </div>
 
-                                <div class="v3-corner border border-slate-200 bg-slate-50 p-4" dir="ltr">
-                                    <div class="grid grid-cols-3 gap-3" dir="ltr">
+                                <div class="v3-kiosk-keypad-panel" dir="ltr">
+                                    <div class="v3-kiosk-keypad" dir="ltr">
                                         <?php foreach (['1','2','3','4','5','6','7','8','9','clear','0','back'] as $key): ?>
                                             <?php if ($key === 'clear'): ?>
-                                                <button type="button" data-key="clear" class="kiosk-key v3-corner border border-slate-200 v3-surface py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"><?= esc(lang('Kiosk.clear')) ?></button>
+                                                <button type="button" data-key="clear" class="kiosk-key v3-kiosk-key v3-kiosk-key-secondary"><?= esc(lang('Kiosk.clear')) ?></button>
                                             <?php elseif ($key === 'back'): ?>
-                                                <button type="button" data-key="back" class="kiosk-key v3-corner border border-slate-200 v3-surface py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"><?= esc(lang('Kiosk.back')) ?></button>
+                                                <button type="button" data-key="back" class="kiosk-key v3-kiosk-key v3-kiosk-key-secondary"><?= esc(lang('Kiosk.back')) ?></button>
                                             <?php else: ?>
-                                                <button type="button" data-key="<?= $key ?>" class="kiosk-key rounded-2xl border border-slate-200 bg-white py-3 text-xl font-bold text-slate-800 shadow-sm transition hover:bg-slate-100"><?= $key ?></button>
+                                                <button type="button" data-key="<?= $key ?>" class="kiosk-key v3-kiosk-key"><?= $key ?></button>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
@@ -264,21 +264,21 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                         </section>
 
                         <aside class="space-y-6">
-                            <section class="v3-corner border border-indigo-200 bg-indigo-50/80 p-6">
+                            <section class="v3-kiosk-instructions">
                                 <div class="flex items-start gap-3">
-                                    <span class="mt-0.5 flex h-10 w-10 items-center justify-center v3-corner bg-indigo-600 text-white">
+                                    <span class="mt-0.5 flex h-10 w-10 items-center justify-center v3-corner v3-soft-surface text-white">
                                         <i class="fas fa-bell-concierge"></i>
                                     </span>
                                     <div>
-                                        <h3 class="text-lg font-semibold text-indigo-950"><?= esc($priorityTaskTitle) ?></h3>
-                                        <p class="mt-2 text-sm leading-6 text-indigo-800"><?= esc($priorityTaskHelp) ?></p>
+                                        <h3 class="text-lg font-semibold v3-accent-text"><?= esc($priorityTaskTitle) ?></h3>
+                                        <p class="mt-2 text-sm leading-6 v3-accent-text"><?= esc($priorityTaskHelp) ?></p>
                                     </div>
                                 </div>
                             </section>
 
-                            <section class="v3-corner border border-slate-200 v3-surface p-6">
+                            <section class="v3-kiosk-station">
                                 <div class="mb-4 flex items-center gap-2 text-slate-900">
-                                    <span class="flex h-10 w-10 items-center justify-center v3-corner bg-indigo-100 text-indigo-600"><i class="fas fa-list-check"></i></span>
+                                    <span class="flex h-10 w-10 items-center justify-center v3-corner v3-soft-surface v3-accent-text"><i class="fas fa-list-check"></i></span>
                                     <div>
                                         <h3 class="text-lg font-semibold"><?= esc($taskQueueLabel) ?></h3>
                                         <p class="text-sm text-slate-500"><?= esc($helpNote) ?></p>
@@ -292,29 +292,29 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                      data-has-confirmable="<?= $hasConfirmable ? '1' : '0' ?>"
                                      data-primary-action="<?= esc($primaryAction) ?>">
                                     <button type="button" data-kiosk-action-btn data-action="checkin" class="flex w-full items-center justify-between v3-corner border px-4 py-3 text-left text-sm font-semibold transition-all duration-150">
-                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fas fa-calendar-check"></i></span><?= esc(lang('Kiosk.actionConfirmVisit')) ?></span>
+                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center v3-radius bg-slate-100 text-slate-600"><i class="fas fa-calendar-check"></i></span><?= esc(lang('Kiosk.actionConfirmVisit')) ?></span>
                                         <i class="fas fa-chevron-right text-xs opacity-60"></i>
                                     </button>
                                     <button type="button" data-kiosk-action-btn data-action="details" class="flex w-full items-center justify-between v3-corner border px-4 py-3 text-left text-sm font-semibold transition-all duration-150">
-                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fas fa-address-card"></i></span><?= esc(lang('Kiosk.actionUpdateDetails')) ?></span>
+                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center v3-radius bg-slate-100 text-slate-600"><i class="fas fa-address-card"></i></span><?= esc(lang('Kiosk.actionUpdateDetails')) ?></span>
                                         <i class="fas fa-chevron-right text-xs opacity-60"></i>
                                     </button>
                                     <button type="button" data-kiosk-action-btn data-action="contracts" class="flex w-full items-center justify-between v3-corner border px-4 py-3 text-left text-sm font-semibold transition-all duration-150">
-                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fas fa-file-signature"></i></span><?= esc(lang('Kiosk.actionReviewSign')) ?></span>
+                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center v3-radius bg-slate-100 text-slate-600"><i class="fas fa-file-signature"></i></span><?= esc(lang('Kiosk.actionReviewSign')) ?></span>
                                         <i class="fas fa-chevron-right text-xs opacity-60"></i>
                                     </button>
                                 </div>
                             </section>
 
-                            <section class="v3-corner border border-slate-200 v3-surface p-6">
+                            <section class="v3-kiosk-station">
                                 <h3 class="text-lg font-semibold text-slate-900"><?= esc($resultsHeading) ?></h3>
                                 <p class="mt-2 text-sm leading-6 text-slate-500"><?= esc($resultsEmptyHint) ?></p>
                                 <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                                    <div class="v3-corner border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <div class="v3-corner border v3-border v3-surface px-4 py-3">
                                         <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Kiosk.mobileNumber')) ?></div>
                                         <div id="kioskLookupPhonePreview" class="mt-1 text-sm font-semibold text-slate-700"><?= esc($lookup_phone ?: ($isArabic ? 'غير محدد' : 'Not entered')) ?></div>
                                     </div>
-                                    <div class="v3-corner border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <div class="v3-corner border v3-border v3-surface px-4 py-3">
                                         <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Kiosk.needHelp')) ?></div>
                                         <div class="mt-1 text-sm font-semibold text-slate-700"><?= esc($footerHelp) ?></div>
                                     </div>
@@ -346,23 +346,23 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                 <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc($resultsHeading) ?></div>
                                 <h3 id="kioskResultsTitle" class="mt-1 text-xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.resultsFor')) ?> <?= esc($lookup_phone ?? '') ?></h3>
                             </div>
-                            <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                            <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start v3-radius border v3-border v3-surface px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
                                 <i class="fas fa-rotate-left text-slate-400"></i>
                                 <?= esc(lang('Kiosk.notYouReenter')) ?>
                             </a>
                         </div>
 
-                        <section id="kioskResultsList" class="v3-corner border border-slate-200 v3-surface p-6">
+                        <section id="kioskResultsList" class="v3-kiosk-station">
                             <div class="mb-5 flex items-center justify-between gap-3">
                                 <div>
                                     <h4 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.actionConfirmVisit')) ?></h4>
                                     <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.confirmAvailableOnDay')) ?></p>
                                 </div>
-                                <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"><?= count($appointments ?? []) ?></span>
+                                <span class="rounded-full v3-soft-surface px-3 py-1 text-xs font-semibold v3-accent-text"><?= count($appointments ?? []) ?></span>
                             </div>
                             <div id="kioskAppointmentRows" class="space-y-4">
                                 <?php foreach ($appointments as $appointment): ?>
-                                    <div class="flex flex-col gap-4 v3-corner border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between">
+                                    <div class="flex flex-col gap-4 v3-corner border v3-border v3-surface p-5 md:flex-row md:items-center md:justify-between">
                                         <div class="space-y-1">
                                             <p class="text-sm font-semibold text-slate-900" dir="auto" style="unicode-bidi: plaintext;"><?= esc($appointment['patient_display'] ?? '') ?></p>
                                             <p class="text-sm text-slate-500">
@@ -391,26 +391,26 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                         <?= esc($info_message) ?>
                                     </div>
                                 <?php elseif (empty($appointments)): ?>
-                                    <div class="v3-corner border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+                                    <div class="v3-corner border v3-border v3-surface p-5 text-sm text-slate-500">
                                         <?= esc($resultsEmptyLabel) ?>
                                     </div>
                                 <?php endif; ?>
                             </div>
                         </section>
 
-                        <section id="kioskPatientDetails" class="<?= !empty($patients) ? '' : 'hidden' ?> v3-corner border border-slate-200 v3-surface p-6">
+                        <section id="kioskPatientDetails" class="<?= !empty($patients) ? '' : 'hidden' ?> v3-kiosk-station">
                             <div class="mb-5 flex items-center justify-between gap-3">
                                 <div>
                                     <h4 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.updateYourDetails')) ?></h4>
                                     <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.detailsHint')) ?></p>
                                 </div>
-                                <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700"><?= count($patients ?? []) ?></span>
+                                <span class="rounded-full v3-soft-surface px-3 py-1 text-xs font-semibold v3-accent-text"><?= count($patients ?? []) ?></span>
                             </div>
                             <form id="kioskDetailsForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/update-details') ?>" method="POST" class="space-y-4" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
                                 <?= csrf_field() ?>
                                 <div>
                                     <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.selectPatient')) ?></label>
-                                    <select name="patient_id" id="kioskPatientSelect" class="w-full v3-corner border-2 border-slate-200 v3-surface px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100">
+                                    <select name="patient_id" id="kioskPatientSelect" class="w-full v3-corner border-2 v3-border v3-surface px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100">
                                         <?php foreach ($patients ?? [] as $patient): ?>
                                             <option value="<?= (int) $patient['id'] ?>" data-phone="<?= esc($patient['phone'] ?? '') ?>" data-email="<?= esc($patient['email'] ?? '') ?>">
                                                 <?= esc($patient['name'] ?? '') ?>
@@ -421,21 +421,21 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                 <div class="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
-                                        <input type="tel" name="phone" id="kioskPhoneUpdate" inputmode="numeric" class="w-full v3-corner border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100">
+                                        <input type="tel" name="phone" id="kioskPhoneUpdate" inputmode="numeric" class="w-full v3-corner border-2 v3-border v3-surface px-4 py-3 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100">
                                     </div>
                                     <div>
                                         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.email')) ?></label>
-                                        <input type="email" name="email" id="kioskEmailUpdate" class="w-full v3-corner border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100">
+                                        <input type="email" name="email" id="kioskEmailUpdate" class="w-full v3-corner border-2 v3-border v3-surface px-4 py-3 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100">
                                     </div>
                                 </div>
-                                <button type="submit" class="inline-flex items-center gap-2 v3-corner bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700">
+                                <button type="submit" class="inline-flex items-center gap-2 v3-corner v3-soft-surface px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700">
                                     <i class="fas fa-save"></i>
                                     <?= esc(lang('Kiosk.updateDetailsButton')) ?>
                                 </button>
                             </form>
                         </section>
 
-                        <section id="kioskContracts" class="<?= !empty($contracts) ? '' : 'hidden' ?> v3-corner border border-slate-200 v3-surface p-6">
+                        <section id="kioskContracts" class="<?= !empty($contracts) ? '' : 'hidden' ?> v3-kiosk-station">
                             <div class="mb-5 flex items-center justify-between gap-3">
                                 <div>
                                     <h4 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.treatmentPlan')) ?></h4>
@@ -445,7 +445,7 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                             </div>
                             <div id="kioskContractList" class="space-y-4">
                                 <?php foreach ($contracts ?? [] as $contract): ?>
-                                    <div class="flex flex-col gap-4 v3-corner border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between">
+                                    <div class="flex flex-col gap-4 v3-corner border v3-border v3-surface p-5 md:flex-row md:items-center md:justify-between">
                                         <div class="space-y-1">
                                             <p class="text-sm font-semibold text-slate-900"><?= esc(lang('Kiosk.planPrefix')) ?><?= (int) $contract['id'] ?></p>
                                             <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.total')) ?>: <?= esc($contract['currency']) ?> <?= number_format((float) $contract['total_cost'], 2) ?></p>
@@ -478,17 +478,17 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                     <h3 class="text-xl font-semibold"><?= esc(lang('Kiosk.treatmentPlan')) ?></h3>
                     <p class="mt-1 text-sm text-slate-300" id="kioskContractMeta"></p>
                 </div>
-                <button type="button" id="kioskCloseContract" class="flex h-10 w-10 items-center justify-center v3-corner border border-white/10 v3-surface transition hover:bg-white/20">
+                <button type="button" id="kioskCloseContract" class="flex h-10 w-10 items-center justify-center v3-corner border v3-border v3-surface transition hover:bg-white/20">
                     <i class="fas fa-times text-white"></i>
                 </button>
             </div>
             <div class="space-y-6 overflow-y-auto p-6">
-                <div id="kioskContractSnapshot" class="v3-corner border border-slate-200 bg-slate-50 p-4"></div>
+                <div id="kioskContractSnapshot" class="v3-kiosk-keypad-panel"></div>
                 <div>
                     <h4 class="mb-3 text-lg font-semibold text-slate-800"><?= esc(lang('Kiosk.planItems')) ?></h4>
-                    <div class="overflow-x-auto v3-corner border border-slate-200">
+                    <div class="overflow-x-auto v3-corner border v3-border">
                         <table class="min-w-full text-sm">
-                            <thead class="bg-slate-50 text-xs uppercase tracking-[0.14em] text-slate-500">
+                            <thead class="v3-surface text-xs uppercase tracking-[0.14em] text-slate-500">
                                 <tr>
                                     <th class="px-3 py-3 text-left"><?= esc(lang('Kiosk.tooth')) ?></th>
                                     <th class="px-3 py-3 text-left"><?= esc(lang('Kiosk.description')) ?></th>
@@ -508,17 +508,17 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.typedName')) ?></label>
-                            <input type="text" name="signer_name" id="kioskSignerName" class="w-full v3-corner border-2 border-slate-200 v3-surface px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" required>
+                            <input type="text" name="signer_name" id="kioskSignerName" class="w-full v3-corner border-2 v3-border v3-surface px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" required>
                         </div>
-                        <div class="v3-corner border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-500">
+                        <div class="v3-corner border v3-border v3-surface px-4 py-4 text-sm leading-6 text-slate-500">
                             <?= esc($contractModalHint) ?>
                             <div class="mt-2 text-slate-400"><?= esc(lang('Kiosk.signHint')) ?></div>
                         </div>
                     </div>
                     <div class="mt-4">
                         <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.drawSignature')) ?></label>
-                        <canvas id="kioskSignatureCanvas" class="w-full rounded-3xl border border-slate-300 bg-white" height="160" style="touch-action: none; -ms-touch-action: none;"></canvas>
-                        <button type="button" id="kioskClearSignature" class="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-300 v3-surface px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                        <canvas id="kioskSignatureCanvas" class="w-full v3-radius border v3-border v3-surface" height="160" style="touch-action: none; -ms-touch-action: none;"></canvas>
+                        <button type="button" id="kioskClearSignature" class="mt-3 inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
                             <i class="fas fa-eraser text-slate-500"></i>
                             <?= esc(lang('Kiosk.clearSignature')) ?>
                         </button>

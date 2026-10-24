@@ -31,7 +31,7 @@ $statusTone = match ($statusKey) {
 <div class="v3-module-content">
 
     <!-- Hero Header -->
-    <section class="v3-record-banner"><div class="v3-record-heading"><span class="v3-record-reference"><?= esc($prescriptionReference) ?></span><h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($patientName) ?></h1><span class="patient-hero-status inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold" style="background:<?= esc($statusTone['bg']) ?>;border-color:<?= esc($statusTone['border']) ?>;color:#eff6ff;"><?= esc($statusLabel) ?></span><div class="v3-record-meta">
+    <section class="v3-record-banner"><div class="v3-record-heading"><span class="v3-record-reference"><?= esc($prescriptionReference) ?></span><h1 class="v3-title-scale font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($patientName) ?></h1><span class="patient-hero-status inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold" style="background:<?= esc($statusTone['bg']) ?>;border-color:<?= esc($statusTone['border']) ?>;color:#eff6ff;"><?= esc($statusLabel) ?></span><div class="v3-record-meta">
                                 <div class="patient-hero-chip" title="<?= esc($tr('issued_on') . ': ' . (!empty($prescription['prescribed_date']) ? formatDate($prescription['prescribed_date']) : $tr('na'))) ?>">
                                     <span class="patient-hero-chip-icon"><i class="fas fa-calendar-check"></i></span>
                                     <span class="patient-hero-chip-text">
@@ -112,16 +112,16 @@ $statusTone = match ($statusKey) {
                         <thead>
                             <tr>
                                 <th>
-                                    <div class="flex items-center gap-2"><i class="fas fa-capsules text-cyan-700"></i><span><?= esc($tr('medicine_name')) ?></span></div>
+                                    <div class="flex items-center gap-2"><i class="fas fa-capsules v3-accent-text"></i><span><?= esc($tr('medicine_name')) ?></span></div>
                                 </th>
                                 <th>
-                                    <div class="flex items-center gap-2"><i class="fas fa-weight-scale text-cyan-700"></i><span><?= esc($tr('dosage')) ?></span></div>
+                                    <div class="flex items-center gap-2"><i class="fas fa-weight-scale v3-accent-text"></i><span><?= esc($tr('dosage')) ?></span></div>
                                 </th>
                                 <th>
-                                    <div class="flex items-center gap-2"><i class="fas fa-clock text-cyan-700"></i><span><?= esc($tr('frequency')) ?></span></div>
+                                    <div class="flex items-center gap-2"><i class="fas fa-clock v3-accent-text"></i><span><?= esc($tr('frequency')) ?></span></div>
                                 </th>
                                 <th>
-                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-days text-cyan-700"></i><span><?= esc($tr('duration')) ?></span></div>
+                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-days v3-accent-text"></i><span><?= esc($tr('duration')) ?></span></div>
                                 </th>
                             </tr>
                         </thead>
@@ -162,7 +162,7 @@ $statusTone = match ($statusKey) {
                     <div class="rx-info-row"><span class="rx-info-label"><?= esc($tr('created_by')) ?></span><span class="rx-info-value"><?= esc($doctorName ?: $tr('unknown')) ?></span></div>
                     <div class="rx-info-row"><span class="rx-info-label"><?= esc($tr('patient')) ?></span>
                         <?php if (!empty($prescription['patient_id'])): ?>
-                        <a href="<?= workflow_context_url('patient/' . $prescription['patient_id'], $return_to ?? null) ?>" class="rx-info-value text-blue-700 hover:text-blue-900 hover:underline"><?= esc($patientName) ?></a>
+                        <a href="<?= workflow_context_url('patient/' . $prescription['patient_id'], $return_to ?? null) ?>" class="rx-info-value v3-accent-text hover:text-blue-900 hover:underline"><?= esc($patientName) ?></a>
                         <?php else: ?>
                         <span class="rx-info-value">-</span>
                         <?php endif; ?>
@@ -185,7 +185,7 @@ $statusTone = match ($statusKey) {
 
             <div class="rx-card rx-card-notice">
                 <div class="rx-notice-body">
-                    <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl v3-surface">
+                    <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center v3-radius v3-surface">
                         <i class="fas fa-triangle-exclamation"></i>
                     </span>
                     <div>

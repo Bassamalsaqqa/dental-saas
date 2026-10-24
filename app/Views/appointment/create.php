@@ -49,43 +49,17 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
     text-align: right;
 }
 </style>
-<!-- Enhanced Appointment Creation with Advanced Design -->
-<div class="min-h-screen bg-slate-50">
-    <!-- Animated Background Elements -->
-    <div class="container mx-auto relative z-10 px-4 py-6">
+<div class="v3-record-flow">
+    <header class="v3-flow-command">
+        <div><h1><?= esc(lang('UI.appointmentNew')) ?></h1><p><?= esc(lang('UI.appointmentFillDetails')) ?></p></div>
+        <div class="v3-flow-navigation"><a href="<?= esc(workflow_back('appointment', $return_to ?? null)) ?>" class="relative inline-flex items-center px-6 py-3 border-2 text-sm font-bold">
 
-        <!-- Enhanced Appointment Form with Glassmorphism -->
-        <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 overflow-hidden">
-                <!-- Form Header -->
-                <div class="p-8 border-b border-white/20">
-                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-calendar-check text-white text-lg"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300"><?= esc(lang('UI.appointmentNew')) ?></h3>
-                                <p class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentFillDetails')) ?></p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('appointment', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left rtl-back-icon mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.appointmentBack')) ?></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Content -->
-                <div class="p-8">
-                    <form action="<?= base_url('appointment/store') ?>" method="POST" class="space-y-8">
+                            </a></div>
+    </header>
+    <div class="v3-flow-body">
+<form action="<?= base_url('appointment/store') ?>" method="POST" class="v3-flow-form v3-flow-form--booking">
                         <?= csrf_field() ?>
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
@@ -97,15 +71,16 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                             <input type="hidden" name="clinical_procedure_id" value="<?= (int) $clinical_procedure_id ?>">
                         <?php endif; ?>
                         <!-- Patient Selection -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-user text-blue-600"></i>
+<h2 class="v3-flow-step"><span>1</span><?= esc(lang('UI.appointmentPatientRequired')) ?></h2>
+                        <div class="v3-flow-section v3-booking-identity">
+                            <div class="relative">
+                                <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-user"></i>
                                     <span><?= esc(lang('UI.appointmentPatientRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
-                                            data-searchable-select 
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4"
+                                            data-searchable-select
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/patients') ?>"
@@ -127,14 +102,14 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                 <?php endif; ?>
                             </div>
 
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-calendar-alt text-purple-600"></i>
+                            <div class="relative">
+                                <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-calendar-alt"></i>
                                     <span><?= esc(lang('UI.appointmentTypeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <?php $selectedType = old('appointment_type', $appointment_type_prefill ?? ''); ?>
-                                    <select name="appointment_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
+                                    <select name="appointment_type" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectType')) ?></option>
                                         <option value="consultation" <?= ($selectedType == 'consultation') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
                                         <option value="treatment" <?= ($selectedType == 'treatment') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
@@ -153,14 +128,14 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                             </div>
 
                             <?php if ($dynamicMode): ?>
-                                <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                        <i class="fas fa-user-md text-indigo-600"></i>
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
+                                        <i class="fas fa-user-md"></i>
                                         <span><?= esc(lang('DoctorScheduling.doctorRequired')) ?> *</span>
                                     </label>
                                     <div class="relative">
                                         <?php if (!$schemaReady): ?>
-                                            <div class="mb-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 shadow-sm">
+                                            <div class="mb-3 border border-amber-300 bg-amber-50 p-4 text-amber-900">
                                                 <div class="flex items-center gap-3">
                                                     <i class="fas fa-triangle-exclamation text-amber-600 text-base"></i>
                                                     <div>
@@ -169,19 +144,19 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                                     </div>
                                                 </div>
                                             </div>
-                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 cursor-not-allowed" data-appointment-provider disabled required>
                                                 <option value=""><?= esc(lang('DoctorScheduling.schemaNotReadyTitle')) ?></option>
                                             </select>
                                         <?php elseif (empty($providers)): ?>
-                                            <div class="mb-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
+                                            <div class="mb-2 border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
                                                 <i class="fas fa-triangle-exclamation me-1"></i>
                                                 <?= esc(lang('DoctorScheduling.noProvidersBookingDisabled')) ?>
                                             </div>
-                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-slate-100 border-2 border-gray-200 rounded-xl shadow-lg cursor-not-allowed" data-appointment-provider disabled required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 cursor-not-allowed" data-appointment-provider disabled required>
                                                 <option value=""><?= esc(lang('DoctorScheduling.noEligibleProviders')) ?></option>
                                             </select>
                                         <?php else: ?>
-                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-provider data-force-select2 required>
+                                            <select dir="ltr" style="text-align: start;" name="provider_user_id" id="providerSelect" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-appointment-provider data-force-select2 required>
                                                 <option value=""><?= esc(lang('DoctorScheduling.selectDoctorPlaceholder')) ?></option>
                                                 <?php foreach ($providers as $provider): ?>
                                                     <?php
@@ -202,13 +177,13 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                     <?php endif; ?>
                                 </div>
                             <?php else: ?>
-                                <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                        <i class="fas fa-door-open text-indigo-600"></i>
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
+                                        <i class="fas fa-door-open"></i>
                                         <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
                                     </label>
                                     <div class="relative">
-                                        <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-appointment-chair data-force-select2 required>
+                                        <select name="chair_name" id="chairName" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4" data-appointment-chair data-force-select2 required>
                                             <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
                                             <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chairOptions ?? []), true)): ?>
                                                 <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
@@ -229,16 +204,17 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                         </div>
 
                         <!-- Date, Time & Duration -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-calendar text-emerald-600"></i>
+<h2 class="v3-flow-step"><span>2</span><?= esc(lang('UI.appointmentDateRequired')) ?></h2>
+                        <div class="v3-flow-section v3-booking-time">
+                            <div class="relative">
+                                <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-calendar"></i>
                                     <span><?= esc(lang('UI.appointmentDateRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', $requested_date ?? date('Y-m-d')) ?>" class="appointment-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', $requested_date ?? date('Y-m-d')) ?>" class="appointment-date-input w-full py-3 border-2 focus:outline-none focus:ring-4" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-calendar text-gray-400"></i>
+                                        <i class="fas fa-calendar"></i>
                                     </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('appointment_date')): ?>
@@ -249,13 +225,13 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                 <?php endif; ?>
                             </div>
 
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                            <div class="relative">
+                                <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
                                     <i class="fas fa-clock text-amber-600"></i>
                                     <span><?= esc(lang('UI.appointmentTimeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
+                                    <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectTime')) ?></option>
                                     </select>
                                 </div>
@@ -267,13 +243,13 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                                 <?php endif; ?>
                             </div>
 
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                            <div class="relative">
+                                <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
                                     <i class="fas fa-hourglass-half text-rose-600"></i>
                                     <span><?= esc(lang('UI.appointmentDurationRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="duration" id="duration" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
+                                    <select name="duration" id="duration" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500" data-force-select2 required>
                                         <?php
                                             $defaultDuration = (int) getAppointmentDuration();
                                             $selectedDuration = (int) old('duration', $defaultDuration);
@@ -298,13 +274,13 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                         </div>
 
                         <!-- Notes Section -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-sticky-note text-indigo-600"></i>
+                        <div class="relative">
+                            <label class="block text-sm font-bold mb-3 flex items-center space-x-2">
+                                <i class="fas fa-sticky-note"></i>
                                 <span><?= esc(lang('UI.appointmentAdditionalNotes')) ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes')) ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 border-2 focus:outline-none focus:ring-4 resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= esc(old('notes')) ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -312,22 +288,19 @@ $isCreateDisabled = $dynamicMode && (!$schemaReady || empty($providers));
                         </div>
 
                         <!-- Form Actions -->
-                        <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
-                            <a href="<?= esc(workflow_cancel('appointment', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                        <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t">
+                            <a href="<?= esc(workflow_cancel('appointment', $return_to ?? null)) ?>" class="relative inline-flex items-center justify-center px-8 py-3 border-2 text-sm font-bold">
+
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.cancel')) ?></span>
                             </a>
-                            <button type="submit" <?= $isCreateDisabled ? 'disabled class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-slate-400 text-white text-sm font-bold rounded-xl cursor-not-allowed opacity-60"' : 'class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"' ?>>
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <button type="submit" <?= $isCreateDisabled ? 'disabled class="relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold cursor-not-allowed opacity-60"' : 'class="v3-flow-submit relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold"' ?>>
+
                                 <i class="fas fa-calendar-check mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= esc(lang('UI.appointmentSchedule')) ?></span>
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

@@ -1,31 +1,31 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+<div class="v3-platform-workspace min-h-screen relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+
+
     </div>
 
     <div class="container mx-auto relative z-10 px-4 py-6">
         <!-- Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="mb-4">
+            <div class="cp-surface border cp-border cp-radius p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div class="w-12 h-12 cp-radius flex items-center justify-center text-white">
                             <i class="fas fa-file-invoice-dollar text-xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Invoices</h1>
-                            <p class="text-gray-600">Manage billing and collections</p>
+                            <h1 class="cp-title font-bold text-gray-900"><?= esc(lang('V3Platform.invoices')) ?></h1>
+                            <p class="text-gray-600"><?= esc(lang('V3Platform.manageBillingAndCollections')) ?></p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <a href="<?= base_url('controlplane/invoices/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <a href="<?= base_url('controlplane/invoices/create') ?>" class="inline-flex items-center px-4 py-2 text-white text-sm font-semibold rounded-lg transition-all duration-200">
                             <i class="fas fa-plus mr-2"></i>
-                            New Invoice
+                            <?= esc(lang('V3Platform.newInvoice')) ?>
                         </a>
                     </div>
                 </div>
@@ -33,68 +33,68 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        <div class="mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
                 <!-- Outstanding -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                            <div class="relative p-3 cp-radius text-white transition-all duration-300">
                                 <i class="fas fa-clock text-xl"></i>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-full border border-blue-100">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-blue-700 font-bold text-xs">Pending</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border cp-border">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                                <span class="cp-accent font-bold text-xs"><?= esc(lang('V3Platform.pending')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Outstanding</p>
-                            <p class="text-3xl font-black text-slate-900"><?= number_format($stats['outstanding'] ?? 0, 2) ?></p>
-                            <p class="text-xs text-slate-500">Balance to collect</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.outstanding')) ?></p>
+                            <p class="cp-title font-black text-slate-900"><?= number_format($stats['outstanding'] ?? 0, 2) ?></p>
+                            <p class="text-xs text-slate-500"><?= esc(lang('V3Platform.balanceToCollect')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Revenue -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                            <div class="relative p-3 cp-radius text-white transition-all duration-300">
                                 <i class="fas fa-dollar-sign text-xl"></i>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-1.5 rounded-full border border-emerald-100">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-emerald-100">
+                                <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
                                 <i class="fas fa-arrow-up text-emerald-600 text-xs"></i>
-                                <span class="text-emerald-700 font-bold text-xs">Income</span>
+                                <span class="text-emerald-700 font-bold text-xs"><?= esc(lang('V3Platform.income')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Revenue (Month)</p>
-                            <p class="text-3xl font-black text-emerald-900"><?= number_format($stats['revenue_month'] ?? 0, 2) ?></p>
-                            <p class="text-xs text-emerald-600 font-medium">Collected this month</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.revenueMonth')) ?></p>
+                            <p class="cp-title font-black text-emerald-900"><?= number_format($stats['revenue_month'] ?? 0, 2) ?></p>
+                            <p class="text-xs text-emerald-600 font-medium"><?= esc(lang('V3Platform.collectedThisMonth')) ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Overdue -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-red-600/20 to-rose-700/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col border-rose-200/50">
+
+                    <div class="relative cp-surface border cp-border cp-radius p-6 transition-all duration-200 h-full flex flex-col border-rose-200/50">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                            <div class="relative p-3 cp-radius text-white transition-all duration-300">
                                 <i class="fas fa-exclamation-triangle text-xl"></i>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-rose-100 px-3 py-1.5 rounded-full border border-red-200">
-                                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                <span class="text-red-700 font-bold text-xs">Overdue</span>
+                            <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-red-200">
+                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <span class="text-red-700 font-bold text-xs"><?= esc(lang('V3Platform.overdue')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Overdue</p>
-                            <p class="text-3xl font-black text-red-900"><?= (int) ($stats['overdue'] ?? 0) ?></p>
-                            <p class="text-xs text-red-600 font-medium">Action required</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('V3Platform.overdue')) ?></p>
+                            <p class="cp-title font-black text-red-900"><?= (int) ($stats['overdue'] ?? 0) ?></p>
+                            <p class="text-xs text-red-600 font-medium"><?= esc(lang('V3Platform.actionRequired')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -102,25 +102,25 @@
         </div>
 
         <!-- Invoices Table & Filters Card -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30 overflow-hidden">
+        <div class="cp-surface cp-radius border cp-border overflow-hidden">
             <!-- Table Header Bar -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/80">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="px-6 py-4 border-b cp-border cp-surface">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                     <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-tight">Invoice Registry</h3>
+                        <div class="w-2 h-2 cp-primary-surface rounded-full"></div>
+                        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-tight"><?= esc(lang('V3Platform.invoiceRegistry')) ?></h3>
                     </div>
-                    
+
                     <div class="flex items-center space-x-2">
-                        <button type="button" onclick="exportInvoicePDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="PDF Export">
+                        <button type="button" onclick="exportInvoicePDF()" class="inline-flex items-center px-3 py-2 cp-surface border cp-border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200" title="<?= esc(lang('V3Platform.pdfExport'), 'attr') ?>">
                             <i class="fas fa-file-pdf mr-2 text-rose-600"></i>
                             PDF
                         </button>
-                        <button type="button" onclick="exportInvoicePrint()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="Print List">
+                        <button type="button" onclick="exportInvoicePrint()" class="inline-flex items-center px-3 py-2 cp-surface border cp-border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200" title="<?= esc(lang('V3Platform.printList'), 'attr') ?>">
                             <i class="fas fa-print mr-2 text-gray-600"></i>
-                            Print
+                            <?= esc(lang('V3Platform.print')) ?>
                         </button>
-                        <button type="button" onclick="exportInvoiceCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="CSV Export">
+                        <button type="button" onclick="exportInvoiceCSV()" class="inline-flex items-center px-3 py-2 cp-surface border cp-border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200" title="<?= esc(lang('V3Platform.csvExport'), 'attr') ?>">
                             <i class="fas fa-file-csv mr-2 text-emerald-600"></i>
                             CSV
                         </button>
@@ -129,18 +129,18 @@
             </div>
 
             <!-- Enhanced Filters Bar -->
-            <div class="px-6 py-4 bg-white/50 border-b border-gray-100">
+            <div class="px-6 py-4 cp-surface border-b cp-border">
                 <form method="get" action="<?= base_url('controlplane/invoices') ?>" class="flex flex-wrap items-end gap-4">
                     <!-- Status Filter -->
                     <div class="flex-1 min-w-[160px]">
                         <label class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5 ml-1">
-                            <i class="fas fa-filter text-indigo-500/50"></i>
-                            <span>Status</span>
+                            <i class="fas fa-filter cp-accent"></i>
+                            <span><?= esc(lang('V3Platform.status')) ?></span>
                         </label>
                         <div class="relative">
-                            <select name="status" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                            <select name="status" class="w-full px-4 py-2 cp-surface border cp-border cp-radius text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
                                 <?php $statusValue = $filters['status'] ?? ''; ?>
-                                <option value="">All Statuses</option>
+                                <option value=""><?= esc(lang('V3Platform.allStatuses2')) ?></option>
                                 <?php foreach (['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as $statusOption): ?>
                                     <option value="<?= esc($statusOption) ?>" <?= $statusValue === $statusOption ? 'selected' : '' ?>><?= ucfirst($statusOption) ?></option>
                                 <?php endforeach; ?>
@@ -152,12 +152,12 @@
                     <!-- Clinic Filter -->
                     <div class="flex-1 min-w-[200px]">
                         <label class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5 ml-1">
-                            <i class="fas fa-hospital text-indigo-500/50"></i>
-                            <span>Clinic</span>
+                            <i class="fas fa-hospital cp-accent"></i>
+                            <span><?= esc(lang('V3Platform.clinic')) ?></span>
                         </label>
                         <div class="relative">
-                            <select name="clinic_id" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
-                                <option value="">All Clinics</option>
+                            <select name="clinic_id" class="w-full px-4 py-2 cp-surface border cp-border cp-radius text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                                <option value=""><?= esc(lang('V3Platform.allClinics')) ?></option>
                                 <?php $clinicValue = (int) ($filters['clinic_id'] ?? 0); ?>
                                 <?php foreach ($clinics as $clinic): ?>
                                     <option value="<?= esc($clinic['id']) ?>" <?= $clinicValue === (int) $clinic['id'] ? 'selected' : '' ?>><?= esc($clinic['name']) ?></option>
@@ -170,14 +170,14 @@
                     <!-- Date Range -->
                     <div class="flex-[2] min-w-[300px]">
                         <label class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5 ml-1">
-                            <i class="far fa-calendar-alt text-indigo-500/50"></i>
-                            <span>Period</span>
+                            <i class="far fa-calendar-alt cp-accent"></i>
+                            <span><?= esc(lang('V3Platform.period')) ?></span>
                         </label>
-                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-1 rounded-xl shadow-inner focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all">
+                        <div class="flex items-center gap-2 cp-surface border cp-border p-1 cp-radius focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all">
                             <div class="relative flex-1">
                                 <input type="text" data-clinic-date="1" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full px-3 py-1.5 bg-transparent border-none text-sm focus:ring-0">
                             </div>
-                            <span class="text-gray-300 font-bold text-xs uppercase">to</span>
+                            <span class="text-gray-300 font-bold text-xs uppercase"><?= esc(lang('V3Platform.to')) ?></span>
                             <div class="relative flex-1">
                                 <input type="text" data-clinic-date="1" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full px-3 py-1.5 bg-transparent border-none text-sm focus:ring-0">
                             </div>
@@ -186,67 +186,67 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2">
-                        <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95">
-                            <i class="fas fa-search mr-2"></i> Filter
+                        <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 cp-primary-surface text-white font-bold cp-radius hover:bg-indigo-700 transition-all active:scale-95">
+                            <i class="fas fa-search mr-2"></i> <?= esc(lang('V3Platform.filter')) ?>
                         </button>
-                        <a href="<?= base_url('controlplane/invoices') ?>" class="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95">
-                            <i class="fas fa-undo mr-2"></i> Reset
+                        <a href="<?= base_url('controlplane/invoices') ?>" class="inline-flex items-center justify-center px-5 py-2.5 cp-surface border cp-border text-gray-600 font-bold cp-radius hover:bg-gray-50 transition-all active:scale-95">
+                            <i class="fas fa-undo mr-2"></i> <?= esc(lang('V3Platform.reset')) ?>
                         </a>
                     </div>
                 </form>
             </div>
-            
+
             <div class="overflow-x-auto">
                 <?php if (empty($invoices)): ?>
                     <div class="p-16 text-center">
-                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-100">
-                            <i class="fas fa-file-invoice text-gray-300 text-3xl"></i>
+                        <div class="w-20 h-20 cp-surface rounded-full flex items-center justify-center mx-auto mb-6 border cp-border">
+                            <i class="fas fa-file-invoice text-gray-300 cp-title"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">No results found</h3>
-                        <p class="text-gray-500 text-sm max-w-xs mx-auto">We couldn't find any invoices matching your current filters.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2"><?= esc(lang('V3Platform.noResultsFound')) ?></h3>
+                        <p class="text-gray-500 text-sm max-w-xs mx-auto"><?= esc(lang('V3Platform.weCouldnTFindAnyInvoicesMatchingYourCurrentFilters')) ?></p>
                     </div>
                 <?php else: ?>
                     <table id="invoicesTable" class="w-full text-sm text-slate-600">
-                        <thead class="bg-gray-50/50 backdrop-blur-sm">
+                        <thead class="cp-surface">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-hashtag text-indigo-500/50"></i>
-                                        <span>Invoice #</span>
+                                        <i class="fas fa-hashtag cp-accent"></i>
+                                        <span><?= esc(lang('V3Platform.invoice')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-hospital text-indigo-500/50"></i>
-                                        <span>Clinic</span>
+                                        <i class="fas fa-hospital cp-accent"></i>
+                                        <span><?= esc(lang('V3Platform.clinic')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-calendar text-indigo-500/50"></i>
-                                        <span>Issue Date</span>
+                                        <i class="fas fa-calendar cp-accent"></i>
+                                        <span><?= esc(lang('V3Platform.issueDate')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-calendar-check text-indigo-500/50"></i>
-                                        <span>Due Date</span>
+                                        <i class="fas fa-calendar-check cp-accent"></i>
+                                        <span><?= esc(lang('V3Platform.dueDate')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-dollar-sign text-indigo-500/50"></i>
-                                        <span>Amount</span>
+                                        <i class="fas fa-dollar-sign cp-accent"></i>
+                                        <span><?= esc(lang('V3Platform.amount')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-info-circle text-indigo-500/50"></i>
-                                        <span>Status</span>
+                                        <i class="fas fa-info-circle cp-accent"></i>
+                                        <span><?= esc(lang('V3Platform.status')) ?></span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <span>Actions</span>
+                                    <span><?= esc(lang('V3Platform.actions')) ?></span>
                                 </th>
                             </tr>
                         </thead>
@@ -265,9 +265,9 @@
                                     $badgeClass = $statusClasses[$statusKey] ?? 'bg-slate-100 text-slate-600';
                                 ?>
                                 <tr class="hover:bg-indigo-50/30 transition-colors group/row">
-                                    <td class="px-6 py-4 font-mono font-bold text-indigo-600">
+                                    <td class="px-6 py-4 font-mono font-bold cp-accent">
                                         <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" class="hover:underline flex items-center gap-2">
-                                            <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 group-hover/row:bg-indigo-600 group-hover/row:text-white transition-colors">
+                                            <div class="w-8 h-8 cp-soft-surface rounded-lg flex items-center justify-center cp-accent group-hover/row:bg-indigo-600 group-hover/row:text-white transition-colors">
                                                 <i class="fas fa-file-invoice text-xs"></i>
                                             </div>
                                             <?= esc($invoice['invoice_number'] ?? '?') ?>
@@ -292,22 +292,22 @@
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" 
-                                               class="group/action relative w-9 h-9 flex items-center justify-center text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-xl transition-all duration-300 hover:scale-110" 
-                                               title="View Details">
+                                            <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>"
+                                               class="group/action relative w-9 h-9 flex items-center justify-center cp-accent hover:text-indigo-800 hover:bg-indigo-50 cp-radius transition-all duration-300"
+                                               title="<?= esc(lang('V3Platform.viewDetails'), 'attr') ?>">
                                                 <i class="fas fa-eye text-sm transition-transform group-hover/action:scale-110"></i>
                                             </a>
                                             <form action="<?= base_url('controlplane/invoices/' . $invoice['id'] . '/email') ?>" method="post" class="inline">
                                                 <?= csrf_field() ?>
-                                                <button type="submit" 
-                                                        class="group/action relative w-9 h-9 flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-xl transition-all duration-300 hover:scale-110" 
-                                                        title="Email Invoice">
+                                                <button type="submit"
+                                                        class="group/action relative w-9 h-9 flex items-center justify-center cp-accent hover:text-blue-800 hover:bg-blue-50 cp-radius transition-all duration-300"
+                                                        title="<?= esc(lang('V3Platform.emailInvoice'), 'attr') ?>">
                                                     <i class="fas fa-envelope text-sm transition-transform group-hover/action:scale-110"></i>
                                                 </button>
                                             </form>
                                             <?php $canDelete = in_array($statusKey, ['draft', 'void', 'cancelled'], true); ?>
                                             <button type="button"
-                                                    class="group/action relative w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-110 <?= $canDelete ? 'text-rose-600 hover:text-rose-800 hover:bg-rose-50' : 'text-gray-300 cursor-not-allowed' ?>"
+                                                    class="group/action relative w-9 h-9 flex items-center justify-center cp-radius transition-all duration-300 <?= $canDelete ? 'text-rose-600 hover:text-rose-800 hover:bg-rose-50' : 'text-gray-300 cursor-not-allowed' ?>"
                                                     title="<?= $canDelete ? 'Delete Invoice' : 'Cannot delete paid or sent invoice' ?>"
                                                     data-id="<?= esc($invoice['id']) ?>"
                                                     data-number="<?= esc($invoice['invoice_number'] ?? '') ?>"
@@ -393,35 +393,35 @@
 </script>
 
 <!-- Delete Invoice Modal -->
-<div id="invoiceDeleteModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-rose-100">
+<div id="invoiceDeleteModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+    <div class="cp-surface cp-radius w-full max-w-lg mx-4 border border-rose-100">
         <div class="flex items-center justify-between px-6 py-4 border-b border-rose-100">
             <div>
-                <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold">Delete Invoice</p>
-                <h3 class="text-lg font-bold text-rose-900">Confirm Deletion</h3>
+                <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold"><?= esc(lang('V3Platform.deleteInvoice')) ?></p>
+                <h3 class="text-lg font-bold text-rose-900"><?= esc(lang('V3Platform.confirmDeletion')) ?></h3>
             </div>
             <button type="button" class="rounded-full p-2 text-rose-400 hover:text-rose-700 hover:bg-rose-50" onclick="closeInvoiceDeleteModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="px-6 py-5 space-y-4">
-            <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 text-sm text-rose-700">
-                This will permanently delete the invoice. This action cannot be undone.
+            <div class="bg-rose-50 border border-rose-100 cp-radius p-4 text-sm text-rose-700">
+                <?= esc(lang('V3Platform.thisWillPermanentlyDeleteTheInvoiceThisActionCannotBeUndone')) ?>
             </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <p class="text-xs text-slate-500 uppercase tracking-widest">Invoice</p>
+            <div class="cp-surface border cp-border cp-radius p-4">
+                <p class="text-xs text-slate-500 uppercase tracking-widest"><?= esc(lang('V3Platform.invoice2')) ?></p>
                 <p id="invoiceDeleteLabel" class="text-sm font-semibold text-slate-900 mt-1"></p>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Type DELETE to confirm</label>
-                <input type="text" id="invoiceDeleteConfirm" class="w-full px-4 py-3 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500" placeholder="DELETE" oninput="toggleInvoiceDeleteButton()">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2"><?= esc(lang('V3Platform.typeDeleteToConfirm')) ?></label>
+                <input type="text" id="invoiceDeleteConfirm" class="w-full px-4 py-3 border border-rose-200 cp-radius focus:ring-2 focus:ring-rose-500 focus:border-rose-500" placeholder="DELETE" oninput="toggleInvoiceDeleteButton()">
             </div>
         </div>
-        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3">
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeInvoiceDeleteModal()">Cancel</button>
+        <div class="px-6 py-4 border-t cp-border flex items-center justify-end gap-3">
+            <button type="button" class="px-4 py-2 cp-radius bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeInvoiceDeleteModal()"><?= esc(lang('V3Platform.cancel')) ?></button>
             <form id="invoiceDeleteForm" method="post" action="">
                 <?= csrf_field() ?>
-                <button type="submit" id="invoiceDeleteSubmit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold opacity-50 cursor-not-allowed" disabled>Delete Invoice</button>
+                <button type="submit" id="invoiceDeleteSubmit" class="px-4 py-2 cp-radius bg-rose-600 text-white text-sm font-semibold opacity-50 cursor-not-allowed" disabled><?= esc(lang('V3Platform.deleteInvoice')) ?></button>
             </form>
         </div>
     </div>

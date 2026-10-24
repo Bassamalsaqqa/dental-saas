@@ -15,18 +15,18 @@
 
 <div>
     <div class="denta-settings-workspace settings-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <header class="v3-command-header"><div class="v3-command-title"><h1><?= lang('UI.systemSettings') ?></h1><p><?= lang('UI.settingsConfigureSystem') ?></p></div></header><section class="v3-settings-context"><div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
+        <header class="v3-command-header"><div class="v3-command-title"><h1><?= lang('UI.systemSettings') ?></h1><p><?= lang('UI.settingsConfigureSystem') ?></p></div></header><section class="v3-settings-context"><div class="v3-settings-summary-strip">
                     <div class="settings-hero-chip v3-corner px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsClinicProfile') ?></p>
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsClinicProfile') ?></p>
                         <p class="mt-1 truncate text-sm font-black text-white"><?= esc($clinicDisplayName) ?></p>
                     </div>
                     <div class="settings-hero-chip v3-corner px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsSubscription') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($planDisplayName) ?> <span class="font-bold text-cyan-100/80">/ <?= esc($subscriptionStatus) ?></span></p>
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSubscription') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><?= esc($planDisplayName) ?> <span class="font-bold v3-accent-text">/ <?= esc($subscriptionStatus) ?></span></p>
                     </div>
                     <div class="settings-hero-chip v3-corner px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] text-blue-100/80"><?= lang('UI.settingsSystemTab') ?></p>
-                        <p class="mt-1 truncate text-sm font-black text-white"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold text-cyan-100/80">/ <?= esc($languageDisplay) ?></span></p>
+                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSystemTab') ?></p>
+                        <p class="mt-1 truncate text-sm font-black text-white"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold v3-accent-text">/ <?= esc($languageDisplay) ?></span></p>
                     </div>
                 </div></section>
 
@@ -65,7 +65,7 @@
         <!-- Settings Layout with Sidebar -->
         <div class="v3-settings-grid">
             <!-- Left Sidebar -->
-            <div class="xl:sticky xl:top-8">
+            <div class="v3-settings-navigation">
                 <div class="settings-shell-card v3-corner p-4">
                     <div class="mb-3 px-2">
                         <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsMenu') ?></p>
@@ -91,7 +91,7 @@
                             <i class="fas fa-database w-5 h-5"></i> <span><?= lang('UI.settingsBackupRestore') ?></span>
                         </button>
                         </div>
-                        
+
                         <div class="settings-nav-group">
                             <div class="mb-3 px-2">
                                 <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsCommunications') ?></p>
@@ -138,7 +138,7 @@
 <div id="confirm-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
     <div class="v3-surface v3-corner max-w-md w-full p-8">
         <div class="flex items-start space-x-4 mb-6">
-            <div id="confirm-modal-icon" class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div id="confirm-modal-icon" class="w-12 h-12 bg-red-100 v3-radius flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
             </div>
             <div>
@@ -147,10 +147,10 @@
             </div>
         </div>
         <div class="flex justify-end space-x-3">
-            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 v3-surface border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
+            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 v3-surface border v3-border text-gray-700 font-semibold v3-radius hover:bg-gray-50 transition-all">
                 <?= lang('UI.cancel') ?>
             </button>
-            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all" onclick="confirmModalProceed()">
+            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 bg-red-600 text-white font-semibold v3-radius hover:bg-red-700 transition-all" onclick="confirmModalProceed()">
                 <?= lang('UI.confirm') ?>
             </button>
         </div>

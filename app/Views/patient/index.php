@@ -18,7 +18,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 <!-- Custom DataTables Styling -->
 
 
-<div class="patients-page min-h-screen bg-slate-50">
+<div class="patients-page min-h-screen v3-surface">
     <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
         <header class="v3-command-header">
   <div><h1><?= esc(lang('UI.patientManagementTitle')) ?></h1><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></div>
@@ -36,10 +36,10 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 </section>
 
         <section id="tableView" class="v3-ledger-panel">
-            <div class="border-b border-slate-200 v3-warm-surface px-4 py-4 sm:px-5">
+            <div class="border-b v3-border v3-warm-surface px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
                             <i class="fas fa-list"></i>
                         </span>
                         <div>
@@ -48,15 +48,15 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 transition hover:bg-red-100">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 transition hover:bg-red-100">
                             <i class="fas fa-file-pdf"></i>
                             PDF
                         </button>
-                        <button onclick="printPatients()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 transition hover:bg-slate-50">
+                        <button onclick="printPatients()" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-3 py-2 text-xs text-slate-700 transition hover:bg-slate-50">
                             <i class="fas fa-print"></i>
                             <?= esc(lang('UI.patientPrint')) ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700 transition hover:bg-emerald-100">
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 v3-radius border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700 transition hover:bg-emerald-100">
                             <i class="fas fa-file-csv"></i>
                             CSV
                         </button>
@@ -112,7 +112,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="v3-surface divide-y divide-gray-200">
                                 <!-- Data will be loaded via DataTables -->
                             </tbody>
                         </table>
@@ -122,17 +122,17 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 </div>
 
 <?php if (has_permission('patients', 'create')): ?>
-    <div id="newPatientModal" class="app-scale-modal patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="patient-create-modal__backdrop fixed inset-0 bg-slate-950/45" data-patient-create-modal-close></div>
-        <div class="patient-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-patient-create-modal-close>
-            <form id="newPatientQuickCreateForm" action="<?= base_url('patient/store') ?>" method="POST" class="patient-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white" data-patient-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
+    <div id="newPatientModal" class="v3-context-drawer patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="patient-create-modal__backdrop v3-context-drawer__backdrop" data-patient-create-modal-close></div>
+        <div class="patient-create-modal__shell v3-context-drawer__shell" data-patient-create-modal-close>
+            <form id="newPatientQuickCreateForm" action="<?= base_url('patient/store') ?>" method="POST" class="patient-create-modal__panel v3-context-drawer__panel" data-patient-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="patients">
                 <input type="hidden" name="source_modal" value="patient_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4">
+                <div class="v3-context-drawer__header">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl v3-warm-surface">
+                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-warm-surface">
                             <i class="fas fa-user-plus"></i>
                         </span>
                         <div>
@@ -147,9 +147,9 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                     </button>
                 </div>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                <div class="v3-context-drawer__body">
                     <?php if (session('error') && $shouldOpenPatientCreateModal): ?>
-                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v3-radius border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
@@ -157,19 +157,19 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                     <?= view('patient/partials/create_form_fields', [
                         'validation' => $validation,
                         'is_rtl' => $isRtl,
-                        'sectionClass' => 'rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm',
+                        'sectionClass' => 'v3-flow-section',
                     ]) ?>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="v3-context-drawer__footer">
+                    <button type="button" data-patient-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         <?= esc(lang('UI.cancel')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-2.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50">
+                    <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center v3-radius border border-emerald-200 v3-surface px-5 py-2.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50">
                         <i class="fas fa-user-plus me-2"></i>
                         <?= esc(lang('UI.settingsSave')) ?>
                     </button>
-                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center rounded-xl v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
+                    <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center v3-radius v3-warm-surface px-5 py-2.5 text-sm font-bold transition">
                         <i class="fas fa-calendar-plus me-2"></i>
                         <?= esc(lang('UI.patientSaveAndBookAppointment')) ?>
                     </button>
@@ -451,7 +451,7 @@ $(document).ready(function() {
         console.error('Table #patientsTable not found');
         return;
     }
-    
+
     // Initialize DataTable with server-side processing
     patientsTable = $('#patientsTable').DataTable({
         processing: true,
@@ -484,11 +484,11 @@ $(document).ready(function() {
             error: function(xhr, error, thrown) {
                 console.error('DataTables AJAX error:', error, thrown);
                 console.error('Response:', xhr.responseText);
-                
+
                 if (xhr.responseJSON && xhr.responseJSON.csrf_token && csrfMetaToken) {
                     csrfMetaToken.setAttribute('content', xhr.responseJSON.csrf_token);
                 }
-                
+
                 // Check if it's an authentication error
                 if (xhr.status === 401 || xhr.status === 403) {
                     alert(patientI18n.sessionExpired);
@@ -501,7 +501,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { 
+            {
                 data: 'patient_id',
                 name: 'patient_id',
                 render: function(data, type, row) {
@@ -513,7 +513,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'name',
                 name: 'name',
                 render: function(data, type, row) {
@@ -549,7 +549,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'phone',
                 name: 'phone',
                 render: function(data, type, row) {
@@ -561,7 +561,7 @@ $(document).ready(function() {
                     ` : `<span class="text-gray-400 text-sm">${patientI18n.noPhone}</span>`;
                 }
             },
-            { 
+            {
                 data: 'email',
                 name: 'email',
                 render: function(data, type, row) {
@@ -573,7 +573,7 @@ $(document).ready(function() {
                     ` : `<span class="text-gray-400 text-sm">${patientI18n.noEmail}</span>`;
                 }
             },
-            { 
+            {
                 data: 'status',
                 name: 'status',
                 render: function(data, type, row) {
@@ -595,7 +595,7 @@ $(document).ready(function() {
                     const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
                     const label = statusLabels[data] || patientI18n.unknown;
-                    
+
                     return `
                         <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${colorClass}">
                             <i class="${iconClass}"></i>
@@ -604,7 +604,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'created_at',
                 name: 'created_at',
                 render: function(data, type, row) {
@@ -616,7 +616,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'id',
                 name: 'id',
                 orderable: false,
@@ -679,16 +679,16 @@ $(document).ready(function() {
                                 <i class="fas fa-briefcase-medical"></i>
                             </a>`;
                     }
-                    
+
                     // Delete button
                     if (permissions.patients.delete) {
                         actions += `
-                            <button onclick="deletePatient(${data})" 
+                            <button onclick="deletePatient(${data})"
                                     class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700 ring-1 ring-red-100 transition hover:bg-red-100" title="${patientI18n.deletePatient}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
-                    
+
                     actions += '</div>';
                     return actions;
                 }
@@ -785,7 +785,7 @@ $(document).ready(function() {
             if (typeof $.fn.tooltip === 'function') {
                 $('[data-toggle="tooltip"]').tooltip();
             }
-            
+
             // Apply custom styling after each draw
             applyDataTablesStyling();
         }
@@ -795,13 +795,13 @@ $(document).ready(function() {
     function applyDataTablesStyling() {
         // Style length selector
         $('.dataTables_length select').addClass('focus:ring-emerald-500 focus:border-emerald-500');
-        
+
         // Style search input
         $('.dataTables_filter input').addClass('focus:ring-emerald-500 focus:border-emerald-500');
-        
+
         // Style info text
         $('.dataTables_info').addClass('text-gray-600');
-        
+
         // Style pagination buttons
         $('.dataTables_paginate .paginate_button').each(function() {
             if ($(this).hasClass('current')) {
@@ -810,13 +810,13 @@ $(document).ready(function() {
                 $(this).addClass('hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700');
             }
         });
-        
+
         // Style processing indicator
         $('.dataTables_processing').addClass('border-emerald-200 text-emerald-700');
-        
+
         // Style labels
         $('.dataTables_length label, .dataTables_filter label').addClass('text-gray-700 font-semibold');
-        
+
         // Style icons
         $('.dataTables_length i, .dataTables_filter i').addClass('text-emerald-600');
     }
@@ -833,7 +833,7 @@ $(document).ready(function() {
     $('#statusFilter').on('change', function() {
         patientsTable.draw();
     });
-    
+
     // Add a fallback if the table fails to load
     setTimeout(function() {
         if (patientsTable && patientsTable.data().count() === 0) {

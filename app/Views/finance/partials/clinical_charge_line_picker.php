@@ -5,12 +5,12 @@ $selectedIds = array_map('strval', $selectedIds);
 $isRtl = !empty($is_rtl);
 ?>
 <?php if (!empty($chargeLines)): ?>
-    <div class="mt-5 rounded-2xl border border-sky-100 bg-sky-50/70 p-4" data-clinical-charge-picker>
+    <div class="mt-5 v3-radius border border-sky-100 v3-soft-surface p-4" data-clinical-charge-picker>
         <div class="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-sm font-bold text-slate-900"><?= esc(lang('Finance.billClinicalWork')) ?></p>
             </div>
-            <span class="text-xs font-bold text-sky-700" data-clinical-charge-total>0.00</span>
+            <span class="text-xs font-bold v3-accent-text" data-clinical-charge-total>0.00</span>
         </div>
         <div class="space-y-2">
             <?php foreach ($chargeLines as $line): ?>
@@ -25,11 +25,11 @@ $isRtl = !empty($is_rtl);
                     !empty($line['service_date']) ? formatDate($line['service_date']) : null,
                 ]);
                 ?>
-                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-sky-200 hover:bg-sky-50">
+                <label class="flex cursor-pointer items-start gap-3 v3-radius border v3-border v3-surface p-3 transition hover:border-sky-200 hover:bg-sky-50">
                     <input type="checkbox"
                            name="clinical_charge_line_ids[]"
                            value="<?= $lineId ?>"
-                           class="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                           class="mt-1 h-4 w-4 rounded v3-border v3-accent-text focus:ring-sky-500"
                            data-clinical-charge-line
                            data-amount="<?= esc(number_format($amount, 2, '.', '')) ?>"
                            data-currency="<?= esc($currency) ?>"
@@ -41,7 +41,7 @@ $isRtl = !empty($is_rtl);
                             <span class="mt-0.5 block text-xs text-slate-500"><?= esc(implode(' · ', $meta)) ?></span>
                         <?php endif; ?>
                     </span>
-                    <span class="whitespace-nowrap text-sm font-black text-sky-700" dir="ltr"><?= esc($currency) ?> <?= number_format($amount, 2) ?></span>
+                    <span class="whitespace-nowrap text-sm font-black v3-accent-text" dir="ltr"><?= esc($currency) ?> <?= number_format($amount, 2) ?></span>
                 </label>
             <?php endforeach; ?>
         </div>

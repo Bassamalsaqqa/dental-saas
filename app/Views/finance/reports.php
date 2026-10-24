@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<div class="v3-operational-view">
 <p class="px-4 py-2 text-sm text-amber-800"><?= esc(lang('Finance.providerCurrencyWarning')) ?></p>
 <?php
 $formatMoney = static fn($amount) => $amount === null ? esc(lang('Finance.providerCurrencyUnavailable')) : formatCurrency((float) $amount);
@@ -17,116 +18,46 @@ $bucketLabels = [
 ];
 ?>
 
-<style>
-    .finance-reports-wrap {
-        width: min(100%, 1500px);
-    }
 
-    .finance-reports-hero,
-    .finance-reports-panel,
-    .finance-reports-summary-card {
-        position: relative;
-        isolation: isolate;
-    }
-
-    .finance-reports-hero {
-        border-radius: 1.75rem;
-        background:
-            radial-gradient(circle at 9% 8%, rgba(255, 255, 255, 0.22), transparent 30%),
-            radial-gradient(circle at 88% 6%, rgba(20, 184, 166, 0.32), transparent 34%),
-            linear-gradient(135deg, #047857 0%, #0f766e 45%, #0f172a 100%);
-        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
-    }
-
-    [dir="rtl"] .finance-reports-hero {
-        background:
-            radial-gradient(circle at 91% 8%, rgba(255, 255, 255, 0.22), transparent 30%),
-            radial-gradient(circle at 12% 6%, rgba(20, 184, 166, 0.32), transparent 34%),
-            linear-gradient(225deg, #047857 0%, #0f766e 45%, #0f172a 100%);
-    }
-
-    .finance-reports-filter,
-    .finance-reports-panel {
-        background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-    }
-
-    .finance-reports-panel {
-        border-radius: 1.5rem;
-        border: 1px solid rgba(226, 232, 240, 0.92);
-        overflow: hidden;
-    }
-
-    .finance-reports-summary-card::after {
-        content: "";
-        position: absolute;
-        inset: auto -18% -42% auto;
-        width: 72%;
-        aspect-ratio: 1;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.16);
-        z-index: -1;
-    }
-
-    [dir="rtl"] .finance-reports-summary-card::after {
-        inset-inline-start: -18%;
-        inset-inline-end: auto;
-    }
-
-    .finance-reports-table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .finance-reports-table thead th {
-        background: rgba(248, 250, 252, 0.96);
-        color: #475569;
-        font-weight: 900;
-    }
-
-    .finance-reports-table tbody tr {
-        transition: background-color 160ms ease, box-shadow 160ms ease;
-    }
-</style>
 
 <div>
-    <div class="finance-reports-wrap mx-auto space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        <section class="finance-reports-hero overflow-hidden border border-white/20 p-5 text-white sm:p-6 lg:p-7">
+    <div class="finance-reports-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <section class="finance-reports-hero overflow-hidden border sm:p-6 lg:p-7">
             <div class="relative">
                 <div class="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg shadow-black/10 ring-1 ring-white/20">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center ring-1">
                             <i class="fas fa-chart-line text-lg"></i>
                         </div>
                         <div>
-                            <h1 class="text-2xl font-black tracking-tight"><?= lang('Finance.financialReports') ?></h1>
+                            <h1 class="v3-section-title tracking-tight"><?= lang('Finance.financialReports') ?></h1>
                             <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                                <span class="rounded-full bg-white/10 px-3 py-1.5 ring-1 ring-white/20"><?= esc($start_date) ?> - <?= esc($end_date) ?></span>
+                                <span class="px-3 py-1.5 ring-1"><?= esc($start_date) ?> - <?= esc($end_date) ?></span>
                             </div>
                         </div>
                     </div>
-                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold ring-1 transition">
                         <i class="fas fa-arrow-left rtl-back-icon"></i>
                         <?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
-                <form method="GET" action="<?= base_url('finance/reports') ?>" class="finance-reports-filter relative mt-5 flex flex-wrap items-end gap-4 rounded-2xl border border-white/30 px-5 py-4 text-slate-900">
+                <form method="GET" action="<?= base_url('finance/reports') ?>" class="finance-reports-filter relative mt-5 flex flex-wrap items-end gap-4 border px-5 py-4">
                     <div class="flex-1 min-w-[160px] max-w-xs space-y-1">
-                        <label class="block text-xs font-bold text-slate-600"><?= lang('Finance.startDate') ?></label>
-                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15">
+                        <label class="block text-xs font-bold"><?= lang('Finance.startDate') ?></label>
+                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full border px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15">
                     </div>
                     <div class="flex-1 min-w-[160px] max-w-xs space-y-1">
-                        <label class="block text-xs font-bold text-slate-600"><?= lang('Finance.endDate') ?></label>
-                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15">
+                        <label class="block text-xs font-bold"><?= lang('Finance.endDate') ?></label>
+                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full border px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15">
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <button type="submit" class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-700 hover:to-teal-800">
+                        <button type="submit" class="px-4 py-2.5 text-sm font-extrabold transition">
                             <?= lang('Finance.filter') ?>
                         </button>
-                        <button type="button" onclick="exportReport()" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+                        <button type="button" onclick="exportReport()" class="border px-4 py-2.5 text-sm font-bold transition">
                             <?= lang('Finance.exportCashCsv') ?>
                         </button>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex justify-center border px-4 py-2.5 text-sm font-bold transition">
                             <?= lang('Finance.reset') ?>
                         </a>
                     </div>
@@ -137,7 +68,7 @@ $bucketLabels = [
         <section>
             <div class="mb-4">
                 <div>
-                    <h2 class="text-xl font-black text-slate-950"><?= lang('Finance.ownerSummaryTitle') ?></h2>
+                    <h2 class="text-xl"><?= lang('Finance.ownerSummaryTitle') ?></h2>
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 sm:gap-6 items-stretch">
@@ -159,14 +90,14 @@ $bucketLabels = [
                 ?>
                 <?php foreach ($summaryCards as $card): ?>
                     <?php $accent = $accentMap[$card['accent']]; ?>
-                    <div class="finance-reports-summary-card relative overflow-hidden rounded-2xl p-5 text-white shadow-lg <?= esc($accent['card']) ?>">
+                    <div class="finance-reports-summary-card relative overflow-hidden <?= esc($accent['card']) ?>">
                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,0.22),transparent_34%)]"></div>
                         <div class="relative flex items-start justify-between gap-4">
                             <div class="min-w-0">
-                                <p class="text-xs font-black uppercase tracking-wide <?= esc($accent['label']) ?>"><?= esc($card['title']) ?></p>
-                                <p class="mt-3 text-3xl font-black <?= esc($accent['value']) ?>"><?= $formatMoney($card['value']) ?></p>
+                                <p class="text-xs uppercase tracking-wide <?= esc($accent['label']) ?>"><?= esc($card['title']) ?></p>
+                                <p class="mt-3 v3-title <?= esc($accent['value']) ?>"><?= $formatMoney($card['value']) ?></p>
                             </div>
-                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 <?= esc($accent['badge']) ?>">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center ring-1 <?= esc($accent['badge']) ?>">
                                 <i class="fas <?= esc($card['icon']) ?> text-base"></i>
                             </div>
                         </div>
@@ -175,22 +106,22 @@ $bucketLabels = [
             </div>
         </section>
 
-        <details class="finance-reports-panel group border-indigo-100">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-indigo-100 bg-gradient-to-r from-indigo-700 to-blue-900 px-6 py-5 text-white">
+        <details class="finance-reports-panel">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b px-6 py-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h2 class="text-xl font-black"><?= lang('Finance.apAgingDetail') ?></h2>
+                        <h2 class="text-xl"><?= lang('Finance.apAgingDetail') ?></h2>
                     </div>
-                    <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= esc(lang('Finance.openPayablesTop', ['count' => count($ap_aging_detail ?? [])])) ?></span>
+                    <span class="px-3 py-1 text-xs font-bold ring-1"><?= esc(lang('Finance.openPayablesTop', ['count' => count($ap_aging_detail ?? [])])) ?></span>
                 </div>
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center ring-1 transition group-open:rotate-180">
                     <i class="fas fa-chevron-down text-xs"></i>
                 </span>
             </summary>
             <div class="overflow-x-auto">
                 <table class="finance-reports-table min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-indigo-50">
-                        <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <thead class="">
+                        <tr class="text-left text-xs font-semibold uppercase tracking-wide">
                             <th class="px-6 py-4"><?= lang('Finance.expense') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.vendor') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.dueDate') ?></th>
@@ -199,51 +130,51 @@ $bucketLabels = [
                             <th class="px-6 py-4 text-right"><?= lang('Finance.balanceDueLabel') ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-indigo-100 bg-white/90">
+                    <tbody class="divide-y divide-indigo-100">
                         <?php if (!empty($ap_aging_detail)): ?>
                             <?php foreach ($ap_aging_detail as $row): ?>
-                                <tr class="cursor-pointer transition-colors duration-150 hover:bg-indigo-50/70" data-href="<?= esc(workflow_context_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
-                                    <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['counterparty_name'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= number_format((int) ($row['days_past_due'] ?? 0)) ?></td>
-                                    <td class="px-6 py-4"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"><?= esc($bucketLabels[$row['aging_bucket'] ?? 'current'] ?? ($row['aging_bucket'] ?? 'Current')) ?></span></td>
-                                    <td class="px-6 py-4 text-right font-semibold text-indigo-700"><?= $formatMoney($row['balance_due'] ?? 0) ?></td>
+                                <tr class="cursor-pointer transition-colors duration-150" data-href="<?= esc(workflow_context_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
+                                    <td class="px-6 py-4 font-semibold"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
+                                    <td class="px-6 py-4"><?= esc($row['counterparty_name'] ?? '-') ?></td>
+                                    <td class="px-6 py-4"><?= esc($row['due_date'] ?? '-') ?></td>
+                                    <td class="px-6 py-4"><?= number_format((int) ($row['days_past_due'] ?? 0)) ?></td>
+                                    <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold"><?= esc($bucketLabels[$row['aging_bucket'] ?? 'current'] ?? ($row['aging_bucket'] ?? 'Current')) ?></span></td>
+                                    <td class="px-6 py-4 text-right font-semibold"><?= $formatMoney($row['balance_due'] ?? 0) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="6" class="px-6 py-10 text-center text-gray-500"><?= lang('Finance.noOutstandingPayablesForDate') ?></td></tr>
+                            <tr><td colspan="6" class="px-6 py-10 text-center"><?= lang('Finance.noOutstandingPayablesForDate') ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </details>
 
-        <section class="finance-reports-panel border-emerald-100 p-5">
+        <section class="finance-reports-panel border-emerald-100">
             <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h2 class="text-xl font-black text-slate-950"><?= lang('Finance.treasuryOverviewTitle') ?></h2>
+                    <h2 class="text-xl"><?= lang('Finance.treasuryOverviewTitle') ?></h2>
                 </div>
-                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-50">
+                <a href="<?= base_url('finance/transfers') ?>" class="inline-flex items-center justify-center border border-emerald-200 px-4 py-2.5 text-sm font-bold text-emerald-800 hover:bg-emerald-50">
                     <i class="fas fa-right-left mr-2"></i><?= lang('Finance.treasuryTransfers') ?>
                 </a>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+                <div class="border border-emerald-200 bg-emerald-50">
                     <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc($liquidityLabels['safe_cash'] ?? lang('Finance.liquidityAccount.safe_cash')) ?></p>
-                    <p class="mt-2 text-3xl font-black text-emerald-950"><?= $formatMoney($treasuryClosing['safe_cash'] ?? null) ?></p>
+                    <p class="mt-2 v3-title text-emerald-950"><?= $formatMoney($treasuryClosing['safe_cash'] ?? null) ?></p>
                 </div>
-                <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-blue-700"><?= esc($liquidityLabels['bank'] ?? lang('Finance.liquidityAccount.bank')) ?></p>
-                    <p class="mt-2 text-3xl font-black text-blue-950"><?= $formatMoney($treasuryClosing['bank'] ?? null) ?></p>
+                <div class="border">
+                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc($liquidityLabels['bank'] ?? lang('Finance.liquidityAccount.bank')) ?></p>
+                    <p class="mt-2 v3-title"><?= $formatMoney($treasuryClosing['bank'] ?? null) ?></p>
                 </div>
-                <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                <div class="border border-amber-200 bg-amber-50">
                     <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= esc($liquidityLabels['undeposited_checks'] ?? lang('Finance.liquidityAccount.undeposited_checks')) ?></p>
-                    <p class="mt-2 text-3xl font-black text-amber-950"><?= $formatMoney($treasuryClosing['undeposited_checks'] ?? null) ?></p>
+                    <p class="mt-2 v3-title text-amber-950"><?= $formatMoney($treasuryClosing['undeposited_checks'] ?? null) ?></p>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.totalLiquidFunds') ?></p>
-                    <p class="mt-2 text-3xl font-black text-slate-950"><?= $formatMoney($treasuryClosing['total_liquid_funds'] ?? null) ?></p>
+                <div class="border">
+                    <p class="text-xs font-semibold uppercase tracking-wide"><?= lang('Finance.totalLiquidFunds') ?></p>
+                    <p class="mt-2 v3-title"><?= $formatMoney($treasuryClosing['total_liquid_funds'] ?? null) ?></p>
                 </div>
             </div>
             <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -257,66 +188,66 @@ $bucketLabels = [
                 <?php foreach (['safe_cash', 'bank', 'undeposited_checks'] as $accountKey): ?>
                     <?php $bucket = $treasuryMovement[$accountKey] ?? ['in' => 0, 'out' => 0, 'net' => 0]; ?>
                     <?php $movementAccent = $movementAccentMap[$accountKey] ?? $movementAccentMap['safe_cash']; ?>
-                    <div class="rounded-xl border p-5 shadow-sm <?= esc($movementAccent['card']) ?>">
+                    <div class="border <?= esc($movementAccent['card']) ?>">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-sm font-bold text-gray-900"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></h3>
-                            <span class="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-500"><?= lang('Finance.periodMovement') ?></span>
+                            <h3 class="text-sm font-bold"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></h3>
+                            <span class="px-2.5 py-1 text-[11px] font-semibold"><?= lang('Finance.periodMovement') ?></span>
                         </div>
                         <div class="mt-4 grid grid-cols-3 gap-3">
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['in']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.inflow') ?></p>
-                                <p class="mt-2 text-lg font-black text-emerald-950"><?= $formatMoney($bucket['in'] ?? null) ?></p>
+                                <p class="mt-2 text-lg text-emerald-950"><?= $formatMoney($bucket['in'] ?? null) ?></p>
                             </div>
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['out']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.outflow') ?></p>
-                                <p class="mt-2 text-lg font-black text-rose-950"><?= $formatMoney($bucket['out'] ?? null) ?></p>
+                                <p class="mt-2 text-lg text-rose-950"><?= $formatMoney($bucket['out'] ?? null) ?></p>
                             </div>
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['net']) ?>">
-                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.net') ?></p>
-                                <p class="mt-2 text-lg font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></p>
+                                <p class="text-[11px] font-semibold uppercase tracking-wide"><?= lang('Finance.net') ?></p>
+                                <p class="mt-2 text-lg <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></p>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
-                <div class="rounded-xl border border-slate-300 bg-slate-900 p-5 text-white shadow-sm">
+                <div class="border">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-bold"><?= lang('Finance.totalLiquidMovement') ?></h3>
-                        <span class="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-200"><?= lang('Finance.selectedPeriod') ?></span>
+                        <span class="px-2.5 py-1 text-[11px] font-semibold"><?= lang('Finance.selectedPeriod') ?></span>
                     </div>
                     <div class="mt-4 grid grid-cols-3 gap-3">
-                        <div class="rounded-lg bg-white/10 p-3">
+                        <div class="rounded-lg p-3">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-200"><?= lang('Finance.inflow') ?></p>
-                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['in'] ?? null) ?></p>
+                            <p class="mt-2 text-lg"><?= $formatMoney($treasuryMovement['totals']['in'] ?? null) ?></p>
                         </div>
-                        <div class="rounded-lg bg-white/10 p-3">
+                        <div class="rounded-lg p-3">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-rose-200"><?= lang('Finance.outflow') ?></p>
-                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['out'] ?? null) ?></p>
+                            <p class="mt-2 text-lg"><?= $formatMoney($treasuryMovement['totals']['out'] ?? null) ?></p>
                         </div>
-                        <div class="rounded-lg bg-white/10 p-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-200"><?= lang('Finance.net') ?></p>
-                            <p class="mt-2 text-lg font-black"><?= $formatMoney($treasuryMovement['totals']['net'] ?? null) ?></p>
+                        <div class="rounded-lg p-3">
+                            <p class="text-[11px] font-semibold uppercase tracking-wide"><?= lang('Finance.net') ?></p>
+                            <p class="mt-2 text-lg"><?= $formatMoney($treasuryMovement['totals']['net'] ?? null) ?></p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <details class="finance-reports-panel group border-amber-100">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-amber-100 bg-gradient-to-r from-amber-500 to-orange-700 px-6 py-5 text-white">
+        <details class="finance-reports-panel border-amber-100">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-amber-100 px-6 py-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h2 class="text-xl font-black"><?= lang('Finance.arAgingDetail') ?></h2>
+                        <h2 class="text-xl"><?= lang('Finance.arAgingDetail') ?></h2>
                     </div>
-                    <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20"><?= esc(lang('Finance.openInvoicesTop', ['count' => count($ar_aging_detail ?? [])])) ?></span>
+                    <span class="px-3 py-1 text-xs font-bold ring-1"><?= esc(lang('Finance.openInvoicesTop', ['count' => count($ar_aging_detail ?? [])])) ?></span>
                 </div>
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center ring-1 transition group-open:rotate-180">
                     <i class="fas fa-chevron-down text-xs"></i>
                 </span>
             </summary>
             <div class="overflow-x-auto">
                 <table class="finance-reports-table min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-amber-50">
-                        <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        <tr class="text-left text-xs font-semibold uppercase tracking-wide">
                             <th class="px-6 py-4"><?= lang('Finance.invoice') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.patient') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.dueDate') ?></th>
@@ -325,49 +256,49 @@ $bucketLabels = [
                             <th class="px-6 py-4 text-right"><?= lang('Finance.balanceDueLabel') ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-amber-100 bg-white/90">
+                    <tbody class="divide-y divide-amber-100">
                         <?php if (!empty($ar_aging_detail)): ?>
                             <?php foreach ($ar_aging_detail as $row): ?>
                                 <tr class="cursor-pointer transition-colors duration-150 hover:bg-amber-50/70" data-href="<?= esc(workflow_context_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
-                                    <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
-                                    <td class="px-6 py-4 text-gray-700">
-                                        <div class="font-medium text-gray-900"><?= esc(trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))) ?></div>
-                                        <?php if (!empty($row['patient_number'])): ?><div class="text-xs text-gray-400"><?= esc($row['patient_number']) ?></div><?php endif; ?>
+                                    <td class="px-6 py-4 font-semibold"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
+                                    <td class="px-6 py-4">
+                                        <div class="font-medium"><?= esc(trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))) ?></div>
+                                        <?php if (!empty($row['patient_number'])): ?><div class="text-xs"><?= esc($row['patient_number']) ?></div><?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= number_format((int) ($row['days_past_due'] ?? 0)) ?></td>
-                                    <td class="px-6 py-4"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"><?= esc($bucketLabels[$row['aging_bucket'] ?? 'current'] ?? ($row['aging_bucket'] ?? 'Current')) ?></span></td>
+                                    <td class="px-6 py-4"><?= esc($row['due_date'] ?? '-') ?></td>
+                                    <td class="px-6 py-4"><?= number_format((int) ($row['days_past_due'] ?? 0)) ?></td>
+                                    <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold"><?= esc($bucketLabels[$row['aging_bucket'] ?? 'current'] ?? ($row['aging_bucket'] ?? 'Current')) ?></span></td>
                                     <td class="px-6 py-4 text-right font-semibold text-rose-700"><?= $formatMoney($row['balance_due'] ?? 0) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="6" class="px-6 py-10 text-center text-gray-500"><?= lang('Finance.noOutstandingInvoicesForDate') ?></td></tr>
+                            <tr><td colspan="6" class="px-6 py-10 text-center"><?= lang('Finance.noOutstandingInvoicesForDate') ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </details>
 
-        <details class="finance-reports-panel group border-slate-200">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-slate-200 bg-gradient-to-r from-slate-800 to-slate-950 px-6 py-5 text-white">
+        <details class="finance-reports-panel">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 border-b px-6 py-5">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div>
-                        <h2 class="text-xl font-black"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
+                        <h2 class="text-xl"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-100 ring-1 ring-white/20"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.externalCashEvents') ?></span>
-                        <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 ring-1 ring-emerald-200/20"><?= lang('Finance.externalInflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
-                        <span class="rounded-full bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.externalOutflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? null) ?></span>
+                        <span class="px-3 py-1 text-xs font-bold ring-1"><?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> <?= lang('Finance.externalCashEvents') ?></span>
+                        <span class="bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100 ring-1 ring-emerald-200/20"><?= lang('Finance.externalInflow') ?>: <?= $formatMoney($ledger_summary['inflow_total'] ?? 0) ?></span>
+                        <span class="bg-rose-400/20 px-3 py-1 text-xs font-bold text-rose-100 ring-1 ring-rose-200/20"><?= lang('Finance.externalOutflow') ?>: <?= $formatMoney($ledger_summary['outflow_total'] ?? null) ?></span>
                     </div>
                 </div>
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center ring-1 transition group-open:rotate-180">
                     <i class="fas fa-chevron-down text-xs"></i>
                 </span>
             </summary>
             <div class="overflow-x-auto">
                 <table class="finance-reports-table min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-slate-100/80">
-                        <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <thead class="">
+                        <tr class="text-left text-xs font-semibold uppercase tracking-wide">
                             <th class="px-6 py-4"><?= lang('Finance.reportDate') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.source') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.type') ?></th>
@@ -381,7 +312,7 @@ $bucketLabels = [
                             <th class="px-6 py-4 text-right"><?= lang('Finance.amountBase') ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white/95">
+                    <tbody class="divide-y divide-slate-100">
                         <?php if (!empty($ledger_rows)): ?>
                             <?php foreach ($ledger_rows as $row): ?>
                                 <?php
@@ -425,21 +356,21 @@ $bucketLabels = [
                                 };
                                 ?>
                                 <tr class="<?= $rowHref ? 'cursor-pointer transition-colors duration-150 hover:bg-slate-50' : '' ?>"<?= $rowHref ? ' data-href="' . esc($rowHref, 'attr') . '"' : '' ?>>
-                                    <td class="px-6 py-4 font-medium text-gray-900"><?= esc($row['report_date'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($sourceLabel) ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($typeLabel) ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['reference'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-gray-700">
+                                    <td class="px-6 py-4 font-medium"><?= esc($row['report_date'] ?? '-') ?></td>
+                                    <td class="px-6 py-4"><?= esc($sourceLabel) ?></td>
+                                    <td class="px-6 py-4"><?= esc($typeLabel) ?></td>
+                                    <td class="px-6 py-4"><?= esc($row['reference'] ?? '-') ?></td>
+                                    <td class="px-6 py-4">
                                         <?php if (!empty($row['patient_label'])): ?>
-                                            <div class="font-medium text-gray-900"><?= esc($row['patient_label']) ?></div>
-                                            <?php if (!empty($row['patient_number'])): ?><div class="text-xs text-gray-400"><?= esc($row['patient_number']) ?></div><?php endif; ?>
+                                            <div class="font-medium"><?= esc($row['patient_label']) ?></div>
+                                            <?php if (!empty($row['patient_number'])): ?><div class="text-xs"><?= esc($row['patient_number']) ?></div><?php endif; ?>
                                         <?php else: ?>-<?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['counterparty'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($paymentMethodLabel) ?></td>
-                                    <td class="px-6 py-4 text-gray-700"><?= esc($liquidityAccountLabel) ?></td>
-                                    <td class="px-6 py-4 text-gray-600"><?= !empty($row['created_at']) ? esc(formatDateTime($row['created_at'])) : '-' ?></td>
-                                    <td class="px-6 py-4 text-gray-700">
+                                    <td class="px-6 py-4"><?= esc($row['counterparty'] ?? '-') ?></td>
+                                    <td class="px-6 py-4"><?= esc($paymentMethodLabel) ?></td>
+                                    <td class="px-6 py-4"><?= esc($liquidityAccountLabel) ?></td>
+                                    <td class="px-6 py-4"><?= !empty($row['created_at']) ? esc(formatDateTime($row['created_at'])) : '-' ?></td>
+                                    <td class="px-6 py-4">
                                         <?php if (isset($row['amount_original']) && $row['amount_original'] !== null): ?>
                                             <?= esc((string) ($row['currency'] ?? '')) ?> <?= number_format((float) $row['amount_original'], 2) ?>
                                         <?php else: ?>-<?php endif; ?>
@@ -450,81 +381,81 @@ $bucketLabels = [
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="11" class="px-6 py-10 text-center text-gray-500"><?= lang('Finance.noFinancialEventsForPeriod') ?></td></tr>
+                            <tr><td colspan="11" class="px-6 py-10 text-center"><?= lang('Finance.noFinancialEventsForPeriod') ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </details>
 
-        <details class="finance-reports-panel group border-slate-200">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 px-6 py-5 text-white">
+        <details class="finance-reports-panel">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
                 <div>
-                    <h2 class="text-xl font-black"><?= lang('Finance.detailsBreakdownTitle') ?></h2>
+                    <h2 class="text-xl"><?= lang('Finance.detailsBreakdownTitle') ?></h2>
                 </div>
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition group-open:rotate-180">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center ring-1 transition group-open:rotate-180">
                     <i class="fas fa-chevron-down text-xs"></i>
                 </span>
             </summary>
-            <div class="space-y-6 border-t border-slate-200 px-6 py-6">
+            <div class="border-t px-6 py-6">
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                    <div class="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-600 to-teal-800 p-4 text-white shadow-lg shadow-emerald-500/20"><p class="text-sm font-black text-emerald-50/90"><?= lang('Finance.grossCollections') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p></div>
-                    <div class="rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-600 to-pink-800 p-4 text-white shadow-lg shadow-rose-500/20"><p class="text-sm font-black text-rose-50/90"><?= lang('Finance.refunds') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p></div>
-                    <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-500 to-orange-700 p-4 text-white shadow-lg shadow-amber-500/20"><p class="text-sm font-black text-amber-50/95"><?= lang('Finance.expensesPaid') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p></div>
-                    <div class="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-600 to-blue-900 p-4 text-white shadow-lg shadow-indigo-500/20"><p class="text-sm font-black text-indigo-50/90"><?= lang('Finance.providerPaidCash') ?></p><p class="mt-2 text-2xl font-black"><?= esc(\App\Services\ProviderCurrencySummary::format($stats['provider_cash_summary'] ?? [], 'total_provider_paid_cash')) ?></p></div>
-                    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-700 to-slate-950 p-4 text-white shadow-lg shadow-slate-500/20"><p class="text-sm font-black text-slate-100/90"><?= lang('Finance.netClinicCash') ?></p><p class="mt-2 text-2xl font-black"><?= $formatMoney($stats['net_clinic_cash'] ?? null) ?></p></div>
+                    <div class="border border-emerald-200 p-4"><p class="text-sm text-emerald-50/90"><?= lang('Finance.grossCollections') ?></p><p class="mt-2 v3-section-title"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p></div>
+                    <div class="border border-rose-200 p-4"><p class="text-sm text-rose-50/90"><?= lang('Finance.refunds') ?></p><p class="mt-2 v3-section-title"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p></div>
+                    <div class="border border-amber-200 p-4"><p class="text-sm text-amber-50/95"><?= lang('Finance.expensesPaid') ?></p><p class="mt-2 v3-section-title"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p></div>
+                    <div class="border p-4"><p class="text-sm"><?= lang('Finance.providerPaidCash') ?></p><p class="mt-2 v3-section-title"><?= esc(\App\Services\ProviderCurrencySummary::format($stats['provider_cash_summary'] ?? [], 'total_provider_paid_cash')) ?></p></div>
+                    <div class="border p-4"><p class="text-sm"><?= lang('Finance.netClinicCash') ?></p><p class="mt-2 v3-section-title"><?= $formatMoney($stats['net_clinic_cash'] ?? null) ?></p></div>
                 </div>
-                <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-                    <section class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/85 to-white p-5 shadow-lg shadow-emerald-100/50">
-                        <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.treasuryMovementTitle') ?></h3>
+                <div class="grid xl:grid-cols-[1.05fr_0.95fr]">
+                    <section class="border border-emerald-100">
+                        <h3 class="text-lg font-bold"><?= lang('Finance.treasuryMovementTitle') ?></h3>
                         <div class="mt-4 grid gap-4 md:grid-cols-3">
                             <?php foreach (['safe_cash', 'bank', 'undeposited_checks'] as $accountKey): ?>
                                 <?php $bucket = $treasuryMovement[$accountKey] ?? ['in' => 0, 'out' => 0, 'net' => 0]; ?>
-                                <div class="rounded-xl border border-white/80 bg-white/90 p-4 shadow-sm">
-                                    <p class="text-sm font-black text-slate-900"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></p>
+                                <div class="border p-4">
+                                    <p class="text-sm"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></p>
                                     <div class="mt-3 space-y-2 text-sm">
                                         <div class="flex items-center justify-between"><span class="text-emerald-700"><?= lang('Finance.inflow') ?></span><span class="font-semibold text-emerald-950"><?= $formatMoney($bucket['in'] ?? null) ?></span></div>
                                         <div class="flex items-center justify-between"><span class="text-rose-700"><?= lang('Finance.outflow') ?></span><span class="font-semibold text-rose-950"><?= $formatMoney($bucket['out'] ?? null) ?></span></div>
-                                        <div class="flex items-center justify-between border-t border-gray-100 pt-2"><span class="text-gray-600"><?= lang('Finance.net') ?></span><span class="font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></span></div>
+                                        <div class="flex items-center justify-between border-t pt-2"><span class=""><?= lang('Finance.net') ?></span><span class="<?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></span></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     </section>
-                    <section class="rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50/90 to-white p-5 shadow-lg shadow-amber-100/50">
-                        <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.accountsReceivableAging') ?></h3>
+                    <section class="border border-amber-100">
+                        <h3 class="text-lg font-bold"><?= lang('Finance.accountsReceivableAging') ?></h3>
                         <div class="mt-4 grid grid-cols-2 gap-3">
                             <?php foreach ($bucketLabels as $bucketKey => $bucketLabel): ?>
-                                <div class="rounded-xl border border-white/80 bg-white/90 p-4 shadow-sm"><p class="text-xs font-black uppercase tracking-wide text-amber-700"><?= esc($bucketLabel) ?></p><p class="mt-2 text-xl font-black text-slate-950"><?= $formatMoney($ar_aging_summary[$bucketKey] ?? 0) ?></p></div>
+                                <div class="border p-4"><p class="text-xs uppercase tracking-wide text-amber-700"><?= esc($bucketLabel) ?></p><p class="mt-2 text-xl"><?= $formatMoney($ar_aging_summary[$bucketKey] ?? 0) ?></p></div>
                             <?php endforeach; ?>
                         </div>
                     </section>
                 </div>
-                <section class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-white via-indigo-50/90 to-white p-5 shadow-lg shadow-indigo-100/50">
+                <section class="border">
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.accountsPayableAging') ?></h3>
+                            <h3 class="text-lg font-bold"><?= lang('Finance.accountsPayableAging') ?></h3>
                         </div>
                         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            <div class="rounded-xl border border-indigo-200 bg-white p-4 shadow-sm">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700"><?= lang('Finance.expensePayables') ?></p>
-                                <p class="mt-2 text-xl font-black text-indigo-950"><?= $formatMoney($ownerSummary['expense_payables'] ?? 0) ?></p>
+                            <div class="border p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wide"><?= lang('Finance.expensePayables') ?></p>
+                                <p class="mt-2 text-xl"><?= $formatMoney($ownerSummary['expense_payables'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-xl border border-blue-200 bg-white p-4 shadow-sm">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-blue-700"><?= lang('Finance.providerPayables') ?></p>
-                                <p class="mt-2 text-xl font-black text-blue-950"><?= esc(\App\Services\ProviderCurrencySummary::format($ownerSummary['provider_currency_summary'] ?? [], 'total_provider_balance')) ?></p>
+                            <div class="border p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wide"><?= lang('Finance.providerPayables') ?></p>
+                                <p class="mt-2 text-xl"><?= esc(\App\Services\ProviderCurrencySummary::format($ownerSummary['provider_currency_summary'] ?? [], 'total_provider_balance')) ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-6">
                         <?php foreach ($bucketLabels as $bucketKey => $bucketLabel): ?>
-                            <div class="rounded-xl border border-white/80 bg-white/90 p-4 shadow-sm"><p class="text-xs font-black uppercase tracking-wide text-indigo-700"><?= esc($bucketLabel) ?></p><p class="mt-2 text-xl font-black text-slate-950"><?= $formatMoney($ap_aging_summary[$bucketKey] ?? 0) ?></p></div>
+                            <div class="border p-4"><p class="text-xs uppercase tracking-wide"><?= esc($bucketLabel) ?></p><p class="mt-2 text-xl"><?= $formatMoney($ap_aging_summary[$bucketKey] ?? 0) ?></p></div>
                         <?php endforeach; ?>
                     </div>
                 </section>
-                <section class="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white p-5 shadow-lg shadow-slate-200/50">
-                    <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.monthlyCollectionsTrend') ?></h3>
-                    <div class="mt-4 h-72 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><canvas id="financeRevenueChart"></canvas></div>
+                <section class="border">
+                    <h3 class="text-lg font-bold"><?= lang('Finance.monthlyCollectionsTrend') ?></h3>
+                    <div class="mt-4 h-72 border p-4"><canvas id="financeRevenueChart"></canvas></div>
                 </section>
             </div>
         </details>
@@ -596,4 +527,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+</div>
 <?= $this->endSection() ?>

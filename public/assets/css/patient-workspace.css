@@ -20,7 +20,7 @@
 .denta-v3 .patient-shell-nav button {min-height:42px;border-radius:0;font-size:13px;padding:10px 14px;background:transparent;color:var(--denta-ink);white-space:nowrap;border-bottom:2px solid transparent;}
 .denta-v3 .patient-shell-nav button.active,.denta-v3 .patient-shell-nav button[aria-selected=true] {background:var(--denta-tint-scheduled);border-bottom-color:var(--denta-emerald-pine);color:var(--denta-emerald-pine);}
 .denta-v3 .patient-filter-strip {background:var(--denta-parchment);border-bottom:1px solid var(--denta-taupe-border);}
-.denta-v3 .patient-details-layout {display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start;}
+.denta-v3 .patient-details-layout {display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start;}
 .denta-v3 :is(.patient-details-main,.patient-details-sidebar) {display:flex;flex-direction:column;gap:14px;min-width:0;}
 .denta-v3 .patient-compact-card {border:1px solid var(--denta-taupe-border);border-radius:7px;background:var(--denta-alabaster);overflow:hidden;}
 .denta-v3 :is(.patient-compact-header,.v3-record-summary,.patient-section-header) {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--denta-sandstone);border-bottom:1px solid var(--denta-taupe-border);}
@@ -29,7 +29,7 @@
 .denta-v3 details[open]>.v3-record-summary::after {content:'?';}
 .denta-v3 :is(.patient-compact-title,.patient-section-title) {font-size:15px;font-weight:700;}
 .denta-v3 :is(.patient-compact-copy,.patient-section-subtitle) {font-size:12px;margin-top:4px;color:var(--denta-muted);}
-.denta-v3 .patient-clinical-visuals-grid {display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,1fr);gap:12px;padding:12px;}
+.denta-v3 .patient-clinical-visuals-grid {display:block;padding:12px;}
 .denta-v3 .patient-preview-card {display:flex;flex-direction:column;gap:10px;min-width:0;}
 .denta-v3 .patient-preview-card-header {display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
 .denta-v3 .patient-preview-card-header h4 {font-size:14px;font-weight:700;}
@@ -91,3 +91,7 @@
 .denta-v3 .v3-patient-command-content .v3-command-actions {flex:1;}
 .denta-v3 .v3-patient-command-content button {min-height:36px;box-shadow:none;border-radius:5px;}
 @media(max-width:767px){.denta-v3 .v3-patient-command-content {gap:8px;}.denta-v3 .v3-patient-command-content button{min-height:44px;}}
+
+.denta-v3 .v3-clinical-workspace{padding:14px 18px}.v3-clinical-stack{display:flex;flex-direction:column;gap:10px}.denta-v3 .v3-clinical-content{padding:12px}.denta-v3 .v3-clinical-tabs{display:flex;gap:3px;overflow-x:auto;justify-content:flex-start}.denta-v3 .patient-details-sidebar{position:sticky;top:76px}.denta-v3 .patient-details-sidebar .patient-preview-frame{min-height:140px}.denta-v3 .patient-details-sidebar .v3-patient-command-strip{margin:0;padding:12px;background:var(--denta-parchment);border:1px solid var(--denta-taupe-border);border-radius:6px}.denta-v3 .patient-details-sidebar .v3-patient-command-content{display:flex;flex-direction:column;align-items:stretch;gap:8px}.denta-v3 .patient-details-sidebar .patient-command-action{width:100%;justify-content:flex-start;min-height:38px;padding:8px 10px;border-radius:4px}.denta-v3 .patient-details-sidebar .v3-patient-command-content>div{display:flex;flex-wrap:wrap;gap:8px}.denta-v3 .patient-details-sidebar .v3-patient-command-label{border-bottom:1px solid var(--denta-taupe-border);padding-bottom:8px}@media(max-width:767px){.denta-v3 .v3-clinical-workspace{padding:10px}.denta-v3 .patient-details-sidebar{position:static;display:flex}.denta-v3 .patient-details-layout{grid-template-columns:minmax(0,1fr)}}
+
+.denta-v3 .patient-preview-frame:has(>.patient-preview-empty){aspect-ratio:auto;height:280px;min-height:0}.denta-v3 .patient-details-sidebar .patient-preview-frame:has(>.patient-preview-empty){height:140px}@media(max-width:767px){.denta-v3 .patient-preview-frame:has(>.patient-preview-empty){height:220px}}

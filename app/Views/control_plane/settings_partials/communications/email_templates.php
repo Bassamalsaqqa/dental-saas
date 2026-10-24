@@ -1,45 +1,45 @@
-                            <div id="tab-email-templates" data-section-title="Email Templates" class="settings-content hidden space-y-6">
-                                <div id="section-email-template-metrics" data-section-title="Template Metrics" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <div class="control-settings-metric p-4"><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Total</p><p class="mt-2 text-2xl font-black text-slate-950"><?= number_format($templateStats['total'] ?? 0) ?></p></div>
-                                    <div class="control-settings-metric p-4 bg-emerald-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-emerald-600">Active</p><p class="mt-2 text-2xl font-black text-emerald-700"><?= number_format($templateStats['active'] ?? 0) ?></p></div>
-                                    <div class="control-settings-metric p-4 bg-amber-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-amber-600">Draft</p><p class="mt-2 text-2xl font-black text-amber-700"><?= number_format($templateStats['draft'] ?? 0) ?></p></div>
-                                    <div class="control-settings-metric p-4 bg-blue-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-blue-600">Filtered</p><p class="mt-2 text-2xl font-black text-blue-700"><?= number_format($templateStats['filtered'] ?? 0) ?></p></div>
+                            <div id="tab-email-templates" data-section-title="<?= esc(lang('V3Platform.emailTemplates'), 'attr') ?>" class="settings-content hidden space-y-6">
+                                <div id="section-email-template-metrics" data-section-title="<?= esc(lang('V3Platform.templateMetrics'), 'attr') ?>" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="control-settings-metric p-4"><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500"><?= esc(lang('V3Platform.total')) ?></p><p class="mt-2 text-2xl font-black text-slate-950"><?= number_format($templateStats['total'] ?? 0) ?></p></div>
+                                    <div class="control-settings-metric p-4 cp-soft-surface"><p class="text-xs font-bold uppercase tracking-[0.14em] text-emerald-600"><?= esc(lang('V3Platform.active')) ?></p><p class="mt-2 text-2xl font-black text-emerald-700"><?= number_format($templateStats['active'] ?? 0) ?></p></div>
+                                    <div class="control-settings-metric p-4 bg-amber-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-amber-600"><?= esc(lang('V3Platform.draft')) ?></p><p class="mt-2 text-2xl font-black text-amber-700"><?= number_format($templateStats['draft'] ?? 0) ?></p></div>
+                                    <div class="control-settings-metric p-4 cp-soft-surface"><p class="text-xs font-bold uppercase tracking-[0.14em] cp-accent"><?= esc(lang('V3Platform.filtered2')) ?></p><p class="mt-2 text-2xl font-black cp-accent"><?= number_format($templateStats['filtered'] ?? 0) ?></p></div>
                                 </div>
 
-                                <form id="section-email-template-filters" data-section-title="Template Filters" method="get" action="<?= base_url('controlplane/settings') ?>" class="control-settings-surface flex flex-wrap gap-3 items-end p-5">
+                                <form id="section-email-template-filters" data-section-title="<?= esc(lang('V3Platform.templateFilters'), 'attr') ?>" method="get" action="<?= base_url('controlplane/settings') ?>" class="control-settings-surface flex flex-wrap gap-3 items-end p-5">
                                     <input type="hidden" name="tab" value="email-templates">
                                     <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search</label>
-                                        <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="control-settings-field w-64" placeholder="Search templates...">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.search')) ?></label>
+                                        <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="control-settings-field w-64" placeholder="<?= esc(lang('V3Platform.searchTemplates'), 'attr') ?>">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.status')) ?></label>
                                         <select name="status" class="control-settings-field">
                                             <?php $currentTemplateStatus = $templateFilters['status'] ?? ''; ?>
-                                            <option value="" <?= $currentTemplateStatus === '' ? 'selected' : '' ?>>All</option>
-                                            <option value="active" <?= $currentTemplateStatus === 'active' ? 'selected' : '' ?>>Active</option>
-                                            <option value="draft" <?= $currentTemplateStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
+                                            <option value="" <?= $currentTemplateStatus === '' ? 'selected' : '' ?>><?= esc(lang('V3Platform.all')) ?></option>
+                                            <option value="active" <?= $currentTemplateStatus === 'active' ? 'selected' : '' ?>><?= esc(lang('V3Platform.active')) ?></option>
+                                            <option value="draft" <?= $currentTemplateStatus === 'draft' ? 'selected' : '' ?>><?= esc(lang('V3Platform.draft')) ?></option>
                                         </select>
                                     </div>
-                                    <button type="submit" class="control-settings-submit">Apply</button>
+                                    <button type="submit" class="control-settings-submit"><?= esc(lang('V3Platform.apply')) ?></button>
                                 </form>
 
-                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <div id="section-email-template-library" data-section-title="Template Library" class="control-settings-card">
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                                    <div id="section-email-template-library" data-section-title="<?= esc(lang('V3Platform.templateLibrary'), 'attr') ?>" class="control-settings-card">
                                         <div class="control-settings-header">
                                             <div class="flex items-center space-x-4">
-                                                <div class="w-12 h-12 rounded-xl flex items-center justify-center">
+                                                <div class="w-12 h-12 cp-radius flex items-center justify-center">
                                                     <i class="fas fa-layer-group text-xl"></i>
                                                 </div>
                                                 <div>
-                                                    <h4 class="text-lg font-bold">Template Library</h4>
-                                                    <p class="text-sm">Browse and select shared email templates.</p>
+                                                    <h4 class="text-lg font-bold"><?= esc(lang('V3Platform.templateLibrary')) ?></h4>
+                                                    <p class="text-sm"><?= esc(lang('V3Platform.browseAndSelectSharedEmailTemplates')) ?></p>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="max-h-[28rem] overflow-y-auto divide-y divide-slate-100">
                                             <?php if (empty($templates)): ?>
-                                                <div class="p-6 text-sm text-slate-500">No templates found.</div>
+                                                <div class="p-6 text-sm text-slate-500"><?= esc(lang('V3Platform.noTemplatesFound2')) ?></div>
                                             <?php else: ?>
                                                 <?php foreach ($templates as $template): ?>
                                                     <a href="<?= base_url('controlplane/settings?tab=email-templates&template_id=' . (int) $template['id']) ?>" class="block p-4 hover:bg-slate-50/90 transition-colors">
@@ -52,10 +52,10 @@
                                     </div>
 
                                     <?php $editorTemplate = $activeTemplate ?? null; ?>
-                                    <div id="section-email-template-editor" data-section-title="Template Editor" class="control-settings-card">
+                                    <div id="section-email-template-editor" data-section-title="<?= esc(lang('V3Platform.templateEditor'), 'attr') ?>" class="control-settings-card">
                                         <div class="control-settings-header">
                                             <div class="flex items-center space-x-4">
-                                                <div class="w-12 h-12 rounded-xl flex items-center justify-center">
+                                                <div class="w-12 h-12 cp-radius flex items-center justify-center">
                                                     <i class="fas fa-pen-ruler text-xl"></i>
                                                 </div>
                                                 <div>
@@ -66,19 +66,19 @@
                                         </div>
                                         <form action="<?= base_url('controlplane/settings/email-templates' . ($editorTemplate ? '/' . (int) $editorTemplate['id'] : '')) ?>" method="post" class="space-y-4 p-6" data-settings-form="true" data-saving-label="Saving template...">
                                             <?= csrf_field() ?>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Name</label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="control-settings-field" required></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Slug</label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="control-settings-field"></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject</label><input type="text" name="subject" value="<?= esc($editorTemplate['subject'] ?? '') ?>" class="control-settings-field" required></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HTML Body</label><textarea name="body_html" rows="6" class="control-settings-field"><?= esc($editorTemplate['body_html'] ?? '') ?></textarea></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Text Body</label><textarea name="body_text" rows="4" class="control-settings-field"><?= esc($editorTemplate['body_text'] ?? '') ?></textarea></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.name')) ?></label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="control-settings-field" required></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.slug')) ?></label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="control-settings-field"></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.subject')) ?></label><input type="text" name="subject" value="<?= esc($editorTemplate['subject'] ?? '') ?>" class="control-settings-field" required></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.htmlBody')) ?></label><textarea name="body_html" rows="6" class="control-settings-field"><?= esc($editorTemplate['body_html'] ?? '') ?></textarea></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.textBody')) ?></label><textarea name="body_text" rows="4" class="control-settings-field"><?= esc($editorTemplate['body_text'] ?? '') ?></textarea></div>
                                             <div>
-                                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
+                                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.status')) ?></label>
                                                 <select name="status" class="control-settings-field">
-                                                    <option value="draft" <?= (($editorTemplate['status'] ?? 'draft') === 'draft') ? 'selected' : '' ?>>Draft</option>
-                                                    <option value="active" <?= (($editorTemplate['status'] ?? '') === 'active') ? 'selected' : '' ?>>Active</option>
+                                                    <option value="draft" <?= (($editorTemplate['status'] ?? 'draft') === 'draft') ? 'selected' : '' ?>><?= esc(lang('V3Platform.draft')) ?></option>
+                                                    <option value="active" <?= (($editorTemplate['status'] ?? '') === 'active') ? 'selected' : '' ?>><?= esc(lang('V3Platform.active')) ?></option>
                                                 </select>
                                             </div>
-                                            <button type="submit" class="control-settings-submit">Save Template</button>
+                                            <button type="submit" class="control-settings-submit"><?= esc(lang('V3Platform.saveTemplate')) ?></button>
                                         </form>
                                     </div>
                                 </div>

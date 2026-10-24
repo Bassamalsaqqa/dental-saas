@@ -133,7 +133,7 @@ $showOptionalDetails = old('supplier_id') !== null
         </div>
         <div class="<?= $showOptionalDetails ? '' : 'hidden' ?>" data-finance-optional>
             <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.attachmentOptional') ?></label>
-            <label class="inline-flex w-full cursor-pointer items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100">
+            <label class="inline-flex w-full cursor-pointer items-center justify-center v3-radius border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100">
                 <i class="fas fa-upload me-2"></i><?= lang('Finance.uploadAttachment') ?>
                 <input type="file" name="attachment" id="<?= esc($fieldId('expenseAttachmentInput')) ?>" data-expense-attachment-input accept=".pdf,.jpg,.jpeg,.png" class="hidden">
             </label>
@@ -141,7 +141,7 @@ $showOptionalDetails = old('supplier_id') !== null
         </div>
     </div>
 
-    <button type="button" data-finance-optional-toggle aria-expanded="<?= $showOptionalDetails ? 'true' : 'false' ?>" class="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-start text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+    <button type="button" data-finance-optional-toggle aria-expanded="<?= $showOptionalDetails ? 'true' : 'false' ?>" class="flex w-full items-center justify-between gap-3 v3-radius border v3-border v3-surface px-4 py-3 text-start text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
         <span class="inline-flex items-center gap-2">
             <i class="fas fa-sliders text-slate-500"></i>
             <?= esc(lang('Finance.optionalDetails')) ?>

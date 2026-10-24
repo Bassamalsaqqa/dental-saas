@@ -36,7 +36,7 @@
 .denta-v3 .v3-finance-navigation {display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 0 12px;font-size:12px}
 .denta-v3 .v3-finance-navigation a {display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--denta-taupe-border);border-radius:5px;background:var(--denta-alabaster);color:var(--denta-ink)}
 .denta-v3 .finance-export-btn {display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:1px solid var(--denta-taupe-border);border-radius:5px;background:var(--denta-alabaster);font-size:12px;font-weight:600}
-.denta-v3 .finance-create-modal__panel {max-height:calc(100dvh - 32px);background:var(--denta-alabaster)!important;border-radius:9px!important}
+.denta-v3 .finance-create-modal__panel {max-height:100dvh;background:var(--denta-alabaster);border-radius:0}
 .denta-v3 .v3-calendar-summary {display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 12px;font-size:12px}
 .denta-v3 .v3-calendar-summary>span {display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);border-radius:5px}
 .denta-v3 .v3-calendar-summary strong {font-size:15px;font-variant-numeric:tabular-nums}
@@ -51,7 +51,7 @@
 .denta-v3 .appointment-calendar-event__title {font-weight:700;white-space:normal}
 .denta-v3 .appointment-calendar-event__meta {font-size:10px;opacity:.9}
 .denta-v3 .appointment-calendar-event__time {font-variant-numeric:tabular-nums;font-weight:700}
-.denta-v3 .appointment-calendar-details-modal__panel {max-height:calc(100dvh - 32px);background:var(--denta-alabaster)!important;border-radius:9px!important}
+.denta-v3 .appointment-calendar-details-modal__panel {max-height:100dvh;background:var(--denta-alabaster);border-radius:0}
 .denta-v3 .v3-reception-board {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0 18px;}
 .denta-v3 .v3-visit-lane {min-width:0;padding:10px;border:1px solid var(--denta-taupe-border);border-radius:7px;background:var(--denta-parchment);min-height:220px}
 .denta-v3 .v3-visit-lane h2 {font-size:13px;font-weight:700;margin-bottom:10px}
@@ -70,3 +70,8 @@
 .denta-v3 :is(.patients-page,.appointment-page,.appointment-calendar-page,.finance-page-wrap,.dashboard-workspace) .bg-white {background-color:var(--denta-alabaster)}
 @media(max-width:1200px){.denta-v3 .dashboard-content-grid{grid-template-columns:minmax(0,1fr)}.denta-v3 .dashboard-routing-board,.denta-v3 .v3-reception-board{overflow-x:auto;grid-template-columns:repeat(5,minmax(210px,1fr));scroll-snap-type:x proximity}.denta-v3 .dashboard-routing-column,.denta-v3 .v3-visit-lane{scroll-snap-align:start}}
 @media(max-width:767px){.denta-v3 .dashboard-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.denta-v3 .dashboard-stat-card{padding:10px}.denta-v3 .dashboard-stat-value{font-size:22px}.denta-v3 .dashboard-stat-card i{font-size:18px}.denta-v3 .dashboard-bottom-grid{grid-template-columns:minmax(0,1fr)}.denta-v3 .dashboard-chart-wrap{height:220px}.denta-v3 .v3-reception-board{grid-template-columns:repeat(5,minmax(235px,80vw))}.denta-v3 .appointment-calendar-shell .fc-toolbar{flex-wrap:wrap;gap:8px}.denta-v3 .appointment-calendar-shell .fc-toolbar-title{font-size:16px}.denta-v3 .finance-export-btn{min-height:44px}.denta-v3 .v3-calendar-summary{gap:6px}.denta-v3 .v3-calendar-summary>span{padding:6px 8px}.denta-v3 :is(.patients-page,.finance-page-wrap) .dataTables_wrapper .dataTables_filter{float:none;text-align:start;max-width:100%}.denta-v3 :is(.patients-page,.finance-page-wrap) .dataTables_wrapper .dataTables_filter input{max-width:100%;margin:0 0 8px}.denta-v3 :is(.patients-page,.finance-page-wrap) table.dataTable{min-width:720px}}
+
+/* Command center groups live clinic activity beside the existing action queues. */
+.denta-v3 .v3-command-center-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,1fr);gap:14px;align-items:start}.denta-v3 .v3-command-center-live .dashboard-routing-board{grid-template-columns:repeat(5,minmax(140px,1fr));overflow-x:auto}.denta-v3 .v3-command-center-actions{position:sticky;top:76px}.denta-v3 .v3-visit-lane{min-height:430px}.denta-v3 .v3-visit-card{padding:12px}.denta-v3 .v3-visit-lane h2{padding-bottom:10px;border-bottom:1px solid var(--denta-taupe-border)}.denta-v3 .v3-reception-board{align-items:stretch}.denta-v3 .v3-visit-card>time{font-size:16px}.denta-v3 .v3-visit-card>strong{font-size:14px}@media(max-width:1100px){.denta-v3 .v3-command-center-grid{grid-template-columns:minmax(0,1fr)}.denta-v3 .v3-command-center-actions{position:static}}@media(max-width:767px){.denta-v3 .v3-visit-lane{min-height:300px}.denta-v3 .v3-command-center-live .dashboard-routing-board{grid-template-columns:repeat(5,minmax(210px,1fr))}}
+
+.denta-v3 .v3-schedule-list{border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-alabaster);margin-top:14px}.denta-v3 .v3-schedule-list>summary{padding:12px 14px;font-weight:700;cursor:pointer;background:var(--denta-parchment);min-height:44px}.denta-v3 .v3-schedule-list>summary>span{font-weight:400;font-size:12px;color:var(--denta-muted);margin-inline-start:12px}.denta-v3 .v3-schedule-list>.mb-6{margin-bottom:0}

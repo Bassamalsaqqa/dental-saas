@@ -327,7 +327,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
     }
 </style>
 
-<div class="ops-page-shell min-h-screen">
+<div class="v3-platform-workspace ops-page-shell min-h-screen">
     <div class="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-5 lg:px-6">
         <section class="ops-hero-card">
             <div class="grid gap-4 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
@@ -337,9 +337,9 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                             <i class="fas fa-cogs"></i>
                         </span>
                         <div class="min-w-0">
-                            <p class="text-xs font-extrabold uppercase tracking-[0.28em] text-blue-100">Control Plane</p>
-                            <h1 class="mt-1 text-3xl font-black tracking-tight text-white">Operations Console</h1>
-                            <p class="mt-1.5 max-w-3xl text-sm font-semibold leading-5 text-blue-50/90">Runtime health, operational shortcuts, and plan enforcement visibility for the global app.</p>
+                            <p class="text-xs font-extrabold uppercase tracking-[0.28em] cp-accent"><?= esc(lang('V3Platform.controlPlane')) ?></p>
+                            <h1 class="mt-1 cp-title font-black tracking-tight text-white"><?= esc(lang('V3Platform.operationsConsole')) ?></h1>
+                            <p class="mt-1.5 max-w-3xl text-sm font-semibold leading-5 cp-accent"><?= esc(lang('V3Platform.runtimeHealthOperationalShortcutsAndPlanEnforcementVisibilityForTheGlobalApp')) ?></p>
                         </div>
                     </div>
 
@@ -347,29 +347,29 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                         <div class="ops-hero-chip">
                             <span class="ops-hero-chip-icon"><i class="fas fa-globe"></i></span>
                             <span class="ops-hero-chip-text">
-                                <span class="ops-hero-chip-label">Mode</span>
-                                <span class="ops-hero-chip-value">Global mode</span>
+                                <span class="ops-hero-chip-label"><?= esc(lang('V3Platform.mode')) ?></span>
+                                <span class="ops-hero-chip-value"><?= esc(lang('V3Platform.globalMode2')) ?></span>
                             </span>
                         </div>
                         <div class="ops-hero-chip">
                             <span class="ops-hero-chip-icon"><i class="fas fa-server"></i></span>
                             <span class="ops-hero-chip-text">
-                                <span class="ops-hero-chip-label">Environment</span>
+                                <span class="ops-hero-chip-label"><?= esc(lang('V3Platform.environment')) ?></span>
                                 <span class="ops-hero-chip-value"><?= esc($environmentLabel) ?></span>
                             </span>
                         </div>
                         <div class="ops-hero-chip">
                             <span class="ops-hero-chip-icon"><i class="fab fa-php"></i></span>
                             <span class="ops-hero-chip-text">
-                                <span class="ops-hero-chip-label">Runtime</span>
+                                <span class="ops-hero-chip-label"><?= esc(lang('V3Platform.runtime')) ?></span>
                                 <span class="ops-hero-chip-value">PHP <?= esc($phpVersionLabel) ?></span>
                             </span>
                         </div>
                         <div class="ops-hero-chip">
                             <span class="ops-hero-chip-icon"><i class="fas fa-shield-halved"></i></span>
                             <span class="ops-hero-chip-text">
-                                <span class="ops-hero-chip-label">Guardrails</span>
-                                <span class="ops-hero-chip-value"><?= esc((string) count($planAudits)) ?> plan events</span>
+                                <span class="ops-hero-chip-label"><?= esc(lang('V3Platform.guardrails')) ?></span>
+                                <span class="ops-hero-chip-value"><?= esc((string) count($planAudits)) ?> <?= esc(lang('V3Platform.planEvents')) ?></span>
                             </span>
                         </div>
                     </div>
@@ -378,28 +378,28 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                 <div class="ops-hero-side-card p-4 text-white">
                     <div class="flex items-start justify-between gap-3">
                         <div>
-                            <p class="text-xs font-black uppercase tracking-[0.20em] text-blue-100">Health Review</p>
+                            <p class="text-xs font-black uppercase tracking-[0.20em] cp-accent"><?= esc(lang('V3Platform.healthReview')) ?></p>
                             <h2 class="mt-1 text-xl font-black text-white"><?= $attentionCount === 0 ? 'All clear' : 'Needs review' ?></h2>
-                            <p class="mt-1 text-xs font-bold text-blue-50/80">Current runtime checks</p>
+                            <p class="mt-1 text-xs font-bold cp-accent"><?= esc(lang('V3Platform.currentRuntimeChecks')) ?></p>
                         </div>
-                        <span class="rounded-xl bg-white/18 p-2.5 text-white ring-1 ring-white/24">
+                        <span class="cp-radius cp-surface p-2.5 text-white ring-1 ring-white/24">
                             <i class="fas <?= $attentionCount === 0 ? 'fa-circle-check' : 'fa-triangle-exclamation' ?>"></i>
                         </span>
                     </div>
                     <div class="mt-3 grid grid-cols-2 gap-2.5">
                         <div class="ops-health-metric ops-health-metric-ok">
                             <p class="ops-health-metric-value"><?= esc((string) $healthyCount) ?></p>
-                            <p class="ops-health-metric-label">checks passing</p>
+                            <p class="ops-health-metric-label"><?= esc(lang('V3Platform.checksPassing')) ?></p>
                         </div>
                         <div class="ops-health-metric ops-health-metric-warn">
                             <p class="ops-health-metric-value"><?= esc((string) $attentionCount) ?></p>
-                            <p class="ops-health-metric-label">need attention</p>
+                            <p class="ops-health-metric-label"><?= esc(lang('V3Platform.needAttention')) ?></p>
                         </div>
                     </div>
                     <div class="mt-2.5 grid gap-2">
-                        <a href="<?= base_url('controlplane/settings') ?>" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/22 bg-white/16 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white/22">
+                        <a href="<?= base_url('controlplane/settings') ?>" class="inline-flex items-center justify-center gap-2 cp-radius border cp-border cp-surface px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-white/22">
                             <i class="fas fa-sliders"></i>
-                            <span>Global settings</span>
+                            <span><?= esc(lang('V3Platform.globalSettings')) ?></span>
                         </a>
                     </div>
                 </div>
@@ -408,15 +408,15 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
 
         <div class="ops-workspace-section space-y-4 p-3 sm:p-4">
             <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                <nav class="overflow-x-auto rounded-[1.35rem] bg-white/80 p-2 shadow-sm ring-1 ring-white/80 backdrop-blur">
+                <nav class="overflow-x-auto rounded-[1.35rem] cp-surface p-2 ring-1 ring-white/80">
                     <div class="flex min-w-max gap-2">
                         <button type="button" onclick="showOpsTab('health')" id="ops-btn-health" class="ops-tab-button">
                             <i class="fas fa-heartbeat"></i>
-                            <span>System Health</span>
+                            <span><?= esc(lang('V3Platform.systemHealth')) ?></span>
                         </button>
                         <button type="button" onclick="showOpsTab('audit')" id="ops-btn-audit" class="ops-tab-button">
                             <i class="fas fa-history"></i>
-                            <span>Plan Audit Trail</span>
+                            <span><?= esc(lang('V3Platform.planAuditTrail')) ?></span>
                         </button>
                     </div>
                 </nav>
@@ -424,19 +424,19 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                 <div class="grid gap-2 sm:grid-cols-2">
                     <a href="<?= base_url('controlplane/settings') ?>" class="ops-link-row">
                         <span class="flex items-center gap-3">
-                            <span class="ops-link-icon bg-gradient-to-br from-blue-600 to-indigo-700"><i class="fas fa-sliders"></i></span>
+                            <span class="ops-link-icon"><i class="fas fa-sliders"></i></span>
                             <span>
-                                <span class="block text-sm font-black text-slate-950">Global settings</span>
-                                <span class="block text-xs font-bold text-slate-500">Platform configuration</span>
+                                <span class="block text-sm font-black text-slate-950"><?= esc(lang('V3Platform.globalSettings')) ?></span>
+                                <span class="block text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.platformConfiguration')) ?></span>
                             </span>
                         </span>
                     </a>
                     <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="ops-link-row">
                         <span class="flex items-center gap-3">
-                            <span class="ops-link-icon bg-gradient-to-br from-emerald-600 to-teal-700"><i class="fab fa-whatsapp"></i></span>
+                            <span class="ops-link-icon"><i class="fab fa-whatsapp"></i></span>
                             <span>
-                                <span class="block text-sm font-black text-slate-950">WhatsApp policies</span>
-                                <span class="block text-xs font-bold text-slate-500">Secrets and templates</span>
+                                <span class="block text-sm font-black text-slate-950"><?= esc(lang('V3Platform.whatsappPolicies')) ?></span>
+                                <span class="block text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.secretsAndTemplates')) ?></span>
                             </span>
                         </span>
                     </a>
@@ -450,21 +450,21 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                             <div class="flex items-center gap-3">
                                 <span class="ops-section-title-dot"><i class="fas fa-heartbeat text-sm"></i></span>
                                 <div>
-                                    <h2 class="text-lg font-black text-slate-950">System Health</h2>
-                                    <p class="text-sm font-semibold text-slate-500">Runtime checks required before operator work.</p>
+                                    <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.systemHealth')) ?></h2>
+                                    <p class="text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.runtimeChecksRequiredBeforeOperatorWork')) ?></p>
                                 </div>
                             </div>
                         </div>
                         <div class="grid gap-3 p-4 sm:grid-cols-2">
                             <?php foreach ($healthChecks as $check): ?>
                                 <?php $isOk = !empty($check['status']); ?>
-                                <div class="rounded-2xl border <?= $isOk ? 'border-emerald-200 bg-emerald-50/80' : 'border-rose-200 bg-rose-50/80' ?> p-3.5 shadow-sm">
+                                <div class="cp-radius border <?= $isOk ? 'border-emerald-200 bg-emerald-50/80' : 'border-rose-200 bg-rose-50/80' ?> p-3.5">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
                                             <p class="text-sm font-black text-slate-950"><?= esc($check['label'] ?? '-') ?></p>
                                             <p class="mt-1 text-xs font-bold <?= $isOk ? 'text-emerald-700' : 'text-rose-700' ?>"><?= esc($check['detail'] ?? '-') ?></p>
                                         </div>
-                                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl <?= $isOk ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white' ?>">
+                                        <span class="inline-flex h-9 w-9 items-center justify-center cp-radius <?= $isOk ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white' ?>">
                                             <i class="fas <?= $isOk ? 'fa-check' : 'fa-triangle-exclamation' ?>"></i>
                                         </span>
                                     </div>
@@ -478,8 +478,8 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                             <div class="flex items-center gap-3">
                                 <span class="ops-section-title-dot"><i class="fas fa-compass text-sm"></i></span>
                                 <div>
-                                    <h2 class="text-lg font-black text-slate-950">Operational Tools</h2>
-                                    <p class="text-sm font-semibold text-slate-500">High-frequency control-plane actions.</p>
+                                    <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.operationalTools')) ?></h2>
+                                    <p class="text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.highFrequencyControlPlaneActions')) ?></p>
                                 </div>
                             </div>
                         </div>
@@ -496,7 +496,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                             <?php foreach ($toolLinks as $tool): ?>
                                 <a href="<?= esc($tool['href'], 'attr') ?>" class="ops-link-row group">
                                     <span class="flex items-center gap-3">
-                                        <span class="ops-link-icon bg-gradient-to-br <?= esc($tool['tone'], 'attr') ?>"><i class="fas <?= esc($tool['icon'], 'attr') ?>"></i></span>
+                                        <span class="ops-link-icon <?= esc($tool['tone'], 'attr') ?>"><i class="fas <?= esc($tool['icon'], 'attr') ?>"></i></span>
                                         <span>
                                             <span class="block text-sm font-black text-slate-950"><?= esc($tool['title']) ?></span>
                                             <span class="block text-xs font-bold text-slate-500"><?= esc($tool['copy']) ?></span>
@@ -514,8 +514,8 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                         <div class="flex items-center gap-3">
                             <span class="ops-section-title-dot"><i class="fas fa-tools text-sm"></i></span>
                             <div>
-                                <h2 class="text-lg font-black text-slate-950">Maintenance</h2>
-                                <p class="text-sm font-semibold text-slate-500">Safeguarded operations and RBAC checks.</p>
+                                <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.maintenance')) ?></h2>
+                                <p class="text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.safeguardedOperationsAndRbacChecks')) ?></p>
                             </div>
                         </div>
                     </div>
@@ -531,7 +531,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                         <?php foreach ($maintenanceLinks as $link): ?>
                             <a href="<?= esc($link['href'], 'attr') ?>" class="ops-link-row group">
                                 <span class="flex items-center gap-3">
-                                    <span class="ops-link-icon bg-gradient-to-br <?= esc($link['tone'], 'attr') ?>"><i class="fas <?= esc($link['icon'], 'attr') ?>"></i></span>
+                                    <span class="ops-link-icon <?= esc($link['tone'], 'attr') ?>"><i class="fas <?= esc($link['icon'], 'attr') ?>"></i></span>
                                     <span class="text-sm font-black text-slate-950"><?= esc($link['title']) ?></span>
                                 </span>
                                 <i class="fas fa-chevron-right text-xs text-slate-300 transition group-hover:text-blue-600"></i>
@@ -548,18 +548,18 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                             <div class="flex items-center gap-3">
                                 <span class="ops-section-title-dot"><i class="fas fa-shield-halved text-sm"></i></span>
                                 <div>
-                                    <h2 class="text-lg font-black text-slate-950">Plan Enforcement Violations</h2>
-                                    <p class="text-sm font-semibold text-slate-500">Blocked actions triggered by plan guardrails.</p>
+                                    <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.planEnforcementViolations')) ?></h2>
+                                    <p class="text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.blockedActionsTriggeredByPlanGuardrails')) ?></p>
                                 </div>
                             </div>
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                                 <label class="relative block">
                                     <i class="fas fa-search text-slate-400 absolute left-3 top-3 text-sm"></i>
-                                    <input id="planEnforcementSearch" type="text" placeholder="Search clinic, action, reason..."
-                                           class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm font-semibold text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 sm:w-72">
+                                    <input id="planEnforcementSearch" type="text" placeholder="<?= esc(lang('V3Platform.searchClinicActionReason'), 'attr') ?>"
+                                           class="w-full cp-radius border cp-border cp-surface py-2.5 pl-9 pr-3 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 sm:w-72">
                                 </label>
                                 <span class="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-100 px-3 py-2 text-xs font-black text-rose-700">
-                                    <?= count($planAudits) ?> events
+                                    <?= count($planAudits) ?> <?= esc(lang('V3Platform.events')) ?>
                                 </span>
                             </div>
                         </div>
@@ -568,10 +568,10 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                         <table id="planEnforcementTable" class="ops-audit-table w-full min-w-full">
                             <thead>
                                 <tr>
-                                    <th>Timestamp</th>
-                                    <th>Clinic</th>
-                                    <th>Action Blocked</th>
-                                    <th>Reason</th>
+                                    <th><?= esc(lang('V3Platform.timestamp')) ?></th>
+                                    <th><?= esc(lang('V3Platform.clinic')) ?></th>
+                                    <th><?= esc(lang('V3Platform.actionBlocked')) ?></th>
+                                    <th><?= esc(lang('V3Platform.reason')) ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -579,11 +579,11 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                                     <tr>
                                         <td colspan="4" class="!bg-white px-6 py-12 text-center text-slate-500">
                                             <div class="flex flex-col items-center justify-center">
-                                                <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50">
+                                                <div class="mb-4 flex h-16 w-16 items-center justify-center cp-radius border border-emerald-100 cp-soft-surface">
                                                     <i class="fas fa-shield-alt text-2xl text-emerald-500"></i>
                                                 </div>
-                                                <p class="text-sm font-black text-slate-950">All systems compliant</p>
-                                                <p class="mt-1 text-xs font-bold text-slate-500">No plan enforcement actions triggered recently.</p>
+                                                <p class="text-sm font-black text-slate-950"><?= esc(lang('V3Platform.allSystemsCompliant')) ?></p>
+                                                <p class="mt-1 text-xs font-bold text-slate-500"><?= esc(lang('V3Platform.noPlanEnforcementActionsTriggeredRecently')) ?></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -596,7 +596,7 @@ $phpVersionLabel = (string) ($phpVersion ?? PHP_VERSION);
                                             </td>
                                             <td>
                                                 <div class="flex items-center gap-3">
-                                                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                                                    <div class="flex h-9 w-9 items-center justify-center cp-radius cp-soft-surface cp-accent">
                                                         <i class="fas fa-hospital text-sm"></i>
                                                     </div>
                                                     <div>

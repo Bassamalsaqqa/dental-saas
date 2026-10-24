@@ -37,29 +37,29 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 
 <?= $this->section('content') ?>
 <div class="v3-surface-heading denta-contracts-workspace min-h-screen contract-full-width">
-    <div class="v3-surface border-b border-white/20">
+    <div class="v3-surface border-b v3-border">
         <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 contract-shell">
             <div class="v3-command-layout">
                 <div class="flex items-center space-x-4">
-                    <div class="v3-icon w-12 h-12 rounded-xl flex items-center justify-center">
+                    <div class="v3-icon w-12 h-12 v3-radius flex items-center justify-center">
                         <i class="fas fa-file-signature text-white text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="v3-surface-heading text-3xl font-bold">
+                        <h1 class="v3-surface-heading v3-title-scale font-bold">
                             <?= $mode === 'edit' ? esc(lang('Contracts.editTitle')) : esc(lang('Contracts.createTitle')) ?>
                         </h1>
                         <p class="text-gray-600 mt-1 flex items-center">
-                            <i class="fas fa-user-circle mr-2 text-blue-500"></i>
+                            <i class="fas fa-user-circle mr-2 v3-accent-text"></i>
                             <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?>
-                            <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                            <span class="ml-2 px-2 py-1 v3-soft-surface v3-accent-text text-xs font-medium rounded-full">
                                 <?= esc($patient['patient_id'] ?? $patient['id']) ?>
                             </span>
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                        <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i><?= esc(lang('Contracts.back')) ?>
+                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 v3-surface hover:bg-white border v3-border rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 hover:shadow-md transition-all duration-200">
+                        <i class="fas fa-arrow-left rtl-back-icon mr-2 transition-transform"></i><?= esc(lang('Contracts.back')) ?>
                     </a>
                 </div>
             </div>
@@ -80,38 +80,38 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
         <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 pb-12 contract-shell">
             <div class="contract-editor-layout">
                 <div class="space-y-6">
-                    <div class="contract-card v3-surface v3-corner border border-white/20 overflow-hidden">
+                    <div class="contract-card v3-surface v3-corner border v3-border overflow-hidden">
                         <div class="v3-surface-heading p-6 relative overflow-hidden">
                             <div class="absolute inset-0 bg-black/10"></div>
                             <div class="relative z-10 flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 v3-surface rounded-xl flex items-center justify-center">
+                                    <div class="w-12 h-12 v3-surface v3-radius flex items-center justify-center">
                                         <i class="fas fa-tooth text-white text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-2xl font-bold mb-1"><?= esc(lang('Contracts.chartTitle')) ?></h3>
-                                        <p class="text-blue-100 flex items-center">
+                                        <p class="v3-accent-text flex items-center">
                                             <i class="fas fa-mouse-pointer mr-2"></i>
                                             <?= esc(lang('Contracts.chartHint')) ?>
                                         </p>
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end gap-3">
-                                    <div class="hidden md:flex items-center space-x-2 text-blue-100">
-                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                    <div class="hidden md:flex items-center space-x-2 v3-accent-text">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
                                         <span class="text-sm font-medium"><?= esc(lang('Contracts.liveUpdates')) ?></span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <button type="button"
                                                 id="legendToggleBtn"
-                                                class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 transition-all duration-200">
+                                                class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
                                             <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
                                             <span id="legendToggleText"><?= esc(lang('Contracts.showLegend')) ?></span>
                                         </button>
                                         <button id="batchModeToggleBtn"
                                                 type="button"
                                                 onclick="toggleBatchMode()"
-                                                class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 transition-all duration-200">
+                                                class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
                                             <i class="fas fa-object-group mr-2"></i>
                                             <span id="batchModeToggleText"><?= esc(lang('Contracts.batchSelect')) ?></span>
                                         </button>
@@ -125,11 +125,11 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                                 <i class="fas fa-layer-group mr-1.5"></i><?= esc(lang('Contracts.apply')) ?>
                                             </button>
                                             <button type="button" id="batchClearBtn" onclick="clearBatchSelection()"
-                                                    class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 transition-all duration-200">
+                                                    class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
                                                 <?= esc(lang('Contracts.clear')) ?>
                                             </button>
                                             <button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"
-                                                    class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 transition-all duration-200">
+                                                    class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border transition-all duration-200">
                                                 <?= esc(lang('Contracts.exit')) ?>
                                             </button>
                                         </div>
@@ -140,16 +140,16 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             <div class="absolute bottom-0 left-0 w-24 h-24 v3-surface rounded-full translate-y-12 -translate-x-12"></div>
                         </div>
 
-                        <div class="v3-surface-heading p-6 border-b border-gray-200/50">
+                        <div class="v3-surface-heading p-6 border-b v3-border">
                             <div class="flex items-center justify-between">
                                 <h4 class="text-lg font-bold text-gray-800 flex items-center">
-                                    <i class="fas fa-palette mr-3 text-blue-600"></i>
+                                    <i class="fas fa-palette mr-3 v3-accent-text"></i>
                                     <?= esc(lang('Contracts.legend')) ?>
                                 </h4>
                             </div>
                             <div id="legendContent" class="hidden mt-6">
                             <div class="grid grid-cols-6 gap-4">
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-green-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-green-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-green-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-check text-green-600 text-sm"></i>
                                     </div>
@@ -158,7 +158,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.noIssues')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-yellow-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-yellow-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-yellow-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
                                     </div>
@@ -167,25 +167,25 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.needsFilling')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-blue-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-blue-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-tools text-blue-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-blue-200/50">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-tools v3-accent-text text-sm"></i>
                                     </div>
                                     <div>
                                         <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.filling')) ?></span>
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.restored')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-purple-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-purple-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-crown text-purple-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-purple-200/50">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-crown v3-accent-text text-sm"></i>
                                     </div>
                                     <div>
                                         <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.crown')) ?></span>
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.capped')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-pink-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-pink-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-pink-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-tooth text-pink-600 text-sm"></i>
                                     </div>
@@ -194,7 +194,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.endodontic')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-red-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-red-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-red-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-times text-red-600 text-sm"></i>
                                     </div>
@@ -203,16 +203,16 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.removed')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-indigo-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-indigo-400 rounded-full flex items-center justify-center transition-transform">
-                                        <i class="fas fa-screwdriver text-indigo-600 text-sm"></i>
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-indigo-200/50">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
+                                        <i class="fas fa-screwdriver v3-accent-text text-sm"></i>
                                     </div>
                                     <div>
                                         <span class="text-sm font-semibold text-gray-800"><?= esc(lang('Contracts.implant')) ?></span>
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.titanium')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-teal-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-teal-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-teal-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-link text-teal-600 text-sm"></i>
                                     </div>
@@ -221,7 +221,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.connected')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-orange-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-orange-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-orange-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-teeth text-orange-600 text-sm"></i>
                                     </div>
@@ -230,7 +230,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.removable')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-amber-200/50">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-amber-200/50">
                                     <div class="v3-icon w-8 h-8 border-2 border-amber-400 rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-teeth-open text-amber-600 text-sm"></i>
                                     </div>
@@ -239,8 +239,8 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <div class="text-xs text-gray-500"><?= esc(lang('Contracts.complete')) ?></div>
                                     </div>
                                 </div>
-                                <div class="group flex items-center space-x-3 p-4 v3-surface rounded-xl transition-all duration-300 cursor-pointer border border-white/50 hover:border-gray-200/50">
-                                    <div class="v3-icon w-8 h-8 border-2 border-gray-400 rounded-full flex items-center justify-center transition-transform">
+                                <div class="group flex items-center space-x-3 p-4 v3-surface v3-radius transition-all duration-300 cursor-pointer border v3-border hover:border-gray-200/50">
+                                    <div class="v3-icon w-8 h-8 border-2 v3-border rounded-full flex items-center justify-center transition-transform">
                                         <i class="fas fa-question text-gray-600 text-sm"></i>
                                     </div>
                                     <div>
@@ -253,7 +253,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 
                         <div class="v3-surface-heading p-8">
                             <div class="w-full">
-                                <div class="v3-surface-heading relative v3-corner p-8 border border-white/30 overflow-hidden">
+                                <div class="v3-surface-heading relative v3-corner p-8 border v3-border overflow-hidden">
                                     <div class="v3-surface-heading absolute inset-0 v3-corner"></div>
                                     <div id="odontogramSvgWrapper" class="relative z-10 min-h-[320px] flex items-center justify-center">
                                         <?php
@@ -270,24 +270,24 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
                     </div>
 
-                    <div class="contract-card v3-surface v3-corner border border-white/20 overflow-hidden">
+                    <div class="contract-card v3-surface v3-corner border v3-border overflow-hidden">
                         <div class="v3-surface-heading p-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 v3-surface rounded-xl flex items-center justify-center">
+                                    <div class="w-12 h-12 v3-surface v3-radius flex items-center justify-center">
                                         <i class="fas fa-table text-white text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-xl font-bold"><?= esc(lang('Contracts.teethWithConditions')) ?></h3>
-                                        <p class="text-blue-100 text-sm" id="conditionsSummary"></p>
+                                        <p class="v3-accent-text text-sm" id="conditionsSummary"></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="p-4">
-                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <div class="overflow-x-auto rounded-lg border v3-border">
                                 <table class="w-full text-sm">
-                                    <thead class="bg-gray-50">
+                                    <thead class="v3-surface">
                                         <tr>
                                             <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.tooth')) ?></th>
                                             <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">FDI</th>
@@ -307,10 +307,10 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 </div>
 
                 <div class="space-y-6">
-                    <div class="v3-surface v3-corner border border-white/30 overflow-hidden contract-panel">
+                    <div class="v3-surface v3-corner border v3-border overflow-hidden contract-panel">
                         <div class="v3-surface-heading p-5">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 v3-surface rounded-xl flex items-center justify-center">
+                                <div class="w-10 h-10 v3-surface v3-radius flex items-center justify-center">
                                     <i class="fas fa-receipt text-white"></i>
                                 </div>
                                 <div>
@@ -327,7 +327,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         $baseCurrency = $base_currency ?? 'ILS';
                                         $selectedCurrency = $contract['currency'] ?? $baseCurrency;
                                     ?>
-                                    <select name="currency" class="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm v3-surface focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <select name="currency" class="w-full h-9 px-3 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                                         <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
                                             <option value="<?= esc($option) ?>" <?= ($selectedCurrency === $option) ? 'selected' : '' ?>><?= esc($option) ?></option>
                                         <?php endforeach; ?>
@@ -337,34 +337,34 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                     <label class="block text-xs font-semibold text-gray-500 mb-1.5"><?= esc(lang('Contracts.total')) ?></label>
                                     <input type="number" step="0.01" min="0" name="total_cost" id="contractTotalInput"
                                            value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
-                                           class="w-full h-9 px-3 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display bg-white">
+                                           class="w-full h-9 px-3 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display v3-surface">
                                     <p class="mt-1 text-[10px] text-gray-400"><?= esc(lang('Contracts.calculatedTotal')) ?></p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="v3-surface v3-corner border border-white/30 overflow-hidden contract-panel">
+                    <div class="v3-surface v3-corner border v3-border overflow-hidden contract-panel">
                         <div class="v3-surface-heading p-5">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 v3-surface rounded-xl flex items-center justify-center">
+                                    <div class="w-10 h-10 v3-surface v3-radius flex items-center justify-center">
                                         <i class="fas fa-list text-white"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-bold"><?= esc(lang('Contracts.treatmentItems')) ?></h3>
-                                        <p class="text-blue-100 text-xs"><?= esc(lang('Contracts.itemsHint')) ?></p>
+                                        <p class="v3-accent-text text-xs"><?= esc(lang('Contracts.itemsHint')) ?></p>
                                     </div>
                                 </div>
-                                <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
+                                <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border">
                                     <i class="fas fa-plus mr-2"></i><?= esc(lang('Contracts.addItem')) ?>
                                 </button>
                             </div>
                         </div>
                         <div class="p-4 v3-surface contract-panel-body">
-                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <div class="overflow-x-auto rounded-lg border v3-border">
                                 <table class="min-w-full text-sm">
-                                    <thead class="bg-gray-50">
+                                    <thead class="v3-surface">
                                     <tr>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.code')) ?></th>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= esc(lang('Contracts.tooth')) ?></th>
@@ -380,11 +380,11 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
                     </div>
 
-                    <div class="v3-surface v3-corner border border-white/30 overflow-hidden contract-panel">
+                    <div class="v3-surface v3-corner border v3-border overflow-hidden contract-panel">
                         <div class="v3-surface-heading p-5">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 v3-surface rounded-xl flex items-center justify-center">
+                                    <div class="w-10 h-10 v3-surface v3-radius flex items-center justify-center">
                                         <i class="fas fa-pen-fancy text-white"></i>
                                     </div>
                                     <div>
@@ -394,7 +394,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </div>
                                 <button type="button"
                                         id="contractTermsToggleBtn"
-                                        class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
+                                        class="inline-flex items-center px-3 py-2 v3-surface hover:bg-white/30 text-white text-xs font-semibold rounded-lg border v3-border">
                                     <i id="contractTermsToggleIcon" class="fas <?= $hasContractTerms ? 'fa-chevron-up' : 'fa-chevron-down' ?> mr-2"></i>
                                     <span id="contractTermsToggleText"><?= $hasContractTerms ? 'Hide' : 'Show' ?></span>
                                 </button>
@@ -403,25 +403,25 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         <div id="contractTermsContent" class="p-4 space-y-3 v3-surface contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.terms')) ?></label>
-                                <textarea name="terms_conditions" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
+                                <textarea name="terms_conditions" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.paymentTerms')) ?></label>
-                                <textarea name="payment_terms" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
+                                <textarea name="payment_terms" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.durationPlan')) ?></label>
-                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
+                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full h-9 px-3 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1"><?= esc(lang('Contracts.notes')) ?></label>
-                                <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
+                                <textarea name="notes" rows="2" class="w-full px-3 py-2 border v3-border rounded-lg text-sm v3-surface focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-end">
-                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200">
+                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center px-5 py-3 v3-radius text-sm font-semibold transition-all duration-200">
                             <i class="fas fa-save mr-2"></i><?= esc($mode === 'edit' ? lang('Contracts.saveChanges') : lang('Contracts.saveDraft')) ?>
                         </button>
                     </div>
@@ -457,7 +457,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     <input type="hidden" id="toothNumber" name="tooth_number">
                     <div>
                         <label for="condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.conditionType')) ?></label>
-                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface" required>
+                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface" required>
                             <option value=""><?= esc(lang('Contracts.selectCondition')) ?></option>
                             <?php foreach ($condition_types as $key => $label): ?>
                                 <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
@@ -466,31 +466,31 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                     <div>
                         <label for="condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.description')) ?></label>
-                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface resize-none" placeholder="Optional description..."></textarea>
+                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional description..."></textarea>
                     </div>
                     <div>
                         <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentNotes')) ?></label>
-                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface resize-none" placeholder="Optional treatment notes..."></textarea>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional treatment notes..."></textarea>
                     </div>
                     <div>
                         <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentStatus')) ?></label>
-                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface">
+                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface">
                             <option value="pending"><?= esc(lang('Contracts.pending')) ?></option>
                             <option value="in_progress"><?= esc(lang('Contracts.inProgress')) ?></option>
                             <option value="completed"><?= esc(lang('Contracts.completed')) ?></option>
                             <option value="needs_attention"><?= esc(lang('Contracts.needsAttention')) ?></option>
                         </select>
                     </div>
-                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between gap-4 pt-3 border-t v3-border">
                         <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
+                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border v3-border v3-radius text-sm font-medium text-gray-700 whitespace-nowrap">
                                 <?= esc(lang('Contracts.cancel')) ?>
                             </button>
-                            <button type="button" onclick="removeToothCondition()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
+                            <button type="button" onclick="removeToothCondition()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 v3-radius text-sm font-medium text-red-700 whitespace-nowrap">
                                 <?= esc(lang('Contracts.removeStatus')) ?>
                             </button>
                         </div>
-                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] rounded-xl text-sm font-medium whitespace-nowrap">
+                        <button type="submit" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] v3-radius text-sm font-medium whitespace-nowrap">
                             <i class="fas fa-save mr-2"></i><?= esc(lang('Contracts.applyChanges')) ?>
                         </button>
                     </div>
@@ -524,7 +524,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 <form id="batchForm" class="space-y-3.5">
                     <div>
                         <label for="batch_condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.conditionType')) ?></label>
-                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface" required>
+                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface" required>
                             <option value=""><?= esc(lang('Contracts.selectCondition')) ?></option>
                             <?php foreach ($condition_types as $key => $label): ?>
                                 <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
@@ -533,31 +533,31 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                     <div>
                         <label for="batch_condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.description')) ?></label>
-                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface resize-none" placeholder="Optional shared description..."></textarea>
+                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional shared description..."></textarea>
                     </div>
                     <div>
                         <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentNotes')) ?></label>
-                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface resize-none" placeholder="Optional shared treatment notes..."></textarea>
+                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface resize-none" placeholder="Optional shared treatment notes..."></textarea>
                     </div>
                     <div>
                         <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Contracts.treatmentStatus')) ?></label>
-                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl v3-surface">
+                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border v3-border v3-radius v3-surface">
                             <option value="pending"><?= esc(lang('Contracts.pending')) ?></option>
                             <option value="in_progress"><?= esc(lang('Contracts.inProgress')) ?></option>
                             <option value="completed"><?= esc(lang('Contracts.completed')) ?></option>
                             <option value="needs_attention"><?= esc(lang('Contracts.needsAttention')) ?></option>
                         </select>
                     </div>
-                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between gap-4 pt-3 border-t v3-border">
                         <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
+                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border v3-border v3-radius text-sm font-medium text-gray-700 whitespace-nowrap">
                                 <?= esc(lang('Contracts.cancel')) ?>
                             </button>
-                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
+                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 v3-radius text-sm font-medium text-red-700 whitespace-nowrap">
                                 <?= esc(lang('Contracts.removeStatus')) ?>
                             </button>
                         </div>
-                        <button type="submit" id="batchSubmitBtn" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] rounded-xl text-sm font-medium whitespace-nowrap">
+                        <button type="submit" id="batchSubmitBtn" class="v3-action v3-action-primary inline-flex items-center justify-center h-10 px-4 min-w-[160px] v3-radius text-sm font-medium whitespace-nowrap">
                             <i class="fas fa-save mr-2"></i><?= esc(lang('Contracts.applyChanges')) ?>
                         </button>
                     </div>

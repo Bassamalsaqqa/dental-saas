@@ -1,9 +1,15 @@
 <!DOCTYPE html>
+<?php
+$cpRouteKey = (string) service('uri')->getSegment(2);
+$cpTitleKeys = ['dashboard' => 'menuDashboard', 'clinics' => 'cpClinics', 'plans' => 'cpPlans', 'invoices' => 'cpInvoices', 'operations' => 'cpOperations', 'users' => 'cpUsers', 'settings' => 'cpSettings', 'roles' => 'menuRoleManagement'];
+$cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$cpRouteKey]) : ($title ?? lang('UI.cpControlPlane'));
+?>
+
 <html lang="<?= esc($locale ?? 'en') ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? lang('UI.cpControlPlane')) ?></title>
+    <title><?= esc($cpDisplayTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,9 +37,15 @@
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
 
-    <?php foreach (['warm-clinical.css', 'warm-secondary-layout.css', 'warm-secondary.css'] as $themeAsset): ?>
-        <link rel="stylesheet" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
+    <?php foreach (['warm-clinical.css'] as $themeAsset): ?>
+        <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
     <?php endforeach; ?>
+    <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-control-plane.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-control-plane.css') ?: '1' ?>">
+<?php if (in_array(service('uri')->getSegment(2), ['roles', 'users'], true)): ?>
+<?php foreach (['v3-support-views.css', 'v3-flow-forms.css'] as $flowAsset): ?>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/' . $flowAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $flowAsset) ?: '1' ?>">
+<?php endforeach; ?>
+<?php endif; ?>
 </head>
 <body class="denta-v3 denta-cp min-h-screen overflow-x-hidden">
     <?= view('components/toast') ?>
@@ -41,216 +53,167 @@
     <div class="v3-platform-shell flex min-h-screen">
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
-            <aside class="w-64 overflow-hidden v3-surface border-r border-white/30 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
+            <aside class="w-64 overflow-hidden z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
                 <!-- Sidebar Header -->
-                <div class="px-2 pb-2 pt-3 border-b border-white/30" id="sidebar-header">
+                <div class="px-3 py-3 border-b border-white/10" id="sidebar-header">
                     <div class="flex items-center justify-between">
-                        <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
-                            <div class="relative group">
-                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <div class="v3-icon relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200">
-                                    <i class="fas fa-shield-alt text-white text-lg"></i>
-                                </div>
+                        <a href="<?= base_url('controlplane/dashboard') ?>" class="cp-brand-link flex items-center gap-3">
+                            <div class="cp-brand-icon">
+                                <i class="fas fa-shield-alt text-base"></i>
                             </div>
-                            <div id="sidebar-title" class="min-w-0 flex-shrink-0">
-                                <h1 class="text-lg font-black text-gray-900 whitespace-nowrap"><?= lang('UI.cpControlPlane') ?></h1>
-                                <div class="flex items-center space-x-1">
-                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                                    <p class="text-xs text-gray-500 font-medium whitespace-nowrap"><?= lang('UI.cpGlobalAdmin') ?></p>
+                            <div id="sidebar-title" class="min-w-0 flex-1">
+                                <h1 class="text-sm font-bold text-white leading-tight tracking-tight whitespace-nowrap"><?= lang('UI.cpControlPlane') ?></h1>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
+                                    <p class="text-[11px] text-[#A2B5AB] font-semibold whitespace-nowrap"><?= lang('UI.cpGlobalAdmin') ?></p>
                                 </div>
                             </div>
                         </a>
-                        <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 md:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
-                            <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                            <i class="fas fa-bars relative z-10"></i>
+                        <button class="p-1.5 text-[#A2B5AB] hover:text-white hover:bg-white/10 rounded-md transition md:block hidden" onclick="toggleSidebar()" title="<?= esc(lang('V3Platform.toggleSidebarCtrlB'), 'attr') ?>">
+                            <i class="fas fa-bars text-sm"></i>
                         </button>
                     </div>
                 </div>
 
-                <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar overscroll-contain md:overflow-visible" id="sidebar-nav">
+                <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar overscroll-contain px-2 py-2" id="sidebar-nav">
                     <!-- Platform -->
-                    <div class="p-4">
-                        <div class="px-2 pt-5 pb-1">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><?= lang('UI.cpPlatform') ?></p>
-                        </div>
-                        <div class="flex items-center space-x-2 mb-4 mt-3">
-                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
-                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpPlatform') ?></h3>
-                        </div>
-                        <ul class="space-y-1">
+                    <div class="mb-2">
+                        <p class="cp-section-label"><?= lang('UI.cpPlatform') ?></p>
+                        <ul class="space-y-0.5">
                             <li>
                                 <a href="<?= base_url('controlplane/dashboard') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'text-white' : 'text-slate-500 group-hover:text-slate-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.menuDashboard') ?></span>
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <span><?= lang('UI.menuDashboard') ?></span>
                                 </a>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Tenants -->
-                    <div class="p-4">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
-                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpTenants') ?></h3>
-                        </div>
-                        <ul class="space-y-1">
+                    <div class="mb-2">
+                        <p class="cp-section-label"><?= lang('UI.cpTenants') ?></p>
+                        <ul class="space-y-0.5">
                             <li>
                                 <a href="<?= base_url('controlplane/clinics') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-hospital-user w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpClinics') ?></span>
+                                    <i class="fas fa-hospital-user"></i>
+                                    <span><?= lang('UI.cpClinics') ?></span>
                                 </a>
                             </li>
                             <li>
                                 <a href="<?= base_url('controlplane/users') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-users w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpUsers') ?></span>
+                                    <i class="fas fa-users"></i>
+                                    <span><?= lang('UI.cpUsers') ?></span>
                                 </a>
                             </li>
                             <li>
                                 <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-user-plus w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpOnboarding') ?></span>
+                                    <i class="fas fa-user-plus"></i>
+                                    <span><?= lang('UI.cpOnboarding') ?></span>
                                 </a>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Billing -->
-                    <div class="p-4">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
-                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpBilling') ?></h3>
-                        </div>
-                        <ul class="space-y-1">
+                    <div class="mb-2">
+                        <p class="cp-section-label"><?= lang('UI.cpBilling') ?></p>
+                        <ul class="space-y-0.5">
                             <li>
                                 <a href="<?= base_url('controlplane/plans') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-layer-group w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpPlans') ?></span>
+                                    <i class="fas fa-layer-group"></i>
+                                    <span><?= lang('UI.cpPlans') ?></span>
                                 </a>
                             </li>
                             <li>
                                 <a href="<?= base_url('controlplane/invoices') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpInvoices') ?></span>
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                    <span><?= lang('UI.cpInvoices') ?></span>
                                 </a>
                             </li>
                             <li>
                                 <a href="<?= base_url('controlplane/plan-requests') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-inbox w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpRequests') ?></span>
+                                    <i class="fas fa-inbox"></i>
+                                    <span><?= lang('UI.cpRequests') ?></span>
                                 </a>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Governance -->
-                    <div class="p-4">
-                        <div class="px-2 pt-5 pb-1">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">MONITOR</p>
-                        </div>
-                        <div class="flex items-center space-x-2 mb-4 mt-3">
-                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
-                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpGovernance') ?></h3>
-                        </div>
-                        <ul class="space-y-1">
+                    <div class="mb-2">
+                        <p class="cp-section-label"><?= lang('UI.cpGovernance') ?></p>
+                        <ul class="space-y-0.5">
                             <li>
                                 <a href="<?= base_url('controlplane/operations') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-cogs w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpOperations') ?></span>
+                                    <i class="fas fa-cogs"></i>
+                                    <span><?= lang('UI.cpOperations') ?></span>
                                 </a>
                             </li>
                             <li>
                                 <a href="<?= base_url('controlplane/whatsapp') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fab fa-whatsapp w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpWhatsAppOps') ?></span>
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span><?= lang('UI.cpWhatsAppOps') ?></span>
                                 </a>
                             </li>
                             <li>
                                 <a href="<?= base_url('controlplane/activity-log') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'page' : 'false' ?>">
-                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-history w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpSystemActivity') ?></span>
+                                    <i class="fas fa-history"></i>
+                                    <span><?= lang('UI.cpSystemActivity') ?></span>
                                 </a>
                             </li>
                         </ul>
                     </div>
 
                     <!-- System -->
-                    <div class="p-4">
-                        <div class="px-2 pt-5 pb-1">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CONFIGURE</p>
-                        </div>
-                        <div class="flex items-center space-x-2 mb-4 mt-3">
-                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
-                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">System</h3>
-                        </div>
-                    <ul class="space-y-1">
-                        <li>
-                            <a href="<?= base_url('controlplane/settings') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'page' : 'false' ?>">
-                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
-                                <span class="relative z-10"><?= lang('UI.cpSettings') ?></span>
-                            </a>
-                        </li>
-                        <?php if (has_role('super_admin')): ?>
-                        <li>
-                            <a href="<?= base_url('controlplane/roles') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'page' : 'false' ?>">
-                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <i class="fas fa-user-shield w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
-                                <span class="relative z-10">System Roles</span>
-                            </a>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
+                    <div class="mb-2">
+                        <p class="cp-section-label"><?= esc(lang('V3Platform.configure')) ?></p>
+                        <ul class="space-y-0.5">
+                            <li>
+                                <a href="<?= base_url('controlplane/settings') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'page' : 'false' ?>">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <span><?= lang('UI.cpSettings') ?></span>
+                                </a>
+                            </li>
+                            <?php if (has_role('super_admin')): ?>
+                            <li>
+                                <a href="<?= base_url('controlplane/roles') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'page' : 'false' ?>">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span><?= esc(lang('V3Platform.systemRoles')) ?></span>
+                                </a>
+                            </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </nav>
 
                 <!-- Sidebar Footer -->
-                <div class="p-4 border-t border-white/30 v3-surface">
-                    <div class="group relative cursor-pointer hover:bg-white/60 rounded-xl p-3 transition-all duration-200 border border-transparent hover:border-white/50" onclick="toggleUserMenu()">
-                        <div class="flex items-center space-x-3 relative z-10">
-                            <div class="relative">
-                                <div class="v3-surface-heading absolute inset-0 rounded-lg opacity-40 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <div class="v3-icon relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200">
-                                    <span class="text-xs font-bold text-white"><?= esc(ui_badge_text($userEmail ?? '', 2, 'SA')) ?></span>
-                                </div>
+                <div class="p-3 border-t border-white/10" id="sidebar-footer">
+                    <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
+                    <div class="cursor-pointer hover:bg-white/5 rounded-md p-2 transition flex items-center justify-between" onclick="toggleUserMenu()">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-7 h-7 rounded bg-[#0F6B63] flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0">
+                                <?= esc(ui_badge_text($userEmail ?? '', 2, 'SA')) ?>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold text-slate-900 truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
-                                <div class="flex items-center space-x-1.5">
-                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"><?= lang('UI.cpGlobalAdmin') ?></div>
-                                </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-bold text-white truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
+                                <div class="text-[10px] text-[#A2B5AB] font-medium truncate"><?= lang('UI.cpGlobalAdmin') ?></div>
                             </div>
-                            <i class="fas fa-chevron-up text-slate-400 text-xs group-hover:text-slate-600 transition-colors duration-200"></i>
                         </div>
+                        <i class="fas fa-chevron-up text-[#7E9388] text-[10px]"></i>
                     </div>
-                    
+
                     <!-- User Menu Dropdown -->
-                    <div id="userMenu" class="hidden absolute bottom-24 left-4 w-56 v3-surface v3-corner border border-white/50 p-2 space-y-1 transform origin-bottom-left transition-all duration-200">
-                        <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all duration-200">
-                            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                <i class="fas fa-cog text-xs text-slate-500 group-hover:text-slate-700"></i>
-                            </div>
-                            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900"><?= lang('UI.cpSettings') ?></span>
+                    <div id="userMenu" class="hidden absolute bottom-20 left-3 w-56 cp-modal-box p-1.5 space-y-0.5 shadow-xl">
+                        <a href="<?= base_url('controlplane/settings') ?>" class="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-black/5 text-xs font-semibold text-slate-800">
+                            <i class="fas fa-cog text-slate-500 w-4"></i>
+                            <span><?= lang('UI.cpSettings') ?></span>
                         </a>
-                        <div class="h-px bg-slate-100 my-1"></div>
+                        <div class="h-px bg-slate-300 my-1"></div>
                         <form action="<?= base_url('controlplane/exit') ?>" method="post">
                             <?= csrf_field() ?>
-                            <button class="w-full group flex items-center px-3 py-2.5 rounded-xl hover:bg-rose-50 transition-all duration-200 text-left">
-                                <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                    <i class="fas fa-sign-out-alt text-xs text-rose-500 group-hover:text-rose-600"></i>
-                                </div>
-                                <span class="text-sm font-medium text-rose-600 group-hover:text-rose-700"><?= lang('UI.cpExitControlPlane') ?></span>
+                            <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-rose-50 text-xs font-semibold text-rose-700 text-left">
+                                <i class="fas fa-sign-out-alt text-rose-600 w-4"></i>
+                                <span><?= lang('UI.cpExitControlPlane') ?></span>
                             </button>
                         </form>
                     </div>
@@ -261,32 +224,39 @@
         <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden" onclick="closeCpSidebar()"></div>
 
         <div class="flex-1 flex flex-col min-h-screen min-w-0">
-            <header class="sticky top-0 z-30 v3-surface border-b border-white/30 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <header class="cp-top-bar">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl v3-surface border border-white/60 text-slate-600" onclick="toggleSidebar()">
-                        <i class="fas fa-bars"></i>
+                    <button type="button" class="md:hidden inline-flex items-center justify-center h-8 w-8 rounded-md bg-[var(--denta-parchment)] border border-[var(--denta-taupe-border)] text-[var(--denta-ink)]" onclick="toggleSidebar()">
+                        <i class="fas fa-bars text-sm"></i>
                     </button>
                     <div class="min-w-0">
-                    <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold"><?= lang('UI.cpControlPlane') ?></p>
-                    <h1 class="text-lg sm:text-xl font-bold text-gray-900 truncate"><?= esc($title ?? lang('UI.menuDashboard')) ?></h1>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--denta-muted)]"><?= lang('UI.cpControlPlane') ?></span>
+                            <span class="text-[var(--denta-taupe-border)]">/</span>
+                            <h1 class="text-sm font-extrabold text-[var(--denta-ink)] truncate m-0"><?= esc($cpDisplayTitle) ?></h1>
+                        </div>
                     </div>
                 </div>
                 <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
-                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <button type="button" id="cp-command-trigger" class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl v3-surface border border-white/60 text-slate-600 text-xs font-semibold hover:bg-white transition">
-                        <i class="fas fa-magnifying-glass text-indigo-500"></i>
-                        <?= lang('UI.cpSearchPlaceholder') ?>
-                        <span class="ml-1 rounded-lg border border-slate-200 v3-surface px-2 py-0.5 text-[10px] font-semibold text-slate-500">Cmd+K</span>
+                <div class="flex items-center gap-2.5">
+                    <button type="button" id="cp-command-trigger" class="cp-top-search hidden md:inline-flex" title="<?= esc(lang('V3Platform.searchOrJumpToCtrlK'), 'attr') ?>">
+                        <i class="fas fa-magnifying-glass text-[var(--denta-emerald-pine)]"></i>
+                        <span><?= lang('UI.cpSearchPlaceholder') ?></span>
+                        <span class="cp-kbd">Ctrl+K</span>
                     </button>
-                    <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full"><?= lang('UI.cpGlobalAdmin') ?></span>
-                    <div class="hidden sm:flex items-center gap-2 text-sm text-gray-600">
-                        <i class="fas fa-user-circle text-lg"></i>
-                        <span><?= esc($userEmail) ?></span>
+                    <span class="cp-badge cp-badge-teal hidden sm:inline-flex">
+                        <i class="fas fa-globe text-[10px]"></i>
+                        <?= lang('UI.cpGlobalAdmin') ?>
+                    </span>
+                    <div class="hidden lg:flex items-center gap-2 text-xs font-bold text-[var(--denta-ink)] px-2">
+                        <i class="fas fa-user-circle text-sm text-[var(--denta-muted)]"></i>
+                        <span class="truncate max-w-[150px]"><?= esc($userEmail) ?></span>
                     </div>
-                    <form action="<?= base_url('controlplane/exit') ?>" method="post">
+                    <form action="<?= base_url('controlplane/exit') ?>" method="post" class="m-0">
                         <?= csrf_field() ?>
-                        <button class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
-                            <?= lang('UI.cpExitControlPlane') ?>
+                        <button type="submit" class="cp-btn cp-btn-primary cp-btn-sm" title="<?= lang('UI.cpExitControlPlane') ?>">
+                            <i class="fas fa-arrow-right-from-bracket"></i>
+                            <span class="hidden sm:inline"><?= lang('UI.cpExitControlPlane') ?></span>
                         </button>
                     </form>
                 </div>
@@ -314,39 +284,43 @@
         </div>
     </div>
 
-    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/40 px-4 py-10">
-        <div class="w-full max-w-2xl v3-corner border border-white/30 v3-surface">
-            <div class="flex items-center gap-3 border-b border-slate-200 px-6 py-4">
-                <div class="v3-icon flex h-10 w-10 items-center justify-center v3-corner">
-                    <i class="fas fa-terminal"></i>
+    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/50 px-4 py-10 backdrop-blur-sm">
+        <div class="w-full max-w-2xl cp-modal-box">
+            <div class="cp-modal-head">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded bg-[var(--denta-emerald-pine)] flex items-center justify-center text-white text-xs">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-[var(--denta-muted)] font-bold m-0"><?= lang('UI.cpNavigationSection') ?></p>
+                        <h3 class="text-xs font-bold text-[var(--denta-ink)] m-0"><?= lang('UI.cpSearchPlaceholder') ?></h3>
+                    </div>
                 </div>
-                <div class="flex-1">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400 font-semibold"><?= lang('UI.cpNavigationSection') ?></p>
-                    <p class="text-sm font-semibold text-slate-800"><?= lang('UI.cpSearchPlaceholder') ?></p>
-                </div>
-                <button type="button" id="cp-command-close" class="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100">
-                    <i class="fas fa-times"></i>
+                <button type="button" id="cp-command-close" class="p-1.5 text-slate-500 hover:text-slate-800 rounded">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
-            <div class="px-6 py-4">
-                <div class="flex items-center gap-3 v3-corner border border-slate-200 v3-surface px-4 py-3">
-                    <i class="fas fa-search text-indigo-500"></i>
+            <div class="p-3 bg-[var(--denta-parchment)] border-b border-[var(--denta-taupe-border)]">
+                <div class="flex items-center gap-2.5 bg-[var(--denta-ivory-input)] border border-[var(--denta-taupe-border)] rounded-md px-3 py-2">
+                    <i class="fas fa-search text-[var(--denta-emerald-pine)] text-sm"></i>
                     <input id="cp-command-input" type="text" placeholder="<?= esc(lang('UI.cpSearchPlaceholder')) ?>"
-                           class="w-full bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:outline-none">
-                    <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-500">Esc</span>
+                           class="w-full bg-transparent text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none border-none p-0">
+                    <span class="cp-kbd">Esc</span>
                 </div>
             </div>
-            <div class="px-4 pb-6">
-                <div id="cp-command-status" class="px-2 pb-2 text-xs text-slate-500"></div>
-                <div id="cp-command-results" class="space-y-3"></div>
+            <div class="p-3 max-h-96 overflow-y-auto">
+                <div id="cp-command-status" class="px-2 pb-2 text-xs text-slate-500 font-medium"></div>
+                <div id="cp-command-results" class="space-y-2"></div>
             </div>
-            <div class="flex flex-wrap items-center gap-2 border-t border-slate-200 v3-surface px-6 py-3 text-[11px] font-semibold text-slate-500">
-                <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">↑ ↓</span>
-                <span><?= lang('UI.cpNavigate') ?></span>
-                <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">Enter</span>
-                <span><?= lang('UI.cpOpen') ?></span>
-                <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">Esc</span>
-                <span><?= lang('UI.cpClose') ?></span>
+            <div class="cp-modal-foot justify-between text-[11px] font-semibold text-[var(--denta-muted)]">
+                <div class="flex items-center gap-2">
+                    <span class="cp-kbd">↑ ↓</span>
+                    <span><?= lang('UI.cpNavigate') ?></span>
+                    <span class="cp-kbd ml-2">Enter</span>
+                    <span><?= lang('UI.cpOpen') ?></span>
+                    <span class="cp-kbd ml-2">Esc</span>
+                    <span><?= lang('UI.cpClose') ?></span>
+                </div>
             </div>
         </div>
     </div>

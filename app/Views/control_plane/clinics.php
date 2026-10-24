@@ -3,254 +3,193 @@
 <?= $this->section('content') ?>
 <?php $disableDataTables = false; ?>
 
-<style>
-/* Keep existing styles */
-.dataTables_wrapper { position: relative !important; }
-/* ... (Keep existing DataTables overrides) ... */
-#clinicsTable tbody tr td { border-bottom: 1px solid rgba(226, 232, 240, 0.6); }
-/* Reset DataTables Button Styles */
-button.dt-button {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    margin-inline-end: 0.5rem !important;
-}
-button.dt-button:hover, button.dt-button:active {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-/* Manual Tailwind Fallbacks */
-.bg-rose-50 { background-color: #fff1f2 !important; }
-.text-rose-600 { color: #e11d48 !important; }
-.bg-slate-100 { background-color: #f1f5f9 !important; }
-.text-slate-600 { color: #475569 !important; }
-.bg-emerald-50 { background-color: #ecfdf5 !important; }
-.text-emerald-600 { color: #059669 !important; }
-/* Hide default buttons */
-.dt-buttons { display: none !important; }
-body.cp-clinics-page {
-    background: #ffffff !important;
-}
-body.cp-clinics-page main {
-    background: #ffffff !important;
-}
-body.cp-clinics-page main > .pointer-events-none.absolute.inset-0 {
-    display: none !important;
-}
-body.cp-clinics-page .cp-content {
-    background: #ffffff !important;
-}
-.cp-clinics {
-    background: #ffffff;
-}
-.cp-clinics .cp-clinics-title {
-    color: rgba(255, 255, 255, 0.96) !important;
-}
-#clinicsTable.dataTable {
-    margin: 0 !important;
-    border-collapse: separate !important;
-    border-spacing: 0;
-}
-#clinicsTable.dataTable thead th {
-    padding: 0.85rem 1rem !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-}
-#clinicsTable.dataTable tbody td {
-    padding: 0.7rem 1rem !important;
-    vertical-align: middle;
-}
-#clinicsTable.dataTable tbody tr:hover {
-    background: #f8fafc;
-}
-#clinicsTable_wrapper .dataTables_info {
-    padding: 0.85rem 1rem 1rem !important;
-    color: #64748b !important;
-    font-weight: 600;
-}
-#clinicsTable_wrapper .dataTables_paginate {
-    padding: 0.65rem 1rem 1rem !important;
-}
-#clinicsTable_wrapper .dataTables_paginate .paginate_button {
-    border-radius: 0.75rem !important;
-    border: 1px solid #e2e8f0 !important;
-    margin-inline-start: 0.25rem !important;
-    padding: 0.4rem 0.75rem !important;
-    font-weight: 700;
-}
-</style>
-<script>
-document.body.classList.add('cp-clinics-page');
-</script>
-
 <div class="cp-clinics">
-    <div class="w-full space-y-3 px-2 py-3 sm:px-4 lg:px-5">
-        <section class="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
-            <div class="bg-gradient-to-r from-slate-950 via-emerald-800 to-teal-700 px-5 py-4 text-white sm:px-6">
-                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <div class="flex min-w-0 items-center gap-4">
-                        <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20">
-                            <i class="fas fa-hospital-user text-xl"></i>
-                        </span>
-                        <div class="min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <h1 class="cp-clinics-title text-2xl font-black tracking-tight sm:text-3xl">Clinic Registry</h1>
-                                <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-emerald-200/25">Global Mode</span>
-                            </div>
-                            <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-emerald-50/90">Manage tenant clinics, lifecycle status, plan assignment, admin access, and operator actions.</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 sm:min-w-[24rem]">
-                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
-                            <p class="text-[11px] font-bold text-emerald-100">Total</p>
-                            <p class="text-2xl font-black text-white"><?= number_format($stats['total'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
-                            <p class="text-[11px] font-bold text-emerald-100">Active</p>
-                            <p class="text-2xl font-black text-white"><?= number_format($stats['active'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
-                            <p class="text-[11px] font-bold text-emerald-100">View</p>
-                            <p class="text-2xl font-black text-white"><?= number_format($stats['filtered'] ?? 0) ?></p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-emerald-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-50">
-                            <i class="fas fa-plus"></i>
-                            <span>Onboard Clinic</span>
-                        </a>
-                        <a href="<?= base_url('controlplane/plans') ?>" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white/15 px-4 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
-                            <i class="fas fa-layer-group"></i>
-                            <span>Plans</span>
-                        </a>
-                    </div>
-                </div>
+    <!-- Command Header / Platform Stamp -->
+    <div class="cp-command-bar">
+        <div class="cp-command-bar-info">
+            <div class="cp-command-bar-icon">
+                <i class="fas fa-hospital-user"></i>
             </div>
-
-            <div class="border-b border-slate-200 bg-slate-50/80 p-3 sm:p-4">
-                <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,1fr)_12rem_14rem_auto]">
-                        <div class="relative">
-                            <i class="fas fa-search pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ltr:left-3 rtl:right-3"></i>
-                            <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="Search clinics or admin email" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 ltr:pl-10 rtl:pr-10">
-                        </div>
-                        <select id="clinicStatus" class="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
-                            <option value="">All statuses</option>
-                            <option value="active" <?= ($filters['status'] ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
-                            <option value="suspended" <?= ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' ?>>Suspended</option>
-                            <option value="inactive" <?= ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-                        </select>
-                        <select id="clinicPlan" class="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
-                            <option value="0">All plans</option>
-                            <?php foreach (($plans ?? []) as $plan): ?>
-                                <option value="<?= (int) ($plan['id'] ?? 0) ?>" <?= (int) ($filters['plan_id'] ?? 0) === (int) ($plan['id'] ?? 0) ? 'selected' : '' ?>><?= esc($plan['name'] ?? 'Plan') ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="flex gap-2">
-                            <button id="resetClinicFilters" type="button" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-200">
-                                <i class="fas fa-times me-2"></i>Clear
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap justify-start gap-2 xl:justify-end">
-                        <button onclick="exportToPDF()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-rose-50 hover:text-rose-700">
-                            <i class="fas fa-file-pdf text-rose-600"></i>PDF
-                        </button>
-                        <button onclick="printTable()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50">
-                            <i class="fas fa-print text-slate-600"></i>Print
-                        </button>
-                        <button onclick="exportToCSV()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-emerald-50 hover:text-emerald-700">
-                            <i class="fas fa-file-csv text-emerald-600"></i>CSV
-                        </button>
-                    </div>
-                </div>
+            <div>
+                <h1 class="cp-command-bar-title">
+                    <span><?= esc(lang('V3Platform.tenantClinicRegistry')) ?></span>
+                    <span class="cp-badge cp-badge-teal">
+                        <i class="fas fa-globe text-[10px]"></i> <?= esc(lang('V3Platform.globalMode')) ?>
+                    </span>
+                </h1>
+                <p class="cp-command-bar-sub"><?= esc(lang('V3Platform.manageTenantClinicsLifecycleStatusPlanAssignmentsAdministratorAccessAndOperatorActions')) ?></p>
             </div>
-
-            <div class="overflow-x-auto">
-                <table id="clinicsTable" class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
-                        <tr>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-hospital text-emerald-600"></i>
-                                    <span>Clinic Name</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-emerald-600"></i>
-                                    <span>Status</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-layer-group text-emerald-600"></i>
-                                    <span>Plan</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-user-shield text-emerald-600"></i>
-                                    <span>Admin Email</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-dollar-sign text-emerald-600"></i>
-                                    <span>MRR</span>
-                                </div>
-                            </th>
-                            <th class="text-end text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center justify-end gap-2">
-                                    <i class="fas fa-cogs text-emerald-600"></i>
-                                    <span>Actions</span>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                </table>
-            </div>
-        </section>
+        </div>
+        <div class="cp-command-bar-actions">
+            <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="cp-btn cp-btn-primary">
+                <i class="fas fa-plus"></i>
+                <span><?= esc(lang('V3Platform.onboardClinic')) ?></span>
+            </a>
+            <a href="<?= base_url('controlplane/plans') ?>" class="cp-btn cp-btn-light">
+                <i class="fas fa-layer-group"></i>
+                <span><?= esc(lang('V3Platform.managePlans')) ?></span>
+            </a>
+        </div>
     </div>
+
+    <!-- Quick Registry KPI Strip -->
+    <div class="cp-kpi-grid cols-3 mb-3.5">
+        <div class="cp-kpi mint">
+            <div class="cp-kpi-label">
+                <i class="fas fa-hospital"></i>
+                <span><?= esc(lang('V3Platform.totalClinics')) ?></span>
+            </div>
+            <div class="cp-kpi-value"><?= number_format($stats['total'] ?? 0) ?></div>
+            <div class="cp-kpi-foot"><?= esc(lang('V3Platform.allRegisteredTenantClinics')) ?></div>
+        </div>
+        <div class="cp-kpi emerald">
+            <div class="cp-kpi-label">
+                <i class="fas fa-check-circle"></i>
+                <span><?= esc(lang('V3Platform.activeClinics')) ?></span>
+            </div>
+            <div class="cp-kpi-value"><?= number_format($stats['active'] ?? 0) ?></div>
+            <div class="cp-kpi-foot"><?= esc(lang('V3Platform.currentlyOperatingNormally')) ?></div>
+        </div>
+        <div class="cp-kpi softteal">
+            <div class="cp-kpi-label">
+                <i class="fas fa-filter"></i>
+                <span><?= esc(lang('V3Platform.filteredResults')) ?></span>
+            </div>
+            <div class="cp-kpi-value"><?= number_format($stats['filtered'] ?? 0) ?></div>
+            <div class="cp-kpi-foot"><?= esc(lang('V3Platform.matchingCurrentViewCriteria')) ?></div>
+        </div>
+    </div>
+
+    <!-- Tenant Zebra Registry Table -->
+    <div class="cp-table-wrap">
+        <!-- Table Filter Tools Bar -->
+        <div class="cp-table-tools">
+            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                <div class="relative min-w-[220px] flex-1 max-w-sm">
+                    <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--denta-muted)] text-xs"></i>
+                    <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="<?= esc(lang('V3Platform.searchClinicsOrAdminEmail'), 'attr') ?>"
+                           class="cp-input w-full pl-8 text-xs">
+                </div>
+                <select id="clinicStatus" class="cp-select text-xs">
+                    <option value=""><?= esc(lang('V3Platform.allStatuses')) ?></option>
+                    <option value="active" <?= ($filters['status'] ?? '') === 'active' ? 'selected' : '' ?>><?= esc(lang('V3Platform.active')) ?></option>
+                    <option value="suspended" <?= ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' ?>><?= esc(lang('V3Platform.suspended')) ?></option>
+                    <option value="inactive" <?= ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' ?>><?= esc(lang('V3Platform.inactive')) ?></option>
+                </select>
+                <select id="clinicPlan" class="cp-select text-xs">
+                    <option value="0"><?= esc(lang('V3Platform.allPlans')) ?></option>
+                    <?php foreach (($plans ?? []) as $plan): ?>
+                        <option value="<?= (int) ($plan['id'] ?? 0) ?>" <?= (int) ($filters['plan_id'] ?? 0) === (int) ($plan['id'] ?? 0) ? 'selected' : '' ?>><?= esc($plan['name'] ?? 'Plan') ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button id="resetClinicFilters" type="button" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.clearFilters'), 'attr') ?>">
+                    <i class="fas fa-times"></i>
+                    <span><?= esc(lang('V3Platform.clear')) ?></span>
+                </button>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button onclick="exportToPDF()" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.exportPdf'), 'attr') ?>">
+                    <i class="fas fa-file-pdf text-[#9E2A2B]"></i>
+                    <span>PDF</span>
+                </button>
+                <button onclick="printTable()" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.printRegistry'), 'attr') ?>">
+                    <i class="fas fa-print"></i>
+                    <span><?= esc(lang('V3Platform.print')) ?></span>
+                </button>
+                <button onclick="exportToCSV()" class="cp-btn cp-btn-light cp-btn-sm" title="<?= esc(lang('V3Platform.exportCsv'), 'attr') ?>">
+                    <i class="fas fa-file-csv text-[var(--denta-emerald-pine)]"></i>
+                    <span>CSV</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- DataTable Container -->
+        <div class="overflow-x-auto">
+            <table id="clinicsTable" class="cp-table dataTable">
+                <thead>
+                    <tr>
+                        <th>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-hospital text-[var(--denta-emerald-pine)]"></i>
+                                <span><?= esc(lang('V3Platform.clinicName')) ?></span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-info-circle text-[var(--denta-emerald-pine)]"></i>
+                                <span><?= esc(lang('V3Platform.status')) ?></span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-layer-group text-[var(--denta-emerald-pine)]"></i>
+                                <span><?= esc(lang('V3Platform.plan')) ?></span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-user-shield text-[var(--denta-emerald-pine)]"></i>
+                                <span><?= esc(lang('V3Platform.adminEmail')) ?></span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-dollar-sign text-[var(--denta-emerald-pine)]"></i>
+                                <span><?= esc(lang('V3Platform.mrr')) ?></span>
+                            </div>
+                        </th>
+                        <th class="text-end">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <i class="fas fa-cogs text-[var(--denta-emerald-pine)]"></i>
+                                <span><?= esc(lang('V3Platform.actions')) ?></span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="mt-2 text-xs text-[var(--denta-muted)] font-medium" role="note"><?= esc(lang('IonAuth.clinic_delete_history_protected')) ?></p>
 </div>
 
-<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4">
-    <div class="w-full max-w-lg rounded-3xl border border-rose-100 bg-white/95 shadow-2xl backdrop-blur-xl">
-        <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4">
+<!-- Terminate Clinic Modal -->
+<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-lg cp-modal-box">
+        <div class="cp-modal-head bg-[var(--denta-tint-alert)] border-b border-[#EABCB8]">
             <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-rose-400 font-semibold">Danger Zone</p>
-                <h3 class="text-lg font-semibold text-slate-900">Terminate clinic</h3>
+                <p class="text-[10px] uppercase tracking-wider text-[#8C2224] font-bold m-0"><?= esc(lang('V3Platform.dangerZone')) ?></p>
+                <h3 class="text-sm font-bold text-[#8C2224] m-0"><?= esc(lang('V3Platform.terminateClinicTenant')) ?></h3>
             </div>
-            <button type="button" class="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" onclick="closeTerminateModal()">
-                <i class="fas fa-times"></i>
+            <button type="button" class="p-1.5 text-slate-500 hover:text-slate-800 rounded" onclick="closeTerminateModal()">
+                <i class="fas fa-times text-sm"></i>
             </button>
         </div>
-        <div class="px-6 py-4 space-y-4 text-sm text-slate-600">
+        <div class="cp-modal-body space-y-3 text-xs text-slate-700">
             <p>
-                This will immediately disable access and cancel subscriptions for
-                <span id="terminateClinicName" class="font-semibold text-slate-900">this clinic</span>.
-                Type the clinic name to confirm.
+                <?= esc(lang('V3Platform.thisWillImmediatelyDisableAccessAndCancelSubscriptionsFor')) ?>
+                <span id="terminateClinicName" class="font-bold text-slate-900"><?= esc(lang('V3Platform.thisClinic')) ?></span>.
+                Type the clinic name below to confirm termination.
             </p>
-            <input type="text" id="terminateConfirmInput" class="w-full rounded-xl border border-rose-200 px-3 py-2 text-sm"
-                   placeholder="Type clinic name to confirm" oninput="updateTerminateState()">
+            <input type="text" id="terminateConfirmInput" class="cp-input w-full"
+                   placeholder="<?= esc(lang('V3Platform.typeClinicNameToConfirm'), 'attr') ?>" oninput="updateTerminateState()">
         </div>
-        <form id="terminateForm" method="post" class="px-6 pb-6 flex items-center justify-end gap-3">
+        <form id="terminateForm" method="post" class="cp-modal-foot">
             <?= csrf_field() ?>
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeTerminateModal()">
-                Cancel
+            <button type="button" class="cp-btn cp-btn-light cp-btn-sm" onclick="closeTerminateModal()">
+                <?= esc(lang('V3Platform.cancel')) ?>
             </button>
-            <button id="terminateConfirmButton" type="submit" class="px-6 py-2 rounded-xl text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
-                <span>Confirm Termination</span>
+            <button id="terminateConfirmButton" type="submit" class="cp-btn cp-btn-danger cp-btn-sm" disabled>
+                <span><?= esc(lang('V3Platform.confirmTermination')) ?></span>
             </button>
         </form>
     </div>
 </div>
 
-<p class="mb-4 text-sm text-slate-600" role="note"><?= esc(lang('IonAuth.clinic_delete_history_protected')) ?></p>
+<script>
+document.body.classList.add('cp-clinics-page');
+</script>
 
 <script>
 let clinicsTable;
@@ -480,7 +419,7 @@ $(document).ready(function() {
                         'suspended': 'fas fa-pause-circle',
                         'inactive': 'fas fa-times-circle'
                     };
-                    
+
                     const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[status] || 'fas fa-question-circle';
                     const label = status.charAt(0).toUpperCase() + status.slice(1);
@@ -708,7 +647,7 @@ function toggleClinicStatus(clinicId, action) {
         alert('An error occurred.');
     })
     .finally(() => {
-        refreshCsrfToken(); 
+        refreshCsrfToken();
     });
 }
 
@@ -744,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const actionUrl = terminateForm.action;
             const formData = new FormData(terminateForm);
-            
+
             fetch(actionUrl, {
                 method: 'POST',
                 body: formData,
@@ -788,7 +727,7 @@ function openTerminateModal(clinicId, clinicNameEncoded) {
     if (nameEl) nameEl.textContent = decodedName;
     if (formEl) formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/terminate`;
     if (inputEl) inputEl.value = '';
-    
+
     updateTerminateState();
     if (modal) {
         modal.classList.remove('hidden');
@@ -808,7 +747,7 @@ function updateTerminateState() {
     const inputEl = document.getElementById('terminateConfirmInput');
     const buttonEl = document.getElementById('terminateConfirmButton');
     if (!inputEl || !buttonEl) return;
-    
+
     const matches = inputEl.value.trim().toLowerCase() === terminateClinicName.trim().toLowerCase();
     buttonEl.disabled = !matches;
     if (matches) {

@@ -11,23 +11,23 @@
         <input type="hidden" name="default_appointment_duration" value="<?= esc((int) ($settings['default_appointment_duration'] ?? 30)) ?>">
         <input type="hidden" name="default_booking_chair_max" value="<?= esc((int) ($settings['default_booking_chair_max'] ?? 3)) ?>">
 
-        <div id="section-clinic-defaults-system" data-section-title="System Preferences" class="control-settings-card">
+        <div id="section-clinic-defaults-system" data-section-title="<?= esc(lang('V3Platform.systemPreferences'), 'attr') ?>" class="control-settings-card">
             <div class="control-settings-header">
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                        <i class="fas fa-cog text-blue-400 text-xl"></i>
+                    <div class="w-12 h-12 cp-surface cp-radius flex items-center justify-center">
+                        <i class="fas fa-cog cp-accent text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-white">System Preferences</h3>
-                        <p class="text-slate-300 text-sm">Defaults applied when a new clinic is onboarded</p>
+                        <h3 class="text-xl font-bold text-white"><?= esc(lang('V3Platform.systemPreferences')) ?></h3>
+                        <p class="text-slate-300 text-sm"><?= esc(lang('V3Platform.defaultsAppliedWhenANewClinicIsOnboarded')) ?></p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="cp-panel-padding">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Timezone</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.timezone')) ?></label>
                         <select name="default_timezone" class="control-settings-field" required>
                             <?php $defaultTimezone = $settings['default_timezone'] ?? 'Asia/Jerusalem'; ?>
                             <option value="UTC" <?= $defaultTimezone === 'UTC' ? 'selected' : '' ?>>UTC</option>
@@ -92,29 +92,29 @@
                             <option value="Africa/Lagos" <?= $defaultTimezone === 'Africa/Lagos' ? 'selected' : '' ?>>Lagos (WAT)</option>
                             <option value="Africa/Casablanca" <?= $defaultTimezone === 'Africa/Casablanca' ? 'selected' : '' ?>>Casablanca (WET)</option>
                         </select>
-                        <p class="text-xs text-slate-400 mt-1">Applied to all new clinics at onboarding. Existing clinics are unaffected.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.appliedToAllNewClinicsAtOnboardingExistingClinicsAreUnaffected')) ?></p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date Format</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.dateFormat')) ?></label>
                         <?php $defaultDateFormat = $settings['default_date_format'] ?? 'd/m/Y'; ?>
                         <select name="default_date_format" class="control-settings-field" required>
                             <option value="Y-m-d" <?= $defaultDateFormat === 'Y-m-d' ? 'selected' : '' ?>>YYYY-MM-DD</option>
                             <option value="m/d/Y" <?= $defaultDateFormat === 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option>
                             <option value="d/m/Y" <?= $defaultDateFormat === 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option>
                         </select>
-                        <p class="text-xs text-slate-400 mt-1">Controls how dates appear in patient lists, invoices, and reminders.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.controlsHowDatesAppearInPatientListsInvoicesAndReminders')) ?></p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Time Format</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.timeFormat')) ?></label>
                         <?php $defaultTimeFormat = (string) ($settings['default_time_format'] ?? '12'); ?>
                         <select name="default_time_format" class="control-settings-field" required>
-                            <option value="24" <?= $defaultTimeFormat === '24' ? 'selected' : '' ?>>24 Hour</option>
-                            <option value="12" <?= $defaultTimeFormat === '12' ? 'selected' : '' ?>>12 Hour</option>
+                            <option value="24" <?= $defaultTimeFormat === '24' ? 'selected' : '' ?>><?= esc(lang('V3Platform.label24Hour')) ?></option>
+                            <option value="12" <?= $defaultTimeFormat === '12' ? 'selected' : '' ?>><?= esc(lang('V3Platform.label12Hour')) ?></option>
                         </select>
-                        <p class="text-xs text-slate-400 mt-1">12-hour (AM/PM) or 24-hour display across all clinic interfaces.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.label12HourAmPmOr24HourDisplayAcrossAllClinicInterfaces')) ?></p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Currency</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.currency')) ?></label>
                         <?php $defaultCurrency = $settings['default_currency'] ?? 'ILS'; ?>
                         <select name="default_currency" class="control-settings-field" required>
                             <option value="ILS" <?= $defaultCurrency == 'ILS' ? 'selected' : '' ?>>ILS - Israeli Shekel (ILS)</option>
@@ -123,21 +123,21 @@
                             <option value="EUR" <?= $defaultCurrency == 'EUR' ? 'selected' : '' ?>>EUR - Euro (EUR)</option>
                             <option value="GBP" <?= $defaultCurrency == 'GBP' ? 'selected' : '' ?>>GBP - British Pound (GBP)</option>
                         </select>
-                        <p class="text-xs text-slate-400 mt-1">Currency used on invoices and financial reports for new clinics.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.currencyUsedOnInvoicesAndFinancialReportsForNewClinics')) ?></p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Currency Position</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.currencyPosition')) ?></label>
                         <?php $defaultCurrencyPosition = $settings['default_currency_position'] ?? 'after'; ?>
                         <select name="default_currency_position" class="control-settings-field" required>
-                            <option value="before" <?= $defaultCurrencyPosition === 'before' ? 'selected' : '' ?>>Before Amount (e.g., $100)</option>
-                            <option value="after" <?= $defaultCurrencyPosition === 'after' ? 'selected' : '' ?>>After Amount (e.g., 100$)</option>
+                            <option value="before" <?= $defaultCurrencyPosition === 'before' ? 'selected' : '' ?>><?= esc(lang('V3Platform.beforeAmountEG100')) ?></option>
+                            <option value="after" <?= $defaultCurrencyPosition === 'after' ? 'selected' : '' ?>><?= esc(lang('V3Platform.afterAmountEG100')) ?></option>
                         </select>
-                        <p class="text-xs text-slate-400 mt-1">Whether the symbol appears before or after the amount (for example, $120 vs 120 ILS).</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.whetherTheSymbolAppearsBeforeOrAfterTheAmountForExample120Vs120Ils')) ?></p>
                     </div>
                 </div>
                 <div class="mt-8 flex justify-end">
                     <button type="submit" class="control-settings-submit">
-                        <i class="fas fa-save mr-2"></i>Save System Preferences
+                        <i class="fas fa-save mr-2"></i><?= esc(lang('V3Platform.saveSystemPreferences')) ?>
                     </button>
                 </div>
             </div>
@@ -155,34 +155,34 @@
         <input type="hidden" name="default_currency" value="<?= esc($settings['default_currency'] ?? 'ILS') ?>">
         <input type="hidden" name="default_currency_position" value="<?= esc($settings['default_currency_position'] ?? 'after') ?>">
 
-        <div id="section-clinic-defaults-hours" data-section-title="Working Hours" class="control-settings-card">
+        <div id="section-clinic-defaults-hours" data-section-title="<?= esc(lang('V3Platform.workingHours'), 'attr') ?>" class="control-settings-card">
             <div class="control-settings-header">
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                        <i class="fas fa-clock text-blue-400 text-xl"></i>
+                    <div class="w-12 h-12 cp-surface cp-radius flex items-center justify-center">
+                        <i class="fas fa-clock cp-accent text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-white">Working Hours</h3>
-                        <p class="text-slate-300 text-sm">Set default operating hours and working days</p>
+                        <h3 class="text-xl font-bold text-white"><?= esc(lang('V3Platform.workingHours')) ?></h3>
+                        <p class="text-slate-300 text-sm"><?= esc(lang('V3Platform.setDefaultOperatingHoursAndWorkingDays')) ?></p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="cp-panel-padding">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Start Time</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.startTime')) ?></label>
                         <input type="time" name="default_working_hours_start" data-clinic-time="1" value="<?= esc($settings['default_working_hours_start'] ?? '09:00') ?>" class="control-settings-field" required>
-                        <p class="text-xs text-slate-400 mt-1">Default calendar open/close times applied to new clinics.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.defaultCalendarOpenCloseTimesAppliedToNewClinics')) ?></p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">End Time</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.endTime')) ?></label>
                         <input type="time" name="default_working_hours_end" data-clinic-time="1" value="<?= esc($settings['default_working_hours_end'] ?? '17:00') ?>" class="control-settings-field" required>
-                        <p class="text-xs text-slate-400 mt-1">Default calendar open/close times applied to new clinics.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.defaultCalendarOpenCloseTimesAppliedToNewClinics')) ?></p>
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Working Days</label>
-                        <p class="text-xs text-slate-400 mt-1 mb-3">Days the clinic is open by default. Clinics can override their own schedule.</p>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.workingDays')) ?></label>
+                        <p class="text-xs text-slate-400 mt-1 mb-3"><?= esc(lang('V3Platform.daysTheClinicIsOpenByDefaultClinicsCanOverrideTheirOwnSchedule')) ?></p>
                         <?php
                             $workingDefaults = $settings['default_working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
                             $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -190,7 +190,7 @@
                         ?>
                         <div class="grid grid-cols-7 gap-2">
                             <?php foreach ($days as $index => $day): ?>
-                                <label class="flex flex-col items-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-300 transition-all duration-200 <?= in_array($day, $workingDefaults, true) ? 'border-blue-500 bg-blue-50' : '' ?>">
+                                <label class="flex flex-col items-center p-3 border-2 cp-border cp-radius cursor-pointer hover:border-blue-300 transition-all duration-200 <?= in_array($day, $workingDefaults, true) ? 'border-blue-500 bg-blue-50' : '' ?>">
                                     <input type="checkbox" name="default_working_days[]" value="<?= esc($day) ?>" <?= in_array($day, $workingDefaults, true) ? 'checked' : '' ?> class="sr-only">
                                     <span class="text-sm font-medium text-gray-700"><?= esc($dayLabels[$index]) ?></span>
                                 </label>
@@ -198,20 +198,20 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Appointment Duration (minutes)</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.appointmentDurationMinutes')) ?></label>
                         <input type="number" name="default_appointment_duration" value="<?= esc((int) ($settings['default_appointment_duration'] ?? 30)) ?>" min="15" max="480" class="control-settings-field" required>
-                        <p class="text-xs text-slate-400 mt-1">Initial slot length for the clinic calendar in minutes. Clinics can override after onboarding.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.initialSlotLengthForTheClinicCalendarInMinutesClinicsCanOverrideAfterOnboarding')) ?></p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Clinic Max Chairs</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"><?= esc(lang('V3Platform.clinicMaxChairs')) ?></label>
                         <input type="number" name="default_booking_chair_max" value="<?= esc((int) ($settings['default_booking_chair_max'] ?? 3)) ?>" min="1" max="3" class="control-settings-field" required>
-                        <p class="text-xs text-slate-400 mt-1">Platform-level cap on concurrent appointment slots per time slot. Cannot exceed 3.</p>
+                        <p class="text-xs text-slate-400 mt-1"><?= esc(lang('V3Platform.platformLevelCapOnConcurrentAppointmentSlotsPerTimeSlotCannotExceed3')) ?></p>
                     </div>
                 </div>
 
                 <div class="mt-8 flex justify-end">
                     <button type="submit" class="control-settings-submit">
-                        <i class="fas fa-save mr-2"></i>Save Working Hours
+                        <i class="fas fa-save mr-2"></i><?= esc(lang('V3Platform.saveWorkingHours')) ?>
                     </button>
                 </div>
             </div>

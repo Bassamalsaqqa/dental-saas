@@ -50,8 +50,8 @@
         [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
         [dir="rtl"] .text-left { text-align: right !important; }
     </style>
-    <?php foreach (['warm-clinical.css', 'warm-secondary-layout.css', 'warm-secondary.css'] as $themeAsset): ?>
-        <link rel="stylesheet" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
+    <?php foreach (['warm-clinical.css', 'v3-clinical-kiosk.css'] as $themeAsset): ?>
+        <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
     <?php endforeach; ?>
 </head>
 <body class="denta-v3 denta-kiosk min-h-screen">

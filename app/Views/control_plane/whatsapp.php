@@ -45,12 +45,12 @@ $statusClass = static function (?string $status): string {
 };
 
 $tabLabels = [
-    'overview' => ['icon' => 'fa-gauge-high', 'label' => 'Overview'],
+    'overview' => ['icon' => 'fa-gauge-high', 'label' => lang('V3Platform.overview')],
     'send' => ['icon' => 'fa-paper-plane', 'label' => 'Test send'],
-    'activity' => ['icon' => 'fa-wave-square', 'label' => 'Activity'],
-    'webhooks' => ['icon' => 'fa-code-branch', 'label' => 'Webhooks'],
+    'activity' => ['icon' => 'fa-wave-square', 'label' => lang('V3Platform.activity')],
+    'webhooks' => ['icon' => 'fa-code-branch', 'label' => lang('V3Platform.webhooks')],
     'optouts' => ['icon' => 'fa-user-slash', 'label' => 'Opt-outs'],
-    'reference' => ['icon' => 'fa-book-open', 'label' => 'Reference'],
+    'reference' => ['icon' => 'fa-book-open', 'label' => lang('V3Platform.reference')],
 ];
 
 $guidanceText = static function ($item): string {
@@ -448,7 +448,7 @@ $guidanceText = static function ($item): string {
     }
 </style>
 
-<div class="wa-page-shell min-h-screen">
+<div class="v3-platform-workspace wa-page-shell min-h-screen">
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <section class="wa-card overflow-hidden rounded-[2rem]">
             <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
@@ -459,9 +459,9 @@ $guidanceText = static function ($item): string {
                                 <i class="fab fa-whatsapp"></i>
                             </span>
                             <div>
-                                <p class="text-xs font-extrabold uppercase tracking-[0.28em] text-blue-100">Control Plane</p>
-                                <h1 class="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl">WhatsApp Operations</h1>
-                                <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90">Monitor tenant messaging health, send safe tests, and inspect delivery activity.</p>
+                                <p class="text-xs font-extrabold uppercase tracking-[0.28em] cp-accent"><?= esc(lang('V3Platform.controlPlane')) ?></p>
+                                <h1 class="mt-1 cp-title font-black tracking-tight text-white sm:text-4xl"><?= esc(lang('V3Platform.whatsappOperations')) ?></h1>
+                                <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 cp-accent"><?= esc(lang('V3Platform.monitorTenantMessagingHealthSendSafeTestsAndInspectDeliveryActivity')) ?></p>
                             </div>
                         </div>
                     </div>
@@ -470,29 +470,29 @@ $guidanceText = static function ($item): string {
                         <div class="wa-hero-chip">
                             <span class="wa-hero-chip-icon"><i class="fas fa-circle-check"></i></span>
                             <span class="wa-hero-chip-text">
-                                <span class="wa-hero-chip-label">Delivery</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['attempts_24h_sentish'] ?? 0)) ?> successful</span>
+                                <span class="wa-hero-chip-label"><?= esc(lang('V3Platform.delivery')) ?></span>
+                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['attempts_24h_sentish'] ?? 0)) ?> <?= esc(lang('V3Platform.successful')) ?></span>
                             </span>
                         </div>
                         <div class="wa-hero-chip">
                             <span class="wa-hero-chip-icon"><i class="fas fa-triangle-exclamation"></i></span>
                             <span class="wa-hero-chip-text">
-                                <span class="wa-hero-chip-label">Failures</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatPercent($failureRate)) ?> rate</span>
+                                <span class="wa-hero-chip-label"><?= esc(lang('V3Platform.failures')) ?></span>
+                                <span class="wa-hero-chip-value"><?= esc($formatPercent($failureRate)) ?> <?= esc(lang('V3Platform.rate')) ?></span>
                             </span>
                         </div>
                         <div class="wa-hero-chip">
                             <span class="wa-hero-chip-icon"><i class="fas fa-list-check"></i></span>
                             <span class="wa-hero-chip-text">
-                                <span class="wa-hero-chip-label">Queue</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['attempts_24h_total'] ?? 0)) ?> attempts</span>
+                                <span class="wa-hero-chip-label"><?= esc(lang('V3Platform.queue')) ?></span>
+                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['attempts_24h_total'] ?? 0)) ?> <?= esc(lang('V3Platform.attempts')) ?></span>
                             </span>
                         </div>
                         <div class="wa-hero-chip">
                             <span class="wa-hero-chip-icon"><i class="fas fa-code-branch"></i></span>
                             <span class="wa-hero-chip-text">
-                                <span class="wa-hero-chip-label">Webhooks</span>
-                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['events_24h'] ?? 0)) ?> events</span>
+                                <span class="wa-hero-chip-label"><?= esc(lang('V3Platform.webhooks')) ?></span>
+                                <span class="wa-hero-chip-value"><?= esc($formatCount($stats['events_24h'] ?? 0)) ?> <?= esc(lang('V3Platform.events')) ?></span>
                             </span>
                         </div>
                     </div>
@@ -501,21 +501,21 @@ $guidanceText = static function ($item): string {
                 <div class="wa-hero-side-card p-4 text-white">
                     <div class="flex items-start justify-between gap-3">
                         <div>
-                            <p class="text-xs font-black uppercase tracking-[0.20em] text-emerald-100">Snapshot</p>
-                            <h2 class="mt-1 text-xl font-black">Needs attention</h2>
+                            <p class="text-xs font-black uppercase tracking-[0.20em] text-emerald-100"><?= esc(lang('V3Platform.snapshot')) ?></p>
+                            <h2 class="mt-1 text-xl font-black"><?= esc(lang('V3Platform.needsAttention')) ?></h2>
                         </div>
-                        <span class="rounded-xl bg-white/16 p-2.5 ring-1 ring-white/20">
+                        <span class="cp-radius cp-surface p-2.5 ring-1 ring-white/20">
                             <i class="fas fa-shield-halved"></i>
                         </span>
                     </div>
-                    <div class="mt-4 rounded-2xl bg-white/13 p-4 ring-1 ring-white/16">
-                        <p class="text-4xl font-black leading-none"><?= esc($formatCount(count($needsAttention))) ?></p>
-                        <p class="mt-2 text-sm font-bold text-blue-50/85">items requiring operator review</p>
+                    <div class="mt-4 cp-radius cp-surface p-4 ring-1 ring-white/16">
+                        <p class="cp-title font-black leading-none"><?= esc($formatCount(count($needsAttention))) ?></p>
+                        <p class="mt-2 text-sm font-bold cp-accent"><?= esc(lang('V3Platform.itemsRequiringOperatorReview')) ?></p>
                     </div>
                     <div class="mt-3">
-                        <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="wa-hero-action inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-extrabold transition hover:-translate-y-0.5">
+                        <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="wa-hero-action inline-flex w-full items-center justify-center gap-2 cp-radius px-4 py-3 text-sm font-extrabold transition">
                             <i class="fas fa-sliders"></i>
-                            <span>Message settings</span>
+                            <span><?= esc(lang('V3Platform.messageSettings')) ?></span>
                         </a>
                     </div>
                 </div>
@@ -523,19 +523,19 @@ $guidanceText = static function ($item): string {
         </section>
 
         <?php if (session('success')): ?>
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 shadow-sm">
+            <div class="cp-radius border border-emerald-200 cp-soft-surface px-4 py-3 text-sm font-bold text-emerald-800">
                 <i class="fas fa-check-circle me-2"></i><?= esc(session('success')) ?>
             </div>
         <?php endif; ?>
 
         <?php if (session('error')): ?>
-            <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800 shadow-sm">
+            <div class="cp-radius border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">
                 <i class="fas fa-triangle-exclamation me-2"></i><?= esc(session('error')) ?>
             </div>
         <?php endif; ?>
 
         <?php if (session('errors')): ?>
-            <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800 shadow-sm">
+            <div class="cp-radius border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">
                 <ul class="list-disc space-y-1 ps-5">
                     <?php foreach ((array) session('errors') as $error): ?>
                         <li><?= esc($error) ?></li>
@@ -545,7 +545,7 @@ $guidanceText = static function ($item): string {
         <?php endif; ?>
 
         <div class="wa-workspace-section space-y-5 p-4 sm:p-5">
-        <nav class="overflow-x-auto rounded-[1.35rem] bg-white/80 p-2 shadow-sm ring-1 ring-white/80 backdrop-blur">
+        <nav class="overflow-x-auto rounded-[1.35rem] cp-surface p-2 ring-1 ring-white/80">
             <div class="flex min-w-max gap-2">
                 <?php foreach ($tabLabels as $tabKey => $tabMeta): ?>
                     <button
@@ -580,9 +580,9 @@ $guidanceText = static function ($item): string {
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500"><?= esc($kpi['label']) ?></p>
-                                        <p class="mt-3 text-3xl font-black text-slate-950"><?= esc($formatCount($kpi['value'])) ?></p>
+                                        <p class="mt-3 cp-title font-black text-slate-950"><?= esc($formatCount($kpi['value'])) ?></p>
                                     </div>
-                                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 <?= esc($kpi['accent'], 'attr') ?> shadow-sm ring-1 ring-white">
+                                    <span class="flex h-11 w-11 items-center justify-center cp-radius cp-surface <?= esc($kpi['accent'], 'attr') ?> ring-1 ring-white">
                                         <i class="fas <?= esc($kpi['icon'], 'attr') ?>"></i>
                                     </span>
                                 </div>
@@ -591,20 +591,20 @@ $guidanceText = static function ($item): string {
                     </div>
 
                     <div class="wa-panel rounded-[1.6rem] overflow-hidden">
-                        <div class="flex flex-col gap-3 border-b border-slate-200 bg-white/85 p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex flex-col gap-3 border-b cp-border cp-surface p-5 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h2 class="text-lg font-black text-slate-950">Recent message stream</h2>
-                                <p class="text-sm font-semibold text-slate-500">Latest outbound and webhook activity across tenants.</p>
+                                <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.recentMessageStream')) ?></h2>
+                                <p class="text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.latestOutboundAndWebhookActivityAcrossTenants')) ?></p>
                             </div>
-                            <a href="#activity" onclick="showWATab('activity')" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800">
+                            <a href="#activity" onclick="showWATab('activity')" class="inline-flex items-center justify-center gap-2 cp-radius bg-slate-950 px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-slate-800">
                                 <i class="fas fa-wave-square"></i>
-                                <span>Open activity</span>
+                                <span><?= esc(lang('V3Platform.openActivity')) ?></span>
                             </a>
                         </div>
                         <?php if (empty($recentStream)): ?>
-                            <div class="p-8 text-center">
-                                <i class="fas fa-inbox text-3xl text-slate-300"></i>
-                                <p class="mt-3 text-sm font-bold text-slate-500">No recent WhatsApp activity yet.</p>
+                            <div class="cp-panel-padding text-center">
+                                <i class="fas fa-inbox cp-title text-slate-300"></i>
+                                <p class="mt-3 text-sm font-bold text-slate-500"><?= esc(lang('V3Platform.noRecentWhatsappActivityYet')) ?></p>
                             </div>
                         <?php else: ?>
                             <div class="divide-y divide-slate-100">
@@ -620,7 +620,7 @@ $guidanceText = static function ($item): string {
                                     ?>
                                     <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
                                         <div class="flex items-start gap-3">
-                                            <span class="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl <?= $type === 'attempt' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700' ?>">
+                                            <span class="mt-1 flex h-10 w-10 shrink-0 items-center justify-center cp-radius <?= $type === 'attempt' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700' ?>">
                                                 <i class="fas <?= $type === 'attempt' ? 'fa-paper-plane' : 'fa-code-branch' ?>"></i>
                                             </span>
                                             <div>
@@ -643,17 +643,17 @@ $guidanceText = static function ($item): string {
                     <div class="wa-panel wa-panel-amber rounded-[1.6rem] p-5">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <h2 class="text-lg font-black text-slate-950">Needs attention</h2>
-                                <p class="text-sm font-semibold text-slate-500">Failures, stalled queue, or integration warnings.</p>
+                                <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.needsAttention')) ?></h2>
+                                <p class="text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.failuresStalledQueueOrIntegrationWarnings')) ?></p>
                             </div>
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm">
+                            <span class="flex h-11 w-11 items-center justify-center cp-radius cp-surface text-amber-700">
                                 <i class="fas fa-bell"></i>
                             </span>
                         </div>
                         <div class="mt-4 space-y-3">
                             <?php if (empty($needsAttention)): ?>
-                                <div class="rounded-2xl bg-white/82 p-4 text-sm font-bold text-emerald-700 ring-1 ring-emerald-100">
-                                    <i class="fas fa-check-circle me-2"></i>No operational alerts right now.
+                                <div class="cp-radius cp-surface p-4 text-sm font-bold text-emerald-700 ring-1 ring-emerald-100">
+                                    <i class="fas fa-check-circle me-2"></i><?= esc(lang('V3Platform.noOperationalAlertsRightNow')) ?>
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($needsAttention as $warning): ?>
@@ -665,7 +665,7 @@ $guidanceText = static function ($item): string {
                                     $warningMessage = (string) ($warningFailure['detail'] ?? $warningFailure['title'] ?? $warning['error_message'] ?? $warning['failure_reason'] ?? '');
                                     $warningMeta = trim((string) ($warning['clinic_name'] ?? '') . ' · ' . (string) ($warningRecipient['label'] ?? ''));
                                     ?>
-                                    <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-amber-100">
+                                    <div class="cp-radius cp-surface p-4 ring-1 ring-amber-100">
                                         <p class="font-black text-slate-950"><?= esc($warningTitle) ?></p>
                                         <p class="mt-1 text-xs font-bold uppercase tracking-[0.08em] text-amber-700"><?= esc($warningMeta !== '' ? $warningMeta : 'WhatsApp send attempt') ?></p>
                                         <p class="mt-2 text-sm font-semibold text-slate-600"><?= esc($warningMessage !== '' ? $warningMessage : 'Review the latest provider response for this message.') ?></p>
@@ -676,10 +676,10 @@ $guidanceText = static function ($item): string {
                     </div>
 
                     <div class="wa-panel rounded-[1.6rem] p-5">
-                        <h2 class="text-lg font-black text-slate-950">Delivery mix</h2>
+                        <h2 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.deliveryMix')) ?></h2>
                         <div class="mt-4 space-y-3">
                             <?php if (empty($statusBreakdown)): ?>
-                                <p class="rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-500">No status breakdown available yet.</p>
+                                <p class="cp-radius cp-surface p-4 text-sm font-bold text-slate-500"><?= esc(lang('V3Platform.noStatusBreakdownAvailableYet')) ?></p>
                             <?php else: ?>
                                 <?php foreach ($statusBreakdown as $label => $count): ?>
                                     <?php
@@ -692,7 +692,7 @@ $guidanceText = static function ($item): string {
                                             <span class="text-slate-950"><?= esc($formatCount($count)) ?></span>
                                         </div>
                                         <div class="mt-2 h-2 rounded-full bg-slate-100">
-                                            <div class="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500" style="width: <?= esc((string) min(100, max(4, $count)), 'attr') ?>%"></div>
+                                            <div class="h-2 rounded-full" style="width: <?= esc((string) min(100, max(4, $count)), 'attr') ?>%"></div>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -707,22 +707,22 @@ $guidanceText = static function ($item): string {
             <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
                 <form method="post" action="<?= base_url('controlplane/whatsapp/send-test') ?>" class="wa-panel rounded-[1.7rem] p-5 lg:p-6">
                     <?= csrf_field() ?>
-                    <div class="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="flex flex-col gap-4 border-b cp-border pb-5 sm:flex-row sm:items-start sm:justify-between">
                         <div>
-                            <p class="text-xs font-black uppercase tracking-[0.22em] text-emerald-700">Safe test send</p>
-                            <h2 class="mt-1 text-2xl font-black text-slate-950">Send a controlled WhatsApp test</h2>
-                            <p class="mt-2 text-sm font-semibold text-slate-600">Use this for tenant setup checks and template verification. Production workflow messages still belong to tenant operations.</p>
+                            <p class="text-xs font-black uppercase tracking-[0.22em] text-emerald-700"><?= esc(lang('V3Platform.safeTestSend')) ?></p>
+                            <h2 class="mt-1 text-2xl font-black text-slate-950"><?= esc(lang('V3Platform.sendAControlledWhatsappTest')) ?></h2>
+                            <p class="mt-2 text-sm font-semibold text-slate-600"><?= esc(lang('V3Platform.useThisForTenantSetupChecksAndTemplateVerificationProductionWorkflowMessagesStillBelongToTenantOperations')) ?></p>
                         </div>
-                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center cp-radius cp-soft-surface text-emerald-700">
                             <i class="fas fa-paper-plane"></i>
                         </span>
                     </div>
 
                     <div class="mt-6 grid gap-5 lg:grid-cols-2">
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Clinic</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.clinic')) ?></span>
                             <select name="clinic_id" class="wa-field" required>
-                                <option value="">Select clinic</option>
+                                <option value=""><?= esc(lang('V3Platform.selectClinic2')) ?></option>
                                 <?php foreach ($testSendClinics as $clinic): ?>
                                     <?php $clinicId = (string) ($clinic['id'] ?? ''); ?>
                                     <option value="<?= esc($clinicId, 'attr') ?>" <?= (string) old('clinic_id') === $clinicId ? 'selected' : '' ?>>
@@ -733,54 +733,54 @@ $guidanceText = static function ($item): string {
                         </label>
 
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Recipient number</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.recipientNumber')) ?></span>
                             <input type="text" name="target_number" value="<?= esc((string) old('target_number'), 'attr') ?>" class="wa-field" placeholder="+970..." required>
                         </label>
 
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Send mode</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.sendMode')) ?></span>
                             <select id="wa-test-send-mode" name="send_mode" class="wa-field">
                                 <?php $sendMode = (string) old('send_mode', 'text'); ?>
-                                <option value="text" <?= $sendMode === 'text' ? 'selected' : '' ?>>Free text</option>
-                                <option value="template" <?= $sendMode === 'template' ? 'selected' : '' ?>>Template</option>
+                                <option value="text" <?= $sendMode === 'text' ? 'selected' : '' ?>><?= esc(lang('V3Platform.freeText')) ?></option>
+                                <option value="template" <?= $sendMode === 'template' ? 'selected' : '' ?>><?= esc(lang('V3Platform.template')) ?></option>
                             </select>
                         </label>
 
                         <label id="wa-template-source" class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Template source</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.templateSource')) ?></span>
                             <?php $templateSource = (string) old('template_source', 'explicit'); ?>
                             <select name="template_source" class="wa-field">
-                                <option value="explicit" <?= $templateSource === 'explicit' ? 'selected' : '' ?>>Explicit template</option>
-                                <option value="fallback" <?= $templateSource === 'fallback' ? 'selected' : '' ?>>Clinic fallback template</option>
-                                <option value="trigger_template" <?= $templateSource === 'trigger_template' ? 'selected' : '' ?>>Trigger catalog</option>
+                                <option value="explicit" <?= $templateSource === 'explicit' ? 'selected' : '' ?>><?= esc(lang('V3Platform.explicitTemplate')) ?></option>
+                                <option value="fallback" <?= $templateSource === 'fallback' ? 'selected' : '' ?>><?= esc(lang('V3Platform.clinicFallbackTemplate')) ?></option>
+                                <option value="trigger_template" <?= $templateSource === 'trigger_template' ? 'selected' : '' ?>><?= esc(lang('V3Platform.triggerCatalog')) ?></option>
                             </select>
                         </label>
                     </div>
 
                     <div id="wa-test-text-fields" class="mt-5">
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Message</span>
-                            <textarea name="message" rows="5" class="wa-field" placeholder="Write a short operational test message."><?= esc((string) old('message')) ?></textarea>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.message')) ?></span>
+                            <textarea name="message" rows="5" class="wa-field" placeholder="<?= esc(lang('V3Platform.writeAShortOperationalTestMessage'), 'attr') ?>"><?= esc((string) old('message')) ?></textarea>
                         </label>
                     </div>
 
                     <div id="wa-test-template-fields" class="mt-5 space-y-5">
                         <div class="grid gap-5 lg:grid-cols-2">
                             <label id="wa-template-name-wrap" class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Template name</span>
+                                <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.templateName2')) ?></span>
                                 <input type="text" name="template_name" value="<?= esc((string) old('template_name'), 'attr') ?>" class="wa-field" placeholder="appointment_reminder">
                             </label>
 
                             <label id="wa-template-language-wrap" class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Template language</span>
+                                <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.templateLanguage')) ?></span>
                                 <input type="text" name="template_language" value="<?= esc((string) old('template_language', 'en_US'), 'attr') ?>" class="wa-field" placeholder="en_US">
                             </label>
                         </div>
 
                         <label id="wa-trigger-template-wrap" class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Trigger template</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.triggerTemplate')) ?></span>
                             <select id="wa-trigger-key" name="trigger_key" class="wa-field">
-                                <option value="">Select trigger</option>
+                                <option value=""><?= esc(lang('V3Platform.selectTrigger')) ?></option>
                                 <?php foreach ($triggerCatalog as $key => $trigger): ?>
                                     <option value="<?= esc((string) $key, 'attr') ?>" <?= (string) old('trigger_key') === (string) $key ? 'selected' : '' ?>>
                                         <?= esc($trigger['label'] ?? $key) ?>
@@ -789,66 +789,66 @@ $guidanceText = static function ($item): string {
                             </select>
                         </label>
 
-                        <div id="wa-trigger-summary" class="hidden rounded-2xl bg-sky-50 p-4 ring-1 ring-sky-100">
+                        <div id="wa-trigger-summary" class="hidden cp-radius cp-soft-surface p-4 ring-1 ring-sky-100">
                             <p id="wa-trigger-summary-title" class="font-black text-slate-950"></p>
                             <p id="wa-trigger-summary-description" class="mt-1 text-sm font-semibold text-slate-600"></p>
                             <div id="wa-trigger-summary-vars" class="mt-3 flex flex-wrap gap-2"></div>
                         </div>
 
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Template components JSON</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.templateComponentsJson')) ?></span>
                             <textarea name="template_components_json" rows="5" class="wa-field wa-code" placeholder='[{"type":"body","parameters":[...]}]'><?= esc((string) old('template_components_json')) ?></textarea>
                         </label>
 
                         <div class="grid gap-5 lg:grid-cols-2">
                             <label class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Header text</span>
+                                <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.headerText')) ?></span>
                                 <input type="text" name="template_header_text" value="<?= esc((string) old('template_header_text'), 'attr') ?>" class="wa-field">
                             </label>
                             <label class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Body params</span>
-                                <input type="text" name="template_body_params" value="<?= esc((string) old('template_body_params'), 'attr') ?>" class="wa-field" placeholder="Comma separated values">
+                                <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.bodyParams')) ?></span>
+                                <input type="text" name="template_body_params" value="<?= esc((string) old('template_body_params'), 'attr') ?>" class="wa-field" placeholder="<?= esc(lang('V3Platform.commaSeparatedValues'), 'attr') ?>">
                             </label>
                             <label class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Button type</span>
+                                <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.buttonType')) ?></span>
                                 <input type="text" name="template_button_type" value="<?= esc((string) old('template_button_type'), 'attr') ?>" class="wa-field" placeholder="url">
                             </label>
                             <label class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Button index</span>
+                                <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.buttonIndex')) ?></span>
                                 <input type="text" name="template_button_index" value="<?= esc((string) old('template_button_index'), 'attr') ?>" class="wa-field" placeholder="0">
                             </label>
                         </div>
 
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-800">Button value</span>
+                            <span class="mb-2 block text-sm font-black text-slate-800"><?= esc(lang('V3Platform.buttonValue')) ?></span>
                             <input type="text" name="template_button_value" value="<?= esc((string) old('template_button_value'), 'attr') ?>" class="wa-field">
                         </label>
                     </div>
 
-                    <div class="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
-                        <a href="<?= base_url('controlplane/whatsapp') ?>" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50">Reset</a>
-                        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-sky-600 px-5 py-3 text-sm font-extrabold text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-sky-700">
+                    <div class="mt-6 flex flex-col gap-3 border-t cp-border pt-5 sm:flex-row sm:items-center sm:justify-end">
+                        <a href="<?= base_url('controlplane/whatsapp') ?>" class="inline-flex items-center justify-center cp-radius border cp-border cp-surface px-5 py-3 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50"><?= esc(lang('V3Platform.reset')) ?></a>
+                        <button type="submit" class="inline-flex items-center justify-center gap-2 cp-radius px-5 py-3 text-sm font-extrabold text-white transition">
                             <i class="fas fa-paper-plane"></i>
-                            <span>Send test message</span>
+                            <span><?= esc(lang('V3Platform.sendTestMessage')) ?></span>
                         </button>
                     </div>
                 </form>
 
                 <aside class="space-y-5">
                     <div class="wa-panel wa-panel-emerald rounded-[1.6rem] p-5">
-                        <h3 class="text-lg font-black text-slate-950">Operator rules</h3>
+                        <h3 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.operatorRules')) ?></h3>
                         <div class="mt-4 space-y-3 text-sm font-semibold text-slate-700">
-                            <p><i class="fas fa-check-circle me-2 text-emerald-600"></i>Use test sends for setup and health checks only.</p>
-                            <p><i class="fas fa-check-circle me-2 text-emerald-600"></i>Templates should be managed from settings.</p>
-                            <p><i class="fas fa-check-circle me-2 text-emerald-600"></i>Opt-outs and provider failures stay visible in this workspace.</p>
+                            <p><i class="fas fa-check-circle me-2 text-emerald-600"></i><?= esc(lang('V3Platform.useTestSendsForSetupAndHealthChecksOnly')) ?></p>
+                            <p><i class="fas fa-check-circle me-2 text-emerald-600"></i><?= esc(lang('V3Platform.templatesShouldBeManagedFromSettings')) ?></p>
+                            <p><i class="fas fa-check-circle me-2 text-emerald-600"></i><?= esc(lang('V3Platform.optOutsAndProviderFailuresStayVisibleInThisWorkspace')) ?></p>
                         </div>
                     </div>
                     <div class="wa-panel rounded-[1.6rem] p-5">
-                        <h3 class="text-lg font-black text-slate-950">Template settings</h3>
-                        <p class="mt-2 text-sm font-semibold text-slate-600">Secret rotation, policy controls, and trigger templates live in Control Plane settings.</p>
-                        <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-slate-800">
+                        <h3 class="text-lg font-black text-slate-950"><?= esc(lang('V3Platform.templateSettings')) ?></h3>
+                        <p class="mt-2 text-sm font-semibold text-slate-600"><?= esc(lang('V3Platform.secretRotationPolicyControlsAndTriggerTemplatesLiveInControlPlaneSettings')) ?></p>
+                        <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="mt-4 inline-flex w-full items-center justify-center gap-2 cp-radius bg-slate-950 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-slate-800">
                             <i class="fas fa-sliders"></i>
-                            <span>Open settings</span>
+                            <span><?= esc(lang('V3Platform.openSettings')) ?></span>
                         </a>
                     </div>
                 </aside>
@@ -857,25 +857,25 @@ $guidanceText = static function ($item): string {
 
         <section id="pane-activity" class="wa-pane <?= $initialTab === 'activity' ? '' : 'hidden' ?>">
             <div class="wa-panel overflow-hidden rounded-[1.7rem]">
-                <div class="border-b border-slate-200 bg-white/85 p-5">
-                    <h2 class="text-2xl font-black text-slate-950">Recent send attempts</h2>
-                    <p class="mt-1 text-sm font-semibold text-slate-500">Trace outbound test and workflow sends without leaving the control plane.</p>
+                <div class="border-b cp-border cp-surface p-5">
+                    <h2 class="text-2xl font-black text-slate-950"><?= esc(lang('V3Platform.recentSendAttempts')) ?></h2>
+                    <p class="mt-1 text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.traceOutboundTestAndWorkflowSendsWithoutLeavingTheControlPlane')) ?></p>
                 </div>
                 <?php if (empty($recentAttempts)): ?>
-                    <div class="p-10 text-center">
-                        <i class="fas fa-paper-plane text-4xl text-slate-300"></i>
-                        <p class="mt-3 text-sm font-bold text-slate-500">No send attempts recorded yet.</p>
+                    <div class="cp-panel-padding text-center">
+                        <i class="fas fa-paper-plane cp-title text-slate-300"></i>
+                        <p class="mt-3 text-sm font-bold text-slate-500"><?= esc(lang('V3Platform.noSendAttemptsRecordedYet')) ?></p>
                     </div>
                 <?php else: ?>
                     <div class="overflow-x-auto">
                         <table class="wa-mini-table">
                             <thead>
                                 <tr>
-                                    <th>Status</th>
-                                    <th>Tenant</th>
-                                    <th>Recipient</th>
-                                    <th>Content</th>
-                                    <th>Delivery</th>
+                                    <th><?= esc(lang('V3Platform.status')) ?></th>
+                                    <th><?= esc(lang('V3Platform.tenant')) ?></th>
+                                    <th><?= esc(lang('V3Platform.recipient')) ?></th>
+                                    <th><?= esc(lang('V3Platform.content')) ?></th>
+                                    <th><?= esc(lang('V3Platform.delivery')) ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -891,7 +891,7 @@ $guidanceText = static function ($item): string {
                                         <td><span class="wa-chip <?= esc($statusClass($attemptStatus), 'attr') ?> ring-1"><?= esc($attemptStatusMeta['label'] ?? $attemptStatus) ?></span></td>
                                         <td>
                                             <p class="font-black text-slate-950"><?= esc($attempt['clinic_name'] ?? 'Unknown clinic') ?></p>
-                                            <p class="mt-1 text-xs font-bold text-slate-400">Attempt #<?= esc((string) ($attempt['attempt_id'] ?? '-')) ?></p>
+                                            <p class="mt-1 text-xs font-bold text-slate-400"><?= esc(lang('V3Platform.attempt')) ?><?= esc((string) ($attempt['attempt_id'] ?? '-')) ?></p>
                                         </td>
                                         <td>
                                             <p class="font-bold text-slate-800"><?= esc($attemptRecipient['label'] ?? '-') ?></p>
@@ -906,7 +906,7 @@ $guidanceText = static function ($item): string {
                                             $attemptFailureText = (string) ($attemptFailure['detail'] ?? $attemptFailure['title'] ?? '');
                                             ?>
                                             <?php if ($attemptFailureText !== ''): ?>
-                                                <p class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 ring-1 ring-rose-100"><?= esc($attemptFailureText) ?></p>
+                                                <p class="mt-2 cp-radius bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 ring-1 ring-rose-100"><?= esc($attemptFailureText) ?></p>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -928,9 +928,9 @@ $guidanceText = static function ($item): string {
         <section id="pane-webhooks" class="wa-pane <?= $initialTab === 'webhooks' ? '' : 'hidden' ?>">
             <div class="grid gap-5 lg:grid-cols-2">
                 <?php if (empty($recentEvents)): ?>
-                    <div class="wa-panel rounded-[1.7rem] p-10 text-center lg:col-span-2">
-                        <i class="fas fa-code-branch text-4xl text-slate-300"></i>
-                        <p class="mt-3 text-sm font-bold text-slate-500">No webhook events recorded yet.</p>
+                    <div class="wa-panel rounded-[1.7rem] cp-panel-padding text-center lg:col-span-2">
+                        <i class="fas fa-code-branch cp-title text-slate-300"></i>
+                        <p class="mt-3 text-sm font-bold text-slate-500"><?= esc(lang('V3Platform.noWebhookEventsRecordedYet')) ?></p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentEvents as $event): ?>
@@ -945,7 +945,7 @@ $guidanceText = static function ($item): string {
                         <article class="wa-panel rounded-[1.7rem] p-5">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <span class="wa-chip bg-sky-100 text-sky-800 ring-1 ring-sky-200"><?= esc($event['event_type'] ?? 'webhook') ?></span>
+                                    <span class="wa-chip cp-soft-surface cp-accent ring-1 ring-sky-200"><?= esc($event['event_type'] ?? 'webhook') ?></span>
                                     <h3 class="mt-3 text-lg font-black text-slate-950"><?= esc($eventTitle) ?></h3>
                                     <?php if ($eventDetail !== ''): ?>
                                         <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc($eventDetail) ?></p>
@@ -959,11 +959,11 @@ $guidanceText = static function ($item): string {
                                     <?php endif; ?>
                                     <p class="mt-1 text-xs font-bold text-slate-400"><?= esc($event['processed_label'] ?? $formatDate($event['processed_at'] ?? null)) ?></p>
                                 </div>
-                                <button type="button" onclick="copyToClipboard(<?= json_encode((string) $payload) ?>)" class="rounded-xl bg-white px-3 py-2 text-xs font-extrabold text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">
-                                    <i class="fas fa-copy me-1"></i>Copy
+                                <button type="button" onclick="copyToClipboard(<?= json_encode((string) $payload) ?>)" class="cp-radius cp-surface px-3 py-2 text-xs font-extrabold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">
+                                    <i class="fas fa-copy me-1"></i><?= esc(lang('V3Platform.copy')) ?>
                                 </button>
                             </div>
-                            <pre class="mt-4 max-h-72 overflow-auto rounded-2xl bg-slate-50 p-4 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"><?= esc((string) $payload) ?></pre>
+                            <pre class="mt-4 max-h-72 overflow-auto cp-radius cp-surface p-4 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"><?= esc((string) $payload) ?></pre>
                         </article>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -972,24 +972,24 @@ $guidanceText = static function ($item): string {
 
         <section id="pane-optouts" class="wa-pane <?= $initialTab === 'optouts' ? '' : 'hidden' ?>">
             <div class="wa-panel overflow-hidden rounded-[1.7rem]">
-                <div class="border-b border-slate-200 bg-white/85 p-5">
-                    <h2 class="text-2xl font-black text-slate-950">Recent opt-outs</h2>
-                    <p class="mt-1 text-sm font-semibold text-slate-500">Patients who should not receive WhatsApp workflow messages.</p>
+                <div class="border-b cp-border cp-surface p-5">
+                    <h2 class="text-2xl font-black text-slate-950"><?= esc(lang('V3Platform.recentOptOuts')) ?></h2>
+                    <p class="mt-1 text-sm font-semibold text-slate-500"><?= esc(lang('V3Platform.patientsWhoShouldNotReceiveWhatsappWorkflowMessages')) ?></p>
                 </div>
                 <?php if (empty($recentOptouts)): ?>
-                    <div class="p-10 text-center">
-                        <i class="fas fa-user-slash text-4xl text-slate-300"></i>
-                        <p class="mt-3 text-sm font-bold text-slate-500">No opt-outs recorded yet.</p>
+                    <div class="cp-panel-padding text-center">
+                        <i class="fas fa-user-slash cp-title text-slate-300"></i>
+                        <p class="mt-3 text-sm font-bold text-slate-500"><?= esc(lang('V3Platform.noOptOutsRecordedYet')) ?></p>
                     </div>
                 <?php else: ?>
                     <div class="overflow-x-auto">
                         <table class="wa-mini-table">
                             <thead>
                                 <tr>
-                                    <th>Clinic</th>
-                                    <th>Phone</th>
-                                    <th>Reason</th>
-                                    <th>Recorded</th>
+                                    <th><?= esc(lang('V3Platform.clinic')) ?></th>
+                                    <th><?= esc(lang('V3Platform.phone')) ?></th>
+                                    <th><?= esc(lang('V3Platform.reason')) ?></th>
+                                    <th><?= esc(lang('V3Platform.recorded')) ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1011,21 +1011,21 @@ $guidanceText = static function ($item): string {
         <section id="pane-reference" class="wa-pane <?= $initialTab === 'reference' ? '' : 'hidden' ?>">
             <div class="grid gap-5 lg:grid-cols-3">
                 <div class="wa-panel wa-panel-emerald rounded-[1.7rem] p-5">
-                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700"><i class="fas fa-route"></i></span>
-                    <h3 class="mt-4 text-lg font-black text-slate-950">Workflow ownership</h3>
-                    <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">Tenant events create workflow messages. This control-plane page observes, tests, and governs them without becoming a tenant messaging workspace.</p>
+                    <span class="flex h-12 w-12 items-center justify-center cp-radius cp-soft-surface text-emerald-700"><i class="fas fa-route"></i></span>
+                    <h3 class="mt-4 text-lg font-black text-slate-950"><?= esc(lang('V3Platform.workflowOwnership')) ?></h3>
+                    <p class="mt-2 text-sm font-semibold leading-6 text-slate-600"><?= esc(lang('V3Platform.tenantEventsCreateWorkflowMessagesThisControlPlanePageObservesTestsAndGovernsThemWithoutBecomingATenantMessagingWorkspace')) ?></p>
                 </div>
                 <div class="wa-panel wa-panel-sky rounded-[1.7rem] p-5">
-                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-700"><i class="fas fa-lock"></i></span>
-                    <h3 class="mt-4 text-lg font-black text-slate-950">Safety model</h3>
-                    <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">Secrets, policy toggles, templates, and emergency pause controls remain centralized in settings with existing guardrails.</p>
+                    <span class="flex h-12 w-12 items-center justify-center cp-radius cp-soft-surface cp-accent"><i class="fas fa-lock"></i></span>
+                    <h3 class="mt-4 text-lg font-black text-slate-950"><?= esc(lang('V3Platform.safetyModel')) ?></h3>
+                    <p class="mt-2 text-sm font-semibold leading-6 text-slate-600"><?= esc(lang('V3Platform.secretsPolicyTogglesTemplatesAndEmergencyPauseControlsRemainCentralizedInSettingsWithExistingGuardrails')) ?></p>
                 </div>
                 <div class="wa-panel wa-panel-amber rounded-[1.7rem] p-5">
-                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700"><i class="fas fa-list-check"></i></span>
-                    <h3 class="mt-4 text-lg font-black text-slate-950">Operator checklist</h3>
+                    <span class="flex h-12 w-12 items-center justify-center cp-radius bg-amber-100 text-amber-700"><i class="fas fa-list-check"></i></span>
+                    <h3 class="mt-4 text-lg font-black text-slate-950"><?= esc(lang('V3Platform.operatorChecklist')) ?></h3>
                     <div class="mt-3 space-y-2 text-sm font-semibold text-slate-700">
                         <?php if (empty($operatorGuidance)): ?>
-                            <p>Monitor failures, review opt-outs, and keep templates aligned with clinic workflows.</p>
+                            <p><?= esc(lang('V3Platform.monitorFailuresReviewOptOutsAndKeepTemplatesAlignedWithClinicWorkflows')) ?></p>
                         <?php else: ?>
                             <?php foreach ($operatorGuidance as $item): ?>
                                 <?php $guidanceLine = $guidanceText($item); ?>

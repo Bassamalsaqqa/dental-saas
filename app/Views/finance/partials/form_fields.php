@@ -56,7 +56,7 @@ $showOptionalDetails = old('examination_id') !== null
                 </select>
             </div>
         <?php else: ?>
-            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="v3-radius border v3-border v3-surface p-4">
                 <p class="text-xs font-bold uppercase tracking-[0.15em] text-slate-500"><?= esc(lang('Finance.transactionTypeRequired')) ?></p>
                 <p class="mt-1 text-sm font-bold text-slate-900"><?= esc(lang('Finance.' . $transactionTypePreset)) ?></p>
             </div>
@@ -100,7 +100,7 @@ $showOptionalDetails = old('examination_id') !== null
     </div>
 
     <div class="mt-5">
-        <button type="button" data-finance-optional-toggle aria-expanded="<?= $showOptionalDetails ? 'true' : 'false' ?>" class="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-start text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+        <button type="button" data-finance-optional-toggle aria-expanded="<?= $showOptionalDetails ? 'true' : 'false' ?>" class="flex w-full items-center justify-between gap-3 v3-radius border v3-border v3-surface px-4 py-3 text-start text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
             <span class="inline-flex items-center gap-2">
                 <i class="fas fa-sliders text-slate-500"></i>
                 <?= esc(lang('Finance.optionalDetails')) ?>
@@ -149,7 +149,7 @@ $showOptionalDetails = old('examination_id') !== null
         <div class="space-y-5">
             <div id="<?= esc($fieldId('checkScanField')) ?>" data-check-scan-field>
                 <label class="mb-2 block text-sm font-semibold text-slate-700"><?= lang('Finance.checkScanOptional') ?></label>
-                <input type="file" name="check_scan" id="<?= esc($fieldId('checkScanInput')) ?>" accept=".pdf,.jpg,.jpeg,.png" class="block w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 file:me-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
+                <input type="file" name="check_scan" id="<?= esc($fieldId('checkScanInput')) ?>" accept=".pdf,.jpg,.jpeg,.png" class="block w-full v3-radius border v3-border px-3 py-2.5 text-sm text-slate-700 file:me-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
                 <span id="<?= esc($fieldId('checkScanName')) ?>" data-check-scan-name class="mt-2 block text-xs text-slate-400"></span>
             </div>
             <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -182,7 +182,7 @@ $showOptionalDetails = old('examination_id') !== null
             <?= $advancedDetailsBody() ?>
         </div>
     <?php else: ?>
-        <details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4" open>
+        <details class="mt-5 v3-radius border v3-border v3-surface p-4" open>
             <summary class="cursor-pointer text-sm font-bold text-slate-800"><?= esc(lang('UI.advancedDetails')) ?></summary>
             <div class="mt-4">
                 <?= $advancedDetailsBody() ?>

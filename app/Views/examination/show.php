@@ -56,7 +56,7 @@ $healthFlags = array_values(array_filter([
 <div class="v3-module-content">
 
     <!-- ===== Hero Header ===== -->
-    <section class="v3-record-banner"><div class="v3-record-heading"><h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($patientName ?: $tr('examination_details')) ?></h1><span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold text-white" style="background:<?= esc($statusTone['bg']) ?>;border-color:<?= esc($statusTone['border']) ?>;"><?= esc($statusLabel) ?></span><div class="v3-record-meta">
+    <section class="v3-record-banner"><div class="v3-record-heading"><h1 class="v3-title-scale font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($patientName ?: $tr('examination_details')) ?></h1><span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold text-white" style="background:<?= esc($statusTone['bg']) ?>;border-color:<?= esc($statusTone['border']) ?>;"><?= esc($statusLabel) ?></span><div class="v3-record-meta">
                                 <div class="patient-hero-chip patient-hero-chip-ltr" title="<?= esc($tr('patient_number') . ': ' . ($examination['patient_number'] ?? '')) ?>">
                                     <span class="patient-hero-chip-icon"><i class="fas fa-id-card"></i></span>
                                     <span class="patient-hero-chip-text"><span class="patient-hero-chip-label"><?= esc($tr('patient_number')) ?></span><span class="patient-hero-chip-value"><?= esc($examination['patient_number'] ?? $tr('na')) ?></span></span>
@@ -103,7 +103,7 @@ $healthFlags = array_values(array_filter([
                 <h2 class="exam-snapshot-title"><?= esc($tr('examination_summary_help')) ?></h2>
             </div>
             <?php if (!empty($invoiceableChargeLineIds)): ?>
-                <button type="button" data-app-drawer-open="examinationInvoiceDrawer" class="v3-action v3-action-primary inline-flex w-fit items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-black transition">
+                <button type="button" data-app-drawer-open="examinationInvoiceDrawer" class="v3-action v3-action-primary inline-flex w-fit items-center justify-center gap-2 v3-radius px-3.5 py-2.5 text-sm font-black transition">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span><?= esc($tr('create_invoice_from_work')) ?></span>
                 </button>
@@ -183,13 +183,13 @@ $healthFlags = array_values(array_filter([
                             <div class="exam-field-value"><?= !empty($examination['diagnosis']) ? nl2br(esc($examination['diagnosis'])) : '<span class="text-gray-400">' . esc($tr('no_diagnosis_recorded')) . '</span>' ?></div>
                         </div>
                     </div>
-                    <div class="exam-odontogram-callout rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4">
+                    <div class="exam-odontogram-callout v3-radius border border-dashed v3-border v3-surface p-4">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-gray-800"><?= esc($tr('dental_chart_odontogram')) ?></p>
                                 <p class="text-xs text-gray-500 mt-0.5"><?= $odontogramConditionCount > 0 ? esc($tr('odontogram_conditions_recorded', ['count' => $odontogramConditionCount])) : esc($tr('no_odontogram_data_recorded')) ?></p>
                             </div>
-                            <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], $returnToContext) ?>" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-sky-700 border border-gray-200 hover:bg-sky-50 hover:border-sky-200 transition-all shadow-sm">
+                            <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], $returnToContext) ?>" class="inline-flex items-center gap-1.5 rounded-lg v3-surface px-3.5 py-2 text-xs font-semibold v3-accent-text border v3-border hover:bg-sky-50 hover:border-sky-200 transition-all">
                                 <i class="fas fa-tooth"></i><span><?= esc($odontogramConditionCount > 0 ? $tr('view_full_odontogram') : $tr('create_odontogram')) ?></span>
                             </a>
                         </div>
@@ -206,34 +206,34 @@ $healthFlags = array_values(array_filter([
                 <div class="exam-card-body space-y-5">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <!-- Treatment Plan card -->
-                        <div class="rounded-xl border p-4 transition-shadow" style="border-color:#cffafe;background:#f0fdfa;">
+                        <div class="v3-radius border p-4 transition-shadow" style="border-color:#cffafe;background:#f0fdfa;">
                             <p class="exam-field-label"><?= esc($tr('treatment_plan')) ?></p>
                             <?php if (!empty($latest_contract)): ?>
                                 <p class="mt-2 text-base font-black leading-snug text-gray-900"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p>
                                 <p class="mt-1 text-sm font-bold text-gray-500"><?= esc($tr('total')) ?> <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?></p>
-                                <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-cyan-700 hover:text-cyan-800 transition-colors"><i class="fas fa-arrow-up-right-from-square"></i><?= esc($tr('view')) ?></a>
+                                <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold v3-accent-text hover:text-cyan-800 transition-colors"><i class="fas fa-arrow-up-right-from-square"></i><?= esc($tr('view')) ?></a>
                             <?php else: ?>
                                 <p class="mt-2 text-sm font-bold leading-relaxed text-gray-500"><?= esc($tr('treatment_plan_hint')) ?></p>
                                 <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-cyan-700 hover:text-cyan-800 transition-colors"><i class="fas fa-plus"></i><?= esc($tr('add_treatment_plan')) ?></a>
+                                <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '') ?>" class="inline-flex items-center gap-1.5 mt-2.5 text-xs font-semibold v3-accent-text hover:text-cyan-800 transition-colors"><i class="fas fa-plus"></i><?= esc($tr('add_treatment_plan')) ?></a>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>
                         <!-- Treatments card -->
-                        <div class="rounded-xl border p-4 transition-shadow" style="border-color:#d1fae5;background:#ecfdf5;">
+                        <div class="v3-radius border p-4 transition-shadow" style="border-color:#d1fae5;background:#ecfdf5;">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="exam-field-label"><?= esc($tr('related_treatments')) ?></p>
                                     <p class="mt-2 text-sm font-bold leading-relaxed text-gray-500"><?= $treatmentCount > 0 ? esc($tr('treatments_recorded', ['count' => $treatmentCount])) : esc($tr('no_treatments_recorded')) ?></p>
                                 </div>
                                 <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= workflow_context_url('treatment/create?examination_id=' . (int) $examination['id'], $returnToContext) ?>" data-treatment-create-modal-open class="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
+                                <a href="<?= workflow_context_url('treatment/create?examination_id=' . (int) $examination['id'], $returnToContext) ?>" data-treatment-create-modal-open class="shrink-0 inline-flex items-center gap-1 rounded-lg v3-surface px-2.5 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 hover:bg-emerald-50 transition-all"><i class="fas fa-plus text-[10px]"></i><?= esc($tr('add_treatment')) ?></a>
                                 <?php endif; ?>
                             </div>
                             <?php if (!empty($treatments)): ?>
                             <div class="mt-3 flex flex-wrap gap-1.5">
                                 <?php foreach ($treatments as $t): ?>
-                                <a href="<?= base_url('treatment/' . $t['id']) ?>" class="exam-treatment-chip inline-flex rounded-lg bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"><?= esc($t['treatment_name']) ?></a>
+                                <a href="<?= base_url('treatment/' . $t['id']) ?>" class="exam-treatment-chip inline-flex rounded-lg v3-surface px-2.5 py-1.5 text-xs font-medium text-gray-700 border v3-border hover:bg-gray-50 hover:border-gray-300 transition-all"><?= esc($t['treatment_name']) ?></a>
                                 <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
@@ -283,7 +283,7 @@ $healthFlags = array_values(array_filter([
                     <span><?= esc($tr('workflow_heading')) ?></span>
                 </div>
                 <div class="exam-card-body exam-workflow-stack">
-                    <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], $returnToContext) ?>" class="exam-action-primary" style="background:#2563eb;color:#fff;">
+                    <a href="<?= workflow_context_url('odontogram/' . (int) $examination['patient_id'] . '?examination_id=' . (int) $examination['id'], $returnToContext) ?>" class="exam-action-primary" style="background:var(--denta-emerald-pine);color:var(--denta-ivory-input);">
                         <i class="fas fa-tooth text-sm"></i>
                         <?= esc($tr('open_visit_chart')) ?>
                     </a>
