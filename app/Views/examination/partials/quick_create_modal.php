@@ -76,7 +76,7 @@ if (!empty($modalSelectedAppointmentId)) {
     </style>
 
     <div id="newExaminationModal" class="app-scale-modal examination-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newExaminationModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="examination-create-modal__backdrop fixed inset-0 v3-backdrop backdrop-blur-sm" data-examination-create-modal-close></div>
+        <div class="examination-create-modal__backdrop fixed inset-0 v3-backdrop " data-examination-create-modal-close></div>
         <div class="examination-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-examination-create-modal-close>
             <form id="newExaminationQuickCreateForm" action="<?= base_url('examination/store') ?>" method="POST" class="examination-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden v3-radius border v3-border-default v3-bg-panel v3-elevation-none" data-examination-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
@@ -84,7 +84,7 @@ if (!empty($modalSelectedAppointmentId)) {
                 <input type="hidden" name="appointment_id" value="<?= esc($modalSelectedAppointmentId ?? '') ?>">
                 <input type="hidden" name="source_modal" value="examination_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 backdrop-blur">
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 ">
                     <div class="flex items-center gap-3">
                         <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary v3-elevation-none">
                             <i class="fas fa-stethoscope"></i>
@@ -119,7 +119,7 @@ if (!empty($modalSelectedAppointmentId)) {
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4  sm:flex-row sm:justify-end">
                     <button type="button" data-examination-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc($tr('cancel')) ?>
                     </button>

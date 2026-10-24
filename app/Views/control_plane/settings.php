@@ -74,7 +74,7 @@
     .control-settings-header p {
         color: var(--denta-taupe-border) !important;
     }
-    .control-settings-header .backdrop-blur-sm {
+    .control-settings-header . {
         backdrop-filter:none;
         backdrop-filter:none;
     }

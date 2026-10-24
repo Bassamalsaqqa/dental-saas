@@ -32,7 +32,7 @@ RBAC System Setup
         <div class="mb-8">
             <div class="group relative">
                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200">
+                <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200">
                     <div class="flex items-center">
                         <div class="relative">
                             <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -75,7 +75,7 @@ RBAC System Setup
         <div class="mb-8">
             <div class="group relative">
                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel to-pink-600/20 v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200">
+                <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-bold v3-text-ink">Setup Progress</h3>
                         <div class="flex items-center space-x-2 v3-bg-panel v3-bg-panel to-pink-100 px-4 py-2 rounded-full border v3-border-default">
@@ -100,7 +100,7 @@ RBAC System Setup
                 <!-- Step 1: Database Check -->
                 <div class="group relative" data-step="1">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -133,7 +133,7 @@ RBAC System Setup
                 <!-- Step 2: Sync Permissions -->
                 <div class="group relative" data-step="2">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -166,7 +166,7 @@ RBAC System Setup
                 <!-- Step 3: Initialize System -->
                 <div class="group relative" data-step="3">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -199,7 +199,7 @@ RBAC System Setup
                 <!-- Step 4: Test System -->
                 <div class="group relative" data-step="4">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-orange-500/10 group-hover:shadow-orange-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-orange-500/10 group-hover:shadow-orange-500/20 transition-all duration-200  hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -237,7 +237,7 @@ RBAC System Setup
                 <!-- System Status -->
                 <div class="group relative">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200">
                         <h3 class="text-lg font-bold v3-text-ink mb-4">System Status</h3>
                         <div id="statusContent">
                             <div class="text-center py-4">
@@ -251,7 +251,7 @@ RBAC System Setup
                 <!-- Quick Actions -->
                 <div class="group relative">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200">
                         <h3 class="text-lg font-bold v3-text-ink mb-4">Quick Actions</h3>
                         <div class="space-y-3">
                             <a href="<?= base_url('roles') ?>" class="group relative flex items-center px-4 py-3 v3-bg-panel v3-bg-panel v3-bg-panel v3-text-on-primary rounded-lg hover:v3-bg-panel hover:v3-bg-panel transition-all duration-200 v3-elevation-none shadow-blue-500/25 hover:shadow-blue-500/40 ">
@@ -273,7 +273,7 @@ RBAC System Setup
                 <!-- Help Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-orange-500/10 group-hover:shadow-orange-500/20 transition-all duration-200">
+                    <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-orange-500/10 group-hover:shadow-orange-500/20 transition-all duration-200">
                         <h3 class="text-lg font-bold v3-text-ink mb-4">Need Help?</h3>
                         <p class="v3-text-muted font-medium mb-4">Having trouble with the setup? Here are some helpful resources:</p>
                         <div class="space-y-3">
@@ -295,7 +295,7 @@ RBAC System Setup
         <div class="mb-8">
             <div class="group relative">
                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-cyan-500/10 group-hover:shadow-cyan-500/20 transition-all duration-200">
+                <div class="relative  v3-bg-panel border v3-border-default v3-radius p-6 v3-elevation-none shadow-cyan-500/10 group-hover:shadow-cyan-500/20 transition-all duration-200">
                     <h3 class="text-xl font-bold v3-text-ink mb-6">System Information</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="text-center">
@@ -628,7 +628,7 @@ function showNotification(message, type = 'info') {
     const iconClass = type === 'success' ? 'fa-check-circle v3-text-primary' : 'fa-info-circle v3-text-primary';
 
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 v3-bg-panel ${bgClass} border v3-radius v3-elevation-none backdrop-blur-xl`;
+    notification.className = `fixed top-4 right-4 z-50 p-4 v3-bg-panel ${bgClass} border v3-radius v3-elevation-none `;
     notification.style.cssText = 'min-width: 300px;';
 
     const contentDiv = document.createElement('div');

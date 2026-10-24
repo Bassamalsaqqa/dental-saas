@@ -59,7 +59,7 @@
                     <div class="relative z-10 hidden md:flex md:w-5/12 v3-bg-panel border-r v3-border-default p-10 flex-col justify-between overflow-hidden">
                         <div class="absolute -top-24 -left-24 w-48 h-48 v3-bg-primary blur-[80px]"></div>
                         <div class="relative z-10">
-                            <div class="w-16 h-16 v3-bg-panel backdrop-blur-md border v3-border-default v3-radius flex items-center justify-center v3-elevation-none mb-8">
+                            <div class="w-16 h-16 v3-bg-panel  border v3-border-default v3-radius flex items-center justify-center v3-elevation-none mb-8">
                                 <i class="fas fa-hospital-user v3-text-on-primary text-3xl"></i>
                             </div>
                             <h2 class="text-3xl font-black v3-text-on-primary leading-tight mb-4 drop-shadow-lg">Clinic Gateway</h2>
@@ -73,7 +73,7 @@
                     <!-- Right Side -->
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
                         <div class="md:hidden flex flex-col items-center mb-8">
-                             <div class="w-14 h-14 v3-bg-panel backdrop-blur-md border v3-border-default v3-radius flex items-center justify-center v3-elevation-none mb-4">
+                             <div class="w-14 h-14 v3-bg-panel  border v3-border-default v3-radius flex items-center justify-center v3-elevation-none mb-4">
                                 <i class="fas fa-hospital-user v3-text-on-primary text-2xl"></i>
                             </div>
                             <h1 class="text-2xl font-black v3-text-on-primary tracking-tight">Select Clinic</h1>
@@ -85,7 +85,7 @@
                         </div>
 
                         <?php if (session()->getFlashdata('error')): ?>
-                            <div class="mb-6 p-4 v3-bg-danger backdrop-blur-md border v3-border-default v3-radius flex items-center animate-fadeIn relative z-20 v3-elevation-none">
+                            <div class="mb-6 p-4 v3-bg-danger  border v3-border-default v3-radius flex items-center animate-fadeIn relative z-20 v3-elevation-none">
                                 <i class="fas fa-exclamation-circle v3-text-on-primary text-lg mr-3"></i>
                                 <p class="text-xs font-bold v3-text-on-primary"><?= session()->getFlashdata('error') ?></p>
                             </div>

@@ -1012,7 +1012,7 @@ function getPatientAvatar(gender) {
 // Create appointment element HTML
 function createAppointmentElement(appointment) {
     const div = document.createElement('div');
-    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 v3-bg-panel v3-bg-panel v3-bg-panel backdrop-blur-sm v3-radius hover:v3-bg-panel hover:v3-bg-panel transition-all duration-500 border v3-border-default v3-elevation-none hover:v3-elevation-none hover:shadow-blue-500/10 hover:scale-[1.02]  animate-slide-in';
+    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 v3-bg-panel v3-bg-panel v3-bg-panel  v3-radius hover:v3-bg-panel hover:v3-bg-panel transition-all duration-500 border v3-border-default v3-elevation-none hover:v3-elevation-none hover:shadow-blue-500/10 hover:scale-[1.02]  animate-slide-in';
     if (<?= has_permission('appointments', 'view') ? 'true' : 'false' ?>) {
         const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
         div.dataset.href = `<?= base_url('appointment') ?>/${appointment.id}`;

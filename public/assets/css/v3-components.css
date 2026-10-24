@@ -34,11 +34,11 @@
 .denta-v3 .select2-container--default .select2-results__option[aria-selected=true]{background:var(--denta-tint-scheduled);color:var(--denta-forest)}
 .denta-v3 .select2-container--default .select2-selection--multiple .select2-selection__choice{background:var(--denta-parchment);border-color:var(--denta-taupe-border);border-radius:3px;color:var(--denta-ink)}
 .denta-v3 .dataTables_wrapper :is(.dataTables_filter input,.dataTables_length select){border:1px solid var(--denta-taupe-border);background:var(--denta-ivory-input);color:var(--denta-ink);border-radius:5px}
-.denta-v3 table.dataTable{border-collapse:separate;border-spacing:0;color:var(--denta-ink)}
-.denta-v3 table.dataTable thead th{background:var(--denta-table-head);border-color:var(--denta-taupe-border);font-size:11px;letter-spacing:.03em;font-weight:700}
-.denta-v3 table.dataTable tbody tr:nth-child(odd){background:var(--denta-table-odd)}
-.denta-v3 table.dataTable tbody tr:nth-child(even){background:var(--denta-table-even)}
-.denta-v3 table.dataTable tbody td{background:transparent;border-bottom:1px solid var(--denta-parchment)}
+.denta-v3 table{border-collapse:separate;border-spacing:0;color:var(--denta-ink)}
+.denta-v3 table thead th{background:var(--denta-table-head);border-color:var(--denta-taupe-border);font-size:11px;letter-spacing:.03em;font-weight:700}
+.denta-v3 table tbody tr:nth-child(odd){background:var(--denta-table-odd)}
+.denta-v3 table tbody tr:nth-child(even){background:var(--denta-table-even)}
+.denta-v3 table tbody td{background:transparent;border-bottom:1px solid var(--denta-parchment)}
 .denta-v3 .dataTables_wrapper .dataTables_paginate .paginate_button{border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);border-radius:4px;box-shadow:none}
 .denta-v3 .dataTables_wrapper .dataTables_paginate .paginate_button.current{background:var(--denta-emerald-pine);border-color:var(--denta-emerald-pine);color:var(--denta-ivory-input)!important}
 .denta-v3 .dataTables_wrapper .dataTables_paginate .paginate_button:hover{background:var(--denta-parchment);border-color:var(--denta-taupe-border);color:var(--denta-ink)!important}

@@ -155,7 +155,7 @@
 </div>
 
 <!-- Terminate Clinic Modal -->
-<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center v3-backdrop px-4 backdrop-blur-sm">
+<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center v3-backdrop px-4 ">
     <div class="w-full max-w-lg cp-modal-box">
         <div class="cp-modal-head bg-[var(--denta-tint-alert)] border-b border-[#EABCB8]">
             <div>
@@ -180,7 +180,7 @@
             <button type="button" class="cp-btn cp-btn-light cp-btn-sm v3-btn v3-btn--secondary" onclick="closeTerminateModal()">
                 <?= esc(lang('V3Platform.cancel')) ?>
             </button>
-            <button id="terminateConfirmButton" type="submit" class="cp-btn cp-btn-danger cp-btn-sm v3-btn v3-btn--primary" disabled>
+            <button id="terminateConfirmButton" type="submit" class="cp-btn cp-btn-danger cp-btn-sm v3-btn v3-btn--danger" disabled>
                 <span><?= esc(lang('V3Platform.confirmTermination')) ?></span>
             </button>
         </form>

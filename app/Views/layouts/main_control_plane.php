@@ -286,7 +286,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         </div>
     </div>
 
-    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center v3-backdrop px-4 py-10 backdrop-blur-sm">
+    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center v3-backdrop px-4 py-10 ">
         <div class="w-full max-w-2xl cp-modal-box">
             <div class="cp-modal-head">
                 <div class="flex items-center gap-2.5">

@@ -12,7 +12,7 @@
 
     <div class="relative z-10">
         <!-- Enhanced Header with Glassmorphism -->
-        <div class="backdrop-blur-xl v3-bg-panel border-b v3-border-default v3-elevation-none shadow-emerald-500/10">
+        <div class=" v3-bg-panel border-b v3-border-default v3-elevation-none shadow-emerald-500/10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div class="flex items-center justify-between">
                     <div class="space-y-2">
@@ -48,7 +48,7 @@
             <!-- Enhanced Patient Directory Header -->
             <div class="group relative mb-8 mt-8">
                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 p-6">
+                <div class="relative  v3-bg-panel border v3-border-default v3-radius v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 p-6">
                     <div class="flex items-center justify-between">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
@@ -81,7 +81,7 @@
             <!-- Enhanced DataTable with Server-Side Processing -->
             <div class="group relative">
                 <div class="absolute inset-0 v3-bg-panel v3-bg-panel v3-bg-panel v3-radius blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative backdrop-blur-xl v3-bg-panel border v3-border-default v3-radius v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500">
+                <div class="relative  v3-bg-panel border v3-border-default v3-radius v3-elevation-none shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500">
                     <!-- DataTable Container -->
                     <div class="p-6">
                         <table id="patientsTable" class="w-full">

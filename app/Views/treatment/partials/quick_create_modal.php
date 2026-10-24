@@ -78,7 +78,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
     </style>
 
     <div id="newTreatmentModal" class="app-scale-modal treatment-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newTreatmentModalTitle" dir="<?= !empty($isRtl) ? 'rtl' : 'ltr' ?>">
-        <div class="treatment-create-modal__backdrop fixed inset-0 v3-backdrop backdrop-blur-sm" data-treatment-create-modal-close></div>
+        <div class="treatment-create-modal__backdrop fixed inset-0 v3-backdrop " data-treatment-create-modal-close></div>
         <div class="treatment-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-treatment-create-modal-close>
             <form id="newTreatmentQuickCreateForm" action="<?= base_url('treatment/store') ?>" method="POST" class="treatment-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden v3-radius border v3-border-default v3-bg-panel v3-elevation-none" data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
@@ -86,7 +86,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                 <input type="hidden" name="appointment_id" value="<?= esc($modalSelectedAppointmentId ?? '') ?>">
                 <input type="hidden" name="source_modal" value="treatment_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 backdrop-blur">
+                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b v3-border-default v3-bg-panel px-5 py-4 ">
                     <div class="flex items-center gap-3">
                         <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-panel from-pink-500 v3-bg-panel v3-text-on-primary v3-elevation-none">
                             <i class="fas fa-tooth"></i>
@@ -125,7 +125,7 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
+                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t v3-border-default v3-bg-panel px-5 py-4  sm:flex-row sm:justify-end">
                     <button type="button" data-treatment-create-modal-close class="inline-flex items-center justify-center v3-radius border v3-border-default px-5 py-2.5 text-sm font-semibold v3-text-ink transition v3-hover-soft v3-btn v3-btn--secondary">
                         <?= esc(lang('Treatment.cancel')) ?>
                     </button>
