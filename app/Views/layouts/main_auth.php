@@ -58,8 +58,12 @@
         'settings' => lang('UI.menuSettings'),
         'notifications' => lang('UI.notifications'),
         'profile' => lang('UI.profileMenu'),
+        'contracts' => lang('Contracts.contractTitle'),
     ];
 
+    // Client-side exports are used only by these existing registry views.
+    $v3ExportRegistry = ($segment2 === '' && in_array($segment1, ['patient', 'patients', 'examination', 'examinations', 'treatment', 'treatments', 'prescription', 'prescriptions'], true))
+        || ($segment1 === 'finance' && $segment2 === 'payables');
     $resolvedPageTitle = $explicitTitleMap[$rawPageTitle] ?? ($routeTitleMap[$segment1] ?? $rawPageTitle);
 ?>
 <html lang="<?= esc($locale ?? 'en') ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" translate="no">
@@ -82,7 +86,7 @@
     <?php if ($loadChartJs ?? true): ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <?php endif; ?>
-    <?php if ($loadFullCalendar ?? true): ?>
+    <?php if (($loadFullCalendar ?? true) && !($segment1 === 'appointment' && $segment2 === 'calendar')): ?>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <?php endif; ?>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -95,11 +99,13 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <?php endif; ?>
+    <?php if ($v3ExportRegistry): ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <?php endif; ?>
     <meta name="description" content="Professional dental management system with comprehensive patient care, examination tracking, and appointment scheduling.">
-    <meta name="theme-color" content="#0284c7">
+    <meta name="theme-color" content="#162421">
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
@@ -107,704 +113,26 @@
     <meta name="api-session-token-url" content="<?= base_url('api/session-token') ?>">
     <meta name="google" content="notranslate">
 
-    <style>
-        :root {
-            --app-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif;
-            --app-font-ar: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif;
-            --app-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        }
-
-        html, body {
-            overflow-x: hidden;
-        }
-
-        body,
-        button,
-        input,
-        select,
-        textarea {
-            font-family: var(--app-font-sans);
-        }
-
-        #main-content,
-        #main-content *,
-        .dataTables_wrapper,
-        .dataTables_wrapper *,
-        .select2-container,
-        .select2-container *,
-        .select2-dropdown,
-        .select2-dropdown * {
-            font-family: inherit !important;
-        }
-
-        .fa,
-        .fas,
-        .fa::before,
-        .fas::before {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-        }
-
-        .far,
-        .far::before {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 400 !important;
-        }
-
-        .fab,
-        .fab::before {
-            font-family: "Font Awesome 6 Brands" !important;
-            font-weight: 400 !important;
-        }
-
-        html[lang^="ar"] body,
-        html[lang^="ar"] button,
-        html[lang^="ar"] input,
-        html[lang^="ar"] select,
-        html[lang^="ar"] textarea {
-            font-family: var(--app-font-ar);
-        }
-
-        code,
-        pre,
-        kbd,
-        samp,
-        .font-mono {
-            font-family: var(--app-font-mono) !important;
-        }
-
-        /* Modern Sidebar Transitions */
-        #sidebar:not(.no-transition) {
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        .no-transition {
-            transition: none !important;
-        }
-        
-        #sidebar-nav, #sidebar-header, #sidebar-footer {
-            transition: padding 0.3s ease;
-        }
-
-        /* Collapsed State Styles */
-        .sidebar-collapsed {
-            width: 5.5rem !important;
-        }
-
-        .sidebar-collapsed #sidebar-title,
-        .sidebar-collapsed #sidebar-nav h3,
-        .sidebar-collapsed #sidebar-nav span,
-        .sidebar-collapsed #sidebar-footer .flex-1 {
-            display: none !important;
-        }
-
-        .sidebar-collapsed #sidebar-header .flex {
-            justify-content: center !important;
-        }
-
-        .sidebar-collapsed #sidebar-header,
-        .sidebar-collapsed #sidebar-footer {
-            padding-left: 0.65rem !important;
-            padding-right: 0.65rem !important;
-        }
-
-        .sidebar-collapsed .tenant-sidebar-brand {
-            width: 3.65rem !important;
-            min-height: 3.65rem !important;
-            justify-content: center !important;
-            padding: 0.5rem !important;
-            margin-inline: auto !important;
-        }
-
-        .sidebar-collapsed #sidebar-nav > div {
-            padding-left: 0.55rem !important;
-            padding-right: 0.55rem !important;
-        }
-
-        .sidebar-collapsed #sidebar-nav .px-2 {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
-        .sidebar-collapsed #sidebar-nav ul li a {
-            justify-content: center !important;
-            align-items: center !important;
-            width: 3.5rem !important;
-            min-height: 3.45rem !important;
-            height: 3.45rem !important;
-            padding: 0 !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            border-radius: 1.05rem !important;
-        }
-
-        .sidebar-collapsed #sidebar-nav ul li a i {
-            margin-right: 0 !important;
-            margin-left: 0 !important;
-            font-size: 1rem !important;
-            width: 2rem !important;
-            height: 2rem !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        .sidebar-collapsed #sidebar-nav ul {
-            gap: 0.5rem !important;
-        }
-
-        .sidebar-collapsed #sidebar-footer > a {
-            width: 3.65rem !important;
-            min-height: 3.65rem !important;
-            padding: 0.5rem !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-
-        .sidebar-collapsed #sidebar-footer > a > .relative {
-            justify-content: center !important;
-            gap: 0 !important;
-        }
-
-        .sidebar-collapsed #sidebar-footer > a > .relative > .relative:first-child {
-            margin-top: 0 !important;
-        }
-
-        .sidebar-collapsed #sidebar-footer .fa-user {
-            font-size: 0.95rem !important;
-        }
-
-        .sidebar-collapsed .tenant-sidebar-footer-card .w-10,
-        .sidebar-collapsed .tenant-sidebar-brand .w-10 {
-            width: 2.45rem !important;
-            height: 2.45rem !important;
-        }
-
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
-
-        .tenant-sidebar {
-            background:
-                radial-gradient(circle at 18% 0%, rgba(59,130,246,0.26), transparent 34%),
-                radial-gradient(circle at 86% 14%, rgba(45,212,191,0.16), transparent 28%),
-                linear-gradient(180deg, #0f2f68 0%, #102a56 45%, #0f172a 100%);
-            border-inline-end: 1px solid rgba(255,255,255,0.10);
-            box-shadow: 18px 0 42px -38px rgba(15,23,42,0.88);
-        }
-
-        [dir="rtl"] .tenant-sidebar {
-            box-shadow: -18px 0 42px -38px rgba(15,23,42,0.88);
-        }
-
-        .tenant-sidebar-brand {
-            width: 100%;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.10);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
-        }
-
-        .tenant-sidebar-section-label {
-            color: rgba(219,234,254,0.68);
-        }
-
-        .tenant-nav-link {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 0.72rem;
-            min-height: 2.72rem;
-            border-radius: 0.95rem;
-            padding: 0.64rem 0.78rem;
-            color: rgba(226,232,240,0.82);
-            font-size: 0.875rem;
-            font-weight: 800;
-            transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .tenant-nav-link:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.10);
-            transform: translateY(-1px);
-        }
-
-        .tenant-nav-link.is-active {
-            color: #fff;
-            background:
-                radial-gradient(circle at 0% 0%, rgba(255,255,255,0.20), transparent 38%),
-                linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
-            box-shadow: 0 16px 30px -24px rgba(14,165,233,0.92), inset 0 1px 0 rgba(255,255,255,0.18);
-        }
-
-        .tenant-nav-icon {
-            display: inline-flex;
-            width: 1.8rem;
-            height: 1.8rem;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border-radius: 0.68rem;
-            color: rgba(191,219,254,0.92);
-            background: rgba(255,255,255,0.08);
-        }
-
-        .tenant-nav-link.is-active .tenant-nav-icon {
-            color: #fff;
-            background: rgba(255,255,255,0.18);
-        }
-
-        .tenant-sidebar-footer-card {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.10);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
-        }
-
-        .tenant-app-header {
-            background: rgba(255,255,255,0.92);
-            border-bottom: 1px solid rgba(226,232,240,0.90);
-            box-shadow: 0 12px 34px -30px rgba(15,23,42,0.42);
-        }
-
-        .tenant-header-button {
-            position: relative;
-            display: inline-flex;
-            width: 2.5rem;
-            height: 2.5rem;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.9rem;
-            border: 1px solid rgba(226,232,240,0.95);
-            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92));
-            color: #475569;
-            box-shadow: 0 12px 26px -24px rgba(15,23,42,0.50);
-            transition: transform 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
-        }
-
-        .tenant-header-button:hover {
-            transform: translateY(-1px);
-            border-color: rgba(59,130,246,0.38);
-            color: #1d4ed8;
-            box-shadow: 0 16px 30px -25px rgba(37,99,235,0.45);
-        }
-
-        .tenant-language-switcher {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.18rem;
-            border-radius: 999px;
-            border: 1px solid rgba(226,232,240,0.95);
-            background:
-                radial-gradient(circle at 14% 18%, rgba(59,130,246,0.16), transparent 28%),
-                linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.94));
-            padding: 0.25rem;
-            box-shadow: 0 14px 30px -25px rgba(15,23,42,0.50), inset 0 1px 0 rgba(255,255,255,0.94);
-        }
-
-        .tenant-language-switcher__icon {
-            display: inline-flex;
-            width: 2rem;
-            height: 2rem;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #eff6ff, #ecfeff);
-            color: #2563eb;
-            box-shadow: inset 0 0 0 1px rgba(191,219,254,0.72);
-        }
-
-        .tenant-language-option {
-            display: inline-flex;
-            min-height: 2rem;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            padding: 0 0.7rem;
-            color: #64748b;
-            font-size: 0.75rem;
-            font-weight: 900;
-            letter-spacing: 0;
-            line-height: 1;
-            transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
-        }
-
-        .tenant-language-option:hover {
-            color: #0f172a;
-            background: rgba(239,246,255,0.92);
-            transform: translateY(-1px);
-        }
-
-        .tenant-language-option.is-active {
-            color: #fff;
-            background: linear-gradient(135deg, #2563eb, #0891b2);
-            box-shadow: 0 12px 22px -16px rgba(37,99,235,0.65);
-        }
-
-        .tenant-header-dropdown {
-            border-radius: 1.05rem;
-            border: 1px solid rgba(226,232,240,0.92);
-            background:
-                radial-gradient(circle at 0% 0%, rgba(37,99,235,0.08), transparent 32%),
-                linear-gradient(135deg, rgba(255,255,255,0.99), rgba(248,250,252,0.97));
-            box-shadow: 0 24px 54px -34px rgba(15,23,42,0.42), 0 1px 0 rgba(255,255,255,0.96) inset;
-            overflow: hidden;
-        }
-
-        .tenant-header-dropdown__header {
-            border-bottom: 1px solid rgba(226,232,240,0.86);
-            background: linear-gradient(135deg, rgba(248,250,252,0.96), rgba(239,246,255,0.94));
-        }
-
-        .tenant-header-dropdown__footer {
-            border-top: 1px solid rgba(226,232,240,0.86);
-            background: linear-gradient(135deg, rgba(248,250,252,0.98), rgba(255,255,255,0.96));
-        }
-
-        .tenant-menu-row {
-            display: flex;
-            align-items: center;
-            gap: 0.72rem;
-            border-radius: 0.85rem;
-            padding: 0.72rem 0.78rem;
-            color: #475569;
-            font-size: 0.875rem;
-            font-weight: 800;
-            transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
-        }
-
-        .tenant-menu-row:hover {
-            color: #0f172a;
-            background: rgba(239,246,255,0.92);
-            transform: translateY(-1px);
-        }
-
-        .tenant-menu-row__icon {
-            display: inline-flex;
-            width: 2.1rem;
-            height: 2.1rem;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border-radius: 0.75rem;
-            color: #2563eb;
-            background: linear-gradient(135deg, rgba(219,234,254,0.92), rgba(224,242,254,0.82));
-        }
-
-        .tenant-menu-row--danger {
-            color: #dc2626;
-        }
-
-        .tenant-menu-row--danger:hover {
-            color: #b91c1c;
-            background: rgba(254,242,242,0.95);
-        }
-
-        .tenant-menu-row--danger .tenant-menu-row__icon {
-            color: #dc2626;
-            background: linear-gradient(135deg, rgba(254,226,226,0.95), rgba(255,241,242,0.90));
-        }
-
-        /* RTL parity: keep icon/text spacing identical to LTR rhythm in sidebar/menu clusters */
-        [dir="rtl"] #sidebar-nav ul li a {
-            text-align: right;
-        }
-        [dir="rtl"] #sidebar-nav ul li a i {
-            margin-right: 0 !important;
-            margin-left: 0 !important;
-        }
-        [dir="rtl"] #sidebar .space-x-1 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #sidebar .space-x-2 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #sidebar .space-x-3 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #sidebar .space-x-4 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-x-reverse: 1;
-        }
-        [dir="rtl"] #main-header .space-x-1 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-header .space-x-2 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-header .space-x-3 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-header .space-x-4 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-content .space-x-1 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-content .space-x-2 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-content .space-x-3 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-content .space-x-4 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-content .space-x-5 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] #main-content .space-x-6 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-x-reverse: 1;
-        }
-        [dir="rtl"] button i.mr-1,
-        [dir="rtl"] a i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-        [dir="rtl"] button i.mr-2,
-        [dir="rtl"] a i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-        [dir="rtl"] button i.mr-3,
-        [dir="rtl"] a i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
-        [dir="rtl"] button i.mr-4,
-        [dir="rtl"] a i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
-        [dir="rtl"] #main-header i.mr-1, [dir="rtl"] #main-content i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-        [dir="rtl"] #main-header i.mr-2, [dir="rtl"] #main-content i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-        [dir="rtl"] #main-header i.mr-3, [dir="rtl"] #main-content i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
-        [dir="rtl"] #main-header i.mr-4, [dir="rtl"] #main-content i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
-        [dir="rtl"] #main-header i.mr-5, [dir="rtl"] #main-content i.mr-5 { margin-right: 0 !important; margin-left: 1.25rem !important; }
-        [dir="rtl"] #main-header i.mr-6, [dir="rtl"] #main-content i.mr-6 { margin-right: 0 !important; margin-left: 1.5rem !important; }
-        /* Keep technical fields LTR in RTL locales */
-        [dir="rtl"] input[type="tel"],
-        [dir="rtl"] input[type="email"],
-        [dir="rtl"] input[type="url"],
-        [dir="rtl"] input[data-force-ltr="1"],
-        [dir="rtl"] textarea[data-force-ltr="1"] {
-            direction: ltr !important;
-            text-align: left !important;
-            unicode-bidi: plaintext;
-        }
-
-        .required-indicator {
-            color: #dc2626 !important;
-            font-weight: 700;
-            margin-inline-start: 0.25rem;
-            white-space: nowrap;
-        }
-
-        .rtl-back-icon {
-            transition: transform 0.2s ease;
-        }
-
-        [dir="rtl"] .rtl-back-icon {
-            transform: scaleX(-1);
-        }
-
-        .toggle-track {
-            transition: background-color 0.2s ease;
-        }
-        .toggle-dot {
-            transition: transform 0.2s ease;
-        }
-
-        [dir="rtl"] .toggle-dot {
-            left: auto !important;
-            right: 0.25rem !important;
-        }
-
-        [dir="rtl"] form .relative > .absolute.inset-y-0.right-0.flex.items-center.pr-3.pointer-events-none,
-        [dir="rtl"] form .relative > .absolute.inset-y-0.right-0.pr-3.flex.items-center.pointer-events-none,
-        [dir="rtl"] form .relative > .pointer-events-none.absolute.inset-y-0.right-0.flex.items-center.pr-3 {
-            left: 0 !important;
-            right: auto !important;
-            padding-left: 0.75rem !important;
-            padding-right: 0 !important;
-        }
-
-        [dir="rtl"] form .relative > .absolute.inset-y-0.left-0.pl-4.flex.items-center.pointer-events-none,
-        [dir="rtl"] form .relative > .absolute.inset-y-0.left-0.pl-3.flex.items-center.pointer-events-none {
-            right: 0 !important;
-            left: auto !important;
-            padding-right: 1rem !important;
-            padding-left: 0 !important;
-        }
-
-        [dir="rtl"] form .relative > .absolute.bottom-3.right-3.text-gray-400.text-xs {
-            left: 0.75rem !important;
-            right: auto !important;
-        }
-
-        [dir="rtl"] form input[data-clinic-date],
-        [dir="rtl"] form input[type="date"] {
-            padding-left: 2.5rem !important;
-            padding-right: 1rem !important;
-        }
-
-        form input[data-clinic-date="1"][type="date"]::-webkit-calendar-picker-indicator,
-        form input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 0 !important;
-            display: none !important;
-            -webkit-appearance: none !important;
-        }
-
-        form input[data-clinic-date="1"][type="date"]::-webkit-inner-spin-button,
-        form input[data-clinic-date="1"][type="date"]::-webkit-clear-button,
-        form input[type="date"]::-webkit-inner-spin-button,
-        form input[type="date"]::-webkit-clear-button {
-            display: none !important;
-            -webkit-appearance: none !important;
-        }
-
-        form input[data-clinic-date="1"][type="date"],
-        form input[type="date"] {
-            appearance: textfield;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
-        }
-
-        @media (max-width: 1023px) {
-            #main-content .group > .absolute[class*="blur"] {
-                display: none !important;
-            }
-
-            #main-content .group > .relative.backdrop-blur-xl,
-            #main-content .group > .relative[class*="shadow-2xl"] {
-                box-shadow: 0 14px 32px -22px rgba(15, 23, 42, 0.22) !important;
-                backdrop-filter: blur(14px) !important;
-            }
-
-            #main-content .group:hover > .relative.backdrop-blur-xl,
-            #main-content .group:hover > .relative[class*="shadow-2xl"] {
-                transform: none !important;
-            }
-
-            #main-content .hover\:scale-105:hover,
-            #main-content .hover\:scale-110:hover,
-            #main-content .hover\:-translate-y-2:hover,
-            #main-content .hover\:-translate-y-1:hover,
-            #main-content .hover\:rotate-2:hover,
-            #main-content .hover\:rotate-3:hover {
-                transform: none !important;
-            }
-
-            #main-content .text-4xl {
-                font-size: 1.875rem !important;
-                line-height: 1.2 !important;
-            }
-
-            #main-content .text-3xl {
-                font-size: 1.5rem !important;
-                line-height: 1.25 !important;
-            }
-
-            #main-content .text-2xl {
-                font-size: 1.25rem !important;
-                line-height: 1.3 !important;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .sidebar-mobile-hidden {
-                transform: translateX(-100%);
-            }
-
-            [dir="rtl"] .sidebar-mobile-hidden {
-                transform: translateX(100%);
-            }
-
-            #sidebar {
-                position: fixed !important;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                width: min(22rem, 86vw) !important;
-                max-width: 86vw;
-            }
-            [dir="rtl"] #sidebar {
-                left: auto;
-                right: 0;
-            }
-            #main-header {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-            #main-header h2 {
-                font-size: 1rem !important;
-            }
-            #header-right {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            #header-right .mobile-hide-compact {
-                display: none !important;
-            }
-            #main-content > main {
-                padding: 1rem !important;
-            }
-            #main-content .overflow-x-auto {
-                -webkit-overflow-scrolling: touch;
-            }
-            #main-content table.min-w-full,
-            #main-content table.dataTable {
-                min-width: 720px;
-            }
-            #main-content .dataTables_wrapper .dataTables_length,
-            #main-content .dataTables_wrapper .dataTables_filter,
-            #main-content .dataTables_wrapper .dataTables_info,
-            #main-content .dataTables_wrapper .dataTables_paginate {
-                float: none !important;
-                text-align: start !important;
-                width: 100%;
-                margin-bottom: 0.75rem;
-            }
-            #main-content .dataTables_wrapper .dataTables_filter input,
-            #main-content .dataTables_wrapper .dataTables_length select {
-                width: 100%;
-                max-width: 100%;
-                margin: 0.35rem 0 0 !important;
-            }
-            #main-content .dataTables_wrapper .dataTables_filter label,
-            #main-content .dataTables_wrapper .dataTables_length label {
-                width: 100%;
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 0.5rem;
-                margin: 0 !important;
-            }
-            #main-content .dataTables_wrapper .dt-buttons {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                margin-bottom: 0.75rem;
-            }
-            #main-content .dataTables_wrapper .dt-buttons .dt-button {
-                width: auto;
-                margin: 0 !important;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            #main-content .dataTables_wrapper .dataTables_length,
-            #main-content .dataTables_wrapper .dataTables_filter,
-            #main-content .dataTables_wrapper .dataTables_info,
-            #main-content .dataTables_wrapper .dataTables_paginate {
-                float: none !important;
-                text-align: start !important;
-            }
-
-            #main-content .dataTables_wrapper > .row:first-child,
-            #main-content .dataTables_wrapper > .row:last-child {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                gap: 0.75rem !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            #sidebar {
-                position: sticky !important;
-                top: 0;
-                min-height: 100vh;
-                height: 100vh;
-                inset-inline-start: auto !important;
-                transform: none !important;
-                overflow: hidden !important;
-            }
-
-            #sidebar-nav {
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-            }
-
-            #sidebar-footer {
-                position: relative;
-                z-index: 1;
-                flex-shrink: 0;
-            }
-        }
-    </style>
+<link rel="stylesheet" href="<?= base_url('assets/css/warm-clinical.css') ?>?v=<?= esc(asset_version('assets/css/warm-clinical.css')) ?>">
+    <?php if (in_array($segment1, ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'finance'], true)): ?>
+    <link rel="stylesheet" href="<?= base_url('assets/css/warm-workspaces.css') ?>?v=<?= esc(asset_version('assets/css/warm-workspaces.css')) ?>">
+    <?php endif; ?>
+    <?php if (in_array($segment1, ['contracts', 'examination', 'examinations', 'prescription', 'prescriptions', 'inventory', 'settings'], true)): ?>
+    <link rel="stylesheet" href="<?= base_url('assets/css/warm-secondary-layout.css') ?>?v=<?= esc(asset_version('assets/css/warm-secondary-layout.css')) ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/warm-secondary.css') ?>?v=<?= esc(asset_version('assets/css/warm-secondary.css')) ?>">
+    <?php endif; ?>
 </head>
-<body class="bg-gray-50 min-h-screen overflow-x-hidden">
+<body class="denta-v3 bg-gray-50 min-h-screen overflow-x-hidden">
+    <a class="v3-skip-link" href="#workspace-content"><?= esc(lang('V3.skipToContent')) ?></a>
     <!-- Toast Notification System -->
-    <?= view('components/toast') ?>  
+    <?= view('components/toast') ?>
     <div class="flex min-h-screen">
-        <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="tenant-sidebar w-60 overflow-hidden z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
+        <!-- V3 workspace rail: existing permission-filtered navigation -->
+        <aside class="tenant-sidebar sidebar-mobile-hidden no-transition" id="sidebar" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {
-                const wasCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+                const wasCollapsed = localStorage.getItem('sidebar-collapsed') !== 'false';
                 const isMobile = window.innerWidth < 768;
                 const sidebar = document.getElementById('sidebar');
                 if (wasCollapsed && !isMobile) {
@@ -817,12 +145,12 @@
             <div class="flex items-center">
                 <a href="<?= base_url('dashboard') ?>" class="tenant-sidebar-brand flex items-center space-x-3 group cursor-pointer rounded-2xl p-2 transition-all duration-200 hover:bg-white/10">
                     <div class="relative group">
-                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl blur-lg opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
-                            <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 transition-all duration-200">
+                            <div class="absolute inset-0 rounded-xl opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
+                            <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 transition-all duration-200">
                             <?php if (!empty($clinic['logo_path'])): ?>
-                                <?php 
-                                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
-                                        ? $clinic['logo_path'] 
+                                <?php
+                                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0)
+                                        ? $clinic['logo_path']
                                         : base_url(ltrim($clinic['logo_path'], '/'));
                                 ?>
                                 <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain">
@@ -847,11 +175,11 @@
             <!-- Main Menu -->
             <div class="p-2.5">
                 <div class="flex items-center space-x-2 mb-3 px-2">
-                    <div class="w-2 h-2 bg-gradient-to-r from-cyan-300 to-emerald-300 rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 from-cyan-300 to-emerald-300 rounded-full animate-pulse"></div>
                     <h3 class="tenant-sidebar-section-label text-xs font-black uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
                 </div>
                 <ul class="space-y-1.5">
-                    <?php 
+                    <?php
                     // Simple static menu - no authentication required
                     $userMenu = [];
                     $menu = [
@@ -1002,8 +330,8 @@
                         }
                     ?>
                     <li>
-                        <a href="<?= base_url($item['url']) ?>" class="tenant-nav-link <?= $isActive ? 'is-active' : '' ?>">
-                            <i class="<?= $item['icon'] ?> tenant-nav-icon"></i>
+                        <a href="<?= base_url($item['url']) ?>" class="tenant-nav-link <?= $isActive ? 'is-active' : '' ?>" title="<?= esc($item['title']) ?>" <?= $isActive ? 'aria-current="page"' : '' ?>>
+                            <i class="<?= $item['icon'] ?> tenant-nav-icon" aria-hidden="true"></i>
                             <span class="relative z-10 truncate"><?= $item['title'] ?></span>
                         </a>
                     </li>
@@ -1017,19 +345,19 @@
             <a href="<?= base_url('profile') ?>" class="tenant-sidebar-footer-card group relative block cursor-pointer rounded-2xl p-2.5 transition-all duration-200 hover:bg-white/10">
                 <div class="relative z-10 flex items-center gap-2.5">
                     <div class="relative shrink-0">
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full blur-lg opacity-70 group-hover:opacity-95 transition-opacity duration-200"></div>
-                        <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
+                        <div class="absolute inset-0 rounded-full opacity-70 group-hover:opacity-95 transition-opacity duration-200"></div>
+                        <div class="relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="truncate text-sm font-black leading-5 text-white">
-                            <?php 
+                            <?php
                             $user = $user ?? null;
                             $displayName = esc($clinic['name']);
                             if (isset($user) and $user) {
                                 // Try first_name + last_name combination
-                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 
+                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and
                                     !empty($user->first_name) and !empty($user->last_name)) {
                                     $displayName = esc(trim($user->first_name . ' ' . $user->last_name));
                                 }
@@ -1047,31 +375,32 @@
         </div>
     </aside>
 
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden" onclick="closeMobileSidebar()"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden" onclick="closeMobileSidebar()"></div>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen transition-all duration-300 min-w-0" id="main-content">
-        
+
         <!-- Smart Top Navigation Bar -->
-        <header class="tenant-app-header sticky top-0 px-4 sm:px-5 py-3 transition-all duration-300 relative z-30 backdrop-blur-xl" id="main-header">
+        <header class="tenant-app-header" id="main-header">
             <!-- Animated Background Elements -->
-            <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent pointer-events-none"></div>
-            
+            <div class="absolute inset-x-0 bottom-0 h-px from-transparent to-transparent pointer-events-none"></div>
+
             <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
-                    <button class="tenant-header-button" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+                    <button id="sidebar-toggle" type="button" class="tenant-header-button" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()" title="<?= esc(lang('UI.mainMenu')) ?> (Ctrl+B)" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
                         <i class="fas fa-bars text-lg relative z-10 transition-colors duration-200"></i>
                     </button>
-                    
+
                     <!-- Page Title -->
                     <div class="flex items-center space-x-4 min-w-0">
                         <h2 class="text-lg sm:text-xl font-black text-slate-950 leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
                     </div>
                 </div>
-                
+
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0" id="header-right">
+                    <span class="v3-clinic-context"><i class="fas fa-clinic-medical" aria-hidden="true"></i><span class="truncate"><?= esc($clinic['name'] ?? 'Denta+') ?></span></span>
                     <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
                     <?php $returnToUrl = current_url(true)->__toString(); ?>
                     <div class="hidden sm:flex items-center">
@@ -1112,9 +441,9 @@
                     <?php if (session()->get('is_impersonating')): ?>
                     <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="hidden sm:flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
                         <?= csrf_field() ?>
-                        <span class="text-xs font-semibold text-rose-600">Impersonating</span>
+                        <span class="text-xs font-semibold text-rose-600"><?= esc(lang('V3.impersonating')) ?></span>
                         <button type="submit" class="text-xs font-semibold text-rose-700 hover:text-rose-800">
-                            Exit
+                            <?= esc(lang('V3.exitImpersonation')) ?>
                         </button>
                     </form>
                     <?php endif; ?>
@@ -1124,7 +453,7 @@
                         <button onclick="toggleClinicSwitcher()" class="tenant-header-button">
                             <i class="fas fa-hospital text-sm"></i>
                         </button>
-                        
+
                         <!-- Tooltip -->
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                             <?= lang('UI.switchClinic') ?> (<?= esc($clinic['name']) ?>)
@@ -1140,7 +469,7 @@
                                 <?php foreach ($user_memberships as $m): ?>
                                     <a href="<?= base_url('clinic/switch/' . $m['clinic_id']) ?>" class="tenant-menu-row justify-between mb-1 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-blue-50 !text-blue-700' : '' ?>">
                                         <span class="flex min-w-0 items-center gap-3">
-                                            <span class="tenant-menu-row__icon <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-gradient-to-br !from-blue-500 !to-cyan-600 !text-white shadow-sm shadow-blue-500/20' : '' ?>">
+                                            <span class="tenant-menu-row__icon <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? '!bg-emerald-700 !text-white' : '' ?>">
                                                 <i class="fas fa-hospital text-sm"></i>
                                             </span>
                                             <span class="flex min-w-0 flex-col overflow-hidden">
@@ -1179,7 +508,7 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-                        
+
                         <!-- New Appointment -->
                         <div class="relative group">
                             <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="tenant-header-button">
@@ -1190,7 +519,7 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-                        
+
                         <!-- New Examination -->
                         <div class="relative group">
                             <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="tenant-header-button">
@@ -1201,7 +530,7 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-                        
+
                         <!-- Notifications -->
                         <div class="relative group">
                             <button id="notifications-trigger" class="tenant-header-button" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
@@ -1213,33 +542,33 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-                        
+
                     </div>
-                    
+
                     <!-- User Profile Dropdown -->
                     <div class="relative group">
-                        <button id="user-menu-trigger" type="button" onclick="toggleUserMenu()" class="tenant-header-button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
+                        <button id="user-menu-trigger" aria-label="<?= esc(lang('UI.profileMenu')) ?>" type="button" onclick="toggleUserMenu()" class="tenant-header-button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
                             <i class="fas fa-user text-sm"></i>
                         </button>
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                             <?= lang('UI.profileMenu') ?>
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
-                        
+
                         <!-- User Menu Dropdown -->
                         <div id="userMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50">
                             <div class="tenant-header-dropdown__header p-4">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg">
                                         <i class="fas fa-user text-white text-lg"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <div class="truncate text-sm font-black text-slate-950">
-                                            <?php 
+                                            <?php
                                             $displayName = 'User';
                                             if (isset($user) and $user) {
                                                 // Try first_name + last_name combination
-                                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 
+                                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and
                                                     !empty($user->first_name) and !empty($user->last_name)) {
                                                     $displayName = htmlspecialchars(trim($user->first_name . ' ' . $user->last_name));
                                                 }
@@ -1273,7 +602,7 @@
                                     <span class="tenant-menu-row__icon"><i class="fas fa-exchange-alt text-sm"></i></span>
                                     <span><?= lang('UI.switchClinic') ?></span>
                                 </a>
-                                
+
                                 <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
                                     <div class="border-t border-gray-100 my-2"></div>
                                     <form action="<?= base_url('controlplane/enter') ?>" method="post">
@@ -1293,7 +622,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Logout Button -->
                     <div class="relative group mobile-hide-compact">
                         <a href="<?= base_url('auth/logout') ?>" class="tenant-header-button hover:!text-red-600">
@@ -1309,14 +638,14 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 bg-gray-50 p-6">
+        <main id="workspace-content" tabindex="-1" class="v3-workspace-canvas">
             <!-- Flash Messages -->
             <?php if (session()->getFlashdata('message')): ?>
                 <noscript><div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg" role="status" aria-live="polite">
                     <?= session()->getFlashdata('message') ?>
                 </div></noscript>
             <?php endif; ?>
-            
+
             <?php if (session()->getFlashdata('error')): ?>
                 <noscript><div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert" aria-live="assertive">
                     <?= session()->getFlashdata('error') ?>
@@ -1542,12 +871,32 @@
         });
     }
 
+    // V3 navigation accessibility shares the existing sidebar state.
+    function syncSidebarAccessibility() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const mobile = window.innerWidth < 768;
+        const hidden = mobile && sidebar.classList.contains('sidebar-mobile-hidden');
+        sidebar.inert = hidden;
+        if (hidden) sidebar.setAttribute('aria-hidden', 'true');
+        else sidebar.removeAttribute('aria-hidden');
+        toggle?.setAttribute('aria-expanded', String(mobile ? !hidden : !sidebar.classList.contains('sidebar-collapsed')));
+    }
+    document.addEventListener('keydown', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        if (event.key !== 'Tab' || window.innerWidth >= 768 || sidebar.classList.contains('sidebar-mobile-hidden')) return;
+        const links = Array.from(sidebar.querySelectorAll('a[href],button:not([disabled])')).filter(el => el.getClientRects().length);
+        if (!links.length) return;
+        const first = links[0], last = links[links.length - 1];
+        if (event.shiftKey && document.activeElement === first) {event.preventDefault();last.focus();}
+        else if (!event.shiftKey && document.activeElement === last) {event.preventDefault();first.focus();}
+    });
     // Sidebar toggle functionality
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 768;
-        
+
         if (isMobile) {
             sidebar.classList.toggle('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
@@ -1556,11 +905,13 @@
         } else {
             sidebar.classList.toggle('sidebar-collapsed');
             sidebar.classList.remove('sidebar-mobile-hidden');
-            
+
             // Persist state
             const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
             localStorage.setItem('sidebar-collapsed', isCollapsed);
         }
+        syncSidebarAccessibility();
+        if (isMobile && !sidebar.inert) sidebar.querySelector('a')?.focus();
     }
 
     function closeMobileSidebar() {
@@ -1570,6 +921,8 @@
         sidebar.classList.add('sidebar-mobile-hidden');
         backdrop.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
+        syncSidebarAccessibility();
+        document.getElementById('sidebar-toggle')?.focus();
     }
 
     function bindSidebarScrollBridge() {
@@ -1600,14 +953,16 @@
         const isMobile = window.innerWidth < 768;
 
         bindSidebarScrollBridge();
-        
+        syncSidebarAccessibility();
+
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
             backdrop.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
         }
-        
+
+        syncSidebarAccessibility();
         // Remove no-transition after initial paint to enable smooth toggling
         requestAnimationFrame(() => {
             setTimeout(() => {
@@ -1621,7 +976,7 @@
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 768;
-        
+
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
@@ -1632,6 +987,7 @@
             backdrop.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
         }
+        syncSidebarAccessibility();
     });
 
 
@@ -2564,10 +1920,10 @@
         initializeClinicTimeInputs();
         runRequiredFieldMarkerSync();
         loadNotifications();
-        
+
         // Handle URL search parameters
         handleUrlSearchParams();
-        
+
         // Hidden tabs do not poll; returning to the clinic workspace refreshes immediately.
         setInterval(() => {
             if (!document.hidden) { loadNotifications(); }
@@ -2606,14 +1962,14 @@
     function handleUrlSearchParams() {
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search');
-        
+
         if (searchParam) {
             console.log('URL search parameter found:', searchParam);
             // Pre-populate the global search input
             const globalSearchInput = document.getElementById('globalSearch');
             if (globalSearchInput) {
                 globalSearchInput.value = searchParam;
-                
+
                 // If we're on patients page, also perform the search
                 if (window.location.pathname.includes('/patients')) {
                     setTimeout(() => {
@@ -2652,7 +2008,7 @@
                 console.log('DataTables not available or search failed');
             }
         }
-        
+
         // Fallback: redirect to patients page with search parameter
         window.location.href = `<?= base_url('patients') ?>?search=${encodeURIComponent(query)}`;
     }
@@ -2777,7 +2133,7 @@
                 setUserMenuExpanded(false);
             }
         }
-        
+
         // Handle Clinic Switcher
         if (!e.target.closest('#clinic-switcher')) {
             const clinicMenu = document.getElementById('clinicSwitcherMenu');
@@ -2797,6 +2153,8 @@
 
         if (e.key === 'Escape') {
             closeHeaderMenus();
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth < 768 && !sidebar.classList.contains('sidebar-mobile-hidden')) closeMobileSidebar();
         }
     });
 

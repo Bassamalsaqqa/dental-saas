@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/tailwind.css') ?: '1' ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= @filemtime(FCPATH . 'assets/vendor/fontawesome/css/all.min.css') ?: '1' ?>">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <?php if (!isset($disableDataTables) || !$disableDataTables): ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -30,370 +30,25 @@
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
-    <style>
-        :root {
-            --app-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif;
-            --app-font-ar: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif;
-            --app-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        }
 
-        html, body {
-            overflow-x: hidden;
-        }
-
-        body {
-            font-family: var(--app-font-sans);
-        }
-
-        body,
-        button,
-        input,
-        select,
-        textarea {
-            font-family: var(--app-font-sans);
-        }
-
-        html[lang^="ar"] body,
-        html[lang^="ar"] button,
-        html[lang^="ar"] input,
-        html[lang^="ar"] select,
-        html[lang^="ar"] textarea {
-            font-family: var(--app-font-ar);
-        }
-
-        code,
-        pre,
-        kbd,
-        samp,
-        .font-mono,
-        .wa-code {
-            font-family: var(--app-font-mono) !important;
-        }
-
-        .fa,
-        .fas,
-        .fa::before,
-        .fas::before {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-        }
-
-        .far,
-        .far::before {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 400 !important;
-        }
-
-        .fab,
-        .fab::before {
-            font-family: "Font Awesome 6 Brands" !important;
-            font-weight: 400 !important;
-        }
-        /*
-         * Control-plane typography contract:
-         * Align all CP pages (and tab content) to the /controlplane/roles hierarchy.
-         */
-        .cp-content {
-            color: #374151;
-            line-height: 1.5;
-            letter-spacing: 0;
-        }
-        .cp-content h1,
-        .cp-content h2,
-        .cp-content h3,
-        .cp-content h4,
-        .cp-content h5,
-        .cp-content h6 {
-            color: #1f2937;
-            font-weight: 700;
-            letter-spacing: 0;
-            line-height: 1.3;
-            margin-top: 0;
-        }
-        .cp-content h1 { font-size: 2.25rem; margin-bottom: 0.75rem; }
-        .cp-content h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .cp-content h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-        .cp-content h4 { font-size: 1.125rem; margin-bottom: 0.375rem; }
-        .cp-content p,
-        .cp-content li,
-        .cp-content td,
-        .cp-content th,
-        .cp-content label,
-        .cp-content input,
-        .cp-content select,
-        .cp-content textarea,
-        .cp-content button,
-        .cp-content a {
-            letter-spacing: 0;
-        }
-        .cp-content p,
-        .cp-content li,
-        .cp-content td,
-        .cp-content label,
-        .cp-content input,
-        .cp-content select,
-        .cp-content textarea,
-        .cp-content button,
-        .cp-content a {
-            font-size: 0.875rem;
-        }
-        .cp-content th {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #6b7280;
-        }
-        .cp-content .font-black,
-        .cp-content .font-extrabold {
-            font-weight: 700 !important;
-        }
-        .cp-content .font-bold {
-            font-weight: 700 !important;
-        }
-        .cp-content .font-semibold {
-            font-weight: 600 !important;
-        }
-        .cp-content .font-medium {
-            font-weight: 500 !important;
-        }
-        .cp-content [class*="tracking-"] {
-            letter-spacing: 0 !important;
-        }
-        .cp-content .uppercase {
-            text-transform: none !important;
-        }
-        .cp-content .text-4xl { font-size: 2.25rem !important; line-height: 1.2 !important; }
-        .cp-content .text-3xl { font-size: 1.875rem !important; line-height: 1.25 !important; }
-        .cp-content .text-2xl { font-size: 1.5rem !important; line-height: 1.3 !important; }
-        .cp-content .text-xl { font-size: 1.25rem !important; line-height: 1.35 !important; }
-        .cp-content .text-lg { font-size: 1.125rem !important; line-height: 1.4 !important; }
-        .cp-content .text-base { font-size: 1rem !important; }
-        .cp-content .text-sm { font-size: 0.875rem !important; }
-        .cp-content .text-xs { font-size: 0.75rem !important; }
-
-        .rtl-back-icon {
-            transition: transform 0.2s ease;
-        }
-        [dir="rtl"] .rtl-back-icon {
-            transform: scaleX(-1);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            box-shadow: 0 30px 80px -50px rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(24px);
-        }
-        .glass-muted {
-            background: rgba(255, 255, 255, 0.68);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 50px -40px rgba(15, 23, 42, 0.35);
-            backdrop-filter: blur(20px);
-        }
-        /* RTL spacing parity */
-        [dir="rtl"] #sidebar-nav ul li a {
-            text-align: right;
-        }
-        [dir="rtl"] #sidebar-nav ul li a i {
-            margin-right: 0 !important;
-            margin-left: 0.75rem !important;
-        }
-        [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] .space-x-5 > :not([hidden]) ~ :not([hidden]),
-        [dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-x-reverse: 1;
-        }
-        [dir="rtl"] i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-        [dir="rtl"] i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-        [dir="rtl"] i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
-        [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
-        [dir="rtl"] i.mr-5 { margin-right: 0 !important; margin-left: 1.25rem !important; }
-        [dir="rtl"] i.mr-6 { margin-right: 0 !important; margin-left: 1.5rem !important; }
-        [dir="rtl"] .text-left {
-            text-align: right !important;
-        }
-
-        [dir="rtl"] form .relative > .absolute.inset-y-0.right-0.flex.items-center.pr-3.pointer-events-none,
-        [dir="rtl"] form .relative > .absolute.inset-y-0.right-0.pr-3.flex.items-center.pointer-events-none,
-        [dir="rtl"] form .relative > .pointer-events-none.absolute.inset-y-0.right-0.flex.items-center.pr-3 {
-            left: 0 !important;
-            right: auto !important;
-            padding-left: 0.75rem !important;
-            padding-right: 0 !important;
-        }
-
-        [dir="rtl"] form .relative > .absolute.inset-y-0.left-0.pl-4.flex.items-center.pointer-events-none,
-        [dir="rtl"] form .relative > .absolute.inset-y-0.left-0.pl-3.flex.items-center.pointer-events-none {
-            right: 0 !important;
-            left: auto !important;
-            padding-right: 1rem !important;
-            padding-left: 0 !important;
-        }
-
-        [dir="rtl"] form .relative > .absolute.bottom-3.right-3.text-gray-400.text-xs {
-            left: 0.75rem !important;
-            right: auto !important;
-        }
-
-        [dir="rtl"] form input[data-clinic-date],
-        [dir="rtl"] form input[type="date"] {
-            padding-left: 2.5rem !important;
-            padding-right: 1rem !important;
-        }
-
-        form input[data-clinic-date="1"][type="date"]::-webkit-calendar-picker-indicator,
-        form input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 0 !important;
-            display: none !important;
-            -webkit-appearance: none !important;
-        }
-
-        form input[data-clinic-date="1"][type="date"]::-webkit-inner-spin-button,
-        form input[data-clinic-date="1"][type="date"]::-webkit-clear-button,
-        form input[type="date"]::-webkit-inner-spin-button,
-        form input[type="date"]::-webkit-clear-button {
-            display: none !important;
-            -webkit-appearance: none !important;
-        }
-
-        form input[data-clinic-date="1"][type="date"],
-        form input[type="date"] {
-            appearance: textfield;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
-        }
-
-        @media (max-width: 1023px) {
-            main .group > .absolute[class*="blur"] {
-                display: none !important;
-            }
-
-            main .group > .relative.backdrop-blur-xl,
-            main .group > .relative[class*="shadow-2xl"] {
-                box-shadow: 0 14px 32px -22px rgba(15, 23, 42, 0.22) !important;
-                backdrop-filter: blur(14px) !important;
-            }
-
-            main .group:hover > .relative.backdrop-blur-xl,
-            main .group:hover > .relative[class*="shadow-2xl"] {
-                transform: none !important;
-            }
-
-            main .hover\:scale-105:hover,
-            main .hover\:scale-110:hover,
-            main .hover\:-translate-y-2:hover,
-            main .hover\:-translate-y-1:hover,
-            main .hover\:rotate-2:hover,
-            main .hover\:rotate-3:hover {
-                transform: none !important;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .sidebar-mobile-hidden {
-                transform: translateX(-100%);
-            }
-
-            [dir="rtl"] .sidebar-mobile-hidden {
-                transform: translateX(100%);
-            }
-
-            #sidebar {
-                position: fixed !important;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                width: min(22rem, 86vw) !important;
-                max-width: 86vw;
-            }
-            [dir="rtl"] #sidebar {
-                left: auto;
-                right: 0;
-            }
-            main .overflow-x-auto {
-                -webkit-overflow-scrolling: touch;
-            }
-            main table.min-w-full,
-            main table.dataTable {
-                min-width: 720px;
-            }
-            main .dataTables_wrapper .dataTables_length,
-            main .dataTables_wrapper .dataTables_filter,
-            main .dataTables_wrapper .dataTables_info,
-            main .dataTables_wrapper .dataTables_paginate {
-                float: none !important;
-                text-align: start !important;
-                width: 100%;
-                margin-bottom: 0.75rem;
-            }
-            main .dataTables_wrapper .dataTables_filter input,
-            main .dataTables_wrapper .dataTables_length select {
-                width: 100%;
-                max-width: 100%;
-                margin: 0.35rem 0 0 !important;
-            }
-            main .dataTables_wrapper .dataTables_filter label,
-            main .dataTables_wrapper .dataTables_length label {
-                width: 100%;
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 0.5rem;
-                margin: 0 !important;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            main .dataTables_wrapper .dataTables_length,
-            main .dataTables_wrapper .dataTables_filter,
-            main .dataTables_wrapper .dataTables_info,
-            main .dataTables_wrapper .dataTables_paginate {
-                float: none !important;
-                text-align: start !important;
-            }
-
-            main .dataTables_wrapper > .row:first-child,
-            main .dataTables_wrapper > .row:last-child {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                gap: 0.75rem !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            #sidebar {
-                position: sticky !important;
-                top: 0;
-                min-height: 100vh;
-                height: auto;
-                inset-inline-start: auto !important;
-                transform: none !important;
-                overflow: visible !important;
-            }
-
-            #sidebar-nav {
-                overflow: visible !important;
-            }
-        }
-    </style>
+    <?php foreach (['warm-clinical.css', 'warm-secondary-layout.css', 'warm-secondary.css'] as $themeAsset): ?>
+        <link rel="stylesheet" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
+    <?php endforeach; ?>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-emerald-50 min-h-screen overflow-x-hidden">
+<body class="denta-v3 denta-cp min-h-screen overflow-x-hidden">
     <?= view('components/toast') ?>
 
-    <div class="flex min-h-screen">
+    <div class="v3-platform-shell flex min-h-screen">
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
-            <aside class="w-64 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
+            <aside class="w-64 overflow-hidden v3-surface border-r border-white/30 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:sticky md:top-0 md:self-start fixed inset-y-0 left-0" id="sidebar">
                 <!-- Sidebar Header -->
                 <div class="px-2 pb-2 pt-3 border-b border-white/30" id="sidebar-header">
                     <div class="flex items-center justify-between">
                         <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
                             <div class="relative group">
-                                <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-700 to-emerald-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <div class="relative w-10 h-10 bg-gradient-to-br from-slate-900 via-indigo-700 to-emerald-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <div class="v3-icon relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200">
                                     <i class="fas fa-shield-alt text-white text-lg"></i>
                                 </div>
                             </div>
@@ -405,8 +60,8 @@
                                 </div>
                             </div>
                         </a>
-                        <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105 md:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
-                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-emerald-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 md:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+                            <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                             <i class="fas fa-bars relative z-10"></i>
                         </button>
                     </div>
@@ -416,16 +71,16 @@
                     <!-- Platform -->
                     <div class="p-4">
                         <div class="px-2 pt-5 pb-1">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">OPERATE</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><?= lang('UI.cpPlatform') ?></p>
                         </div>
                         <div class="flex items-center space-x-2 mb-4 mt-3">
-                            <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-slate-700 rounded-full animate-pulse"></div>
+                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpPlatform') ?></h3>
                         </div>
                         <ul class="space-y-1">
                             <li>
-                                <a href="<?= base_url('controlplane/dashboard') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-slate-600/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/dashboard') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-tachometer-alt w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'text-white' : 'text-slate-500 group-hover:text-slate-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.menuDashboard') ?></span>
                                 </a>
@@ -436,27 +91,27 @@
                     <!-- Tenants -->
                     <div class="p-4">
                         <div class="flex items-center space-x-2 mb-4">
-                            <div class="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
+                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpTenants') ?></h3>
                         </div>
                         <ul class="space-y-1">
                             <li>
-                                <a href="<?= base_url('controlplane/clinics') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/clinics') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-hospital-user w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpClinics') ?></span>
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/users') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/users') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-users w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/users') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpUsers') ?></span>
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-user-plus w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpOnboarding') ?></span>
                                 </a>
@@ -467,27 +122,27 @@
                     <!-- Billing -->
                     <div class="p-4">
                         <div class="flex items-center space-x-2 mb-4">
-                            <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full animate-pulse"></div>
+                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpBilling') ?></h3>
                         </div>
                         <ul class="space-y-1">
                             <li>
-                                <a href="<?= base_url('controlplane/plans') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/plans') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-layer-group w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpPlans') ?></span>
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/invoices') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/invoices') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpInvoices') ?></span>
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/plan-requests') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/plan-requests') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-inbox w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpRequests') ?></span>
                                 </a>
@@ -501,27 +156,27 @@
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">MONITOR</p>
                         </div>
                         <div class="flex items-center space-x-2 mb-4 mt-3">
-                            <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-slate-700 rounded-full animate-pulse"></div>
+                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpGovernance') ?></h3>
                         </div>
                         <ul class="space-y-1">
                             <li>
-                                <a href="<?= base_url('controlplane/operations') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/operations') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-cogs w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpOperations') ?></span>
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/whatsapp') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/whatsapp') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fab fa-whatsapp w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/whatsapp') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpWhatsAppOps') ?></span>
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/activity-log') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'bg-gradient-to-r from-slate-600 to-slate-800 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-slate-700/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <a href="<?= base_url('controlplane/activity-log') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'page' : 'false' ?>">
+                                    <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-history w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpSystemActivity') ?></span>
                                 </a>
@@ -535,21 +190,21 @@
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CONFIGURE</p>
                         </div>
                         <div class="flex items-center space-x-2 mb-4 mt-3">
-                            <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-blue-600 rounded-full animate-pulse"></div>
+                            <div class="v3-icon w-2 h-2 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">System</h3>
                         </div>
                     <ul class="space-y-1">
                         <li>
-                            <a href="<?= base_url('controlplane/settings') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'bg-gradient-to-r from-slate-700 to-blue-700 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
-                                <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            <a href="<?= base_url('controlplane/settings') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'page' : 'false' ?>">
+                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                 <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
                                 <span class="relative z-10"><?= lang('UI.cpSettings') ?></span>
                             </a>
                         </li>
                         <?php if (has_role('super_admin')): ?>
                         <li>
-                            <a href="<?= base_url('controlplane/roles') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'bg-gradient-to-r from-indigo-600 to-slate-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-slate-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
-                                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            <a href="<?= base_url('controlplane/roles') ?>" class="v3-platform-nav-link <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'is-active' : '' ?>" aria-current="<?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'page' : 'false' ?>">
+                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                 <i class="fas fa-user-shield w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
                                 <span class="relative z-10">System Roles</span>
                             </a>
@@ -560,12 +215,12 @@
                 </nav>
 
                 <!-- Sidebar Footer -->
-                <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/40">
-                    <div class="group relative cursor-pointer hover:bg-white/60 rounded-xl p-3 transition-all duration-200 border border-transparent hover:border-white/50 hover:shadow-lg hover:shadow-slate-200/50" onclick="toggleUserMenu()">
+                <div class="p-4 border-t border-white/30 v3-surface">
+                    <div class="group relative cursor-pointer hover:bg-white/60 rounded-xl p-3 transition-all duration-200 border border-transparent hover:border-white/50" onclick="toggleUserMenu()">
                         <div class="flex items-center space-x-3 relative z-10">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg blur opacity-40 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <div class="relative w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                <div class="v3-surface-heading absolute inset-0 rounded-lg opacity-40 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <div class="v3-icon relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200">
                                     <span class="text-xs font-bold text-white"><?= esc(ui_badge_text($userEmail ?? '', 2, 'SA')) ?></span>
                                 </div>
                             </div>
@@ -579,9 +234,9 @@
                             <i class="fas fa-chevron-up text-slate-400 text-xs group-hover:text-slate-600 transition-colors duration-200"></i>
                         </div>
                     </div>
-                    
+
                     <!-- User Menu Dropdown -->
-                    <div id="userMenu" class="hidden absolute bottom-24 left-4 w-56 backdrop-blur-2xl bg-white/90 rounded-2xl shadow-2xl shadow-slate-200/50 border border-white/50 p-2 space-y-1 transform origin-bottom-left transition-all duration-200">
+                    <div id="userMenu" class="hidden absolute bottom-24 left-4 w-56 v3-surface v3-corner border border-white/50 p-2 space-y-1 transform origin-bottom-left transition-all duration-200">
                         <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all duration-200">
                             <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
                                 <i class="fas fa-cog text-xs text-slate-500 group-hover:text-slate-700"></i>
@@ -603,12 +258,12 @@
             </aside>
         <?php endif; ?>
 
-        <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden" onclick="closeCpSidebar()"></div>
+        <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden" onclick="closeCpSidebar()"></div>
 
         <div class="flex-1 flex flex-col min-h-screen min-w-0">
-            <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 border-b border-white/30 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <header class="sticky top-0 z-30 v3-surface border-b border-white/30 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl bg-white/80 border border-white/60 text-slate-600 shadow-sm" onclick="toggleSidebar()">
+                    <button type="button" class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl v3-surface border border-white/60 text-slate-600" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="min-w-0">
@@ -618,12 +273,12 @@
                 </div>
                 <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <button type="button" id="cp-command-trigger" class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 border border-white/60 text-slate-600 text-xs font-semibold shadow-sm hover:bg-white transition">
+                    <button type="button" id="cp-command-trigger" class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl v3-surface border border-white/60 text-slate-600 text-xs font-semibold hover:bg-white transition">
                         <i class="fas fa-magnifying-glass text-indigo-500"></i>
-                        Super Search
-                        <span class="ml-1 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-500">Cmd+K</span>
+                        <?= lang('UI.cpSearchPlaceholder') ?>
+                        <span class="ml-1 rounded-lg border border-slate-200 v3-surface px-2 py-0.5 text-[10px] font-semibold text-slate-500">Cmd+K</span>
                     </button>
-                    <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Global Mode</span>
+                    <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full"><?= lang('UI.cpGlobalAdmin') ?></span>
                     <div class="hidden sm:flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-user-circle text-lg"></i>
                         <span><?= esc($userEmail) ?></span>
@@ -637,20 +292,17 @@
                 </div>
             </header>
 
-            <main class="flex-1 px-4 sm:px-6 py-6 sm:py-8 relative">
-                <div class="pointer-events-none absolute inset-0 overflow-hidden">
-                    <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-emerald-600/20 rounded-full blur-3xl"></div>
-                    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/15 to-emerald-500/20 rounded-full blur-3xl"></div>
-                </div>
+            <main class="v3-platform-workspace flex-1 relative">
+
 
                 <?php if (session()->getFlashdata('success')): ?>
-                    <noscript><div class="relative mb-6 glass-card rounded-2xl px-4 py-3 text-emerald-800" role="status" aria-live="polite">
+                    <noscript><div class="relative mb-6 glass-card v3-corner px-4 py-3 text-emerald-800" role="status" aria-live="polite">
                         <?= session()->getFlashdata('success') ?>
                     </div></noscript>
                 <?php endif; ?>
 
                 <?php if (session()->getFlashdata('error')): ?>
-                    <noscript><div class="relative mb-6 glass-card rounded-2xl px-4 py-3 text-rose-800" role="alert" aria-live="assertive">
+                    <noscript><div class="relative mb-6 glass-card v3-corner px-4 py-3 text-rose-800" role="alert" aria-live="assertive">
                         <?= session()->getFlashdata('error') ?>
                     </div></noscript>
                 <?php endif; ?>
@@ -663,21 +315,21 @@
     </div>
 
     <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/40 px-4 py-10">
-        <div class="w-full max-w-2xl rounded-3xl border border-white/30 bg-white/90 shadow-2xl backdrop-blur-xl">
+        <div class="w-full max-w-2xl v3-corner border border-white/30 v3-surface">
             <div class="flex items-center gap-3 border-b border-slate-200 px-6 py-4">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-700 to-emerald-600 text-white shadow-lg">
+                <div class="v3-icon flex h-10 w-10 items-center justify-center v3-corner">
                     <i class="fas fa-terminal"></i>
                 </div>
                 <div class="flex-1">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400 font-semibold">Global Command Palette</p>
-                    <p class="text-sm font-semibold text-slate-800">Search clinics, users, and navigation</p>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400 font-semibold"><?= lang('UI.cpNavigationSection') ?></p>
+                    <p class="text-sm font-semibold text-slate-800"><?= lang('UI.cpSearchPlaceholder') ?></p>
                 </div>
                 <button type="button" id="cp-command-close" class="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="px-6 py-4">
-                <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <div class="flex items-center gap-3 v3-corner border border-slate-200 v3-surface px-4 py-3">
                     <i class="fas fa-search text-indigo-500"></i>
                     <input id="cp-command-input" type="text" placeholder="<?= esc(lang('UI.cpSearchPlaceholder')) ?>"
                            class="w-full bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:outline-none">
@@ -688,7 +340,7 @@
                 <div id="cp-command-status" class="px-2 pb-2 text-xs text-slate-500"></div>
                 <div id="cp-command-results" class="space-y-3"></div>
             </div>
-            <div class="flex flex-wrap items-center gap-2 border-t border-slate-200 bg-white/70 px-6 py-3 text-[11px] font-semibold text-slate-500">
+            <div class="flex flex-wrap items-center gap-2 border-t border-slate-200 v3-surface px-6 py-3 text-[11px] font-semibold text-slate-500">
                 <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">↑ ↓</span>
                 <span><?= lang('UI.cpNavigate') ?></span>
                 <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">Enter</span>

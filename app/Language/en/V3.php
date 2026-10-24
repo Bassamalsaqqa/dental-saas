@@ -1,0 +1,7 @@
+<?php
+
+return [
+    'skipToContent' => 'Skip to workspace',
+    'impersonating' => 'Impersonating clinic',
+    'exitImpersonation' => 'Exit impersonation',
+];

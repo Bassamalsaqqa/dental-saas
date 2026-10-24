@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <?php $tailwindVersion = @filemtime(FCPATH . 'assets/css/tailwind.css') ?: '1'; ?>
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= $tailwindVersion ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>?v=<?= @filemtime(FCPATH . 'assets/vendor/fontawesome/css/all.min.css') ?: '1' ?>">
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
@@ -50,8 +50,11 @@
         [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
         [dir="rtl"] .text-left { text-align: right !important; }
     </style>
+    <?php foreach (['warm-clinical.css', 'warm-secondary-layout.css', 'warm-secondary.css'] as $themeAsset): ?>
+        <link rel="stylesheet" href="<?= base_url('assets/css/' . $themeAsset) ?>?v=<?= @filemtime(FCPATH . 'assets/css/' . $themeAsset) ?: '1' ?>">
+    <?php endforeach; ?>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
+<body class="denta-v3 denta-kiosk min-h-screen">
     <?= view('components/toast') ?>
     <?= $this->renderSection('content') ?>
 </body>
