@@ -1,7 +1,8 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="container mx-auto px-6 py-8">
+
+<div class="dashboard-workspace container mx-auto px-6 py-8">
 <div class="space-y-8">
     <!-- Page Header -->
     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
@@ -13,10 +14,10 @@
 
     <!-- Simple Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-xl transition-all duration-300">
+        <div class="bg-[#F3EFE6] rounded-[9px] border border-[#C4B9A8] group transition-all duration-300">
             <div class="flex items-center justify-between p-1">
                 <div class="flex items-center space-x-4">
-                    <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+                    <div class="p-4 rounded-2xl v3-warm-surface">
                         <i class="fas fa-users text-2xl"></i>
                     </div>
                     <div>
@@ -27,10 +28,10 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-xl transition-all duration-300">
+        <div class="bg-[#F3EFE6] rounded-[9px] border border-[#C4B9A8] group transition-all duration-300">
             <div class="flex items-center justify-between p-1">
                 <div class="flex items-center space-x-4">
-                    <div class="p-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
+                    <div class="p-4 rounded-2xl v3-warm-surface">
                         <i class="fas fa-calendar-check text-2xl"></i>
                     </div>
                     <div>
@@ -41,10 +42,10 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-xl transition-all duration-300">
+        <div class="bg-[#F3EFE6] rounded-[9px] border border-[#C4B9A8] group transition-all duration-300">
             <div class="flex items-center justify-between p-1">
                 <div class="flex items-center space-x-4">
-                    <div class="p-4 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg">
+                    <div class="p-4 rounded-2xl v3-warm-surface">
                         <i class="fas fa-clipboard-list text-2xl"></i>
                     </div>
                     <div>
@@ -55,10 +56,10 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-xl transition-all duration-300">
+        <div class="bg-[#F3EFE6] rounded-[9px] border border-[#C4B9A8] group transition-all duration-300">
             <div class="flex items-center justify-between p-1">
                 <div class="flex items-center space-x-4">
-                    <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg">
+                    <div class="p-4 rounded-2xl v3-warm-surface">
                         <i class="fas fa-dollar-sign text-2xl"></i>
                     </div>
                     <div>
@@ -71,7 +72,7 @@
     </div>
 
     <!-- Simple Content -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
+    <div class="bg-[#F3EFE6] rounded-[9px] border border-[#C4B9A8] group transition-all duration-300">
         <div class="mb-6">
             <h3 class="text-xl font-bold text-gray-800 mb-2"><?= lang('TenantMisc.dashboardStatus') ?></h3>
             <p class="text-sm text-gray-600"><?= lang('TenantMisc.dashboardStatusRunning') ?></p>

@@ -234,7 +234,7 @@
                             <i class="fas fa-chevron-up text-slate-400 text-xs group-hover:text-slate-600 transition-colors duration-200"></i>
                         </div>
                     </div>
-
+                    
                     <!-- User Menu Dropdown -->
                     <div id="userMenu" class="hidden absolute bottom-24 left-4 w-56 v3-surface v3-corner border border-white/50 p-2 space-y-1 transform origin-bottom-left transition-all duration-200">
                         <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all duration-200">

@@ -125,7 +125,7 @@
 <body class="denta-v3 bg-gray-50 min-h-screen overflow-x-hidden">
     <a class="v3-skip-link" href="#workspace-content"><?= esc(lang('V3.skipToContent')) ?></a>
     <!-- Toast Notification System -->
-    <?= view('components/toast') ?>
+    <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- V3 workspace rail: existing permission-filtered navigation -->
         <aside class="tenant-sidebar sidebar-mobile-hidden no-transition" id="sidebar" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
@@ -148,9 +148,9 @@
                             <div class="absolute inset-0 rounded-xl opacity-60 group-hover:opacity-90 transition-opacity duration-200"></div>
                             <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 transition-all duration-200">
                             <?php if (!empty($clinic['logo_path'])): ?>
-                                <?php
-                                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0)
-                                        ? $clinic['logo_path']
+                                <?php 
+                                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                                        ? $clinic['logo_path'] 
                                         : base_url(ltrim($clinic['logo_path'], '/'));
                                 ?>
                                 <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain">
@@ -179,7 +179,7 @@
                     <h3 class="tenant-sidebar-section-label text-xs font-black uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
                 </div>
                 <ul class="space-y-1.5">
-                    <?php
+                    <?php 
                     // Simple static menu - no authentication required
                     $userMenu = [];
                     $menu = [
@@ -352,12 +352,12 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="truncate text-sm font-black leading-5 text-white">
-                            <?php
+                            <?php 
                             $user = $user ?? null;
                             $displayName = esc($clinic['name']);
                             if (isset($user) and $user) {
                                 // Try first_name + last_name combination
-                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and
+                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 
                                     !empty($user->first_name) and !empty($user->last_name)) {
                                     $displayName = esc(trim($user->first_name . ' ' . $user->last_name));
                                 }
@@ -379,25 +379,25 @@
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen transition-all duration-300 min-w-0" id="main-content">
-
+        
         <!-- Smart Top Navigation Bar -->
         <header class="tenant-app-header" id="main-header">
             <!-- Animated Background Elements -->
             <div class="absolute inset-x-0 bottom-0 h-px from-transparent to-transparent pointer-events-none"></div>
-
+            
             <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
                     <button id="sidebar-toggle" type="button" class="tenant-header-button" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()" title="<?= esc(lang('UI.mainMenu')) ?> (Ctrl+B)" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
                         <i class="fas fa-bars text-lg relative z-10 transition-colors duration-200"></i>
                     </button>
-
+                    
                     <!-- Page Title -->
                     <div class="flex items-center space-x-4 min-w-0">
                         <h2 class="text-lg sm:text-xl font-black text-slate-950 leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
                     </div>
                 </div>
-
+                
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0" id="header-right">
                     <span class="v3-clinic-context"><i class="fas fa-clinic-medical" aria-hidden="true"></i><span class="truncate"><?= esc($clinic['name'] ?? 'Denta+') ?></span></span>
@@ -453,7 +453,7 @@
                         <button onclick="toggleClinicSwitcher()" class="tenant-header-button">
                             <i class="fas fa-hospital text-sm"></i>
                         </button>
-
+                        
                         <!-- Tooltip -->
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                             <?= lang('UI.switchClinic') ?> (<?= esc($clinic['name']) ?>)
@@ -508,7 +508,7 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-
+                        
                         <!-- New Appointment -->
                         <div class="relative group">
                             <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="tenant-header-button">
@@ -519,7 +519,7 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-
+                        
                         <!-- New Examination -->
                         <div class="relative group">
                             <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="tenant-header-button">
@@ -530,7 +530,7 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-
+                        
                         <!-- Notifications -->
                         <div class="relative group">
                             <button id="notifications-trigger" class="tenant-header-button" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
@@ -542,9 +542,9 @@
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
-
+                        
                     </div>
-
+                    
                     <!-- User Profile Dropdown -->
                     <div class="relative group">
                         <button id="user-menu-trigger" aria-label="<?= esc(lang('UI.profileMenu')) ?>" type="button" onclick="toggleUserMenu()" class="tenant-header-button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
@@ -554,7 +554,7 @@
                             <?= lang('UI.profileMenu') ?>
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
-
+                        
                         <!-- User Menu Dropdown -->
                         <div id="userMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50">
                             <div class="tenant-header-dropdown__header p-4">
@@ -564,11 +564,11 @@
                                     </div>
                                     <div class="min-w-0">
                                         <div class="truncate text-sm font-black text-slate-950">
-                                            <?php
+                                            <?php 
                                             $displayName = 'User';
                                             if (isset($user) and $user) {
                                                 // Try first_name + last_name combination
-                                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and
+                                                if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 
                                                     !empty($user->first_name) and !empty($user->last_name)) {
                                                     $displayName = htmlspecialchars(trim($user->first_name . ' ' . $user->last_name));
                                                 }
@@ -602,7 +602,7 @@
                                     <span class="tenant-menu-row__icon"><i class="fas fa-exchange-alt text-sm"></i></span>
                                     <span><?= lang('UI.switchClinic') ?></span>
                                 </a>
-
+                                
                                 <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
                                     <div class="border-t border-gray-100 my-2"></div>
                                     <form action="<?= base_url('controlplane/enter') ?>" method="post">
@@ -622,7 +622,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- Logout Button -->
                     <div class="relative group mobile-hide-compact">
                         <a href="<?= base_url('auth/logout') ?>" class="tenant-header-button hover:!text-red-600">
@@ -645,7 +645,7 @@
                     <?= session()->getFlashdata('message') ?>
                 </div></noscript>
             <?php endif; ?>
-
+            
             <?php if (session()->getFlashdata('error')): ?>
                 <noscript><div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert" aria-live="assertive">
                     <?= session()->getFlashdata('error') ?>
@@ -896,7 +896,7 @@
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 768;
-
+        
         if (isMobile) {
             sidebar.classList.toggle('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
@@ -905,7 +905,7 @@
         } else {
             sidebar.classList.toggle('sidebar-collapsed');
             sidebar.classList.remove('sidebar-mobile-hidden');
-
+            
             // Persist state
             const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
             localStorage.setItem('sidebar-collapsed', isCollapsed);
@@ -954,14 +954,14 @@
 
         bindSidebarScrollBridge();
         syncSidebarAccessibility();
-
+        
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
             backdrop.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
         }
-
+        
         syncSidebarAccessibility();
         // Remove no-transition after initial paint to enable smooth toggling
         requestAnimationFrame(() => {
@@ -976,7 +976,7 @@
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 768;
-
+        
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
@@ -1920,10 +1920,10 @@
         initializeClinicTimeInputs();
         runRequiredFieldMarkerSync();
         loadNotifications();
-
+        
         // Handle URL search parameters
         handleUrlSearchParams();
-
+        
         // Hidden tabs do not poll; returning to the clinic workspace refreshes immediately.
         setInterval(() => {
             if (!document.hidden) { loadNotifications(); }
@@ -1962,14 +1962,14 @@
     function handleUrlSearchParams() {
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search');
-
+        
         if (searchParam) {
             console.log('URL search parameter found:', searchParam);
             // Pre-populate the global search input
             const globalSearchInput = document.getElementById('globalSearch');
             if (globalSearchInput) {
                 globalSearchInput.value = searchParam;
-
+                
                 // If we're on patients page, also perform the search
                 if (window.location.pathname.includes('/patients')) {
                     setTimeout(() => {
@@ -2008,7 +2008,7 @@
                 console.log('DataTables not available or search failed');
             }
         }
-
+        
         // Fallback: redirect to patients page with search parameter
         window.location.href = `<?= base_url('patients') ?>?search=${encodeURIComponent(query)}`;
     }
@@ -2133,7 +2133,7 @@
                 setUserMenuExpanded(false);
             }
         }
-
+        
         // Handle Clinic Switcher
         if (!e.target.closest('#clinic-switcher')) {
             const clinicMenu = document.getElementById('clinicSwitcherMenu');

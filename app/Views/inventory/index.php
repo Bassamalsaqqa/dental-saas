@@ -16,267 +16,14 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <!-- Custom DataTables Styling -->
-<style>
-/* DataTables Controls Styling - More specific selectors */
-.dataTables_wrapper {
-    position: relative !important;
-}
-
-.dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    order: 1 !important;
-}
-
-.dataTables_length label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-inline-end: 12px !important;
-}
-
-.dataTables_length select {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_length select:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14) !important;
-}
-
-.dataTables_length select:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_filter label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-inline-end: 12px !important;
-}
-
-.dataTables_filter input {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_filter input:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14) !important;
-}
-
-.dataTables_filter input:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_info {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #6b7280 !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-}
-
-.dataTables_paginate .paginate_button {
-    padding: 8px 12px !important;
-    margin: 0 2px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #f9fafb !important;
-    border-color: #9ca3af !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #0d9488 !important;
-    border-color: #0d9488 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-}
-
-/* Ensure proper ordering */
-.dataTables_wrapper .dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_wrapper .dataTables_info {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-/* Ensure the top container uses flexbox */
-.dataTables_wrapper > .row:first-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-/* Ensure the bottom container uses flexbox */
-.dataTables_wrapper > .row:last-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-/* Additional styling to ensure proper control positioning */
-.dataTables_wrapper .dataTables_length {
-    margin-inline-end: auto !important;
-}
-
-.dataTables_wrapper .dataTables_filter {
-    margin-inline-start: auto !important;
-    margin-inline-end: 0 !important;
-}
 
 
-/* Ensure loading indicators can be properly hidden */
-.dataTables_processing {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid #ddd !important;
-    border-radius: 4px !important;
-    padding: 10px 20px !important;
-    z-index: 1000 !important;
-}
-
-.loading-indicator,
-.spinner,
-.loading-dots {
-    display: none;
-}
-
-.loading-indicator.show,
-.spinner.show,
-.loading-dots.show {
-    display: block;
-}
-
-.inventory-page .dataTables_wrapper {
-    border-radius: 0 0 1.5rem 1.5rem;
-    overflow: hidden;
-}
-
-.inventory-page .dt-buttons {
-    display: none;
-}
-
-.inventory-page .dataTables_length label,
-.inventory-page .dataTables_filter label {
-    color: #475569 !important;
-    font-size: 0.8rem !important;
-    font-weight: 800 !important;
-}
-
-.inventory-page .dataTables_filter input,
-.inventory-page .dataTables_length select {
-    border-radius: 0.85rem !important;
-    border-color: #cbd5e1 !important;
-    background: #fff !important;
-    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
-}
-
-.inventory-page .dataTables_filter input:focus,
-.inventory-page .dataTables_length select:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13,148,136,0.14) !important;
-}
-
-.inventory-page #inventoryTable thead th {
-    background: #f8fafc !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    color: #334155 !important;
-    text-align: start !important;
-    font-weight: 800 !important;
-}
-
-.inventory-page #inventoryTable tbody tr:hover {
-    background: linear-gradient(90deg, rgba(240,253,250,0.96), rgba(236,253,245,0.62)) !important;
-}
-
-.inventory-page .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #0d9488, #2563eb) !important;
-    border-color: transparent !important;
-    color: #fff !important;
-}
-
-.inventory-page .dataTables_paginate .paginate_button:hover {
-    background: #f0fdfa !important;
-    border-color: #5eead4 !important;
-    color: #0f766e !important;
-}
-</style>
-
-<div class="inventory-page min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+<div class="denta-inventory-workspace inventory-page v3-module-workspace" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
-        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-teal-700 via-blue-700 to-slate-950 text-white shadow-2xl shadow-teal-900/18">
-            <div class="space-y-5 p-5 sm:p-6">
+        <section class="v3-command-section inventory-command-header mb-5 overflow-hidden v3-corner">
+            <div class="v3-command-layout">
                 <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
+                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center v3-corner v3-surface text-white ring-1 ring-white/20">
                         <i class="fas fa-box text-xl"></i>
                     </span>
                     <div class="min-w-0">
@@ -322,7 +69,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
         <!-- Flash Messages -->
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm">
+            <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <i class="fas fa-check-circle text-green-400 text-xl"></i>
@@ -338,7 +85,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
@@ -355,7 +102,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
         <!-- Error Message -->
         <?php if (isset($error)): ?>
-            <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
@@ -370,50 +117,50 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             </div>
         <?php endif; ?>
 
-        <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-2xl bg-gradient-to-br from-teal-700 to-blue-800 p-4 text-white shadow-xl shadow-teal-700/18">
+        <section class="v3-metric-strip">
+            <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-teal-100"><?= esc($tr('totalItems')) ?></p>
                         <p class="mt-2 text-3xl font-black total-items-count"><?= $total_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-boxes"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-boxes"></i></span>
                 </div>
             </article>
-            <article class="rounded-2xl bg-gradient-to-br from-emerald-600 to-green-800 p-4 text-white shadow-xl shadow-emerald-700/18">
+            <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= esc($tr('inStock')) ?></p>
                         <p class="mt-2 text-3xl font-black active-items-count"><?= $in_stock_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
                 </div>
             </article>
-            <article class="rounded-2xl bg-gradient-to-br from-amber-600 to-orange-800 p-4 text-white shadow-xl shadow-amber-700/18">
+            <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-amber-100"><?= esc($tr('lowStock')) ?></p>
                         <p class="mt-2 text-3xl font-black low-stock-count"><?= $low_stock_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-exclamation-triangle"></i></span>
                 </div>
             </article>
-            <article class="rounded-2xl bg-gradient-to-br from-red-600 to-rose-800 p-4 text-white shadow-xl shadow-red-700/18">
+            <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-black uppercase tracking-wide text-red-100"><?= esc($tr('outOfStock')) ?></p>
                         <p class="mt-2 text-3xl font-black out-of-stock-count"><?= $out_of_stock_items ?? 0 ?></p>
                     </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-times-circle"></i></span>
+                    <span class="inline-flex h-11 w-11 items-center justify-center v3-corner v3-surface ring-1 ring-white/20"><i class="fas fa-times-circle"></i></span>
                 </div>
             </article>
         </section>
 
-        <section class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
-            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-teal-50/80 px-4 py-4 sm:px-6">
+        <section class="overflow-hidden v3-corner border border-slate-200 v3-surface">
+            <div class="v3-surface-heading border-b border-slate-200 px-4 py-4 sm:px-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+                        <span class="inline-flex h-10 w-10 items-center justify-center v3-corner bg-teal-100 text-teal-700">
                             <i class="fas fa-list-check"></i>
                         </span>
                         <div>
@@ -422,15 +169,15 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-700">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-red-50 hover:text-red-700">
                             <i class="fas fa-file-pdf text-red-600"></i>
                             <?= esc($tr('exportToPDF')) ?>
                         </button>
-                        <button onclick="printInventory()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-950">
+                        <button onclick="printInventory()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950">
                             <i class="fas fa-print text-slate-600"></i>
                             <?= esc($tr('exportToPrint')) ?>
                         </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-emerald-700">
+                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 v3-surface px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700">
                             <i class="fas fa-file-csv text-emerald-600"></i>
                             <?= esc($tr('exportToCSV')) ?>
                         </button>
@@ -498,7 +245,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y divide-slate-100 v3-surface">
                         <!-- Data will be loaded via DataTables -->
                     </tbody>
                 </table>
@@ -507,32 +254,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
     </div>
 </div>
 
-<style>
-/* Ensure loading indicators can be properly hidden */
-.dataTables_processing {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid #ddd !important;
-    border-radius: 4px !important;
-    padding: 10px 20px !important;
-    z-index: 1000 !important;
-}
 
-.loading-indicator,
-.spinner,
-.loading-dots {
-    display: none;
-}
-
-.loading-indicator.show,
-.spinner.show,
-.loading-dots.show {
-    display: block;
-}
-</style>
 
 <script>
 // Global variables
@@ -1121,20 +843,20 @@ $(document).ready(function() {
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         language: {
-            processing: "Loading inventory data...",
+            processing: <?= json_encode(lang('Inventory.processing'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 emptyTable: "<?= esc($tr('noInventoryItemsFound'), 'js') ?>",
                 zeroRecords: "<?= esc($tr('noMatchingInventoryItemsFound'), 'js') ?>",
             lengthMenu: "_MENU_",
-            info: "Showing _START_ to _END_ of _TOTAL_ inventory items",
+            info: <?= json_encode(lang('Inventory.info'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 infoEmpty: "<?= esc($tr('noInventoryItemsAvailable'), 'js') ?>",
-            infoFiltered: "(filtered from _MAX_ total inventory items)",
+            infoFiltered: <?= json_encode(lang('Inventory.infoFiltered'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
             search: "",
                 searchPlaceholder: "<?= esc($tr('searchInventoryItems'), 'js') ?>",
             paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
+                first: <?= json_encode(lang('Inventory.paginate.first'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                last: <?= json_encode(lang('Inventory.paginate.last'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                next: <?= json_encode(lang('Inventory.paginate.next'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                previous: <?= json_encode(lang('Inventory.paginate.previous'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
             }
         },
         dom: '<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',

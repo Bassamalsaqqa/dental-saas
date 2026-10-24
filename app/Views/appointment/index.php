@@ -76,108 +76,40 @@ if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryServ
 }
 $dynamicMode = !empty($bookingContext['enabled']);
 ?>
-<style>
-    .appointment-page {
-        font-family: var(--app-font-sans);
-    }
 
-    [dir="rtl"] .appointment-page {
-        font-family: var(--app-font-ar);
-    }
-
-    .appointment-panel {
-        border-radius: 1.25rem;
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 18px 42px -34px rgba(15, 23, 42, 0.42);
-    }
-</style>
 
 <div class="appointment-page min-h-screen">
     <div class="w-full">
         <div class="w-full px-3 pt-3 sm:px-4 lg:px-5">
-            <div class="overflow-hidden rounded-2xl border border-blue-900/10 bg-slate-950 shadow-xl shadow-blue-900/16">
-                <div class="relative p-4 sm:p-5">
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(59,130,246,.5),transparent_30%),radial-gradient(circle_at_84%_10%,rgba(16,185,129,.34),transparent_25%),linear-gradient(135deg,#0f3f90_0%,#1656c1_54%,#0f7cc1_100%)]"></div>
-                    <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(440px,.9fr)] xl:items-center">
-                            <div class="flex min-w-0 items-start gap-4">
-                                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
-                                    <i class="fas fa-calendar-check text-2xl"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-200"><?= $viewAllMode ? lang('UI.appointmentAllAppointments') : lang('UI.appointmentTodaySchedule') ?></p>
-                                    <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= lang('UI.appointmentManagement') ?></h1>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                                <div class="rounded-2xl bg-white/15 p-3 ring-1 ring-white/15 backdrop-blur">
-                                    <p class="text-[11px] font-black uppercase tracking-wide text-blue-100"><?= lang('UI.appointmentTotal') ?></p>
-                                    <p class="mt-1 text-2xl font-black text-white"><?= count($appointmentRows) ?></p>
-                                </div>
-                                <div class="rounded-2xl bg-emerald-400/20 p-3 ring-1 ring-emerald-200/25 backdrop-blur">
-                                    <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= lang('UI.appointmentActive') ?></p>
-                                    <p class="mt-1 text-2xl font-black text-white"><?= $activeCount ?></p>
-                                </div>
-                                <div class="rounded-2xl bg-cyan-400/20 p-3 ring-1 ring-cyan-200/20 backdrop-blur">
-                                    <p class="text-[11px] font-black uppercase tracking-wide text-cyan-100"><?= lang('UI.patientTreatmentStatusCompleted') ?></p>
-                                    <p class="mt-1 text-2xl font-black text-white"><?= $doneCount ?></p>
-                                </div>
-                                <div class="rounded-2xl bg-rose-400/20 p-3 ring-1 ring-rose-200/25 backdrop-blur">
-                                    <p class="text-[11px] font-black uppercase tracking-wide text-rose-100"><?= lang('UI.appointmentStatusCancelled') ?></p>
-                                    <p class="mt-1 text-2xl font-black text-white"><?= $riskCount ?></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col gap-3 xl:min-w-[31rem]">
-                            <div class="rounded-2xl bg-white/14 p-3 ring-1 ring-white/20 backdrop-blur">
-                                <p class="text-[11px] font-black uppercase tracking-[0.18em] text-blue-100"><?= lang('UI.patientNextAppointment') ?></p>
-                                <p class="mt-1 truncate text-lg font-black text-white"><?= esc($nextAppointmentLabel) ?></p>
-                                <?php if ($nextAppointment): ?>
-                                    <?php $nextRow = $nextAppointment['appointment']; ?>
-                                    <div class="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
-                                        <span class="rounded-full bg-white/16 px-2.5 py-1 text-white ring-1 ring-white/18" dir="ltr"><?= esc(formatDate($nextRow['appointment_date'] ?? '')) ?></span>
-                                        <span class="rounded-full bg-white/16 px-2.5 py-1 text-white ring-1 ring-white/18" dir="ltr"><?= esc(formatTime($nextRow['appointment_time'] ?? '')) ?></span>
-                                        <span class="rounded-full bg-white/16 px-2.5 py-1 text-white ring-1 ring-white/18"><?= esc($nextRow['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="flex flex-col gap-2 sm:flex-row">
-                                <?php if (has_permission('appointments', 'create')): ?>
-                                    <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-blue-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50">
+            <header class="v3-command-header"><div><h1><?= lang('UI.appointmentManagement') ?></h1><p><?= $viewAllMode ? lang('UI.appointmentAllAppointments') : lang('UI.appointmentTodaySchedule') ?> <span aria-hidden="true"> / </span> <?= esc(formatDate($selected_date ?? date('Y-m-d'))) ?></p></div><div class="v3-command-actions"><?php if (has_permission('appointments', 'create')): ?>
+                                    <a href="<?= base_url('appointment/create') ?>" id="newAppointmentModalTrigger" data-appointment-create-modal-open class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm text-blue-800 transition hover:bg-blue-50">
                                         <i class="fas fa-plus"></i>
                                         <span><?= lang('UI.appointmentNew') ?></span>
                                     </a>
                                 <?php endif; ?>
-                                <a href="<?= base_url('appointment/calendar') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                                <a href="<?= base_url('appointment/calendar') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
                                     <i class="fas fa-calendar"></i>
                                     <span><?= lang('UI.appointmentCalendarView') ?></span>
                                 </a>
                                 <?php if ($viewAllMode): ?>
-                                    <a href="<?= base_url('appointment') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                                    <a href="<?= base_url('appointment') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
                                         <i class="fas fa-calendar-day"></i>
                                         <span><?= lang('UI.appointmentDailyView') ?></span>
                                     </a>
                                 <?php else: ?>
-                                    <a href="<?= base_url('appointment') ?>?view=all" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
+                                    <a href="<?= base_url('appointment') ?>?view=all" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm ring-1 transition hover:bg-white/20">
                                         <i class="fas fa-list"></i>
                                         <span><?= lang('UI.appointmentViewAll') ?></span>
                                     </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                <?php endif; ?></div></header>
+<section class="v3-calendar-summary"><span><?= lang('UI.appointmentTotal') ?> <strong><?= count($appointmentRows) ?></strong></span><span><?= lang('UI.appointmentActive') ?> <strong><?= $activeCount ?></strong></span><span><?= lang('UI.patientTreatmentStatusCompleted') ?> <strong><?= $doneCount ?></strong></span><span><?= lang('UI.appointmentStatusCancelled') ?> <strong><?= $riskCount ?></strong></span></section>
         </div>
 
         <!-- Flash Messages -->
         <div class="w-full px-3 sm:px-4 lg:px-5">
             <!-- Success Message -->
             <?php if (session()->getFlashdata('success')): ?> 
-                <noscript><div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm" role="status" aria-live="polite">
+                <noscript><div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4" role="status" aria-live="polite">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <i class="fas fa-check-circle text-green-400 text-xl"></i>
@@ -194,7 +126,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
 
             <!-- Error Flash Message -->
             <?php if (session()->getFlashdata('error')): ?>
-                <noscript><div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm" role="alert" aria-live="assertive">
+                <noscript><div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4" role="alert" aria-live="assertive">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
@@ -218,8 +150,8 @@ $dynamicMode = !empty($bookingContext['enabled']);
                     <div class="p-5 pb-3 sm:p-6 sm:pb-4">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
-                                <h3 class="text-2xl font-black text-gray-900">
+                                <div class="w-3 h-3 v3-warm-surface rounded-full animate-pulse"></div>
+                                <h3 class="text-2xl text-gray-900">
                                     <?= lang('UI.appointmentAdvancedFilters') ?>
                                 </h3>
                             </div>
@@ -231,7 +163,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSelectDate') ?></label>
                             <div class="relative">
-                                    <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all duration-300 font-medium">
+                                    <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all duration-300 font-medium">
                             </div>
                         </div>
 
@@ -239,7 +171,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentFilterByStatus') ?></label>
                             <div class="relative">
-                                <select id="statusFilter" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
+                                <select id="statusFilter" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= ($selected_status ?? '') === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
                                     <option value="confirmed" <?= ($selected_status ?? '') === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
@@ -268,13 +200,13 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentActions') ?></label>
                             <div class="flex flex-col gap-3 sm:flex-row">
-                                <button type="button" onclick="filterAppointments()" class="group/btn relative inline-flex flex-1 items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
+                                <button type="button" onclick="filterAppointments()" class="group/btn relative inline-flex flex-1 items-center justify-center px-4 py-3 v3-warm-surface text-sm font-bold rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300">
+                                    <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/btn:transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-filter mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentFilterAction') ?></span>
                                 </button>
-                                <button type="button" onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-gray-500/25">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
+                                <button type="button" onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 v3-warm-surface text-sm font-bold rounded-xl focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300">
+                                    <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/btn:transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-times mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
                                 </button>
@@ -292,8 +224,8 @@ $dynamicMode = !empty($bookingContext['enabled']);
                     <div class="p-5 pb-3 sm:p-6 sm:pb-4">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
-                                <h3 class="text-2xl font-black text-gray-900"><?= lang('UI.appointmentSearchAppointments') ?></h3>
+                                <div class="w-3 h-3 v3-warm-surface rounded-full animate-pulse"></div>
+                                <h3 class="text-2xl text-gray-900"><?= lang('UI.appointmentSearchAppointments') ?></h3>
                             </div>
                             <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSearchAppointmentsSubtitle') ?></p>
                         </div>
@@ -317,7 +249,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentStatusLabel') ?></label>
                             <div class="relative">
-                                <select id="statusFilter" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
+                                <select id="statusFilter" class="relative w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all duration-300 font-medium">
                                     <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
                                     <option value="scheduled" <?= $selected_status === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
                                     <option value="confirmed" <?= $selected_status === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
@@ -336,8 +268,8 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentActions') ?></label>
                             <div class="flex flex-col gap-3 sm:flex-row">
-                                <button type="button" onclick="clearSearch()" class="group/btn relative inline-flex w-full items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-gray-500/25 sm:w-auto">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
+                                <button type="button" onclick="clearSearch()" class="group/btn relative inline-flex w-full items-center justify-center px-6 py-3 v3-warm-surface text-sm font-bold rounded-xl focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 sm:w-auto">
+                                    <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/btn:transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-times mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
                                 </button>
@@ -358,17 +290,44 @@ $dynamicMode = !empty($bookingContext['enabled']);
             </div>
         <?php endif; ?>
 
-        <!-- Appointment schedule list -->
+        <?php if (!$dynamicMode && !$viewAllMode): ?>
+<section class="v3-reception-board" aria-label="<?= esc(lang('UI.appointmentTodaySchedule')) ?>">
+<?php foreach ([
+ ['label' => 'appointmentStageScheduled', 'statuses' => ['scheduled','confirmed'], 'tone' => 'scheduled'],
+ ['label' => 'appointmentStageArrived', 'statuses' => ['arrived','ready'], 'tone' => 'waiting'],
+ ['label' => 'appointmentStageInChair', 'statuses' => ['in_chair'], 'tone' => 'chairside'],
+ ['label' => 'appointmentStageCheckout', 'statuses' => ['checkout'], 'tone' => 'checkout'],
+ ['label' => 'appointmentStageCompleted', 'statuses' => ['completed'], 'tone' => 'completed'],
+] as $lane): ?>
+ <section class="v3-visit-lane v3-visit-lane-<?= esc($lane['tone']) ?>"><h2><?= esc(lang('UI.' . $lane['label'])) ?></h2>
+ <?php $laneHasAppointments = false; ?>
+ <?php foreach ($appointmentRows as $laneAppointment): ?>
+ <?php if (!in_array((string) ($laneAppointment['status'] ?? 'scheduled'), $lane['statuses'], true)) { continue; } $laneHasAppointments = true; ?>
+ <a class="v3-visit-card" href="<?= base_url('appointment/' . (int) $laneAppointment['id']) ?>">
+  <time dir="ltr"><?= esc(formatTime($laneAppointment['appointment_time'] ?? '')) ?></time>
+  <strong><?= esc(trim((string) (($laneAppointment['first_name'] ?? '') . ' ' . ($laneAppointment['last_name'] ?? '')))) ?></strong>
+  <span><?= esc($laneAppointment['chair_name'] ?? '—') ?></span>
+  <?php if (!empty($laneAppointment['notes'])): ?><p><?= esc($laneAppointment['notes']) ?></p><?php endif; ?>
+  <span class="v3-visit-open"><?= esc(lang('UI.patientView')) ?> <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
+ </a>
+ <?php endforeach; ?>
+ <?php if (!$laneHasAppointments): ?><p class="v3-lane-empty"><?= esc(lang('UI.dashboardRoutingEmpty')) ?></p><?php endif; ?>
+ </section>
+<?php endforeach; ?>
+</section>
+<?php endif; ?>
+
+<!-- Appointment schedule list -->
         <div class="mb-6">
             <div class="relative">
                 <div class="appointment-panel overflow-hidden">
                     <div class="flex flex-col gap-4 p-6 pb-4 lg:flex-row lg:items-center lg:justify-between">
                         <div class="space-y-2">
                             <div class="flex items-center gap-3">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-blue-900 text-white shadow-lg shadow-blue-900/20">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl v3-warm-surface">
                                     <i class="fas fa-list-check"></i>
                                 </span>
-                                <h3 class="text-2xl font-black text-gray-900">
+                                <h3 class="text-2xl text-gray-900">
                                     <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                         <?= lang('UI.appointmentAllAppointments') ?>
                                     <?php else: ?>
@@ -414,7 +373,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                             <i class="<?= esc($appointmentAvatarIcon) ?> <?= esc($appointmentAvatarColor) ?> text-3xl"></i>
                                         </span>
                                         <div class="space-y-2">
-                                            <h4 class="text-lg md:text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
+                                            <h4 class="text-lg md:text-xl text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
                                                 <?= $appointment['first_name'] . ' ' . $appointment['last_name'] ?>
                                             </h4>
                                             <div class="flex flex-col gap-2 text-sm text-gray-600 font-medium">
@@ -438,9 +397,9 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:flex xl:items-center xl:gap-6">
                                     <div class="text-center space-y-2">
                                         <div class="relative">
-                                            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                                            <div class="relative bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-3 rounded-xl border border-amber-200 shadow-sm">
-                                                <p class="text-2xl font-black text-amber-900">
+                                            <div class="absolute inset-0 v3-warm-surface rounded-xl opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
+                                            <div class="relative v3-warm-surface px-4 py-3 rounded-xl border border-amber-200">
+                                                <p class="text-2xl text-amber-900">
                                                     <?= formatTime($appointment['appointment_time']) ?>
                                                 </p>
                                                 <p class="text-sm text-amber-700 font-bold">
@@ -458,8 +417,8 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <!-- Appointment Type -->
                                     <div class="text-center space-y-2">
                                         <div class="relative">
-                                            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                                            <div class="relative bg-gradient-to-r from-emerald-100 to-cyan-100 px-4 py-3 rounded-xl border border-emerald-200 shadow-sm">
+                                            <div class="absolute inset-0 v3-warm-surface rounded-xl opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
+                                            <div class="relative v3-warm-surface px-4 py-3 rounded-xl border border-emerald-200">
                                                 <p class="text-lg font-bold text-emerald-900">
                                                     <?= ucfirst(str_replace('_', ' ', $appointment['appointment_type'])) ?>
                                                 </p>
@@ -497,32 +456,32 @@ $dynamicMode = !empty($bookingContext['enabled']);
                                     <!-- Action Buttons -->
                                     <div class="flex flex-wrap justify-start gap-2 sm:col-span-2 xl:col-span-1 xl:justify-end">
                                         <?php if (has_permission('appointments', 'view')): ?>
-                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-gray-500/25">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
+                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface text-gray-700 rounded-xl focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300">
+                                                <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/action:transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-eye text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('appointments', 'edit')): ?>
-                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
+                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit') ?>" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300">
+                                                <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/action:transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-edit text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if ($appointment['status'] === 'scheduled' && has_permission('appointments', 'edit')): ?>
-                                            <button type="button" onclick="confirmAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-green-500/25">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
+                                            <button type="button" onclick="confirmAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/50 transition-all duration-300">
+                                                <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/action:transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-check text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
                                         <?php if (in_array($appointment['status'], ['scheduled', 'confirmed', 'arrived', 'ready'], true) && has_permission('appointments', 'edit')): ?>
-                                            <button type="button" onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
+                                            <button type="button" onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/50 transition-all duration-300">
+                                                <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/action:transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-times text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
                                         <?php if (has_permission('appointments', 'delete')): ?>
-                                            <button type="button" onclick="deleteAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-gray-500/25">
-                                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
+                                            <button type="button" onclick="deleteAppointment(<?= $appointment['id'] ?>)" class="group/action relative inline-flex items-center justify-center w-10 h-10 v3-warm-surface rounded-xl focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300">
+                                                <div class="absolute inset-0 v3-warm-surface rounded-xl group-hover/action:transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-trash text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
@@ -532,13 +491,13 @@ $dynamicMode = !empty($bookingContext['enabled']);
                             <?php endforeach; ?>
                         <?php else: ?>
                             <div class="text-center py-16">
-                                <div class="relative w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <div class="relative w-24 h-24 v3-warm-surface rounded-3xl flex items-center justify-center mx-auto mb-6 transition-transform duration-300">
                                     <i class="fas fa-calendar text-gray-400 text-4xl"></i>
                                 </div>
-                                <h3 class="text-2xl font-black text-gray-900 mb-3"><?= lang('UI.appointmentNoAppointmentsFound') ?></h3>
+                                <h3 class="text-2xl text-gray-900 mb-3"><?= lang('UI.appointmentNoAppointmentsFound') ?></h3>
                                 <p class="text-gray-500 text-lg font-medium mb-6"><?= lang('UI.appointmentNoAppointmentsForDate') ?></p>
-                                <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-2xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
+                                <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="group/btn relative inline-flex items-center px-6 py-3 v3-warm-surface text-sm font-bold rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300">
+                                    <div class="absolute inset-0 v3-warm-surface rounded-2xl group-hover/btn:transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-plus mr-3 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentSchedule') ?></span>
                                 </a>
@@ -548,13 +507,13 @@ $dynamicMode = !empty($bookingContext['enabled']);
                         <!-- Load More Button for View All Mode -->
                         <?php if (isset($view_mode) && $view_mode === 'all' && isset($pagination['has_more']) && $pagination['has_more']): ?>
                             <div class="text-center py-6">
-                                <button onclick="loadMoreAppointments()" id="loadMoreBtn" class="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-lg font-bold rounded-2xl hover:from-emerald-600 hover:to-teal-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                                    <i class="fas fa-chevron-down mr-3 text-xl relative z-10 group-hover:scale-110 transition-transform duration-300"></i>
+                                <button onclick="loadMoreAppointments()" id="loadMoreBtn" class="group relative inline-flex items-center px-8 py-4 v3-warm-surface text-lg font-bold rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300">
+                                    <div class="absolute inset-0 v3-warm-surface rounded-2xl group-hover:transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                                    <i class="fas fa-chevron-down mr-3 text-xl relative z-10 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentLoadMore') ?></span>
                                 </button>
                                 <div id="loadMoreSpinner" class="hidden text-center py-4">
-                                    <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
+                                    <div class="inline-flex items-center px-6 py-3 v3-warm-surface rounded-xl border border-emerald-200">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mr-3"></div>
                                         <span class="text-emerald-700 font-bold"><?= lang('UI.appointmentLoadingMore') ?></span>
                                     </div>

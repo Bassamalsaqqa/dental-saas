@@ -1,0 +1,72 @@
+/* V3 clinic workspaces. Native data, routes, forms and script hooks remain authoritative. */
+.denta-v3 :is(.dashboard-workspace,.patients-page,.appointment-page,.appointment-calendar-page,.finance-page-wrap){min-width:0;background:var(--denta-travertine);color:var(--denta-ink)}
+.denta-v3 :is(.dashboard-workspace,.patients-page,.appointment-page,.finance-page-wrap)>.container,.denta-v3 .patients-page>div,.denta-v3 .appointment-page>div>div {max-width:none;padding-inline:0;}
+.denta-v3 .v3-metric {position:relative;min-width:0;display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--denta-taupe-border);border-radius:7px;background:var(--denta-alabaster)}
+.denta-v3 .v3-metric>span {font-size:12px;font-weight:600;color:var(--denta-muted)}
+.denta-v3 .v3-metric>strong {display:block;font-size:25px;line-height:1.25;font-weight:700;font-variant-numeric:tabular-nums}
+.denta-v3 .v3-metric>i {position:absolute;inset-inline-end:14px;bottom:15px;font-size:19px;color:var(--denta-emerald-pine)}
+.denta-v3 .v3-metric-tone-0 {background:var(--denta-tint-scheduled)!important}.denta-v3 .v3-metric-tone-1{background:var(--denta-tint-paid)!important}.denta-v3 .v3-metric-tone-2{background:var(--denta-tint-waiting)!important}.denta-v3 .v3-metric-tone-3{background:var(--denta-tint-alert)!important}
+.denta-v3 :is(.v3-ledger-panel,.finance-table-panel,.appointment-calendar-panel,.dashboard-panel,.dashboard-chart-card,.dashboard-routing) {background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:8px;overflow:hidden;}
+.denta-v3 :is(.v3-panel-toolbar,.dashboard-panel-header){display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--denta-sandstone);border-bottom:1px solid var(--denta-taupe-border)}
+.denta-v3 .dashboard-stat-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.denta-v3 .dashboard-stat-card {display:block;padding:12px 14px;border:1px solid var(--denta-taupe-border);border-radius:7px;color:var(--denta-ink);background:var(--denta-alabaster)}
+.denta-v3 .dashboard-stat-blue {background:var(--denta-tint-scheduled)}.denta-v3 .dashboard-stat-emerald{background:var(--denta-tint-paid)}.denta-v3 .dashboard-stat-amber{background:var(--denta-tint-waiting)}.denta-v3 .dashboard-stat-purple{background:var(--denta-tint-inchair)}
+.denta-v3 .dashboard-stat-card i {color:var(--denta-emerald-pine);font-size:23px}
+.denta-v3 .dashboard-stat-label {font-size:12px;font-weight:600;color:var(--denta-muted)}
+.denta-v3 .dashboard-stat-value {font-size:27px;font-weight:700;margin-top:4px;line-height:1.2}
+.denta-v3 .dashboard-stat-meta {font-size:11px;margin-top:7px;color:var(--denta-muted)}
+.denta-v3 .dashboard-routing-board {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:0 12px 12px}
+.denta-v3 .dashboard-routing-column {min-width:0;padding:10px;border:1px solid var(--denta-taupe-border);border-radius:7px;min-height:180px;background:var(--denta-parchment)}
+.denta-v3 .dashboard-routing-column-blue{background:var(--denta-lane-scheduled)}.denta-v3 .dashboard-routing-column-amber{background:var(--denta-lane-waiting)}.denta-v3 .dashboard-routing-column-indigo{background:var(--denta-lane-inchair)}.denta-v3 .dashboard-routing-column-emerald{background:var(--denta-lane-checkout)}.denta-v3 .dashboard-routing-column-rose{background:var(--denta-tint-alert)}
+.denta-v3 .dashboard-routing-card {padding:10px;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-ivory-input)}
+.denta-v3 .dashboard-routing-primary {display:inline-flex;width:100%;align-items:center;justify-content:center;min-height:34px;border:1px solid var(--denta-emerald-pine);padding:6px 8px;border-radius:5px;background:var(--denta-emerald-pine);color:var(--denta-ivory-input);font-size:12px;font-weight:600}
+.denta-v3 .dashboard-content-grid {display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:14px;margin-top:14px}
+.denta-v3 .dashboard-panel-stack {display:flex;flex-direction:column;gap:14px;min-width:0}
+.denta-v3 .dashboard-panel-title {font-size:15px;font-weight:700}.denta-v3 .dashboard-panel-icon{display:grid;place-items:center;width:32px;height:32px;background:var(--denta-parchment);color:var(--denta-emerald-pine);border-radius:5px;flex-shrink:0}
+.denta-v3 .dashboard-view-link{display:inline-flex;align-items:center;gap:6px;color:var(--denta-emerald-pine);font-size:12px;font-weight:600}
+.denta-v3 .dashboard-list {display:flex;flex-direction:column;padding:8px 12px;gap:7px}
+.denta-v3 .dashboard-row {display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--denta-taupe-border)}
+.denta-v3 .dashboard-row-icon {display:grid;place-items:center;flex-shrink:0;width:32px;height:32px;color:var(--denta-emerald-pine);background:var(--denta-parchment);border-radius:5px}
+.denta-v3 .dashboard-mini-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px}
+.denta-v3 .dashboard-mini-card {padding:12px;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-parchment)}
+.denta-v3 .dashboard-bottom-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.denta-v3 .dashboard-chart-wrap {position:relative;height:260px;padding:12px}
+.denta-v3 .dashboard-empty {padding:20px;text-align:center;font-size:13px;color:var(--denta-muted)}
+.denta-v3 .dashboard-status {display:inline-block;padding:3px 6px;border-radius:4px;background:var(--denta-tint-paid);color:var(--denta-emerald-hover);font-size:11px}
+.denta-v3 .v3-finance-navigation {display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 0 12px;font-size:12px}
+.denta-v3 .v3-finance-navigation a {display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--denta-taupe-border);border-radius:5px;background:var(--denta-alabaster);color:var(--denta-ink)}
+.denta-v3 .finance-export-btn {display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:1px solid var(--denta-taupe-border);border-radius:5px;background:var(--denta-alabaster);font-size:12px;font-weight:600}
+.denta-v3 .finance-create-modal__panel {max-height:calc(100dvh - 32px);background:var(--denta-alabaster)!important;border-radius:9px!important}
+.denta-v3 .v3-calendar-summary {display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 12px;font-size:12px}
+.denta-v3 .v3-calendar-summary>span {display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);border-radius:5px}
+.denta-v3 .v3-calendar-summary strong {font-size:15px;font-variant-numeric:tabular-nums}
+.denta-v3 .appointment-calendar-shell {padding:12px;background:var(--denta-alabaster)}
+.denta-v3 .appointment-calendar-shell .fc-toolbar-title {font-size:18px;font-weight:700;color:var(--denta-ink)}
+.denta-v3 .appointment-calendar-shell .fc-button-primary {background:var(--denta-emerald-pine);border-color:var(--denta-emerald-pine);border-radius:5px;box-shadow:none;font-size:12px}
+.denta-v3 .appointment-calendar-shell .fc-button-primary:not(:disabled):hover,.denta-v3 .appointment-calendar-shell .fc-button-primary:not(:disabled).fc-button-active {background:var(--denta-emerald-hover);border-color:var(--denta-emerald-hover)}
+.denta-v3 .appointment-calendar-shell .fc-theme-standard :is(td,th,.fc-scrollgrid) {border-color:var(--denta-taupe-border)}
+.denta-v3 .appointment-calendar-shell .fc-col-header-cell {background:var(--denta-sandstone);color:var(--denta-ink)}
+.denta-v3 .appointment-calendar-shell .fc-day-today {background:var(--denta-tint-waiting)!important}
+.denta-v3 .appointment-calendar-event {padding:3px 5px;font-size:11px;line-height:1.35;overflow:hidden;border-radius:4px}
+.denta-v3 .appointment-calendar-event__title {font-weight:700;white-space:normal}
+.denta-v3 .appointment-calendar-event__meta {font-size:10px;opacity:.9}
+.denta-v3 .appointment-calendar-event__time {font-variant-numeric:tabular-nums;font-weight:700}
+.denta-v3 .appointment-calendar-details-modal__panel {max-height:calc(100dvh - 32px);background:var(--denta-alabaster)!important;border-radius:9px!important}
+.denta-v3 .v3-reception-board {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0 18px;}
+.denta-v3 .v3-visit-lane {min-width:0;padding:10px;border:1px solid var(--denta-taupe-border);border-radius:7px;background:var(--denta-parchment);min-height:220px}
+.denta-v3 .v3-visit-lane h2 {font-size:13px;font-weight:700;margin-bottom:10px}
+.denta-v3 .v3-visit-lane-scheduled{background:var(--denta-lane-scheduled)}.denta-v3 .v3-visit-lane-waiting{background:var(--denta-lane-waiting)}.denta-v3 .v3-visit-lane-chairside{background:var(--denta-lane-inchair)}.denta-v3 .v3-visit-lane-checkout{background:var(--denta-lane-checkout)}.denta-v3 .v3-visit-lane-completed{background:var(--denta-lane-completed)}
+.denta-v3 .v3-visit-card {display:flex;flex-direction:column;gap:7px;padding:10px;margin-bottom:8px;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-ivory-input);font-size:12px;overflow-wrap:anywhere}
+.denta-v3 .v3-visit-card>time {font-size:14px;font-weight:700}.denta-v3 .v3-visit-card>strong{font-size:13px}.denta-v3 .v3-visit-open{color:var(--denta-emerald-pine);display:flex;justify-content:space-between;margin-top:5px;font-weight:600}
+.denta-v3 .v3-lane-empty {padding:20px 8px;background:var(--denta-alabaster);color:var(--denta-muted);border-radius:5px;text-align:center;font-size:12px}
+/* DataTables owns its behavior; V3 owns only compact controls, borders and alternating rows. */
+.denta-v3 :is(.patients-page,.finance-page-wrap) .dataTables_wrapper {padding:10px 12px;background:var(--denta-alabaster);font-size:13px}
+.denta-v3 :is(.patients-page,.finance-page-wrap) table.dataTable th {background:var(--denta-table-head)!important;color:var(--denta-ink);padding:10px!important;font-size:12px;font-weight:600;border-bottom:1px solid var(--denta-taupe-border)}
+.denta-v3 :is(.patients-page,.finance-page-wrap) table.dataTable td {padding:10px!important;border-bottom:1px solid var(--denta-taupe-border);font-size:13px}
+.denta-v3 :is(.patients-page,.finance-page-wrap) table.dataTable tbody tr:nth-child(odd) td {background:var(--denta-table-odd)!important}.denta-v3 :is(.patients-page,.finance-page-wrap) table.dataTable tbody tr:nth-child(even) td {background:var(--denta-table-even)!important}
+.denta-v3 :is(.patients-page,.finance-page-wrap) .paginate_button.current {background:var(--denta-emerald-pine)!important;color:var(--denta-ivory-input)!important;border-color:var(--denta-emerald-pine)!important}
+.denta-v3 :is(.patients-page,.finance-page-wrap) .paginate_button.disabled {color:var(--denta-muted)!important;opacity:.65}
+.denta-v3 .v3-warm-surface {background:var(--denta-sandstone);color:var(--denta-ink);box-shadow:none;}
+.denta-v3 :is(.patients-page,.appointment-page,.appointment-calendar-page,.finance-page-wrap,.dashboard-workspace) .bg-white {background-color:var(--denta-alabaster)}
+@media(max-width:1200px){.denta-v3 .dashboard-content-grid{grid-template-columns:minmax(0,1fr)}.denta-v3 .dashboard-routing-board,.denta-v3 .v3-reception-board{overflow-x:auto;grid-template-columns:repeat(5,minmax(210px,1fr));scroll-snap-type:x proximity}.denta-v3 .dashboard-routing-column,.denta-v3 .v3-visit-lane{scroll-snap-align:start}}
+@media(max-width:767px){.denta-v3 .dashboard-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.denta-v3 .dashboard-stat-card{padding:10px}.denta-v3 .dashboard-stat-value{font-size:22px}.denta-v3 .dashboard-stat-card i{font-size:18px}.denta-v3 .dashboard-bottom-grid{grid-template-columns:minmax(0,1fr)}.denta-v3 .dashboard-chart-wrap{height:220px}.denta-v3 .v3-reception-board{grid-template-columns:repeat(5,minmax(235px,80vw))}.denta-v3 .appointment-calendar-shell .fc-toolbar{flex-wrap:wrap;gap:8px}.denta-v3 .appointment-calendar-shell .fc-toolbar-title{font-size:16px}.denta-v3 .finance-export-btn{min-height:44px}.denta-v3 .v3-calendar-summary{gap:6px}.denta-v3 .v3-calendar-summary>span{padding:6px 8px}.denta-v3 :is(.patients-page,.finance-page-wrap) .dataTables_wrapper .dataTables_filter{float:none;text-align:start;max-width:100%}.denta-v3 :is(.patients-page,.finance-page-wrap) .dataTables_wrapper .dataTables_filter input{max-width:100%;margin:0 0 8px}.denta-v3 :is(.patients-page,.finance-page-wrap) table.dataTable{min-width:720px}}

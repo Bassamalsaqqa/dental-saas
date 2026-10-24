@@ -1,8 +1,8 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<style>.impact-recheck{width:100%;max-width:1100px;margin:auto;padding:16px;box-sizing:border-box;overflow-wrap:anywhere}.impact-recheck *{min-width:0;box-sizing:border-box}.impact-recheck .overflow-x-auto{width:100%;overflow-x:auto}.impact-recheck table{text-align:start;min-width:850px}.impact-recheck td,.impact-recheck th{padding:12px}</style>
-<div class="impact-recheck max-w-6xl mx-auto px-4 py-8" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
+
+<div class="denta-settings-workspace impact-recheck max-w-6xl mx-auto px-4 py-8" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
     <!-- Top breadcrumb and title -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -24,7 +24,7 @@
     <?php if ($unresolvedIds): ?><p class="rounded-xl border border-amber-300 bg-amber-50 p-4 font-semibold" data-unresolved-impact><?= esc(lang('DoctorScheduleSettings.unresolvedVisit')) ?> (<?= count($unresolvedIds) ?>)</p><?php endif; ?>
     <!-- Latest Audit Card if Available -->
     <?php if (!empty($latest_audit)): ?>
-        <div class="rounded-2xl border border-blue-200 bg-blue-50/70 p-5 mb-8 text-blue-950 shadow-sm">
+        <div class="v3-corner border border-blue-200 bg-blue-50/70 p-5 mb-8 text-blue-950">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-bold uppercase tracking-wider text-blue-800"><?= esc(lang('DoctorScheduleSettings.lastAuditTitle')) ?></span>
                 <span class="text-xs text-blue-700" dir="ltr"><?= esc((string) ($latest_audit['applied_at'] ?? '')) ?></span>
@@ -56,18 +56,18 @@
     <p><?= esc(lang('DoctorScheduleSettings.retainedExceptionsCount')) ?>: <?= count($retained_exceptions ?? []) ?></p>
     <!-- Summary Metrics Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.totalFutureVisits')) ?></div>
             <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1" dir="ltr"><?= esc((string) $report['total_future_visits']) ?></div>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></div>
             <div class="text-2xl sm:text-3xl font-extrabold <?= $report['after_conflicts_count'] > 0 ? 'text-amber-600' : 'text-emerald-600' ?> mt-1" dir="ltr">
                 <?= esc((string) $report['after_conflicts_count']) ?>
             </div>
             <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.compliant')) ?></div>
             <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1" dir="ltr">
                 <?= esc((string) ($report['total_future_visits'] - $report['after_conflicts_count'])) ?>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Report Table -->
-    <div class="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
+    <div class="v3-corner border border-slate-200 v3-surface overflow-hidden">
         <div class="border-b border-slate-100 bg-slate-50 px-6 py-4 flex items-center justify-between">
             <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.reviewedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
             <span class="text-xs text-slate-500" dir="ltr"><?= esc(date('Y-m-d H:i:s')) ?></span>

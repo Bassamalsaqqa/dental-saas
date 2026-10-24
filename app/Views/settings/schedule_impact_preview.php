@@ -1,8 +1,8 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<style>.impact-page{width:100%;max-width:1100px;margin:auto;padding:16px;box-sizing:border-box;overflow-wrap:anywhere}.impact-page *{min-width:0;box-sizing:border-box}.impact-page .overflow-x-auto{display:block;width:100%;overflow-x:auto}.impact-page table{text-align:start;min-width:950px}.impact-page td,.impact-page th{padding:12px}.impact-page textarea{width:100%;min-width:180px}.impact-page button{white-space:normal}.impact-page form{width:100%}</style>
-<div class="impact-page max-w-6xl mx-auto px-4 py-8" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
+
+<div class="denta-settings-workspace impact-page max-w-6xl mx-auto px-4 py-8" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
     <!-- Top breadcrumb and title -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -13,7 +13,7 @@
             <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-2"><?= esc(lang('DoctorScheduleSettings.impactReport')) ?></h1>
             <p class="text-sm text-slate-600 mt-1"><?= esc(lang('DoctorScheduleSettings.impactReportHelp')) ?></p>
         </div>
-        <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
+        <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 v3-surface px-4 py-2">
             <span class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('DoctorScheduleSettings.changedSetting')) ?>:</span>
             <span class="font-semibold text-slate-800"><?= $target_type === 'clinic_hours' ? esc(lang('DoctorScheduleSettings.clinicHours')) : esc($target_label) ?></span>
         </div>
@@ -25,7 +25,7 @@
         <p class="text-sm"><?= esc(lang('DoctorScheduleSettings.previewExpiryHelp')) ?></p>
     </div>
     <?php $proposal = json_decode($proposed_dto_json, true, 512, JSON_THROW_ON_ERROR); ?>
-    <section class="mb-6 rounded-xl border border-slate-200 bg-white p-4 sm:p-6" aria-labelledby="proposed-settings-heading" data-proposed-settings>
+    <section class="mb-6 rounded-xl border border-slate-200 v3-surface p-4 sm:p-6" aria-labelledby="proposed-settings-heading" data-proposed-settings>
         <h2 id="proposed-settings-heading" class="mb-4 text-lg font-bold text-slate-900"><?= esc(lang('DoctorScheduleSettings.proposedSettings')) ?></h2>
         <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <?php if ($target_type === 'clinic_hours'): ?>
@@ -71,25 +71,25 @@
 
     <!-- Summary Metrics Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8">
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.totalFutureVisits')) ?></div>
             <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1" dir="ltr"><?= esc((string) $report['total_future_visits']) ?></div>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.beforeStatus')) ?></div>
             <div class="text-2xl sm:text-3xl font-extrabold <?= $report['before_conflicts_count'] > 0 ? 'text-amber-600' : 'text-emerald-600' ?> mt-1" dir="ltr">
                 <?= esc((string) $report['before_conflicts_count']) ?>
             </div>
             <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.afterStatus')) ?></div>
             <div class="text-2xl sm:text-3xl font-extrabold <?= $report['after_conflicts_count'] > 0 ? 'text-rose-600' : 'text-emerald-600' ?> mt-1" dir="ltr">
                 <?= esc((string) $report['after_conflicts_count']) ?>
             </div>
             <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.affectedVisits')) ?></span>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="v3-corner border border-slate-200 v3-surface p-4">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider"><?= esc(lang('DoctorScheduleSettings.proofReference')) ?></div>
             <div class="text-xs font-mono text-slate-700 truncate mt-2" dir="ltr" title="<?= esc($report['state_digest']) ?>">
                 <?= esc(substr($report['state_digest'], 0, 12)) ?>...
@@ -110,7 +110,7 @@
 
         <!-- Status Notification Box -->
         <?php if ($report['after_conflicts_count'] === 0): ?>
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 flex items-start gap-4">
+            <div class="v3-corner border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 flex items-start gap-4">
                 <i class="fas fa-check-circle text-emerald-500 text-2xl mt-0.5"></i>
                 <div>
                     <h3 class="font-bold text-lg"><?= esc(lang('DoctorScheduleSettings.noConflicts')) ?></h3>
@@ -118,7 +118,7 @@
                 </div>
             </div>
         <?php else: ?>
-            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-900 flex items-start gap-4">
+            <div class="v3-corner border border-rose-200 bg-rose-50 p-5 text-rose-900 flex items-start gap-4">
                 <i class="fas fa-exclamation-triangle text-rose-500 text-2xl mt-0.5"></i>
                 <div>
                     <h3 class="font-bold text-lg"><?= esc(lang('DoctorScheduleSettings.unresolvedImpact')) ?></h3>
@@ -128,7 +128,7 @@
         <?php endif; ?>
 
         <!-- Appointments List -->
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
+        <div class="v3-corner border border-slate-200 v3-surface overflow-hidden">
             <div class="border-b border-slate-100 bg-slate-50 px-6 py-4 flex items-center justify-between">
                 <h2 class="font-bold text-slate-800 text-lg"><?= esc(lang('DoctorScheduleSettings.reviewedVisits')) ?> (<?= esc((string) count($report['items'])) ?>)</h2>
                 <span class="text-xs text-slate-500"><?= esc(lang('DoctorScheduleSettings.previewExpiryHelp')) ?></span>
@@ -228,7 +228,7 @@
         </div>
 
         <!-- Explicit operator acknowledgment -->
-            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
+            <div class="v3-corner border border-amber-200 bg-amber-50 p-5 text-amber-950">
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" name="acknowledged" value="1" required class="mt-1 h-5 w-5 rounded border-slate-300 text-orange-600 focus:ring-orange-500">
                     <span class="text-sm font-semibold">
@@ -245,7 +245,7 @@
                 <i class="fas <?= !empty($is_rtl) ? 'fa-arrow-right' : 'fa-arrow-left' ?> mr-1"></i> <?= esc(lang('DoctorScheduleSettings.backToHours')) ?>
             </a>
             <div class="flex items-center gap-3">
-                <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold shadow-lg shadow-orange-500/20 hover:from-orange-600 hover:to-amber-700 transition-all text-sm flex items-center gap-2">
+                <button type="submit" class="v3-action v3-action-primary px-6 py-3 rounded-xl font-bold transition-all text-sm flex items-center gap-2">
                     <i class="fas fa-check-double"></i>
                     <span><?= esc(lang('DoctorScheduleSettings.applyChanges')) ?></span>
                 </button>

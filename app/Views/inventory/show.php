@@ -2,258 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<style>
-.inventory-detail-shell {
-    font-family: inherit;
-}
-.inventory-hero-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 1.75rem;
-    border: 1px solid rgba(255,255,255,0.55);
-    background:
-        radial-gradient(circle at 8% 0%, rgba(255,255,255,0.22), transparent 28%),
-        radial-gradient(circle at 92% 16%, rgba(20,184,166,0.36), transparent 28%),
-        linear-gradient(135deg, #0f766e 0%, #155e75 54%, #1d4ed8 100%);
-    box-shadow: 0 30px 72px -46px rgba(15, 23, 42, 0.78);
-}
-[dir="rtl"] .inventory-hero-card {
-    background:
-        radial-gradient(circle at 92% 0%, rgba(255,255,255,0.22), transparent 28%),
-        radial-gradient(circle at 8% 16%, rgba(20,184,166,0.36), transparent 28%),
-        linear-gradient(225deg, #0f766e 0%, #155e75 54%, #1d4ed8 100%);
-}
-.inventory-hero-card::after {
-    content: "";
-    position: absolute;
-    inset: auto -8rem -10rem auto;
-    width: 24rem;
-    aspect-ratio: 1;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.13);
-}
-.inventory-hero-content {
-    position: relative;
-    z-index: 1;
-}
-.inventory-hero-avatar {
-    display: inline-flex;
-    width: 5rem;
-    height: 5rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 1.5rem;
-    border: 1px solid rgba(255,255,255,0.22);
-    background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(153,246,228,0.16));
-    color: #fff;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 42px -28px rgba(15,23,42,0.8);
-}
-.inventory-hero-chip-grid {
-    display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 0.75rem;
-}
-@media (min-width: 640px) {
-    .inventory-hero-chip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 1180px) {
-    .inventory-hero-chip-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-.inventory-hero-chip {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: 3rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.16);
-    background: rgba(255,255,255,0.14);
-    padding: 0.6rem 0.85rem;
-    color: #fff;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
-}
-.inventory-hero-chip i {
-    display: inline-flex;
-    width: 1.9rem;
-    height: 1.9rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.18);
-}
-.inventory-hero-chip span {
-    display: block;
-    min-width: 0;
-}
-.inventory-hero-chip .label {
-    font-size: 0.68rem;
-    font-weight: 800;
-    color: rgba(224,242,254,0.9);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-.inventory-hero-chip .value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.88rem;
-    font-weight: 900;
-}
-.inventory-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    min-height: 2.65rem;
-    border-radius: 0.95rem;
-    padding: 0.72rem 0.95rem;
-    font-size: 0.875rem;
-    font-weight: 850;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-}
-.inventory-action:hover {
-    transform: translateY(-1px);
-}
-.inventory-action-soft {
-    border: 1px solid rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.14);
-    color: #fff;
-}
-.inventory-action-soft:hover {
-    background: rgba(255,255,255,0.2);
-}
-.inventory-action-emerald {
-    background: linear-gradient(135deg, #10b981, #047857);
-    color: #fff;
-    box-shadow: 0 18px 34px -24px rgba(16,185,129,0.82);
-}
-.inventory-action-blue {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #fff;
-    box-shadow: 0 18px 34px -24px rgba(37,99,235,0.82);
-}
-.inventory-action-rose {
-    background: linear-gradient(135deg, #e11d48, #be123c);
-    color: #fff;
-    box-shadow: 0 18px 34px -24px rgba(225,29,72,0.82);
-}
-.inventory-snapshot-grid {
-    display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 1rem;
-}
-@media (min-width: 640px) {
-    .inventory-snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 1180px) {
-    .inventory-snapshot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-.inventory-snapshot-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255,255,255,0.75);
-    padding: 1rem;
-    box-shadow: 0 18px 36px -30px rgba(15,23,42,0.42), inset 0 1px 0 rgba(255,255,255,0.78);
-}
-.inventory-snapshot-card::after {
-    content: "";
-    position: absolute;
-    inset: -3rem -2rem auto auto;
-    width: 8rem;
-    aspect-ratio: 1;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.42);
-}
-.inventory-snapshot-card > * {
-    position: relative;
-    z-index: 1;
-}
-.inventory-snapshot-stock { background: linear-gradient(135deg, #bbf7d0, #5eead4); }
-.inventory-snapshot-risk { background: linear-gradient(135deg, #fed7aa, #facc15); }
-.inventory-snapshot-value { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
-.inventory-snapshot-location { background: linear-gradient(135deg, #ddd6fe, #c4b5fd); }
-.inventory-snapshot-label {
-    margin: 0;
-    font-size: 0.7rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(15,23,42,0.62);
-}
-.inventory-snapshot-value-text {
-    margin-top: 0.3rem;
-    font-size: 1.45rem;
-    line-height: 1.12;
-    font-weight: 950;
-    color: #0f172a;
-}
-.inventory-snapshot-meta {
-    margin-top: 0.25rem;
-    font-size: 0.78rem;
-    font-weight: 750;
-    color: rgba(15,23,42,0.66);
-}
-.show-card {
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
-    border-radius: 1.35rem;
-    border: 1px solid rgba(226,232,240,0.9);
-    box-shadow: 0 22px 48px -36px rgba(15,23,42,0.32), inset 0 1px 0 rgba(255,255,255,0.8);
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-.show-card:hover { box-shadow: 0 28px 62px -42px rgba(15,23,42,0.38), inset 0 1px 0 rgba(255,255,255,0.84); }
-.show-card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-weight: 700;
-    font-size: 0.9375rem;
-    color: #1e293b;
-}
-.show-card-header i {
-    display: inline-flex;
-    height: 2rem;
-    width: 2rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.625rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-.show-metric-value { font-size: 1.75rem; font-weight: 900; color: #0f172a; line-height: 1.2; }
-.show-metric-label { font-size: 0.6875rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
-.show-metric-sub { font-size: 0.6875rem; color: #94a3b8; }
-.inventory-detail-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-}
-@media (min-width: 1180px) {
-    .inventory-detail-grid {
-        grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr);
-    }
-}
-.inventory-table-wrap {
-    border-radius: 1rem;
-    border: 1px solid rgba(226,232,240,0.84);
-    background: rgba(255,255,255,0.76);
-}
-.inventory-table-wrap table thead tr {
-    background: rgba(248,250,252,0.92);
-}
-.inventory-empty {
-    border-radius: 1rem;
-    border: 1px dashed rgba(148,163,184,0.5);
-    background: rgba(248,250,252,0.72);
-    padding: 1.5rem;
-    text-align: center;
-    color: #64748b;
-    font-size: 0.9rem;
-    font-weight: 650;
-}
-</style>
+
 
 <?php
 $isRtl = !empty($is_rtl);
@@ -288,7 +37,7 @@ if (!empty($item['expiry_date'])) {
 }
 ?>
 
-<div class="inventory-detail-shell min-h-screen bg-slate-50">
+<div class="denta-inventory-workspace inventory-detail-shell min-h-screen bg-slate-50">
     <div class="px-0 sm:px-4 lg:px-5 xl:px-6 py-6 sm:py-8">
 
         <section class="inventory-hero-card mb-6">
@@ -306,8 +55,8 @@ if (!empty($item['expiry_date'])) {
                         </div>
                         <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($item['item_name']) ?></h1>
                         <div class="mt-3 flex flex-wrap items-center gap-2">
-                            <span class="inline-flex items-center rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-black text-white"><?= esc(ucfirst((string) $item['category'])) ?></span>
-                            <span class="inline-flex items-center rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-black text-white"><?= esc($statusText) ?></span>
+                            <span class="inline-flex items-center rounded-full border border-white/20 v3-surface px-3 py-1 text-xs font-black text-white"><?= esc(ucfirst((string) $item['category'])) ?></span>
+                            <span class="inline-flex items-center rounded-full border border-white/20 v3-surface px-3 py-1 text-xs font-black text-white"><?= esc($statusText) ?></span>
                         </div>
                         <?php if (!empty($item['description'])): ?>
                             <p class="mt-4 max-w-3xl text-sm font-semibold leading-6 text-teal-50/90"><?= esc($item['description']) ?></p>
@@ -353,7 +102,7 @@ if (!empty($item['expiry_date'])) {
             </div>
         </section>
 
-        <section class="mb-6 rounded-[1.5rem] border border-white/80 bg-gradient-to-br from-white via-teal-50/70 to-blue-50/60 p-4 shadow-xl shadow-slate-200/60 sm:p-5">
+        <section class="v3-command-section mb-6 v3-corner border border-white/80 p-4 sm:p-5">
             <div class="inventory-snapshot-grid">
                 <div class="inventory-snapshot-card inventory-snapshot-stock">
                     <p class="inventory-snapshot-label"><?= esc($tr('current')) ?></p>
@@ -377,7 +126,7 @@ if (!empty($item['expiry_date'])) {
                 </div>
             </div>
             <?php if ($quantity <= $minQuantity): ?>
-                <div class="mt-4 flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">
+                <div class="mt-4 flex items-center gap-3 v3-corner border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">
                     <i class="fas fa-exclamation-triangle text-amber-600"></i>
                     <span><?= esc($tr('lowStockAlert')) ?></span>
                 </div>
@@ -444,7 +193,7 @@ if (!empty($item['expiry_date'])) {
 
         <!-- Supplier Procurement Mapping -->
         <div class="mb-6 grid grid-cols-1 gap-5 xl:grid-cols-5">
-            <div class="xl:col-span-3 show-card p-5 bg-gradient-to-br from-amber-50 via-white to-orange-50">
+            <div class="v3-surface-heading xl:col-span-3 show-card p-5">
                 <div class="flex items-center justify-between mb-4">
                     <div class="show-card-header mb-0 pb-0 border-b-0">
                         <i class="fas fa-truck-ramp-box text-sm" style="background:#fef3c7;color:#d97706;"></i>
@@ -455,7 +204,7 @@ if (!empty($item['expiry_date'])) {
                 <?php if (!empty($supplier_links)): ?>
                     <div class="space-y-2">
                         <?php foreach (($supplier_links ?? []) as $link): ?>
-                            <div class="rounded-2xl border border-amber-100 bg-white/78 p-3 shadow-sm">
+                            <div class="v3-corner border border-amber-100 v3-surface p-3">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div>
                                         <span class="font-semibold text-sm text-gray-900"><?= esc($link['supplier_name'] ?? ('Supplier #' . (int) $link['supplier_id'])) ?></span>
@@ -485,33 +234,33 @@ if (!empty($item['expiry_date'])) {
                 <?php endif; ?>
             </div>
 
-            <div class="xl:col-span-2 show-card p-5 bg-gradient-to-br from-white via-emerald-50/70 to-teal-50">
+            <div class="v3-surface-heading xl:col-span-2 show-card p-5">
                 <div class="show-card-header mb-3 pb-0 border-b-0">
                     <i class="fas fa-link text-sm" style="background:#fef3c7;color:#d97706;"></i>
                     <span><?= esc($tr('addUpdateMapping')) ?></span>
                 </div>
                 <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link') ?>" class="space-y-3">
                     <?= csrf_field() ?>
-                    <select name="link_supplier_id" data-force-select2 data-allow-clear="false" class="w-full h-10 px-3 border border-gray-300 rounded-lg bg-white text-sm">
+                    <select name="link_supplier_id" data-force-select2 data-allow-clear="false" class="w-full h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm">
                         <option value=""><?= esc($tr('supplier')) ?></option>
                         <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                             <option value="<?= (int) $supplier['id'] ?>"><?= esc($supplier['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" name="supplier_sku" class="h-10 px-3 border border-gray-300 rounded-lg bg-white text-sm" placeholder="<?= esc($tr('supplierSku')) ?>">
-                        <input type="text" name="pack_size_label" class="h-10 px-3 border border-gray-300 rounded-lg bg-white text-sm" placeholder="<?= esc($tr('packSize')) ?>">
-                        <input type="number" min="1" step="1" name="preferred_order_qty" class="h-10 px-3 border border-gray-300 rounded-lg bg-white text-sm" placeholder="<?= esc($tr('preferredQty')) ?>">
+                        <input type="text" name="supplier_sku" class="h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('supplierSku')) ?>">
+                        <input type="text" name="pack_size_label" class="h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('packSize')) ?>">
+                        <input type="number" min="1" step="1" name="preferred_order_qty" class="h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('preferredQty')) ?>">
                         <div class="grid grid-cols-3 gap-2">
-                            <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 h-10 px-3 border border-gray-300 rounded-lg bg-white text-sm" placeholder="<?= esc($tr('lastPrice')) ?>">
-                            <select name="link_currency" data-force-select2 data-allow-clear="false" class="h-10 px-2 border border-gray-300 rounded-lg bg-white text-sm">
+                            <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 h-10 px-3 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('lastPrice')) ?>">
+                            <select name="link_currency" data-force-select2 data-allow-clear="false" class="h-10 px-2 border border-gray-300 rounded-lg v3-surface text-sm">
                                 <?php foreach (($currencies ?? ['ILS']) as $c): ?>
                                     <option value="<?= esc($c) ?>"><?= esc($c) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
-                    <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
+                    <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg v3-surface text-sm" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
                     <label class="flex items-center gap-2 text-sm text-gray-700">
                         <input type="checkbox" name="is_preferred" value="1" checked class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                         <?= esc($tr('setAsPreferredSupplier')) ?>
@@ -524,7 +273,7 @@ if (!empty($item['expiry_date'])) {
         </div>
 
         <!-- Stock Movements -->
-        <div class="mb-6 show-card p-5 bg-gradient-to-br from-white via-emerald-50/70 to-blue-50/70">
+        <div class="v3-surface-heading mb-6 show-card p-5">
             <div class="flex items-center justify-between mb-4">
                 <div class="show-card-header mb-0 pb-0 border-b-0">
                     <i class="fas fa-arrows-rotate text-sm" style="background:#d1fae5;color:#059669;"></i>
@@ -578,7 +327,7 @@ if (!empty($item['expiry_date'])) {
 
         <!-- Batches -->
         <?php if (!empty($batches)): ?>
-        <div class="mb-6 show-card p-5 bg-gradient-to-br from-white via-cyan-50/80 to-blue-50/70">
+        <div class="v3-surface-heading mb-6 show-card p-5">
             <div class="flex items-center justify-between mb-4">
                 <div class="show-card-header mb-0 pb-0 border-b-0">
                     <i class="fas fa-tags text-sm" style="background:#e0f2fe;color:#0284c7;"></i>

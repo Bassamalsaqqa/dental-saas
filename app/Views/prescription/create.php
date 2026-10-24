@@ -1,44 +1,22 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<style>
-[dir="ltr"] .prescription-leading-input {
-    padding-left: 0.75rem !important;
-    padding-right: 2.5rem !important;
-}
 
-[dir="rtl"] .prescription-leading-input {
-    padding-right: 2.5rem !important;
-    padding-left: 0.75rem !important;
-    text-align: right;
-}
-
-[dir="ltr"] input[data-clinic-date="1"].prescription-date-input {
-    padding-left: 1rem !important;
-    padding-right: 2.75rem !important;
-}
-
-[dir="rtl"] input[data-clinic-date="1"].prescription-date-input {
-    padding-right: 2.75rem !important;
-    padding-left: 1rem !important;
-    text-align: right;
-}
-</style>
 <!-- Enhanced Prescription Creation with Advanced Design -->
-<div class="min-h-screen bg-slate-50">
+<div class="denta-prescription-workspace min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
     <div class="container mx-auto relative z-10 px-4 py-6">
 
         <!-- Enhanced Prescription Form with Glassmorphism -->
         <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 overflow-hidden">
+            <div class="relative v3-surface v3-corner group-hover:shadow-emerald-500/20 transition-all duration-500 overflow-hidden">
                 <!-- Form Header -->
                 <div class="p-8 border-b border-white/20">
                     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                         <div class="flex items-center space-x-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <div class="v3-surface-heading absolute inset-0 v3-corner opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="v3-icon relative w-12 h-12 v3-corner flex items-center justify-center transition-all duration-300">
                                     <i class="fas fa-prescription-bottle-alt text-white text-lg"></i>
                                 </div>
                             </div>
@@ -50,7 +28,7 @@
                         
                         <div class="flex items-center space-x-3">
                             <a href="<?= esc(workflow_back('prescription', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left rtl-back-icon mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.back') ?></span>
                             </a>
@@ -73,7 +51,7 @@
                                 <span><?= lang('Prescription.patient_required') ?></span>
                             </label>
                             <div class="relative">
-                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" 
+                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 v3-surface border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300"
                                         data-searchable-select 
                                         data-minimum-input-length="0"
                                         data-limit="5"
@@ -107,17 +85,17 @@
 
                         <!-- Medicines Section -->
                         <div class="group/section relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl blur opacity-0 group-hover/section:opacity-100 transition-opacity duration-300"></div>
-                            <div class="relative p-6 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-cyan-50/50">
+                            <div class="v3-surface-heading absolute inset-0 v3-corner opacity-0 group-hover/section:opacity-100 transition-opacity duration-300"></div>
+                            <div class="v3-surface-heading relative p-6 v3-corner border border-blue-100">
                                 <div class="flex items-center justify-between mb-6">
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                                        <div class="v3-icon w-10 h-10 rounded-xl flex items-center justify-center">
                                             <i class="fas fa-pills text-white"></i>
                                         </div>
                                         <h3 class="text-xl font-bold text-gray-900"><?= lang('Prescription.medicines') ?></h3>
                                     </div>
-                                    <button type="button" onclick="addMedicine()" class="group/btn relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 hover:scale-105">
-                                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                    <button type="button" onclick="addMedicine()" class="v3-action v3-action-primary group/btn relative inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl transition-all duration-300">
+                                        <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                         <i class="fas fa-plus mr-2 relative z-10"></i>
                                         <span class="relative z-10"><?= lang('Prescription.add_medicine') ?></span>
                                     </button>
@@ -130,7 +108,7 @@
 
                                 <!-- Empty State -->
                                 <div id="empty-medicines" class="text-center py-8">
-                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <div class="v3-icon w-16 h-16 v3-corner flex items-center justify-center mx-auto mb-4">
                                         <i class="fas fa-pills text-blue-500 text-2xl"></i>
                                     </div>
                                     <p class="text-gray-600 font-medium"><?= lang('Prescription.no_medicines_added') ?></p>
@@ -187,7 +165,7 @@
                                 <span><?= lang('Prescription.instructions') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="instructions" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Prescription.instructions_placeholder')) ?>"><?= old('instructions') ?></textarea>
+                                <textarea name="instructions" rows="4" class="w-full px-4 py-3 v3-surface border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 resize-none" placeholder="<?= esc(lang('Prescription.instructions_placeholder')) ?>"><?= old('instructions') ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -203,12 +181,12 @@
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
                             <a href="<?= esc(workflow_cancel('prescription', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.cancel') ?></span>
                             </a>
-                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <button type="submit" class="v3-action v3-action-primary group/btn relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold rounded-xl transition-all duration-300">
+                                <div class="v3-surface-heading absolute inset-0 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-prescription-bottle-alt mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Prescription.create_prescription') ?></span>
                             </button>

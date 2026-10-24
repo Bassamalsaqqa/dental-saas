@@ -5,14 +5,14 @@
 
 <?= view('inventory/partials/form_styles', ['is_rtl' => $isRtl]) ?>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+<div class="v3-surface-heading denta-inventory-workspace min-h-screen">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         <div class="mb-8">
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div class="v3-surface v3-corner border border-gray-200 p-6">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <div class="v3-icon w-12 h-12 v3-corner flex items-center justify-center">
                             <i class="fas fa-boxes text-white text-lg"></i>
                         </div>
                         <div>
@@ -44,7 +44,7 @@
                     <i class="fas fa-times text-xs"></i>
                     <?= lang('Inventory.cancel') ?>
                 </a>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors">
                     <i class="fas fa-plus text-xs"></i>
                     <?= lang('Inventory.addItem') ?>
                 </button>

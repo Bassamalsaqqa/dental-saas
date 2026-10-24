@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<div class="px-6 py-8">
+<div class="denta-inventory-workspace px-6 py-8">
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
@@ -55,7 +55,7 @@
     <?php endif; ?>
 
     <!-- Edit Form -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
+    <div class="v3-surface rounded-lg border border-gray-200 group transition-all duration-300">
         <div class="p-8">
             <form action="<?= base_url('inventory/' . $item['id'] . '/update') ?>" method="POST" class="space-y-8">
                 <?= csrf_field() ?>
@@ -77,7 +77,7 @@
                         <div>
                             <label for="category" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.categoryRequired') ?></label>
                             <select id="category" name="category" data-force-select2 data-allow-clear="false"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                 <option value=""><?= lang('Inventory.selectCategory') ?></option>
                                 <?php foreach ($categories as $key => $label): ?>
@@ -92,7 +92,7 @@
                     <div class="mt-6">
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.description') ?></label>
                         <textarea id="description" name="description" rows="3" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= old('description', $item['description']) ?></textarea>
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= old('description', $item['description']) ?></textarea>
                     </div>
                 </div>
 
@@ -120,7 +120,7 @@
                         <div>
                             <label for="unit" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.unit') ?></label>
                             <select id="unit" name="unit" data-force-select2 data-allow-clear="false"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="pieces" <?= old('unit', $item['unit'] ?? 'pieces') == 'pieces' ? 'selected' : '' ?>><?= lang('Inventory.unitPieces') ?></option>
                                 <option value="boxes" <?= old('unit', $item['unit'] ?? 'pieces') == 'boxes' ? 'selected' : '' ?>><?= lang('Inventory.unitBoxes') ?></option>
                                 <option value="bottles" <?= old('unit', $item['unit'] ?? 'pieces') == 'bottles' ? 'selected' : '' ?>><?= lang('Inventory.unitBottles') ?></option>
@@ -160,7 +160,7 @@
                                     </div>
                                 </div>
                                 <select id="supplier_id" name="supplier_id" data-force-select2 data-allow-clear="false"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value=""><?= lang('Inventory.noLinkedSupplier') ?></option>
                                     <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                                         <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id', $item['supplier_id'] ?? '') === (string) $supplier['id'] ? 'selected' : '' ?>>
@@ -197,7 +197,7 @@
                                 <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty', $prefLink['preferred_order_qty'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.preferredReorderQty') ?>">
                                 <div class="grid grid-cols-3 gap-2">
                                     <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price', $prefLink['last_unit_price'] ?? '') ?>" class="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= lang('Inventory.lastSupplierPrice') ?>">
-                                    <select name="supplier_price_currency" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <select name="supplier_price_currency" data-force-select2 data-allow-clear="false" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
                                             <option value="<?= esc($currency) ?>" <?= (string) old('supplier_price_currency', $prefLink['currency'] ?? 'ILS') === (string) $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
                                         <?php endforeach; ?>
@@ -236,7 +236,7 @@
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.statusRequired') ?></label>
                             <select id="status" name="status" data-force-select2 data-allow-clear="false"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                 <option value="active" <?= old('status', $item['status']) == 'active' ? 'selected' : '' ?>><?= lang('Inventory.statusActive') ?></option>
                                 <option value="inactive" <?= old('status', $item['status']) == 'inactive' ? 'selected' : '' ?>><?= lang('Inventory.statusInactive') ?></option>
@@ -248,7 +248,7 @@
                     <div class="mt-6">
                         <label for="notes" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.notes') ?></label>
                         <textarea id="notes" name="notes" rows="4" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= old('notes', $item['notes']) ?></textarea>
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= old('notes', $item['notes']) ?></textarea>
                     </div>
                 </div>
 

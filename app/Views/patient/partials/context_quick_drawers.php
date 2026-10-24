@@ -48,12 +48,12 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
 };
 ?>
 
-<section class="patient-command-workspace overflow-hidden rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-teal-50 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.45)]">
-    <div class="space-y-4 px-5 py-4">
-        <div class="text-center">
+<section class="patient-command-workspace v3-patient-command-strip">
+    <div class="v3-patient-command-content">
+        <div class="v3-patient-command-label">
             <h2 class="text-base font-bold text-slate-950"><?= esc(lang('UI.patientCommandActions')) ?></h2>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-2">
+        <div class="v3-command-actions">
             <?php if (has_permission('examinations', 'create')): ?>
                 <button type="button" class="<?= esc($primaryButtonClass) ?>" data-app-drawer-open="patientExamDrawer">
                     <i class="fas fa-stethoscope"></i><span><?= esc(lang('UI.addExamination')) ?></span>
