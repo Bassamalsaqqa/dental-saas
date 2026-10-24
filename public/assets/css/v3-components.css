@@ -4,7 +4,8 @@
 .denta-v3 ::selection{background:var(--denta-tint-scheduled);color:var(--denta-forest)}
 .denta-v3 .v3-radius{border-radius:var(--denta-radius,9px)}
 .denta-v3 :is(.v3-btn,button:not(.rail-link):not(.tooth),.dt-button,.fc-button){font-family:inherit;font-weight:600;box-shadow:none;border-radius:var(--v3-control-radius);transition:background-color .12s,color .12s,border-color .12s}
-.denta-v3 .v3-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:7px 12px;border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);color:var(--denta-ink);line-height:1.3;text-decoration:none}
+.denta-v3 .v3-btn:not(.hidden):not([hidden]){display:inline-flex}
+.denta-v3 .v3-btn{align-items:center;justify-content:center;gap:6px;min-height:36px;padding:7px 12px;border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);color:var(--denta-ink);line-height:1.3;text-decoration:none}
 .denta-v3 :is(.v3-btn--primary,.v3-btn-primary){background:var(--denta-emerald-pine);color:var(--denta-ivory-input);border-color:var(--denta-emerald-pine)}
 .denta-v3 :is(.v3-btn--primary,.v3-btn-primary):hover{background:var(--denta-emerald-hover)}
 .denta-v3 :is(.v3-btn--danger,.v3-btn-danger){background:var(--denta-terracotta);color:var(--denta-ivory-input);border-color:var(--denta-terracotta)}
