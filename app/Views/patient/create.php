@@ -9,7 +9,7 @@ $validation=$validation??null;
 $studioFormErrors=is_array(session('errors'))?session('errors'):[];
 if($validation instanceof \CodeIgniter\Validation\Validation)$studioFormErrors=array_merge($studioFormErrors,$validation->getErrors());
 ?>
-<header class="page-title-row"><div><h1><?= esc(lang('UI.patientCreateTitle')) ?></h1><p><?= esc(lang('Studio.patientCreateHelp')) ?></p></div><a class="button secondary" href="<?= esc(workflow_cancel('patient',$return_to??null)) ?>"><?= esc(lang('Studio.registry')) ?></a></header>
+<header class="page-title-row registration-heading"><div><h1><?= esc(lang('UI.patientCreateTitle')) ?></h1></div><a class="button secondary" href="<?= esc(workflow_cancel('patient',$return_to??null)) ?>"><?= esc(lang('Studio.registry')) ?></a></header>
 <?php if(session('error') || $studioFormErrors): ?><section class="form-notice form-notice--error" role="alert" aria-labelledby="form-error-title"><h2 id="form-error-title"><?= esc(lang('Studio.checkFields')) ?></h2><?php if(session('error')): ?><p><?= esc(session('error')) ?></p><?php endif; ?><?php if($studioFormErrors): ?><ul><?php foreach($studioFormErrors as $key=>$message): ?><li><a href="#<?= esc($key,'attr') ?>"><?= esc($message) ?></a></li><?php endforeach; ?></ul><?php endif; ?></section><?php endif; ?>
 <form action="<?= base_url('patient/store') ?>" method="POST" class="studio-form" data-patient-create-form data-unsaved-form>
 <?= csrf_field() ?>

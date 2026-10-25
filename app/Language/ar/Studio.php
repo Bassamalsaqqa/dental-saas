@@ -28,4 +28,7 @@ return [
 'notesTask'=>'ملاحظات الفحوصات','notesQuantity'=>'{count} ملاحظة جاهزة للتوقيع','notesAction'=>'مراجعة الملاحظات','recoverTask'=>'زيارات فائتة','recoverQuantity'=>'{count} زيارة ملغاة أو فائتة خلال آخر 30 يوماً','recoverAction'=>'مراجعة المواعيد','acceptedTask'=>'علاجات مقبولة','acceptedQuantity'=>'{count} إجراء بانتظار موعد','acceptedAction'=>'مراجعة العلاجات',
 'skip'=>'انتقال إلى مساحة العمل',
 'patientCreateHelp'=>'ابدأ ملف المريض، ثم احفظه أو تابع لحجز موعد.','requiredHelp'=>'الحقول المعلّمة بنجمة * مطلوبة.','morePatientDetails'=>'التواصل والتنبيهات الطبية والملاحظات','morePatientHelp'=>'أضف المعلومات الاختيارية اللازمة لهذا المريض.','medicalDetails'=>'التنبيهات الطبية','checkFields'=>'يرجى مراجعة الحقول الموضّحة','chooseOption'=>'اختر من القائمة','previousEntry'=>'القيمة المُدخلة سابقاً: {value}','discardTitle'=>'هل تريد تجاهل التغييرات؟','discardHelp'=>'لم تُحفظ المعلومات المُدخلة في هذا النموذج.','keepEditing'=>'متابعة التعديل','discardChanges'=>'تجاهل التغييرات','saved'=>'تم الحفظ',
+'patientIdentity'=>'بيانات المريض',
+'optionalDetails'=>'تفاصيل إضافية',
+'contactAndCover'=>'التواصل والتأمين',
 ];

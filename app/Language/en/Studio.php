@@ -28,4 +28,7 @@ return [
 'notesTask'=>'Clinical notes','notesQuantity'=>'{count} ready to sign','notesAction'=>'Review notes','recoverTask'=>'Missed visits','recoverQuantity'=>'{count} cancelled or missed in the last 30 days','recoverAction'=>'Review appointments','acceptedTask'=>'Accepted care','acceptedQuantity'=>'{count} procedures awaiting a visit','acceptedAction'=>'Review treatments',
 'skip'=>'Skip to workspace',
 'patientCreateHelp'=>'Start the patient record, then save or continue to booking.','requiredHelp'=>'Fields marked * are required.','morePatientDetails'=>'Contact, medical alerts and notes','morePatientHelp'=>'Add the optional details needed for this patient.','medicalDetails'=>'Medical alerts','checkFields'=>'Please review the highlighted fields','chooseOption'=>'Choose an option','previousEntry'=>'Previous entry: {value}','discardTitle'=>'Discard your changes?','discardHelp'=>'The information on this form has not been saved.','keepEditing'=>'Keep editing','discardChanges'=>'Discard changes','saved'=>'Saved',
+'patientIdentity'=>'Patient details',
+'optionalDetails'=>'Additional details',
+'contactAndCover'=>'Contact and insurance',
 ];

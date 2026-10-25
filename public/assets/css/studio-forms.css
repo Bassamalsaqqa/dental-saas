@@ -1,9 +1,9 @@
 /* Shared form components in the Owner-approved Studio system. */
 .studio .hidden{display:none!important}
-.studio-form{display:grid;gap:22px}
-.form-section{background:var(--paper);border-radius:16px;padding:28px}
-.form-section header{margin-bottom:25px}
-.form-section h2{font-size:24px}
+.studio-form{display:grid;gap:18px}
+.form-section{background:var(--paper);border-radius:16px;padding:24px}
+.form-section header{margin-bottom:18px}
+.form-section h2{font-size:22px}
 .form-section p{font-size:16px;color:var(--muted);line-height:1.7}
 .form-section header p{margin-top:7px}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}
@@ -11,9 +11,9 @@
 .form-field--wide{grid-column:1/-1}
 .form-field>label{font-size:17px;font-weight:700;color:var(--ink)}
 .form-field>label>span{color:#8d3d2f}
-.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;border:0;border-radius:9px;background:#dfeadb;color:var(--ink);padding:13px 15px;font-size:18px;line-height:1.6;box-shadow:none}
-.form-field select{appearance:none;cursor:pointer;min-height:55px}
-.form-field textarea{resize:vertical;min-height:110px}
+.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;border:0;border-radius:9px;background:#dfeadb;color:var(--ink);padding:9px 12px;font-size:17px;line-height:1.5;box-shadow:none}
+.form-field select{appearance:none;cursor:pointer;min-height:44px}
+.form-field textarea{resize:vertical;min-height:90px}
 .form-field input:focus-visible,.form-field textarea:focus-visible,.form-field select:focus-visible{outline:3px solid #39794f;outline-offset:3px;background:#e7f0e1}
 .form-field input[aria-invalid=true],.form-field select[aria-invalid=true],.form-field .border-red-500{background:#f3dad1}
 .form-field .field-error{color:#913d2e;font-size:15px;font-weight:600}
@@ -29,9 +29,9 @@
 .form-switch input:disabled+.form-switch-track{opacity:.5;cursor:not-allowed}
 .form-subsection{margin-top:28px}
 .form-subsection h3{font-size:20px;margin-bottom:17px}
-.medical-alert-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
-.medical-alert-card{background:#e2edda;padding:18px;border-radius:12px;min-width:0}
-.medical-alert-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:38px}
+.medical-alert-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:start}
+.medical-alert-card{background:#e2edda;padding:11px 14px;border-radius:10px;min-width:0}
+.medical-alert-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:32px}
 .medical-alert-heading>label{font-size:17px;line-height:1.6;font-weight:650;cursor:pointer}
 .medical-alert-card>.form-field{margin-top:15px}
 .medical-alert-card .form-field>label{font-size:16px}
@@ -58,3 +58,17 @@
 .discard-actions{flex-direction:column;padding-inline:20px}
 .discard-actions .button{width:100%}}
 @media(prefers-reduced-motion:reduce){.form-switch-track::before{transition:none}}
+
+/* Registration composition: long identity values, short factual values, optional context. */
+.registration-heading{padding-block:20px;margin-bottom:20px}
+.registration-heading h1{font-size:32px;letter-spacing:-.7px}
+.registration-heading .button{font-size:16px}
+.studio-form{max-width:1120px}
+.registration-names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:850px}
+.registration-facts{display:grid;grid-template-columns:minmax(0,24ch) minmax(0,20ch) minmax(0,19ch);gap:20px;margin-top:20px}
+.registration-details{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.35fr);gap:28px;margin-top:24px;align-items:start}
+.registration-details h3{font-size:19px;margin-bottom:16px}
+.registration-contact-fields{display:grid;gap:16px;max-width:40ch}
+.registration-additional .form-section-toggle{min-height:34px}
+@media(max-width:1100px){.registration-details{grid-template-columns:minmax(0,1fr)}.registration-contact-fields{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none}.registration-contact-fields>.form-field:last-child{grid-column:1/-1}}
+@media(max-width:800px){.registration-heading h1{font-size:27px}.registration-names{grid-template-columns:minmax(0,1fr);gap:16px}.registration-facts{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 12px;margin-top:16px}.form-field--phone{grid-column:1/-1}.registration-contact-fields{grid-template-columns:minmax(0,1fr)}.registration-heading{padding-block:18px}.registration-details{gap:24px}}
