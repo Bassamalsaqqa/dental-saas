@@ -1,5 +1,5 @@
 {
-  "status": "APPROVED_SYSTEM_PATIENT_AND_STOCK_BATCH_PENDING_OWNER_VISUAL_ACCEPTANCE",
+  "status": "TWENTY_PAGE_PRESENTATION_BATCH_PENDING_FINAL_VISUAL_ACCEPTANCE",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Owner can review five-page patient/inventory batch locally. Next bounded implementation: appointment list/create/edit/dayboard, after mapping existing contracts. Do not import rejected designs or restart accepted dashboard/forms.",
+  "next_step": "Finish final post-freeze EN/AR desktop/mobile capture and gallery for the exact twenty-page batch, inspect actual layouts, record verification and provide one Owner visual handback. No source integration/deployment.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -144,5 +144,37 @@
     "patient_edit": "c3ff655e5b57d49258beeb12d603aca13c158621",
     "inventory_reorder": "c3ff655e5b57d49258beeb12d603aca13c158621"
   },
-  "agy_registry_concept": "Owner discarded the external concept. Verified the five concept/capture files absent; only baseline.json, brief.md and codex-continuation.json remain. No AGY design code integrated; no automatic delegation."
+  "agy_registry_concept": "Owner discarded the external concept. Verified the five concept/capture files absent; only baseline.json, brief.md and codex-continuation.json remain. No AGY design code integrated; no automatic delegation.",
+  "owner_twenty_page_batch": {
+    "authorization": "Owner 2026-10-25 requested 20 connected pages in one unattended pass, one combined visual review; no backend/schema/production changes.",
+    "routes": [
+      "patients",
+      "inventory",
+      "inventory/create",
+      "inventory/{id}/edit",
+      "inventory/{id}",
+      "inventory/expired",
+      "inventory/low-stock",
+      "inventory/movements",
+      "inventory/templates",
+      "inventory/usage",
+      "inventory/usage-history",
+      "inventory/suppliers/{id}",
+      "appointments (daily and all states)",
+      "appointment/create",
+      "appointment/{id}/edit",
+      "appointment/{id}",
+      "prescriptions",
+      "prescription/create",
+      "prescription/{id}/edit",
+      "prescription/{id}"
+    ],
+    "state": "CODE_FREEZE_PENDING_FINAL_VISUAL_CAPTURE; canonical workflow checks passed, synthetic preexisting data fingerprints preserved; Owner visual acceptance outstanding.",
+    "excluded": "Calendar, native odontogram, signed/legal print templates, and unrelated application modules are preserved, not claimed rebuilt.",
+    "functional_evidence": [
+      "../directory-item-batch/connected-acceptance.json (36/36)",
+      "../directory-item-batch/connected-extra-acceptance.json (18/18)",
+      "../twenty-page-review/table-acceptance.json (19/19)"
+    ]
+  }
 }

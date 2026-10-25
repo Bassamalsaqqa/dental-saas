@@ -1,76 +1,13 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset');include APPPATH.'Views/layouts/partials/view_permissions.php';include APPPATH.'Views/layouts/partials/studio_icons.php';$tr=static fn(string $key,array $params=[])=>lang('Inventory.'.$key,$params); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-directory.css') ?>?v=<?= esc(asset_version('assets/css/studio-directory.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-records.css') ?>?v=<?= esc(asset_version('assets/css/studio-records.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<?php $tr = static fn(string $key, array $params = []) => lang('Inventory.' . $key, $params); ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50 to-orange-100">
-    <div class="container mx-auto px-4 py-6">
-        <div class="mb-6 bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-orange-600 text-white flex items-center justify-center shadow-lg">
-                        <i class="fas fa-calendar-times text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900"><?= esc($tr('expiredItems')) ?></h1>
-                        <p class="text-gray-600"><?= esc($tr('expiredItemsSubtitle')) ?></p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200">
-                        <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('backToInventory')) ?>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="rounded-2xl bg-white/80 border border-white/30 shadow-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-slate-900"><?= esc($tr('expiredItems')) ?></h3>
-                <span class="text-sm text-slate-600"><?= esc($tr('rowsCount', ['count' => count($items ?? [])])) ?></span>
-            </div>
-
-            <?php if (!empty($items)): ?>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
-                            <tr>
-                                <th class="px-4 py-3"><?= esc($tr('item')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('category')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('quantity')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('supplier')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('expiryDate')) ?></th>
-                                <th class="px-4 py-3"><?= esc($tr('actions')) ?></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <?php foreach (($items ?? []) as $item): ?>
-                                <tr class="hover:bg-slate-50/70">
-                                    <td class="px-4 py-3">
-                                        <div class="font-semibold text-slate-900"><?= esc((string) ($item['item_name'] ?? '')) ?></div>
-                                        <?php if (!empty($item['description'])): ?>
-                                            <div class="text-xs text-slate-500 mt-1"><?= esc((string) $item['description']) ?></div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-slate-700"><?= esc((string) ($item['category'] ?? '')) ?></td>
-                                    <td class="px-4 py-3 text-sm text-slate-700"><?= (int) ($item['quantity'] ?? 0) ?></td>
-                                    <td class="px-4 py-3 text-sm text-slate-700"><?= esc((string) ($item['supplier'] ?? '-')) ?></td>
-                                    <td class="px-4 py-3 text-sm text-rose-700 font-semibold"><?= !empty($item['expiry_date']) ? esc(formatDate((string) $item['expiry_date'])) : '-' ?></td>
-                                    <td class="px-4 py-3">
-                                        <a href="<?= base_url('inventory/' . (int) $item['id']) ?>" class="inline-flex items-center px-3 py-2 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100">
-                                            <i class="fas fa-eye mr-2"></i><?= esc($tr('viewItem')) ?>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php else: ?>
-                <div class="px-6 py-10 text-center text-slate-600">
-                    <?= esc($tr('noExpiredItems')) ?>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
+<header class="page-title-row registration-heading"><h1><?= esc($tr('expiredItems')) ?></h1><nav class="records-actions"><a class="button secondary" href="<?= base_url('inventory') ?>"><?= esc($tr('backToInventory')) ?></a></nav></header>
+<?php if(session('error')): ?><p class="form-notice form-notice--error" role="alert"><?= esc(session('error')) ?></p><?php endif; ?>
+<section class="records-note"><p><?= esc($tr('expiredItemsSubtitle')) ?></p></section><section class="form-section records-surface"><div class="records-controls"><div class="form-field records-search"><label for="records-search"><?= esc(lang('Studio.searchDirectory')) ?></label><input type="search" id="records-search" autocomplete="off"></div><div class="form-field"><label for="records-size"><?= esc(lang('Studio.pageSize')) ?></label><select id="records-size"><option>10</option><option>25</option><option>50</option><option>100</option></select></div><button class="button secondary" type="button" data-records-print><?= esc(lang('Studio.printPdf')) ?></button></div><p class="directory-error" data-records-error hidden role="alert"></p>
+<table class="directory-table records-table"><thead><tr><?php foreach(['item','category','quantity','minimum','unitPrice','supplier','expiryDate','actions'] as $label): ?><th scope="col"><?= esc($tr($label)) ?></th><?php endforeach; ?></tr></thead><tbody>
+<?php foreach($items??[] as $row): ?><tr><td><a data-record-link href="<?= base_url('inventory/'.(int)$row['id']) ?>"><strong><?= esc($row['item_name']) ?></strong></a><?php if(!empty($row['description'])): ?><small><?= esc($row['description']) ?></small><?php endif; ?></td><td><?= esc($tr('category'.ucfirst($row['category']))) ?></td><td><?= (int)$row['quantity'] ?> <?= esc($tr('unit'.ucfirst($row['unit']??'pieces'))) ?></td><td><?= (int)$row['min_quantity'] ?></td><td><?= esc(formatCurrency($row['unit_price'])) ?></td><td><?= esc($row['supplier']??'—') ?></td><td><?= !empty($row['expiry_date'])?esc(formatDate($row['expiry_date'])):'—' ?></td><td><a class="button secondary" href="<?= base_url('inventory/'.(int)$row['id']) ?>"><?= esc(lang('Studio.actions')) ?></a></td></tr><?php endforeach; ?>
+</tbody></table></section>
+<script id="records-config" type="application/json"><?= json_encode(['selected'=>lang('Studio.selectedCount'),'empty'=>lang('Studio.emptyList'),'summary'=>lang('Studio.listSummary'),'summaryEmpty'=>lang('Studio.listSummaryEmpty'),'filtered'=>lang('Studio.listFiltered'),'next'=>lang('Studio.next'),'previous'=>lang('Studio.previous'),'failed'=>lang('Studio.listFailed')],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
 <?= $this->endSection() ?>
+<?= $this->section('scripts') ?><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script><script src="<?= base_url('assets/js/studio-records.js') ?>?v=<?= esc(asset_version('assets/js/studio-records.js')) ?>" defer></script><?= $this->endSection() ?>
