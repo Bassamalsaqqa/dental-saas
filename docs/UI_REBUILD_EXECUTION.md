@@ -1,6 +1,6 @@
 # Denta+ approved frontend rebuild: execution contract
 
-Status: planning checkpoint. The Owner accepted the dashboard direction at 99c9ecbc9d87311d887fcc81c138f42fc4a03af4. This is not approval of the rejected V3/V4 implementation or permission to deploy.
+Status: active clean-base implementation; Stage A foundation and Stage B patient registration are in progress. The Owner accepted the dashboard direction at 99c9ecbc9d87311d887fcc81c138f42fc4a03af4. This is not approval of the rejected V3/V4 implementation or permission to deploy.
 
 ## 1. Authority and restart gate
 - Read this file, DESIGN.md, UI_REBUILD_LOCK.json and the next incomplete rows of UI_REBUILD_COVERAGE.csv before each implementation session.
@@ -10,17 +10,11 @@ Status: planning checkpoint. The Owner accepted the dashboard direction at 99c9e
 
 ## 2. Clean source strategy
 Verified GitHub release: 89352fd20e0d5166e81f631cb743bead1f596a68.
-Current proof branch: feature/denta-v4-rebuild at 99c9ecb, clean at inspection and four commits ahead of its GitHub branch.
-GitHub PR #21 is still the older open draft on feature/warm-clinical-v3-20261023 at a09a933. It does not contain the approved proof.
+Clean transition completed in the existing isolated worktree. Current branch: `feature/denta-ui-approved-system`, clean-base transfer commit `503f052f919548edbc9b6f1209edc72505bd67c0`, direct parent exactly the release above. Rejected V3/V4 ancestry was not included.
 
-Do not continue the application-wide rebuild on top of the current branch's 95-file historical delta.
-1. Preserve the current branch, accepted proof and galleries. Verify source backup/synchronization and that feature-ref updates cannot trigger Actions/deployment before pushing anything.
-2. Recheck the release ref. If advanced, reconcile the actual changes before selecting a baseline; do not overwrite them.
-3. In the EXISTING isolated worktree, create one fresh feature branch from the verified production-derived release. No new worktree, detached session, reset, force-push or deletion.
-4. Transfer only the nine approved proof paths pinned in the lock. Audit their nonvisual dependency closure first.
-5. Known dependencies: layouts/partials/page_context.php, layouts/partials/view_permissions.php and the V4.skip translation reference. These are absent from the release. Review/recreate necessary presentation glue, move the skip label into Studio translations, and remove the accidental V4 dependency. Do not blindly copy the rejected shell or assets to make the page run.
-6. Reproduce the accepted page on that clean base and compare screenshots/functionality. Only then normalize CSS into a maintainable component system and expand it.
-7. Keep the old PR/branches as historical evidence until explicit disposition. Prepare one consolidated draft against the release when appropriate; do not silently repurpose PR #21 or create per-module PRs.
+AGY cleanup independently accepted and preserved locally on the historical branch at `f555c76fe5f44a4938020d94f4fbc6b137a1d04b`: 27 rejected additions absent, 56 baseline restorations byte-identical, protected source unchanged. One correction to AGY evidence: restored baseline files contain inherited whitespace flagged by diff --check; Codex did not rewrite them. Clean transfer contains only nine accepted proof paths, four governance files, PRODUCT.md and two reviewed nonvisual dependencies. Skip-link translations now belong to Studio. Dashboard transfer acceptance: 41 checks passed. No remote push was made during this cleanup/transfer.
+
+Historical PR #21 remains an untouched open draft on the old branch. Preserve historical branches/galleries; do not reset, prune or delete them. No new worktrees. Original checkout and reference kit remain protected.
 
 ## 3. Frozen visual and interaction rules
 - Preserve the approved forest/sage palette and colored, borderless surfaces. Preserve clear keyboard focus outlines.
@@ -72,3 +66,13 @@ Do not perform repository-wide cleanup, pruning, reset, branch deletion, depende
 No automatic AGY delegation: only explicit $agy-manual under the Owner's current instructions. No GitHub Actions.
 No promise of mathematically zero regression: require contract preservation, protected-source verification, actual workflow acceptance and a reversible release candidate.
 Stop at the consolidated draft/Owner visual acceptance gate. Merge, production deployment, migrations and activation require separate authorization.
+
+## 8. Current implementation checkpoint
+- Shared form system: readable filled controls, responsive sections, medical-alert switches, validation containers and unsaved-discard dialog. Page assets load only on the form; native server submission retained.
+- Patient registration rebuilt from baseline contracts: all original field names, canonical toggle script, CSRF, cancel/return context and save/save-and-book actions preserved. EN/AR 1586 desktop and 390 mobile: 36 checks passed. Canonical successful POSTs created only synthetic patients 16/17; booking preselected patient 17.
+- Registration is PARTIAL, not complete: invalid POST loses old input and validation errors on BOTH untouched baseline and candidate. External diagnostic found `Patient::store()` persists the Validation object whose view/loader/autoloader contains registered Closures; session serialization throws. Minimal future backend proposal: retain scalar errors/old input, stop flashing the full Validation object. Protected backend remains unchanged; this proposal requires scope authorization. No hidden test bypass or manufactured pass.
+- Routed checks: 13 passed, one recorded baseline failure. CSRF-forged complete POST rejected without adding a patient. Existing fixture fingerprint comparison did not execute after a test-selector ambiguity and is not claimed. Two new synthetic fixtures were appended; no cleanup/deletion performed.
+- Local measured registration HTML: release 231272 characters versus candidate 35679; script tags 20 versus 3; stylesheets 13 versus 3; observed query header 143 versus 117. Single local samples, not production latency or query-optimization claims. No backend query code changed.
+- Evidence remains outside source in `../clean-foundation/`; accepted dashboard gallery remains `../studio-round4/index.html`.
+- Manual source boundary/inventory gate: `php scripts/ci/frontend_rebuild_guard.php`. `--final` must fail while ledger entries remain unfinished. No GitHub Actions.
+- Next bounded task: map and rebuild patient registry using existing bounded endpoint, filters, pagination and export/row actions, then edit/detail presentation. Do not claim other restored pages have been redesigned.

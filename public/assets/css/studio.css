@@ -84,3 +84,5 @@
 .status-filter select{appearance:none;background-image:none;padding-inline:3px}
 @media(max-width:1450px) and (min-width:801px){.attention-item{margin:17px 0 0;padding:18px}}
 @media(max-width:800px){.visit-table .visit-entry{grid-template-columns:75px minmax(0,1fr)}.attention-item{margin-block:12px;padding:17px}.attention-quantity{font-size:16px}.attention-call{font-size:15px}}
+
+.studio-flash{display:flex;align-items:flex-start;gap:12px;background:#cce8d6;color:#205c38;padding:17px 20px;border-radius:12px;margin-bottom:22px;font-size:17px}.studio-flash .si{margin-top:3px}

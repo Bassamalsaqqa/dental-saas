@@ -1,5 +1,5 @@
 {
-  "status": "PLAN_ONLY_BRANCH_TRANSFER_NOT_STARTED",
+  "status": "CLEAN_FOUNDATION_REGISTRATION_PARTIAL",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -58,11 +58,11 @@
     }
   },
   "dependency_closure_review": [
-    "app/Views/layouts/partials/page_context.php",
-    "app/Views/layouts/partials/view_permissions.php",
-    "lang(V4.skip): replace with Studio-owned translation before clean-base acceptance"
+    "page_context.php and view_permissions.php independently verified as nonvisual presentation dependencies",
+    "V4.skip removed; Studio.skip present in EN/AR",
+    "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Preserve/sync proof safely; create fresh branch in existing isolated worktree from reverified release; transfer approved paths and vetted nonvisual dependencies only. No cleanup deletion or reset.",
+  "next_step": "Patient registry: map existing search/filter/pagination/export/quick-create contracts before replacing markup. Registration remains PARTIAL: inherited Patient::store flashes non-serializable Validation object; no backend fix authorized in presentation scope.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -89,5 +89,26 @@
     "docs/UI_REBUILD_EXECUTION.md",
     "docs/UI_REBUILD_COVERAGE.csv",
     "docs/UI_REBUILD_LOCK.json"
-  ]
+  ],
+  "active_branch": "feature/denta-ui-approved-system",
+  "clean_transition": {
+    "commit": "503f052f919548edbc9b6f1209edc72505bd67c0",
+    "parent": "89352fd20e0d5166e81f631cb743bead1f596a68",
+    "cleanup_checkpoint": "f555c76fe5f44a4938020d94f4fbc6b137a1d04b",
+    "evidence": "../manual-cleanup/clean-transition.json",
+    "rejected_ancestry_included": false
+  },
+  "latest_acceptance": {
+    "source_checkpoint": "Foundation/registration batch follows 503f052f919548edbc9b6f1209edc72505bd67c0; exact identity is the containing Git commit",
+    "form_visual_checks": "../clean-foundation/registration-acceptance.json (36/36)",
+    "routed_checks": "../clean-foundation/registration-submit.json (13 passed; 1 confirmed baseline limitation)",
+    "baseline_failure_trace": "../validation-closure-paths.json",
+    "captures": "../clean-foundation",
+    "synthetic_new_patient_ids": [
+      16,
+      17
+    ],
+    "protected_source": "Run php scripts/ci/frontend_rebuild_guard.php; no production, migrations or feature activation",
+    "external_review": "NOT_REQUESTED_INTERMEDIATE_WORK"
+  }
 }

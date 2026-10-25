@@ -1,0 +1,60 @@
+/* Shared form components in the Owner-approved Studio system. */
+.studio .hidden{display:none!important}
+.studio-form{display:grid;gap:22px}
+.form-section{background:var(--paper);border-radius:16px;padding:28px}
+.form-section header{margin-bottom:25px}
+.form-section h2{font-size:24px}
+.form-section p{font-size:16px;color:var(--muted);line-height:1.7}
+.form-section header p{margin-top:7px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}
+.form-field{display:flex;flex-direction:column;gap:9px;min-width:0}
+.form-field--wide{grid-column:1/-1}
+.form-field>label{font-size:17px;font-weight:700;color:var(--ink)}
+.form-field>label>span{color:#8d3d2f}
+.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;border:0;border-radius:9px;background:#dfeadb;color:var(--ink);padding:13px 15px;font-size:18px;line-height:1.6;box-shadow:none}
+.form-field select{appearance:none;cursor:pointer;min-height:55px}
+.form-field textarea{resize:vertical;min-height:110px}
+.form-field input:focus-visible,.form-field textarea:focus-visible,.form-field select:focus-visible{outline:3px solid #39794f;outline-offset:3px;background:#e7f0e1}
+.form-field input[aria-invalid=true],.form-field select[aria-invalid=true],.form-field .border-red-500{background:#f3dad1}
+.form-field .field-error{color:#913d2e;font-size:15px;font-weight:600}
+.form-section-toggle{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.form-section-toggle p{margin-top:7px}
+.form-switch{display:inline-flex;align-items:center;position:relative;flex:none;cursor:pointer}
+.form-switch input{position:absolute;inset:0;width:52px;height:30px;opacity:0;margin:0;cursor:pointer;z-index:1}
+.form-switch-track{position:relative;display:block;width:52px;height:30px;background:#b7cbb4;border-radius:20px}
+.form-switch-track::before{content:"";position:absolute;inset-inline-start:4px;top:4px;width:22px;height:22px;border-radius:50%;background:#f6f8ef;transition:inset-inline-start .15s}
+.form-switch:has(input:checked) .form-switch-track{background:#23684e}
+.form-switch:has(input:checked) .form-switch-track::before{inset-inline-start:26px}
+.form-switch:has(input:focus-visible) .form-switch-track{outline:3px solid #39794f;outline-offset:4px}
+.form-switch input:disabled+.form-switch-track{opacity:.5;cursor:not-allowed}
+.form-subsection{margin-top:28px}
+.form-subsection h3{font-size:20px;margin-bottom:17px}
+.medical-alert-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.medical-alert-card{background:#e2edda;padding:18px;border-radius:12px;min-width:0}
+.medical-alert-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:38px}
+.medical-alert-heading>label{font-size:17px;line-height:1.6;font-weight:650;cursor:pointer}
+.medical-alert-card>.form-field{margin-top:15px}
+.medical-alert-card .form-field>label{font-size:16px}
+.medical-alert-card .form-field input,.medical-alert-card .form-field textarea{background:#f1f6e9}
+.form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#d4e3d2;border-radius:14px;padding:18px 22px}
+.form-actions>div{display:flex;gap:12px;flex-wrap:wrap}
+.form-actions .button{font-size:17px;padding:12px 18px;min-height:48px}
+.form-notice{background:#e0ebd9;border-radius:14px;padding:22px;margin-bottom:22px}
+.form-notice--error{background:#f1dcd2;color:#71392a}
+.form-notice h2{font-size:22px}
+.form-notice p,.form-notice li{font-size:17px;margin-top:7px}
+.form-notice li a{text-decoration:underline;text-underline-offset:4px}
+.discard-actions{display:flex;justify-content:flex-end;gap:12px;padding:0 25px 25px}
+.discard-actions .button{font-size:16px}
+@media(max-width:800px){.form-section{padding:20px 17px}
+.form-section h2{font-size:22px}
+.form-grid,.medical-alert-grid{grid-template-columns:minmax(0,1fr)}
+.form-section-toggle{gap:15px}
+.form-section-toggle h2{font-size:21px}
+.form-section-toggle p{font-size:16px}
+.form-actions{padding:16px;align-items:stretch;flex-direction:column}
+.form-actions>div{display:flex;flex-direction:column}
+.form-actions .button{width:100%;font-size:17px}
+.discard-actions{flex-direction:column;padding-inline:20px}
+.discard-actions .button{width:100%}}
+@media(prefers-reduced-motion:reduce){.form-switch-track::before{transition:none}}

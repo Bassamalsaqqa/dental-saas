@@ -1,80 +1,23 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset'); include APPPATH.'Views/layouts/partials/studio_icons.php'; ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<?php $validation = $validation ?? null; ?>
-
-<style>
-.toggle-track {
-    transition: background-color 0.2s ease;
-}
-
-.toggle-dot {
-    transition: transform 0.2s ease;
-}
-</style>
-
-<div class="min-h-screen bg-slate-50">
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
-        <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 overflow-hidden">
-                <div class="p-8 border-b border-slate-100">
-                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-user-plus text-white text-lg"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300"><?= esc(lang('UI.patientCreateTitle')) ?></h3>
-                                <p class="text-gray-600 font-medium"><?= esc(lang('UI.patientCreateSubtitle')) ?></p>
-                            </div>
-                        </div>
-                        <a href="<?= esc(workflow_back('patient')) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                            <i class="fas fa-arrow-left rtl-back-icon me-2"></i>
-                            <span><?= esc(lang('UI.patientBack')) ?></span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="p-8">
-                    <?php if (session('error')): ?>
-                        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                            <?= esc(session('error')) ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <form action="<?= base_url('patient/store') ?>" method="POST" class="space-y-8" data-patient-create-form>
-                        <?= csrf_field() ?>
-                        <?php if (!empty($return_to)): ?>
-                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
-                        <?php endif; ?>
-
-                        <?= view('patient/partials/create_form_fields', [
-                            'validation' => $validation,
-                            'is_rtl' => $is_rtl ?? false,
-                        ]) ?>
-
-                        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6 border-t border-slate-200">
-                            <a href="<?= esc(workflow_cancel('patient', $return_to ?? null)) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50">
-                                <?= esc(lang('UI.cancel')) ?>
-                            </a>
-                            <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center px-6 py-3 border border-blue-200 bg-white text-blue-700 text-sm font-bold rounded-xl hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md">
-                                <i class="fas fa-user-plus me-2"></i>
-                                <?= esc(lang('UI.settingsSave')) ?>
-                            </button>
-                            <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                                <i class="fas fa-calendar-plus me-2"></i>
-                                <?= esc(lang('UI.patientSaveAndBookAppointment')) ?>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<?php
+$validation=$validation??null;
+$studioFormErrors=is_array(session('errors'))?session('errors'):[];
+if($validation instanceof \CodeIgniter\Validation\Validation)$studioFormErrors=array_merge($studioFormErrors,$validation->getErrors());
+?>
+<header class="page-title-row"><div><h1><?= esc(lang('UI.patientCreateTitle')) ?></h1><p><?= esc(lang('Studio.patientCreateHelp')) ?></p></div><a class="button secondary" href="<?= esc(workflow_cancel('patient',$return_to??null)) ?>"><?= esc(lang('Studio.registry')) ?></a></header>
+<?php if(session('error') || $studioFormErrors): ?><section class="form-notice form-notice--error" role="alert" aria-labelledby="form-error-title"><h2 id="form-error-title"><?= esc(lang('Studio.checkFields')) ?></h2><?php if(session('error')): ?><p><?= esc(session('error')) ?></p><?php endif; ?><?php if($studioFormErrors): ?><ul><?php foreach($studioFormErrors as $key=>$message): ?><li><a href="#<?= esc($key,'attr') ?>"><?= esc($message) ?></a></li><?php endforeach; ?></ul><?php endif; ?></section><?php endif; ?>
+<form action="<?= base_url('patient/store') ?>" method="POST" class="studio-form" data-patient-create-form data-unsaved-form>
+<?= csrf_field() ?>
+<?php if(!empty($return_to)): ?><input type="hidden" name="return_to" value="<?= esc($return_to,'attr') ?>"><?php endif; ?>
+<?= view('patient/partials/studio_create_fields',['validation'=>$validation,'studioFormErrors'=>$studioFormErrors,'is_rtl'=>$is_rtl??false]) ?>
+<footer class="form-actions"><a class="button secondary" href="<?= esc(workflow_cancel('patient',$return_to??null)) ?>" data-form-cancel><?= esc(lang('UI.cancel')) ?></a><div><button class="button secondary" type="submit" name="post_submit_action" value="save_only"><?= esc(lang('UI.settingsSave')) ?></button><button class="button primary" type="submit" name="post_submit_action" value="save_and_book"><?= esc(lang('UI.patientSaveAndBookAppointment')) ?></button></div></footer>
+</form>
+<dialog id="form-discard-dialog" class="help-dialog" aria-labelledby="discard-title"><header><div><h2 id="discard-title"><?= esc(lang('Studio.discardTitle')) ?></h2><p><?= esc(lang('Studio.discardHelp')) ?></p></div><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></header><div class="discard-actions"><button class="button secondary" type="button" data-discard-stay><?= esc(lang('Studio.keepEditing')) ?></button><button class="button primary" type="button" data-discard-confirm><?= esc(lang('Studio.discardChanges')) ?></button></div></dialog>
 <?= view('patient/partials/create_form_script') ?>
 <?= $this->endSection() ?>
+<?= $this->section('scripts') ?><script src="<?= base_url('assets/js/studio-forms.js') ?>?v=<?= esc(asset_version('assets/js/studio-forms.js')) ?>" defer></script><?= $this->endSection() ?>
