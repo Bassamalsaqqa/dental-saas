@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <?php
     helper('asset');
+// Memoize identical visibility checks only for this view render; controller authorization is unchanged.
+$v3Visibility = [];
+$v3Can = $v3Can ?? static function (string $module, string $action) use (&$v3Visibility): bool {
+    $key = $module . '.' . $action;
+    return $v3Visibility[$key] ??= (bool) has_permission($module, $action);
+};
+$this->setVar('v3Can', $v3Can);
+
     $rawPageTitle = $pageTitle ?? $title ?? ($clinic['name'] ?? 'Denta+');
     $uri = service('uri');
     $segments = $uri->getSegments();
@@ -358,7 +366,7 @@
                         if (isset($permission[0]) && is_array($permission[0])) {
                             $hasAccess = false;
                             foreach ($permission as $p) {
-                                if (has_permission($p['module'], $p['action'])) {
+                                if ($v3Can($p['module'], $p['action'])) {
                                     $hasAccess = true;
                                     break;
                                 }
@@ -367,7 +375,7 @@
                                 continue;
                             }
                         } else {
-                            if (!has_permission($permission['module'], $permission['action'])) {
+                            if (!$v3Can($permission['module'], $permission['action'])) {
                                 continue;
                             }
                         }
@@ -453,7 +461,7 @@
                     </div>
                 </div>
 
-                <?php if (has_permission('patients', 'view')): ?>
+                <?php if ($v3Can('patients', 'view')): ?>
                 <form class="v3-command-search" action="<?= base_url('patients') ?>" method="get" role="search">
                     <i class="fas fa-search" aria-hidden="true"></i><input id="globalSearch" type="search" name="search" aria-label="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>" placeholder="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>"><kbd>/</kbd>
                 </form>
@@ -527,9 +535,9 @@
 
                     <div class="v3-toolbar-utilities">
                     <details class="v3-toolbar-create"><summary aria-label="<?= esc(lang('UI.patientActions'), 'attr') ?>"><i class="fas fa-plus" aria-hidden="true"></i><span><?= esc(lang('UI.patientActions')) ?></span></summary><div class="v3-toolbar-create-menu">
-<?php if (has_permission('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-user-plus" aria-hidden="true"></i><span><?= esc(lang('UI.newPatient')) ?></span></a><?php endif; ?>
-<?php if (has_permission('appointments', 'create')): ?><a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-calendar-plus" aria-hidden="true"></i><span><?= esc(lang('UI.newAppointment')) ?></span></a><?php endif; ?>
-<?php if (has_permission('examinations', 'create')): ?><a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-stethoscope" aria-hidden="true"></i><span><?= esc(lang('UI.newExamination')) ?></span></a><?php endif; ?>
+<?php if ($v3Can('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-user-plus" aria-hidden="true"></i><span><?= esc(lang('UI.newPatient')) ?></span></a><?php endif; ?>
+<?php if ($v3Can('appointments', 'create')): ?><a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-calendar-plus" aria-hidden="true"></i><span><?= esc(lang('UI.newAppointment')) ?></span></a><?php endif; ?>
+<?php if ($v3Can('examinations', 'create')): ?><a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-stethoscope" aria-hidden="true"></i><span><?= esc(lang('UI.newExamination')) ?></span></a><?php endif; ?>
 </div></details>
                         <!-- Notifications -->
                         <div class="relative group">
@@ -666,9 +674,9 @@
     <?php
     $layoutQuickCreateUri = trim(uri_string(), '/');
     $layoutRendersQuickCreateModals = (
-        (has_permission('patients', 'create') && !in_array($layoutQuickCreateUri, ['patient', 'patients', 'patient/create', 'patients/create'], true) && !preg_match('#^patients?/\d+/edit$#', $layoutQuickCreateUri))
-        || (has_permission('appointments', 'create') && !in_array($layoutQuickCreateUri, ['appointment', 'appointments', 'appointment/create', 'appointments/create'], true) && !preg_match('#^examinations?/\d+$#', $layoutQuickCreateUri))
-        || (has_permission('examinations', 'create') && !in_array($layoutQuickCreateUri, ['examination', 'examinations', 'examination/create', 'examinations/create'], true))
+        ($v3Can('patients', 'create') && !in_array($layoutQuickCreateUri, ['patient', 'patients', 'patient/create', 'patients/create'], true) && !preg_match('#^patients?/\d+/edit$#', $layoutQuickCreateUri))
+        || ($v3Can('appointments', 'create') && !in_array($layoutQuickCreateUri, ['appointment', 'appointments', 'appointment/create', 'appointments/create'], true) && !preg_match('#^examinations?/\d+$#', $layoutQuickCreateUri))
+        || ($v3Can('examinations', 'create') && !in_array($layoutQuickCreateUri, ['examination', 'examinations', 'examination/create', 'examinations/create'], true))
     );
     ?>
     <?php if ($layoutRendersQuickCreateModals): ?>

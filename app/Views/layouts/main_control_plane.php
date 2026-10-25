@@ -229,12 +229,12 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
         <div class="flex-1 flex flex-col min-h-screen min-w-0">
             <header class="cp-top-bar">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" class="md:hidden inline-flex items-center justify-center h-8 w-8 rounded-md bg-[var(--denta-parchment)] border border-[var(--denta-taupe-border)] text-[var(--denta-ink)]" onclick="toggleSidebar()">
+                    <button type="button" class="cp-sidebar-toggle md:hidden inline-flex items-center justify-center h-8 w-8 rounded-md bg-[var(--denta-parchment)] border border-[var(--denta-taupe-border)] text-[var(--denta-ink)]" onclick="toggleSidebar()">
                         <i class="fas fa-bars text-sm"></i>
                     </button>
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold uppercase tracking-wider v3-text-muted"><?= lang('UI.cpControlPlane') ?></span>
+                            <span class="cp-top-breadcrumb text-xs font-bold uppercase tracking-wider v3-text-muted"><?= lang('UI.cpControlPlane') ?></span>
                             <span class="text-[var(--denta-taupe-border)]">/</span>
                             <h1 class="text-sm font-extrabold text-[var(--denta-ink)] truncate m-0"><?= esc($cpDisplayTitle) ?></h1>
                         </div>
@@ -249,7 +249,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                     </button>
                         <?php $cpLocale = strtolower((string) ($locale ?? 'en')); $cpReturnUrl = current_url(true)->__toString(); ?>
                     <nav class="v3-locale-links" aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>" dir="ltr"><a href="<?= base_url('language/switch/en?return_to=' . urlencode($cpReturnUrl)) ?>" lang="en" aria-current="<?= $cpLocale === 'en' ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageEn'), 'attr') ?>">EN</a><span aria-hidden="true">|</span><a href="<?= base_url('language/switch/ar?return_to=' . urlencode($cpReturnUrl)) ?>" lang="ar" aria-current="<?= $cpLocale === 'ar' ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageAr'), 'attr') ?>">AR</a></nav>
-                    <span class="cp-badge cp-badge-teal hidden sm:inline-flex">
+                    <span class="cp-toolbar-authority cp-badge cp-badge-teal hidden sm:inline-flex">
                         <i class="fas fa-globe text-[10px]"></i>
                         <?= lang('UI.cpGlobalAdmin') ?>
                     </span>

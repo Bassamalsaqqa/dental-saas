@@ -4,7 +4,7 @@ $modalReturnTo = (string) ($return_to ?? 'patients');
 $validation = $validation ?? session()->getFlashdata('validation');
 $shouldOpenPatientCreateModal = old('source_modal') === 'patient_quick_create';
 ?>
-<?php if (has_permission('patients', 'create')): ?>
+<?php if ((isset($v3Can) ? $v3Can('patients', 'create') : has_permission('patients', 'create'))): ?>
 
 
     <div id="newPatientModal" class="v3-context-drawer patient-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPatientModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">

@@ -14,7 +14,7 @@ if (!empty($modalSelectedAppointmentId)) {
     $modalFullPageQuery['appointment_id'] = (int) $modalSelectedAppointmentId;
 }
 ?>
-<?php if (has_permission('examinations', 'create')): ?>
+<?php if ((isset($v3Can) ? $v3Can('examinations', 'create') : has_permission('examinations', 'create'))): ?>
     <style>
     .examination-create-modal {
         visibility: hidden;

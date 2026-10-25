@@ -3,6 +3,14 @@
 <?= $this->section('content') ?>
 <?php
 $isRtl = !empty($is_rtl);
+// Memoize identical visibility checks only for this view render; controller authorization is unchanged.
+$dashboardVisibility = [];
+$v3Can = static function (string $module, string $action) use (&$dashboardVisibility): bool {
+    $key = $module . '.' . $action;
+    return $dashboardVisibility[$key] ??= (bool) has_permission($module, $action);
+};
+$this->setVar('v3Can', $v3Can);
+
 $todayLabel = formatDate(date('Y-m-d'));
 $totalPatients = (int) ($stats['total_patients'] ?? 0);
 $todayExaminations = (int) ($stats['today_examinations'] ?? 0);
@@ -20,7 +28,7 @@ $clinicName = $clinicName !== '' ? $clinicName : lang('UI.menuDashboard');
 $todayRouting = is_array($today_routing ?? null) ? $today_routing : ['groups' => [], 'counts' => [], 'completed_count' => 0, 'open_count' => 0];
 $routingGroups = is_array($todayRouting['groups'] ?? null) ? $todayRouting['groups'] : [];
 $canRouteAppointments = !empty($can_route_appointments);
-$canEditAppointments = has_permission('appointments', 'edit');
+$canEditAppointments = $v3Can('appointments', 'edit');
 $documentationQueue = is_array($clinical_documentation_queue ?? null) ? $clinical_documentation_queue : [];
 $readyToSignCount = (int) ($documentationQueue['ready_to_sign_count'] ?? 0);
 $overdueDraftCount = (int) ($documentationQueue['overdue_draft_count'] ?? 0);
@@ -73,9 +81,9 @@ $formatHumanLabel = static function (?string $value): string {
 
         <section class="dashboard-stat-grid v3-dashboard-metrics">
             <a href="<?= base_url('appointment/calendar') ?>" class="dashboard-stat-card dashboard-stat-blue"><p class="dashboard-stat-label"><i class="fas fa-calendar" aria-hidden="true"></i> <?= esc(lang('UI.dashboardTodayAppointments')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($todayAppointments) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardUpcomingAppointments')) ?>: <?= number_format($upcomingAppointmentsCount) ?></p></a>
-            <?php if (has_permission('examinations','view')): ?><a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="dashboard-stat-card dashboard-stat-emerald"><p class="dashboard-stat-label"><i class="fas fa-file-signature" aria-hidden="true"></i> <?= esc(lang('Examination.documentation_ready_to_sign')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($readyToSignCount) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardTodayExaminations')) ?>: <?= number_format($todayExaminations) ?></p></a><?php endif; ?>
-            <?php if (has_permission('treatments','view')): ?><a href="<?= base_url('treatment') ?>" class="dashboard-stat-card dashboard-stat-amber"><p class="dashboard-stat-label"><i class="fas fa-tooth" aria-hidden="true"></i> <?= esc(lang('UI.dashboardTotalTreatments')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($activeTreatments + $completedTreatments) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardCompleted')) ?>: <?= number_format($completedTreatments) ?></p></a><?php endif; ?>
-            <?php if (has_permission('examinations','view')): ?><a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="dashboard-stat-card dashboard-stat-rose"><p class="dashboard-stat-label"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> <?= esc(lang('Examination.documentation_overdue_draft')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($overdueDraftCount) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentExaminations')) ?>: <?= number_format($recentExamCount) ?></p></a><?php endif; ?>
+            <?php if ($v3Can('examinations','view')): ?><a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="dashboard-stat-card dashboard-stat-emerald"><p class="dashboard-stat-label"><i class="fas fa-file-signature" aria-hidden="true"></i> <?= esc(lang('Examination.documentation_ready_to_sign')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($readyToSignCount) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardTodayExaminations')) ?>: <?= number_format($todayExaminations) ?></p></a><?php endif; ?>
+            <?php if ($v3Can('treatments','view')): ?><a href="<?= base_url('treatment') ?>" class="dashboard-stat-card dashboard-stat-amber"><p class="dashboard-stat-label"><i class="fas fa-tooth" aria-hidden="true"></i> <?= esc(lang('UI.dashboardTotalTreatments')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($activeTreatments + $completedTreatments) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardCompleted')) ?>: <?= number_format($completedTreatments) ?></p></a><?php endif; ?>
+            <?php if ($v3Can('examinations','view')): ?><a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="dashboard-stat-card dashboard-stat-rose"><p class="dashboard-stat-label"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> <?= esc(lang('Examination.documentation_overdue_draft')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($overdueDraftCount) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentExaminations')) ?>: <?= number_format($recentExamCount) ?></p></a><?php endif; ?>
         </section>
 
 
@@ -197,7 +205,7 @@ $formatHumanLabel = static function (?string $value): string {
             </section>
 
             <aside class="dashboard-panel-stack v3-command-center-actions"><header class="v3-action-queue-heading"><h2><?= esc(lang('V3Fidelity.actionRequired')) ?></h2><p><?= esc(lang('V3Fidelity.actionQueueHelp')) ?></p></header>
-                <?php if (has_permission('examinations', 'view')): ?>
+                <?php if ($v3Can('examinations', 'view')): ?>
                 <div class="dashboard-panel overflow-hidden">
                     <div class="v3-warm-surface px-5 py-4">
                         <div class="flex items-center justify-between gap-3">
@@ -249,7 +257,7 @@ $formatHumanLabel = static function (?string $value): string {
                                         <span class="block truncate text-sm v3-text-ink"><?= esc($item['procedure_name'] ?? '') ?></span>
                                         <span class="mt-0.5 block truncate text-xs font-bold v3-text-muted"><?= esc($queuePatientName) ?></span>
                                     </a>
-                                    <?php if (has_permission('appointments', 'create')): ?>
+                                    <?php if ($v3Can('appointments', 'create')): ?>
                                         <a href="<?= base_url('appointment/create?' . http_build_query(['patient_id' => (int) $item['patient_id'], 'clinical_procedure_id' => (int) $item['procedure_id'], 'appointment_type' => 'treatment', 'return_to' => 'dashboard'])) ?>"
                                            data-appointment-create-modal-open data-patient-id="<?= (int) $item['patient_id'] ?>" data-clinical-procedure-id="<?= (int) $item['procedure_id'] ?>" data-appointment-type="treatment"
                                            class="inline-flex h-9 w-9 shrink-0 items-center justify-center v3-radius v3-soft-surface transition v3-hover-primary" title="<?= esc(lang('Treatment.schedule_accepted_treatment'), 'attr') ?>">

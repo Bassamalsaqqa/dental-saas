@@ -23,7 +23,7 @@ if (!empty($provider_id_prefill)) {
 }
 $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFullPageQuery));
 ?>
-<?php if (has_permission('appointments', 'create')): ?>
+<?php if ((isset($v3Can) ? $v3Can('appointments', 'create') : has_permission('appointments', 'create'))): ?>
 
 
     <div id="newAppointmentModal" class="v3-context-drawer appointment-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newAppointmentModalTitle" dir="<?= !empty($isRtl) ? 'rtl' : 'ltr' ?>">
