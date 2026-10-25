@@ -5,6 +5,8 @@
 
     const activeModals = new Set();
     const timers = new WeakMap();
+    const entryBaselines = new WeakMap();
+    const entryState = modal => JSON.stringify([...modal.querySelectorAll('form input:not([type=hidden]):not([type=submit]),form select,form textarea')].filter(el=>!el.disabled).map(el=>[el.name,el.type==='checkbox'||el.type==='radio'?el.checked:el.value]));
     const triggers = new WeakMap();
     const backgroundInertState = new Map();
 
@@ -45,7 +47,7 @@
     }
 
     function focusFirst(modal, selector) {
-        const target = modal.querySelector(selector || 'input:not([type="hidden"]), select, textarea, button, a[href]');
+        const target = [...modal.querySelectorAll(selector || 'input:not([type="hidden"]), select, textarea, button, a[href]')].find(el=>el.getClientRects().length && !el.disabled && el.type!=='hidden');
         if (target && typeof target.focus === 'function') {
             target.focus({ preventScroll: true });
         }
@@ -82,6 +84,7 @@
             if (typeof opts.onOpen === 'function') {
                 opts.onOpen(modal);
             }
+            if(modal.dataset.confirmDiscard) entryBaselines.set(modal,entryState(modal));
             focusFirst(modal, opts.focusSelector);
         }, opts.openDelay || 80);
 
@@ -95,6 +98,8 @@
             return;
         }
 
+        if(modal.dataset.confirmDiscard && entryBaselines.has(modal) && entryState(modal)!==entryBaselines.get(modal) && !window.confirm(modal.dataset.confirmDiscard)) return;
+        entryBaselines.delete(modal);
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         activeModals.delete(modal);

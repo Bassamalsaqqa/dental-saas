@@ -18,99 +18,26 @@ if (!empty($modalSelectedAppointmentId)) {
 $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullPageQuery));
 ?>
 <?php if (has_permission('treatments', 'create')): ?>
-    <style>
-    .treatment-create-modal {
-        visibility: hidden;
-        pointer-events: none;
-        transition: visibility 0s linear 240ms;
-    }
-    .treatment-create-modal.is-open {
-        visibility: visible;
-        pointer-events: auto;
-        transition-delay: 0s;
-    }
-    .treatment-create-modal__backdrop {
-        opacity: 0;
-        transition: opacity 220ms ease;
-    }
-    .treatment-create-modal.is-open .treatment-create-modal__backdrop {
-        opacity: 1;
-    }
-    .treatment-create-modal__panel {
-        display: grid !important;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        opacity: 0;
-        overflow: clip;
-        transform: scale(0.86);
-        transform-origin: center center;
-        height: min(92dvh, 52rem);
-        transition:
-            opacity 180ms ease,
-            transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        will-change: transform, opacity;
-    }
-    .treatment-create-modal.is-open .treatment-create-modal__panel {
-        opacity: 1;
-        transform: scale(1);
-    }
-    .treatment-create-modal .select2-container {
-        width: 100% !important;
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .treatment-create-modal__backdrop,
-        .treatment-create-modal__panel {
-            transition: none;
-        }
-    }
-    @media (max-width: 640px) {
-        .treatment-create-modal__shell {
-            align-items: stretch;
-            padding: 0;
-        }
-        .treatment-create-modal__panel {
-            width: 100vw;
-            height: 100dvh;
-            min-height: 100dvh;
-            max-height: 100dvh;
-            border-radius: 0;
-        }
-    }
-    </style>
-
-    <div id="newTreatmentModal" class="app-scale-modal treatment-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newTreatmentModalTitle" dir="<?= !empty($isRtl) ? 'rtl' : 'ltr' ?>">
-        <div class="treatment-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-treatment-create-modal-close></div>
-        <div class="treatment-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-treatment-create-modal-close>
-            <form id="newTreatmentQuickCreateForm" action="<?= base_url('treatment/store') ?>" method="POST" class="treatment-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent onclick="event.stopPropagation()">
+<div id="newTreatmentModal" data-confirm-discard="<?= esc(lang('V4.discardEntry'),'attr') ?>" class="treatment-create-modal v4-entry-modal hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newTreatmentModalTitle" dir="<?= !empty($isRtl) ? 'rtl' : 'ltr' ?>">
+        <div class="treatment-create-modal__backdrop v4-entry-modal__backdrop" data-treatment-create-modal-close></div>
+        <div class="treatment-create-modal__shell v4-entry-modal__shell" data-treatment-create-modal-close>
+            <form id="newTreatmentQuickCreateForm" action="<?= base_url('treatment/store') ?>" method="POST" class="treatment-create-modal__panel v4-entry-modal__panel v4-form" data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
                 <input type="hidden" name="appointment_id" value="<?= esc($modalSelectedAppointmentId ?? '') ?>">
                 <input type="hidden" name="source_modal" value="treatment_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 text-white shadow-lg">
-                            <i class="fas fa-tooth"></i>
-                        </span>
-                        <div>
-                            <h2 id="newTreatmentModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Treatment.new_treatment')) ?></h2>
-                            <a href="<?= esc($modalFullPageHref, 'attr') ?>" data-treatment-full-page-link data-default-href="<?= esc($modalFullPageHref, 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-pink-700 hover:text-pink-800">
+<header class="v4-modal-header"><div><h2 id="newTreatmentModalTitle"><?= esc(lang('Treatment.new_treatment')) ?></h2><a href="<?= esc($modalFullPageHref, 'attr') ?>" data-treatment-full-page-link data-default-href="<?= esc($modalFullPageHref, 'attr') ?>" class="v4-text-link">
                                 <?= esc(lang('UI.openFullPage')) ?>
-                            </a>
-                        </div>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-treatment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-
-                <div class="min-h-0 overflow-y-auto bg-slate-50/70 p-5">
+                            </a></div><button type="button" class="v4-icon-button" data-treatment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>"><i class="fas fa-times" aria-hidden="true"></i></button></header>
+                <div class="v4-modal-body">
                     <?php if (session('error') && $modalShouldOpen): ?>
                         <div class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                    <div class="v4-form-section">
                         <?= view('treatment/partials/form_fields', [
                             'contextual' => $modalContextual,
                             'selected_patient' => $modalSelectedPatient,
@@ -125,11 +52,11 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
-                    <button type="button" data-treatment-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="v4-modal-footer">
+                    <button type="button" data-treatment-create-modal-close class="v4-button">
                         <?= esc(lang('Treatment.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-pink-600 hover:to-purple-700 hover:shadow-xl">
+                    <button type="submit" class="v4-button v4-button--primary">
                         <i class="fas fa-tooth me-2"></i>
                         <?= esc(lang('Treatment.create_treatment')) ?>
                     </button>
@@ -288,53 +215,9 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
             }
         }
 
-        function openTreatmentModal(trigger) {
-            const modal = mountTreatmentModal();
-            if (!modal) {
-                return;
-            }
-            treatmentModalTrigger = trigger || document.activeElement;
-            if (treatmentModalCloseTimer) {
-                clearTimeout(treatmentModalCloseTimer);
-                treatmentModalCloseTimer = null;
-            }
-            modal.classList.remove('hidden');
-            modal.setAttribute('aria-hidden', 'false');
-            document.documentElement.classList.add('app-drawer-lock');
-            document.body.classList.add('app-drawer-lock');
-            requestAnimationFrame(function () {
-                modal.classList.add('is-open');
-            });
-            applyTreatmentTriggerContext(modal, trigger);
-            window.setTimeout(function () {
-                initializeTreatmentModalContent(modal);
-            }, 80);
-            window.setTimeout(function () {
-                const firstField = modal.querySelector('[name="patient_id"], [name="treatment_type"], input, select, textarea, button');
-                if (firstField && typeof firstField.focus === 'function') {
-                    firstField.focus({ preventScroll: true });
-                }
-            }, 120);
-        }
+        function openTreatmentModal(trigger){const modal=mountTreatmentModal();if(!modal)return;applyTreatmentTriggerContext(modal,trigger);window.AppModal.open(modal,{trigger:trigger||document.activeElement,onOpen:initializeTreatmentModalContent,focusSelector:'.select2-selection,input:not([type=hidden]):not([disabled]),button'});}
 
-        function closeTreatmentModal() {
-            const modal = document.getElementById('newTreatmentModal');
-            if (!modal || modal.classList.contains('hidden')) {
-                return;
-            }
-            modal.classList.remove('is-open');
-            modal.setAttribute('aria-hidden', 'true');
-            document.documentElement.classList.remove('app-drawer-lock');
-            document.body.classList.remove('app-drawer-lock');
-            treatmentModalCloseTimer = setTimeout(function () {
-                modal.classList.add('hidden');
-                resetTreatmentModalForm(modal);
-                if (treatmentModalTrigger && typeof treatmentModalTrigger.focus === 'function') {
-                    treatmentModalTrigger.focus();
-                }
-                treatmentModalTrigger = null;
-            }, 240);
-        }
+        function closeTreatmentModal(){const modal=document.getElementById('newTreatmentModal');if(!window.AppModal.isOpen(modal))return;window.AppModal.close(modal,{onReset:()=>resetTreatmentModalForm(modal)});}
 
         window.openTreatmentModal = openTreatmentModal;
         window.closeTreatmentModal = closeTreatmentModal;
@@ -355,7 +238,8 @@ $modalFullPageHref = base_url('treatment/create?' . http_build_query($modalFullP
         });
 
         document.addEventListener('keydown', function (event) {
-            if (event.key !== 'Escape') {
+            if (event.target.closest?.('.select2-search')) return;
+        if (event.key !== 'Escape') {
                 return;
             }
             const modal = document.getElementById('newTreatmentModal');

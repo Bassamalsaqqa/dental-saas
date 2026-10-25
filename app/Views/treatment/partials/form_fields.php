@@ -3,7 +3,7 @@ $validation = $validation ?? null;
 $contextual = !empty($contextual);
 $selectedPatient = $selected_patient ?? (!empty($patients[0]) ? $patients[0] : null);
 $selectedToothNumber = old('tooth_number', $selected_tooth_number ?? '');
-$inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
+$inputClass = 'v4-field w-full';
 $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('usage_items'));
 $procedureIntent = (string) old('procedure_intent', 'planned');
 ?>
@@ -21,18 +21,18 @@ $procedureIntent = (string) old('procedure_intent', 'planned');
             </select>
         </div>
     <?php endif; ?>
-    <fieldset class="mt-5 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4 shadow-sm">
+    <fieldset class="v4-choice-fieldset">
         <legend class="px-1 text-sm font-extrabold text-slate-900"><?= esc(lang('Treatment.procedure_intent')) ?></legend>
         <p class="mb-3 text-xs font-semibold text-slate-600"><?= esc(lang('Treatment.procedure_intent_help')) ?></p>
         <div class="grid gap-3 sm:grid-cols-2">
-            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-300">
+            <label class="v4-choice-option">
                 <input type="radio" name="procedure_intent" value="planned" class="mt-1 h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-500" <?= $procedureIntent !== 'start_now' ? 'checked' : '' ?>>
                 <span>
                     <span class="block text-sm font-extrabold text-slate-900"><?= esc(lang('Treatment.procedure_intent_planned')) ?></span>
                     <span class="mt-1 block text-xs font-medium leading-5 text-slate-600"><?= esc(lang('Treatment.procedure_intent_planned_hint')) ?></span>
                 </span>
             </label>
-            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-emerald-300">
+            <label class="v4-choice-option">
                 <input type="radio" name="procedure_intent" value="start_now" class="mt-1 h-4 w-4 border-slate-300 text-emerald-600 focus:ring-emerald-500" <?= $procedureIntent === 'start_now' ? 'checked' : '' ?>>
                 <span>
                     <span class="block text-sm font-extrabold text-slate-900"><?= esc(lang('Treatment.procedure_intent_start_now')) ?></span>
@@ -73,14 +73,14 @@ $procedureIntent = (string) old('procedure_intent', 'planned');
         'id_prefix' => $id_prefix ?? 'treatment_quick_charge',
         'input_class' => $inputClass,
     ]) ?>
-    <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+    <div class="v4-form-section mt-5">
         <div class="space-y-4">
-            <label class="app-toggle-row">
-                <span class="app-toggle-row__text"><?= esc(lang('Treatment.record_inventory_usage')) ?></span>
-                <span class="app-toggle">
+            <label class="v4-switch-row">
+                <span class="v4-switch-row__text"><?= esc(lang('Treatment.record_inventory_usage')) ?></span>
+                <span class="v4-switch">
                     <input type="checkbox" name="usage_enabled" value="1" data-usage-toggle <?= $usageEnabledByOld ? 'checked' : '' ?>>
-                    <span class="app-toggle__track" aria-hidden="true">
-                        <span class="app-toggle__dot"></span>
+                    <span class="v4-switch__track" aria-hidden="true">
+                        <span class="v4-switch__dot"></span>
                     </span>
                 </span>
             </label>

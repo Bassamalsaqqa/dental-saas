@@ -10,18 +10,18 @@ $baseCurrency = settings()->get('currency', 'ILS') ?: 'ILS';
 $currency = old('charge_currency', $chargeLine['currency'] ?? $baseCurrency);
 $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
 ?>
-<div class="mt-5 rounded-2xl border border-blue-100 bg-blue-50/50 p-4" data-treatment-charge-section>
+<div class="v4-form-section mt-5" data-treatment-charge-section>
     <div class="space-y-4">
-        <label class="app-toggle-row">
-            <span class="app-toggle-row__text">
+        <label class="v4-switch-row">
+            <span class="v4-switch-row__text">
                 <span class="block font-bold text-slate-900"><?= esc(lang('Treatment.capture_patient_charge')) ?></span>
                 <span class="block text-xs font-medium text-slate-500"><?= esc(lang('Treatment.capture_patient_charge_hint')) ?></span>
             </span>
-            <span class="app-toggle">
+            <span class="v4-switch">
                 <input type="hidden" name="charge_enabled" value="0">
                 <input type="checkbox" name="charge_enabled" value="1" data-charge-toggle <?= $chargeEnabled ? 'checked' : '' ?>>
-                <span class="app-toggle__track" aria-hidden="true">
-                    <span class="app-toggle__dot"></span>
+                <span class="v4-switch__track" aria-hidden="true">
+                    <span class="v4-switch__dot"></span>
                 </span>
             </span>
         </label>

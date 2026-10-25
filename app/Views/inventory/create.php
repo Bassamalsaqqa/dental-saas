@@ -5,30 +5,7 @@
 
 <?= view('inventory/partials/form_styles', ['is_rtl' => $isRtl]) ?>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        <div class="mb-8">
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-boxes text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-black text-gray-900"><?= lang('Inventory.addNewInventoryItem') ?></h1>
-                            <p class="text-sm text-gray-500"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
-                        </div>
-                    </div>
-                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
-                        <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
-                        <?= lang('Inventory.backToInventory') ?>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <form action="<?= base_url('inventory/store') ?>" method="POST" class="space-y-5">
+<div class="v4-task-page"><header class="v4-page-heading"><div><h1><?= esc(lang('Inventory.addNewInventoryItem')) ?></h1><p><?= esc(lang('Inventory.addNewInventoryItemSubtitle')) ?></p></div><a class="v4-button" href="<?= esc(workflow_back('inventory',$return_to??null)) ?>"><?= esc(lang('V4.back')) ?></a></header><form action="<?= base_url('inventory/store') ?>" method="POST" class="v4-form v4-task-form">
             <?= csrf_field() ?>
             <?php if (!empty($return_to)): ?>
                 <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
@@ -49,10 +26,6 @@
                     <?= lang('Inventory.addItem') ?>
                 </button>
             </div>
-        </form>
-
-    </div>
-</div>
-
+        </form></div>
 <?= view('inventory/partials/quick_supplier_modal') ?>
 <?= $this->endSection() ?>

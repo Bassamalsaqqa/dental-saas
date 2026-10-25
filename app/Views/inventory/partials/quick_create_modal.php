@@ -6,130 +6,18 @@ $isRtl = !empty($is_rtl);
 ?>
 <?php if (has_permission('inventory', 'create')): ?>
     <?= view('inventory/partials/form_styles', ['is_rtl' => $isRtl]) ?>
-    <style>
-    .inventory-create-modal {
-        visibility: hidden;
-        pointer-events: none;
-        transition: visibility 0s linear 240ms;
-    }
-    .inventory-create-modal.is-open {
-        visibility: visible;
-        pointer-events: auto;
-        transition-delay: 0s;
-    }
-    .inventory-create-modal__backdrop {
-        opacity: 0;
-        transition: opacity 220ms ease;
-    }
-    .inventory-create-modal.is-open .inventory-create-modal__backdrop {
-        opacity: 1;
-    }
-    .inventory-create-modal__panel {
-        display: grid !important;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        opacity: 0;
-        overflow: clip;
-        transform: scale(0.86);
-        transform-origin: center center;
-        height: min(92dvh, 52rem);
-        transition:
-            opacity 180ms ease,
-            transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        will-change: transform, opacity;
-    }
-    .inventory-create-modal.is-open .inventory-create-modal__panel {
-        opacity: 1;
-        transform: scale(1);
-    }
-    .inventory-create-modal .select2-container {
-        width: 100% !important;
-    }
-    .inventory-create-modal .inventory-create-modal-section {
-        background: #fff;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-    }
-    .inventory-create-modal .inventory-create-modal-section .inventory-create-section-title {
-        margin-bottom: 1.25rem;
-        padding-bottom: 0;
-        border-bottom: 0;
-        font-size: 1.125rem;
-        color: #111827;
-    }
-    .inventory-create-modal .inventory-create-modal-section .inventory-create-section-title i {
-        height: 2.5rem;
-        width: 2.5rem;
-        border-radius: 0.75rem;
-        color: #fff;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
-    }
-    .inventory-create-modal .inventory-create-section-title .icon-emerald { background: linear-gradient(135deg, #10b981, #14b8a6); }
-    .inventory-create-modal .inventory-create-section-title .icon-amber { background: linear-gradient(135deg, #f59e0b, #f97316); }
-    .inventory-create-modal .inventory-create-section-title .icon-indigo { background: linear-gradient(135deg, #6366f1, #2563eb); }
-    .inventory-create-modal .inventory-create-section-title .icon-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
-    .inventory-create-modal .inventory-create-section-title .icon-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-    .inventory-create-modal .inventory-create-form-field,
-    .inventory-create-modal .inventory-create-select,
-    .inventory-create-modal .inventory-create-textarea {
-        border-width: 2px;
-        border-color: #e2e8f0;
-        border-radius: 0.75rem;
-        color: #0f172a;
-        font-weight: 500;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
-    .inventory-create-modal .inventory-create-form-field:focus,
-    .inventory-create-modal .inventory-create-select:focus,
-    .inventory-create-modal .inventory-create-textarea:focus {
-        border-color: #14b8a6;
-        box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .inventory-create-modal__backdrop,
-        .inventory-create-modal__panel {
-            transition: none;
-        }
-    }
-    @media (max-width: 640px) {
-        .inventory-create-modal__shell {
-            align-items: stretch;
-            padding: 0;
-        }
-        .inventory-create-modal__panel {
-            width: 100vw;
-            height: 100dvh;
-            min-height: 100dvh;
-            max-height: 100dvh;
-            border-radius: 0;
-        }
-    }
-    </style>
-
-    <div id="newInventoryModal" class="app-scale-modal inventory-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newInventoryModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="inventory-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-inventory-create-modal-close></div>
-        <div class="inventory-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-inventory-create-modal-close>
-            <form id="newInventoryQuickCreateForm" action="<?= base_url('inventory/store') ?>" method="POST" class="inventory-create-modal__panel flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent onclick="event.stopPropagation()">
+<div id="newInventoryModal" data-confirm-discard="<?= esc(lang('V4.discardEntry'),'attr') ?>" class="inventory-create-modal v4-entry-modal hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newInventoryModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="inventory-create-modal__backdrop v4-entry-modal__backdrop" data-inventory-create-modal-close></div>
+        <div class="inventory-create-modal__shell v4-entry-modal__shell" data-inventory-create-modal-close>
+            <form id="newInventoryQuickCreateForm" action="<?= base_url('inventory/store') ?>" method="POST" class="inventory-create-modal__panel v4-entry-modal__panel v4-form" data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
                 <input type="hidden" name="source_modal" value="inventory_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-blue-600 text-white shadow-lg">
-                            <i class="fas fa-boxes"></i>
-                        </span>
-                        <div>
-                            <h2 id="newInventoryModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Inventory.addNewInventoryItem')) ?></h2>
-                            <a href="<?= esc($modalFullPageHref, 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-800">
+<header class="v4-modal-header"><div><h2 id="newInventoryModalTitle"><?= esc(lang('Inventory.addNewInventoryItem')) ?></h2><a href="<?= esc($modalFullPageHref, 'attr') ?>" class="v4-text-link">
                                 <?= esc(lang('UI.openFullPage')) ?>
-                            </a>
-                        </div>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-inventory-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                            </a></div><button type="button" class="v4-icon-button" data-inventory-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>"><i class="fas fa-times" aria-hidden="true"></i></button></header>
+                <div class="v4-modal-body">
                     <?php if (session('error') && $modalShouldOpen): ?>
                         <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
@@ -144,11 +32,11 @@ $isRtl = !empty($is_rtl);
                     ]) ?>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
-                    <button type="button" data-inventory-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="v4-modal-footer">
+                    <button type="button" data-inventory-create-modal-close class="v4-button">
                         <?= esc(lang('Inventory.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-teal-600 hover:to-blue-700 hover:shadow-xl">
+                    <button type="submit" class="v4-button v4-button--primary">
                         <i class="fas fa-plus me-2"></i>
                         <?= esc(lang('Inventory.addItem')) ?>
                     </button>
@@ -213,48 +101,9 @@ $isRtl = !empty($is_rtl);
             return Promise.allSettled(tasks);
         }
 
-        function openInventoryModal(trigger) {
-            const modal = mountInventoryModal();
-            if (!modal) {
-                return;
-            }
-            inventoryModalTrigger = trigger || document.activeElement;
-            clearTimeout(inventoryModalCloseTimer);
-            modal.classList.remove('hidden');
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('modal-open');
-            document.documentElement.classList.add('modal-open');
-            initializeInventoryModalContent(modal).finally(function () {
-                requestAnimationFrame(function () {
-                    modal.classList.add('is-open');
-                    const firstField = modal.querySelector('input[name="item_name"]');
-                    if (firstField) {
-                        window.setTimeout(function () { firstField.focus(); }, 80);
-                    }
-                });
-            });
-        }
+        function openInventoryModal(trigger){const modal=mountInventoryModal();if(!modal)return;window.AppModal.open(modal,{trigger:trigger||document.activeElement,onOpen:initializeInventoryModalContent,focusSelector:'.select2-selection,input:not([type=hidden]):not([disabled]),button'});}
 
-        function closeInventoryModal(shouldReset) {
-            const modal = document.getElementById('newInventoryModal');
-            if (!modal || modal.classList.contains('hidden')) {
-                return;
-            }
-            modal.classList.remove('is-open');
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('modal-open');
-            document.documentElement.classList.remove('modal-open');
-            clearTimeout(inventoryModalCloseTimer);
-            inventoryModalCloseTimer = window.setTimeout(function () {
-                modal.classList.add('hidden');
-                if (shouldReset) {
-                    resetInventoryModal(modal);
-                }
-                if (inventoryModalTrigger && typeof inventoryModalTrigger.focus === 'function') {
-                    inventoryModalTrigger.focus();
-                }
-            }, 240);
-        }
+        function closeInventoryModal(shouldReset){const modal=document.getElementById('newInventoryModal');if(!window.AppModal.isOpen(modal))return;window.AppModal.close(modal,{onReset:()=>{if(shouldReset)resetInventoryModal(modal);}});}
 
         document.addEventListener('click', function (event) {
             const trigger = event.target.closest('[data-inventory-create-modal-open]');

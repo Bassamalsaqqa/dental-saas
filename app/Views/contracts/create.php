@@ -1,3 +1,4 @@
+<?php helper('asset'); ?>
 <?php
 $initialOdontogram = [];
 if (!empty($snapshot['data_snapshot_json'])) {
@@ -36,37 +37,9 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 contract-full-width">
-    <div class="backdrop-blur-md bg-white/80 border-b border-white/20 shadow-sm">
-        <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 contract-shell">
-            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center py-6 space-y-4 lg:space-y-0">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-file-signature text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                            <?= $mode === 'edit' ? 'Edit Treatment Contract' : 'Create Treatment Contract' ?>
-                        </h1>
-                        <p class="text-gray-600 mt-1 flex items-center">
-                            <i class="fas fa-user-circle mr-2 text-blue-500"></i>
-                            <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?>
-                            <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                <?= esc($patient['patient_id'] ?? $patient['id']) ?>
-                            </span>
-                        </p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                        <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <form id="contractForm" action="<?= $actionUrl ?>" method="post">
+<link rel="stylesheet" href="<?= base_url('assets/css/v4-contracts.css') ?>?v=<?= esc(asset_version('assets/css/v4-contracts.css')) ?>">
+<div class="v4-contract-editor"><header class="v4-page-heading"><div><h1><?= esc(lang($mode==='edit'?'V4.editContract':'V4.createContract')) ?></h1><p dir="auto"><?= esc($patient['first_name'].' '.$patient['last_name']) ?> <span class="v4-contract-reference"><?= esc($patient['patient_id']??$patient['id']) ?></span></p></div><a href="<?= workflow_back('patient/'.$patient['id'],$returnTo) ?>" class="v4-button"><?= esc(lang('V4.back')) ?></a></header>
+    <form id="contractForm" class="v4-form" action="<?= $actionUrl ?>" method="post">
         <?= csrf_field() ?>
         <input type="hidden" name="odontogram_json" id="odontogramJson">
         <input type="hidden" name="odontogram_svg" id="odontogramSvg">
@@ -77,74 +50,16 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
             <input type="hidden" name="examination_id" value="<?= (int) $examination_id ?>">
         <?php endif; ?>
 
-        <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 pb-12 contract-shell">
-            <div class="space-y-6 mt-8 w-full max-w-none contract-grid">
+        <div class="v4-contract-authoring contract-shell">
+            <div class="v4-contract-authoring-grid contract-grid">
                 <div class="space-y-6">
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-black/10"></div>
-                            <div class="relative z-10 flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-tooth text-white text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-2xl font-bold mb-1">Interactive Dental Chart</h3>
-                                        <p class="text-blue-100 flex items-center">
-                                            <i class="fas fa-mouse-pointer mr-2"></i>
-                                            Click on any tooth to view or update its condition
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end gap-3">
-                                    <div class="hidden md:flex items-center space-x-2 text-blue-100">
-                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span class="text-sm font-medium">Live Updates</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button"
-                                                id="legendToggleBtn"
-                                                class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                            <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
-                                            <span id="legendToggleText">Show Legend</span>
-                                        </button>
-                                        <button id="batchModeToggleBtn"
-                                                type="button"
-                                                onclick="toggleBatchMode()"
-                                                class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                            <i class="fas fa-object-group mr-2"></i>
-                                            <span id="batchModeToggleText">Batch Select</span>
-                                        </button>
-                                        <div id="batchTopControls" class="hidden items-center gap-2">
-                                            <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 bg-amber-400/90 text-amber-950 rounded-full text-xs font-bold">
-                                                0 selected
-                                            </span>
-                                            <button type="button" id="batchApplyBtn" onclick="openBatchModal()"
-                                                    class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border transition-all duration-200 disabled:cursor-not-allowed"
-                                                    disabled>
-                                                <i class="fas fa-layer-group mr-1.5"></i>Apply
-                                            </button>
-                                            <button type="button" id="batchClearBtn" onclick="clearBatchSelection()"
-                                                    class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                                Clear
-                                            </button>
-                                            <button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"
-                                                    class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                                Exit
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                        </div>
-
-                        <div class="p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200/50">
+                    <div class="v4-contract-chart">
+<header class="v4-contract-chart-heading"><div><h2><?= esc(lang('V4.prepareChart')) ?></h2><p><?= esc(lang('V4.prepareChartHelp')) ?></p></div><div class="v4-contract-chart-tools"><button type="button" id="legendToggleBtn" class="v4-button"><i id="legendToggleIcon" class="fas fa-chevron-down" aria-hidden="true"></i><span id="legendToggleText"><?= esc(lang('V4.showLegend')) ?></span></button><button id="batchModeToggleBtn" type="button" onclick="toggleBatchMode()" class="v4-button"><i class="fas fa-object-group" aria-hidden="true"></i><span id="batchModeToggleText"><?= esc(lang('V4.batchSelect')) ?></span></button><div id="batchTopControls" class="hidden items-center gap-2"><span id="batchTopCount" class="v4-badge">0</span><button type="button" id="batchApplyBtn" onclick="openBatchModal()" class="v4-button" disabled><?= esc(lang('V4.apply')) ?></button><button type="button" id="batchClearBtn" onclick="clearBatchSelection()" class="v4-button"><?= esc(lang('V4.clearFilters')) ?></button><button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)" class="v4-button"><?= esc(lang('V4.close')) ?></button></div></div></header>
+                        <div class="v4-contract-legend">
                             <div class="flex items-center justify-between">
                                 <h4 class="text-lg font-bold text-gray-800 flex items-center">
                                     <i class="fas fa-palette mr-3 text-blue-600"></i>
-                                    Condition Legend
+                                    <?= esc(lang('V4.conditionLegend')) ?>
                                 </h4>
                             </div>
                             <div id="legendContent" class="hidden mt-6">
@@ -251,10 +166,10 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             </div>
                         </div>
 
-                        <div class="p-8 bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+                        <div class="v4-contract-canvas">
                             <div class="w-full">
-                                <div class="relative bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/30 overflow-hidden">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-pink-50/30 via-white to-blue-50/20 rounded-3xl"></div>
+                                <div class="relative">
+
                                     <div id="odontogramSvgWrapper" class="relative z-10 min-h-[320px] flex items-center justify-center">
                                         <?php
                                         $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
@@ -307,8 +222,8 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 </div>
 
                 <div class="space-y-6">
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
-                        <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white p-5">
+                    <div class="contract-panel">
+                        <div class="v4-contract-panel-heading">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                                     <i class="fas fa-receipt text-white"></i>
@@ -344,7 +259,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
                     </div>
 
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
+                    <div class="contract-panel">
                         <div class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white p-5">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -380,7 +295,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
                     </div>
 
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
+                    <div class="contract-panel">
                         <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-gray-900 text-white p-5">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -421,7 +336,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
 
                     <div class="flex justify-end">
-                        <button type="submit" class="inline-flex items-center px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                        <button type="submit" class="v4-button v4-button--primary">
                             <i class="fas fa-save mr-2"></i><?= $mode === 'edit' ? 'Save Changes' : 'Save Contract Draft' ?>
                         </button>
                     </div>
@@ -1745,50 +1660,5 @@ document.addEventListener('DOMContentLoaded', () => {
     stroke-width: 2;
 }
 
-.contract-full-width,
-.contract-full-width .contract-shell,
-.contract-full-width .contract-grid {
-    width: 100%;
-    max-width: none;
-}
-
-.contract-full-width #main-content,
-.contract-full-width main,
-.contract-full-width main > div {
-    width: 100%;
-    max-width: none;
-}
-
-.contract-full-main {
-    width: 100%;
-    max-width: none;
-}
-
-.contract-panel {
-    border-color: rgba(148, 163, 184, 0.25);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
-}
-
-.contract-panel-body {
-    background: linear-gradient(180deg, rgba(248, 250, 252, 0.76) 0%, rgba(255, 255, 255, 0.72) 100%);
-}
-
-.contract-panel input,
-.contract-panel select,
-.contract-panel textarea {
-    background-color: #fff !important;
-    border: 1px solid #d3dce8 !important;
-    color: #0f172a;
-    outline: none !important;
-}
-.contract-panel input:focus,
-.contract-panel select:focus,
-.contract-panel textarea:focus {
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
-    border-color: #93c5fd !important;
-}
-.contract-total-display {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(15, 23, 42, 0.05);
-}
 </style>
 <?= $this->endSection() ?>

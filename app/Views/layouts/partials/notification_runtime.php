@@ -42,15 +42,15 @@
 
         const viewportPadding = 8;
         const triggerRect = trigger.getBoundingClientRect();
-        const preferredWidth = Math.min(288, window.innerWidth - (viewportPadding * 2));
+        const preferredWidth = Math.min(420, window.innerWidth - (viewportPadding * 2));
         const availableHeight = Math.max(240, window.innerHeight - triggerRect.bottom - 16);
-        const dropdownHeight = Math.min(368, availableHeight);
+        const dropdownHeight = Math.min(520, availableHeight);
 
         dropdown.style.width = `${preferredWidth}px`;
         dropdown.style.maxWidth = `calc(100vw - ${viewportPadding * 2}px)`;
         dropdown.style.height = `${dropdownHeight}px`;
         dropdown.style.maxHeight = `${dropdownHeight}px`;
-        dropdown.style.top = `${window.scrollY + Math.max(triggerRect.bottom + 8, viewportPadding)}px`;
+        dropdown.style.top = `${Math.max(triggerRect.bottom + 8, viewportPadding)}px`;
 
         const isRtl = document.documentElement.dir === 'rtl';
         const unclampedLeft = isRtl
@@ -61,7 +61,7 @@
             window.innerWidth - preferredWidth - viewportPadding
         );
 
-        dropdown.style.left = `${window.scrollX + left}px`;
+        dropdown.style.left = `${left}px`;
         dropdown.style.right = 'auto';
     }
 
@@ -207,21 +207,21 @@
 
         if (!notifications.length) {
             const emptyState = document.createElement('div');
-            emptyState.className = 'px-4 py-8 text-center';
+            emptyState.className = 'v4-notification-empty';
 
             const iconWrap = document.createElement('div');
-            iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400';
+            iconWrap.className = 'v4-notification-empty-icon';
 
             const icon = document.createElement('i');
             icon.className = 'fas fa-bell-slash text-lg';
             iconWrap.appendChild(icon);
 
             const title = document.createElement('p');
-            title.className = 'mt-4 text-sm font-semibold text-slate-900';
+            title.className = 'v4-notification-empty-title';
             title.textContent = notificationsUi.empty;
 
             const description = document.createElement('p');
-            description.className = 'mt-1 text-sm text-slate-500';
+            description.className = 'v4-notification-empty-help';
             description.textContent = notificationsUi.emptyDesc;
 
             emptyState.appendChild(iconWrap);
@@ -236,7 +236,7 @@
         notifications.forEach((notification) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'block w-full rounded-xl border border-slate-100 bg-white/80 px-3.5 py-3 text-start shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-50/70 focus:bg-blue-50/70 focus:outline-none';
+            item.className = 'v4-notification-item';
             item.setAttribute('role', 'listitem');
             item.onclick = async function () {
                 if (!notification.is_read) {
@@ -247,30 +247,30 @@
             };
 
             const row = document.createElement('div');
-            row.className = `flex items-start gap-3 ${notificationsUi.isRtl ? 'text-right' : 'text-left'}`;
+            row.className = 'v4-notification-row';
 
             const iconWrap = document.createElement('div');
-            iconWrap.className = `mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${getNotificationIconBgClass(notification.color)}`;
+            iconWrap.className = `v4-notification-symbol ${getNotificationIconBgClass(notification.color)}`;
 
             const icon = document.createElement('i');
             icon.className = `${notification.icon} ${getNotificationIconClass(notification.color)} text-sm`;
             iconWrap.appendChild(icon);
 
             const content = document.createElement('div');
-            content.className = 'min-w-0 flex-1';
+            content.className = 'v4-notification-copy';
 
             const header = document.createElement('div');
-            header.className = 'flex items-start justify-between gap-3';
+            header.className = 'v4-notification-heading';
 
             const textWrap = document.createElement('div');
-            textWrap.className = 'min-w-0 flex-1';
+            textWrap.className = 'v4-notification-copy';
 
             const title = document.createElement('p');
-            title.className = 'text-[13px] font-black leading-5 text-slate-950';
+            title.className = 'v4-notification-title';
             title.textContent = notification.title || '';
 
             const message = document.createElement('p');
-            message.className = 'mt-1 line-clamp-2 text-[13px] font-semibold leading-5 text-slate-600';
+            message.className = 'v4-notification-message';
             message.textContent = notification.message || '';
 
             textWrap.appendChild(title);
@@ -279,13 +279,13 @@
 
             if (!notification.is_read) {
                 const unread = document.createElement('span');
-                unread.className = 'mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500';
+                unread.className = 'v4-notification-unread';
                 unread.setAttribute('aria-hidden', 'true');
                 header.appendChild(unread);
             }
 
             const meta = document.createElement('div');
-            meta.className = `mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-500 ${notificationsUi.isRtl ? 'justify-start' : ''}`;
+            meta.className = 'v4-notification-meta';
 
             const time = document.createElement('span');
             time.textContent = formatTime(notification.created_at);
@@ -299,7 +299,7 @@
 
             if (notification.type_label) {
                 const badge = document.createElement('span');
-                badge.className = 'inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 font-black text-slate-600';
+                badge.className = 'v4-badge';
                 badge.textContent = notification.type_label;
                 meta.appendChild(badge);
             }
@@ -326,22 +326,22 @@
         listElement.textContent = '';
 
         const state = document.createElement('div');
-        state.className = 'px-4 py-8 text-center';
+        state.className = 'v4-notification-empty';
 
         const iconWrap = document.createElement('div');
-        iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500';
+        iconWrap.className = 'v4-notification-empty-icon v4-critical';
 
         const icon = document.createElement('i');
         icon.className = 'fas fa-bell-slash text-lg';
         iconWrap.appendChild(icon);
 
         const title = document.createElement('p');
-        title.className = 'mt-4 text-sm font-semibold text-slate-900';
+        title.className = 'v4-notification-empty-title';
         title.textContent = notificationsUi.loadFailed;
 
         const retry = document.createElement('button');
         retry.type = 'button';
-        retry.className = 'mt-4 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50';
+        retry.className = 'v4-button';
         retry.textContent = notificationsUi.retry;
         retry.onclick = function () {
             loadNotifications({ showList: true });
@@ -1160,7 +1160,10 @@
         }
 
         if (e.key === 'Escape') {
+            const openMenu=['notifications-dropdown','userMenu','clinicSwitcherMenu'].find(id=>!document.getElementById(id)?.classList.contains('hidden'));
             closeHeaderMenus();
+            const trigger={ 'notifications-dropdown':'notifications-trigger',userMenu:'user-menu-trigger',clinicSwitcherMenu:'v4-clinic-trigger' }[openMenu];
+            if(trigger) document.getElementById(trigger)?.focus();
         }
     });
 

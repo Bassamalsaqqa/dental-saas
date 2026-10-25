@@ -64,42 +64,7 @@
 }
 </style>
 <!-- Enhanced Treatment Creation with Advanced Design -->
-<div class="min-h-screen bg-slate-50">
-    <!-- Animated Background Elements -->
-    <div class="container mx-auto relative z-10 px-4 py-6">
-
-        <!-- Enhanced Treatment Form with Glassmorphism -->
-        <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 overflow-hidden">
-                <!-- Form Header -->
-                <div class="p-8 border-b border-white/20">
-                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-tooth text-white text-lg"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-amber-900 transition-colors duration-300"><?= lang('Treatment.create_new_treatment') ?></h3>
-                                <p class="text-gray-600 font-medium"><?= lang('Treatment.create_new_treatment_subtitle') ?></p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('treatment', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-arrow-left rtl-back-icon mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('Treatment.back') ?></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Content -->
-                <div class="p-8"> 
-                    <form action="<?= base_url('treatment/store') ?>" method="POST" class="space-y-8" data-contextual-treatment-form>
+<div class="v4-task-page"><header class="v4-page-heading"><div><h1><?= esc(lang('Treatment.create_new_treatment')) ?></h1><p><?= esc(lang('Treatment.create_new_treatment_subtitle')) ?></p></div><a class="v4-button" href="<?= esc(workflow_back('treatment',$return_to??null)) ?>"><?= esc(lang('V4.back')) ?></a></header><form action="<?= base_url('treatment/store') ?>" method="POST" class="v4-form v4-task-form" data-contextual-treatment-form>
                         <?= csrf_field() ?>
                         <input type="hidden" name="examination_id" value="<?= esc($selected_examination_id ?? '') ?>">
                         <input type="hidden" name="appointment_id" value="<?= esc($selected_appointment_id ?? '') ?>">
@@ -110,12 +75,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-user text-blue-600"></i>
+                                    <i class="fas fa-user v4-text-action"></i>
                                     <span><?= lang('Treatment.select_patient_required') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
-                                            data-searchable-select 
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                                            data-searchable-select
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/patients') ?>"
@@ -145,9 +110,9 @@
                                     <span><?= lang('Treatment.treatment_type_required') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select id="treatment_type" name="treatment_type" 
-                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" 
-                                            data-searchable-select 
+                                    <select id="treatment_type" name="treatment_type"
+                                            class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300"
+                                            data-searchable-select
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/treatment-types') ?>"
@@ -180,8 +145,8 @@
                                     <span><?= lang('Treatment.tooth_number') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" id="tooth_number" name="tooth_number" 
-                                           class="treatment-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl"
+                                    <input type="text" id="tooth_number" name="tooth_number"
+                                           class="treatment-leading-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300"
                                            value="<?= esc(old('tooth_number', $selected_tooth_number ?? '')) ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tooth text-gray-400"></i>
@@ -206,7 +171,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="start_date" name="start_date" data-clinic-date="1"
-                                           class="treatment-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
+                                           class="treatment-date-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300"
                                            value="<?= old('start_date') ?: date('Y-m-d') ?>" required>
                                 </div>
                                 <?php if ($validation && $validation->hasError('start_date')): ?>
@@ -221,12 +186,12 @@
                         <!-- Treatment Description -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-align-left text-indigo-600"></i>
+                                <i class="fas fa-align-left v4-text-action"></i>
                                 <span><?= lang('Treatment.treatment_description_required') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea id="description" name="description" rows="4" 
-                                          class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none"
+                                <textarea id="description" name="description" rows="4"
+                                          class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 resize-none"
                                           placeholder="<?= lang('Treatment.treatment_description_placeholder') ?>" required><?= old('description') ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
@@ -248,8 +213,8 @@
                                     <span><?= lang('Treatment.estimated_duration_days_required') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="number" id="estimated_duration" name="estimated_duration" 
-                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl"
+                                    <input type="number" id="estimated_duration" name="estimated_duration"
+                                           class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300"
                                            value="<?= old('estimated_duration', 1) ?>" min="1" placeholder="<?= lang('Treatment.estimated_duration_placeholder') ?>" required>
                                 </div>
                                 <?php if ($validation && $validation->hasError('estimated_duration')): ?>
@@ -270,10 +235,10 @@
 
                         <!-- Inventory Usage (Optional) -->
                         <div class="group/field relative">
-                            <div class="bg-white/70 border border-white/30 rounded-2xl shadow-xl p-6">
+                            <div class="v4-surface-fill border border-white/30 v4-radius p-6">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white">
+                                        <div class="w-10 h-10 v4-radius flex items-center justify-center text-white">
                                             <i class="fas fa-boxes"></i>
                                         </div>
                                         <div>
@@ -284,7 +249,7 @@
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only" <?= $usageEnabledByOld ? 'checked' : '' ?>>
                                         <div class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
-                                            <div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-200"></div>
+                                            <div class="toggle-dot absolute left-1 top-1 v4-surface-fill w-4 h-4 rounded-full transition-all duration-200"></div>
                                         </div>
                                         <span class="ml-3 text-sm font-semibold text-gray-700"><?= lang('Treatment.enable') ?></span>
                                     </label>
@@ -294,7 +259,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.usage_date_required') ?></label>
-                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="treatment-date-input w-full py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="treatment-date-input w-full py-3 border border-gray-300 v4-radius focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
                                         </div>
                                         <div class="flex items-end">
                                             <p class="text-sm text-gray-500"><?= lang('Treatment.items_must_be_in_stock') ?></p>
@@ -302,7 +267,7 @@
                                     </div>
 
                                     <div id="usageItemsContainer" class="space-y-4">
-                                        <div class="usage-item bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        <div class="usage-item bg-gray-50 p-4 v4-radius border border-gray-200">
                                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.item_required') ?></label>
@@ -347,7 +312,7 @@
 
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.usage_notes') ?></label>
-                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="<?= lang('Treatment.optional_usage_notes_placeholder') ?>"></textarea>
+                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border border-gray-300 v4-radius" placeholder="<?= lang('Treatment.optional_usage_notes_placeholder') ?>"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -355,24 +320,18 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
-                            <a href="<?= esc(workflow_cancel('treatment', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <a href="<?= esc(workflow_cancel('treatment', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold v4-radius hover:bg-gradient-to-r hover:border-gray-400 transition-all duration-300">
+                                <div class="absolute inset-0 v4-radius opacity-0 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Treatment.cancel') ?></span>
                             </a>
-                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-bold rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/25">
-                                <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 text-white text-sm font-bold v4-radius transition-all duration-300">
+                                <div class="absolute inset-0 v4-radius opacity-0 transition-opacity duration-300"></div>
                                 <i class="fas fa-tooth mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Treatment.create_treatment') ?></span>
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+                    </form></div>
 <script>
 // Auto-fill today's date if start_date is empty
 document.addEventListener('DOMContentLoaded', function() {
@@ -381,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const todayIso = new Date().toISOString().split('T')[0];
         startDateInput.value = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(todayIso) : todayIso;
     }
-    
+
     // Inventory usage toggle
     const usageToggle = document.getElementById('usageEnabled');
     const usageSection = document.getElementById('usageSection');

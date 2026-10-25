@@ -1,6 +1,8 @@
+<?php helper('asset'); ?>
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/v4-contracts.css') ?>?v=<?= esc(asset_version('assets/css/v4-contracts.css')) ?>">
 <?php $return_to = $return_to ?? null; ?>
 <?php
 $snapshotRows = [];
@@ -13,60 +15,11 @@ if (!empty($snapshot['data_snapshot_json'])) {
     }
 }
 ?>
-<div class="w-full max-w-none px-4 sm:px-6 lg:px-12 py-8">
-    <div class="space-y-6">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Treatment Contract</h1>
-                <p class="text-gray-600 mt-1">Patient: <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?></p>
-            </div>
-            <div class="flex space-x-3">
-                <a href="<?= esc(workflow_back('patient/' . $patient['id'], $return_to ?? null)) ?>"
-                   class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
-                    <i class="fas fa-arrow-left mr-2"></i>Back
-                </a>
-                <a href="<?= workflow_context_url('patient/' . $patient['id'], $return_to ?? null) ?>" 
-                   class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
-                    <i class="fas fa-user mr-2"></i>Patient Profile
-                </a>
-                <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
-                    <a href="<?= workflow_context_url('contracts/' . $contract['id'] . '/edit', $return_to ?? null) ?>"
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-                        <i class="fas fa-pen mr-2"></i>Edit Draft
-                    </a>
-                <?php endif; ?>
-                <a href="<?= base_url('contracts/' . $contract['id'] . '/print') ?>" 
-                   class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-md border border-gray-200 hover:bg-gray-50">
-                    <i class="fas fa-print mr-2"></i>Print
-                </a>
-                <?php if (!empty($contract['signed_attachment_id'])): ?>
-                    <a href="<?= base_url('file/download/' . $contract['signed_attachment_id']) ?>" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-                        <i class="fas fa-download mr-2"></i>Download
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <?php if (session('success')): ?>
-            <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 text-sm">
-                <?= esc(session('success')) ?>
-            </div>
-        <?php endif; ?>
-        <?php if (session('error')): ?>
-            <div class="rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700 text-sm">
-                <?= esc(session('error')) ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="space-y-6 w-full max-w-none">
-            <?php $creatorName = trim(($contract['creator_first_name'] ?? '') . ' ' . ($contract['creator_last_name'] ?? '')); ?>
-            <div class="space-y-6">
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+<div class="v4-contract"><header class="v4-page-heading"><div><h1><?= esc(lang('V4.contractReview')) ?></h1><p><a href="<?= workflow_context_url('patient/'.$patient['id'],$return_to??null) ?>" dir="auto"><?= esc($patient['first_name'].' '.$patient['last_name']) ?></a><span class="v4-contract-reference">#<?= (int)$contract['id'] ?></span></p></div><div class="v4-page-actions"><a class="v4-button" href="<?= esc(workflow_back('patient/'.$patient['id'],$return_to??null)) ?>"><?= esc(lang('V4.back')) ?></a><?php if(($contract['status']??'draft')==='draft'): ?><a class="v4-button" href="<?= workflow_context_url('contracts/'.$contract['id'].'/edit',$return_to??null) ?>"><?= esc(lang('V4.editDraft')) ?></a><?php endif; ?><a class="v4-button" href="<?= base_url('contracts/'.$contract['id'].'/print') ?>"><i class="fas fa-print" aria-hidden="true"></i><?= esc(lang('Finance.print')) ?></a><?php if(!empty($contract['signed_attachment_id'])): ?><a class="v4-button v4-button--primary" href="<?= base_url('file/download/'.$contract['signed_attachment_id']) ?>"><?= esc(lang('V4.signedDocument')) ?></a><?php endif; ?></div></header><?php if(session('success')): ?><div class="v4-form-notice"><?= esc(session('success')) ?></div><?php endif; ?><?php if(session('error')): ?><div class="v4-form-error"><?= esc(session('error')) ?></div><?php endif; ?><?php $creatorName=trim(($contract['creator_first_name']??'').' '.($contract['creator_last_name']??'')); ?><div class="v4-contract-layout"><div class="v4-contract-main"><section class="v4-contract-section">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Contract Odontogram</h3>
+                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('V4.contractChart')) ?></h3>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
-                            <?= esc(ucfirst($contract['status'] ?? 'draft')) ?>
+                            <?= esc(lang('V4.'.($contract['status']??'draft'))) ?>
                         </span>
                     </div>
                     <div class="border border-gray-100 rounded-lg p-4 bg-gray-50">
@@ -74,14 +27,14 @@ if (!empty($snapshot['data_snapshot_json'])) {
                             <?= $snapshot['svg_snapshot'] ?>
                         <?php elseif (!empty($snapshotRows)): ?>
                             <div class="space-y-3">
-                                <p class="text-sm font-medium text-gray-700">Recorded tooth conditions at the time of this plan</p>
+                                <p class="text-sm font-medium text-gray-700"><?= esc(lang('V4.snapshotContext')) ?></p>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                                         <thead class="bg-white">
                                             <tr>
-                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tooth</th>
-                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Condition</th>
-                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Notes</th>
+                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.tooth')) ?></th>
+                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.condition')) ?></th>
+                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.notes')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -97,22 +50,20 @@ if (!empty($snapshot['data_snapshot_json'])) {
                                 </div>
                             </div>
                         <?php else: ?>
-                            <p class="text-sm text-gray-500">No snapshot captured.</p>
+                            <p class="text-sm text-gray-500"><?= esc(lang('V4.noSnapshot')) ?></p>
                         <?php endif; ?>
                     </div>
-                </div>
-
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Treatment Items</h3>
+                </section><section class="v4-contract-section">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4"><?= esc(lang('V4.treatmentItems')) ?></h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Code</th>
-                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tooth</th>
-                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Description</th>
-                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Qty</th>
-                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Price</th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.code')) ?></th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.tooth')) ?></th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.description')) ?></th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.quantity')) ?></th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase"><?= esc(lang('V4.price')) ?></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -128,7 +79,7 @@ if (!empty($snapshot['data_snapshot_json'])) {
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">No items added.</td>
+                                        <td colspan="5" class="px-4 py-6 text-center text-gray-500"><?= esc(lang('V4.noItems')) ?></td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -136,20 +87,17 @@ if (!empty($snapshot['data_snapshot_json'])) {
                     </div>
                     <?php if (!empty($contract['cost_details'])): ?>
                         <div class="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
-                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Cost Details</div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1"><?= esc(lang('V4.costDetails')) ?></div>
                             <div><?= nl2br(esc($contract['cost_details'])) ?></div>
                         </div>
                     <?php endif; ?>
                     <div class="mt-4 text-right text-sm text-gray-700">
-                        <span class="font-semibold">Total:</span>
+                        <span class="font-semibold"><?= esc(lang('V4.total')) ?></span>
                         <?= esc($contract['currency'] ?? 'USD') ?> <?= number_format((float) ($contract['total_cost'] ?? 0), 2) ?>
                     </div>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Contract Details</h3>
+                </section>
+</div><aside class="v4-contract-agreement"><section class="v4-contract-section">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4"><?= esc(lang('V4.contractDetails')) ?></h3>
                     <div class="space-y-4 text-sm text-gray-700">
                         <?php if (!empty($contract['terms_conditions'])): ?>
                             <div>
@@ -159,38 +107,36 @@ if (!empty($snapshot['data_snapshot_json'])) {
                         <?php endif; ?>
                         <?php if (!empty($contract['payment_terms'])): ?>
                             <div>
-                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Payment Terms</div>
+                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1"><?= esc(lang('V4.paymentTerms')) ?></div>
                                 <div><?= nl2br(esc($contract['payment_terms'])) ?></div>
                             </div>
                         <?php endif; ?>
                         <?php if (!empty($contract['duration_plan'])): ?>
                             <div>
-                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Duration Plan</div>
+                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1"><?= esc(lang('V4.durationPlan')) ?></div>
                                 <div><?= esc($contract['duration_plan']) ?></div>
                             </div>
                         <?php endif; ?>
                         <?php if (!empty($contract['notes'])): ?>
                             <div>
-                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Notes</div>
+                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1"><?= esc(lang('V4.notes')) ?></div>
                                 <div><?= nl2br(esc($contract['notes'])) ?></div>
                             </div>
                         <?php endif; ?>
                         <div>
-                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Created By</div>
-                            <div><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1"><?= esc(lang('V4.createdBy')) ?></div>
+                            <div><?= $creatorName !== '' ? esc($creatorName) : lang('V4.unknown') ?></div>
                         </div>
                         <?php if (empty($contract['terms_conditions']) && empty($contract['payment_terms']) && empty($contract['duration_plan']) && empty($contract['notes'])): ?>
-                            <div class="text-sm text-gray-500">No additional contract terms provided.</div>
+                            <div class="text-sm text-gray-500"><?= esc(lang('V4.noTerms')) ?></div>
                         <?php endif; ?>
                     </div>
-                </div>
-
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6" id="signatureSection">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Signature</h3>
+                </section><section class="v4-contract-section" id="signatureSection">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4"><?= esc(lang('V4.signature')) ?></h3>
                     <?php if (!empty($signature)): ?>
                         <div class="space-y-3">
-                            <p class="text-sm text-gray-700">Signed by: <strong><?= esc($signature['signer_name'] ?? 'Patient') ?></strong></p>
-                            <p class="text-xs text-gray-500">Signed at: <?= esc($signature['signed_at'] ?? '') ?></p>
+                            <p class="text-sm text-gray-700"><?= esc(lang('V4.signedBy')) ?> <strong><?= esc($signature['signer_name'] ?? 'Patient') ?></strong></p>
+                            <p class="text-xs text-gray-500"><?= esc(lang('V4.signedAt')) ?> <?= esc($signature['signed_at'] ?? '') ?></p>
                             <?php if (!empty($signature['signature_data'])): ?>
                                 <img src="<?= esc($signature['signature_data']) ?>" alt="Signature" class="border border-gray-200 rounded-lg">
                             <?php endif; ?>
@@ -203,7 +149,7 @@ if (!empty($snapshot['data_snapshot_json'])) {
                                     $signAction .= '?return=' . urlencode($return_to);
                                 }
                             ?>
-                            <form action="<?= $signAction ?>" method="post" id="signatureForm">
+                            <form action="<?= $signAction ?>" method="post" id="signatureForm" class="v4-form">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="signature_data" id="signatureData">
                                 <?php if (!empty($return_to)): ?>
@@ -212,35 +158,30 @@ if (!empty($snapshot['data_snapshot_json'])) {
                                 <?php $defaultSignerName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')); ?>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Typed Name</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1"><?= esc(lang('V4.typedName')) ?></label>
                                         <input type="text" name="signer_name" required
                                                value="<?= esc($defaultSignerName) ?>"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Patient full name">
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="<?= esc(lang('V4.patientFullName'),'attr') ?>">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Draw Signature</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('V4.drawSignature')) ?></label>
                                         <canvas id="signatureCanvas" class="border border-gray-300 rounded-lg w-full" height="150" style="touch-action: none; -ms-touch-action: none;"></canvas>
                                         <button type="button" id="clearSignatureBtn"
                                                 class="mt-2 inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-                                            <i class="fas fa-eraser mr-1.5 text-gray-500"></i>Clear Signature
+                                            <i class="fas fa-eraser mr-1.5 text-gray-500"></i><?= esc(lang('V4.clearSignature')) ?>
                                         </button>
                                     </div>
-                                    <button type="submit" class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700">
-                                        Sign Contract
+                                    <button type="submit" class="v4-button v4-button--primary">
+                                        <?= esc(lang('V4.signContract')) ?>
                                     </button>
                                 </div>
                             </form>
                         <?php else: ?>
-                            <p class="text-sm text-gray-500">Signature capture is disabled for this plan or already signed.</p>
+                            <p class="text-sm text-gray-500"><?= esc(lang('V4.signatureUnavailable')) ?></p>
                         <?php endif; ?>
                     <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
+                </section>
+</aside></div></div><script>
     const canvas = document.getElementById('signatureCanvas');
     if (canvas) {
         const ctx = canvas.getContext('2d');

@@ -1,224 +1,8 @@
-<?= $this->extend('layouts/main_control_plane') ?>
-
-<?= $this->section('content') ?>
-<?php $disableDataTables = false; ?>
-
-<style>
-/* Keep existing styles */
-.dataTables_wrapper { position: relative !important; }
-/* ... (Keep existing DataTables overrides) ... */
-#clinicsTable tbody tr td { border-bottom: 1px solid rgba(226, 232, 240, 0.6); }
-/* Reset DataTables Button Styles */
-button.dt-button {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    margin-inline-end: 0.5rem !important;
-}
-button.dt-button:hover, button.dt-button:active {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-/* Manual Tailwind Fallbacks */
-.bg-rose-50 { background-color: #fff1f2 !important; }
-.text-rose-600 { color: #e11d48 !important; }
-.bg-slate-100 { background-color: #f1f5f9 !important; }
-.text-slate-600 { color: #475569 !important; }
-.bg-emerald-50 { background-color: #ecfdf5 !important; }
-.text-emerald-600 { color: #059669 !important; }
-/* Hide default buttons */
-.dt-buttons { display: none !important; }
-body.cp-clinics-page {
-    background: #ffffff !important;
-}
-body.cp-clinics-page main {
-    background: #ffffff !important;
-}
-body.cp-clinics-page main > .pointer-events-none.absolute.inset-0 {
-    display: none !important;
-}
-body.cp-clinics-page .cp-content {
-    background: #ffffff !important;
-}
-.cp-clinics {
-    background: #ffffff;
-}
-.cp-clinics .cp-clinics-title {
-    color: rgba(255, 255, 255, 0.96) !important;
-}
-#clinicsTable.dataTable {
-    margin: 0 !important;
-    border-collapse: separate !important;
-    border-spacing: 0;
-}
-#clinicsTable.dataTable thead th {
-    padding: 0.85rem 1rem !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-}
-#clinicsTable.dataTable tbody td {
-    padding: 0.7rem 1rem !important;
-    vertical-align: middle;
-}
-#clinicsTable.dataTable tbody tr:hover {
-    background: #f8fafc;
-}
-#clinicsTable_wrapper .dataTables_info {
-    padding: 0.85rem 1rem 1rem !important;
-    color: #64748b !important;
-    font-weight: 600;
-}
-#clinicsTable_wrapper .dataTables_paginate {
-    padding: 0.65rem 1rem 1rem !important;
-}
-#clinicsTable_wrapper .dataTables_paginate .paginate_button {
-    border-radius: 0.75rem !important;
-    border: 1px solid #e2e8f0 !important;
-    margin-inline-start: 0.25rem !important;
-    padding: 0.4rem 0.75rem !important;
-    font-weight: 700;
-}
-</style>
-<script>
-document.body.classList.add('cp-clinics-page');
-</script>
-
-<div class="cp-clinics">
-    <div class="w-full space-y-3 px-2 py-3 sm:px-4 lg:px-5">
-        <section class="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
-            <div class="bg-gradient-to-r from-slate-950 via-emerald-800 to-teal-700 px-5 py-4 text-white sm:px-6">
-                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <div class="flex min-w-0 items-center gap-4">
-                        <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20">
-                            <i class="fas fa-hospital-user text-xl"></i>
-                        </span>
-                        <div class="min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <h1 class="cp-clinics-title text-2xl font-black tracking-tight sm:text-3xl">Clinic Registry</h1>
-                                <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-50 ring-1 ring-emerald-200/25">Global Mode</span>
-                            </div>
-                            <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-emerald-50/90">Manage tenant clinics, lifecycle status, plan assignment, admin access, and operator actions.</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 sm:min-w-[24rem]">
-                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
-                            <p class="text-[11px] font-bold text-emerald-100">Total</p>
-                            <p class="text-2xl font-black text-white"><?= number_format($stats['total'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
-                            <p class="text-[11px] font-bold text-emerald-100">Active</p>
-                            <p class="text-2xl font-black text-white"><?= number_format($stats['active'] ?? 0) ?></p>
-                        </div>
-                        <div class="rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/20">
-                            <p class="text-[11px] font-bold text-emerald-100">View</p>
-                            <p class="text-2xl font-black text-white"><?= number_format($stats['filtered'] ?? 0) ?></p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-emerald-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-50">
-                            <i class="fas fa-plus"></i>
-                            <span>Onboard Clinic</span>
-                        </a>
-                        <a href="<?= base_url('controlplane/plans') ?>" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white/15 px-4 text-sm font-black text-white ring-1 ring-white/20 transition hover:bg-white/20">
-                            <i class="fas fa-layer-group"></i>
-                            <span>Plans</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-b border-slate-200 bg-slate-50/80 p-3 sm:p-4">
-                <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,1fr)_12rem_14rem_auto]">
-                        <div class="relative">
-                            <i class="fas fa-search pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ltr:left-3 rtl:right-3"></i>
-                            <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="Search clinics or admin email" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 ltr:pl-10 rtl:pr-10">
-                        </div>
-                        <select id="clinicStatus" class="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
-                            <option value="">All statuses</option>
-                            <option value="active" <?= ($filters['status'] ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
-                            <option value="suspended" <?= ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' ?>>Suspended</option>
-                            <option value="inactive" <?= ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-                        </select>
-                        <select id="clinicPlan" class="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
-                            <option value="0">All plans</option>
-                            <?php foreach (($plans ?? []) as $plan): ?>
-                                <option value="<?= (int) ($plan['id'] ?? 0) ?>" <?= (int) ($filters['plan_id'] ?? 0) === (int) ($plan['id'] ?? 0) ? 'selected' : '' ?>><?= esc($plan['name'] ?? 'Plan') ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="flex gap-2">
-                            <button id="resetClinicFilters" type="button" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-200">
-                                <i class="fas fa-times me-2"></i>Clear
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap justify-start gap-2 xl:justify-end">
-                        <button onclick="exportToPDF()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-rose-50 hover:text-rose-700">
-                            <i class="fas fa-file-pdf text-rose-600"></i>PDF
-                        </button>
-                        <button onclick="printTable()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50">
-                            <i class="fas fa-print text-slate-600"></i>Print
-                        </button>
-                        <button onclick="exportToCSV()" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-emerald-50 hover:text-emerald-700">
-                            <i class="fas fa-file-csv text-emerald-600"></i>CSV
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table id="clinicsTable" class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
-                        <tr>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-hospital text-emerald-600"></i>
-                                    <span>Clinic Name</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-emerald-600"></i>
-                                    <span>Status</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-layer-group text-emerald-600"></i>
-                                    <span>Plan</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-user-shield text-emerald-600"></i>
-                                    <span>Admin Email</span>
-                                </div>
-                            </th>
-                            <th class="text-start text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-dollar-sign text-emerald-600"></i>
-                                    <span>MRR</span>
-                                </div>
-                            </th>
-                            <th class="text-end text-xs font-black uppercase tracking-wide text-slate-600">
-                                <div class="flex items-center justify-end gap-2">
-                                    <i class="fas fa-cogs text-emerald-600"></i>
-                                    <span>Actions</span>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-</div>
-
-<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4">
+<?php helper('asset'); ?>
+<?= $this->extend('layouts/main_control_plane') ?><?= $this->section('content') ?>
+<header class="v4-page-heading"><div><h1><?= esc(lang('V4.tenantDirectory')) ?></h1><p><?= esc(lang('V4.tenantDirectoryHelp')) ?></p></div><div class="v4-page-actions"><a class="v4-button" href="<?= base_url('controlplane/plans') ?>"><?= esc(lang('UI.cpPlans')) ?></a><a class="v4-button v4-button--primary" href="<?= base_url('controlplane/onboarding/clinic/create') ?>"><i class="fas fa-plus" aria-hidden="true"></i><?= esc(lang('V4.onboarding')) ?></a></div></header>
+<section class="v4-surface v4-ledger v4-tenant-directory"><div class="v4-tenant-filters v4-form"><label><span class="sr-only"><?= esc(lang('V4.searchTenants')) ?></span><input type="search" id="clinicSearch" value="<?= esc($filters['q']??'','attr') ?>" placeholder="<?= esc(lang('V4.searchTenants'),'attr') ?>"></label><select id="clinicStatus" aria-label="<?= esc(lang('V4.tenantStatus')) ?>" data-no-select2><?php foreach([''=>'V4.allStatuses','active'=>'V4.active','suspended'=>'V4.suspended','inactive'=>'V4.inactive'] as $value=>$label): ?><option value="<?= $value ?>" <?= ($filters['status']??'')===$value?'selected':'' ?>><?= esc(lang($label)) ?></option><?php endforeach; ?></select><select id="clinicPlan" aria-label="<?= esc(lang('UI.cpPlans')) ?>" data-no-select2><option value="0"><?= esc(lang('V4.allPlans')) ?></option><?php foreach(($plans??[]) as $plan): ?><option value="<?= (int)($plan['id']??0) ?>" <?= (int)($filters['plan_id']??0)===(int)($plan['id']??0)?'selected':'' ?>><?= esc($plan['name']??'') ?></option><?php endforeach; ?></select><button type="button" id="resetClinicFilters" class="v4-button"><?= esc(lang('V4.clearFilters')) ?></button></div><header class="v4-ledger-header"><h2><?= esc(lang('UI.cpClinics')) ?> <span class="v4-directory-count"><?= number_format($stats['total']??0) ?></span></h2><details class="v4-action-menu"><summary class="v4-button v4-button--small"><?= esc(lang('V4.exportRecords')) ?></summary><div><button type="button" onclick="exportToPDF()">PDF</button><button type="button" onclick="printTable()"><?= esc(lang('Finance.print')) ?></button><button type="button" onclick="exportToCSV()">CSV</button></div></details></header><div class="v4-ledger-data" data-v4-records="tenants" data-v4-title-index="0" data-v4-copy-actions="true"><table id="clinicsTable"><thead><tr><?php foreach(['V4.clinic','V4.tenantStatus','V4.plan','V4.adminEmail','V4.estimatedMrr','V4.actions'] as $label): ?><th><?= esc(lang($label)) ?></th><?php endforeach; ?></tr></thead><tbody></tbody></table><div class="v4-mobile-records" data-v4-record-cards aria-live="polite"></div></div></section><script src="<?= base_url('assets/js/v4-record-cards.js') ?>?v=<?= esc(asset_version('assets/js/v4-record-cards.js')) ?>"></script>
+<div id="terminateModal" class="v4-cp-confirm hidden">
     <div class="w-full max-w-lg rounded-3xl border border-rose-100 bg-white/95 shadow-2xl backdrop-blur-xl">
         <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4">
             <div>
@@ -450,15 +234,14 @@ $(document).ready(function() {
                     const avatarColor = getAvatarColor(initials || (Array.from(nameRaw)[0] || 'C'));
                     const detailUrl = `${baseUrl}controlplane/clinics/${id}`;
                     return `
-                        <a href="${detailUrl}" class="block rounded-2xl px-2 py-1.5 transition-colors duration-200 hover:bg-emerald-50/70">
+                        <a href="${detailUrl}" class="v4-tenant-link">
                             <div class="flex items-center gap-3">
-                                <div class="flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-black text-slate-900"
-                                     style="background: ${avatarColor}; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);">
+                                <div class="v4-tenant-avatar">
                                     ${initials}
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="truncate text-sm font-black text-slate-950">${name}</div>
-                                    <div class="truncate text-xs font-bold text-slate-500">ID ${id} - ${slug}</div>
+                                    <div class="v4-tenant-name">${name}</div>
+                                    <div class="v4-tenant-reference">ID ${id} - ${slug}</div>
                                 </div>
                             </div>
                         </a>
@@ -480,7 +263,7 @@ $(document).ready(function() {
                         'suspended': 'fas fa-pause-circle',
                         'inactive': 'fas fa-times-circle'
                     };
-                    
+
                     const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[status] || 'fas fa-question-circle';
                     const label = status.charAt(0).toUpperCase() + status.slice(1);
@@ -497,7 +280,7 @@ $(document).ready(function() {
                 data: 'plan_name',
                 name: 'plan_name',
                 render: function(data) {
-                    return `<span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700 ring-1 ring-indigo-100">${escapeHtml(data || 'Unassigned')}</span>`;
+                    return `<span class="v4-badge">${escapeHtml(data || 'Unassigned')}</span>`;
                 }
             },
             {
@@ -541,7 +324,7 @@ $(document).ready(function() {
                 data: 'mrr',
                 name: 'mrr',
                 render: function(data) {
-                    return `<span class="text-sm font-black text-slate-900">${formatCurrency(data)}</span>`;
+                    return `<span class="v4-money">${formatCurrency(data)}</span>`;
                 }
             },
             {
@@ -558,7 +341,7 @@ $(document).ready(function() {
                     // View Details
                     actions += `
                         <a href="${baseUrl}controlplane/clinics/${id}"
-                           class="rounded-xl p-2 text-emerald-600 transition-colors duration-200 hover:bg-emerald-50 hover:text-emerald-700"
+                           class="v4-icon-button"
                            title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>`;
@@ -581,7 +364,7 @@ $(document).ready(function() {
                         <form action="${baseUrl}controlplane/impersonate" method="post" class="inline">
                             ${renderCsrfField()}
                             <input type="hidden" name="clinic_id" value="${id}">
-                            <button type="submit" class="rounded-xl p-2 text-indigo-600 transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-700" title="Login As">
+                            <button type="submit" class="v4-icon-button" title="Login As">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
                         </form>`;
@@ -708,7 +491,7 @@ function toggleClinicStatus(clinicId, action) {
         alert('An error occurred.');
     })
     .finally(() => {
-        refreshCsrfToken(); 
+        refreshCsrfToken();
     });
 }
 
@@ -744,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const actionUrl = terminateForm.action;
             const formData = new FormData(terminateForm);
-            
+
             fetch(actionUrl, {
                 method: 'POST',
                 body: formData,
@@ -788,7 +571,7 @@ function openTerminateModal(clinicId, clinicNameEncoded) {
     if (nameEl) nameEl.textContent = decodedName;
     if (formEl) formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/terminate`;
     if (inputEl) inputEl.value = '';
-    
+
     updateTerminateState();
     if (modal) {
         modal.classList.remove('hidden');
@@ -808,7 +591,7 @@ function updateTerminateState() {
     const inputEl = document.getElementById('terminateConfirmInput');
     const buttonEl = document.getElementById('terminateConfirmButton');
     if (!inputEl || !buttonEl) return;
-    
+
     const matches = inputEl.value.trim().toLowerCase() === terminateClinicName.trim().toLowerCase();
     buttonEl.disabled = !matches;
     if (matches) {

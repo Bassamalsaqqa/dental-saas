@@ -1,3 +1,4 @@
+<?php include APPPATH . 'Views/layouts/partials/view_permissions.php'; helper('asset'); ?>
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
@@ -13,499 +14,29 @@ $shouldOpenPrescriptionCreateModal = old('source_modal') === 'prescription_quick
 $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 ?>
 
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-
-<!-- Custom DataTables Styling -->
-<style>
-/* DataTables Controls Styling - More specific selectors */
-.dataTables_wrapper {
-    position: relative !important;
-}
-
-.dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    order: 1 !important;
-}
-
-.dataTables_length label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-inline-end: 12px !important;
-}
-
-.dataTables_length select {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_length select:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14) !important;
-}
-
-.dataTables_length select:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_filter label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-inline-end: 12px !important;
-}
-
-.dataTables_filter input {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_filter input:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14) !important;
-}
-
-.dataTables_filter input:hover {
-    border-color: #9ca3af !important;
-}
-
-.dataTables_info {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #6b7280 !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-}
-
-.dataTables_paginate .paginate_button {
-    padding: 8px 12px !important;
-    margin: 0 2px !important;
-    background-color: white !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 6px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #f3f4f6 !important;
-    border-color: #9ca3af !important;
-    color: #1f2937 !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #0d9488 !important;
-    border-color: #0d9488 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #f9fafb !important;
-    border-color: #e5e7eb !important;
-    color: #9ca3af !important;
-    cursor: not-allowed !important;
-}
-
-.dataTables_processing {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid #d1d5db !important;
-    border-radius: 8px !important;
-    color: #374151 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    padding: 20px !important;
-    text-align: center !important;
-}
-
-/* Ensure proper spacing and layout */
-.dataTables_wrapper .dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-end: auto !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_wrapper .dataTables_info {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-end: auto !important;
-    order: 1 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0 !important;
-    margin-inline-start: auto !important;
-    order: 2 !important;
-}
-
-/* Ensure the top container uses flexbox */
-.dataTables_wrapper > .row:first-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-/* Ensure the bottom container uses flexbox */
-.dataTables_wrapper > .row:last-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-.prescriptions-page .dataTables_wrapper {
-    border-radius: 0 0 1.5rem 1.5rem;
-    overflow: hidden;
-}
-
-.prescriptions-page .dt-buttons {
-    display: none;
-}
-
-.prescriptions-page .dataTables_length label,
-.prescriptions-page .dataTables_filter label {
-    color: #475569 !important;
-    font-size: 0.8rem !important;
-    font-weight: 800 !important;
-}
-
-.prescriptions-page .dataTables_filter input,
-.prescriptions-page .dataTables_length select {
-    border-radius: 0.85rem !important;
-    border-color: #cbd5e1 !important;
-    background: #fff !important;
-    box-shadow: 0 10px 24px -22px rgba(15,23,42,0.5) !important;
-}
-
-.prescriptions-page .dataTables_filter input:focus,
-.prescriptions-page .dataTables_length select:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13,148,136,0.14) !important;
-}
-
-.prescriptions-page #prescriptionsTable thead th {
-    background: #f8fafc !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    color: #334155 !important;
-    text-align: start !important;
-    font-weight: 800 !important;
-}
-
-.prescriptions-page #prescriptionsTable tbody tr:hover {
-    background: linear-gradient(90deg, rgba(240,253,250,0.96), rgba(236,253,245,0.62)) !important;
-}
-
-.prescriptions-page .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #0d9488, #059669) !important;
-    border-color: transparent !important;
-    color: #fff !important;
-}
-
-.prescriptions-page .dataTables_paginate .paginate_button:hover {
-    background: #f0fdfa !important;
-    border-color: #5eead4 !important;
-    color: #0f766e !important;
-}
-</style>
-<style>
-.prescription-create-modal {
-    visibility: hidden;
-    pointer-events: none;
-    transition: visibility 0s linear 240ms;
-}
-.prescription-create-modal.is-open {
-    visibility: visible;
-    pointer-events: auto;
-    transition-delay: 0s;
-}
-.prescription-create-modal__backdrop {
-    opacity: 0;
-    transition: opacity 220ms ease;
-}
-.prescription-create-modal.is-open .prescription-create-modal__backdrop {
-    opacity: 1;
-}
-.prescription-create-modal__panel {
-    opacity: 0;
-    transform: scale(0.86);
-    transform-origin: center center;
-    transition:
-        opacity 180ms ease,
-        transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
-    will-change: transform, opacity;
-}
-.prescription-create-modal.is-open .prescription-create-modal__panel {
-    opacity: 1;
-    transform: scale(1);
-}
-.prescription-create-modal .select2-container {
-    width: 100% !important;
-}
-@media (prefers-reduced-motion: reduce) {
-    .prescription-create-modal__backdrop,
-    .prescription-create-modal__panel {
-        transition: none;
-    }
-}
-@media (max-width: 640px) {
-    .prescription-create-modal__shell {
-        align-items: stretch;
-        padding: 0;
-    }
-    .prescription-create-modal__panel {
-        width: 100vw;
-        min-height: 100dvh;
-        max-height: 100dvh;
-        border-radius: 0;
-    }
-}
-</style>
-<style>
-[dir="ltr"] .prescription-leading-input {
-    padding-left: 0.75rem !important;
-    padding-right: 2.5rem !important;
-}
-
-[dir="rtl"] .prescription-leading-input {
-    padding-right: 2.5rem !important;
-    padding-left: 0.75rem !important;
-    text-align: right;
-}
-
-[dir="ltr"] input[data-clinic-date="1"].prescription-date-input {
-    padding-left: 1rem !important;
-    padding-right: 2.75rem !important;
-}
-
-[dir="rtl"] input[data-clinic-date="1"].prescription-date-input {
-    padding-right: 2.75rem !important;
-    padding-left: 1rem !important;
-    text-align: right;
-}
-</style>
-
-<div class="prescriptions-page min-h-screen bg-slate-50" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
-        <section class="mb-5 overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-teal-700 via-emerald-700 to-slate-950 text-white shadow-2xl shadow-teal-900/18">
-            <div class="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                <div class="flex min-w-0 items-start gap-4">
-                    <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg ring-1 ring-white/20">
-                        <i class="fas fa-prescription-bottle-alt text-xl"></i>
-                    </span>
-                    <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-teal-100"><?= lang('Prescription.prescription_registry') ?></p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl"><?= lang('Prescription.management_title') ?></h1>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-teal-50/88"><?= lang('Prescription.management_subtitle') ?></p>
-                    </div>
-                </div>
-                <?php if (has_permission('prescriptions', 'create')): ?>
-                    <a href="<?= base_url('prescription/create') ?>" id="newPrescriptionModalTrigger" data-prescription-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-teal-800 shadow-xl shadow-slate-950/18 transition hover:-translate-y-0.5 hover:bg-teal-50 focus:outline-none focus:ring-4 focus:ring-white/25">
-                        <i class="fas fa-plus"></i>
-                        <?= lang('Prescription.new_prescription') ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </section>
-
-        <section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-2xl bg-gradient-to-br from-teal-700 to-emerald-800 p-4 text-white shadow-xl shadow-teal-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-100"><?= lang('Prescription.total_prescriptions') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="totalPrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-prescription-bottle-alt"></i></span>
-                </div>
-            </article>
-            <article class="rounded-2xl bg-gradient-to-br from-emerald-600 to-green-800 p-4 text-white shadow-xl shadow-emerald-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-100"><?= lang('Prescription.active_prescriptions') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="activePrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-check-circle"></i></span>
-                </div>
-            </article>
-            <article class="rounded-2xl bg-gradient-to-br from-amber-600 to-orange-800 p-4 text-white shadow-xl shadow-amber-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-amber-100"><?= lang('Prescription.expired_prescriptions') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="expiredPrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-exclamation-triangle"></i></span>
-                </div>
-            </article>
-            <article class="rounded-2xl bg-gradient-to-br from-purple-700 to-indigo-900 p-4 text-white shadow-xl shadow-purple-700/18">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-purple-100"><?= lang('Prescription.this_month') ?></p>
-                        <p class="mt-2 text-3xl font-black" id="monthlyPrescriptions"><i class="fas fa-spinner fa-spin text-lg"></i></p>
-                    </div>
-                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16 ring-1 ring-white/20"><i class="fas fa-calendar-day"></i></span>
-                </div>
-            </article>
-        </section>
-
-        <section id="tableView" class="overflow-hidden rounded-[1.55rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/7">
-            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-teal-50/80 px-4 py-4 sm:px-6">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
-                            <i class="fas fa-list-check"></i>
-                        </span>
-                        <div>
-                            <h3 class="text-lg font-black text-slate-950"><?= lang('Prescription.prescription_registry') ?></h3>
-                            <p class="mt-1 text-xs font-bold text-slate-500"><?= lang('Prescription.management_subtitle') ?></p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-700">
-                            <i class="fas fa-file-pdf text-red-600"></i>
-                            <?= lang('Prescription.export_pdf') ?>
-                        </button>
-                        <button onclick="printPrescriptions()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-950">
-                            <i class="fas fa-print text-slate-600"></i>
-                            <?= lang('Prescription.export_print') ?>
-                        </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-emerald-700">
-                            <i class="fas fa-file-csv text-emerald-600"></i>
-                            <?= lang('Prescription.export_csv') ?>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table id="prescriptionsTable" class="w-full min-w-full">
-                    <thead>
-                        <tr>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-prescription-bottle-alt text-teal-700"></i>
-                                    <span><?= lang('Prescription.prescription_id') ?></span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-user text-teal-700"></i>
-                                    <span><?= lang('Prescription.patient') ?></span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-pills text-teal-700"></i>
-                                    <span><?= lang('Prescription.medicines') ?></span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar-alt text-teal-700"></i>
-                                    <span><?= lang('Prescription.date_col') ?></span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-teal-700"></i>
-                                    <span><?= lang('Prescription.status') ?></span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-start text-xs font-black uppercase tracking-wider text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-cogs text-teal-700"></i>
-                                    <span><?= lang('Prescription.actions') ?></span>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="prescriptionsTableBody" class="divide-y divide-slate-100 bg-white">
-                        <tr id="loadingRow">
-                            <td colspan="6" class="px-6 py-4 text-center text-slate-500">
-                                <div class="flex items-center justify-center gap-2">
-                                    <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-teal-700"></div>
-                                    <span><?= lang('Prescription.loading_prescriptions') ?></span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+<link rel="stylesheet" href="<?= base_url('assets/css/v4-operations.css') ?>?v=<?= esc(asset_version('assets/css/v4-operations.css')) ?>">
+<script defer src="<?= base_url('assets/js/v4-record-cards.js') ?>?v=<?= esc(asset_version('assets/js/v4-record-cards.js')) ?>"></script>
+<div class="v4-clinical-registry"><div class="v4-clinical-main">
+<header class="v4-page-heading"><div><h1><?= esc(lang('Prescription.management_title')) ?></h1><p><?= esc(lang('V4.prescriptionHelp')) ?></p></div><div class="v4-page-actions"><?php if($v4Can('prescriptions','create')): ?><a id="newPrescriptionModalTrigger" href="<?= base_url('prescription/create') ?>" data-prescription-create-modal-open class="v4-button v4-button--primary"><i class="fas fa-plus" aria-hidden="true"></i><?= esc(lang('Prescription.new_prescription')) ?></a><?php endif; ?></div></header>
+<details class="v4-clinical-summary"><summary><?= esc(lang('V4.recordSummary')) ?></summary><dl><div><dt><?= lang('Prescription.total_prescriptions') ?></dt><dd id="totalPrescriptions">&mdash;</dd></div><div><dt><?= lang('Prescription.active_prescriptions') ?></dt><dd id="activePrescriptions">&mdash;</dd></div><div><dt><?= lang('Prescription.expired_prescriptions') ?></dt><dd id="expiredPrescriptions">&mdash;</dd></div><div><dt><?= lang('Prescription.this_month') ?></dt><dd id="monthlyPrescriptions">&mdash;</dd></div></dl></details><section id="tableView" class="v4-surface v4-ledger"><header class="v4-ledger-header"><h2><?= esc(lang('Prescription.management_title')) ?></h2><div class="v4-record-views"><details class="v4-action-menu"><summary class="v4-button v4-button--small"><?= esc(lang('V4.exportRecords')) ?></summary><div><button type="button" onclick="exportToPDF()">PDF</button><button type="button" onclick="printPrescriptions()"><?= esc(lang('Finance.print')) ?></button><button type="button" onclick="exportToCSV()">CSV</button></div></details></div></header><div class="v4-ledger-data" data-v4-records="prescription" data-v4-table="prescriptionsTable"><table id="prescriptionsTable"><thead><tr><th><?= lang('Prescription.prescription_id') ?></th><th><?= lang('Prescription.patient') ?></th><th><?= lang('Prescription.medicines') ?></th><th><?= lang('Prescription.date_col') ?></th><th><?= lang('Prescription.status') ?></th><th><?= lang('Prescription.actions') ?></th></tr></thead><tbody id="prescriptionsTableBody"></tbody></table><div class="v4-mobile-records" data-v4-record-cards aria-live="polite"></div>
             </div>
         </section>
     </div>
 </div>
 
 <?php if (has_permission('prescriptions', 'create')): ?>
-    <div id="newPrescriptionModal" class="app-scale-modal prescription-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPrescriptionModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-        <div class="prescription-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-prescription-create-modal-close></div>
-        <div class="prescription-create-modal__shell relative z-10 flex min-h-screen items-center justify-center p-4" data-prescription-create-modal-close>
-            <form id="newPrescriptionQuickCreateForm" action="<?= base_url('prescription/store') ?>" method="POST" class="prescription-create-modal__panel flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-prescription-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
+    <div id="newPrescriptionModal" data-confirm-discard="<?= esc(lang('V4.discardEntry'),'attr') ?>" class="prescription-create-modal v4-entry-modal hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newPrescriptionModalTitle" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+        <div class="prescription-create-modal__backdrop v4-entry-modal__backdrop" data-prescription-create-modal-close></div>
+        <div class="prescription-create-modal__shell v4-entry-modal__shell" data-prescription-create-modal-close>
+            <form id="newPrescriptionQuickCreateForm" action="<?= base_url('prescription/store') ?>" method="POST" class="prescription-create-modal__panel v4-entry-modal__panel v4-form" data-prescription-create-form data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($returnToContext) ?>">
                 <input type="hidden" name="source_modal" value="prescription_quick_create">
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
-                            <i class="fas fa-prescription-bottle-alt"></i>
-                        </span>
-                        <div>
-                            <h2 id="newPrescriptionModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('Prescription.new_prescription')) ?></h2>
-                            <a href="<?= workflow_context_url('prescription/create', $returnToContext) ?>" class="mt-1 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-800">
+<header class="v4-modal-header"><div><h2 id="newPrescriptionModalTitle"><?= esc(lang('Prescription.new_prescription')) ?></h2><a href="<?= workflow_context_url('prescription/create', $returnToContext) ?>" class="v4-text-link">
                                 <?= esc(lang('UI.openFullPage')) ?>
-                            </a>
-                        </div>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-prescription-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                            </a></div><button type="button" class="v4-icon-button" data-prescription-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>"><i class="fas fa-times" aria-hidden="true"></i></button></header>
+                <div class="v4-modal-body">
                     <?php if (session('error') && $shouldOpenPrescriptionCreateModal): ?>
                         <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
@@ -519,7 +50,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                         </div>
                     <?php endif; ?>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                    <div class="v4-form-section">
                         <?= view('prescription/partials/form_fields', [
                             'selected_patient' => null,
                             'is_rtl' => $isRtl,
@@ -528,11 +59,11 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
-                    <button type="button" data-prescription-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <div class="v4-modal-footer">
+                    <button type="button" data-prescription-create-modal-close class="v4-button">
                         <?= esc(lang('Prescription.cancel')) ?>
                     </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-teal-600 hover:to-emerald-700 hover:shadow-xl">
+                    <button type="submit" class="v4-button v4-button--primary">
                         <i class="fas fa-prescription-bottle-alt me-2"></i>
                         <?= esc(lang('Prescription.create_prescription')) ?>
                     </button>
@@ -545,14 +76,6 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 <?= view('prescription/partials/form_script') ?>
 
 <!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
 <script>
 // Global variables
 let prescriptionsTable;
@@ -638,62 +161,9 @@ function initializeNewPrescriptionModalContent(modal) {
     return Promise.allSettled(tasks);
 }
 
-function openNewPrescriptionModal(trigger) {
-    const modal = mountNewPrescriptionModal();
-    if (!modal) {
-        return;
-    }
-    newPrescriptionModalTrigger = trigger || document.activeElement;
-    if (newPrescriptionModalCloseTimer) {
-        clearTimeout(newPrescriptionModalCloseTimer);
-        newPrescriptionModalCloseTimer = null;
-    }
-    modal.classList.remove('hidden');
-    modal.setAttribute('aria-hidden', 'false');
-    document.documentElement.classList.add('app-drawer-lock');
-    document.body.classList.add('app-drawer-lock');
-    requestAnimationFrame(function() {
-        modal.classList.add('is-open');
-    });
-    window.setTimeout(function() {
-        initializeNewPrescriptionModalContent(modal);
-        const firstField = modal.querySelector('[name="patient_id"], input, select, textarea, button');
-        if (firstField && typeof firstField.focus === 'function') {
-            firstField.focus({ preventScroll: true });
-        }
-    }, 80);
-}
+function openNewPrescriptionModal(trigger){const modal=mountNewPrescriptionModal();if(!modal)return;window.AppModal.open(modal,{trigger:trigger||document.activeElement,onOpen:initializeNewPrescriptionModalContent,focusSelector:'.select2-selection,input:not([type=hidden]):not([disabled]),button'});}
 
-function closeNewPrescriptionModal() {
-    const modal = document.getElementById('newPrescriptionModal');
-    if (!modal || modal.classList.contains('hidden')) {
-        return;
-    }
-    modal.classList.remove('is-open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.documentElement.classList.remove('app-drawer-lock');
-    document.body.classList.remove('app-drawer-lock');
-    newPrescriptionModalCloseTimer = setTimeout(function() {
-        const form = modal.querySelector('[data-prescription-create-form]');
-        if (form) {
-            form.reset();
-            if (typeof form.prescriptionReset === 'function') {
-                form.prescriptionReset();
-            }
-            form.querySelectorAll('select').forEach(function(select) {
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-                if (window.jQuery) {
-                    window.jQuery(select).trigger('change');
-                }
-            });
-        }
-        modal.classList.add('hidden');
-        if (newPrescriptionModalTrigger && typeof newPrescriptionModalTrigger.focus === 'function') {
-            newPrescriptionModalTrigger.focus();
-        }
-        newPrescriptionModalTrigger = null;
-    }, 240);
-}
+function closeNewPrescriptionModal(){const modal=document.getElementById('newPrescriptionModal');if(!window.AppModal.isOpen(modal))return;window.AppModal.close(modal,{onReset:()=>{const form=modal.querySelector('[data-prescription-create-form]');if(form){form.reset();form.prescriptionReset?.();form.querySelectorAll('select').forEach(select=>{select.dispatchEvent(new Event('change',{bubbles:true}));if(window.jQuery)jQuery(select).trigger('change');});}}});}
 
 document.addEventListener('click', function(event) {
     const openTrigger = event.target.closest('[data-prescription-create-modal-open]');
@@ -711,7 +181,8 @@ document.addEventListener('click', function(event) {
 });
 
 document.addEventListener('keydown', function(event) {
-    if (event.key !== 'Escape') {
+    if (event.target.closest?.('.select2-search')) return;
+        if (event.key !== 'Escape') {
         return;
     }
     const modal = document.getElementById('newPrescriptionModal');
@@ -755,12 +226,12 @@ $(document).ready(function() {
                     status: xhr.status,
                     statusText: xhr.statusText
                 });
-                
+
                 // Refresh token on error too
                 if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
                     window.refreshCsrfToken(xhr.responseJSON.csrf_token);
                 }
-                
+
                 let errorMessage = prescriptionI18n.errorLoadingData;
                 try {
                     const response = JSON.parse(xhr.responseText);
@@ -770,7 +241,7 @@ $(document).ready(function() {
                 } catch (e) {
                     errorMessage = xhr.responseText || prescriptionI18n.unknownError;
                 }
-                
+
                 // Show error message
                 const tbody = document.getElementById('prescriptionsTableBody');
                 if (tbody) {
@@ -778,27 +249,27 @@ $(document).ready(function() {
                     const td = document.createElement('td');
                     td.setAttribute('colspan', '6');
                     td.className = 'px-6 py-4 text-center text-red-500';
-                    
+
                     const flexDiv = document.createElement('div');
                     flexDiv.className = 'flex items-center justify-center gap-2';
-                    
+
                     const icon = document.createElement('i');
                     icon.className = 'fas fa-exclamation-triangle';
-                    
+
                     const span = document.createElement('span');
                     span.textContent = errorMessage;
-                    
+
                     flexDiv.appendChild(icon);
                     flexDiv.appendChild(span);
                     td.appendChild(flexDiv);
                     tr.appendChild(td);
-                    
+
                     tbody.replaceChildren(tr);
                 }
             }
         },
         columns: [
-            { 
+            {
                 data: 'prescription_id',
                 name: 'prescription_id',
                 render: function(data, type, row) {
@@ -824,7 +295,7 @@ $(document).ready(function() {
                     return identityHtml;
                 }
             },
-            { 
+            {
                 data: 'patient_name',
                 name: 'patient_name',
                 render: function(data, type, row) {
@@ -842,7 +313,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'medication_name',
                 name: 'medication_name',
                 render: function(data, type, row) {
@@ -870,7 +341,7 @@ $(document).ready(function() {
                     return `<span class="text-sm font-bold text-slate-400">${prescriptionI18n.noMedicines}</span>`;
                 }
             },
-            { 
+            {
                 data: 'prescribed_date',
                 name: 'prescribed_date',
                 render: function(data, type, row) {
@@ -882,7 +353,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'status',
                 name: 'status',
                 render: function(data, type, row) {
@@ -900,7 +371,7 @@ $(document).ready(function() {
                     };
                     const colorClass = statusColors[data] || 'border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
-                    
+
                     return `
                         <span class="inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-extrabold ${colorClass}">
                             <i class="${iconClass} me-2"></i>
@@ -909,7 +380,7 @@ $(document).ready(function() {
                     `;
                 }
             },
-            { 
+            {
                 data: 'id',
                 name: 'actions',
                 orderable: false,
@@ -917,11 +388,11 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     let actions = '<div class="flex items-center gap-2">';
-                    
+
                     // View button
                     if (permissions.prescriptions.view) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}" 
+                            <a href="<?= base_url('prescription') ?>/${data}"
                                class="rounded-xl p-2 text-teal-700 transition-all duration-200 hover:scale-105 hover:bg-teal-50 hover:text-teal-800" title="${prescriptionI18n.viewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -930,36 +401,36 @@ $(document).ready(function() {
                     // Print button
                     if (permissions.prescriptions.print) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}/print" 
+                            <a href="<?= base_url('prescription') ?>/${data}/print"
                                class="rounded-xl p-2 text-emerald-700 transition-all duration-200 hover:scale-105 hover:bg-emerald-50 hover:text-emerald-800" title="${prescriptionI18n.printPrescription}">
                                 <i class="fas fa-print"></i>
                             </a>`;
                     }
-                    
+
                     // Edit button
                     if (permissions.prescriptions.edit) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}/edit" 
+                            <a href="<?= base_url('prescription') ?>/${data}/edit"
                                class="rounded-xl p-2 text-sky-700 transition-all duration-200 hover:scale-105 hover:bg-sky-50 hover:text-sky-800" title="${prescriptionI18n.editPrescription}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
-                    
+
                     // Delete button
                     if (permissions.prescriptions.delete) {
                         actions += `
-                            <button onclick="deletePrescription(${data})" 
+                            <button onclick="deletePrescription(${data})"
                                     class="rounded-xl p-2 text-red-700 transition-all duration-200 hover:scale-105 hover:bg-red-50 hover:text-red-800" title="${prescriptionI18n.deletePrescription}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
-                    
+
                     actions += '</div>';
                     return actions;
                 }
             }
         ],
-        dom: 'B<"border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center gap-4"l><"flex items-center gap-4"f>>rt<"border-t border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6"<"flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"<"flex items-center"i><"flex items-center"p>>>',
+        dom: '<"v4-ledger-tools"lf>rt<"v4-ledger-footer"ip>B',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         order: [[0, 'desc']],
@@ -1038,20 +509,7 @@ $(document).ready(function() {
         });
     }
 
-    function applyDataTablesStyling() {
-        $('.dataTables_length select').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:border-teal-400 focus:ring-4 focus:ring-teal-100');
-        $('.dataTables_filter input').removeClass().addClass('rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100');
-        $('.dataTables_info').removeClass().addClass('flex items-center text-sm font-bold text-slate-600');
-        $('.dataTables_paginate .paginate_button').removeClass().addClass('mx-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold text-slate-700 shadow-sm transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100');
-        $('.dataTables_paginate .paginate_button.current').addClass('!border-teal-600 !bg-teal-600 !text-white');
-        $('.dataTables_paginate .paginate_button.disabled').addClass('cursor-not-allowed opacity-45 hover:!border-slate-200 hover:!bg-white hover:!text-slate-500');
-        $('.dataTables_processing').removeClass().addClass('rounded-xl border-0 bg-teal-600 px-4 py-3 text-sm font-extrabold text-white shadow-xl');
-        $('.dataTables_length').addClass('order-1 flex items-center gap-3');
-        $('.dataTables_filter').addClass('order-2 ms-auto flex items-center gap-3');
-        $('.dataTables_info').addClass('order-1 flex items-center');
-        $('.dataTables_paginate').addClass('order-2 ms-auto flex items-center gap-2');
-        $('.dataTables_length label, .dataTables_filter label').addClass('text-sm font-extrabold text-slate-700');
-    }
+    function applyDataTablesStyling() { /* V4 components own layout and state styling. */ }
 
     // Load statistics
     loadPrescriptionStatistics();
@@ -1117,15 +575,7 @@ function deletePrescription(prescriptionId) {
 }
 
 // Permissions object (you'll need to populate this from your backend)
-var permissions = {
-    prescriptions: {
-        view: true,
-        edit: true,
-        delete: true,
-        create: true,
-        print: true
-    }
-};
+var permissions = {prescriptions: <?= json_encode(array_combine(['view','edit','delete','create','print'],array_map(static fn($action)=>(bool)has_permission('prescriptions',$action),['view','edit','delete','create','print']))) ?>};
 </script>
 
 <?= $this->endSection() ?>
