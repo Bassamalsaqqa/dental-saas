@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Review Owner-returned AGY standalone registry concept against original brief, inspect actual artifact; no automatic dispatch. Continue remaining patient detail and inventory detail/list presentation from ledger without changing backend.",
+  "next_step": "Build real patient registry from accepted system and canonical existing list/search/export/action contracts. Preserve external AGY concept for reference only; avoid importing its parallel shell or fixture logic.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -124,5 +124,10 @@
       "scope": "Remove only Patient::store full Validation-object flash; preserve existing scalar errors, old input, validation rules and all mutations."
     }
   },
-  "owner_registration_acceptance": "2026-10-25: generally accepted with required full-workspace card width; field sizing must not constrain the containing form. Cumulative Owner notes are authoritative in DESIGN.md."
+  "owner_registration_acceptance": "2026-10-25: generally accepted with required full-workspace card width; field sizing must not constrain the containing form. Cumulative Owner notes are authoritative in DESIGN.md.",
+  "owner_accepted_workspaces": {
+    "patient_edit": "c3ff655e5b57d49258beeb12d603aca13c158621",
+    "inventory_reorder": "c3ff655e5b57d49258beeb12d603aca13c158621"
+  },
+  "agy_registry_concept": "Reviewed actual artifact/screenshots; preserved as external design study only, not accepted for application integration. Codex should build actual registry from approved system; no automatic AGY dispatch."
 }

@@ -83,3 +83,5 @@ These are cumulative requirements, not suggestions to rediscover each session. R
 - Current work is presentation-only: no new backend/database changes, migrations or feature activation. The previously authorized one-line validation fix remains the sole pinned backend exception.
 
 - Full-width cards also need a coherent full-width field composition: use proportionate grid columns and complete responsive rows. Do not leave a large unused side area by capping inner field groups. Core registration fields share one weighted desktop row; intermediate widths wrap into a name row and a three-field facts row; mobile uses paired names, full-row phone, paired date/gender.
+
+- Owner accepted patient editing and inventory reorder presentation at source checkpoint c3ff655. Preserve these accepted compositions and improve only substantiated issues; do not redesign them again while expanding coverage.
