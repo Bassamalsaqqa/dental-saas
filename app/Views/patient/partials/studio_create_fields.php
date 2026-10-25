@@ -23,7 +23,7 @@ $medicalAlerts=[
 ?>
 <section class="form-section registration-basics" aria-labelledby="patient-basics">
     <header><h2 id="patient-basics"><?= esc(lang('Studio.patientIdentity')) ?></h2></header>
-    <div class="registration-names">
+    <div class="registration-fields">
         <?php foreach(['first_name'=>'patientFirstName','last_name'=>'patientLastName'] as $name=>$label): ?>
         <div class="form-field">
             <label for="<?= $name ?>"><?= esc(lang('UI.'.$label)) ?> <span aria-hidden="true">*</span></label>
@@ -31,8 +31,6 @@ $medicalAlerts=[
             <?php if(isset($studioFormErrors[$name])): ?><p class="field-error" id="<?= $name ?>-error"><?= esc($studioFormErrors[$name]) ?></p><?php endif; ?>
         </div>
         <?php endforeach; ?>
-    </div>
-    <div class="registration-facts">
         <div class="form-field form-field--phone">
             <label for="phone"><?= esc(lang('UI.patientPhone')) ?> <span aria-hidden="true">*</span></label>
             <input id="phone" name="phone" type="tel" inputmode="numeric" pattern="[0-9]{9,15}" minlength="9" maxlength="15" autocomplete="tel" dir="ltr" required value="<?= esc($studioValue('phone'),'attr') ?>" aria-invalid="<?= isset($studioFormErrors['phone'])?'true':'false' ?>" <?= isset($studioFormErrors['phone'])?'aria-describedby="phone-error"':'' ?>>

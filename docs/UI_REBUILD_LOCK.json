@@ -111,7 +111,8 @@
     "protected_source": "Run php scripts/ci/frontend_rebuild_guard.php; no production, migrations or feature activation",
     "external_review": "NOT_REQUESTED_INTERMEDIATE_WORK",
     "validation_correction": "../clean-foundation/registration-validation-fixed.json: 15/15; existing synthetic patient query snapshots identical; no new records",
-    "registration_refinement": "../registration-refined/acceptance.json: 46/46 field-contract, responsive, compact sizing and canonical toggles; no submissions or DB mutations"
+    "registration_refinement": "../registration-refined/acceptance.json: 46/46 field-contract, responsive, compact sizing and canonical toggles; no submissions or DB mutations",
+    "registration_arrangement": "../registration-refined/arrangement-acceptance.json: 6/6; cards and each adaptive field row fill available width, EN/AR 1586/1366/900/390; source-only presentation change"
   },
   "authorized_backend_exceptions": {
     "app/Controllers/Patient.php": {
@@ -120,5 +121,6 @@
       "authorization": "Owner authorized narrow patient registration validation-return fix in conversation on 2026-10-25.",
       "scope": "Remove only Patient::store full Validation-object flash; preserve existing scalar errors, old input, validation rules and all mutations."
     }
-  }
+  },
+  "owner_registration_acceptance": "2026-10-25: generally accepted with required full-workspace card width; field sizing must not constrain the containing form. Cumulative Owner notes are authoritative in DESIGN.md."
 }

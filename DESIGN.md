@@ -68,3 +68,18 @@ Attention items are individually filled task cards with a clear task title, fact
 
 ## Form component contract
 Use `studio-forms.css` only on form routes. Filled inputs with readable 17px values and approximately 44px height, visible keyboard focus and explicit labels. Size fields by expected content: names have more room; phone, date and gender are compact. Use purposeful groups rather than a uniform two-column form. Supporting copy appears only when it helps the task. Optional clinical details retain canonical enable/disable behavior and original field names. Save and save-and-book remain distinct actual server actions. Unsaved cancel uses a named native dialog, Escape and focus return. No arrow decorations. Validation summaries must be escaped and linked to fields; never claim backend errors work where actual acceptance fails.
+
+
+## Owner notes: binding across future pages
+These are cumulative requirements, not suggestions to rediscover each session. Read this section before each frontend batch.
+- Preserve the accepted forest/green strength and readable text. Do not shrink typography just to make the interface compact.
+- Fill the available workspace with the page's cards/panels. **Size the fields, not their containing card.** Do not cap the entire form width in response to feedback about oversized inputs. An intentional narrower surface needs a task-specific reason; it is not the default application layout.
+- Inputs use content-appropriate widths and heights. Names and narrative text need room; phone, date, gender and other short values do not need to stretch. Not all controls should be equally large or equally small.
+- Avoid redundant help text, repeated notices and explanations on ordinary fields. Show actual validation and necessary task-specific guidance.
+- Compose each workflow afresh from its task and data, rather than copying the incumbent field grid or merely changing colors. Reuse the accepted component language, not old page hierarchy.
+- Filled, borderless cards; contain headings/context in meaningful surfaces. Distinct inner cards for attention tasks. Entire entity rows are actionable without arrow decorations; preserve inline controls, text selection and native links.
+- No directional arrows/chevrons, including dialogs and menus. One-click EN/AR switching, proper RTL and accessible keyboard/touch controls.
+- Current registration composition is generally Owner-accepted (2026-10-25), with the explicit full-width-card correction recorded above. Do not restart its design or treat unrelated historical designs as authority.
+- Current work is presentation-only: no new backend/database changes, migrations or feature activation. The previously authorized one-line validation fix remains the sole pinned backend exception.
+
+- Full-width cards also need a coherent full-width field composition: use proportionate grid columns and complete responsive rows. Do not leave a large unused side area by capping inner field groups. Core registration fields share one weighted desktop row; intermediate widths wrap into a name row and a three-field facts row; mobile uses paired names, full-row phone, paired date/gender.
