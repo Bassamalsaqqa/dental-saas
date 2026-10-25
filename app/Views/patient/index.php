@@ -20,13 +20,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 
 <div class="patients-page v3-registry-workspace min-h-screen">
     <div class="v3-page-stack">
-        <header class="v3-command-header">
-  <div><h1><?= esc(lang('V3Fidelity.directoryTitle')) ?></h1><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></div>
-  <div class="v3-command-actions"><?php if (has_permission('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="v3-action v3-action-primary">
-                        <i class="fas fa-user-plus"></i>
-                        <?= esc(lang('UI.patientNewPatient')) ?>
-                    </a><?php endif; ?></div>
-</header>
+        <h1 class="sr-only"><?= esc(lang('V3Fidelity.directoryTitle')) ?></h1>
 
         <section class="v3-registry-metrics" aria-label="<?= esc(lang('UI.patientPatientRegistry')) ?>">
             <article class="v3-registry-kpi"><span><i class="fas fa-users" aria-hidden="true"></i> <?= esc(lang('UI.patientActivePatients')) ?></span><strong id="activePatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><p><?= esc(lang('UI.patientPatientRegistry')) ?></p></article>
@@ -34,19 +28,10 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
         </section>
         <details class="v3-registry-summary"><summary><?= esc(lang('UI.patientTotalPatients')) ?>: <span id="totalPatients">-</span></summary><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></details>
         <section id="tableView" class="v3-ledger-panel">
-            <div class="border-b v3-border v3-warm-surface px-4 py-4 sm:px-5">
-                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center v3-radius v3-bg-paid v3-text-primary border v3-border-default">
-                            <i class="fas fa-list"></i>
-                        </span>
-                        <div>
-                            <h3 class="text-lg v3-text-ink"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
-                            <p class="text-sm font-semibold v3-text-muted"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-soft px-3 py-2 text-xs v3-text-ink transition v3-btn v3-btn--secondary">
+            <div class="v3-registry-filter-strip"><label class="v3-registry-search"><span class="sr-only"><?= esc(lang('UI.patientSearchPlaceholder')) ?></span><i class="fas fa-search" aria-hidden="true"></i><input id="searchInput" type="search" placeholder="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>" autocomplete="off"></label><div class="v3-registry-taskbar"><div class="v3-registry-status-chips" aria-label="<?= esc(lang('UI.patientStatus'), 'attr') ?>"><button type="button" data-registry-status="" aria-pressed="true"><?= esc(lang('V3Fidelity.allPatients')) ?></button><button type="button" data-registry-status="active" aria-pressed="false"><?= esc(lang('UI.patientStatusActive')) ?></button><button type="button" data-registry-status="inactive" aria-pressed="false"><?= esc(lang('UI.patientStatusInactive')) ?></button><button type="button" data-registry-status="pending" aria-pressed="false"><?= esc(lang('UI.patientStatusPending')) ?></button></div>  <div class="v3-command-actions"><?php if (has_permission('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="v3-action v3-action-primary">
+                        <i class="fas fa-user-plus"></i>
+                        <?= esc(lang('UI.patientNewPatient')) ?>
+                    </a><?php endif; ?></div><details class="v3-toolbar-create v3-registry-export"><summary><?= esc(lang('UI.patientActions')) ?></summary><div class="v3-toolbar-create-menu">                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-soft px-3 py-2 text-xs v3-text-ink transition v3-btn v3-btn--secondary">
                             <i class="fas fa-file-pdf"></i>
                             PDF
                         </button>
@@ -58,11 +43,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                             <i class="fas fa-file-csv"></i>
                             CSV
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="v3-registry-filter-strip"><label class="v3-registry-search"><span class="sr-only"><?= esc(lang('UI.patientSearchPlaceholder')) ?></span><i class="fas fa-search" aria-hidden="true"></i><input id="searchInput" type="search" placeholder="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>" autocomplete="off"></label><div class="v3-registry-status-chips" aria-label="<?= esc(lang('UI.patientStatus'), 'attr') ?>"><button type="button" data-registry-status="" aria-pressed="true"><?= esc(lang('V3Fidelity.allPatients')) ?></button><button type="button" data-registry-status="active" aria-pressed="false"><?= esc(lang('UI.patientStatusActive')) ?></button><button type="button" data-registry-status="inactive" aria-pressed="false"><?= esc(lang('UI.patientStatusInactive')) ?></button><button type="button" data-registry-status="pending" aria-pressed="false"><?= esc(lang('UI.patientStatusPending')) ?></button></div><input id="statusFilter" type="hidden" value=""></div>
+</div></details></div><input id="statusFilter" type="hidden" value=""></div>
             <div class="overflow-x-auto">
                         <table id="patientsTable" class="w-full min-w-full">
                             <thead>

@@ -26,7 +26,7 @@
 .denta-v3 :is(.patient-compact-header,.v3-record-summary,.patient-section-header) {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--denta-sandstone);border-bottom:1px solid var(--denta-taupe-border);}
 .denta-v3 .v3-record-summary {cursor:pointer;}
 .denta-v3 .v3-record-summary::after {content:'+';font-size:20px;}
-.denta-v3 details[open]>.v3-record-summary::after {content:'?';}
+.denta-v3 details[open]>.v3-record-summary::after {content:'\2212';}
 .denta-v3 :is(.patient-compact-title,.patient-section-title) {font-size:15px;font-weight:700;}
 .denta-v3 :is(.patient-compact-copy,.patient-section-subtitle) {font-size:12px;margin-top:4px;color:var(--denta-ink);}
 .denta-v3 .patient-clinical-visuals-grid {display:block;padding:12px;}
