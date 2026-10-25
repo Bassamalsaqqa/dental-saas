@@ -172,7 +172,7 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-end">
-                                        <button type="button" class="cp-btn cp-btn-primary cp-btn-sm" data-overview-inspect="<?= (int) $clinic['id'] ?>"><?= esc(lang('V3Platform.inspect')) ?></button>
+                                        <button type="button" class="cp-btn cp-btn-primary cp-btn-sm" data-overview-inspect="<?= (int) $clinic['id'] ?>"><?= esc(lang('V3Fidelity.overview')) ?></button>
                                         <a href="<?= base_url('controlplane/clinics/' . $clinic['id']) ?>" class="cp-btn cp-btn-light cp-btn-sm">
                                             <?= esc(lang('V3Platform.viewDetails')) ?>
                                         </a>
