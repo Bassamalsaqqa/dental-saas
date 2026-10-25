@@ -1,5 +1,5 @@
 {
-  "status": "CLEAN_FOUNDATION_REGISTRATION_PARTIAL",
+  "status": "CLEAN_FOUNDATION_REGISTRATION_IMPLEMENTED_PENDING_FULL_ACCEPTANCE",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Patient registry: map existing search/filter/pagination/export/quick-create contracts before replacing markup. Registration remains PARTIAL: inherited Patient::store flashes non-serializable Validation object; no backend fix authorized in presentation scope.",
+  "next_step": "Map and rebuild patient registry search/filter/pagination/export/quick-create contracts, followed by edit/detail. Registration validation-return defect fixed under explicit Owner exception; no other backend changes authorized.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -101,7 +101,7 @@
   "latest_acceptance": {
     "source_checkpoint": "Foundation/registration batch follows 503f052f919548edbc9b6f1209edc72505bd67c0; exact identity is the containing Git commit",
     "form_visual_checks": "../clean-foundation/registration-acceptance.json (36/36)",
-    "routed_checks": "../clean-foundation/registration-submit.json (13 passed; 1 confirmed baseline limitation)",
+    "routed_checks": "../clean-foundation/registration-submit.json: historical 13 passes and baseline validation failure, superseded for validation only by registration-validation-fixed.json",
     "baseline_failure_trace": "../validation-closure-paths.json",
     "captures": "../clean-foundation",
     "synthetic_new_patient_ids": [
@@ -109,6 +109,15 @@
       17
     ],
     "protected_source": "Run php scripts/ci/frontend_rebuild_guard.php; no production, migrations or feature activation",
-    "external_review": "NOT_REQUESTED_INTERMEDIATE_WORK"
+    "external_review": "NOT_REQUESTED_INTERMEDIATE_WORK",
+    "validation_correction": "../clean-foundation/registration-validation-fixed.json: 15/15; existing synthetic patient query snapshots identical; no new records"
+  },
+  "authorized_backend_exceptions": {
+    "app/Controllers/Patient.php": {
+      "baseline_git_blob": "457c7f0e2fa2dd87ca980ff1f593bd7c819a048b",
+      "approved_git_blob": "6046c4d0474e0ac5e83d5f53b7340b7c927cda98",
+      "authorization": "Owner authorized narrow patient registration validation-return fix in conversation on 2026-10-25.",
+      "scope": "Remove only Patient::store full Validation-object flash; preserve existing scalar errors, old input, validation rules and all mutations."
+    }
   }
 }

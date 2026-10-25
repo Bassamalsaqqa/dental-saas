@@ -553,7 +553,6 @@ class Patient extends BaseController
                 }
                 return redirect()->back()
                     ->withInput()
-                    ->with('validation', $this->validator)
                     ->with('errors', $this->validator->getErrors())
                     ->with('error', 'Please review the highlighted fields and try again.');
             }

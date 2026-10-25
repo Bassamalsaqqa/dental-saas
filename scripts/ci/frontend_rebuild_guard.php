@@ -22,7 +22,19 @@ foreach($protected as $path=>$expected){
 }
 if(!$protected)$failures[]='No protected source pins';
 [$code,$changed]=$git(array_merge(['diff','--name-only',$base,'--'],array_keys($protected)));
-if($code!==0||$changed!=='')$failures[]='Protected working/staged source differs: '.$changed;
+if($code!==0)$failures[]='Protected source diff could not be read';
+$exceptions=$lock['authorized_backend_exceptions']??[];
+foreach($changed===''?[]:explode("\n",$changed) as $path){
+    $exception=$exceptions[$path]??null;
+    if(!$exception||empty($exception['authorization'])){
+        $failures[]='Unauthorized protected source change: '.$path;continue;
+    }
+    [$baseCode,$baseBlob]=$git(['rev-parse',$base.':'.$path]);
+    [$fileCode,$fileBlob]=$git(['hash-object','--',$path]);
+    if($baseCode!==0||$fileCode!==0||$baseBlob!==($exception['baseline_git_blob']??'')||$fileBlob!==($exception['approved_git_blob']??'')){
+        $failures[]='Exact authorized backend exception differs: '.$path;
+    }
+}
 [$code,$newProtected]=$git(array_merge(['ls-files','--others','--exclude-standard','--'],array_keys($protected)));
 if($code!==0||$newProtected!=='')$failures[]='Untracked protected source: '.$newProtected;
 $handle=fopen($root.'/docs/UI_REBUILD_COVERAGE.csv','r');
