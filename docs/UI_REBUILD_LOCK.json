@@ -1,0 +1,93 @@
+{
+  "status": "PLAN_ONLY_BRANCH_TRANSFER_NOT_STARTED",
+  "owner_visual_anchor": {
+    "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
+    "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
+    "gallery": "C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/studio-round4/index.html",
+    "accepted_scope": "Dashboard and surrounding frame only; other V3/V4 frontend work rejected"
+  },
+  "verified_remote_release": {
+    "commit": "89352fd20e0d5166e81f631cb743bead1f596a68",
+    "tree": "71fcf67a0def31a99619437169a58ddfabc7b141",
+    "branch": "release/production-20261017",
+    "checked_at": "2026-10-25T18:26:48.048380+00:00"
+  },
+  "current_remote_feature_head": "9bf062251ae7ad0a368630313fe587f04b97361a",
+  "historical_pr21": {
+    "head": "a09a9330fc633b5e35c1cbfb8e6803ce387c930a",
+    "state": "OPEN_DRAFT",
+    "branch": "feature/warm-clinical-v3-20261023",
+    "approved_proof_present": false
+  },
+  "approved_transfer_paths": {
+    ".impeccable/design.json": {
+      "git_blob": "9b7dfd0d0b21a411e7f29a6e2edb4c8ac5ae7e5f",
+      "sha256_git_bytes": "647590bc2c98ec2abf4ec030f9f32370d2c9155074ba025ae3b9856c69d7a7c8"
+    },
+    "DESIGN.md": {
+      "git_blob": "78b48f44b20fa439ef7b3d9f35ffa110c82d1884",
+      "sha256_git_bytes": "f86501993064c880586d1a53298201fd2ef5a743007a819aaeaa8cab8a15431a"
+    },
+    "app/Language/ar/Studio.php": {
+      "git_blob": "3478889014181797c08fff2119175f32df9da63b",
+      "sha256_git_bytes": "9d86258630bf378f409e6c87f9e54b3c04562145f0f07fd3ea82429a56a5fb1f"
+    },
+    "app/Language/en/Studio.php": {
+      "git_blob": "5fd692fd794b443440e5e67633f998d28a06c5cc",
+      "sha256_git_bytes": "c962fb7f28628d1b5cbf5bdfe9131794f91c1b63f9b301c418c54eb1b8c9fc73"
+    },
+    "app/Views/dashboard/index.php": {
+      "git_blob": "b95497f87ff65e08917a2b6e022597c63a376d46",
+      "sha256_git_bytes": "0b5bbf5cf2ae51ea1b899469d3b77b6f62afc6d7cb947c3ec86265c8b320cf5d"
+    },
+    "app/Views/layouts/partials/studio_icons.php": {
+      "git_blob": "71c03803eb6697883361b17b1a61e0e6bbefc9c8",
+      "sha256_git_bytes": "a9d986067059adb27ca522d656b6f9e7e516a46c10f7020152db861bc896ad74"
+    },
+    "app/Views/layouts/studio.php": {
+      "git_blob": "f32bc3820f480386d05375bf62d65b699512f03d",
+      "sha256_git_bytes": "62945488162e7f6947be90b95f75a13f72e22b32dbc945496709837b9c955d35"
+    },
+    "public/assets/css/studio.css": {
+      "git_blob": "c642f0c73a7e566db3216db63ac496cbf563a556",
+      "sha256_git_bytes": "eeedccba72ed723aa0cca44f64a24ae793d88d4bf6cd11d65635290a10d91025"
+    },
+    "public/assets/js/studio.js": {
+      "git_blob": "98bdf2ea8569ea6db087b9d3697260274c5adf93",
+      "sha256_git_bytes": "affe62238835b8c833d19a8848df89d45eab71c4c156b3cf8c3733aa2b39287a"
+    }
+  },
+  "dependency_closure_review": [
+    "app/Views/layouts/partials/page_context.php",
+    "app/Views/layouts/partials/view_permissions.php",
+    "lang(V4.skip): replace with Studio-owned translation before clean-base acceptance"
+  ],
+  "next_step": "Preserve/sync proof safely; create fresh branch in existing isolated worktree from reverified release; transfer approved paths and vetted nonvisual dependencies only. No cleanup deletion or reset.",
+  "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
+  "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
+  "protected_baseline_git_objects": {
+    "covered_file_count": 1006,
+    "objects": {
+      "app/Controllers": "9d69bfdcac7aa7244287faf81c9ce22868b23a1c",
+      "app/Models": "fe671e07fdd00ba152c0ed97e933f89a3c3cbacf",
+      "app/Services": "ff12a68669de7ee825e3833b311b8c53b7199a39",
+      "app/Config": "ad41341d6f2b1a11855f23fd754bf5122a5e60a3",
+      "app/Database": "8f4fefb1a81cc65d66936b8afbbbdc28930e35db",
+      "system": "d53d0fee9effa65803092c6f9868c45aef759513",
+      "app/Views/odontogram": "e238d5e08cd35b37abe430cb5b0f866530daf3bf",
+      "composer.json": "5ebbaed729992ec1e50beecde9ee08ffbcaa7f88",
+      "composer.lock": "c18c3f99df8b4bd255024b17ede07d29694f2b88",
+      "package.json": "5979c69cf196307d5e6ed1b0e8306ecaa41d38e2",
+      "package-lock.json": "81f23980ec3859a6610646ab23ea222cefcfdd17",
+      "LICENSE": "fd7fc9c62d782f1448ba097855502030db3e15aa",
+      "THIRD_PARTY_NOTICES.md": "5d2ad3d0184b04cff099647309894b3d900b0ebd"
+    },
+    "rule": "Directory tree IDs also catch additions/deletions; fail closed on any unapproved difference."
+  },
+  "governance_transfer_paths": [
+    "AGENTS.md",
+    "docs/UI_REBUILD_EXECUTION.md",
+    "docs/UI_REBUILD_COVERAGE.csv",
+    "docs/UI_REBUILD_LOCK.json"
+  ]
+}

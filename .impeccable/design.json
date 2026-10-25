@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T17:34:11.910Z",
+  "title": "Denta+ clinic overview proof — awaiting Owner",
+  "extensions": {
+    "shadows": [
+      {
+        "name": "surface",
+        "value": "0 4px 18px #233f3010",
+        "purpose": "Main appointment surface"
+      },
+      {
+        "name": "popover",
+        "value": "0 16px 55px #112b3029",
+        "purpose": "Transient header controls"
+      }
+    ],
+    "breakpoints": {
+      "mobile": "800px",
+      "attentionRow": "1150px",
+      "compactDesktop": "1390px"
+    },
+    "narrative": {
+      "scope": "One-page proof only; rejected prior V4 is preserved in Git. Do not propagate before Owner acceptance."
+    }
+  }
+}

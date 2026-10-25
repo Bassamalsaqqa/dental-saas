@@ -70,3 +70,8 @@ See `docs/CHANGELOG.md` for recent implementation history. See `docs/PROJECT_STA
 - No DOM sinks in `app/Views` (guardrails enforce this).
 - After pulling finance or messaging schema changes, run migrations:
   - `php spark migrate`
+
+
+## Approved frontend rebuild: mandatory resume gate
+
+For the Owner-approved dashboard-led frontend campaign, read `docs/UI_REBUILD_EXECUTION.md`, `DESIGN.md`, `docs/UI_REBUILD_LOCK.json` and the next incomplete rows in `docs/UI_REBUILD_COVERAGE.csv` before editing. The approved visual anchor is `99c9ecb`; rejected V3/V4 layouts and prior completion claims are not authority. Do not expand or transfer source until the clean-base dependency gate passes. Update the ledger and exact checkpoint after each internal batch. Preserve all unrelated safeguards. No automatic AGY/delegation: only the Owner's explicit `$agy-manual`. No reset, deletion, merge, migration, deployment, production mutation or feature activation is inferred.
