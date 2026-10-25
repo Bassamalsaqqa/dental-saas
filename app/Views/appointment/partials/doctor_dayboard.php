@@ -172,12 +172,12 @@ $statusLabelMap = [
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <i class="fas fa-user-md v3-text-primary flex-shrink-0" style="flex-shrink: 0;"></i>
-                                <span class="doctor-reference-badge flex-shrink-0 inline-flex items-center rounded-md border v3-border-default v3-bg-panel px-1.5 py-0.5 font-mono text-[11px] font-bold v3-text-ink shadow-2xs" dir="ltr" style="flex-shrink: 0; min-width: max-content;">#<?= (int) $doctor['user_id'] ?></span>
+                                <span class="doctor-reference-badge flex-shrink-0 inline-flex items-center rounded-md border v3-border-default v3-bg-panel px-1.5 py-0.5 font-mono text-xs font-bold v3-text-ink shadow-2xs" dir="ltr" style="flex-shrink: 0; min-width: max-content;">#<?= (int) $doctor['user_id'] ?></span>
                                 <h4 class="truncate text-sm font-black v3-text-ink min-w-0" title="<?= esc(\App\Libraries\ProviderDisplayLabel::forOption($doctor['user_id'], $doctor['name'])) ?>">
                                     <?= esc($doctor['name']) ?>
                                 </h4>
                             </div>
-                            <span class="mt-1 inline-flex items-center rounded-full v3-bg-scheduled px-2 py-0.5 text-[11px] font-bold v3-text-primary">
+                            <span class="mt-1 inline-flex items-center rounded-full v3-bg-scheduled px-2 py-0.5 text-xs font-bold v3-text-primary">
                                 <?= count($doctor['appointments']) ?> <?= esc(lang('UI.menuAppointments')) ?>
                             </span>
                         </div>
@@ -186,7 +186,7 @@ $statusLabelMap = [
                             <a href="<?= base_url('appointment/create?provider_user_id=' . (int) $doctor['user_id'] . '&appointment_date=' . esc($chosenDay)) ?>" data-appointment-create-modal-open data-appointment-provider="<?= (int) $doctor['user_id'] ?>" data-appointment-date="<?= esc($chosenDay) ?>" class="flex-shrink-0 inline-flex items-center gap-1 v3-radius v3-bg-primary px-2.5 py-1 text-xs font-bold v3-text-on-primary v3-elevation-none transition v3-hover-primary hover:shadow v3-btn v3-btn--primary" title="<?= esc(lang('DoctorScheduling.newBookingForDoctor', [$doctorDisplayLabel])) ?>" aria-label="<?= esc(lang('DoctorScheduling.newBookingForDoctor', [$doctorDisplayLabel])) ?>" style="flex-shrink: 0;">
                                 <i class="fas fa-plus text-[10px]"></i>
                                 <span><?= esc(lang('DoctorScheduling.newBooking')) ?></span>
-                                <span class="font-mono text-[10px] opacity-90" dir="ltr">(#<?= (int) $doctor['user_id'] ?>)</span>
+                                <span class="font-mono text-xs opacity-90" dir="ltr">(#<?= (int) $doctor['user_id'] ?>)</span>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -223,7 +223,7 @@ $statusLabelMap = [
                                     <a href="<?= workflow_context_url('appointment/' . $visit['id']) ?>" class="block truncate text-sm font-black v3-text-ink v3-hover-text-primary transition">
                                         <?= esc($patientFullName) ?>
                                     </a>
-                                    <div class="mt-1 flex items-center justify-between text-[11px] font-medium v3-text-muted">
+                                    <div class="mt-1 flex items-center justify-between text-xs font-medium v3-text-muted">
                                         <span><?= esc($visit['patient_number'] ?? $visit['phone'] ?? '') ?></span>
                                         <span class="v3-text-muted"><?= (int) ($visit['duration'] ?? 30) ?> <?= esc(lang('UI.patientMinutes')) ?></span>
                                     </div>
@@ -244,7 +244,7 @@ $statusLabelMap = [
                         <h4 class="truncate text-sm font-black v3-text-warning">
                             <i class="fas fa-triangle-exclamation v3-text-warning me-1.5"></i><?= esc(lang('DoctorScheduling.unassignedLegacyColumn')) ?>
                         </h4>
-                        <p class="text-[11px] font-semibold v3-text-warning">
+                        <p class="text-xs font-semibold v3-text-warning">
                             <?= esc(lang('DoctorScheduling.unassignedLegacyDesc')) ?>
                         </p>
                     </div>
@@ -286,7 +286,7 @@ $statusLabelMap = [
                                 <a href="<?= workflow_context_url('appointment/' . $visit['id']) ?>" class="block truncate text-sm font-black v3-text-ink v3-hover-text-warning transition">
                                     <?= esc($patientFullName) ?>
                                 </a>
-                                <div class="mt-1 flex flex-wrap items-center justify-between gap-1 text-[11px]">
+                                <div class="mt-1 flex flex-wrap items-center justify-between gap-1 text-xs">
                                     <span class="inline-flex items-center gap-1 font-semibold v3-text-warning v3-bg-waiting px-2 py-0.5 rounded-md">
                                         <i class="fas fa-chair v3-text-warning"></i>
                                         <?php if (!empty($visit['provider_user_id'])): ?><bdi dir="ltr">#<?= (int)$visit['provider_user_id'] ?></bdi><?php endif; ?>

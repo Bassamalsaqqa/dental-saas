@@ -151,7 +151,7 @@ $dynamicMode = !empty($bookingContext['enabled']);
 </section>
 
     <section class="appointment-calendar-panel overflow-hidden">
-        <div class="border-b v3-border v3-warm-surface p-4 sm:p-5 lg:p-6">
+        <div class="v3-calendar-toolstrip border-b v3-border v3-warm-surface">
             <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div class="min-w-0">
                     <div class="flex items-center gap-3">

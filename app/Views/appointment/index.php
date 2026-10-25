@@ -146,19 +146,8 @@ $dynamicMode = !empty($bookingContext['enabled']);
         <!-- Enhanced Filtering Section with Advanced UI -->
         <?php if (!isset($view_mode) || $view_mode !== 'all'): ?>
         <div class="mb-4">
-            <div class="appointment-panel">
-                    <div class="p-5 pb-3 sm:p-6 sm:pb-4">
-                        <div class="space-y-2">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 v3-warm-surface rounded-full"></div>
-                                <h3 class="text-base v3-text-ink">
-                                    <?= lang('UI.appointmentAdvancedFilters') ?>
-                                </h3>
-                            </div>
-                            <p class="v3-text-muted font-medium text-sm"><?= lang('UI.appointmentFilterSubtitle') ?></p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-4 p-5 pt-0 md:grid-cols-2 xl:grid-cols-4 sm:p-6 sm:pt-0">
+            <div class="appointment-panel v3-dayboard-toolstrip">
+                    <div class="v3-dayboard-filter-grid">
                         <!-- Date Filter -->
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold v3-text-ink"><?= lang('UI.appointmentSelectDate') ?></label>

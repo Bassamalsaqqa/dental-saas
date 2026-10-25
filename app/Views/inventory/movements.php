@@ -53,19 +53,19 @@ if ((int) ($filters['inventory_id'] ?? 0) > 0) {
 
                 <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     <div class="v3-radius border v3-border v3-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('totalRecords')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('totalRecords')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= count($movements) ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-bg-primary p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('change')) ?> +</p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('change')) ?> +</p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $inCount ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-bg-danger p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-danger"><?= esc($tr('change')) ?> -</p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-danger"><?= esc($tr('change')) ?> -</p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $outCount ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-soft-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('allItems')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('allItems')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= count($itemNames) ?></p>
                     </div>
                 </div>

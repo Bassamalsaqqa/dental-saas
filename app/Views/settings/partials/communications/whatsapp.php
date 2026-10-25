@@ -33,17 +33,17 @@
         <div class="p-4 space-y-8">
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <div class="v3-radius border v3-border-default v3-bg-paid px-5 py-4">
-                    <p class="text-[11px] font-black uppercase tracking-widest v3-text-primary"><?= $isArabic ? $decode('\u0627\u0644\u0625\u0631\u0633\u0627\u0644') : 'Delivery model' ?></p>
+                    <p class="text-xs font-black uppercase tracking-widest v3-text-primary"><?= $isArabic ? $decode('\u0627\u0644\u0625\u0631\u0633\u0627\u0644') : 'Delivery model' ?></p>
                     <p class="mt-2 text-sm font-semibold v3-text-ink"><?= $isArabic ? $decode('\u0631\u0642\u0645 \u0648\u0627\u062d\u062f \u0644\u0643\u0644 \u0627\u0644\u0639\u064a\u0627\u062f\u0627\u062a') : 'One sender for all clinics' ?></p>
                     <p class="mt-1 text-xs v3-text-muted"><?= $isArabic ? $decode('\u062a\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0645\u0646\u0635\u0629 \u0631\u0642\u0645 \u0648\u0627\u062a\u0633\u0627\u0628 \u0645\u0648\u062d\u062f\u060c \u0648\u064a\u062a\u0645 \u0625\u062f\u0631\u0627\u062c \u0628\u064a\u0627\u0646\u0627\u062a \u0639\u064a\u0627\u062f\u062a\u0643 \u062f\u0627\u062e\u0644 \u0627\u0644\u0642\u0648\u0627\u0644\u0628.') : 'The platform sends from one WhatsApp number and injects your clinic details into the approved templates.' ?></p>
                 </div>
                 <div class="v3-radius border v3-border v3-soft-surface px-5 py-4">
-                    <p class="text-[11px] font-black uppercase tracking-widest v3-accent-text"><?= $isArabic ? $decode('\u0627\u0644\u0642\u0648\u0627\u0644\u0628') : 'Template ownership' ?></p>
+                    <p class="text-xs font-black uppercase tracking-widest v3-accent-text"><?= $isArabic ? $decode('\u0627\u0644\u0642\u0648\u0627\u0644\u0628') : 'Template ownership' ?></p>
                     <p class="mt-2 text-sm font-semibold v3-text-ink"><?= $isArabic ? $decode('\u064a\u062f\u064a\u0631\u0647\u0627 \u0627\u0644\u0643\u0648\u0646\u062a\u0631\u0648\u0644 \u0628\u0644\u064a\u0646') : 'Managed by control plane' ?></p>
                     <p class="mt-1 text-xs v3-text-muted"><?= $isArabic ? $decode('\u0627\u0644\u0642\u0648\u0627\u0644\u0628 \u0648\u0644\u063a\u062a\u0647\u0627 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u064a\u062a\u0645 \u0625\u0639\u062f\u0627\u062f\u0647\u0627 \u0645\u0631\u0643\u0632\u064a\u064b\u0627. \u0627\u0644\u0639\u064a\u0627\u062f\u0629 \u062a\u062f\u064a\u0631 \u0627\u0644\u062a\u0634\u063a\u064a\u0644 \u0641\u0642\u0637.') : 'Arabic templates are configured centrally. This page controls whether each workflow is allowed to run for your clinic.' ?></p>
                 </div>
                 <div class="v3-radius border v3-border-default v3-bg-waiting px-5 py-4">
-                    <p class="text-[11px] font-black uppercase tracking-widest v3-text-warning"><?= $isArabic ? $decode('\u0627\u0644\u0645\u062a\u063a\u064a\u0631\u0627\u062a') : 'Clinic data used' ?></p>
+                    <p class="text-xs font-black uppercase tracking-widest v3-text-warning"><?= $isArabic ? $decode('\u0627\u0644\u0645\u062a\u063a\u064a\u0631\u0627\u062a') : 'Clinic data used' ?></p>
                     <p class="mt-2 text-sm font-semibold v3-text-ink"><?= $isArabic ? $decode('\u0627\u0633\u0645\u060c \u0647\u0627\u062a\u0641\u060c \u0639\u0646\u0648\u0627\u0646') : 'Name, phone, address' ?></p>
                     <p class="mt-1 text-xs v3-text-muted"><?= $isArabic ? $decode('\u062d\u062f\u062b \u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0639\u064a\u0627\u062f\u0629 \u0623\u062f\u0646\u0627\u0647 \u0644\u062a\u0638\u0647\u0631 \u0635\u062d\u064a\u062d\u0629 \u062f\u0627\u062e\u0644 \u0642\u0648\u0627\u0644\u0628 \u0648\u0627\u062a\u0633\u0627\u0628.') : 'Keep your clinic profile accurate so the shared templates show the right clinic identity.' ?></p>
                 </div>
@@ -108,25 +108,25 @@
                                     <p class="mt-1 text-xs v3-text-muted"><?= esc($triggerMeta['description'] ?? '') ?></p>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center rounded-full v3-bg-soft px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc($displayTemplateName) ?></span>
+                                    <span class="inline-flex items-center rounded-full v3-bg-soft px-3 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc($displayTemplateName) ?></span>
                                     <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'v3-bg-paid v3-text-primary' : 'v3-bg-alert v3-text-danger' ?>"><?= $platformEnabled ? ($isArabic ? $decode('\u0645\u0641\u0639\u0644 \u0639\u0644\u0649 \u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0645\u0646\u0635\u0629') : 'Platform enabled') : ($isArabic ? $decode('\u0645\u0639\u0637\u0644 \u0639\u0644\u0649 \u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0645\u0646\u0635\u0629') : 'Platform disabled') ?></span>
                                     <?php if (trim((string) ($triggerConfig['name'] ?? '')) === ''): ?>
-                                        <span class="inline-flex items-center rounded-full v3-bg-waiting px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-warning"><?= $isArabic ? $decode('\u0627\u0633\u0645 \u0627\u0641\u062a\u0631\u0627\u0636\u064a') : 'Starter default' ?></span>
+                                        <span class="inline-flex items-center rounded-full v3-bg-waiting px-3 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-warning"><?= $isArabic ? $decode('\u0627\u0633\u0645 \u0627\u0641\u062a\u0631\u0627\u0636\u064a') : 'Starter default' ?></span>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
                             <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                 <div>
-                                    <p class="text-[11px] font-black uppercase tracking-[0.12em] v3-text-muted"><?= $isArabic ? $decode('\u0627\u0644\u0644\u063a\u0629') : 'Language' ?></p>
+                                    <p class="text-xs font-black uppercase tracking-[0.12em] v3-text-muted"><?= $isArabic ? $decode('\u0627\u0644\u0644\u063a\u0629') : 'Language' ?></p>
                                     <p class="mt-2 font-semibold v3-text-ink"><?= esc($triggerConfig['language'] ?? 'ar') ?></p>
                                 </div>
                                 <div>
-                                    <p class="text-[11px] font-black uppercase tracking-[0.12em] v3-text-muted"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631 \u0627\u0644\u0631\u0623\u0633') : 'Header variable' ?></p>
+                                    <p class="text-xs font-black uppercase tracking-[0.12em] v3-text-muted"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631 \u0627\u0644\u0631\u0623\u0633') : 'Header variable' ?></p>
                                     <p class="mt-2 font-semibold v3-text-ink"><?= esc($triggerConfig['header_param_key'] ?? 'None') ?></p>
                                 </div>
                                 <div>
-                                    <p class="text-[11px] font-black uppercase tracking-[0.12em] v3-text-muted"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631\u0627\u062a \u0627\u0644\u062c\u0633\u0645') : 'Body variables' ?></p>
+                                    <p class="text-xs font-black uppercase tracking-[0.12em] v3-text-muted"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631\u0627\u062a \u0627\u0644\u062c\u0633\u0645') : 'Body variables' ?></p>
                                     <p class="mt-2 font-semibold v3-text-ink"><?= esc($bodyKeys !== [] ? implode(', ', $bodyKeys) : 'None') ?></p>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                                     <p class="font-bold v3-text-ink"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                                     <p class="mt-1 text-xs v3-text-muted"><?= esc($triggerMeta['description'] ?? '') ?></p>
                                     <?php if (!$platformEnabled): ?>
-                                        <p class="mt-2 text-[11px] font-black uppercase tracking-[0.12em] v3-text-danger"><?= $isArabic ? $decode('\u0645\u0639\u0637\u0644 \u0645\u0631\u0643\u0632\u064a\u0627 \u0645\u0646 \u0627\u0644\u0643\u0648\u0646\u062a\u0631\u0648\u0644 \u0628\u0644\u064a\u0646') : 'Disabled globally by control plane' ?></p>
+                                        <p class="mt-2 text-xs font-black uppercase tracking-[0.12em] v3-text-danger"><?= $isArabic ? $decode('\u0645\u0639\u0637\u0644 \u0645\u0631\u0643\u0632\u064a\u0627 \u0645\u0646 \u0627\u0644\u0643\u0648\u0646\u062a\u0631\u0648\u0644 \u0628\u0644\u064a\u0646') : 'Disabled globally by control plane' ?></p>
                                     <?php endif; ?>
                                 </div>
                                 <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle v3-switch" <?= $triggerEnabled ? 'checked' : '' ?> <?= !$platformEnabled ? 'disabled' : '' ?>>

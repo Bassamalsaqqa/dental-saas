@@ -66,7 +66,7 @@
                             <p class="text-sm font-medium v3-text-on-primary leading-relaxed">Select which clinic you'd like to manage today. Switch anytime from your dashboard.</p>
                         </div>
                         <div class="relative z-10 pt-10">
-                            <span class="text-[10px] font-black v3-text-on-primary uppercase tracking-[0.2em]">Multi-Clinic Access Enabled</span>
+                            <span class="text-xs font-black v3-text-on-primary uppercase tracking-[0.2em]">Multi-Clinic Access Enabled</span>
                         </div>
                     </div>
 
@@ -102,7 +102,7 @@
                                             <h3 class="text-sm font-black v3-text-on-primary group-hover/item:v3-text-primary transition-colors truncate drop-shadow-sm"><?= esc($clinic['clinic_name']) ?></h3>
                                             <div class="flex items-center space-x-2 mt-1">
                                                 <span class="inline-block w-1.5 h-1.5 v3-bg-primary rounded-full animate-pulse"></span>
-                                                <p class="text-[9px] v3-text-on-primary font-black uppercase tracking-widest">Active System</p>
+                                                <p class="text-xs v3-text-on-primary font-black uppercase tracking-widest">Active System</p>
                                             </div>
                                         </div>
                                         <div class="ml-auto opacity-40 group-hover/item:opacity-100 transform translate-x-2 group-hover/item:translate-x-0 transition-all duration-300">
@@ -137,11 +137,11 @@
                         </div>
                         <div class="flex flex-col">
                             <span class="text-sm font-black v3-text-on-primary tracking-widest uppercase">Palsync Dental</span>
-                            <span class="text-[10px] font-bold v3-text-on-primary uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
+                            <span class="text-xs font-bold v3-text-on-primary uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
                         </div>
                     </div>
                     <div class="flex items-center v3-backdrop v3-radius p-1.5 px-3 border v3-border-default">
-                        <span class="hidden lg:inline-block text-[10px] font-black v3-text-on-primary uppercase tracking-widest mr-4 ml-1">Live Support</span>
+                        <span class="hidden lg:inline-block text-xs font-black v3-text-on-primary uppercase tracking-widest mr-4 ml-1">Live Support</span>
                         <div class="flex items-center space-x-2">
                             <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center v3-bg-primary v3-hover-primary v3-text-primary v3-hover-text-on-primary v3-radius transition-all duration-300"><i class="fab fa-whatsapp text-lg"></i></a>
                             <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center v3-bg-primary v3-hover-primary v3-text-primary v3-hover-text-on-primary v3-radius transition-all duration-300"><i class="fab fa-whatsapp text-lg"></i></a>

@@ -29,15 +29,15 @@
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:min-w-[31rem]">
                     <div class="roles-hero-chip px-4 py-3">
-                        <p class="text-[11px] uppercase tracking-[0.14em]"><?= esc($tr('totalRoles')) ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em]"><?= esc($tr('totalRoles')) ?></p>
                         <p class="mt-1 v3-section-title"><?= $totalRoles ?></p>
                     </div>
                     <div class="roles-hero-chip px-4 py-3">
-                        <p class="text-[11px] uppercase tracking-[0.14em]"><?= esc($tr('activeRoles')) ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em]"><?= esc($tr('activeRoles')) ?></p>
                         <p class="mt-1 v3-section-title"><?= $activeRoles ?></p>
                     </div>
                     <div class="roles-hero-chip px-4 py-3">
-                        <p class="text-[11px] uppercase tracking-[0.14em]"><?= esc($tr('totalPermissions')) ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em]"><?= esc($tr('totalPermissions')) ?></p>
                         <p class="mt-1 v3-section-title"><?= $totalPermissions ?></p>
                     </div>
                 </div>
@@ -225,14 +225,14 @@
                     <div class="mt-3 grid grid-cols-2 gap-2.5">
                         <div class="roles-metric">
                             <div class="flex items-center justify-between gap-3">
-                                <p class="text-[11px] uppercase tracking-[0.12em]"><?= esc($tr('users')) ?></p>
+                                <p class="text-xs uppercase tracking-[0.12em]"><?= esc($tr('users')) ?></p>
                                 <i class="fas fa-users"></i>
                             </div>
                             <p class="mt-1 text-xl"><?= $roleUserCount ?></p>
                         </div>
                         <div class="roles-metric">
                             <div class="flex items-center justify-between gap-3">
-                                <p class="text-[11px] uppercase tracking-[0.12em]"><?= esc($tr('permissions')) ?></p>
+                                <p class="text-xs uppercase tracking-[0.12em]"><?= esc($tr('permissions')) ?></p>
                                 <i class="fas fa-key v3-text-primary"></i>
                             </div>
                             <p class="mt-1 text-xl"><?= $rolePermissionCount ?></p>

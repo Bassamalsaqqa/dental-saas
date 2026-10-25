@@ -133,7 +133,7 @@
                 <form method="get" action="<?= base_url('controlplane/invoices') ?>" class="flex flex-wrap items-end gap-4">
                     <!-- Status Filter -->
                     <div class="flex-1 min-w-[160px]">
-                        <label class="flex items-center gap-2 text-[10px] font-black v3-text-muted uppercase tracking-[0.2em] mb-1.5 ml-1">
+                        <label class="flex items-center gap-2 text-xs font-black v3-text-muted uppercase tracking-[0.2em] mb-1.5 ml-1">
                             <i class="fas fa-filter cp-accent"></i>
                             <span><?= esc(lang('V3Platform.status')) ?></span>
                         </label>
@@ -151,7 +151,7 @@
 
                     <!-- Clinic Filter -->
                     <div class="flex-1 min-w-[200px]">
-                        <label class="flex items-center gap-2 text-[10px] font-black v3-text-muted uppercase tracking-[0.2em] mb-1.5 ml-1">
+                        <label class="flex items-center gap-2 text-xs font-black v3-text-muted uppercase tracking-[0.2em] mb-1.5 ml-1">
                             <i class="fas fa-hospital cp-accent"></i>
                             <span><?= esc(lang('V3Platform.clinic')) ?></span>
                         </label>
@@ -169,7 +169,7 @@
 
                     <!-- Date Range -->
                     <div class="flex-[2] min-w-[300px]">
-                        <label class="flex items-center gap-2 text-[10px] font-black v3-text-muted uppercase tracking-[0.2em] mb-1.5 ml-1">
+                        <label class="flex items-center gap-2 text-xs font-black v3-text-muted uppercase tracking-[0.2em] mb-1.5 ml-1">
                             <i class="far fa-calendar-alt cp-accent"></i>
                             <span><?= esc(lang('V3Platform.period')) ?></span>
                         </label>

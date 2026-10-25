@@ -520,7 +520,7 @@
                                                     <div class="user-record-main">
                                                         <span class="user-record-title"><?= esc((string) ($row['transaction_id'] ?? '-')) ?></span>
                                                         <?php if ((int) ($row['clinical_line_count'] ?? 0) > 0): ?>
-                                                            <span class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+                                                            <span class="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-semibold">
                                                                 <span class="inline-flex items-center v3-bg-paid px-2 py-0.5 v3-text-primary">
                                                                     <?= esc(lang('Finance.clinicalTraceLines')) ?>: <?= esc((string) ($row['clinical_line_count'] ?? 0)) ?>
                                                                 </span>

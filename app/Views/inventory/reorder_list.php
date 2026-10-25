@@ -49,15 +49,15 @@ $statusClasses = [
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div class="v3-radius border v3-border v3-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-warning"><?= esc($tr('draftLines')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-warning"><?= esc($tr('draftLines')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $draftCount ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-soft-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('orderedLines')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('orderedLines')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $orderedCount ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-bg-primary p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('suppliersInvolved')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('suppliersInvolved')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $supplierCount ?></p>
                     </div>
                 </div>
@@ -198,7 +198,7 @@ $statusClasses = [
 
                                         <div class="v3-radius border v3-border v3-surface p-3">
                                             <div class="mb-2 flex items-center justify-between gap-3">
-                                                <div class="text-[11px] font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('supplierContact')) ?></div>
+                                                <div class="text-xs font-black uppercase tracking-wide v3-text-muted"><?= esc($tr('supplierContact')) ?></div>
                                                 <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/delete') ?>" onsubmit="return confirm('<?= esc(lang('Inventory.removeReorderLineConfirm'), 'js') ?>');">
                                                     <?= csrf_field() ?>
                                                     <button type="submit" class="inline-flex items-center gap-1 rounded-lg v3-bg-alert px-2.5 py-1 text-[11px] font-black v3-text-danger transition v3-hover-danger v3-btn v3-btn--danger">
@@ -211,7 +211,7 @@ $statusClasses = [
                                                 <div class="text-xs font-black v3-text-primary">
                                                     <?= esc($tr('loggedVia', ['method' => ucfirst((string) ($row['supplier_contact_method'] ?? 'other'))])) ?>
                                                 </div>
-                                                <div class="mt-0.5 text-[11px] font-semibold v3-text-muted"><?= esc(formatDateTime($row['supplier_contacted_at'])) ?></div>
+                                                <div class="mt-0.5 text-xs font-semibold v3-text-muted"><?= esc(formatDateTime($row['supplier_contacted_at'])) ?></div>
                                             <?php else: ?>
                                                 <div class="mb-2 text-xs font-semibold v3-text-muted"><?= esc($tr('noContactLoggedYet')) ?></div>
                                             <?php endif; ?>

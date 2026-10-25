@@ -19,7 +19,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
 
 
 <div class="denta-inventory-workspace inventory-page v3-module-workspace" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-    <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
+    <div class="v3-page-stack">
         <section class="v3-command-section inventory-command-header mb-5 overflow-hidden v3-corner">
             <div class="v3-command-layout">
                 <div class="flex min-w-0 items-start gap-4">
@@ -117,7 +117,7 @@ $isRtl = !empty($is_rtl) || (service('request')->getLocale() === 'ar');
             </div>
         <?php endif; ?>
 
-        <section class="v3-metric-strip">
+        <section class="v3-inventory-health">
             <article class="v3-metric inventory-stock-kpi v3-corner p-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>

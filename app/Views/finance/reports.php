@@ -191,19 +191,19 @@ $bucketLabels = [
                     <div class="border <?= esc($movementAccent['card']) ?>">
                         <div class="flex items-center justify-between">
                             <h3 class="text-sm font-bold"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></h3>
-                            <span class="px-2.5 py-1 text-[11px] font-semibold"><?= lang('Finance.periodMovement') ?></span>
+                            <span class="px-2.5 py-1 text-xs font-semibold"><?= lang('Finance.periodMovement') ?></span>
                         </div>
                         <div class="mt-4 grid grid-cols-3 gap-3">
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['in']) ?>">
-                                <p class="text-[11px] font-semibold uppercase tracking-wide v3-text-primary"><?= lang('Finance.inflow') ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wide v3-text-primary"><?= lang('Finance.inflow') ?></p>
                                 <p class="mt-2 text-lg v3-text-primary"><?= $formatMoney($bucket['in'] ?? null) ?></p>
                             </div>
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['out']) ?>">
-                                <p class="text-[11px] font-semibold uppercase tracking-wide v3-text-danger"><?= lang('Finance.outflow') ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wide v3-text-danger"><?= lang('Finance.outflow') ?></p>
                                 <p class="mt-2 text-lg v3-text-danger"><?= $formatMoney($bucket['out'] ?? null) ?></p>
                             </div>
                             <div class="rounded-lg border p-3 <?= esc($movementAccent['net']) ?>">
-                                <p class="text-[11px] font-semibold uppercase tracking-wide"><?= lang('Finance.net') ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wide"><?= lang('Finance.net') ?></p>
                                 <p class="mt-2 text-lg <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'v3-text-ink' : 'v3-text-danger' ?>"><?= $formatMoney($bucket['net'] ?? null) ?></p>
                             </div>
                         </div>
@@ -212,19 +212,19 @@ $bucketLabels = [
                 <div class="border">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-bold"><?= lang('Finance.totalLiquidMovement') ?></h3>
-                        <span class="px-2.5 py-1 text-[11px] font-semibold"><?= lang('Finance.selectedPeriod') ?></span>
+                        <span class="px-2.5 py-1 text-xs font-semibold"><?= lang('Finance.selectedPeriod') ?></span>
                     </div>
                     <div class="mt-4 grid grid-cols-3 gap-3">
                         <div class="rounded-lg p-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-wide v3-text-primary"><?= lang('Finance.inflow') ?></p>
+                            <p class="text-xs font-semibold uppercase tracking-wide v3-text-primary"><?= lang('Finance.inflow') ?></p>
                             <p class="mt-2 text-lg"><?= $formatMoney($treasuryMovement['totals']['in'] ?? null) ?></p>
                         </div>
                         <div class="rounded-lg p-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-wide v3-text-danger"><?= lang('Finance.outflow') ?></p>
+                            <p class="text-xs font-semibold uppercase tracking-wide v3-text-danger"><?= lang('Finance.outflow') ?></p>
                             <p class="mt-2 text-lg"><?= $formatMoney($treasuryMovement['totals']['out'] ?? null) ?></p>
                         </div>
                         <div class="rounded-lg p-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-wide"><?= lang('Finance.net') ?></p>
+                            <p class="text-xs font-semibold uppercase tracking-wide"><?= lang('Finance.net') ?></p>
                             <p class="mt-2 text-lg"><?= $formatMoney($treasuryMovement['totals']['net'] ?? null) ?></p>
                         </div>
                     </div>

@@ -524,6 +524,7 @@ body.login-page{background:var(--denta-travertine);color:var(--denta-ink)}
 </style>
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-architecture.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-architecture.css') ?: '1' ?>">
 </head>
 <body class="denta-v3 login-page">
     <?php

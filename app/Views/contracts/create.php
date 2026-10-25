@@ -338,7 +338,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                     <input type="number" step="0.01" min="0" name="total_cost" id="contractTotalInput"
                                            value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
                                            class="w-full h-9 px-3 border v3-border-default rounded-lg text-sm font-semibold v3-text-primary contract-total-display v3-surface v3-input">
-                                    <p class="mt-1 text-[10px] v3-text-muted"><?= esc(lang('Contracts.calculatedTotal')) ?></p>
+                                    <p class="mt-1 text-xs v3-text-muted"><?= esc(lang('Contracts.calculatedTotal')) ?></p>
                                 </div>
                             </div>
                         </div>

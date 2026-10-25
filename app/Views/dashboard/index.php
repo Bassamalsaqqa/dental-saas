@@ -53,8 +53,8 @@ $formatHumanLabel = static function (?string $value): string {
 
 
 <div class="dashboard-workspace min-h-screen">
-    <div class="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
-        <header class="v3-command-header"><div><h1><?= esc(lang('UI.menuDashboard')) ?></h1><p><?= esc($todayLabel) ?> <span aria-hidden="true"> / </span> <?= esc($clinicName) ?></p></div><div class="v3-command-actions"><a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="v3-action">
+    <div class="v3-page-stack">
+        <header class="v3-command-header"><div><h1><?= esc(lang('V3Fidelity.commandCenter')) ?></h1><p><?= esc($todayLabel) ?> <span aria-hidden="true"> / </span> <?= esc($clinicName) ?></p></div><div class="v3-command-actions"><a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="v3-action">
                         <i class="fas fa-user-plus"></i>
                         <span><?= esc(lang('UI.dashboardAddPatient')) ?></span>
                     </a>
@@ -72,50 +72,12 @@ $formatHumanLabel = static function (?string $value): string {
                     </a></div></header>
 
         <section class="dashboard-stat-grid v3-dashboard-metrics">
-            <a href="<?= base_url('patient') ?>" class="dashboard-stat-card dashboard-stat-blue">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="dashboard-stat-label"><?= esc(lang('UI.dashboardTotalPatients')) ?></p>
-                        <p class="dashboard-stat-value" dir="ltr"><?= esc(number_format($totalPatients)) ?></p>
-                        <p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentPatients')) ?>: <?= esc(number_format($recentPatientCount)) ?></p>
-                    </div>
-                    <i class="fas fa-users v3-title-scale"></i>
-                </div>
-            </a>
-
-            <a href="<?= base_url('examination') ?>" class="dashboard-stat-card dashboard-stat-emerald">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="dashboard-stat-label"><?= esc(lang('UI.dashboardTodayExaminations')) ?></p>
-                        <p class="dashboard-stat-value" dir="ltr"><?= esc(number_format($todayExaminations)) ?></p>
-                        <p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentExaminations')) ?>: <?= esc(number_format($recentExamCount)) ?></p>
-                    </div>
-                    <i class="fas fa-stethoscope v3-title-scale"></i>
-                </div>
-            </a>
-
-            <a href="<?= base_url('appointment') ?>" class="dashboard-stat-card dashboard-stat-amber">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="dashboard-stat-label"><?= esc(lang('UI.dashboardTodayAppointments')) ?></p>
-                        <p class="dashboard-stat-value" dir="ltr"><?= esc(number_format($todayAppointments)) ?></p>
-                        <p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardUpcomingAppointments')) ?>: <?= esc(number_format($upcomingAppointmentsCount)) ?></p>
-                    </div>
-                    <i class="fas fa-calendar-days v3-title-scale"></i>
-                </div>
-            </a>
-
-            <a href="<?= base_url('finance') ?>" class="dashboard-stat-card dashboard-stat-purple">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="dashboard-stat-label"><?= esc(lang('UI.dashboardTotalRevenue')) ?></p>
-                        <p class="dashboard-stat-value" dir="ltr"><?= esc(formatCurrencyAbbreviated($totalRevenue)) ?></p>
-                        <p class="dashboard-stat-meta"><?= esc(lang('Finance.pendingPayments')) ?>: <?= esc(formatCurrencyAbbreviated($pendingPayments)) ?></p>
-                    </div>
-                    <i class="fas fa-chart-line v3-title-scale"></i>
-                </div>
-            </a>
+            <a href="<?= base_url('appointment/calendar') ?>" class="dashboard-stat-card dashboard-stat-blue"><p class="dashboard-stat-label"><i class="fas fa-calendar" aria-hidden="true"></i> <?= esc(lang('UI.dashboardTodayAppointments')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($todayAppointments) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardUpcomingAppointments')) ?>: <?= number_format($upcomingAppointmentsCount) ?></p></a>
+            <?php if (has_permission('examinations','view')): ?><a href="<?= base_url('examination?documentation=ready_to_sign') ?>" class="dashboard-stat-card dashboard-stat-emerald"><p class="dashboard-stat-label"><i class="fas fa-file-signature" aria-hidden="true"></i> <?= esc(lang('Examination.documentation_ready_to_sign')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($readyToSignCount) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardTodayExaminations')) ?>: <?= number_format($todayExaminations) ?></p></a><?php endif; ?>
+            <?php if (has_permission('treatments','view')): ?><a href="<?= base_url('treatment') ?>" class="dashboard-stat-card dashboard-stat-amber"><p class="dashboard-stat-label"><i class="fas fa-tooth" aria-hidden="true"></i> <?= esc(lang('UI.dashboardTotalTreatments')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($activeTreatments + $completedTreatments) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardCompleted')) ?>: <?= number_format($completedTreatments) ?></p></a><?php endif; ?>
+            <?php if (has_permission('examinations','view')): ?><a href="<?= base_url('examination?documentation=overdue_draft') ?>" class="dashboard-stat-card dashboard-stat-rose"><p class="dashboard-stat-label"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> <?= esc(lang('Examination.documentation_overdue_draft')) ?></p><strong class="dashboard-stat-value" dir="ltr"><?= number_format($overdueDraftCount) ?></strong><p class="dashboard-stat-meta"><?= esc(lang('UI.dashboardRecentExaminations')) ?>: <?= number_format($recentExamCount) ?></p></a><?php endif; ?>
         </section>
+
 
 
 
@@ -149,10 +111,10 @@ $formatHumanLabel = static function (?string $value): string {
                     </div>
                 </div>
 
-                <div class="dashboard-routing-board">
+                <div class="v3-operation-rows">
                     <?php foreach ($routingGroupConfig as $groupKey => $groupConfig): ?>
                         <?php $groupRows = is_array($routingGroups[$groupKey] ?? null) ? $routingGroups[$groupKey] : []; ?>
-                        <section class="dashboard-routing-column dashboard-routing-column-<?= esc($groupConfig['tone'], 'attr') ?>">
+                        <section class="v3-operation-row dashboard-routing-column-<?= esc($groupConfig['tone'], 'attr') ?>">
                             <header class="mb-3 flex items-center justify-between gap-2">
                                 <span class="flex items-center gap-2 text-sm v3-text-ink">
                                     <i class="fas <?= esc($groupConfig['icon'], 'attr') ?>"></i>
@@ -184,7 +146,7 @@ $formatHumanLabel = static function (?string $value): string {
                                             </a>
                                             <span class="shrink-0 text-end">
                                                 <span class="block text-sm v3-text-ink" dir="ltr"><?= esc(formatTime($visit['appointment_time'] ?? '')) ?></span>
-                                                <span class="mt-1 inline-flex rounded-full v3-bg-soft px-2 py-0.5 text-[11px] v3-text-ink"><?= esc($routingStageLabels[$stage] ?? $formatHumanLabel($stage)) ?></span>
+                                                <span class="mt-1 inline-flex rounded-full v3-bg-soft px-2 py-0.5 text-xs v3-text-ink"><?= esc($routingStageLabels[$stage] ?? $formatHumanLabel($stage)) ?></span>
                                             </span>
                                         </div>
 
@@ -229,92 +191,12 @@ $formatHumanLabel = static function (?string $value): string {
                 </div>
             </section>
         <?php endif; ?>
-                <div class="dashboard-panel">
-                    <div class="dashboard-panel-header">
-                        <div class="dashboard-panel-title">
-                            <span class="dashboard-panel-icon v3-warm-surface"><i class="fas fa-calendar-check"></i></span>
-                            <div>
-                                <h2><?= esc(lang('UI.dashboardUpcomingAppointments')) ?></h2>
-                                <p class="mt-0.5 text-xs font-bold v3-text-muted"><?= esc(lang('UI.dashboardFutureAppointmentsSubtitle')) ?></p>
-                            </div>
-                        </div>
-                        <a href="<?= base_url('appointment') ?>" class="dashboard-view-link">
-                            <span><?= esc(lang('UI.dashboardViewAll')) ?></span>
-                            <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
-                        </a>
-                    </div>
-                    <div class="dashboard-list">
-                        <?php if (!empty($upcoming_appointments)): ?>
-                            <?php foreach ($upcoming_appointments as $appointment): ?>
-                                <?php
-                                    $appointmentName = trim((string) (($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? '')));
-                                    $appointmentName = $appointmentName !== '' ? $appointmentName : lang('UI.patientUnknown');
-                                ?>
-                                <a href="<?= base_url('appointment/' . (int) ($appointment['id'] ?? 0)) ?>" class="dashboard-row">
-                                    <span class="dashboard-row-icon v3-warm-surface"><i class="fas fa-calendar-day"></i></span>
-                                    <span class="min-w-0 flex-1">
-                                        <span class="block truncate text-sm v3-text-ink"><?= esc($appointmentName) ?></span>
-                                        <span class="mt-0.5 block truncate text-xs font-bold v3-text-muted"><?= esc($formatHumanLabel($appointment['appointment_type'] ?? '')) ?></span>
-                                    </span>
-                                    <span class="shrink-0 text-end">
-                                        <span class="block text-xs v3-text-ink" dir="ltr"><?= esc(formatDate($appointment['appointment_date'] ?? '')) ?></span>
-                                        <span class="mt-1 inline-flex rounded-full v3-bg-waiting px-2 py-1 text-xs v3-text-warning" dir="ltr"><?= esc(formatTime($appointment['appointment_time'] ?? '')) ?></span>
-                                    </span>
-                                </a>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="dashboard-empty">
-                                <i class="fas fa-calendar-check mb-3 block text-2xl v3-text-muted"></i>
-                                <?= esc(lang('UI.dashboardNoUpcomingAppointments')) ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
 
-                <div class="dashboard-panel">
-                    <div class="dashboard-panel-header">
-                        <div class="dashboard-panel-title">
-                            <span class="dashboard-panel-icon v3-warm-surface"><i class="fas fa-stethoscope"></i></span>
-                            <div>
-                                <h2><?= esc(lang('UI.dashboardRecentExaminations')) ?></h2>
-                                <p class="mt-0.5 text-xs font-bold v3-text-muted"><?= esc(lang('UI.dashboardLatestPatientExaminations')) ?></p>
-                            </div>
-                        </div>
-                        <a href="<?= base_url('examination') ?>" class="dashboard-view-link">
-                            <span><?= esc(lang('UI.dashboardViewAll')) ?></span>
-                            <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
-                        </a>
-                    </div>
-                    <div class="dashboard-list">
-                        <?php if (!empty($recent_examinations)): ?>
-                            <?php foreach ($recent_examinations as $examination): ?>
-                                <?php
-                                    $examName = trim((string) (($examination['first_name'] ?? '') . ' ' . ($examination['last_name'] ?? '')));
-                                    $examName = $examName !== '' ? $examName : lang('UI.patientUnknown');
-                                ?>
-                                <a href="<?= base_url('examination/' . (int) ($examination['id'] ?? 0)) ?>" class="dashboard-row">
-                                    <span class="dashboard-row-icon v3-warm-surface"><i class="fas fa-notes-medical"></i></span>
-                                    <span class="min-w-0 flex-1">
-                                        <span class="block truncate text-sm v3-text-ink"><?= esc($examName) ?></span>
-                                        <span class="mt-0.5 block truncate text-xs font-bold v3-text-muted"><?= esc($formatHumanLabel($examination['examination_type'] ?? '')) ?></span>
-                                    </span>
-                                    <span class="shrink-0 text-end">
-                                        <span class="block text-xs v3-text-ink" dir="ltr"><?= esc(formatDate($examination['examination_date'] ?? '')) ?></span>
-                                        <span class="mt-1 dashboard-status dashboard-status-emerald"><?= esc(lang('UI.dashboardCompleted')) ?></span>
-                                    </span>
-                                </a>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="dashboard-empty">
-                                <i class="fas fa-stethoscope mb-3 block text-2xl v3-text-muted"></i>
-                                <?= esc(lang('UI.dashboardNoRecentExaminations')) ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
+
+
             </section>
 
-            <aside class="dashboard-panel-stack v3-command-center-actions">
+            <aside class="dashboard-panel-stack v3-command-center-actions"><header class="v3-action-queue-heading"><h2><?= esc(lang('V3Fidelity.actionRequired')) ?></h2><p><?= esc(lang('V3Fidelity.actionQueueHelp')) ?></p></header>
                 <?php if (has_permission('examinations', 'view')): ?>
                 <div class="dashboard-panel overflow-hidden">
                     <div class="v3-warm-surface px-5 py-4">
@@ -381,7 +263,95 @@ $formatHumanLabel = static function (?string $value): string {
                     </div>
                 <?php endif; ?>
 
-                <div class="dashboard-panel">
+
+
+
+            </aside>
+        </div>
+
+        <section class="v3-capacity-band"><div><h2><?= esc(lang('V3Fidelity.scheduleCapacity')) ?></h2><p><?= esc(lang('V3Fidelity.capacityUnavailable')) ?></p></div><div><strong><?= number_format($upcomingAppointmentsCount) ?></strong><span><?= esc(lang('UI.dashboardUpcomingAppointments')) ?></span></div><?php if ($canRouteAppointments): ?><a href="<?= base_url('appointment/calendar') ?>" class="v3-btn"><?= esc(lang('UI.dashboardRoutingOpenCalendar')) ?></a><?php endif; ?></section>
+        <details class="v3-reference-totals"><summary><?= esc(lang('V3Fidelity.referenceTotals')) ?></summary><p><?= esc(lang('UI.dashboardTotalPatients')) ?>: <?= number_format($totalPatients) ?> - <?= esc(lang('UI.dashboardRecentPatients')) ?>: <?= number_format($recentPatientCount) ?></p></details>
+        <section class="v3-dashboard-secondary"><div class="dashboard-panel">
+                    <div class="dashboard-panel-header">
+                        <div class="dashboard-panel-title">
+                            <span class="dashboard-panel-icon v3-warm-surface"><i class="fas fa-calendar-check"></i></span>
+                            <div>
+                                <h2><?= esc(lang('UI.dashboardUpcomingAppointments')) ?></h2>
+                                <p class="mt-0.5 text-xs font-bold v3-text-muted"><?= esc(lang('UI.dashboardFutureAppointmentsSubtitle')) ?></p>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('appointment') ?>" class="dashboard-view-link">
+                            <span><?= esc(lang('UI.dashboardViewAll')) ?></span>
+                            <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
+                        </a>
+                    </div>
+                    <div class="dashboard-list">
+                        <?php if (!empty($upcoming_appointments)): ?>
+                            <?php foreach ($upcoming_appointments as $appointment): ?>
+                                <?php
+                                    $appointmentName = trim((string) (($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? '')));
+                                    $appointmentName = $appointmentName !== '' ? $appointmentName : lang('UI.patientUnknown');
+                                ?>
+                                <a href="<?= base_url('appointment/' . (int) ($appointment['id'] ?? 0)) ?>" class="dashboard-row">
+                                    <span class="dashboard-row-icon v3-warm-surface"><i class="fas fa-calendar-day"></i></span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm v3-text-ink"><?= esc($appointmentName) ?></span>
+                                        <span class="mt-0.5 block truncate text-xs font-bold v3-text-muted"><?= esc($formatHumanLabel($appointment['appointment_type'] ?? '')) ?></span>
+                                    </span>
+                                    <span class="shrink-0 text-end">
+                                        <span class="block text-xs v3-text-ink" dir="ltr"><?= esc(formatDate($appointment['appointment_date'] ?? '')) ?></span>
+                                        <span class="mt-1 inline-flex rounded-full v3-bg-waiting px-2 py-1 text-xs v3-text-warning" dir="ltr"><?= esc(formatTime($appointment['appointment_time'] ?? '')) ?></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="dashboard-empty">
+                                <i class="fas fa-calendar-check mb-3 block text-2xl v3-text-muted"></i>
+                                <?= esc(lang('UI.dashboardNoUpcomingAppointments')) ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div><div class="dashboard-panel">
+                    <div class="dashboard-panel-header">
+                        <div class="dashboard-panel-title">
+                            <span class="dashboard-panel-icon v3-warm-surface"><i class="fas fa-stethoscope"></i></span>
+                            <div>
+                                <h2><?= esc(lang('UI.dashboardRecentExaminations')) ?></h2>
+                                <p class="mt-0.5 text-xs font-bold v3-text-muted"><?= esc(lang('UI.dashboardLatestPatientExaminations')) ?></p>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('examination') ?>" class="dashboard-view-link">
+                            <span><?= esc(lang('UI.dashboardViewAll')) ?></span>
+                            <i class="fas <?= $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' ?>"></i>
+                        </a>
+                    </div>
+                    <div class="dashboard-list">
+                        <?php if (!empty($recent_examinations)): ?>
+                            <?php foreach ($recent_examinations as $examination): ?>
+                                <?php
+                                    $examName = trim((string) (($examination['first_name'] ?? '') . ' ' . ($examination['last_name'] ?? '')));
+                                    $examName = $examName !== '' ? $examName : lang('UI.patientUnknown');
+                                ?>
+                                <a href="<?= base_url('examination/' . (int) ($examination['id'] ?? 0)) ?>" class="dashboard-row">
+                                    <span class="dashboard-row-icon v3-warm-surface"><i class="fas fa-notes-medical"></i></span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm v3-text-ink"><?= esc($examName) ?></span>
+                                        <span class="mt-0.5 block truncate text-xs font-bold v3-text-muted"><?= esc($formatHumanLabel($examination['examination_type'] ?? '')) ?></span>
+                                    </span>
+                                    <span class="shrink-0 text-end">
+                                        <span class="block text-xs v3-text-ink" dir="ltr"><?= esc(formatDate($examination['examination_date'] ?? '')) ?></span>
+                                        <span class="mt-1 dashboard-status dashboard-status-emerald"><?= esc(lang('UI.dashboardCompleted')) ?></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="dashboard-empty">
+                                <i class="fas fa-stethoscope mb-3 block text-2xl v3-text-muted"></i>
+                                <?= esc(lang('UI.dashboardNoRecentExaminations')) ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div><div class="dashboard-panel">
                     <div class="dashboard-panel-header">
                         <div class="dashboard-panel-title">
                             <span class="dashboard-panel-icon v3-warm-surface"><i class="fas fa-sack-dollar"></i></span>
@@ -406,9 +376,7 @@ $formatHumanLabel = static function (?string $value): string {
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
-                </div>
-
-                <div class="dashboard-panel">
+                </div><div class="dashboard-panel">
                     <div class="dashboard-panel-header">
                         <div class="dashboard-panel-title">
                             <span class="dashboard-panel-icon v3-warm-surface"><i class="fas fa-tooth"></i></span>
@@ -433,10 +401,7 @@ $formatHumanLabel = static function (?string $value): string {
                             <canvas id="treatmentChart"></canvas>
                         </div>
                     </div>
-                </div>
-            </aside>
-        </div>
-
+                </div></section>
         <section class="dashboard-bottom-grid mt-5">
             <div class="dashboard-panel">
                 <div class="dashboard-panel-header">
@@ -558,8 +523,8 @@ function createEmptyDashboardChart(canvas, type, labels) {
             datasets: [{
                 label: dashboardI18n.revenue,
                 data: labels.map(() => 0),
-                borderColor: '#2563eb',
-                backgroundColor: type === 'line' ? 'rgba(37, 99, 235, 0.14)' : ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#f59e0b', '#ef4444', '#64748b'],
+                borderColor: '#0F6B63',
+                backgroundColor: type === 'line' ? 'rgba(15, 107, 99, 0.14)' : ['#0F6B63', '#162421', '#C85A32', '#9A382E', '#7E9388', '#B09162', '#AB4928', '#65736A'],
                 tension: 0.38,
                 fill: type === 'line'
             }]
@@ -609,9 +574,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         datasets: [{
                             label: dashboardI18n.revenue,
                             data: revenueData,
-                            borderColor: '#2563eb',
-                            backgroundColor: 'rgba(37, 99, 235, 0.14)',
-                            pointBackgroundColor: '#0f766e',
+                            borderColor: '#0F6B63',
+                            backgroundColor: 'rgba(15, 107, 99, 0.14)',
+                            pointBackgroundColor: '#0F6B63',
                             pointRadius: 3,
                             tension: 0.38,
                             fill: true
@@ -624,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                grid: { color: 'rgba(148, 163, 184, 0.18)' },
+                                grid: { color: 'rgba(196, 185, 168, 0.4)' },
                                 ticks: { callback: function(value) { return dashboardCurrency(value); } }
                             },
                             x: { grid: { display: false } }
@@ -640,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         labels: treatmentLabels,
                         datasets: [{
                             data: Array.isArray(data.treatment_types) ? data.treatment_types.map(item => Number(item.count || 0)) : treatmentLabels.map(() => 0),
-                            backgroundColor: ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#f59e0b', '#ef4444', '#64748b'],
+                            backgroundColor: ['#0F6B63', '#162421', '#C85A32', '#9A382E', '#7E9388', '#B09162', '#AB4928', '#65736A'],
                             borderWidth: 0
                         }]
                     },

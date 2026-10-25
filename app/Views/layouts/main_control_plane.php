@@ -48,6 +48,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
 <?php endif; ?>
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-components.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-components.css') ?: '1' ?>">
 <link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-icons.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-icons.css') ?: '1' ?>">
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-architecture.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-architecture.css') ?: '1' ?>">
 </head>
 <body class="denta-v3 denta-cp min-h-screen overflow-x-hidden">
     <?= view('components/toast') ?>
@@ -67,7 +68,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                                 <h1 class="text-sm font-bold v3-text-on-primary leading-tight tracking-tight whitespace-nowrap"><?= lang('UI.cpControlPlane') ?></h1>
                                 <div class="flex items-center gap-1.5 mt-0.5">
                                     <div class="w-1.5 h-1.5 v3-bg-primary rounded-full"></div>
-                                    <p class="text-[11px] text-[#A2B5AB] font-semibold whitespace-nowrap"><?= lang('UI.cpGlobalAdmin') ?></p>
+                                    <p class="text-xs text-[#A2B5AB] font-semibold whitespace-nowrap"><?= lang('UI.cpGlobalAdmin') ?></p>
                                 </div>
                             </div>
                         </a>
@@ -193,12 +194,12 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                     <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
                     <div class="cursor-pointer v3-hover-soft rounded-md p-2 transition flex items-center justify-between" onclick="toggleUserMenu()">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded bg-[#0F6B63] flex items-center justify-center v3-text-on-primary text-[11px] font-bold flex-shrink-0">
+                            <div class="w-7 h-7 rounded bg-[#0F6B63] flex items-center justify-center v3-text-on-primary text-xs font-bold flex-shrink-0">
                                 <?= esc(ui_badge_text($userEmail ?? '', 2, 'SA')) ?>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="text-xs font-bold v3-text-on-primary truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
-                                <div class="text-[10px] text-[#A2B5AB] font-medium truncate"><?= lang('UI.cpGlobalAdmin') ?></div>
+                                <div class="text-xs text-[#A2B5AB] font-medium truncate"><?= lang('UI.cpGlobalAdmin') ?></div>
                             </div>
                         </div>
                         <i class="fas fa-chevron-up text-[#7E9388] text-[10px]"></i>
@@ -211,7 +212,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                             <span><?= lang('UI.cpSettings') ?></span>
                         </a>
                         <div class="h-px v3-bg-sand my-1"></div>
-                        <form action="<?= base_url('controlplane/exit') ?>" method="post">
+                    <form action="<?= base_url('controlplane/exit') ?>" method="post">
                             <?= csrf_field() ?>
                             <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md v3-hover-danger text-xs font-semibold v3-text-danger text-left">
                                 <i class="fas fa-sign-out-alt v3-text-danger w-4"></i>
@@ -233,7 +234,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                     </button>
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--denta-muted)]"><?= lang('UI.cpControlPlane') ?></span>
+                            <span class="text-xs font-bold uppercase tracking-wider v3-text-muted"><?= lang('UI.cpControlPlane') ?></span>
                             <span class="text-[var(--denta-taupe-border)]">/</span>
                             <h1 class="text-sm font-extrabold text-[var(--denta-ink)] truncate m-0"><?= esc($cpDisplayTitle) ?></h1>
                         </div>
@@ -246,12 +247,14 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                         <span><?= lang('UI.cpSearchPlaceholder') ?></span>
                         <span class="cp-kbd">Ctrl+K</span>
                     </button>
+                        <?php $cpLocale = strtolower((string) ($locale ?? 'en')); $cpReturnUrl = current_url(true)->__toString(); ?>
+                    <nav class="v3-locale-links" aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>" dir="ltr"><a href="<?= base_url('language/switch/en?return_to=' . urlencode($cpReturnUrl)) ?>" lang="en" aria-current="<?= $cpLocale === 'en' ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageEn'), 'attr') ?>">EN</a><span aria-hidden="true">|</span><a href="<?= base_url('language/switch/ar?return_to=' . urlencode($cpReturnUrl)) ?>" lang="ar" aria-current="<?= $cpLocale === 'ar' ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageAr'), 'attr') ?>">AR</a></nav>
                     <span class="cp-badge cp-badge-teal hidden sm:inline-flex">
                         <i class="fas fa-globe text-[10px]"></i>
                         <?= lang('UI.cpGlobalAdmin') ?>
                     </span>
                     <div class="hidden lg:flex items-center gap-2 text-xs font-bold text-[var(--denta-ink)] px-2">
-                        <i class="fas fa-user-circle text-sm text-[var(--denta-muted)]"></i>
+                        <i class="fas fa-user-circle text-sm v3-text-muted"></i>
                         <span class="truncate max-w-[150px]"><?= esc($userEmail) ?></span>
                     </div>
                     <form action="<?= base_url('controlplane/exit') ?>" method="post" class="m-0">
@@ -294,7 +297,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                         <i class="fas fa-terminal"></i>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase tracking-wider text-[var(--denta-muted)] font-bold m-0"><?= lang('UI.cpNavigationSection') ?></p>
+                        <p class="text-xs uppercase tracking-wider v3-text-muted font-bold m-0"><?= lang('UI.cpNavigationSection') ?></p>
                         <h3 class="text-xs font-bold text-[var(--denta-ink)] m-0"><?= lang('UI.cpSearchPlaceholder') ?></h3>
                     </div>
                 </div>
@@ -314,7 +317,7 @@ $cpDisplayTitle = isset($cpTitleKeys[$cpRouteKey]) ? lang('UI.' . $cpTitleKeys[$
                 <div id="cp-command-status" class="px-2 pb-2 text-xs v3-text-muted font-medium"></div>
                 <div id="cp-command-results" class="space-y-2"></div>
             </div>
-            <div class="cp-modal-foot justify-between text-[11px] font-semibold text-[var(--denta-muted)]">
+            <div class="cp-modal-foot justify-between text-xs font-semibold v3-text-muted">
                 <div class="flex items-center gap-2">
                     <span class="cp-kbd">↑ ↓</span>
                     <span><?= lang('UI.cpNavigate') ?></span>

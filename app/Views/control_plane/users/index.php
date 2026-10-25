@@ -361,8 +361,8 @@ $(document).ready(function() {
                     }
                     const preview = names.slice(0, 2);
                     const extra = names.length - preview.length;
-                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold v3-bg-scheduled v3-text-primary border v3-border-default">${name}</span>`).join(' ');
-                    const extraBadge = extra > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold v3-bg-soft v3-text-muted border v3-border-default">+${extra}</span>` : '';
+                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold v3-bg-scheduled v3-text-primary border v3-border-default">${name}</span>`).join(' ');
+                    const extraBadge = extra > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold v3-bg-soft v3-text-muted border v3-border-default">+${extra}</span>` : '';
                     return `<div class="flex flex-wrap gap-1">${badges}${extraBadge}</div>`;
                 }
             },

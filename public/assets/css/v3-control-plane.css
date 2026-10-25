@@ -6,7 +6,7 @@
 
 /* Main Platform Shell */
 .denta-cp {
-    background-color: var(--denta-travertine, #E2DACB) !important;
+    background-color: var(--denta-travertine, #E2DACB);
     color: var(--denta-ink, #1B302B);
     font-family: var(--app-font-sans, Inter, "Segoe UI", Arial, sans-serif);
 }
@@ -22,10 +22,11 @@ html[lang^="ar"] .denta-cp {
 
 /* Sidebar Rail (Platform Navigation) */
 .denta-cp #sidebar {
-    background: var(--denta-forest, #162421) !important;
+    width:220px;min-width:220px;
+    background: var(--denta-forest, #162421);
     border-inline-end: 1.5px solid #283A33 !important;
     color: var(--denta-alabaster, #F3EFE6);
-    box-shadow: none !important;
+    box-shadow: none;
 }
 
 .denta-cp #sidebar-header {
@@ -91,8 +92,8 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .v3-platform-nav-link.is-active {
-    background: var(--denta-emerald-pine, #0F6B63) !important;
-    color: var(--denta-ivory-input) !important;
+    background: var(--denta-emerald-pine, #0F6B63);
+    color: var(--denta-ivory-input);
 }
 
 .denta-cp .v3-platform-nav-link i {
@@ -115,7 +116,7 @@ html[lang^="ar"] .denta-cp {
     top: 0;
     z-index: 30;
     height: 56px;
-    background: var(--denta-sandstone, #EAE3D5) !important;
+    background: var(--denta-sandstone, #EAE3D5);
     border-bottom: 1.5px solid var(--denta-taupe-border, #C4B9A8) !important;
     padding: 0 16px;
     display: flex;
@@ -156,7 +157,7 @@ html[lang^="ar"] .denta-cp {
 
 /* Platform Workspace */
 .denta-cp .v3-platform-workspace {
-    background: var(--denta-travertine, #E2DACB) !important;
+    background: var(--denta-travertine, #E2DACB);
     padding: 14px 18px 28px;
     min-width: 0;
 }
@@ -397,10 +398,10 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .cp-table thead th {
-    background: var(--denta-table-head, #DFD7C8) !important;
-    color: var(--denta-ink, #1B302B) !important;
-    font-size: 11px !important;
-    font-weight: 750 !important;
+    background: var(--denta-table-head, #DFD7C8);
+    color: var(--denta-ink, #1B302B);
+    font-size: 11px;
+    font-weight: 750;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
     padding: 9px 12px !important;
@@ -421,13 +422,13 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .cp-table tbody tr:hover {
-    background-color: #E2D9CA !important;
+    background-color: #E2D9CA;
 }
 
 .denta-cp .cp-table tbody td {
     padding: 8px 12px !important;
     border-bottom: 1px solid var(--denta-taupe-border, #C4B9A8) !important;
-    color: var(--denta-ink, #1B302B) !important;
+    color: var(--denta-ink, #1B302B);
     vertical-align: middle;
 }
 
@@ -445,41 +446,41 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .dataTables_wrapper table.dataTable thead th {
-    background: var(--denta-table-head, #DFD7C8) !important;
+    background: var(--denta-table-head, #DFD7C8);
     border-bottom: 1.5px solid var(--denta-taupe-border, #C4B9A8) !important;
     padding: 9px 12px !important;
-    font-size: 11px !important;
-    font-weight: 750 !important;
+    font-size: 11px;
+    font-weight: 750;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    color: var(--denta-ink, #1B302B) !important;
+    color: var(--denta-ink, #1B302B);
 }
 
 .denta-cp .dataTables_wrapper table.dataTable tbody tr:nth-child(odd) {
-    background-color: var(--denta-table-odd, #F7F4EC) !important;
+    background-color: var(--denta-table-odd, #F7F4EC);
 }
 
 .denta-cp .dataTables_wrapper table.dataTable tbody tr:nth-child(even) {
-    background-color: var(--denta-table-even, #EDE7DA) !important;
+    background-color: var(--denta-table-even, #EDE7DA);
 }
 
 .denta-cp .dataTables_wrapper table.dataTable tbody tr:hover {
-    background-color: #E2D9CA !important;
+    background-color: #E2D9CA;
 }
 
 .denta-cp .dataTables_wrapper table.dataTable tbody td {
     padding: 8px 12px !important;
     border-bottom: 1px solid var(--denta-taupe-border, #C4B9A8) !important;
-    color: var(--denta-ink, #1B302B) !important;
-    font-size: 12.5px !important;
+    color: var(--denta-ink, #1B302B);
+    font-size: 12.5px;
     vertical-align: middle !important;
 }
 
 .denta-cp .dataTables_wrapper .dataTables_info {
     padding: 10px 14px !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    color: var(--denta-ink) !important;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--denta-ink);
 }
 
 .denta-cp .dataTables_wrapper .dataTables_paginate {
@@ -487,22 +488,22 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .dataTables_wrapper .dataTables_paginate .paginate_button {
-    background: var(--denta-ivory-input, #FCFBF7) !important;
+    background: var(--denta-ivory-input, #FCFBF7);
     border: 1.5px solid var(--denta-taupe-border, #C4B9A8) !important;
-    border-radius: var(--denta-radius-sm, 6px) !important;
+    border-radius: var(--denta-radius-sm, 6px);
     padding: 4px 9px !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: var(--denta-ink, #1B302B) !important;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--denta-ink, #1B302B);
     margin: 0 2px !important;
     transition: all 0.15s ease;
 }
 
 .denta-cp .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 .denta-cp .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: var(--denta-emerald-pine, #0F6B63) !important;
-    color: var(--denta-ivory-input) !important;
-    border-color: var(--denta-emerald-hover, #09564F) !important;
+    background: var(--denta-emerald-pine, #0F6B63);
+    color: var(--denta-ivory-input);
+    border-color: var(--denta-emerald-hover, #09564F);
 }
 
 /* Badges & Pills */
@@ -581,7 +582,7 @@ html[lang^="ar"] .denta-cp {
 
 .denta-cp .cp-btn-primary {
     background: var(--denta-emerald-pine, #0F6B63);
-    color: var(--denta-ivory-input) !important;
+    color: var(--denta-ivory-input);
     border-color: var(--denta-emerald-hover, #09564F);
 }
 
@@ -592,7 +593,7 @@ html[lang^="ar"] .denta-cp {
 .denta-cp .cp-btn-secondary,
 .denta-cp .cp-btn-terracotta {
     background: var(--denta-terracotta, #C85A32);
-    color: var(--denta-ivory-input) !important;
+    color: var(--denta-ivory-input);
     border-color: var(--denta-terracotta-hover, #AB4928);
 }
 
@@ -604,7 +605,7 @@ html[lang^="ar"] .denta-cp {
 .denta-cp .cp-btn-light,
 .denta-cp .cp-btn-outline {
     background: var(--denta-parchment, #E9E2D4);
-    color: var(--denta-ink, #1B302B) !important;
+    color: var(--denta-ink, #1B302B);
     border: 1.5px solid var(--denta-taupe-border, #C4B9A8);
 }
 
@@ -616,7 +617,7 @@ html[lang^="ar"] .denta-cp {
 
 .denta-cp .cp-btn-danger {
     background: #9E2A2B;
-    color: var(--denta-ivory-input) !important;
+    color: var(--denta-ivory-input);
     border-color: #7E1F20;
 }
 
@@ -695,9 +696,9 @@ html[lang^="ar"] .denta-cp {
 }
 
 .denta-cp .cp-tab.active {
-    background: var(--denta-emerald-pine, #0F6B63) !important;
-    border-color: var(--denta-emerald-pine, #0F6B63) !important;
-    color: var(--denta-ivory-input) !important;
+    background: var(--denta-emerald-pine, #0F6B63);
+    border-color: var(--denta-emerald-pine, #0F6B63);
+    color: var(--denta-ivory-input);
 }
 
 /* Contextual Columns (Split Workspace) */

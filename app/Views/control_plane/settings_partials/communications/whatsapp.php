@@ -90,9 +90,9 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                         </div>
                     </div>
                     <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                        <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.configuredTemplates')) ?></p><p class="mt-2 cp-title font-black v3-text-ink"><?= (int) $configuredCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.approvedMetaTemplateNamesSavedInControlPlane')) ?></p></div>
-                        <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.platformEnabled')) ?></p><p class="mt-2 cp-title font-black v3-text-ink"><?= (int) $enabledCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.triggersCurrentlyAllowedAtThePlatformLayer')) ?></p></div>
-                        <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.readyToSend')) ?></p><p class="mt-2 cp-title font-black v3-text-ink"><?= (int) $readyCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.triggersWithAValidApprovedMetaTemplateNameAndValidVariableMapping')) ?></p></div>
+                        <div class="wa-stat-card"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.configuredTemplates')) ?></p><p class="mt-2 cp-title font-black v3-text-ink"><?= (int) $configuredCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.approvedMetaTemplateNamesSavedInControlPlane')) ?></p></div>
+                        <div class="wa-stat-card"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.platformEnabled')) ?></p><p class="mt-2 cp-title font-black v3-text-ink"><?= (int) $enabledCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.triggersCurrentlyAllowedAtThePlatformLayer')) ?></p></div>
+                        <div class="wa-stat-card"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.readyToSend')) ?></p><p class="mt-2 cp-title font-black v3-text-ink"><?= (int) $readyCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.triggersWithAValidApprovedMetaTemplateNameAndValidVariableMapping')) ?></p></div>
                     </div>
                 </div>
                 <div class="flex flex-col gap-3 min-w-[260px]">
@@ -112,7 +112,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
         <div id="wa-settings-pane-overview" class="wa-settings-pane space-y-6">
             <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
                 <div class="cp-radius border cp-border cp-surface p-5 xl:col-span-2">
-                    <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.operatingModel')) ?></p>
+                    <p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.operatingModel')) ?></p>
                     <div class="mt-4 grid gap-4 md:grid-cols-3">
                         <div class="cp-radius border cp-border cp-surface p-4"><p class="text-sm font-black v3-text-ink"><?= esc(lang('V3Platform.label1SharedTemplates')) ?></p><p class="mt-2 text-xs leading-6 v3-text-muted"><?= esc(lang('V3Platform.allFivePatientNotificationTemplatesAreManagedOnceInControlPlaneLanguageIsFixedToArabic')) ?></p></div>
                         <div class="cp-radius border cp-border cp-surface p-4"><p class="text-sm font-black v3-text-ink"><?= esc(lang('V3Platform.label2ClinicIdentity')) ?></p><p class="mt-2 text-xs leading-6 v3-text-muted"><?= esc(lang('V3Platform.eachClinicSuppliesItsOwnNamePhoneAndAddressFromTenantSettingsThoseValuesAreInjectedIntoTheSharedTemplatesAtSendTime')) ?></p></div>
@@ -120,7 +120,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                     </div>
                 </div>
                 <div class="cp-radius border cp-border cp-surface p-5">
-                    <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.templateEditingRule')) ?></p>
+                    <p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.templateEditingRule')) ?></p>
                     <p class="mt-3 text-sm font-semibold v3-text-ink"><?= esc(lang('V3Platform.editTheStructureHereThenMakeSureMetaHasMatchingApprovedTemplates')) ?></p>
                     <ul class="mt-3 space-y-2 text-xs leading-6 v3-text-muted"><li><?= esc(lang('V3Platform.useTheStarterArabicCopyAsYourSourceDraft')) ?></li><li><?= esc(lang('V3Platform.keepTheVariableOrderExactlyAlignedWithMetaApprovals')) ?></li><li><?= esc(lang('V3Platform.useClinicDetailPagesForPerClinicRolloutNotForTemplateContent')) ?></li></ul>
                 </div>
@@ -132,14 +132,14 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                 <?= csrf_field() ?>
                 <div class="grid grid-cols-1 gap-5 xl:grid-cols-[280px,minmax(0,1fr)]">
                     <div class="cp-radius border cp-border cp-surface p-4 xl:sticky xl:top-6">
-                        <p class="px-1 text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.templateList')) ?></p>
+                        <p class="px-1 text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.templateList')) ?></p>
                         <div class="mt-3 space-y-2">
                             <button type="button" class="wa-template-nav-btn is-active v3-btn v3-btn--secondary" data-wa-template-button="fallback" onclick="showWhatsAppTemplateEditor('fallback')">
                                 <div>
                                     <p class="wa-template-nav-title text-sm font-black v3-text-ink"><?= esc(lang('V3Platform.fallback')) ?></p>
                                     <p class="mt-1 text-xs v3-text-muted"><?= esc(lang('V3Platform.outOfSessionRecovery')) ?></p>
                                 </div>
-                                <span class="rounded-full v3-bg-soft px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.arabic')) ?></span>
+                                <span class="rounded-full v3-bg-soft px-2.5 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.arabic')) ?></span>
                             </button>
                             <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
                                 <?php
@@ -169,13 +169,13 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                     <div class="min-w-0 space-y-5">
                         <div class="wa-template-editor-pane" id="wa-template-editor-fallback">
                             <div class="wa-template-card">
-                                <div class="wa-template-card-header"><div class="flex items-center justify-between gap-4"><div><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-primary"><?= esc(lang('V3Platform.fallbackTemplate')) ?></p><h5 class="mt-2 text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.generalReEngagementOutOfSessionFallback')) ?></h5><p class="mt-1 text-sm v3-text-muted"><?= esc(lang('V3Platform.useOnlyWhenAnOperatorExplicitlyChoosesTheFallbackTemplateInTheWhatsappOpsConsole')) ?></p></div><span class="inline-flex items-center rounded-full cp-surface px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.arabicOnly')) ?></span></div></div>
+                                <div class="wa-template-card-header"><div class="flex items-center justify-between gap-4"><div><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-primary"><?= esc(lang('V3Platform.fallbackTemplate')) ?></p><h5 class="mt-2 text-lg font-black v3-text-ink"><?= esc(lang('V3Platform.generalReEngagementOutOfSessionFallback')) ?></h5><p class="mt-1 text-sm v3-text-muted"><?= esc(lang('V3Platform.useOnlyWhenAnOperatorExplicitlyChoosesTheFallbackTemplateInTheWhatsappOpsConsole')) ?></p></div><span class="inline-flex items-center rounded-full cp-surface px-3 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.arabicOnly')) ?></span></div></div>
                                 <div class="p-6 grid grid-cols-1 gap-5 xl:grid-cols-[1.1fr,0.9fr]">
                                     <div class="space-y-4">
                                         <div><label class="block text-xs font-black uppercase tracking-[0.14em] v3-text-muted"><?= esc(lang('V3Platform.approvedMetaTemplateName')) ?></label><input type="text" name="fallback_template.name" value="<?= esc(($waGlobalFallback['name'] ?? '') !== '' ? ($waGlobalFallback['name'] ?? '') : ($waGlobalFallback['suggested_name'] ?? 'general_reengagement_ar_v1')) ?>" class="control-settings-field mt-2 v3-input" placeholder="general_reengagement_ar_v1"></div>
                                         <div><label class="block text-xs font-black uppercase tracking-[0.14em] v3-text-muted"><?= esc(lang('V3Platform.arabicReferenceCopy')) ?></label><textarea name="fallback_template.reference_body_text" rows="6" class="control-settings-field wa-template-preview mt-2 v3-textarea" placeholder="?????? {{patient_name}} ..."><?= esc($waGlobalFallback['reference_body_text'] ?? '') ?></textarea><p class="mt-2 text-xs v3-text-muted"><?= esc(lang('V3Platform.thisIsYourEditableReferenceCopyForOperationsAndMetaAlignmentTheAppStillSendsTheApprovedMetaTemplateByName')) ?></p></div>
                                     </div>
-                                    <div class="cp-radius border border-dashed cp-border cp-surface p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.howToUse')) ?></p><ul class="mt-3 space-y-2 text-sm leading-6 v3-text-muted"><li><?= esc(lang('V3Platform.keepThisSimpleAndReusable')) ?></li><li><?= esc(lang('V3Platform.useItOnlyOutsideThe24HourSessionWindow')) ?></li><li><?= esc(lang('V3Platform.includeClinicIdentityVariablesLike')) ?> <code class="font-mono text-[11px]">clinic_name</code> <?= esc(lang('V3Platform.and')) ?> <code class="font-mono text-[11px]">clinic_phone</code>.</li></ul></div>
+                                    <div class="cp-radius border border-dashed cp-border cp-surface p-5"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.howToUse')) ?></p><ul class="mt-3 space-y-2 text-sm leading-6 v3-text-muted"><li><?= esc(lang('V3Platform.keepThisSimpleAndReusable')) ?></li><li><?= esc(lang('V3Platform.useItOnlyOutsideThe24HourSessionWindow')) ?></li><li><?= esc(lang('V3Platform.includeClinicIdentityVariablesLike')) ?> <code class="font-mono text-[11px]">clinic_name</code> <?= esc(lang('V3Platform.and')) ?> <code class="font-mono text-[11px]">clinic_phone</code>.</li></ul></div>
                                 </div>
                             </div>
                         </div>
@@ -198,12 +198,12 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                                     <div class="wa-template-card-header">
                                         <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                                             <div>
-                                                <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-primary"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                                <p class="text-xs font-black uppercase tracking-[0.16em] v3-text-primary"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                                                 <h5 class="mt-2 text-lg font-black v3-text-ink"><?= esc($displayTemplateName) ?></h5>
                                                 <p class="mt-1 text-sm v3-text-muted"><?= esc($triggerMeta['description'] ?? '') ?></p>
                                             </div>
                                             <div class="flex flex-wrap gap-2">
-                                                <span class="inline-flex items-center rounded-full cp-surface px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.templateRequired')) ?></span>
+                                                <span class="inline-flex items-center rounded-full cp-surface px-3 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.templateRequired')) ?></span>
                                                 <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'v3-bg-primary v3-text-on-primary' : 'v3-bg-alert v3-text-danger' ?>">
                                                     <?= $platformEnabled ? 'Platform enabled' : 'Platform disabled' ?>
                                                 </span>
@@ -248,11 +248,11 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                                         </div>
 
                                         <div class="space-y-4">
-                                            <div class="cp-radius border cp-border cp-surface p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.operatorNotes')) ?></p><p class="mt-3 text-sm leading-6 v3-text-ink"><?= esc($triggerMeta['operator_notes'] ?? 'Keep the Meta template name and variable order aligned with your approved template.') ?></p></div>
+                                            <div class="cp-radius border cp-border cp-surface p-5"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.operatorNotes')) ?></p><p class="mt-3 text-sm leading-6 v3-text-ink"><?= esc($triggerMeta['operator_notes'] ?? 'Keep the Meta template name and variable order aligned with your approved template.') ?></p></div>
                                             <?php if ($availableVars !== []): ?>
-                                                <div class="cp-radius border border-dashed cp-border cp-surface p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.availableVariables')) ?></p><div class="mt-3 flex flex-wrap gap-2"><?php foreach ($availableVars as $varKey => $varHelp): ?><span class="inline-flex items-center rounded-full border cp-border cp-surface px-3 py-1.5 text-xs v3-text-ink"><span class="mr-1 font-black v3-text-ink"><?= esc($varKey) ?></span><?= esc($varHelp) ?></span><?php endforeach; ?></div></div>
+                                                <div class="cp-radius border border-dashed cp-border cp-surface p-5"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.availableVariables')) ?></p><div class="mt-3 flex flex-wrap gap-2"><?php foreach ($availableVars as $varKey => $varHelp): ?><span class="inline-flex items-center rounded-full border cp-border cp-surface px-3 py-1.5 text-xs v3-text-ink"><span class="mr-1 font-black v3-text-ink"><?= esc($varKey) ?></span><?= esc($varHelp) ?></span><?php endforeach; ?></div></div>
                                             <?php endif; ?>
-                                            <div class="cp-radius border cp-border cp-surface p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.readyToUseStructure')) ?></p><ol class="mt-3 space-y-2 text-sm leading-6 v3-text-muted list-decimal ps-5"><li><?= esc(lang('V3Platform.keepTheTemplateNameEqualToTheApprovedMetaName')) ?></li><li><?= esc(lang('V3Platform.keepTheVariableOrderExactlyAsApproved')) ?></li><li><?= esc(lang('V3Platform.letClinicsSupplyTheirOwnIdentityValuesFromTenantClinicSettings')) ?></li></ol></div>
+                                            <div class="cp-radius border cp-border cp-surface p-5"><p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.readyToUseStructure')) ?></p><ol class="mt-3 space-y-2 text-sm leading-6 v3-text-muted list-decimal ps-5"><li><?= esc(lang('V3Platform.keepTheTemplateNameEqualToTheApprovedMetaName')) ?></li><li><?= esc(lang('V3Platform.keepTheVariableOrderExactlyAsApproved')) ?></li><li><?= esc(lang('V3Platform.letClinicsSupplyTheirOwnIdentityValuesFromTenantClinicSettings')) ?></li></ol></div>
                                         </div>
                                     </div>
                                 </div>
@@ -271,7 +271,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                         <h5 class="text-base font-black v3-text-ink"><?= esc(lang('V3Platform.platformTriggerMasterSwitches')) ?></h5>
                         <p class="mt-1 text-sm v3-text-muted"><?= esc(lang('V3Platform.useThisLayerToEnableOrDisableEachWhatsappWorkflowGloballyBeforeClinicLevelRolloutIsConsidered')) ?></p>
                     </div>
-                    <span class="inline-flex items-center rounded-full cp-soft-surface px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] cp-accent"><?= esc(lang('V3Platform.platformLayer')) ?></span>
+                    <span class="inline-flex items-center rounded-full cp-soft-surface px-3 py-1 text-xs font-black uppercase tracking-[0.16em] cp-accent"><?= esc(lang('V3Platform.platformLayer')) ?></span>
                 </div>
 
                 <form action="<?= base_url('controlplane/settings/whatsapp-templates') ?>" method="post" class="space-y-5" data-settings-form="true" data-saving-label="Saving rollout switches...">
@@ -317,7 +317,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                         <h5 class="text-base font-black v3-text-ink"><?= esc(lang('V3Platform.clinicRolloutAndRateControls')) ?></h5>
                         <p class="mt-1 text-sm v3-text-muted"><?= esc(lang('V3Platform.clinicSpecificTogglesLimitsAndEmergencyPauseNowLiveOnEachClinicDetailPageSoOperatorsCanManageRolloutInContext')) ?></p>
                     </div>
-                    <span class="inline-flex items-center rounded-full v3-bg-soft px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.clinicLayer')) ?></span>
+                    <span class="inline-flex items-center rounded-full v3-bg-soft px-3 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.clinicLayer')) ?></span>
                 </div>
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <?php foreach ($waPolicies as $pol): ?>
@@ -345,7 +345,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
             <div class="cp-radius border cp-border cp-surface p-6">
                 <div class="flex items-start justify-between gap-4 mb-5">
                     <div><h5 class="text-base font-black v3-text-ink"><?= esc(lang('V3Platform.apiCredentials')) ?></h5><p class="mt-1 text-sm v3-text-muted"><?= esc(lang('V3Platform.rotateWhatsappPlatformSecretsHereChangesAffectTheSharedSenderForAllClinics')) ?></p></div>
-                    <span class="inline-flex items-center rounded-full v3-bg-soft px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.sensitive')) ?></span>
+                    <span class="inline-flex items-center rounded-full v3-bg-soft px-3 py-1 text-xs font-black uppercase tracking-[0.16em] v3-text-ink"><?= esc(lang('V3Platform.sensitive')) ?></span>
                 </div>
                 <div class="space-y-4">
                     <?php foreach (($wa_secrets ?? []) as $s): ?>

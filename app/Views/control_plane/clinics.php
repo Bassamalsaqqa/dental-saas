@@ -60,13 +60,14 @@
         </div>
     </div>
 
+    <div class="v3-tenant-inspection-split">
     <!-- Tenant Zebra Registry Table -->
     <div class="cp-table-wrap">
         <!-- Table Filter Tools Bar -->
         <div class="cp-table-tools">
             <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
                 <div class="relative min-w-[220px] flex-1 max-w-sm">
-                    <i class="fas fa-search absolute left-2.5 top-1/2 /2 text-[var(--denta-muted)] text-xs"></i>
+                    <i class="fas fa-search absolute left-2.5 top-1/2 /2 v3-text-muted text-xs"></i>
                     <input id="clinicSearch" type="search" value="<?= esc($filters['q'] ?? '', 'attr') ?>" placeholder="<?= esc(lang('V3Platform.searchClinicsOrAdminEmail'), 'attr') ?>"
                            class="cp-input w-full pl-8 text-xs v3-input">
                 </div>
@@ -151,7 +152,9 @@
         </div>
     </div>
 
-    <p class="mt-2 text-xs text-[var(--denta-muted)] font-medium" role="note"><?= esc(lang('IonAuth.clinic_delete_history_protected')) ?></p>
+    <?= view('control_plane/partials/tenant_inspector') ?>
+    </div>
+    <p class="mt-2 text-xs v3-text-muted font-medium" role="note"><?= esc(lang('IonAuth.clinic_delete_history_protected')) ?></p>
 </div>
 
 <!-- Terminate Clinic Modal -->
@@ -159,7 +162,7 @@
     <div class="w-full max-w-lg cp-modal-box">
         <div class="cp-modal-head bg-[var(--denta-tint-alert)] border-b border-[#EABCB8]">
             <div>
-                <p class="text-[10px] uppercase tracking-wider text-[#8C2224] font-bold m-0"><?= esc(lang('V3Platform.dangerZone')) ?></p>
+                <p class="text-xs uppercase tracking-wider text-[#8C2224] font-bold m-0"><?= esc(lang('V3Platform.dangerZone')) ?></p>
                 <h3 class="text-sm font-bold text-[#8C2224] m-0"><?= esc(lang('V3Platform.terminateClinicTenant')) ?></h3>
             </div>
             <button type="button" class="p-1.5 v3-text-muted v3-hover-text-ink rounded v3-btn v3-btn--secondary" onclick="closeTerminateModal()">
@@ -451,7 +454,7 @@ $(document).ready(function() {
                         return `
                             <div>
                                 <div class="text-sm font-semibold v3-text-ink">${email}</div>
-                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold v3-bg-waiting v3-text-warning border v3-border-default mt-0.5">
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold v3-bg-waiting v3-text-warning border v3-border-default mt-0.5">
                                     <i class="fas fa-clock text-[9px] me-1"></i><?= esc(lang('UI.legacyAdminCandidate'), 'js') ?>
                                 </span>
                             </div>
@@ -469,7 +472,7 @@ $(document).ready(function() {
                     return `
                         <div>
                             <div class="text-sm font-semibold v3-text-ink">${email}</div>
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${badgeClass} mt-0.5">
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${badgeClass} mt-0.5">
                                 ${escapeHtml(row.admin_state_label || 'Degraded')}
                             </span>
                         </div>
@@ -579,9 +582,28 @@ $(document).ready(function() {
             searchPlaceholder: 'Search clinics...',
             paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' }
         },
-        drawCallback: function() { refreshCsrfToken(); },
+        drawCallback: function() {
+            refreshCsrfToken();
+            const rows = this.api().rows({page:'current'});
+            rows.every(function(){ const node=this.node(); if(node)node.tabIndex=0; });
+            const first = rows.data()[0]; if(first)requestAnimationFrame(()=>updateV3Inspector(first));
+        },
     });
 
+    function updateV3Inspector(row) {
+        if (!row || !row.id) return;
+        const values = {'name':row.name,'slug':row.slug,'status':({active:<?= json_encode(lang('V3Platform.active'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,suspended:<?= json_encode(lang('V3Platform.suspended'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,inactive:<?= json_encode(lang('V3Platform.inactive'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>})[row.status]||row.status,'admin':row.admin_email,'plan':row.plan_name};
+        Object.entries(values).forEach(([key,value])=>{const el=document.getElementById('v3-inspector-'+key);if(el)el.textContent=value||'\u2014';});
+        const link=document.getElementById('v3-inspector-detail');link.href=baseUrl+'controlplane/clinics/'+encodeURIComponent(String(row.id));link.hidden=false;
+        $('#clinicsTable tbody tr').removeClass('v3-selected-row');
+        clinicsTable.rows().every(function(){if(String(this.data().id)===String(row.id))this.node()?.classList.add('v3-selected-row');});
+    }
+    $('#clinicsTable tbody').on('click','tr',function(event){if(event.target.closest('a,button,input'))return;updateV3Inspector(clinicsTable.row(this).data());});
+    $('#clinicsTable tbody').on('keydown','tr',function(event){if(event.target!==this||!['Enter',' '].includes(event.key))return;event.preventDefault();updateV3Inspector(clinicsTable.row(this).data());});
+    document.querySelectorAll('[data-inspector-tab]').forEach(button=>button.addEventListener('click',()=>{
+        document.querySelectorAll('[data-inspector-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+        document.querySelectorAll('[data-inspector-pane]').forEach(p=>p.hidden=p.dataset.inspectorPane!==button.dataset.inspectorTab);
+    }));
     let clinicFilterTimer;
     $('#clinicSearch').on('input', function() {
         window.clearTimeout(clinicFilterTimer);

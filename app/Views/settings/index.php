@@ -17,15 +17,15 @@
     <div class="denta-settings-workspace settings-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <header class="v3-command-header"><div class="v3-command-title"><h1><?= lang('UI.systemSettings') ?></h1><p><?= lang('UI.settingsConfigureSystem') ?></p></div></header><section class="v3-settings-context"><div class="v3-settings-summary-strip">
                     <div class="settings-hero-chip v3-corner px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsClinicProfile') ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsClinicProfile') ?></p>
                         <p class="mt-1 truncate text-sm font-black v3-text-on-primary"><?= esc($clinicDisplayName) ?></p>
                     </div>
                     <div class="settings-hero-chip v3-corner px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSubscription') ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSubscription') ?></p>
                         <p class="mt-1 truncate text-sm font-black v3-text-on-primary"><?= esc($planDisplayName) ?> <span class="font-bold v3-accent-text">/ <?= esc($subscriptionStatus) ?></span></p>
                     </div>
                     <div class="settings-hero-chip v3-corner px-4 py-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSystemTab') ?></p>
+                        <p class="text-xs font-black uppercase tracking-[0.14em] v3-accent-text"><?= lang('UI.settingsSystemTab') ?></p>
                         <p class="mt-1 truncate text-sm font-black v3-text-on-primary"><span dir="ltr"><?= esc($timezoneDisplay) ?></span> <span class="font-bold v3-accent-text">/ <?= esc($languageDisplay) ?></span></p>
                     </div>
                 </div></section>
@@ -68,7 +68,7 @@
             <div class="v3-settings-navigation">
                 <div class="settings-shell-card v3-corner p-4">
                     <div class="mb-3 px-2">
-                        <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsMenu') ?></p>
+                        <p class="settings-nav-kicker text-xs font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsMenu') ?></p>
                     </div>
                     <nav class="space-y-3">
                         <div class="settings-nav-group space-y-2">
@@ -94,7 +94,7 @@
 
                         <div class="settings-nav-group">
                             <div class="mb-3 px-2">
-                                <p class="settings-nav-kicker text-[11px] font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsCommunications') ?></p>
+                                <p class="settings-nav-kicker text-xs font-black uppercase tracking-[0.16em]"><?= lang('UI.settingsCommunications') ?></p>
                             </div>
                             <div class="space-y-2">
                             <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn v3-btn v3-btn--secondary">

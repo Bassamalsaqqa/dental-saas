@@ -241,19 +241,19 @@ $averageCost = count($usageHistory) > 0 ? $totalUsageCost / count($usageHistory)
 
                 <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     <div class="v3-radius border v3-border v3-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.totalRecords')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.totalRecords')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= count($usageHistory) ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-bg-primary p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc(lang('Inventory.totalValue')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc(lang('Inventory.totalValue')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary" dir="ltr"><?= formatCurrency($totalUsageCost) ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-soft-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.thisMonth')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-accent-text"><?= esc(lang('Inventory.thisMonth')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $monthlyCount ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-bg-warning p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-warning"><?= esc(lang('Inventory.avgCost')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-warning"><?= esc(lang('Inventory.avgCost')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary" dir="ltr"><?= formatCurrency($averageCost) ?></p>
                     </div>
                 </div>

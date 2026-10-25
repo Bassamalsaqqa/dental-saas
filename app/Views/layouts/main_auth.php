@@ -175,6 +175,7 @@
     };
 
 </script>
+<link rel="stylesheet" media="screen" href="<?= base_url('assets/css/v3-architecture.css') ?>?v=<?= @filemtime(FCPATH . 'assets/css/v3-architecture.css') ?: '1' ?>">
 </head>
 <body class="denta-v3 min-h-screen" data-v3-module="<?= esc($segment1) ?>">
     <a class="v3-skip-link" href="#workspace-content"><?= esc(lang('V3.skipToContent')) ?></a>
@@ -442,7 +443,7 @@
             <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
-                    <button id="sidebar-toggle" type="button" class="tenant-header-button" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()" title="<?= esc(lang('UI.mainMenu')) ?> (Ctrl+B)" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
+                    <button id="sidebar-toggle" type="button" class="tenant-header-button v3-toolbar-action" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()" title="<?= esc(lang('UI.mainMenu')) ?> (Ctrl+B)" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
                         <i class="fas fa-bars text-lg relative z-10 transition-colors duration-200"></i>
                     </button>
 
@@ -452,46 +453,20 @@
                     </div>
                 </div>
 
+                <?php if (has_permission('patients', 'view')): ?>
+                <form class="v3-command-search" action="<?= base_url('patients') ?>" method="get" role="search">
+                    <i class="fas fa-search" aria-hidden="true"></i><input id="globalSearch" type="search" name="search" aria-label="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>" placeholder="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>"><kbd>/</kbd>
+                </form>
+                <?php endif; ?>
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0" id="header-right">
                     <span class="v3-clinic-context"><i class="fas fa-clinic-medical" aria-hidden="true"></i><span class="truncate"><?= esc($clinic['name'] ?? 'Denta+') ?></span></span>
                     <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
                     <?php $returnToUrl = current_url(true)->__toString(); ?>
-                    <div class="hidden sm:flex items-center">
-                        <nav class="tenant-language-switcher" aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>">
-                            <span class="tenant-language-switcher__icon" title="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>">
-                                <i class="fas fa-language text-[13px]"></i>
-                            </span>
-                            <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnToUrl)) ?>"
-                               lang="en"
-                               hreflang="en"
-                               aria-current="<?= $activeLocale === 'en' ? 'page' : 'false' ?>"
-                               title="<?= esc(lang('UI.settingsLanguageEn'), 'attr') ?>"
-                               class="tenant-language-option <?= $activeLocale === 'en' ? 'is-active' : '' ?>">
-                                <span>EN</span>
-                            </a>
-                            <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnToUrl)) ?>"
-                               lang="ar"
-                               hreflang="ar"
-                               aria-current="<?= $activeLocale === 'ar' ? 'page' : 'false' ?>"
-                               title="<?= esc(lang('UI.settingsLanguageAr'), 'attr') ?>"
-                               class="tenant-language-option <?= $activeLocale === 'ar' ? 'is-active' : '' ?>">
-                                <span lang="ar" dir="rtl"><?= esc(lang('UI.settingsLanguageAr')) ?></span>
-                            </a>
-                        </nav>
-                    </div>
-                    <div class="sm:hidden">
-                        <a href="<?= base_url('language/switch/' . ($activeLocale === 'ar' ? 'en' : 'ar') . '?return_to=' . urlencode($returnToUrl)) ?>"
-                                lang="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
-                                hreflang="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
-                                aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>"
-                                class="tenant-language-switcher">
-                            <span class="tenant-language-switcher__icon !h-7 !w-7">
-                                <i class="fas fa-language text-[13px]"></i>
-                            </span>
-                            <span class="tenant-language-option !min-h-7 !px-2"><?= $activeLocale === 'ar' ? 'EN' : esc(lang('UI.settingsLanguageAr')) ?></span>
-                        </a>
-                    </div>
+                    <nav class="v3-locale-links" aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>" dir="ltr">
+                        <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnToUrl)) ?>" lang="en" hreflang="en" aria-current="<?= $activeLocale === 'en' ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageEn'), 'attr') ?>">EN</a><span aria-hidden="true">|</span>
+                        <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnToUrl)) ?>" lang="ar" hreflang="ar" aria-current="<?= $activeLocale === 'ar' ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageAr'), 'attr') ?>">AR</a>
+                    </nav>
                     <?php if (session()->get('is_impersonating')): ?>
                     <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="hidden sm:flex items-center space-x-2 v3-radius border v3-border-default v3-bg-alert px-3 py-1.5">
                         <?= csrf_field() ?>
@@ -504,7 +479,7 @@
                     <!-- Clinic Switcher (Moved here) -->
                     <?php if (isset($user_memberships) && count($user_memberships) > 1): ?>
                     <div class="relative group mobile-hide-compact" id="clinic-switcher">
-                        <button onclick="toggleClinicSwitcher()" class="tenant-header-button">
+                        <button onclick="toggleClinicSwitcher()" class="tenant-header-button v3-toolbar-action">
                             <i class="fas fa-hospital text-sm"></i>
                         </button>
 
@@ -516,7 +491,7 @@
 
                         <div id="clinicSwitcherMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50 transform transition-all">
                             <div class="tenant-header-dropdown__header p-4">
-                                <p class="text-[10px] font-black v3-text-primary uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
+                                <p class="text-xs font-black v3-text-primary uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
                                 <p class="mt-1 truncate text-sm font-black v3-text-ink"><?= esc($clinic['name']) ?></p>
                             </div>
                             <div class="p-2 max-h-64 overflow-y-auto">
@@ -528,7 +503,7 @@
                                             </span>
                                             <span class="flex min-w-0 flex-col overflow-hidden">
                                                 <span class="truncate text-sm font-black"><?= esc($m['clinic_name']) ?></span>
-                                                <span class="text-[11px] font-bold opacity-65"><?= esc($m['clinic_slug'] ?? ('ID ' . $m['clinic_id'])) ?></span>
+                                                <span class="text-xs font-bold opacity-65"><?= esc($m['clinic_slug'] ?? ('ID ' . $m['clinic_id'])) ?></span>
                                             </span>
                                         </span>
                                         <?php if ($m['clinic_id'] == session()->get('active_clinic_id')): ?>
@@ -550,44 +525,15 @@
                     <div class="hidden sm:block h-8 w-px v3-bg-sand mx-1 mobile-hide-compact"></div>
                     <?php endif; ?>
 
-                    <!-- System Action Icons -->
-                    <div class="lg:flex items-center space-x-2 hidden">
-                        <!-- New Patient -->
-                        <div class="relative group">
-                            <a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="tenant-header-button">
-                                <i class="fas fa-user-plus text-sm"></i>
-                            </a>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                <?= lang('UI.newPatient') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
-                            </div>
-                        </div>
-
-                        <!-- New Appointment -->
-                        <div class="relative group">
-                            <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="tenant-header-button">
-                                <i class="fas fa-calendar-plus text-sm"></i>
-                            </a>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                <?= lang('UI.newAppointment') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
-                            </div>
-                        </div>
-
-                        <!-- New Examination -->
-                        <div class="relative group">
-                            <a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="tenant-header-button">
-                                <i class="fas fa-stethoscope text-sm"></i>
-                            </a>
-                            <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                <?= lang('UI.newExamination') ?>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
-                            </div>
-                        </div>
-
+                    <div class="v3-toolbar-utilities">
+                    <details class="v3-toolbar-create"><summary aria-label="<?= esc(lang('UI.patientActions'), 'attr') ?>"><i class="fas fa-plus" aria-hidden="true"></i><span><?= esc(lang('UI.patientActions')) ?></span></summary><div class="v3-toolbar-create-menu">
+<?php if (has_permission('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" data-patient-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-user-plus" aria-hidden="true"></i><span><?= esc(lang('UI.newPatient')) ?></span></a><?php endif; ?>
+<?php if (has_permission('appointments', 'create')): ?><a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-calendar-plus" aria-hidden="true"></i><span><?= esc(lang('UI.newAppointment')) ?></span></a><?php endif; ?>
+<?php if (has_permission('examinations', 'create')): ?><a href="<?= base_url('examination/create') ?>" data-examination-create-modal-open class="v3-toolbar-create-link"><i class="fas fa-stethoscope" aria-hidden="true"></i><span><?= esc(lang('UI.newExamination')) ?></span></a><?php endif; ?>
+</div></details>
                         <!-- Notifications -->
                         <div class="relative group">
-                            <button id="notifications-trigger" class="tenant-header-button" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
+                            <button id="notifications-trigger" class="tenant-header-button v3-toolbar-action" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
                                 <i class="fas fa-bell text-sm"></i>
                                 <span id="notification-count" class="absolute -top-1 <?= !empty($is_rtl) ? '-left-1' : '-right-1' ?> v3-bg-danger v3-text-on-primary text-xs rounded-full min-w-[1rem] h-4 px-1 inline-flex items-center justify-center font-bold v3-elevation-none hidden text-[10px]">0</span>
                             </button>
@@ -601,15 +547,9 @@
 
                     <!-- User Profile Dropdown -->
                     <div class="relative group">
-                        <button id="user-menu-trigger" aria-label="<?= esc(lang('UI.profileMenu')) ?>" type="button" onclick="toggleUserMenu()" class="tenant-header-button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
-                            <i class="fas fa-user text-sm"></i>
+                        <button id="user-menu-trigger" aria-label="<?= esc(lang('UI.profileMenu')) ?>" type="button" onclick="toggleUserMenu()" class="tenant-header-button v3-toolbar-action v3-profile-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
+                            <span aria-hidden="true"><?= esc(mb_strtoupper(mb_substr((string) ($user->first_name ?? 'U'), 0, 1) . mb_substr((string) ($user->last_name ?? ''), 0, 1))) ?></span>
                         </button>
-                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                            <?= lang('UI.profileMenu') ?>
-                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
-                        </div>
-
-                        <!-- User Menu Dropdown -->
                         <div id="userMenu" class="tenant-header-dropdown absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 hidden w-72 max-w-[calc(100vw-2rem)] z-50">
                             <div class="tenant-header-dropdown__header p-4">
                                 <div class="flex items-center space-x-3">
@@ -637,7 +577,7 @@
                                         <div class="truncate text-xs font-bold v3-text-muted">
                                             <?= isset($user) && $user && property_exists($user, 'email') ? htmlspecialchars($user->email) : 'user@example.com' ?>
                                         </div>
-                                        <div class="mt-2 inline-flex rounded-full border v3-border-default v3-bg-scheduled px-2 py-1 text-[11px] font-black v3-text-primary">
+                                        <div class="mt-2 inline-flex rounded-full border v3-border-default v3-bg-scheduled px-2 py-1 text-xs font-black v3-text-primary">
                                             <?= isset($user_groups) && !empty($user_groups) ? $user_groups[0]->name : 'User' ?>
                                         </div>
                                     </div>
@@ -677,16 +617,6 @@
                         </div>
                     </div>
 
-                    <!-- Logout Button -->
-                    <div class="relative group mobile-hide-compact">
-                        <a href="<?= base_url('auth/logout') ?>" class="tenant-header-button hover:!v3-text-danger">
-                            <i class="fas fa-sign-out-alt text-sm"></i>
-                        </a>
-                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 v3-bg-forest v3-text-on-primary text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                            <?= lang('UI.logout') ?>
-                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 v3-bg-forest rotate-45"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
@@ -2187,5 +2117,6 @@
 <script src="<?= base_url('assets/js/app-drawer.js') ?>?v=<?= esc(asset_version('assets/js/app-drawer.js')) ?>"></script>
 <script src="<?= base_url('assets/js/contextual-workspace.js') ?>?v=<?= esc(asset_version('assets/js/contextual-workspace.js')) ?>"></script>
 
+<script defer src="<?= base_url('assets/js/v3-architecture.js') ?>?v=<?= @filemtime(FCPATH . 'assets/js/v3-architecture.js') ?: '1' ?>"></script>
 </body>
 </html>

@@ -26,15 +26,15 @@
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:min-w-[31rem]">
                     <div class="users-hero-chip px-4 py-3">
-                        <p class="text-[11px] uppercase tracking-[0.14em]"><?= lang('UserRole.totalUsers') ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em]"><?= lang('UserRole.totalUsers') ?></p>
                         <p class="mt-1 v3-section-title"><?= $totalUsers ?></p>
                     </div>
                     <div class="users-hero-chip px-4 py-3">
-                        <p class="text-[11px] uppercase tracking-[0.14em]"><?= lang('UserRole.activeUsers') ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em]"><?= lang('UserRole.activeUsers') ?></p>
                         <p class="mt-1 v3-section-title"><?= $activeUsers ?></p>
                     </div>
                     <div class="users-hero-chip px-4 py-3">
-                        <p class="text-[11px] uppercase tracking-[0.14em]"><?= lang('UserRole.roles') ?></p>
+                        <p class="text-xs uppercase tracking-[0.14em]"><?= lang('UserRole.roles') ?></p>
                         <p class="mt-1 v3-section-title"><?= $assignedRoleRows ?></p>
                     </div>
                 </div>

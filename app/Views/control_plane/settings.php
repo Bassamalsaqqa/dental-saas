@@ -209,19 +209,19 @@
                     </div>
                     <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[30rem] lg:grid-cols-4">
                         <div class="cp-radius cp-surface p-3 border v3-border-default">
-                            <p class="text-[11px] font-bold cp-accent"><?= esc(lang('V3Platform.currency')) ?></p>
+                            <p class="text-xs font-bold cp-accent"><?= esc(lang('V3Platform.currency')) ?></p>
                             <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= esc($settings['default_currency'] ?? 'ILS') ?></p>
                         </div>
                         <div class="cp-radius v3-bg-primary p-3 border v3-border-default">
-                            <p class="text-[11px] font-bold v3-text-primary"><?= esc(lang('V3Platform.slotLength')) ?></p>
+                            <p class="text-xs font-bold v3-text-primary"><?= esc(lang('V3Platform.slotLength')) ?></p>
                             <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= (int) ($settings['default_appointment_duration'] ?? 30) ?>m</p>
                         </div>
                         <div class="cp-radius v3-bg-primary p-3 border v3-border-default">
-                            <p class="text-[11px] font-bold cp-accent"><?= esc(lang('V3Platform.emailTemplates2')) ?></p>
+                            <p class="text-xs font-bold cp-accent"><?= esc(lang('V3Platform.emailTemplates2')) ?></p>
                             <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= number_format($templateStats['total'] ?? 0) ?></p>
                         </div>
                         <div class="cp-radius v3-bg-warning p-3 border v3-border-default">
-                            <p class="text-[11px] font-bold v3-text-warning"><?= esc(lang('V3Platform.exportRetention')) ?></p>
+                            <p class="text-xs font-bold v3-text-warning"><?= esc(lang('V3Platform.exportRetention')) ?></p>
                             <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= esc(ucwords(str_replace('_', ' ', (string) ($settings['retention_mode'] ?? 'latest')))) ?></p>
                         </div>
                     </div>
@@ -263,7 +263,7 @@
         <section class="control-settings-shell-card v3-radius p-3 sm:p-4">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-3 px-1 sm:px-2">
                 <div>
-                    <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.settingsAreas')) ?></p>
+                    <p class="text-xs font-black uppercase tracking-[0.16em] v3-text-muted"><?= esc(lang('V3Platform.settingsAreas')) ?></p>
                     <p class="mt-1 text-sm font-semibold v3-text-muted"><?= esc(lang('V3Platform.chooseTheOperatingSurfaceYouNeedToReviewOrUpdate')) ?></p>
                 </div>
                 <span class="rounded-full cp-soft-surface px-3 py-1.5 text-xs font-bold cp-accent border v3-border-default"><?= esc(lang('V3Platform.changesAreSavedPerSection')) ?></span>

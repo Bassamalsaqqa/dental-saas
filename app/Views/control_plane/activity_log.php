@@ -35,19 +35,19 @@
                     </div>
                     <div class="grid min-w-full grid-cols-2 gap-3 sm:min-w-[30rem] lg:grid-cols-4">
                         <div class="cp-radius cp-surface p-3 border v3-border-default">
-                            <p class="text-[11px] font-bold cp-accent"><?= esc(lang('V3Platform.loadedRows')) ?></p>
+                            <p class="text-xs font-bold cp-accent"><?= esc(lang('V3Platform.loadedRows')) ?></p>
                             <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= number_format($initialCount) ?></p>
                         </div>
                         <div class="cp-radius v3-bg-warning p-3 border v3-border-default">
-                            <p class="text-[11px] font-bold v3-text-warning"><?= esc(lang('V3Platform.eventTypes2')) ?></p>
+                            <p class="text-xs font-bold v3-text-warning"><?= esc(lang('V3Platform.eventTypes2')) ?></p>
                             <p class="mt-1 text-2xl font-bold v3-text-on-primary"><?= number_format(count($eventTypes)) ?></p>
                         </div>
                         <button type="button" onclick="refreshActivities()" class="cp-radius cp-surface p-3 text-start border v3-border-default transition v3-hover-soft v3-btn v3-btn--secondary">
-                            <p class="text-[11px] font-bold cp-accent"><?= esc(lang('V3Platform.action')) ?></p>
+                            <p class="text-xs font-bold cp-accent"><?= esc(lang('V3Platform.action')) ?></p>
                             <p class="mt-1 text-sm font-bold v3-text-on-primary"><i class="fas fa-sync-alt me-2"></i><?= esc(lang('V3Platform.refresh')) ?></p>
                         </button>
                         <button type="button" onclick="exportActivities()" class="cp-radius v3-bg-primary p-3 text-start border v3-border-default transition v3-hover-primary v3-btn v3-btn--primary">
-                            <p class="text-[11px] font-bold v3-text-primary"><?= esc(lang('V3Platform.export')) ?></p>
+                            <p class="text-xs font-bold v3-text-primary"><?= esc(lang('V3Platform.export')) ?></p>
                             <p class="mt-1 text-sm font-bold v3-text-on-primary"><i class="fas fa-download me-2"></i>CSV</p>
                         </button>
                     </div>

@@ -856,11 +856,11 @@ $(document).ready(function() {
                     };
                     const config = statusConfig[data] || statusConfig['pending'];
                     const documentationBadge = row.documentation_state === 'signed'
-                        ? `<span class="mt-1 inline-flex rounded-lg v3-bg-paid px-2 py-1 text-[11px] font-black v3-text-primary">${i18n.documentationSigned}</span>`
+                        ? `<span class="mt-1 inline-flex rounded-lg v3-bg-paid px-2 py-1 text-xs font-black v3-text-primary">${i18n.documentationSigned}</span>`
                         : (row.documentation_state === 'ready_to_sign'
-                            ? `<span class="mt-1 inline-flex rounded-lg v3-bg-chair px-2 py-1 text-[11px] font-black v3-text-chair">${i18n.documentationReadyToSign}</span>`
+                            ? `<span class="mt-1 inline-flex rounded-lg v3-bg-chair px-2 py-1 text-xs font-black v3-text-chair">${i18n.documentationReadyToSign}</span>`
                             : (row.documentation_state === 'overdue_draft'
-                                ? `<span class="mt-1 inline-flex rounded-lg v3-bg-waiting px-2 py-1 text-[11px] font-black v3-text-warning">${i18n.documentationOverdueDraft}</span>`
+                                ? `<span class="mt-1 inline-flex rounded-lg v3-bg-waiting px-2 py-1 text-xs font-black v3-text-warning">${i18n.documentationOverdueDraft}</span>`
                                 : ''));
                     return `
                         <span class="inline-flex items-center v3-radius border px-3 py-1.5 text-xs font-extrabold ${config.bg} ${config.text} ${config.border}">

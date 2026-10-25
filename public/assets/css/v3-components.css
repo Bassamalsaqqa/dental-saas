@@ -12,7 +12,7 @@
 .denta-v3 :is(.v3-btn--danger,.v3-btn-danger):hover{background:var(--denta-terracotta-hover)}
 .denta-v3 :is(button,a,input,select,textarea):focus-visible{outline:2px solid var(--denta-emerald-pine);outline-offset:3px}
 .denta-v3 :is(button:disabled,input:disabled,select:disabled,textarea:disabled,[aria-disabled=true]){opacity:.55;cursor:not-allowed;box-shadow:none}
-.denta-v3 :is(.v3-input,.v3-select,.v3-textarea,input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),select,textarea){font-family:inherit;color:var(--denta-ink);background-color:var(--denta-ivory-input);border:1px solid var(--denta-muted);border-radius:var(--v3-control-radius);box-shadow:none;min-height:36px;padding:7px 10px}
+.denta-v3 :where(.v3-input,.v3-select,.v3-textarea,input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),select,textarea){font-family:inherit;color:var(--denta-ink);background-color:var(--denta-ivory-input);border:1px solid var(--denta-muted);border-radius:var(--v3-control-radius);box-shadow:none;min-height:36px;padding:7px 10px}
 .denta-v3 :is(input,textarea)::placeholder{color:var(--denta-muted);opacity:1}
 .denta-v3 :is(input,textarea,select)[aria-invalid=true]{border-color:var(--denta-terracotta)}
 .denta-v3 :is(input[type=checkbox],input[type=radio]){accent-color:var(--denta-emerald-pine);color:var(--denta-emerald-pine);width:17px;height:17px;border:1.5px solid var(--denta-taupe-border);border-radius:3px;box-shadow:none}
@@ -59,4 +59,10 @@
 .denta-v3 :is(.tenant-sidebar,.v3-platform-sidebar,.v3-bg-forest) .v3-text-muted{color:var(--denta-parchment)}
 @media(max-width:640px){.denta-v3 .v3-btn{min-height:40px}.denta-v3 :is(.v3-input,.v3-select,.v3-textarea){min-height:40px}}
 @media(prefers-reduced-motion:reduce){.denta-v3 *{scroll-behavior:auto;transition:none}}
+/* Existing hidden-checkbox/sibling tracks retain their native scripts and labels. */
+.denta-v3 .toggle-track{width:44px;height:24px;border:1px solid var(--denta-taupe-border);border-radius:12px;background-color:var(--denta-parchment);flex-shrink:0}
+.denta-v3 .toggle-dot{display:block;width:16px;height:16px;position:absolute;top:3px;left:4px;border-radius:50%;background-color:var(--denta-ivory-input);border:1px solid var(--denta-taupe-border)}
+.denta-v3 input:checked + .toggle-track{background-color:var(--denta-emerald-pine);border-color:var(--denta-emerald-pine)}
+.denta-v3 input:focus-visible + .toggle-track{outline:2px solid var(--denta-emerald-pine);outline-offset:3px}
+
 }

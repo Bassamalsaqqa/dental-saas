@@ -74,16 +74,7 @@ $completionBalance = $completionState['balance_summary'] ?? null;
      data-timeout-ms="90000">
     <div class="v3-kiosk-shell">
         <div class="v3-kiosk-access-bar">
-            <div class="inline-flex v3-corner border v3-border v3-surface p-1">
-                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=ar') ?>"
-                   class="v3-radius px-4 py-2 text-sm font-semibold transition-all <?= $isArabic ? 'v3-bg-primary v3-text-on-primary v3-elevation-none' : 'v3-text-ink v3-hover-soft' ?>">
-                    العربية
-                </a>
-                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=en') ?>"
-                   class="v3-radius px-4 py-2 text-sm font-semibold transition-all <?= !$isArabic ? 'v3-bg-primary v3-text-on-primary v3-elevation-none' : 'v3-text-ink v3-hover-soft' ?>">
-                    English
-                </a>
-            </div>
+            <nav class="v3-locale-links" aria-label="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>" dir="ltr"><a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=en') ?>" lang="en" aria-current="<?= !$isArabic ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageEn'), 'attr') ?>">EN</a><span aria-hidden="true">|</span><a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=ar') ?>" lang="ar" aria-current="<?= $isArabic ? 'page' : 'false' ?>" aria-label="<?= esc(lang('UI.settingsLanguageAr'), 'attr') ?>">AR</a></nav>
             <?php if (!empty($pin_verified)): ?>
                 <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 v3-radius border v3-border v3-surface px-4 py-2 text-sm font-semibold v3-text-muted v3-hover-soft v3-btn v3-btn--secondary">
                     <i class="fas fa-rotate-left v3-text-muted"></i>
@@ -130,7 +121,7 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <?php foreach ($workflowSteps as $step): ?>
                         <div class="kiosk-step-pill flex items-center gap-3 v3-corner border px-4 py-3 <?= $step['active'] ? 'active border-[var(--denta-emerald-pine)] bg-[var(--denta-emerald-pine)] v3-text-on-primary' : 'border-[var(--denta-taupe-border)] bg-[var(--denta-parchment)] text-[var(--denta-ink)]' ?>">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold <?= $step['active'] ? 'bg-[var(--denta-terracotta)] v3-text-on-primary' : 'bg-[var(--denta-sandstone)] text-[var(--denta-muted)]' ?>"><?= esc($step['number']) ?></span>
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold <?= $step['active'] ? 'bg-[var(--denta-terracotta)] v3-text-on-primary' : 'bg-[var(--denta-sandstone)] v3-text-muted' ?>"><?= esc($step['number']) ?></span>
                             <span class="text-sm font-semibold"><?= esc($step['label']) ?></span>
                         </div>
                     <?php endforeach; ?>
@@ -311,11 +302,11 @@ $completionBalance = $completionState['balance_summary'] ?? null;
                                 <p class="mt-2 text-sm leading-6 v3-text-muted"><?= esc($resultsEmptyHint) ?></p>
                                 <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                                     <div class="v3-corner border v3-border v3-surface px-4 py-3">
-                                        <div class="text-[11px] font-semibold uppercase tracking-[0.18em] v3-text-muted"><?= esc(lang('Kiosk.mobileNumber')) ?></div>
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] v3-text-muted"><?= esc(lang('Kiosk.mobileNumber')) ?></div>
                                         <div id="kioskLookupPhonePreview" class="mt-1 text-sm font-semibold v3-text-ink"><?= esc($lookup_phone ?: ($isArabic ? 'غير محدد' : 'Not entered')) ?></div>
                                     </div>
                                     <div class="v3-corner border v3-border v3-surface px-4 py-3">
-                                        <div class="text-[11px] font-semibold uppercase tracking-[0.18em] v3-text-muted"><?= esc(lang('Kiosk.needHelp')) ?></div>
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] v3-text-muted"><?= esc(lang('Kiosk.needHelp')) ?></div>
                                         <div class="mt-1 text-sm font-semibold v3-text-ink"><?= esc($footerHelp) ?></div>
                                     </div>
                                 </div>

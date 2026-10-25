@@ -41,7 +41,7 @@ $plainInputClass = $plainInputClass ?? 'v3-field-control';
 
 <section class="<?= esc($sectionClass) ?> v3-registration-section">
     <h4 class="text-lg font-bold mb-5 flex items-center gap-2">
-        <i class="fas fa-asterisk text-xs"></i>
+        <span class="v3-step-number" aria-hidden="true">1</span>
         <span><?= esc(lang('UI.patientRequiredInformation')) ?></span>
     </h4>
 
@@ -106,46 +106,8 @@ $plainInputClass = $plainInputClass ?? 'v3-field-control';
     </div>
 </section>
 
-<section class="<?= esc($sectionClass) ?> v3-registration-section">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 flex items-center justify-center">
-                <i class="fas fa-sliders-h"></i>
-            </div>
-            <div>
-                <h4 class="text-lg font-bold"><?= esc(lang('UI.patientOptionalInformation')) ?></h4>
-                <p class="text-sm"><?= esc(lang('UI.patientEnableOnlyWhenNeeded')) ?></p>
-            </div>
-        </div>
-        <label class="inline-flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" id="optionalEnabled" class="sr-only v3-checkbox" <?= $optionalEnabledByOld ? 'checked' : '' ?>>
-            <div id="optionalTrack" class="toggle-track w-11 h-6 relative">
-                <div id="optionalDot" class="toggle-dot absolute left-1 top-1 w-4 h-4"></div>
-            </div>
-            <span class="text-sm font-semibold"><?= esc(lang('UI.patientEnable')) ?></span>
-        </label>
-    </div>
-
-    <div id="optionalSection" class="hidden">
-        <div>
-            <h5 class="text-sm font-semibold mb-3"><?= esc(lang('UI.patientContactDetails')) ?></h5>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="email" class="block text-sm font-medium mb-2"><?= esc(lang('UI.patientEmail')) ?></label>
-                    <input id="email" name="email" type="email" value="<?= old('email') ?>" class="<?= esc($plainInputClass) ?> v3-input">
-                    <?php if ($validation && $validation->hasError('email')): ?>
-                        <p class="v3-text-danger text-sm mt-2"><?= esc($validation->getError('email')) ?></p>
-                    <?php endif; ?>
-                </div>
-                <div>
-                    <label for="city" class="block text-sm font-medium mb-2"><?= esc(lang('UI.patientCity')) ?></label>
-                    <input id="city" name="city" type="text" value="<?= old('city') ?>" class="<?= esc($plainInputClass) ?> v3-input">
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <h5 class="text-sm font-semibold mb-3"><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></h5>
+<section class="<?= esc($sectionClass) ?> v3-intake-medical">        <div>
+            <h5 class="v3-intake-medical-title"><span class="v3-step-number" aria-hidden="true">2</span> <?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></h5>
             <div class="border p-4 md:p-5">
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 items-start" data-medical-alert-grid>
                     <?php
@@ -295,7 +257,47 @@ $plainInputClass = $plainInputClass ?? 'v3-field-control';
                     <?php endforeach; ?>
                 </div>
             </div>
+        </div></section>
+
+<section class="<?= esc($sectionClass) ?> v3-registration-section">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 flex items-center justify-center">
+                <i class="fas fa-sliders-h"></i>
+            </div>
+            <div>
+                <h4 class="text-lg font-bold"><?= esc(lang('UI.patientOptionalInformation')) ?></h4>
+                <p class="text-sm"><?= esc(lang('UI.patientEnableOnlyWhenNeeded')) ?></p>
+            </div>
         </div>
+        <label class="inline-flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" id="optionalEnabled" class="sr-only v3-checkbox" <?= $optionalEnabledByOld ? 'checked' : '' ?>>
+            <div id="optionalTrack" class="toggle-track w-11 h-6 relative">
+                <div id="optionalDot" class="toggle-dot absolute left-1 top-1 w-4 h-4"></div>
+            </div>
+            <span class="text-sm font-semibold"><?= esc(lang('UI.patientEnable')) ?></span>
+        </label>
+    </div>
+
+    <div id="optionalSection" class="hidden">
+        <div>
+            <h5 class="text-sm font-semibold mb-3"><?= esc(lang('UI.patientContactDetails')) ?></h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium mb-2"><?= esc(lang('UI.patientEmail')) ?></label>
+                    <input id="email" name="email" type="email" value="<?= old('email') ?>" class="<?= esc($plainInputClass) ?> v3-input">
+                    <?php if ($validation && $validation->hasError('email')): ?>
+                        <p class="v3-text-danger text-sm mt-2"><?= esc($validation->getError('email')) ?></p>
+                    <?php endif; ?>
+                </div>
+                <div>
+                    <label for="city" class="block text-sm font-medium mb-2"><?= esc(lang('UI.patientCity')) ?></label>
+                    <input id="city" name="city" type="text" value="<?= old('city') ?>" class="<?= esc($plainInputClass) ?> v3-input">
+                </div>
+            </div>
+        </div>
+
+
 
         <div>
             <h5 class="text-sm font-semibold mb-3"><?= esc(lang('UI.patientInsuranceNotes')) ?></h5>

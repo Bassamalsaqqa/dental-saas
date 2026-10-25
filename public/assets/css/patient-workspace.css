@@ -12,7 +12,7 @@
 .denta-v3 .patient-header-snapshot-icon,.denta-v3 .patient-hero-chip-icon {color:var(--denta-emerald-pine);font-size:14px;flex-shrink:0;}
 .denta-v3 .patient-hero-chip-text {display:flex;flex-direction:column;min-width:0;}
 .denta-v3 .patient-hero-chip-value {font-size:12px;font-weight:600;}
-.denta-v3 .patient-hero-chip-label {font-size:10px;color:var(--denta-muted);}
+.denta-v3 .patient-hero-chip-label {font-size:12px;color:var(--denta-muted);}
 .denta-v3 .patient-header-snapshot-card-alert {background:var(--denta-tint-alert)!important;}
 .denta-v3 .patient-header-snapshot-card-due {background:var(--denta-tint-waiting)!important;}
 .denta-v3 .patient-shell {background:var(--denta-alabaster);border:1px solid var(--denta-taupe-border);border-radius:8px;overflow:hidden;}
@@ -20,7 +20,7 @@
 .denta-v3 .patient-shell-nav button {min-height:42px;border-radius:0;font-size:13px;padding:10px 14px;background:transparent;color:var(--denta-ink);white-space:nowrap;border-bottom:2px solid transparent;}
 .denta-v3 .patient-shell-nav button.active,.denta-v3 .patient-shell-nav button[aria-selected=true] {background:var(--denta-tint-scheduled);border-bottom-color:var(--denta-emerald-pine);color:var(--denta-emerald-pine);}
 .denta-v3 .patient-filter-strip {background:var(--denta-parchment);border-bottom:1px solid var(--denta-taupe-border);}
-.denta-v3 .patient-details-layout {display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start;}
+.denta-v3 .patient-details-layout {display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,1fr);gap:14px;align-items:start;}
 .denta-v3 :is(.patient-details-main,.patient-details-sidebar) {display:flex;flex-direction:column;gap:14px;min-width:0;}
 .denta-v3 .patient-compact-card {border:1px solid var(--denta-taupe-border);border-radius:7px;background:var(--denta-alabaster);overflow:hidden;}
 .denta-v3 :is(.patient-compact-header,.v3-record-summary,.patient-section-header) {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--denta-sandstone);border-bottom:1px solid var(--denta-taupe-border);}
@@ -38,7 +38,7 @@
 .denta-v3 .patient-preview-frame {position:relative;aspect-ratio:16/9;overflow:hidden;border:1px solid var(--denta-taupe-border);border-radius:6px;background:var(--denta-ivory-input);}
 .denta-v3 .patient-preview-empty {display:flex;height:100%;min-height:120px;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;text-align:center;color:var(--denta-muted);font-size:13px;}
 .denta-v3 .patient-preview-metrics {display:flex;flex-wrap:wrap;gap:6px;}
-.denta-v3 .patient-preview-metric {font-size:11px;padding:4px 7px;background:var(--denta-parchment);border-radius:4px;}
+.denta-v3 .patient-preview-metric {font-size:12px;padding:4px 7px;background:var(--denta-parchment);border-radius:4px;}
 .denta-v3 :is(.patient-preview-meta-copy,.patient-snapshot-copy,.patient-snapshot-date) {font-size:12px;color:var(--denta-muted);}
 .denta-v3 .patient-imaging-preview-image {width:100%;height:100%;object-fit:contain;display:block;background:var(--denta-forest);}
 .denta-v3 .patient-facts-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--denta-taupe-border);}
@@ -52,7 +52,7 @@
 .denta-v3 .patient-snapshot-list {display:flex;flex-direction:column;gap:10px;padding:12px;}
 .denta-v3 .patient-snapshot-item {padding:10px;border:1px solid var(--denta-taupe-border);border-radius:5px;background:var(--denta-parchment);}
 .denta-v3 .patient-snapshot-item-topline {display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
-.denta-v3 .patient-snapshot-badge {font-size:11px;padding:3px 6px;background:var(--denta-tint-scheduled);color:var(--denta-emerald-pine);border-radius:4px;}
+.denta-v3 .patient-snapshot-badge {font-size:12px;padding:3px 6px;background:var(--denta-tint-scheduled);color:var(--denta-emerald-pine);border-radius:4px;}
 .denta-v3 .patient-medical-body,.denta-v3 .patient-section-body {padding:14px;}
 .denta-v3 .patient-medical-section {display:flex;flex-direction:column;gap:10px;}
 .denta-v3 .patient-medical-section+.patient-medical-section {border-top:1px solid var(--denta-taupe-border);margin-top:12px;padding-top:12px;}
@@ -71,7 +71,7 @@
 .denta-v3 .patient-table-action-danger {color:#9B281F;}
 .denta-v3 .patient-history-summary {display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
 .denta-v3 .patient-history-summary-count {font-size:13px;font-weight:700;}
-.denta-v3 .patient-history-summary-copy {font-size:11px;color:var(--denta-muted);}
+.denta-v3 .patient-history-summary-copy {font-size:12px;color:var(--denta-muted);}
 .denta-v3 .patient-timeline-list {display:flex;flex-direction:column;gap:12px;}
 .denta-v3 .patient-timeline-node {display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;}
 .denta-v3 .patient-timeline-main {padding:12px;border:1px solid var(--denta-taupe-border);background:var(--denta-alabaster);border-radius:6px;}

@@ -24,8 +24,8 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 
 
 <div>
-    <div class="finance-page-wrap mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <header class="v3-command-header"><div><h1><?= lang('Finance.financeManagement') ?></h1><p><?= esc($tr('cashBasisShort')) ?></p></div><div class="v3-command-actions"><?php if (has_permission('finance', 'create')): ?>
+    <div class="finance-page-wrap v3-page-stack">
+        <header class="v3-command-header"><div><h1><?= esc(lang('V3Fidelity.financeOverview')) ?></h1><p><?= esc($tr('cashBasisShort')) ?></p></div><div class="v3-command-actions"><?php if (has_permission('finance', 'create')): ?>
                             <a href="<?= base_url('finance/income/create') ?>" id="addIncomeModalTrigger" data-finance-create-modal-open="financeIncomeModal" data-finance-transaction-type="payment" class="inline-flex w-full items-center justify-center gap-2 v3-radius v3-bg-panel px-4 py-2.5 text-sm v3-text-primary transition v3-hover-primary sm:w-auto v3-btn v3-btn--secondary">
                                 <i class="fas fa-hand-holding-dollar"></i>
                                 <?= esc($tr('recordPayment')) ?>
@@ -34,7 +34,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                                 <i class="fas fa-file-invoice-dollar"></i>
                                 <?= esc($tr('createInvoice')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full items-center justify-center gap-2 v3-radius v3-bg-danger px-4 py-2.5 text-sm transition v3-hover-danger sm:w-auto v3-btn v3-btn--danger">
+                            <a href="<?= base_url('finance/expenses/create') ?>" id="newExpenseModalTrigger" data-finance-create-modal-open="financeExpenseModal" class="inline-flex w-full items-center justify-center gap-2 v3-radius v3-bg-soft px-4 py-2.5 text-sm transition v3-hover-soft sm:w-auto v3-btn v3-btn--secondary">
                                 <i class="fas fa-receipt"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
@@ -53,10 +53,11 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
 <article class="v3-metric v3-metric-tone-0"><span><?= lang('Finance.grossCollections') ?></span><strong id="totalRevenue"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
 <article class="v3-metric v3-metric-tone-1"><span><?= lang('Finance.providerPaidCash') ?></span><strong id="providerPaidCash"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
 <article class="v3-metric v3-metric-tone-2"><span><?= lang('Finance.netClinicCash') ?></span><strong id="netClinicCash"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
-<article class="v3-metric v3-metric-tone-3"><span><?= lang('Finance.openInvoices') ?></span><strong id="outstandingInvoices"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><p class="sr-only" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p></article>
+<article class="v3-metric v3-metric-tone-3"><span><?= lang('Finance.openInvoices') ?></span><strong id="outstandingInvoices"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong></article>
 </section>
 
 
+        <section class="v3-custody-band" aria-labelledby="v3-custody-title"><header><i class="fas fa-wallet" aria-hidden="true"></i><h2 id="v3-custody-title"><?= esc(lang('V3Fidelity.custodyTitle')) ?></h2><p><?= esc(lang('V3Fidelity.originalCurrencies')) ?></p></header><div class="v3-custody-unavailable"><div><h3><?= esc(lang('V3Fidelity.accountBalances')) ?></h3><p><?= esc(lang('V3Fidelity.accountBalancesHint')) ?></p></div><a href="<?= base_url('finance/transfers') ?>" class="v3-btn v3-custody-open"><i class="fas fa-right-left" aria-hidden="true"></i><?= esc($tr('treasuryTransfers')) ?></a></div></section>
         <nav class="v3-finance-navigation" aria-label="<?= esc($tr('financeAreas')) ?>">
             <span class="shrink-0 text-xs uppercase tracking-wide v3-text-muted"><?= esc($tr('financeAreas')) ?></span>
             <div class="flex flex-wrap gap-2">
@@ -169,7 +170,7 @@ $shouldOpenExpenseModal = $sourceModal === 'finance_expense_quick_create';
                                         </td>
                                     </tr>
                             </tbody>
-                        </table>
+                        </table><footer class="v3-ledger-totals"><span><?= esc($tr('openInvoicesHelp')) ?></span><strong id="outstandingInvoicesBalance" dir="auto"></strong></footer>
                             </div>
                             </div>
                         </div>

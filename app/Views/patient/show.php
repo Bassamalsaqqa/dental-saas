@@ -821,7 +821,7 @@ if (isset($workspace_history)) {
                                 <span class="patient-header-snapshot-icon"><i class="<?= esc($snapshotCard['icon']) ?>"></i></span>
                                 <span class="min-w-0">
                                     <span class="block truncate text-xs font-black"><?= esc($snapshotCard['value']) ?></span>
-                                    <span class="block max-w-[8.5rem] truncate text-[0.64rem] font-bold opacity-80"><?= esc($snapshotCard['label']) ?></span>
+                                    <span class="block max-w-[8.5rem] truncate text-xs font-bold opacity-80"><?= esc($snapshotCard['label']) ?></span>
                                 </span>
                             </div>
                         <?php endforeach; ?>

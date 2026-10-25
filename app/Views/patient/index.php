@@ -18,23 +18,21 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
 <!-- Custom DataTables Styling -->
 
 
-<div class="patients-page min-h-screen v3-surface">
-    <div class="w-full px-3 py-4 sm:px-5 sm:py-5">
+<div class="patients-page v3-registry-workspace min-h-screen">
+    <div class="v3-page-stack">
         <header class="v3-command-header">
-  <div><h1><?= esc(lang('UI.patientManagementTitle')) ?></h1><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></div>
+  <div><h1><?= esc(lang('V3Fidelity.directoryTitle')) ?></h1><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></div>
   <div class="v3-command-actions"><?php if (has_permission('patients', 'create')): ?><a href="<?= base_url('patient/create') ?>" id="newPatientModalTrigger" data-patient-create-modal-open class="v3-action v3-action-primary">
                         <i class="fas fa-user-plus"></i>
                         <?= esc(lang('UI.patientNewPatient')) ?>
                     </a><?php endif; ?></div>
 </header>
 
-        <section class="v3-metric-strip" aria-label="<?= esc(lang('UI.patientPatientRegistry')) ?>">
-<article class="v3-metric v3-metric-tone-0"><span><?= esc(lang('UI.patientTotalPatients')) ?></span><strong id="totalPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-users" aria-hidden="true"></i></article>
-<article class="v3-metric v3-metric-tone-1"><span><?= esc(lang('UI.patientActivePatients')) ?></span><strong id="activePatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-user-check" aria-hidden="true"></i></article>
-<article class="v3-metric v3-metric-tone-2"><span><?= esc(lang('UI.patientNewPatients')) ?></span><strong id="newPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-user-plus" aria-hidden="true"></i></article>
-<article class="v3-metric v3-metric-tone-3"><span><?= esc(lang('UI.patientThisMonth')) ?></span><strong id="monthlyPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><i class="fas fa-calendar-day" aria-hidden="true"></i></article>
-</section>
-
+        <section class="v3-registry-metrics" aria-label="<?= esc(lang('UI.patientPatientRegistry')) ?>">
+            <article class="v3-registry-kpi"><span><i class="fas fa-users" aria-hidden="true"></i> <?= esc(lang('UI.patientActivePatients')) ?></span><strong id="activePatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><p><?= esc(lang('UI.patientPatientRegistry')) ?></p></article>
+            <article class="v3-registry-kpi v3-registry-kpi-attention"><span><i class="fas fa-user-plus" aria-hidden="true"></i> <?= esc(lang('UI.patientNewPatients')) ?></span><strong id="newPatients"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></strong><p><?= esc(lang('UI.patientThisMonth')) ?> - <span id="monthlyPatients">-</span></p></article>
+        </section>
+        <details class="v3-registry-summary"><summary><?= esc(lang('UI.patientTotalPatients')) ?>: <span id="totalPatients">-</span></summary><p><?= esc(lang('UI.patientManagementSubtitle')) ?></p></details>
         <section id="tableView" class="v3-ledger-panel">
             <div class="border-b v3-border v3-warm-surface px-4 py-4 sm:px-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -48,7 +46,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-alert px-3 py-2 text-xs v3-text-danger transition v3-hover-danger v3-btn v3-btn--danger">
+                        <button onclick="exportToPDF()" class="inline-flex items-center gap-2 v3-radius border v3-border-default v3-bg-soft px-3 py-2 text-xs v3-text-ink transition v3-btn v3-btn--secondary">
                             <i class="fas fa-file-pdf"></i>
                             PDF
                         </button>
@@ -64,6 +62,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                 </div>
             </div>
 
+            <div class="v3-registry-filter-strip"><label class="v3-registry-search"><span class="sr-only"><?= esc(lang('UI.patientSearchPlaceholder')) ?></span><i class="fas fa-search" aria-hidden="true"></i><input id="searchInput" type="search" placeholder="<?= esc(lang('UI.patientSearchPlaceholder'), 'attr') ?>" autocomplete="off"></label><div class="v3-registry-status-chips" aria-label="<?= esc(lang('UI.patientStatus'), 'attr') ?>"><button type="button" data-registry-status="" aria-pressed="true"><?= esc(lang('V3Fidelity.allPatients')) ?></button><button type="button" data-registry-status="active" aria-pressed="false"><?= esc(lang('UI.patientStatusActive')) ?></button><button type="button" data-registry-status="inactive" aria-pressed="false"><?= esc(lang('UI.patientStatusInactive')) ?></button><button type="button" data-registry-status="pending" aria-pressed="false"><?= esc(lang('UI.patientStatusPending')) ?></button></div><input id="statusFilter" type="hidden" value=""></div>
             <div class="overflow-x-auto">
                         <table id="patientsTable" class="w-full min-w-full">
                             <thead>
@@ -136,7 +135,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                             <i class="fas fa-user-plus"></i>
                         </span>
                         <div>
-                            <h2 id="newPatientModalTitle" class="text-lg font-bold v3-text-ink"><?= esc(lang('UI.patientNewPatient')) ?></h2>
+                            <h2 id="newPatientModalTitle" class="text-lg font-bold v3-text-ink"><?= esc(lang('V3Fidelity.intakeTitle')) ?></h2>
                             <a href="<?= workflow_context_url('patient/create', $patientIndexReturnTo) ?>" class="mt-1 inline-flex text-xs font-semibold v3-text-primary v3-hover-text-primary">
                                 <?= esc(lang('UI.openFullPage')) ?>
                             </a>
@@ -159,6 +158,7 @@ $patientIndexReturnTo = workflow_current_target() ?? 'patients';
                         'is_rtl' => $isRtl,
                         'sectionClass' => 'v3-flow-section',
                     ]) ?>
+                    <section class="v3-flow-section v3-intake-next"><h4><span class="v3-step-number" aria-hidden="true">3</span> <?= esc(lang('V3Fidelity.nextStep')) ?></h4><p><?= esc(lang('V3Fidelity.intakeNextHint')) ?></p></section>
                 </div>
 
                 <div class="v3-context-drawer__footer">
@@ -269,6 +269,12 @@ function resetNewPatientModalForm(modal) {
     }
 }
 
+function v3PatientIntakeState() {
+    const form = document.getElementById('newPatientQuickCreateForm');
+    if (!form) return '';
+    return JSON.stringify(Array.from(new FormData(form).entries()).filter(([name]) => name !== document.querySelector('meta[name="csrf-name"]')?.content).map(([name,value])=>[name,String(value)]));
+}
+let v3PatientIntakeInitialState = '';
 function openNewPatientModal(trigger) {
     const modal = mountNewPatientModal();
     if (!modal) {
@@ -279,6 +285,7 @@ function openNewPatientModal(trigger) {
         clearTimeout(newPatientModalCloseTimer);
         newPatientModalCloseTimer = null;
     }
+    v3PatientIntakeInitialState = v3PatientIntakeState();
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden', 'false');
     document.documentElement.classList.add('app-drawer-lock');
@@ -305,6 +312,7 @@ function closeNewPatientModal() {
     if (!modal || modal.classList.contains('hidden')) {
         return;
     }
+    if (v3PatientIntakeInitialState && v3PatientIntakeState() !== v3PatientIntakeInitialState && !window.confirm(<?= json_encode(lang('V3Fidelity.discardIntake'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)) return;
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden', 'true');
     document.documentElement.classList.remove('app-drawer-lock');
@@ -628,25 +636,26 @@ $(document).ready(function() {
                     if (permissions.patients.view) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}"
-                               data-workflow-context="1" class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-paid v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.viewPatient}">
-                                <i class="fas fa-eye"></i>
+                               data-workflow-context="1" class="inline-flex items-center gap-2 v3-radius v3-bg-soft v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.viewPatient}">
+                                <i class="fas fa-eye" aria-hidden="true"></i><span>${patientI18n.viewPatient}</span>
                             </a>`;
                     }
 
+                    actions += `<details class="v3-row-actions"><summary aria-label="<?= esc(lang('UI.patientActions'), 'js') ?>"><?= esc(lang('UI.patientActions'), 'js') ?> <i class="fas fa-chevron-down" aria-hidden="true"></i></summary><div class="v3-row-action-list">`;
                     // Edit button
                     if (permissions.patients.edit) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}/edit"
-                               class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.editPatient}">
-                                <i class="fas fa-edit"></i>
+                               class="inline-flex items-center gap-2 v3-radius v3-bg-soft v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.editPatient}">
+                                <i class="fas fa-edit"></i><span>${patientI18n.editPatient}</span>
                             </a>`;
                     }
 
                     // Odontogram button
                     actions += `
                         <a href="<?= base_url('odontogram') ?>/${data}"
-                           class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-chair v3-text-chair border v3-border-default transition v3-hover-primary" title="${patientI18n.odontogram}">
-                            <i class="fas fa-tooth"></i>
+                           class="inline-flex items-center gap-2 v3-radius v3-bg-soft v3-text-chair border v3-border-default transition v3-hover-primary" title="${patientI18n.odontogram}">
+                            <i class="fas fa-tooth"></i><span>${patientI18n.odontogram}</span>
                         </a>`;
 
                     const patientContextLabel = row.name || row.patient_id || '';
@@ -661,8 +670,8 @@ $(document).ready(function() {
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
                                data-context-patient-gender="${escapeHtmlAttribute(row.gender || '')}"
-                               class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-chair v3-text-chair border v3-border-default transition v3-hover-primary" title="${patientI18n.newExamination}">
-                                <i class="fas fa-stethoscope"></i>
+                               class="inline-flex items-center gap-2 v3-radius v3-bg-soft v3-text-chair border v3-border-default transition v3-hover-primary" title="${patientI18n.newExamination}">
+                                <i class="fas fa-stethoscope"></i><span>${patientI18n.newExamination}</span>
                             </a>`;
                     }
 
@@ -675,8 +684,8 @@ $(document).ready(function() {
                                data-context-patient-id="${data}"
                                data-context-patient-name="${escapeHtmlAttribute(patientContextLabel)}"
                                data-context-patient-code="${escapeHtmlAttribute(row.patient_id || '')}"
-                               class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-scheduled v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.newTreatment}">
-                                <i class="fas fa-briefcase-medical"></i>
+                               class="inline-flex items-center gap-2 v3-radius v3-bg-soft v3-text-primary border v3-border-default transition v3-hover-primary" title="${patientI18n.newTreatment}">
+                                <i class="fas fa-briefcase-medical"></i><span>${patientI18n.newTreatment}</span>
                             </a>`;
                     }
 
@@ -684,12 +693,12 @@ $(document).ready(function() {
                     if (permissions.patients.delete) {
                         actions += `
                             <button onclick="deletePatient(${data})"
-                                    class="inline-flex h-9 w-9 items-center justify-center v3-radius v3-bg-alert v3-text-danger border v3-border-default transition v3-hover-danger v3-btn v3-btn--danger" title="${patientI18n.deletePatient}">
-                                <i class="fas fa-trash"></i>
+                                    class="inline-flex items-center gap-2 v3-radius v3-bg-alert v3-text-danger border v3-border-default transition v3-hover-danger v3-btn v3-btn--danger" title="${patientI18n.deletePatient}">
+                                <i class="fas fa-trash"></i><span>${patientI18n.deletePatient}</span>
                             </button>`;
                     }
 
-                    actions += '</div>';
+                    actions += '</div></details></div>';
                     return actions;
                 }
             }
@@ -709,14 +718,14 @@ $(document).ready(function() {
                 .attr('role', 'link')
                 .attr('aria-label', `${patientI18n.viewPatient}: ${data.name || data.patient_id || ''}`)
                 .on('click', function(event) {
-                    if ($(event.target).closest('a, button').length) {
+                    if ($(event.target).closest('a, button, details, summary').length) {
                         return;
                     }
                     window.location.href = contextualProfileUrl;
                 })
                 .on('keydown', function(event) {
                     if (event.key === 'Enter' || event.key === ' ') {
-                        if ($(event.target).closest('a, button').length) {
+                        if ($(event.target).closest('a, button, details, summary').length) {
                             return;
                         }
                         event.preventDefault();
@@ -829,6 +838,10 @@ $(document).ready(function() {
         patientsTable.search(this.value).draw();
     });
 
+    document.querySelectorAll('[data-registry-status]').forEach(button => button.addEventListener('click',()=>{
+        document.querySelectorAll('[data-registry-status]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+        $('#statusFilter').val(button.dataset.registryStatus).trigger('change');
+    }));
     // Status filter
     $('#statusFilter').on('change', function() {
         patientsTable.draw();

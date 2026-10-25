@@ -272,7 +272,7 @@ $visitStageLabels = [
                                         $isCurrent = $stage === $currentVisitStage;
                                         ?>
                                         <li class="v3-radius px-3 py-2.5 <?= $isCurrent ? 'v3-stage-current' : ($isReached ? 'v3-stage-reached' : 'v3-stage-pending') ?>">
-                                            <span class="block text-[11px]" dir="ltr"><?= str_pad((string) ($stageIndex + 1), 2, '0', STR_PAD_LEFT) ?></span>
+                                            <span class="block text-xs" dir="ltr"><?= str_pad((string) ($stageIndex + 1), 2, '0', STR_PAD_LEFT) ?></span>
                                             <span class="mt-0.5 block text-sm font-extrabold"><?= esc($visitStageLabels[$stage]) ?></span>
                                         </li>
                                     <?php endforeach; ?>

@@ -256,7 +256,7 @@
                                             <div>
                                                 <span class="block text-sm font-medium v3-text-ink"><?= esc($plan['name'] ?? 'Plan') ?></span>
                                                 <span class="block text-xs v3-text-muted font-mono"><?= esc(lang('V3Platform.id')) ?> <?= esc($plan['id']) ?></span>
-                                                <span class="block text-[10px] v3-text-muted"><?= esc(lang('V3Platform.linkedSubscriptions')) ?> <?= number_format($usageCount) ?></span>
+                                                <span class="block text-xs v3-text-muted"><?= esc(lang('V3Platform.linkedSubscriptions')) ?> <?= number_format($usageCount) ?></span>
                                             </div>
                                         </div>
                                     </td>
@@ -264,13 +264,13 @@
                                         <div class="text-sm font-bold v3-text-ink">$<?= number_format((float) $price, 2) ?></div>
                                         <div class="text-xs v3-text-muted"><?= esc(lang('V3Platform.per')) ?> <?= strtolower($duration) ?></div>
                                         <?php if ($trial > 0): ?>
-                                            <div class="text-[10px] v3-text-primary font-medium mt-0.5">+<?= $trial ?> days trial</div>
+                                            <div class="text-xs v3-text-primary font-medium mt-0.5">+<?= $trial ?> days trial</div>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="flex flex-wrap gap-1">
                                             <?php foreach ($limitText as $limit): ?>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium v3-bg-soft v3-text-muted border cp-border">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium v3-bg-soft v3-text-muted border cp-border">
                                                     <?= esc($limit) ?>
                                                 </span>
                                             <?php endforeach; ?>

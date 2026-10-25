@@ -67,7 +67,7 @@
                             <p class="text-sm font-medium v3-text-on-primary leading-relaxed">Don't worry, we'll help you get back into your account in no time.</p>
                         </div>
                         <div class="relative z-10 pt-10">
-                            <p class="text-[9px] font-black v3-text-on-primary uppercase tracking-[0.2em]">Clinic Admin: <?= esc($clinic_admin_email ?? 'Support') ?></p>
+                            <p class="text-xs font-black v3-text-on-primary uppercase tracking-[0.2em]">Clinic Admin: <?= esc($clinic_admin_email ?? 'Support') ?></p>
                         </div>
                     </div>
 
@@ -94,7 +94,7 @@
 
                         <?= form_open('auth/forgot-password', ['class' => 'space-y-6 relative z-20', 'novalidate' => true]) ?>
                             <div class="space-y-2">
-                                <label for="identity" class="text-[10px] font-black v3-text-on-primary uppercase tracking-widest ml-2"><?= $identity_label ?></label>
+                                <label for="identity" class="text-xs font-black v3-text-on-primary uppercase tracking-widest ml-2"><?= $identity_label ?></label>
                                 <div class="relative group/input">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <i class="fas fa-envelope v3-text-on-primary group-focus-within/input:v3-text-primary transition-colors"></i>
@@ -133,11 +133,11 @@
                         </div>
                         <div class="flex flex-col">
                             <span class="text-sm font-black v3-text-on-primary tracking-widest uppercase">Palsync Dental</span>
-                            <span class="text-[10px] font-bold v3-text-on-primary uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
+                            <span class="text-xs font-bold v3-text-on-primary uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
                         </div>
                     </div>
                     <div class="flex items-center v3-backdrop v3-radius p-1.5 px-3 border v3-border-default">
-                        <span class="hidden lg:inline-block text-[10px] font-black v3-text-on-primary uppercase tracking-widest mr-4 ml-1">Live Support</span>
+                        <span class="hidden lg:inline-block text-xs font-black v3-text-on-primary uppercase tracking-widest mr-4 ml-1">Live Support</span>
                         <div class="flex items-center space-x-2">
                             <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center v3-bg-primary v3-hover-primary v3-text-primary v3-hover-text-on-primary v3-radius transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
                             <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center v3-bg-primary v3-hover-primary v3-text-primary v3-hover-text-on-primary v3-radius transition-all duration-300"><i class="fab fa-whatsapp"></i></a>

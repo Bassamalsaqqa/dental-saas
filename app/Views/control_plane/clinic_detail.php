@@ -240,21 +240,21 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                                     <!-- Status Badges Grid -->
                                     <div class="pt-2 border-t cp-border grid grid-cols-3 gap-1.5 text-center">
                                         <div class="p-1 rounded cp-surface border cp-border">
-                                            <div class="text-[10px] v3-text-muted font-medium"><?= esc(lang('UI.clinicAdminAccountActive')) ?></div>
+                                            <div class="text-xs v3-text-muted font-medium"><?= esc(lang('UI.clinicAdminAccountActive')) ?></div>
                                             <div class="mt-0.5 text-xs font-bold <?= ($admin_info['account_active'] ?? false) ? 'v3-text-primary' : 'v3-text-danger' ?>">
                                                 <i class="fas <?= ($admin_info['account_active'] ?? false) ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
                                                 <span><?= ($admin_info['account_active'] ?? false) ? esc(lang('UI.statusActive')) : esc(lang('UI.statusDisabled')) ?></span>
                                             </div>
                                         </div>
                                         <div class="p-1 rounded cp-surface border cp-border">
-                                            <div class="text-[10px] v3-text-muted font-medium"><?= esc(lang('UI.clinicAdminMembershipActive')) ?></div>
+                                            <div class="text-xs v3-text-muted font-medium"><?= esc(lang('UI.clinicAdminMembershipActive')) ?></div>
                                             <div class="mt-0.5 text-xs font-bold <?= ($admin_info['membership_active'] ?? false) ? 'v3-text-primary' : 'v3-text-danger' ?>">
                                                 <i class="fas <?= ($admin_info['membership_active'] ?? false) ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
                                                 <span><?= ($admin_info['membership_active'] ?? false) ? esc(lang('UI.statusActive')) : esc(lang('UI.statusInactive')) ?></span>
                                             </div>
                                         </div>
                                         <div class="p-1 rounded cp-surface border cp-border">
-                                            <div class="text-[10px] v3-text-muted font-medium"><?= esc(lang('UI.clinicAdminAuthorityActive')) ?></div>
+                                            <div class="text-xs v3-text-muted font-medium"><?= esc(lang('UI.clinicAdminAuthorityActive')) ?></div>
                                             <div class="mt-0.5 text-xs font-bold <?= ($admin_info['has_admin_authority'] ?? false) ? 'v3-text-primary' : 'v3-text-warning' ?>">
                                                 <i class="fas <?= ($admin_info['has_admin_authority'] ?? false) ? 'fa-check-circle' : 'fa-exclamation-circle' ?>"></i>
                                                 <span><?= ($admin_info['has_admin_authority'] ?? false) ? esc(lang('UI.statusManager')) : esc(lang('UI.statusMissing')) ?></span>
@@ -263,7 +263,7 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                                     </div>
 
                                     <!-- Metadata footer -->
-                                    <div class="pt-1.5 flex items-center justify-between text-[11px] v3-text-muted">
+                                    <div class="pt-1.5 flex items-center justify-between text-xs v3-text-muted">
                                         <span>
                                             <?= esc(lang('UI.clinicAdminAssignedSince')) ?>:
                                             <strong><?= !empty($admin_info['assigned_since']) ? date('M j, Y', strtotime($admin_info['assigned_since'])) : '--' ?></strong>
@@ -414,11 +414,11 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                                 <label class="block text-xs font-medium v3-text-muted mb-2"><?= esc(lang('V3Platform.updateDatesUtc')) ?></label>
                                 <div class="grid grid-cols-2 gap-2 mb-2">
                                     <div>
-                                        <label class="block text-[10px] v3-text-muted mb-1"><?= esc(lang('V3Platform.startDate')) ?></label>
+                                        <label class="block text-xs v3-text-muted mb-1"><?= esc(lang('V3Platform.startDate')) ?></label>
                                         <input type="text" name="start_at" value="<?= esc($subscription['start_at'] ?? '') ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="w-full rounded-lg cp-border text-xs v3-focus-control v3-focus-control v3-input">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] v3-text-muted mb-1"><?= esc(lang('V3Platform.endDate')) ?></label>
+                                        <label class="block text-xs v3-text-muted mb-1"><?= esc(lang('V3Platform.endDate')) ?></label>
                                         <input type="text" name="end_at" value="<?= esc($subscription['end_at'] ?? '') ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="w-full rounded-lg cp-border text-xs v3-focus-control v3-focus-control v3-input">
                                     </div>
                                 </div>
@@ -532,15 +532,15 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                 <div class="p-6 space-y-6">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div class="cp-radius border v3-border-default cp-soft-surface p-4">
-                            <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-primary"><?= esc(lang('V3Platform.clinicName')) ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.16em] v3-text-primary"><?= esc(lang('V3Platform.clinicName')) ?></p>
                             <p class="mt-2 text-sm font-bold v3-text-ink"><?= esc(($clinicSettingsSnapshot['clinic_name'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_name'] : ($clinic['name'] ?? 'Not set')) ?></p>
                         </div>
                         <div class="cp-radius border cp-border cp-soft-surface p-4">
-                            <p class="text-[11px] font-black uppercase tracking-[0.16em] cp-accent"><?= esc(lang('V3Platform.clinicPhone')) ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.16em] cp-accent"><?= esc(lang('V3Platform.clinicPhone')) ?></p>
                             <p class="mt-2 text-sm font-bold v3-text-ink"><?= esc(($clinicSettingsSnapshot['clinic_phone'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_phone'] : 'Not set') ?></p>
                         </div>
                         <div class="cp-radius border v3-border-default v3-bg-waiting p-4">
-                            <p class="text-[11px] font-black uppercase tracking-[0.16em] v3-text-warning"><?= esc(lang('V3Platform.clinicAddress')) ?></p>
+                            <p class="text-xs font-black uppercase tracking-[0.16em] v3-text-warning"><?= esc(lang('V3Platform.clinicAddress')) ?></p>
                             <p class="mt-2 text-sm font-bold v3-text-ink"><?= esc(($clinicSettingsSnapshot['clinic_address'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_address'] : 'Not set') ?></p>
                         </div>
                     </div>

@@ -9,6 +9,7 @@
                         <div class="p-4">
                             <p class="mb-4 text-sm v3-text-ink"><?= esc(lang('DoctorScheduleSettings.workflowHelp')) ?></p>
                             <p class="mb-6"><a class="v3-accent-text underline" href="<?= esc(base_url('settings/schedule-impact-recheck'), 'attr') ?>"><?= esc(lang('DoctorScheduleSettings.currentSchedule')) ?></a></p>
+                            <div class="v3-hours-split">
                             <form action="<?= base_url('settings/preview-schedule-impact') ?>" method="POST">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="target_type" value="clinic_hours">
@@ -106,6 +107,8 @@
                                 </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 v3-text-on-primary font-semibold v3-radius transition-all v3-form-section-header v3-btn v3-btn--primary"><i class="fas fa-eye mx-2"></i><?= esc(lang('DoctorScheduleSettings.previewChanges')) ?></button></div>
                             </form>
+                            <aside class="v3-schedule-assessment"><h3><?= esc(lang('DoctorScheduleSettings.previewChanges')) ?></h3><p><?= esc(lang('DoctorScheduleSettings.workflowHelp')) ?></p><?php if (!$dynamicScheduling): ?><div class="v3-schedule-mode-note"><?= esc(lang('DoctorScheduleSettings.modeOffHelp')) ?></div><?php endif; ?><p><?= esc(lang('DoctorScheduleSettings.pageHelp')) ?></p></aside></div>
+
                             <?= view('settings/partials/provider_schedules', ['provider_settings' => $provider_settings ?? ['schema_ready' => false, 'members' => []]]) ?>
                         </div>
                     </div>

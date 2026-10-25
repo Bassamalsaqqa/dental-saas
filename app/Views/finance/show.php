@@ -513,30 +513,30 @@
                             </div>
                             <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
                                 <div class="finance-trace-stat border p-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTracePatient')) ?></p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTracePatient')) ?></p>
                                     <p class="mt-1 truncate text-sm font-bold">
                                         <?= esc($relatedPartyValue !== '' ? $relatedPartyValue : lang('Finance.unknown')) ?>
                                     </p>
                                     <p class="mt-1 truncate text-xs"><?= esc($relatedPartyMeta) ?></p>
                                 </div>
                                 <div class="finance-trace-stat border p-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceLines')) ?></p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceLines')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold v3-text-primary"><?= esc((string) count($billedClinicalChargeLines)) ?></p>
                                 </div>
                                 <div class="finance-trace-stat border p-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceTreatments')) ?></p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceTreatments')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold"><?= esc((string) $billedClinicalTreatmentCount) ?></p>
                                 </div>
                                 <div class="finance-trace-stat border p-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceExaminations')) ?></p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceExaminations')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold"><?= esc((string) $billedClinicalExaminationCount) ?></p>
                                 </div>
                                 <div class="finance-trace-stat border p-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceProviders')) ?></p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc(lang('Finance.clinicalTraceProviders')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold"><?= esc((string) $billedClinicalProviderCount) ?></p>
                                 </div>
                                 <div class="finance-trace-stat border p-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide"><?= esc(lang('UI.moneyTrailInventoryCost')) ?></p>
                                     <p class="mt-1 text-lg font-extrabold <?= $billedInventoryUsageTotal > 0.009 ? 'v3-text-danger' : 'v3-text-muted' ?>" dir="ltr"><?= esc(formatCurrency($billedInventoryUsageTotal)) ?></p>
                                 </div>
                             </div>
@@ -577,7 +577,7 @@
                                             <tr class="align-top">
                                                 <td class="px-4 py-3">
                                                     <div class="font-semibold"><?= esc($line['procedure_name'] ?? lang('Finance.clinicalChargeLine')) ?></div>
-                                                    <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+                                                    <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-semibold">
                                                         <span class="inline-flex items-center px-2 py-0.5">
                                                             <?= esc(lang('Finance.clinicalChargeLine')) ?> #<?= esc((string) ($line['id'] ?? '')) ?>
                                                         </span>
@@ -623,7 +623,7 @@
                                                                         <span><?= esc($summarizeInventoryUsage($usageRow)) ?></span>
                                                                     </a>
                                                                 <?php else: ?>
-                                                                    <span class="inline-flex items-center gap-1 border v3-border-default v3-bg-alert px-2 py-0.5 text-[11px] font-semibold v3-text-danger">
+                                                                    <span class="inline-flex items-center gap-1 border v3-border-default v3-bg-alert px-2 py-0.5 text-xs font-semibold v3-text-danger">
                                                                         <i class="fas fa-boxes-stacked"></i>
                                                                         <span><?= esc($summarizeInventoryUsage($usageRow)) ?></span>
                                                                     </span>
@@ -733,15 +733,15 @@
                                         </div>
                                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
                                             <div class="finance-provider-mini-stat border p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['doctorShare']) ?></p>
+                                                <p class="text-xs font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                                 <p class="mt-1 text-sm font-bold"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_share_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                             <div class="finance-provider-mini-stat border p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['paid']) ?></p>
+                                                <p class="text-xs font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['paid']) ?></p>
                                                 <p class="mt-1 text-sm font-bold v3-text-primary"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                             <div class="finance-provider-mini-stat border p-3">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['left']) ?></p>
+                                                <p class="text-xs font-semibold uppercase tracking-wide"><?= esc($providerPayoutUi['left']) ?></p>
                                                 <p class="mt-1 text-sm font-bold v3-text-danger"><?= esc(\App\Services\ProviderCurrencySummary::native(($providerPayout['status'] ?? '') === 'void' ? 0 : ($providerPayout['provider_balance_due'] ?? 0), $providerPayout['currency'] ?? null)) ?></p>
                                             </div>
                                         </div>
@@ -1422,15 +1422,15 @@
                                 </div>
                                 <div class="grid grid-cols-3 gap-2 text-center md:min-w-[22rem]">
                                     <div class="border px-3 py-2">
-                                        <p class="text-[10px] font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['doctorShare']) ?></p>
+                                        <p class="text-xs font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['doctorShare']) ?></p>
                                         <p class="mt-1 text-sm font-bold" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_share_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                     <div class="border px-3 py-2">
-                                        <p class="text-[10px] font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['paid']) ?></p>
+                                        <p class="text-xs font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['paid']) ?></p>
                                         <p class="mt-1 text-sm font-bold v3-text-primary" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerPayout['provider_paid_amount'] ?? 0, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                     <div class="border px-3 py-2">
-                                        <p class="text-[10px] font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['left']) ?></p>
+                                        <p class="text-xs font-bold uppercase tracking-wide"><?= esc($providerPayoutUi['left']) ?></p>
                                         <p class="mt-1 text-sm font-bold v3-text-danger" dir="ltr"><?= esc(\App\Services\ProviderCurrencySummary::native($providerBalanceDue, $providerPayout['currency'] ?? null)) ?></p>
                                     </div>
                                 </div>

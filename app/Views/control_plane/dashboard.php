@@ -90,7 +90,7 @@
                     <span class="cp-badge cp-badge-teal">
                         <i class="fas fa-globe text-[10px]"></i> <?= esc(lang('V3Platform.globalMode')) ?>
                     </span>
-                    <span class="cp-badge cp-badge-neutral text-[10px]">
+                    <span class="cp-badge cp-badge-neutral text-xs">
                         <?= esc(lang('V3Platform.lastEvent')) ?> <?= esc($lastEventLabel) ?>
                     </span>
                 </h1>
@@ -109,7 +109,7 @@
 
     <!-- Real KPI Strip -->
     <div class="cp-kpi-grid">
-        <?php foreach ($kpis as $kpi): ?>
+        <?php foreach (array_slice($kpis, 0, 4) as $kpi): ?>
             <div class="cp-kpi <?= esc($kpi['tone']) ?>">
                 <div class="cp-kpi-label">
                     <i class="<?= esc($kpi['icon']) ?>"></i>
@@ -121,8 +121,9 @@
         <?php endforeach; ?>
     </div>
 
+    <details class="v3-platform-summary"><summary><?= esc(lang('V3Platform.operations')) ?></summary><dl class="v3-platform-secondary-facts"><?php foreach (array_slice($kpis, 4) as $kpi): ?><div><dt><?= esc($kpi['label']) ?></dt><dd><?= esc($kpi['value']) ?></dd><p><?= esc($kpi['detail']) ?></p></div><?php endforeach; ?></dl></details>
     <!-- Recent Clinics & Recent Plan Requests Columns -->
-    <div class="cp-columns">
+    <div class="cp-columns v3-platform-overview-split">
         <!-- Recent Clinics -->
         <div class="cp-panel mb-0">
             <div class="cp-panel-head">
@@ -150,14 +151,14 @@
                                 <tr>
                                     <td>
                                         <div class="flex items-center gap-2.5">
-                                            <div class="w-7 h-7 rounded bg-[var(--denta-sandstone)] border border-[var(--denta-taupe-border)] flex items-center justify-center text-[10px] font-extrabold text-[var(--denta-ink)] flex-shrink-0">
+                                            <div class="w-7 h-7 rounded bg-[var(--denta-sandstone)] border border-[var(--denta-taupe-border)] flex items-center justify-center text-xs font-extrabold text-[var(--denta-ink)] flex-shrink-0">
                                                 <?= esc(ui_badge_text($clinic['name'] ?? '', 2, 'CL')) ?>
                                             </div>
                                             <div class="min-w-0">
                                                 <a href="<?= base_url('controlplane/clinics/' . $clinic['id']) ?>" class="font-bold text-[var(--denta-ink)] hover:text-[var(--denta-emerald-pine)] truncate block text-xs">
                                                     <?= esc($clinic['name'] ?? 'Clinic') ?>
                                                 </a>
-                                                <span class="text-[10px] text-[var(--denta-muted)] font-mono"><?= esc(lang('V3Platform.id2')) ?> <?= esc($clinic['id'] ?? '') ?></span>
+                                                <span class="text-xs v3-text-muted font-mono"><?= esc(lang('V3Platform.id2')) ?> <?= esc($clinic['id'] ?? '') ?></span>
                                             </div>
                                         </div>
                                     </td>
@@ -171,15 +172,16 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-end">
+                                        <button type="button" class="cp-btn cp-btn-primary cp-btn-sm" data-overview-inspect="<?= (int) $clinic['id'] ?>"><?= esc(lang('V3Platform.inspect')) ?></button>
                                         <a href="<?= base_url('controlplane/clinics/' . $clinic['id']) ?>" class="cp-btn cp-btn-light cp-btn-sm">
-                                            <?= esc(lang('V3Platform.inspect')) ?>
+                                            <?= esc(lang('V3Platform.viewDetails')) ?>
                                         </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="3" class="text-center py-6 text-xs text-[var(--denta-muted)]"><?= esc(lang('V3Platform.noRecentClinicsFound')) ?></td>
+                                <td colspan="3" class="text-center py-6 text-xs v3-text-muted"><?= esc(lang('V3Platform.noRecentClinicsFound')) ?></td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -188,7 +190,8 @@
         </div>
 
         <!-- Pending Plan Requests -->
-        <div class="cp-panel mb-0">
+        <?= view('control_plane/partials/tenant_inspector') ?>
+    </div><div class="cp-panel mb-0">
             <div class="cp-panel-head">
                 <div>
                     <h2><i class="fas fa-inbox text-[var(--denta-terracotta)]"></i> <?= esc(lang('V3Platform.pendingPlanRequests')) ?></h2>
@@ -213,10 +216,10 @@
                                 <tr>
                                     <td>
                                         <b class="text-xs text-[var(--denta-ink)] block"><?= esc($request['clinic_name'] ?? 'Clinic') ?></b>
-                                        <small class="text-[10px] text-[var(--denta-muted)]"><?= esc($request['summary'] ?? 'Plan change') ?></small>
+                                        <small class="text-xs v3-text-muted"><?= esc($request['summary'] ?? 'Plan change') ?></small>
                                     </td>
                                     <td>
-                                        <span class="cp-badge cp-badge-teal text-[10px]"><?= esc($request['requested_plan_name'] ?? '—') ?></span>
+                                        <span class="cp-badge cp-badge-teal text-xs"><?= esc($request['requested_plan_name'] ?? '—') ?></span>
                                     </td>
                                     <td>
                                         <span class="cp-badge cp-badge-amber"><?= esc(lang('V3Platform.pending')) ?></span>
@@ -225,14 +228,13 @@
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="3" class="text-center py-6 text-xs text-[var(--denta-muted)]"><?= esc(lang('V3Platform.noPendingPlanChangeRequests')) ?></td>
+                                <td colspan="3" class="text-center py-6 text-xs v3-text-muted"><?= esc(lang('V3Platform.noPendingPlanChangeRequests')) ?></td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -426,7 +428,7 @@
                 </div>
 
                 <div>
-                    <div class="text-[11px] font-bold uppercase tracking-wider text-[var(--denta-muted)] mb-1.5"><?= esc(lang('V3Platform.storageHotspots')) ?></div>
+                    <div class="text-xs font-bold uppercase tracking-wider v3-text-muted mb-1.5"><?= esc(lang('V3Platform.storageHotspots')) ?></div>
                     <div class="space-y-1.5">
                         <?php if (!empty($storage_top ?? [])): ?>
                             <?php foreach (array_slice($storage_top, 0, 3) as $row): ?>
@@ -441,7 +443,7 @@
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="text-xs text-[var(--denta-muted)] py-2 text-center"><?= esc(lang('V3Platform.noStorageUsageRecordedYet')) ?></div>
+                            <div class="text-xs v3-text-muted py-2 text-center"><?= esc(lang('V3Platform.noStorageUsageRecordedYet')) ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -486,4 +488,14 @@
     </div>
 
 
+<script id="v3-overview-tenant-data" type="application/json"><?= json_encode(array_values($recent_clinics ?? []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+    const data=JSON.parse(document.getElementById('v3-overview-tenant-data')?.textContent||'[]');
+    function inspect(id){const row=data.find(item=>String(item.id)===String(id));if(!row)return;const values={name:row.name,slug:row.slug,status:({active:<?= json_encode(lang('V3Platform.active'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,suspended:<?= json_encode(lang('V3Platform.suspended'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,inactive:<?= json_encode(lang('V3Platform.inactive'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>})[row.status]||row.status,admin:row.admin_email,plan:row.plan_name};Object.entries(values).forEach(([key,value])=>{const el=document.getElementById('v3-inspector-'+key);if(el)el.textContent=value||'\u2014'});const link=document.getElementById('v3-inspector-detail');link.href=<?= json_encode(base_url('controlplane/clinics/'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>+encodeURIComponent(String(row.id));link.hidden=false;document.querySelectorAll('[data-overview-inspect]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.overviewInspect===String(id))));}
+    document.querySelectorAll('[data-overview-inspect]').forEach(button=>button.addEventListener('click',()=>inspect(button.dataset.overviewInspect)));
+    document.querySelectorAll('[data-inspector-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-inspector-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.querySelectorAll('[data-inspector-pane]').forEach(p=>p.hidden=p.dataset.inspectorPane!==button.dataset.inspectorTab)}));
+    if(data[0])inspect(data[0].id);
+});
+</script>
 <?= $this->endSection() ?>

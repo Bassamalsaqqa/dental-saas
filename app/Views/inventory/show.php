@@ -209,7 +209,7 @@ if (!empty($item['expiry_date'])) {
                                     <div>
                                         <span class="font-semibold text-sm v3-text-ink"><?= esc($link['supplier_name'] ?? ('Supplier #' . (int) $link['supplier_id'])) ?></span>
                                         <?php if ((int) ($link['is_preferred'] ?? 0) === 1): ?>
-                                            <span class="ml-2 px-1.5 py-px rounded-full text-[11px] font-semibold v3-bg-paid v3-text-primary"><?= esc($tr('preferred')) ?></span>
+                                            <span class="ml-2 px-1.5 py-px rounded-full text-xs font-semibold v3-bg-paid v3-text-primary"><?= esc($tr('preferred')) ?></span>
                                         <?php endif; ?>
                                         <div class="mt-0.5 text-xs v3-text-muted">
                                             <?php if (!empty($link['supplier_sku'])): ?>SKU: <?= esc($link['supplier_sku']) ?><?php endif; ?>

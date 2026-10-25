@@ -27,15 +27,15 @@ $activeFilterCount = ($selectedCategory !== '' ? 1 : 0) + ($searchQuery !== '' ?
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div class="v3-radius border v3-border v3-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('templateCatalog')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('templateCatalog')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= count($templates) ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-soft-surface p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('category')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-accent-text"><?= esc($tr('category')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= count($categories) ?></p>
                     </div>
                     <div class="v3-radius border v3-border v3-bg-primary p-4">
-                        <p class="text-[11px] font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('filter')) ?></p>
+                        <p class="text-xs font-black uppercase tracking-wide v3-text-primary"><?= esc($tr('filter')) ?></p>
                         <p class="mt-1 text-2xl font-black v3-text-on-primary"><?= $activeFilterCount ?></p>
                     </div>
                 </div>
