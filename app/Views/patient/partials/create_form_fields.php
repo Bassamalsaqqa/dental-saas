@@ -151,7 +151,7 @@ $plainInputClass = $plainInputClass ?? 'v3-field-control';
                         [
                             'key' => 'alert_high_blood_pressure',
                             'icon' => 'fas fa-heartbeat',
-                            'icon_class' => 'text-pink-500',
+                            'icon_class' => 'v3-text-danger',
                             'label' => lang('UI.patientHighBloodPressure'),
                             'detail_name' => 'alert_blood_pressure_details',
                             'detail_label' => lang('UI.patientBloodPressureDetails'),
@@ -169,7 +169,7 @@ $plainInputClass = $plainInputClass ?? 'v3-field-control';
                         [
                             'key' => 'alert_pregnant',
                             'icon' => 'fas fa-baby',
-                            'icon_class' => 'text-fuchsia-500',
+                            'icon_class' => 'v3-text-chair',
                             'label' => lang('UI.patientPregnant'),
                             'detail_name' => 'alert_pregnancy_details',
                             'detail_label' => lang('UI.patientPregnancyDetails'),
