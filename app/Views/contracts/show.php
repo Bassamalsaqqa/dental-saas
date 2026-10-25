@@ -19,7 +19,7 @@ if (!empty($snapshot['data_snapshot_json'])) {
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('V4.contractChart')) ?></h3>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
-                            <?= esc(lang('V4.'.($contract['status']??'draft'))) ?>
+                            <?php $v4ContractState=(string)($contract['status']??'draft');$v4ContractStateLabel=lang('V4.'.$v4ContractState); ?><?= esc($v4ContractStateLabel==='V4.'.$v4ContractState?ucfirst($v4ContractState):$v4ContractStateLabel) ?>
                         </span>
                     </div>
                     <div class="border border-gray-100 rounded-lg p-4 bg-gray-50">

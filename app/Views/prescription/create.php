@@ -57,9 +57,7 @@
                                         </option>
                                     <?php endif; ?>
                                 </select>
-                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                </div>
+
                             </div>
                             <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('patient_id')): ?>
                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -112,9 +110,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', date('Y-m-d')) ?>" class="prescription-date-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300" required>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-calendar text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('prescribed_date')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -131,9 +127,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', date('Y-m-d', strtotime('+30 days'))) ?>" class="prescription-date-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-calendar text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('expiry_date')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">

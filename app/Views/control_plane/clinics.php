@@ -416,9 +416,9 @@ $(document).ready(function() {
             processing: 'Loading clinics...',
             lengthMenu: '_MENU_',
             zeroRecords: `<div class="py-12 text-center text-slate-400 space-y-3"><p class="text-sm font-semibold">No clinics found</p></div>`,
-            info: 'Showing _START_ to _END_ of _TOTAL_ clinics',
-            infoEmpty: 'No clinics available',
-            infoFiltered: '(filtered from _MAX_ total clinics)',
+            info: '<?= esc(lang('V4.tableInfo'),'js') ?>',
+            infoEmpty: '<?= esc(lang('V4.tableInfoEmpty'),'js') ?>',
+            infoFiltered: '<?= esc(lang('V4.tableInfoFiltered'),'js') ?>',
             search: '',
             searchPlaceholder: 'Search clinics...',
             paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' }

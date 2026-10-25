@@ -5,6 +5,7 @@ $v4Export = in_array($segment1, ['patient','patients','examination','examination
 $v4Directory = $segment1 === 'patients' || ($segment1 === 'patient' && $segment2 === '');
 $v4Tables = !$v4Directory && !in_array($segment1, ['dashboard','profile'],true) || $v4Directory;
 $v4Initials = static function (string $name, int $length=2, string $fallback='U'): string { $parts=preg_split('/\s+/u',trim($name),-1,PREG_SPLIT_NO_EMPTY); $letters=''; foreach (array_slice($parts ?: [],0,$length) as $part) $letters .= mb_substr($part,0,1); return mb_strtoupper($letters ?: $fallback); };
+$v4User = is_object($user??null) ? $user : (object)(is_array($user??null)?$user:[]);
 $returnToUrl = current_url(true)->__toString();
 ?>
 <!doctype html><html lang="<?= esc($activeLocale) ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" translate="no">
@@ -22,6 +23,7 @@ $returnToUrl = current_url(true)->__toString();
 <?php if ($v4Export): ?><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script><?php endif; ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/v4-system.css') ?>?v=<?= esc(asset_version('assets/css/v4-system.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/v4-workspaces.css') ?>?v=<?= esc(asset_version('assets/css/v4-workspaces.css')) ?>">
 <?php include APPPATH . 'Views/layouts/partials/csrf_runtime.php'; ?>
+<?php include APPPATH.'Views/layouts/partials/table_runtime.php'; ?>
 </head><body class="denta-v4">
 <a href="#workspace-content" class="v4-skip"><?= esc(lang('V4.skip')) ?></a>
 <?= view('components/toast') ?>
@@ -32,11 +34,11 @@ $returnToUrl = current_url(true)->__toString();
 <header id="main-header" class="v4-topbar">
 <div class="v4-topbar-location"><button id="sidebar-toggle" type="button" class="v4-icon-button" onclick="toggleSidebar()" aria-controls="sidebar" aria-expanded="false" aria-label="<?= esc(lang('UI.mainMenu')) ?>"><i class="fas fa-bars" aria-hidden="true"></i></button><span><?= esc($resolvedPageTitle) ?></span></div>
 <div class="v4-topbar-actions">
-<div id="clinic-switcher" class="v4-clinic-context"><button type="button" onclick="toggleClinicSwitcher()" aria-label="<?= esc(lang('UI.switchClinic')) ?>"><i class="fas fa-clinic-medical" aria-hidden="true"></i><span><?= esc($clinic['name'] ?? 'Denta+') ?></span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+<div id="clinic-switcher" class="v4-clinic-context"><button id="v4-clinic-trigger" type="button" onclick="toggleClinicSwitcher()" aria-label="<?= esc(lang('UI.switchClinic')) ?>"><i class="fas fa-clinic-medical" aria-hidden="true"></i><span><?= esc($clinic['name'] ?? 'Denta+') ?></span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
 <div id="clinicSwitcherMenu" class="v4-popover hidden"><h2><?= esc(lang('UI.switchClinic')) ?></h2><?php foreach (($user_memberships ?? []) as $membership): ?><a href="<?= base_url('clinic/switch/' . (int) $membership['clinic_id']) ?>"><?= esc($membership['clinic_name']) ?></a><?php endforeach; ?></div></div>
 <nav class="v4-languages" aria-label="<?= esc(lang('UI.settingsLanguage')) ?>" dir="ltr"><?php foreach (['en'=>'EN','ar'=>'AR'] as $code=>$label): ?><a href="<?= base_url('language/switch/' . $code . '?return_to=' . urlencode($returnToUrl)) ?>" lang="<?= $code ?>" aria-current="<?= $activeLocale === $code ? 'page' : 'false' ?>"><?= $label ?></a><?php endforeach; ?></nav>
 <button id="notifications-trigger" type="button" class="v4-icon-button" onclick="toggleNotifications()" aria-controls="notifications-dropdown" aria-expanded="false" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>"><i class="fas fa-bell" aria-hidden="true"></i><span id="notification-count" class="v4-notification-count hidden">0</span></button>
-<div class="v4-account"><button id="user-menu-trigger" class="v4-avatar" type="button" onclick="toggleUserMenu()" aria-label="<?= esc(lang('UI.profileMenu')) ?>" aria-controls="userMenu" aria-expanded="false"><?= esc($v4Initials(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''), 2, 'U')) ?></button><div id="userMenu" class="v4-popover hidden"><a href="<?= base_url('profile') ?>"><?= esc(lang('UI.profileMenu')) ?></a><a href="<?= base_url('auth/logout') ?>"><?= esc(lang('UI.logout')) ?></a></div></div>
+<div class="v4-account"><button id="user-menu-trigger" class="v4-avatar" type="button" onclick="toggleUserMenu()" aria-label="<?= esc(lang('UI.profileMenu')) ?>" aria-controls="userMenu" aria-expanded="false"><?= esc($v4Initials(($v4User->first_name ?? '') . ' ' . ($v4User->last_name ?? ''), 2, 'U')) ?></button><div id="userMenu" class="v4-popover hidden"><a href="<?= base_url('profile') ?>"><?= esc(lang('UI.profileMenu')) ?></a><a href="<?= base_url('auth/logout') ?>"><?= esc(lang('UI.logout')) ?></a></div></div>
 </div></header>
 <?php if (session()->get('is_impersonating')): ?><form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="v4-authority-banner"><?= csrf_field() ?><span><?= esc(lang('UI.cpGlobalAdmin')) ?></span><button class="v4-button" type="submit"><?= esc(lang('UI.cpExitControlPlane')) ?></button></form><?php endif; ?>
 <main id="workspace-content" class="v4-workspace"><?= $this->renderSection('content') ?></main>

@@ -3,4 +3,4 @@
 
 # Owner-authorized legitimate exception; evidence: M2C_IMPLEMENTATION_EVIDENCE_20261021.md, Final bounded security guardrail classification.
 # Fixed source-only icon. No dynamic input. Protected chart internals remain unchanged; exact-line matcher still rejects changed/new sinks.
-app/Views/contracts/create.php:1416:        editLink.innerHTML = '<i class="fas fa-pen text-xs"></i>';
+app/Views/contracts/create.php:1331:        editLink.innerHTML = '<i class="fas fa-pen text-xs"></i>';

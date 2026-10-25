@@ -33,6 +33,7 @@
     <meta name="csrf-header" content="<?= csrf_header() ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/v4-system.css') ?>?v=<?= esc(asset_version('assets/css/v4-system.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/v4-icons.css') ?>?v=<?= esc(asset_version('assets/css/v4-icons.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/v4-control-plane.css') ?>?v=<?= esc(asset_version('assets/css/v4-control-plane.css')) ?>">
 <?php include APPPATH.'Views/layouts/partials/csrf_runtime.php'; ?>
+<?php include APPPATH.'Views/layouts/partials/table_runtime.php'; ?>
 </head><body class="denta-v4 v4-platform">
 <a href="#cp-workspace" class="v4-skip"><?= esc(lang('V4.skip')) ?></a><?= view('components/toast') ?>
 <div class="v4-app">

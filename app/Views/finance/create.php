@@ -62,42 +62,7 @@
     $leadingAdornmentWide = 'finance-leading-adornment finance-leading-adornment-wide';
 ?>
 <!-- Enhanced Finance Creation with Advanced Design -->
-<div class="min-h-screen bg-slate-50">
-    <!-- Animated Background Elements -->
-    <div class="container mx-auto relative z-10 px-4 py-6">
-
-        <!-- Enhanced Finance Form with Glassmorphism -->
-        <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 overflow-hidden">
-                <!-- Form Header -->
-                <div class="p-8 border-b border-white/20">
-                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-dollar-sign text-white text-lg"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-green-900 transition-colors duration-300"><?= lang('Finance.newFinancialTransaction') ?></h3>
-                                <p class="text-gray-600 font-medium"><?= lang('Finance.createFinancialTransactionHelp') ?></p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-3">
-                            <a href="<?= esc(workflow_back('finance', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-arrow-left rtl-back-icon mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('Finance.back') ?></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Content -->
-                <div class="p-8">
-                    <form action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-8" data-finance-calc data-provider-split data-base-currency="<?= esc($base_currency ?? 'ILS') ?>">
+<div class="v4-task-page"><header class="v4-page-heading"><div><h1><?= esc(lang('Finance.newFinancialTransaction')) ?></h1><p><?= esc(lang('Finance.createFinancialTransactionHelp')) ?></p></div><a class="v4-button" href="<?= esc(workflow_back('finance',$return_to??null)) ?>"><?= esc(lang('V4.back')) ?></a></header><form action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="v4-form v4-task-form" data-finance-calc data-provider-split data-base-currency="<?= esc($base_currency ?? 'ILS') ?>">
                         <?= csrf_field() ?>
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
@@ -106,12 +71,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-user text-blue-600"></i>
+                                    <i class="fas fa-user v4-text-action"></i>
                                     <span><?= lang('Finance.patientRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
-                                            data-searchable-select 
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                                            data-searchable-select
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/patients') ?>"
@@ -137,11 +102,11 @@
 
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-exchange-alt text-purple-600"></i>
+                                    <i class="fas fa-exchange-alt v4-text-action"></i>
                                     <span><?= lang('Finance.transactionTypeRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="transaction_type" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="transaction_type" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300" required>
                                         <option value=""><?= lang('Finance.selectType') ?></option>
                                         <?php $selectedTransactionType = old('transaction_type', $transaction_type_preset ?? ''); ?>
                                         <option value="payment" <?= ($selectedTransactionType == 'payment') ? 'selected' : '' ?>><?= lang('Finance.payment') ?></option>
@@ -168,7 +133,7 @@
                         <!-- Examination -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-file-medical text-indigo-600"></i>
+                                <i class="fas fa-file-medical v4-text-action"></i>
                                 <span><?= lang('Finance.examination') ?></span>
                             </label>
                             <div class="relative">
@@ -195,7 +160,7 @@
                                     <span><?= lang('Finance.amountOriginalRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input type="number" name="amount_original" id="amountOriginal" value="<?= old('amount_original') ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00" required>
+                                    <input type="number" name="amount_original" id="amountOriginal" value="<?= old('amount_original') ?>" step="0.01" min="0" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300" placeholder="0.00" required>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('amount_original')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -207,7 +172,7 @@
 
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-coins text-indigo-600"></i>
+                                    <i class="fas fa-coins v4-text-action"></i>
                                     <span><?= lang('Finance.currencyRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
@@ -225,11 +190,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative" id="exchangeRateField">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-exchange-alt text-blue-600"></i>
+                                    <i class="fas fa-exchange-alt v4-text-action"></i>
                                     <span><?= lang('Finance.exchangeRateRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="number" name="exchange_rate" id="exchangeRate" value="<?= old('exchange_rate', 1) ?>" step="0.0001" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="1.0000">
+                                    <input type="number" name="exchange_rate" id="exchangeRate" value="<?= old('exchange_rate', 1) ?>" step="0.0001" min="0" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300" placeholder="1.0000">
                                 </div>
                                 <p class="text-xs text-gray-500 mt-2"><?= lang('Finance.exchangeRateHelp') ?> (<?= esc($base_currency ?? 'ILS') ?>).</p>
                             </div>
@@ -240,7 +205,7 @@
                                     <span><?= lang('Finance.convertedAmount') ?> (<?= esc($base_currency ?? 'ILS') ?>)</span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" id="amountConverted" readonly class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl shadow-lg text-gray-700" value="0.00">
+                                    <input type="text" id="amountConverted" readonly class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 v4-radius text-gray-700" value="0.00">
                                 </div>
                             </div>
                         </div>
@@ -248,7 +213,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-credit-card text-indigo-600"></i>
+                                    <i class="fas fa-credit-card v4-text-action"></i>
                                     <span><?= lang('Finance.paymentMethod') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
@@ -269,7 +234,7 @@
                                     <span><?= lang('Finance.checkScanOptional') ?></span>
                                 </label>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                                    <label class="inline-flex items-center px-4 py-2 bg-rose-600 text-white text-sm font-bold rounded-xl shadow-lg hover:bg-rose-700 cursor-pointer transition-all w-fit">
+                                    <label class="inline-flex items-center px-4 py-2 bg-rose-600 text-white text-sm font-bold v4-radius hover:bg-rose-700 cursor-pointer transition-all w-fit">
                                         <i class="fas fa-upload mr-2"></i><?= lang('Finance.uploadCheckScan') ?>
                                         <input type="file" name="check_scan" id="checkScanInput" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
                                     </label>
@@ -283,7 +248,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-calendar-check text-blue-600"></i>
+                                    <i class="fas fa-calendar-check v4-text-action"></i>
                                     <span><?= lang('Finance.transactionDate') ?></span>
                                 </label>
                                 <div class="relative">
@@ -351,7 +316,7 @@
                                 <span><?= lang('Finance.serviceDetails') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.serviceDetailsPlaceholder')) ?>"><?= old('service_details') ?></textarea>
+                                <textarea name="service_details" rows="3" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 resize-none" placeholder="<?= esc(lang('Finance.serviceDetailsPlaceholder')) ?>"><?= old('service_details') ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -364,7 +329,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-percentage text-blue-600"></i>
+                                    <i class="fas fa-percentage v4-text-action"></i>
                                     <span><?= lang('Finance.discountAmount') ?></span>
                                 </label>
                                 <div class="relative">
@@ -377,7 +342,7 @@
 
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-percent text-indigo-600"></i>
+                                    <i class="fas fa-percent v4-text-action"></i>
                                     <span><?= lang('Finance.taxPercentage') ?></span>
                                 </label>
                                 <div class="relative">
@@ -396,13 +361,13 @@
                                 <span><?= lang('Finance.total') ?> (<?= esc($base_currency ?? 'ILS') ?>)</span>
                             </label>
                             <div class="relative">
-                                <input type="text" id="totalAmountLive" readonly class="w-full px-4 py-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-lg text-emerald-700 font-bold" value="0.00">
+                                <input type="text" id="totalAmountLive" readonly class="w-full px-4 py-3 bg-emerald-50 border-2 border-emerald-200 v4-radius text-emerald-700 font-bold" value="0.00">
                             </div>
                             <p class="text-xs text-gray-500 mt-2"><?= lang('Finance.totalFormulaHelp') ?></p>
                         </div>
 
                         <?php if (!empty($can_initial_receipt)): ?>
-                            <fieldset class="rounded-xl border border-gray-200 p-4 space-y-3" data-initial-receipt-section>
+                            <fieldset class="v4-radius border border-gray-200 p-4 space-y-3" data-initial-receipt-section>
                                 <legend class="text-sm font-bold text-gray-700"><?= esc(lang('Finance.checkoutTitle')) ?></legend>
                                 <input type="hidden" name="checkout_request_key" value="<?= esc(old('checkout_request_key', $checkout_request_key ?? '')) ?>">
                                 <label class="flex items-center gap-3">
@@ -411,7 +376,7 @@
                                 </label>
                                 <p class="text-sm text-gray-500"><?= esc(lang('Finance.checkoutHelp')) ?></p>
                                 <label class="block text-sm font-bold text-gray-700" for="initialPaymentAmount"><?= esc(lang('Finance.checkoutAmount')) ?></label>
-                                <input id="initialPaymentAmount" type="number" inputmode="decimal" name="initial_payment_amount" min="0.01" step="0.01" value="<?= esc(old('initial_payment_amount')) ?>" class="w-full px-4 py-3 border border-gray-200 rounded-xl" data-initial-payment-amount>
+                                <input id="initialPaymentAmount" type="number" inputmode="decimal" name="initial_payment_amount" min="0.01" step="0.01" value="<?= esc(old('initial_payment_amount')) ?>" class="w-full px-4 py-3 border border-gray-200 v4-radius" data-initial-payment-amount>
                             </fieldset>
                         <?php endif; ?>
 
@@ -424,11 +389,11 @@
                         <!-- Description -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-align-left text-purple-600"></i>
+                                <i class="fas fa-align-left v4-text-action"></i>
                                 <span><?= lang('Finance.description') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.transactionDescriptionPlaceholder')) ?>"><?= old('description') ?></textarea>
+                                <textarea name="description" rows="4" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 resize-none" placeholder="<?= esc(lang('Finance.transactionDescriptionPlaceholder')) ?>"><?= old('description') ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -442,7 +407,7 @@
                                 <span><?= lang('Finance.notes') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.additionalNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 resize-none" placeholder="<?= esc(lang('Finance.additionalNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
                                 <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -451,25 +416,18 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
-                            <a href="<?= esc(workflow_cancel('finance', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <a href="<?= esc(workflow_cancel('finance', $return_to ?? null)) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold v4-radius hover:bg-gradient-to-r hover:border-gray-400 transition-all duration-300">
+
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Finance.cancel') ?></span>
                             </a>
-                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
-                                <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 text-white text-sm font-bold v4-radius transition-all duration-300">
+
                                 <i class="fas fa-dollar-sign mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('Finance.createTransaction') ?></span>
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-</div>
-
+                    </form></div>
 <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= asset_version('assets/js/finance-calc.js') ?>"></script>
 <?= $this->endSection() ?>
 

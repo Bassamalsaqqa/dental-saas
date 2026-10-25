@@ -148,9 +148,7 @@
                                     <input type="text" id="tooth_number" name="tooth_number"
                                            class="treatment-leading-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300"
                                            value="<?= esc(old('tooth_number', $selected_tooth_number ?? '')) ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-tooth text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if ($validation && $validation->hasError('tooth_number')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">

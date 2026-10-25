@@ -6,7 +6,7 @@
     const activeModals = new Set();
     const timers = new WeakMap();
     const entryBaselines = new WeakMap();
-    const entryState = modal => JSON.stringify([...modal.querySelectorAll('form input:not([type=hidden]):not([type=submit]),form select,form textarea')].filter(el=>!el.disabled).map(el=>[el.name,el.type==='checkbox'||el.type==='radio'?el.checked:el.value]));
+    const entryState = modal => JSON.stringify([...modal.querySelectorAll('input:not([type=hidden]):not([type=submit]),select,textarea')].filter(el=>!el.disabled).map(el=>[el.name,el.type==='checkbox'||el.type==='radio'?el.checked:el.value]));
     const triggers = new WeakMap();
     const backgroundInertState = new Map();
 
@@ -98,7 +98,7 @@
             return;
         }
 
-        if(modal.dataset.confirmDiscard && entryBaselines.has(modal) && entryState(modal)!==entryBaselines.get(modal) && !window.confirm(modal.dataset.confirmDiscard)) return;
+        if(!opts.skipDiscard && modal.dataset.confirmDiscard && entryBaselines.has(modal) && entryState(modal)!==entryBaselines.get(modal) && !window.confirm(modal.dataset.confirmDiscard)) return;
         entryBaselines.delete(modal);
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');

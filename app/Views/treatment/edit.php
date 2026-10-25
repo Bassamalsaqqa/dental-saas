@@ -53,9 +53,7 @@
                                                                         <?php endforeach; ?>
                                                                     <?php endif; ?>
                                                                 </select>
-                                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                                                </div>
+
                                                             </div>                            <?php if ($validation && $validation->hasError('patient_id')): ?>
                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
@@ -89,9 +87,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if ($validation && $validation->hasError('treatment_type')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -110,9 +106,7 @@
                                     <input type="text" id="tooth_number" name="tooth_number"
                                            class="treatment-leading-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300"
                                            value="<?= old('tooth_number', $treatment['tooth_number']) ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-tooth text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if ($validation && $validation->hasError('tooth_number')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -172,9 +166,7 @@
                                     <input type="number" id="estimated_duration" name="estimated_duration"
                                            class="treatment-leading-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300"
                                            value="<?= old('estimated_duration', $treatment['estimated_duration']) ?>" min="1" placeholder="<?= lang('Treatment.estimated_duration_placeholder') ?>" required>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-clock text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if ($validation && $validation->hasError('estimated_duration')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -195,9 +187,7 @@
                                 <input type="text" id="start_date" name="start_date" data-clinic-date="1"
                                        class="treatment-date-input w-full py-3 v4-surface-fill border-2 border-gray-200 v4-radius focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300"
                                        value="<?= old('start_date', $treatment['start_date']) ?>" required>
-                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                    <i class="fas fa-calendar text-gray-400"></i>
-                                </div>
+
                             </div>
                             <?php if ($validation && $validation->hasError('start_date')): ?>
                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">

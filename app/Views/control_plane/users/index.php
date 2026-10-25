@@ -1,217 +1,8 @@
-<?= $this->extend('layouts/main_control_plane') ?>
-
-<?= $this->section('content') ?>
-<?php $disableDataTables = false; ?>
-
-<style>
-/* Keep existing styles */
-.dataTables_wrapper { position: relative !important; }
-#usersTable tbody tr td { border-bottom: 1px solid rgba(226, 232, 240, 0.6); }
-/* Reset DataTables Button Styles */
-button.dt-button {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    margin-right: 0.5rem !important;
-}
-button.dt-button:hover, button.dt-button:active {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-/* Hide default buttons */
-.dt-buttons { display: none !important; }
-</style>
-
-<!-- Enhanced User Management -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    </div>
-
-    <div class="container mx-auto relative z-10 px-4 py-6">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-users text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900">User Registry</h1>
-                            <p class="text-gray-600">Manage platform users and access</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-                <!-- Total Users -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-users text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 rounded-full border border-indigo-200">
-                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                                <span class="text-indigo-700 font-bold text-xs">All Time</span>
-                            </div>
-                        </div>
-                        <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Users</p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-indigo-900"><?= number_format($stats['total'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium">Platform Users</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Users -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-user-check text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span class="text-green-700 font-bold text-xs">Active</span>
-                            </div>
-                        </div>
-                        <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Users</p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
-                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently Online</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New Users -->
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-user-plus text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-3 py-1.5 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-blue-700 font-bold text-xs">This Month</span>
-                            </div>
-                        </div>
-                        <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</p>
-                            <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-blue-900"><?= number_format($stats['new'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 font-medium">Monthly Growth</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="mb-8">
-            <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">User Registry</h3>
-                        </div>
-                        
-                        <div class="flex flex-wrap items-center gap-3">
-                            <!-- Search -->
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="userSearch" placeholder="Search users..." 
-                                       class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-64">
-                            </div>
-
-                            <!-- Status Filter -->
-                            <select id="userStatus" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-
-                            <!-- Export Actions -->
-                            <div class="flex items-center space-x-2 border-l border-gray-300 pl-3">
-                                <button onclick="exportToPDF()" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Export PDF">
-                                    <i class="fas fa-file-pdf"></i>
-                                </button>
-                                <button onclick="exportToCSV()" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Export CSV">
-                                    <i class="fas fa-file-csv"></i>
-                                </button>
-                                <button onclick="printTable()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Print Table">
-                                    <i class="fas fa-print"></i>
-                                </button>
-                                <a href="<?= base_url('controlplane/users') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="Reset Filters">
-                                    <i class="fas fa-undo"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table id="usersTable" class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Primary Role</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Clinics</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Modal -->
+<?php helper('asset'); ?><?= $this->extend('layouts/main_control_plane') ?><?= $this->section('content') ?><header class="v4-page-heading"><div><h1><?= esc(lang('V4.platformUsers')) ?></h1><p><?= esc(lang('V4.platformUsersHelp')) ?></p></div></header><section class="v4-surface v4-ledger"><div class="v4-platform-filter v4-form"><input type="search" id="userSearch" placeholder="<?= esc(lang('V4.searchUsers'),'attr') ?>" aria-label="<?= esc(lang('V4.searchUsers'),'attr') ?>"><select id="userStatus" aria-label="<?= esc(lang('V4.tenantStatus')) ?>" data-no-select2><option value=""><?= esc(lang('V4.allStatuses')) ?></option><option value="active"><?= esc(lang('V4.active')) ?></option><option value="inactive"><?= esc(lang('V4.inactive')) ?></option></select><a href="<?= base_url('controlplane/users') ?>" class="v4-button"><?= esc(lang('V4.clearFilters')) ?></a><details class="v4-action-menu"><summary class="v4-button"><?= esc(lang('V4.exportRecords')) ?></summary><div><button type="button" onclick="exportToPDF()">PDF</button><button type="button" onclick="exportToCSV()">CSV</button><button type="button" onclick="printTable()"><?= esc(lang('Finance.print')) ?></button></div></details></div><div class="v4-ledger-data" data-v4-records="platform-users" data-v4-title-index="0" data-v4-copy-actions="true"><table id="usersTable"><thead><tr><?php foreach(['V4.user','V4.primaryRole','UI.cpClinics','V4.tenantStatus','V4.joined','V4.actions'] as $label): ?><th><?= esc(lang($label)) ?></th><?php endforeach; ?></tr></thead><tbody></tbody></table><div class="v4-mobile-records" data-v4-record-cards aria-live="polite"></div></div></section><script src="<?= base_url('assets/js/v4-record-cards.js') ?>?v=<?= esc(asset_version('assets/js/v4-record-cards.js')) ?>"></script><!-- Delete Modal -->
 <p class="mb-4 text-sm text-slate-600" role="note"><?= esc(lang('IonAuth.delete_history_protected')) ?></p>
 
 <script>
+const escapePlatformText=value=>String(value??'').replace(/[&<>"']/g, char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 let usersTable;
 const baseUrl = '<?= base_url() ?>';
 
@@ -272,7 +63,7 @@ function toggleUserStatus(userId, action) {
                 usersTable.ajax.reload(null, false);
             }
             // Optional: Show toast instead of alert for smoother UX
-            // alert(data.message); 
+            // alert(data.message);
         } else {
             alert(data.message || 'Failed to update status');
         }
@@ -282,7 +73,7 @@ function toggleUserStatus(userId, action) {
         alert('An error occurred.');
     })
     .finally(() => {
-        refreshCsrfToken(); 
+        refreshCsrfToken();
     });
 }
 
@@ -327,12 +118,12 @@ $(document).ready(function() {
                     const initials = row.avatar || data.substring(0,2).toUpperCase();
                     const identityHtml = `
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-700 shadow-sm">
-                                    ${initials}
+                                <div class="v4-tenant-avatar">
+                                    ${escapePlatformText(initials)}
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">${data}</div>
-                                    <div class="text-xs text-gray-500">${row.email}</div>
+                                    <div class="v4-tenant-name">${escapePlatformText(data)}</div>
+                                    <div class="v4-tenant-reference">${escapePlatformText(row.email)}</div>
                                 </div>
                             </div>
                         `;
@@ -346,10 +137,8 @@ $(document).ready(function() {
             {
                 data: 'role',
                 render: function(data) {
-                    let color = 'bg-gray-100 text-gray-800';
-                    if (data === 'Super Admin') color = 'bg-purple-100 text-purple-800';
-                    if (data === 'Clinic Staff') color = 'bg-blue-100 text-blue-800';
-                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}">${data}</span>`;
+                    const color = 'v4-badge';
+                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}">${escapePlatformText(data)}</span>`;
                 }
             },
             {
@@ -361,7 +150,7 @@ $(document).ready(function() {
                     }
                     const preview = names.slice(0, 2);
                     const extra = names.length - preview.length;
-                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">${name}</span>`).join(' ');
+                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">${escapePlatformText(name)}</span>`).join(' ');
                     const extraBadge = extra > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">+${extra}</span>` : '';
                     return `<div class="flex flex-wrap gap-1">${badges}${extraBadge}</div>`;
                 }
@@ -376,10 +165,10 @@ $(document).ready(function() {
                     </span>`;
                 }
             },
-            { 
+            {
                 data: 'created_on',
                 render: function(data) {
-                    return `<span class="text-sm text-gray-500">${data}</span>`;
+                    return `<span class="text-sm text-gray-500">${escapePlatformText(data)}</span>`;
                 }
             },
             {
@@ -390,14 +179,14 @@ $(document).ready(function() {
                     const isActive = row.status === 'active';
                     const name = encodeURIComponent(row.name);
                     let actions = '<div class="flex items-center justify-end space-x-2">';
-                    
+
                     // View
                     actions += `
-                        <a href="${baseUrl}controlplane/users/${data}" 
+                        <a href="${baseUrl}controlplane/users/${data}"
                            class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>`;
-                    
+
                     // Toggle Status (Suspend/Activate)
                     if (isActive) {
                         actions += `
@@ -423,7 +212,7 @@ $(document).ready(function() {
     $('#userStatus, #userSearch').on('change keyup', function() {
         usersTable.draw();
     });
-    
+
     // Export Functions
     window.exportToPDF = function() { usersTable.button('.btn-pdf').trigger(); };
     window.printTable = function() { usersTable.button('.btn-print').trigger(); };
