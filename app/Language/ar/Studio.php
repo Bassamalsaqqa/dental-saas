@@ -31,4 +31,10 @@ return [
 'patientIdentity'=>'بيانات المريض',
 'optionalDetails'=>'تفاصيل إضافية',
 'contactAndCover'=>'التواصل والتأمين',
+'contactDetails'=>'بيانات التواصل',
+'reorder_draft'=>'مسودة',
+'reorder_ordered'=>'تم الطلب',
+'reorder_received'=>'مستلم',
+'reorder_cancelled'=>'ملغى',
+'logSupplierContact'=>'تسجيل تواصل تم بالفعل',
 ];

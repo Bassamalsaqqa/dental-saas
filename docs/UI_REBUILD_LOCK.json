@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Manual AGY patient-registry design study prepared outside source; wait for Owner return before any AGY acceptance. Continue application integration only after actual output review. No automatic dispatch.",
+  "next_step": "Review Owner-returned AGY standalone registry concept against original brief, inspect actual artifact; no automatic dispatch. Continue remaining patient detail and inventory detail/list presentation from ledger without changing backend.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -112,7 +112,9 @@
     "external_review": "NOT_REQUESTED_INTERMEDIATE_WORK",
     "validation_correction": "../clean-foundation/registration-validation-fixed.json: 15/15; existing synthetic patient query snapshots identical; no new records",
     "registration_refinement": "../registration-refined/acceptance.json: 46/46 field-contract, responsive, compact sizing and canonical toggles; no submissions or DB mutations",
-    "registration_arrangement": "../registration-refined/arrangement-acceptance.json: 6/6; cards and each adaptive field row fill available width, EN/AR 1586/1366/900/390; source-only presentation change"
+    "registration_arrangement": "../registration-refined/arrangement-acceptance.json: 6/6; cards and each adaptive field row fill available width, EN/AR 1586/1366/900/390; source-only presentation change",
+    "patient_edit": "../patient-edit/acceptance.json: 44/44, new dedicated synthetic fixture 18 only; preexisting patients identical; generic server validation-return limitation remains",
+    "reorder": "../reorder-workspace/acceptance.json: 42/42, new synthetic reorder 1 only; inventory snapshots identical; no messages/stock receipts"
   },
   "authorized_backend_exceptions": {
     "app/Controllers/Patient.php": {

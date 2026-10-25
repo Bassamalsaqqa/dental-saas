@@ -31,4 +31,10 @@ return [
 'patientIdentity'=>'Patient details',
 'optionalDetails'=>'Additional details',
 'contactAndCover'=>'Contact and insurance',
+'contactDetails'=>'Contact details',
+'reorder_draft'=>'Draft',
+'reorder_ordered'=>'Ordered',
+'reorder_received'=>'Received',
+'reorder_cancelled'=>'Cancelled',
+'logSupplierContact'=>'Log contact already made',
 ];

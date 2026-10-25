@@ -4,7 +4,7 @@ include APPPATH.'Views/layouts/partials/view_permissions.php';
 include APPPATH.'Views/layouts/partials/studio_icons.php';
 $studioLocale=strtolower((string)($locale ?? service('request')->getLocale()));
 $studioRtl=$studioLocale==='ar';$studioActor=(object)($user??[]);
-$studioName=trim(($studioActor->first_name??'').' '.($studioActor->last_name??'')) ?: ($studioActor->email??'Denta+');
+$studioName=trim(($studioActor->first_name??'').' '.($studioActor->last_name??'')) ?: ($studioActor->email??session('email')??lang('Studio.account'));
 $studioReturn=current_url(true)->__toString();
 $studioPageTitle=$segment1==='dashboard'?lang('Studio.overview'):$resolvedPageTitle;
 $studioIsActive=static function(string $url)use($segment1):bool{

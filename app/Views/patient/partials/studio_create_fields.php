@@ -1,9 +1,19 @@
 <?php
 $studioFormErrors=$studioFormErrors??[];
-$studioValue=static fn(string $name): string=>is_scalar(old($name))?(string)old($name):'';
-$studioChecked=static fn(string $name): bool=>in_array(old($name),['1',1,true,'true','on','yes'],true);
+$studioEditing=!empty($studioEditing);
+$studioPatient=is_array($studioPatient??null)?$studioPatient:[];
+$studioValue=static function(string $name)use($studioPatient):string{
+    $value=old($name,$studioPatient[$name]??'');
+    return is_scalar($value)?(string)$value:'';
+};
+$studioChecked=static function(string $name)use($studioPatient):bool{
+    $value=old($name,$studioPatient[$name]??false);
+    return in_array($value,['1',1,true,'true','on','yes'],true);
+};
+$studioContactFields=['email'=>'patientEmail','city'=>'patientCity'];
+if(!$studioEditing)$studioContactFields+=['insurance_provider'=>'patientInsuranceProvider','insurance_number'=>'patientInsuranceNumber'];
 $optionalKeys=['email','city','insurance_provider','insurance_number','notes','alert_has_allergies','alert_allergies_details','alert_taking_medications','alert_medications_details','alert_blood_thinners','alert_blood_thinners_details','alert_diabetes','alert_diabetes_details','alert_high_blood_pressure','alert_blood_pressure_details','alert_heart_condition','alert_heart_condition_details','alert_pregnant','alert_pregnancy_details','alert_anesthesia_problem','alert_anesthesia_problem_details'];
-$optionalEnabled=false;foreach($optionalKeys as $key){if($studioValue($key)!==''){$optionalEnabled=true;break;}}
+$optionalEnabled=$studioEditing;foreach($optionalKeys as $key){if($studioValue($key)!==''){$optionalEnabled=true;break;}}
 $dob=$studioValue('date_of_birth');$dobValue=$dob;
 if($dob!==''&&!preg_match('/^\d{4}-\d{2}-\d{2}$/',$dob)){
  $date=\DateTimeImmutable::createFromFormat('!'.(string)settings()->get('date_format','d/m/Y'),$dob);
@@ -55,14 +65,14 @@ $medicalAlerts=[
 <section class="form-section registration-additional">
     <div class="form-section-toggle">
         <h2><?= esc(lang('Studio.optionalDetails')) ?></h2>
-        <label class="form-switch"><input type="checkbox" id="optionalEnabled" <?= $optionalEnabled?'checked':'' ?> aria-controls="optionalSection" aria-label="<?= esc(lang('Studio.optionalDetails'),'attr') ?>"><span id="optionalTrack" class="form-switch-track"><span id="optionalDot"></span></span></label>
+        <?php if(!$studioEditing): ?><label class="form-switch"><input type="checkbox" id="optionalEnabled" <?= $optionalEnabled?'checked':'' ?> aria-controls="optionalSection" aria-label="<?= esc(lang('Studio.optionalDetails'),'attr') ?>"><span id="optionalTrack" class="form-switch-track"><span id="optionalDot"></span></span></label><?php endif; ?>
     </div>
     <div id="optionalSection" class="<?= $optionalEnabled?'':'hidden' ?>">
         <div class="registration-details">
             <section class="registration-contact" aria-labelledby="contact-details-title">
-                <h3 id="contact-details-title"><?= esc(lang('Studio.contactAndCover')) ?></h3>
+                <h3 id="contact-details-title"><?= esc(lang($studioEditing?'Studio.contactDetails':'Studio.contactAndCover')) ?></h3>
                 <div class="registration-contact-fields">
-                    <?php foreach(['email'=>'patientEmail','city'=>'patientCity','insurance_provider'=>'patientInsuranceProvider','insurance_number'=>'patientInsuranceNumber'] as $name=>$label): ?>
+                    <?php foreach($studioContactFields as $name=>$label): ?>
                     <div class="form-field">
                         <label for="<?= $name ?>"><?= esc(lang('UI.'.$label)) ?></label>
                         <input id="<?= $name ?>" name="<?= $name ?>" type="<?= $name==='email'?'email':'text' ?>" <?= $name==='email'?'autocomplete="email"':($name==='city'?'autocomplete="address-level2"':'') ?> value="<?= esc($studioValue($name),'attr') ?>" aria-invalid="<?= isset($studioFormErrors[$name])?'true':'false' ?>" <?= isset($studioFormErrors[$name])?'aria-describedby="'.$name.'-error"':'' ?>>
