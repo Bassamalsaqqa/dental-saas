@@ -1,58 +1,15 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset');include APPPATH.'Views/layouts/partials/studio_icons.php'; ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"><link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-items.css') ?>?v=<?= esc(asset_version('assets/css/studio-items.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<?php $isRtl = !empty($is_rtl); ?>
-
-<?= view('inventory/partials/form_styles', ['is_rtl' => $isRtl]) ?>
-
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        <div class="mb-8">
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-boxes text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-black text-gray-900"><?= lang('Inventory.addNewInventoryItem') ?></h1>
-                            <p class="text-sm text-gray-500"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
-                        </div>
-                    </div>
-                    <a href="<?= workflow_back('inventory', $return_to ?? null) ?>" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
-                        <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
-                        <?= lang('Inventory.backToInventory') ?>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <form action="<?= base_url('inventory/store') ?>" method="POST" class="space-y-5">
-            <?= csrf_field() ?>
-            <?php if (!empty($return_to)): ?>
-                <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
-            <?php endif; ?>
-            <?= view('inventory/partials/form_fields', [
-                'is_rtl' => $isRtl,
-                'supplier_directory' => $supplier_directory ?? [],
-                'currencies' => $currencies ?? ['ILS'],
-            ]) ?>
-
-            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
-                <a href="<?= workflow_cancel('inventory', $return_to ?? null) ?>" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-times text-xs"></i>
-                    <?= lang('Inventory.cancel') ?>
-                </a>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
-                    <i class="fas fa-plus text-xs"></i>
-                    <?= lang('Inventory.addItem') ?>
-                </button>
-            </div>
-        </form>
-
-    </div>
-</div>
-
-<?= view('inventory/partials/quick_supplier_modal') ?>
+<?php $editing=false;$target=$editing?'inventory/'.(int)$item['id']:'inventory';$back=workflow_cancel($target,$return_to??$target);$errors=is_array(session('errors'))?session('errors'):[]; ?>
+<header class="page-title-row registration-heading"><h1><?= esc(lang($editing?'Inventory.editItem':'Inventory.addNewInventoryItem')) ?></h1><a class="button secondary" href="<?= esc($back,'attr') ?>"><?= esc(lang($editing?'Inventory.viewItem':'Inventory.backToInventory')) ?></a></header>
+<?php if(session('error')||$errors): ?><section class="form-notice form-notice--error" role="alert"><h2><?= esc(lang('Studio.checkFields')) ?></h2><?php if(session('error')): ?><p><?= esc(session('error')) ?></p><?php endif; ?><ul><?php foreach($errors as $key=>$message): ?><li><a href="#<?= esc($key,'attr') ?>"><?= esc($message) ?></a></li><?php endforeach; ?></ul></section><?php endif; ?>
+<form class="studio-form" action="<?= base_url($editing?$target.'/update':'inventory/store') ?>" method="post" data-unsaved-form>
+<?= csrf_field() ?><?php if(!empty($return_to)): ?><input type="hidden" name="return_to" value="<?= esc($return_to,'attr') ?>"><?php endif; ?>
+<?= view('inventory/partials/studio_item_fields',['editing'=>$editing,'item'=>$item??[],'categories'=>$categories??[],'supplier_directory'=>$supplier_directory??[],'preferred_supplier_link'=>$preferred_supplier_link??[],'currencies'=>$currencies??['ILS']]) ?>
+<footer class="form-actions"><a class="button secondary" href="<?= esc($back,'attr') ?>" data-form-cancel><?= esc(lang('UI.cancel')) ?></a><button class="button primary" type="submit"><?= esc(lang($editing?'Inventory.updateItem':'Inventory.addItem')) ?></button></footer></form>
+<dialog id="form-discard-dialog" class="help-dialog" aria-labelledby="discard-title"><header><div><h2 id="discard-title"><?= esc(lang('Studio.discardTitle')) ?></h2><p><?= esc(lang('Studio.discardHelp')) ?></p></div><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header><div class="discard-actions"><button class="button secondary" type="button" data-discard-stay><?= esc(lang('Studio.keepEditing')) ?></button><button class="button primary" type="button" data-discard-confirm><?= esc(lang('Studio.discardChanges')) ?></button></div></dialog>
+<?= view('inventory/partials/studio_supplier_dialog') ?>
 <?= $this->endSection() ?>
+<?= $this->section('scripts') ?><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script><script src="<?= base_url('assets/js/studio-forms.js') ?>?v=<?= esc(asset_version('assets/js/studio-forms.js')) ?>" defer></script><script src="<?= base_url('assets/js/studio-items.js') ?>?v=<?= esc(asset_version('assets/js/studio-items.js')) ?>" defer></script><?= $this->endSection() ?>

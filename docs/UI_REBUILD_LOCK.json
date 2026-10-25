@@ -1,5 +1,5 @@
 {
-  "status": "CLEAN_FOUNDATION_REGISTRATION_IMPLEMENTED_PENDING_FULL_ACCEPTANCE",
+  "status": "APPROVED_SYSTEM_PATIENT_AND_STOCK_BATCH_PENDING_OWNER_VISUAL_ACCEPTANCE",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Build real patient registry from accepted system and canonical existing list/search/export/action contracts. Preserve external AGY concept for reference only; avoid importing its parallel shell or fixture logic.",
+  "next_step": "Owner can review five-page patient/inventory batch locally. Next bounded implementation: appointment list/create/edit/dayboard, after mapping existing contracts. Do not import rejected designs or restart accepted dashboard/forms.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -114,7 +114,22 @@
     "registration_refinement": "../registration-refined/acceptance.json: 46/46 field-contract, responsive, compact sizing and canonical toggles; no submissions or DB mutations",
     "registration_arrangement": "../registration-refined/arrangement-acceptance.json: 6/6; cards and each adaptive field row fill available width, EN/AR 1586/1366/900/390; source-only presentation change",
     "patient_edit": "../patient-edit/acceptance.json: 44/44, new dedicated synthetic fixture 18 only; preexisting patients identical; generic server validation-return limitation remains",
-    "reorder": "../reorder-workspace/acceptance.json: 42/42, new synthetic reorder 1 only; inventory snapshots identical; no messages/stock receipts"
+    "reorder": "../reorder-workspace/acceptance.json: 42/42, new synthetic reorder 1 only; inventory snapshots identical; no messages/stock receipts",
+    "patient_inventory_batch": {
+      "evidence": "../directory-item-batch/acceptance.json; extra-acceptance.json; export-acceptance.json; final-visual.json",
+      "scope": "Patient registry; inventory index/create/edit/show; new item 2 and new supplier only for successful mutation tests. All checked preexisting clinical/financial/patient/inventory rows preserved. No production access.",
+      "verification": "62 canonical list/form/stock checks; 22 validation/security/responsive checks; 8 export checks. Initial duplicate dialog IDs corrected; accepted prefix evidence reused, unfinished stock acceptance resumed on the same synthetic fixture.",
+      "visual_status": "Rendered EN/AR desktop/mobile; Codex inspected captures, Owner acceptance pending. Not whole-app completion.",
+      "limitations": [
+        "Existing inventory list endpoint hardcodes dollar symbol while detail uses clinic currency; preserved for backend follow-up, no conversion invented.",
+        "Existing patient status filter has no backend implementation; no nonfunctional filter is shown.",
+        "Table exports are explicitly current-page only; browser Print / save PDF preserves actual AR fonts without a duplicate PDF runtime.",
+        "Item receipt retains the existing ILS batch currency behavior. No new costing policy.",
+        "Existing stock history is bounded by controller to 100 movements / 50 batches; no new silent limit introduced.",
+        "Unrebuilt destinations intentionally retain baseline appearance.",
+        "Server queries remain high; only view permission memoization/asset reductions applied."
+      ]
+    }
   },
   "authorized_backend_exceptions": {
     "app/Controllers/Patient.php": {
@@ -129,5 +144,5 @@
     "patient_edit": "c3ff655e5b57d49258beeb12d603aca13c158621",
     "inventory_reorder": "c3ff655e5b57d49258beeb12d603aca13c158621"
   },
-  "agy_registry_concept": "Reviewed actual artifact/screenshots; preserved as external design study only, not accepted for application integration. Codex should build actual registry from approved system; no automatic AGY dispatch."
+  "agy_registry_concept": "Owner discarded the external concept. Verified the five concept/capture files absent; only baseline.json, brief.md and codex-continuation.json remain. No AGY design code integrated; no automatic delegation."
 }

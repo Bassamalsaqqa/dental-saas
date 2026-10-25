@@ -75,3 +75,5 @@
 @media(max-width:540px){.registration-fields>.form-field{grid-column:span 3}.registration-fields>.form-field--phone{grid-column:1/-1}}
 
 .patient-edit-identity{display:flex;gap:12px;flex-wrap:wrap;font-size:17px;margin-top:8px;color:var(--muted)}.patient-edit-identity>span{font-size:15px;align-self:center}
+
+.form-field input[type=number]{appearance:textfield;-moz-appearance:textfield}.form-field input[type=number]::-webkit-inner-spin-button,.form-field input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
