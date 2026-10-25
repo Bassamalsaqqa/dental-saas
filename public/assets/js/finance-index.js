@@ -39,8 +39,8 @@
     function getPatientAvatar(gender) {
         var normalized = String(gender || 'other').toLowerCase();
         var map = {
-            male: { icon: 'fas fa-person', color: 'text-blue-700' },
-            female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+            male: { icon: 'fas fa-person', color: 'v4-primary' },
+            female: { icon: 'fas fa-person-dress', color: 'v4-muted' },
             other: { icon: 'fas fa-user', color: 'text-slate-600' }
         };
 
@@ -52,34 +52,34 @@
         var map = {
             payment: {
                 icon: 'fas fa-money-check-dollar',
-                badge: 'bg-emerald-100 text-emerald-800',
-                iconColor: 'text-emerald-700'
+                badge: 'v4-badge--success',
+                iconColor: 'v4-primary'
             },
             invoice: {
                 icon: 'fas fa-file-invoice-dollar',
-                badge: 'bg-blue-100 text-blue-800',
-                iconColor: 'text-blue-700'
+                badge: 'v4-badge--neutral',
+                iconColor: 'v4-primary'
             },
             refund: {
                 icon: 'fas fa-rotate-left',
-                badge: 'bg-rose-100 text-rose-800',
-                iconColor: 'text-rose-700'
+                badge: 'v4-badge--neutral',
+                iconColor: 'v4-muted'
             },
             adjustment: {
                 icon: 'fas fa-sliders',
-                badge: 'bg-amber-100 text-amber-800',
+                badge: 'v4-badge--attention',
                 iconColor: 'text-amber-700'
             },
             expense: {
                 icon: 'fas fa-receipt',
-                badge: 'bg-orange-100 text-orange-800',
-                iconColor: 'text-orange-700'
+                badge: 'v4-badge--neutral',
+                iconColor: 'v4-muted'
             }
         };
 
         return map[normalized] || {
             icon: 'fas fa-tag',
-            badge: 'bg-slate-100 text-slate-700',
+            badge: 'v4-badge--neutral',
             iconColor: 'text-slate-600'
         };
     }
@@ -117,19 +117,27 @@
     }
 
     function applyDataTablesStyling() {
-        $('.dataTables_length select').addClass('focus:ring-green-500 focus:border-green-500');
-        $('.dataTables_filter input').addClass('focus:ring-green-500 focus:border-green-500');
-        $('.dataTables_info').addClass('text-gray-600');
-        $('.dataTables_paginate .paginate_button').each(function () {
-            if ($(this).hasClass('current')) {
-                $(this).addClass('bg-green-600 border-green-600 text-white');
-            } else {
-                $(this).addClass('hover:bg-green-50 hover:border-green-300 hover:text-green-700');
-            }
-        });
-        $('.dataTables_processing').addClass('border-green-200 text-green-700');
-        $('.dataTables_length label, .dataTables_filter label').addClass('text-gray-700 font-semibold');
-        $('.dataTables_length i, .dataTables_filter i').addClass('text-green-600');
+        // Layout belongs to the V4 component stylesheet, not per-draw utility injection.
+    }
+    function escapeText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+    function renderMobileRecords(api){
+        const host=document.getElementById('v4-finance-cards');if(!host)return;
+        host.replaceChildren();
+        const rows=api.rows({page:'current'}).data().toArray();
+        for(const row of rows){
+            const article=document.createElement('article');article.className='v4-mobile-record';
+            const type=document.createElement('p');type.className='v4-mobile-record-type';type.textContent=labelFromMap(financeI18n.transactionTypes,row.transaction_type,row.transaction_type||'');
+            const title=document.createElement('h3');title.textContent=row.patient_name||financeI18n.expensePayee;
+            const reference=document.createElement('p');reference.className='v4-muted';reference.dir='ltr';reference.textContent=row.transaction_id||'';
+            const amount=document.createElement('strong');amount.className='v4-mobile-record-amount';amount.dir='ltr';amount.textContent=row.amount_formatted||formatCurrency(Math.abs(row.amount));
+            const status=document.createElement('span');status.className='v4-badge';status.textContent=labelFromMap(financeI18n.paymentStatuses,row.payment_status,row.payment_status||'');
+            const date=document.createElement('p');date.className='v4-muted';date.textContent=row.created_at_formatted||row.created_at||'';
+            article.append(type,title,reference,amount,status,date);
+            if(row.has_original_currency_delta){const fx=document.createElement('p');fx.className='v4-muted';fx.dir='ltr';fx.textContent=String(row.amount_original_formatted||'')+' @ '+parseFloat(row.exchange_rate||1).toFixed(4);article.append(fx);}
+            if(permissions.finance?.view&&Number.isSafeInteger(Number(row.id))&&Number(row.id)>0){const link=document.createElement('a');link.className='v4-button';link.href=financeUrls.base+'/'+Number(row.id);link.textContent=actionLabel('viewTransaction','');link.dataset.workflowContext='1';article.append(link);}
+            host.append(article);
+        }
+        if(!rows.length){const p=document.createElement('p');p.className='v4-records-empty';p.textContent=financeI18n.dataTable?.emptyTable||'';host.append(p);}
     }
 
     function loadFinanceStatistics() {
@@ -138,17 +146,17 @@
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                $('#totalRevenue').text(data.gross_collections_formatted ? formatCurrencyAbbreviated(data.gross_collections) : formatCurrencyAbbreviated(0));
-                $('#providerPaidCash').text(data.provider_paid_cash_total_formatted || '?');
-                $('#netClinicCash').text(data.net_clinic_cash === null ? data.net_clinic_cash_formatted : (data.net_clinic_cash_formatted ? formatCurrencyAbbreviated(data.net_clinic_cash) : formatCurrencyAbbreviated(0)));
+                $('#totalRevenue').text(data.gross_collections_formatted || '\u2014');
+                $('#providerPaidCash').text(data.provider_paid_cash_total_formatted || '\u2014');
+                $('#netClinicCash').text(data.net_clinic_cash_formatted || '\u2014');
                 $('#outstandingInvoices').text(data.outstanding_invoices || 0);
                 $('#outstandingInvoicesBalance').text(data.outstanding_invoices_balance_formatted || '');
             },
             error: function () {
-                $('#totalRevenue').text(formatCurrencyAbbreviated(0));
-                $('#providerPaidCash').text(formatCurrencyAbbreviated(0));
-                $('#netClinicCash').text(formatCurrencyAbbreviated(0));
-                $('#outstandingInvoices').text('0');
+                $('#totalRevenue').text('\u2014');
+                $('#providerPaidCash').text('\u2014');
+                $('#netClinicCash').text('\u2014');
+                $('#outstandingInvoices').text('\u2014');
                 $('#outstandingInvoicesBalance').text('');
             }
         });
@@ -252,7 +260,7 @@
                             '<i class="' + typeMeta.icon + ' ' + typeMeta.iconColor + ' text-xl"></i>' +
                             '</span>' +
                             '<div class="min-w-0">' +
-                            '<div class="text-sm font-medium text-gray-900 truncate">' + data + '</div>' +
+                            '<div class="text-sm font-medium text-gray-900 truncate">' + escapeText(data) + '</div>' +
                             '<div class="text-xs text-gray-500">' + (financeI18n.transactionId || 'ID') + '</div>' +
                             '</div>' +
                             '</div>';
@@ -278,8 +286,8 @@
                             '<i class="' + icon + ' ' + iconColor + ' text-2xl"></i>' +
                             '</span>' +
                             '<div class="min-w-0">' +
-                            '<div class="text-sm font-medium text-gray-900 truncate">' + data + '</div>' +
-                            '<div class="text-xs text-gray-500 truncate">' + subtitle + '</div>' +
+                            '<div class="text-sm font-medium text-gray-900 truncate">' + escapeText(data) + '</div>' +
+                            '<div class="text-xs text-gray-500 truncate">' + escapeText(subtitle) + '</div>' +
                             '</div>' +
                             '</div>';
                     }
@@ -304,16 +312,12 @@
                     data: 'amount',
                     name: 'amount',
                     render: function (data, type, row) {
-                        var isPositive = data >= 0;
-                        var colorClass = isPositive ? 'text-green-600' : 'text-red-600';
-                        var iconClass = isPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
                         var originalLine = row.has_original_currency_delta
-                            ? '<div class="text-xs text-gray-500">' + row.amount_original_formatted + ' @ ' + parseFloat(row.exchange_rate || 1).toFixed(4) + '</div>'
+                            ? '<div class="text-xs text-gray-500">' + escapeText(row.amount_original_formatted) + ' @ ' + parseFloat(row.exchange_rate || 1).toFixed(4) + '</div>'
                             : '';
                         return '<div>' +
                             '<div class="flex items-center space-x-2">' +
-                            '<i class="' + iconClass + ' ' + colorClass + ' text-xs"></i>' +
-                            '<span class="text-sm font-medium ' + colorClass + '">' + (row.amount_formatted || formatCurrency(Math.abs(data))) + '</span>' +
+                            '<span class="v4-ledger-amount">' + escapeText(row.amount_formatted || formatCurrency(Math.abs(data))) + '</span>' +
                             '</div>' +
                             originalLine +
                             '</div>';
@@ -324,11 +328,11 @@
                     name: 'payment_status',
                     render: function (data) {
                         var statusColors = {
-                            paid: 'bg-green-100 text-green-800',
-                            pending: 'bg-yellow-100 text-yellow-800',
-                            partial: 'bg-blue-100 text-blue-800',
-                            overdue: 'bg-red-100 text-red-800',
-                            cancelled: 'bg-gray-100 text-gray-800'
+                            paid: 'v4-badge--success',
+                            pending: 'v4-badge--attention',
+                            partial: 'v4-badge--neutral',
+                            overdue: 'v4-badge--attention',
+                            cancelled: 'v4-badge--neutral'
                         };
                         var statusIcons = {
                             paid: 'fas fa-check-circle',
@@ -337,7 +341,7 @@
                             overdue: 'fas fa-exclamation-triangle',
                             cancelled: 'fas fa-times-circle'
                         };
-                        var colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
+                        var colorClass = statusColors[data] || 'v4-badge--neutral';
                         var iconClass = statusIcons[data] || 'fas fa-question-circle';
                         var statusLabel = labelFromMap(
                             financeI18n.paymentStatuses,
@@ -356,7 +360,7 @@
                     render: function (data, type, row) {
                         return '<div class="flex items-center space-x-2">' +
                             '<i class="fas fa-calendar text-green-600 text-xs"></i>' +
-                            '<span class="text-sm text-gray-900">' + (row.created_at_formatted || data) + '</span>' +
+                            '<span class="text-sm text-gray-900">' + escapeText(row.created_at_formatted || data) + '</span>' +
                             '</div>';
                     }
                 },
@@ -369,26 +373,26 @@
                         var actions = '<div class="flex items-center space-x-2">';
 
                         if (permissions.finance && permissions.finance.view) {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '" data-workflow-context="1" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="' + actionLabel('viewTransaction', 'View Transaction') + '"><i class="fas fa-eye"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + escapeText(data) + '" data-workflow-context="1" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="' + actionLabel('viewTransaction', 'View Transaction') + '"><i class="fas fa-eye"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.view && row.transaction_type === 'invoice') {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '/invoice" data-workflow-context="1" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="' + actionLabel('viewInvoice', 'View Invoice') + '"><i class="fas fa-file-invoice"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + escapeText(data) + '/invoice" data-workflow-context="1" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="' + actionLabel('viewInvoice', 'View Invoice') + '"><i class="fas fa-file-invoice"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.edit && row.transaction_type === 'invoice') {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '" data-workflow-context="1" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="' + actionLabel('addPayment', 'Add Payment') + '"><i class="fas fa-money-bill-wave"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + escapeText(data) + '" data-workflow-context="1" class="p-2 text-emerald-600 hover:v4-primary rounded-md hover:bg-emerald-50 transition-colors duration-200" title="' + actionLabel('addPayment', 'Add Payment') + '"><i class="fas fa-money-bill-wave"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.edit) {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '/edit" data-workflow-context="1" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="' + actionLabel('editTransaction', 'Edit Transaction') + '"><i class="fas fa-edit"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + escapeText(data) + '/edit" data-workflow-context="1" class="p-2 text-blue-600 hover:v4-primary rounded-md hover:bg-blue-50 transition-colors duration-200" title="' + actionLabel('editTransaction', 'Edit Transaction') + '"><i class="fas fa-edit"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.delete) {
-                            actions += '<button onclick="deleteTransaction(' + data + ')" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="' + actionLabel('deleteTransaction', 'Delete Transaction') + '"><i class="fas fa-trash"></i></button>';
+                            actions += '<button onclick="deleteTransaction(' + escapeText(data) + ')" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="' + actionLabel('deleteTransaction', 'Delete Transaction') + '"><i class="fas fa-trash"></i></button>';
                         }
                         actions += '</div>';
                         return actions;
                     }
                 }
             ],
-            dom: 'B<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
+            dom: '<"v4-ledger-tools"lf>rt<"v4-ledger-footer"ip>B',
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             order: [[0, 'desc']],
@@ -428,6 +432,7 @@
                     $('[data-toggle="tooltip"]').tooltip();
                 }
                 applyDataTablesStyling();
+                renderMobileRecords(this.api());
             }
         });
 

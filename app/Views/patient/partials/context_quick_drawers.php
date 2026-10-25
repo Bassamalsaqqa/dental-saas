@@ -17,19 +17,19 @@ $maxFileMb = $attachments_max_file_mb ?? null;
 $fullUrl = static function (string $path) use ($patientId, $returnTo): string {
     return workflow_context_url($path . '?patient_id=' . $patientId, $returnTo);
 };
-$buttonClass = 'patient-command-action inline-flex min-h-[2.85rem] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-sky-500/15';
-$primaryButtonClass = 'patient-command-action patient-command-action-primary inline-flex min-h-[2.85rem] items-center justify-center gap-2 rounded-xl border border-teal-700 bg-teal-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-teal-500/20';
+$buttonClass = 'v4-button';
+$primaryButtonClass = 'v4-button v4-button--primary';
 $footer = static function (string $drawerId, string $submitLabel, string $fullPageUrl, string $formId): string {
     ob_start();
     ?>
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <a href="<?= esc($fullPageUrl) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-sky-700 hover:bg-sky-50">
+        <a href="<?= esc($fullPageUrl) ?>" class="v4-button v4-button--quiet">
             <i class="fas fa-up-right-from-square"></i>
             <span><?= esc(lang('UI.openFullPage')) ?></span>
         </a>
         <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
-            <button type="submit" form="<?= esc($formId) ?>" class="inline-flex items-center justify-center rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"><?= esc($submitLabel) ?></button>
+            <button type="button" class="v4-button" data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
+            <button type="submit" form="<?= esc($formId) ?>" class="v4-button v4-button--primary"><?= esc($submitLabel) ?></button>
         </div>
     </div>
     <?php
@@ -48,43 +48,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
 };
 ?>
 
-<section class="patient-command-workspace overflow-hidden rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-teal-50 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.45)]">
-    <div class="space-y-4 px-5 py-4">
-        <div class="text-center">
-            <h2 class="text-base font-bold text-slate-950"><?= esc(lang('UI.patientCommandActions')) ?></h2>
-        </div>
-        <div class="flex flex-wrap items-center justify-center gap-2">
-            <?php if (has_permission('examinations', 'create')): ?>
-                <button type="button" class="<?= esc($primaryButtonClass) ?>" data-app-drawer-open="patientExamDrawer">
-                    <i class="fas fa-stethoscope"></i><span><?= esc(lang('UI.addExamination')) ?></span>
-                </button>
-            <?php endif; ?>
-            <?php if (has_permission('appointments', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientAppointmentDrawer">
-                    <i class="fas fa-calendar-plus text-emerald-600"></i><span><?= esc(lang('UI.newAppointment')) ?></span>
-                </button>
-            <?php endif; ?>
-            <?php if (has_permission('treatments', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientTreatmentDrawer">
-                    <i class="fas fa-tooth text-purple-600"></i><span><?= esc(lang('UI.addTreatment')) ?></span>
-                </button>
-            <?php endif; ?>
-            <?php if (has_permission('finance', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientPaymentDrawer">
-                    <i class="fas fa-money-bill-wave text-green-600"></i><span><?= esc(lang('UI.recordPayment')) ?></span>
-                </button>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientChargeDrawer">
-                    <i class="fas fa-file-invoice-dollar text-amber-600"></i><span><?= esc(lang('UI.addPatientCharge')) ?></span>
-                </button>
-            <?php endif; ?>
-            <?php if ($attachmentsEnabled && has_permission('patients', 'edit')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientDocumentDrawer">
-                    <i class="fas fa-paperclip text-cyan-600"></i><span><?= esc(lang('UI.addDocument')) ?></span>
-                </button>
-            <?php endif; ?>
-        </div>
-    </div>
-</section>
+
 
 <?php if (has_permission('examinations', 'create')): ?>
     <?php

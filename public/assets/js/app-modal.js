@@ -6,11 +6,21 @@
     const activeModals = new Set();
     const timers = new WeakMap();
     const triggers = new WeakMap();
+    const backgroundInertState = new Map();
 
     function setScrollLock() {
         const hasOpen = activeModals.size > 0;
         document.documentElement.classList.toggle('app-drawer-lock', hasOpen);
         document.body.classList.toggle('app-drawer-lock', hasOpen);
+        if(hasOpen){
+            document.querySelectorAll('.v4-app,.v4-mobile-dock').forEach(el=>{
+                if(!backgroundInertState.has(el)) backgroundInertState.set(el,el.inert);
+                el.inert=true;
+            });
+        }else{
+            backgroundInertState.forEach((state,el)=>el.inert=state);
+            backgroundInertState.clear();
+        }
     }
 
     function getModal(idOrElement) {
@@ -81,7 +91,7 @@
     function close(idOrElement, options) {
         const opts = options || {};
         const modal = getModal(idOrElement);
-        if (!isOpen(modal)) {
+        if (!isOpen(modal) || timers.has(modal)) {
             return;
         }
 
@@ -148,6 +158,17 @@
 
         return modal;
     }
+
+    document.addEventListener('keydown',function(event){
+        if(event.key!=='Tab') return;
+        const modal=[...activeModals].at(-1);
+        if(!modal) return;
+        const items=[...modal.querySelectorAll('a[href],button:not([disabled]),input:not([type=hidden]):not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length && el.tabIndex>=0);
+        const first=items[0],last=items.at(-1);
+        if(!first){event.preventDefault();modal.tabIndex=-1;modal.focus();}
+        else if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    },true);
 
     window.AppModal = {
         bind: bind,

@@ -3,7 +3,7 @@ $validation = session()->getFlashdata('validation');
 $contextual = !empty($contextual);
 $selectedPatient = $selected_patient ?? null;
 $fieldPrefix = !empty($field_id_prefix) ? $field_id_prefix : ($contextual ? 'contextual_' : 'field_');
-$inputClass = 'w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
+$inputClass = 'v4-field w-full';
 $selectedType = old('appointment_type', $appointment_type_prefill ?? '');
 
 $durationOptions = [30, 45, 60, 90, 120, 180];

@@ -24,69 +24,10 @@ if (!empty($provider_id_prefill)) {
 $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFullPageQuery));
 ?>
 <?php if (has_permission('appointments', 'create')): ?>
-    <style>
-    .appointment-create-modal {
-        visibility: hidden;
-        pointer-events: none;
-        transition: visibility 0s linear 240ms;
-    }
-    .appointment-create-modal.is-open {
-        visibility: visible;
-        pointer-events: auto;
-        transition-delay: 0s;
-    }
-    .appointment-create-modal__backdrop {
-        opacity: 0;
-        transition: opacity 220ms ease;
-    }
-    .appointment-create-modal.is-open .appointment-create-modal__backdrop {
-        opacity: 1;
-    }
-    .appointment-create-modal__panel {
-        display: grid !important;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        opacity: 0;
-        overflow: clip;
-        transform: scale(0.86);
-        transform-origin: center center;
-        height: min(92dvh, 48rem);
-        transition:
-            opacity 180ms ease,
-            transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        will-change: transform, opacity;
-    }
-    .appointment-create-modal.is-open .appointment-create-modal__panel {
-        opacity: 1;
-        transform: scale(1);
-    }
-    .appointment-create-modal .select2-container {
-        width: 100% !important;
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .appointment-create-modal__backdrop,
-        .appointment-create-modal__panel {
-            transition: none;
-        }
-    }
-    @media (max-width: 640px) {
-        .appointment-create-modal__shell {
-            align-items: stretch;
-            padding: 0;
-        }
-        .appointment-create-modal__panel {
-            width: 100vw;
-            height: 100dvh;
-            min-height: 100dvh;
-            max-height: 100dvh;
-            border-radius: 0;
-        }
-    }
-    </style>
-
-    <div id="newAppointmentModal" class="app-scale-modal appointment-create-modal fixed inset-0 z-[2147483600] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newAppointmentModalTitle" dir="<?= !empty($isRtl) ? 'rtl' : 'ltr' ?>">
-        <div class="appointment-create-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-appointment-create-modal-close></div>
-        <div class="appointment-create-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-appointment-create-modal-close>
-            <form id="newAppointmentQuickCreateForm" action="<?= base_url('appointment/store') ?>" method="POST" class="appointment-create-modal__panel flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" data-select2-dropdown-parent onclick="event.stopPropagation()">
+<div id="newAppointmentModal" class="appointment-create-modal hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="newAppointmentModalTitle" dir="<?= !empty($isRtl) ? 'rtl' : 'ltr' ?>">
+        <div class="appointment-create-modal__backdrop" data-appointment-create-modal-close></div>
+        <div class="appointment-create-modal__shell" data-appointment-create-modal-close>
+            <form id="newAppointmentQuickCreateForm" action="<?= base_url('appointment/store') ?>" method="POST" class="appointment-create-modal__panel v4-form" data-select2-dropdown-parent onclick="event.stopPropagation()">
                 <?= csrf_field() ?>
                 <input type="hidden" name="return_to" value="<?= esc($modalReturnTo) ?>">
                 <input type="hidden" name="source_modal" value="appointment_quick_create">
@@ -97,31 +38,15 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                     <input type="hidden" name="examination_id" value="<?= (int) $modalSelectedExaminationId ?>">
                 <?php endif; ?>
 
-                <div class="flex flex-shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
-                            <i class="fas fa-calendar-check"></i>
-                        </span>
-                        <div>
-                            <h2 id="newAppointmentModalTitle" class="text-lg font-bold text-slate-900"><?= esc(lang('UI.appointmentNew')) ?></h2>
-                            <a href="<?= esc($modalFullPageHref, 'attr') ?>" class="mt-1 inline-flex text-xs font-semibold text-blue-700 hover:text-blue-800">
-                                <?= esc(lang('UI.openFullPage')) ?>
-                            </a>
-                        </div>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-appointment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-slate-50/70 p-5">
+                <header class="v4-modal-header"><div><h2 id="newAppointmentModalTitle"><?= esc(lang('UI.appointmentNew')) ?></h2><a class="v4-text-link" href="<?= esc($modalFullPageHref,'attr') ?>"><?= esc(lang('UI.openFullPage')) ?></a></div><button type="button" class="v4-icon-button" data-appointment-create-modal-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>"><i class="fas fa-times" aria-hidden="true"></i></button></header>
+                <div class="v4-modal-body">
                     <?php if (session('error') && $modalShouldOpen): ?>
-                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div class="v4-form-error">
                             <?= esc(session('error')) ?>
                         </div>
                     <?php endif; ?>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div class="v4-booking-fields">
                         <?= view('appointment/partials/form_fields', [
                             'contextual' => $modalContextual,
                             'selected_patient' => $modalSelectedPatient,
@@ -135,15 +60,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:justify-end">
-                    <button type="button" data-appointment-create-modal-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                        <?= esc(lang('UI.cancel')) ?>
-                    </button>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-blue-700 hover:to-purple-700 hover:shadow-xl">
-                        <i class="fas fa-calendar-check me-2"></i>
-                        <?= esc(lang('UI.appointmentSchedule')) ?>
-                    </button>
-                </div>
+                <footer class="v4-modal-footer"><button type="button" data-appointment-create-modal-close class="v4-button"><?= esc(lang('UI.cancel')) ?></button><button type="submit" class="v4-button v4-button--primary"><i class="fas fa-calendar-check" aria-hidden="true"></i><?= esc(lang('UI.appointmentSchedule')) ?></button></footer>
             </form>
         </div>
     </div>
@@ -168,6 +85,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
                 modal.querySelectorAll('button[data-appointment-create-modal-close], a[data-appointment-create-modal-close]').forEach(function (control) {
                     control.addEventListener('click', function (event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         closeAppointmentModal();
                     });
                 });
@@ -332,50 +250,19 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
             }
         }
 
+        let initialBooking='';
+        const bookingState=modal=>JSON.stringify([...new FormData(modal.querySelector('form'))].filter(([key])=>key!==document.querySelector('meta[name="csrf-name"]')?.content));
         function openAppointmentModal(trigger) {
-            const modal = mountAppointmentModal();
-            if (!modal) {
-                return;
-            }
-            appointmentModalTrigger = trigger || document.activeElement;
-            if (appointmentModalCloseTimer) {
-                clearTimeout(appointmentModalCloseTimer);
-                appointmentModalCloseTimer = null;
-            }
-            modal.classList.remove('hidden');
-            modal.setAttribute('aria-hidden', 'false');
-            applyAppointmentTriggerDefaults(modal, trigger);
-            document.documentElement.classList.add('app-drawer-lock');
-            document.body.classList.add('app-drawer-lock');
-            requestAnimationFrame(function () {
-                modal.classList.add('is-open');
-            });
-            window.setTimeout(function () {
-                initializeAppointmentModalContent(modal);
-                const firstField = modal.querySelector('#patientSelect, select[name="patient_id"], input, select, textarea, button');
-                if (firstField && typeof firstField.focus === 'function') {
-                    firstField.focus({ preventScroll: true });
-                }
-            }, 100);
+            const modal=mountAppointmentModal(); if(!modal) return;
+            applyAppointmentTriggerDefaults(modal,trigger);
+            initialBooking=bookingState(modal);
+            window.AppModal.open(modal,{trigger:trigger||document.activeElement,focusSelector:'.select2-selection, input:not([type="hidden"]):not([disabled]), button',openDelay:100,onOpen:()=>initializeAppointmentModalContent(modal)});
         }
-
         function closeAppointmentModal() {
-            const modal = document.getElementById('newAppointmentModal');
-            if (!modal || modal.classList.contains('hidden')) {
-                return;
-            }
-            modal.classList.remove('is-open');
-            modal.setAttribute('aria-hidden', 'true');
-            document.documentElement.classList.remove('app-drawer-lock');
-            document.body.classList.remove('app-drawer-lock');
-            appointmentModalCloseTimer = setTimeout(function () {
-                modal.classList.add('hidden');
-                resetAppointmentModalForm(modal);
-                if (appointmentModalTrigger && typeof appointmentModalTrigger.focus === 'function') {
-                    appointmentModalTrigger.focus();
-                }
-                appointmentModalTrigger = null;
-            }, 240);
+            const modal=document.getElementById('newAppointmentModal');
+            if(!window.AppModal.isOpen(modal)) return;
+            if(initialBooking&&bookingState(modal)!==initialBooking&&!window.confirm(<?= json_encode(lang('V4.discardBooking'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>)) return;
+            window.AppModal.close(modal,{onReset:()=>resetAppointmentModalForm(modal)});
         }
 
         window.openAppointmentModal = openAppointmentModal;
@@ -397,6 +284,7 @@ $modalFullPageHref = base_url('appointment/create?' . http_build_query($modalFul
         });
 
         document.addEventListener('keydown', function (event) {
+            if (event.target.closest?.('.select2-search')) return;
             if (event.key !== 'Escape') {
                 return;
             }
