@@ -17,3 +17,6 @@ Architectural components: `v3-flow-forms.css`, scoped `v3-support-views.css`, `v
 
 
 The authoritative small-control layer is `v3-components.css`; `v3-icons.css` supplies the locally bundled reference-style outline set. Preserve fa-name event hooks while rendering one outline identity. Small copy uses approved Ink where Muted fails contrast against warm backgrounds. Select2 injected CSS uses the same tokens; native hidden/responsive classes retain precedence.
+
+
+Definitive fidelity pass: `v3-architecture.css` owns screen-specific composition (two registry facts, vertical operations/action queue, custody/ledger and platform inspector) and temporary frosted scrims. Registry headings/actions are a compact task strip, not stacked legacy page/table headers. EN | AR links preserve the current route. Data panels remain opaque; reduced-transparency, forced-color and mobile fallbacks remove blur. Reference facts unavailable from existing controllers stay explicitly unavailable. Renderer-local visibility reuse never replaces controller authorization. See the single acceptance record for precise provenance and limits.

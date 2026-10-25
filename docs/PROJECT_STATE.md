@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-10-24 (deployed PR #20; isolated V3 frontend draft).
+Last updated: 2026-10-25 (deployed PR #20; isolated V3 reference-fidelity draft).
 
 ## Deployed source
 
@@ -14,7 +14,7 @@ Last updated: 2026-10-24 (deployed PR #20; isolated V3 frontend draft).
 
 ## Current engineering scope: V3 frontend draft
 
-Architectural runtime: `8a720c3593c961c0926ad258d0a3d3c9838359aa`. 210 EN/AR captures, 42 HTTP/security checks and bounded independent source review. See `docs/UI_V3_ACCEPTANCE.md` for adaptations and performance limits. Draft PR #21 awaits Owner visual acceptance and finished-candidate review; no production/backend changes.
+The definitive V3 fidelity pass replaces inherited registry/dashboard/finance/platform composition, adds restrained frost and readable native controls, and supplies one offline reference-versus-actual gallery. Current exact runtime, 277-state capture inventory, 42 routed checks, focused interactions and measured query reductions are recorded in `docs/UI_V3_ACCEPTANCE.md` and `docs/ui-v3/component-acceptance.json`. Historical 210/176 sets are explicitly distinguished. Draft PR #21 awaits Owner visual acceptance and final exact-head independent review; no production/backend changes.
 
 
 - Isolated branch `feature/warm-clinical-v3-20261023` derives from exact release `89352fd2`, not historical main. The original dirty checkout and reference kit are unchanged.

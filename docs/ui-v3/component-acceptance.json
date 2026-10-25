@@ -1,99 +1,1208 @@
 {
-  "runtime": "7bb13d30517cd3e941646f7402c5442ed2707917",
-  "actual_captures": 176,
-  "reference_views": 13,
-  "errors": [],
-  "overflow": [],
-  "intentional_unavailable": [
-    {
-      "label": "notification-dropdown",
-      "lang": "en",
-      "width": 390,
-      "unavailable": "Notification trigger is intentionally hidden in compact toolbar; desktop sample available"
-    },
-    {
-      "label": "notification-dropdown",
-      "lang": "ar",
-      "width": 390,
-      "unavailable": "Notification trigger is intentionally hidden in compact toolbar; desktop sample available"
-    }
+  "runtime_commit": "2973c63d24d2c3f4839ce161dec1ab15e6672dc9",
+  "runtime_tree": "ac11c40e6aae6cb1636bdfcf83ef0e79f8f82743",
+  "baseline": "89352fd20e0d5166e81f631cb743bead1f596a68",
+  "capture_date": "2026-10-25",
+  "actual_captures": 277,
+  "captured_routes_or_states": 51,
+  "viewports": [
+    1586,
+    1366,
+    390
   ],
+  "locales": [
+    "en",
+    "ar"
+  ],
+  "unavailable": [],
+  "capture_errors": [],
+  "document_overflows": [],
+  "historical_capture_sets": {
+    "210": {
+      "runtime": "8a720c3593c961c0926ad258d0a3d3c9838359aa",
+      "scope": "35 states x 2 locales x 3 widths"
+    },
+    "176": {
+      "runtime": "7bb13d30517cd3e941646f7402c5442ed2707917",
+      "scope": "44 states x 2 locales x 2 widths",
+      "unavailable": [
+        "notification-dropdown-en-390",
+        "notification-dropdown-ar-390"
+      ]
+    }
+  },
+  "http_checks": {
+    "count": 42,
+    "pass": true
+  },
+  "changed_interactions": {
+    "checks": [
+      {
+        "name": "registry-two-primary-cards",
+        "pass": true
+      },
+      {
+        "name": "locale-inline-both-options",
+        "pass": true
+      },
+      {
+        "name": "rail88",
+        "pass": true
+      },
+      {
+        "name": "intake-reference-geometry",
+        "pass": true,
+        "width": 600,
+        "top": 62,
+        "bottom": 992
+      },
+      {
+        "name": "dirty-intake-preserved",
+        "pass": true
+      },
+      {
+        "name": "intake-close-focus",
+        "pass": true
+      },
+      {
+        "name": "row-action-menu-without-navigation",
+        "pass": true
+      },
+      {
+        "name": "row-menu-escape",
+        "pass": true
+      },
+      {
+        "name": "locale-retains-filter",
+        "pass": true,
+        "url": "/patients?search=Synthetic"
+      },
+      {
+        "name": "locale-roundtrip",
+        "pass": true
+      },
+      {
+        "name": "mobile-notification-visible",
+        "pass": true
+      },
+      {
+        "name": "mobile-both-locales",
+        "pass": true
+      },
+      {
+        "name": "mobile-no-document-overflow",
+        "pass": true
+      },
+      {
+        "name": "populated-native-mini-chart",
+        "pass": true
+      },
+      {
+        "name": "schedule-switch-off",
+        "pass": true
+      },
+      {
+        "name": "schedule-assessment-visible",
+        "pass": true
+      },
+      {
+        "name": "platform-rail220",
+        "pass": true
+      },
+      {
+        "name": "inspector-real-selected-row",
+        "pass": true
+      },
+      {
+        "name": "inspector-pane-switch",
+        "pass": true
+      }
+    ],
+    "errors": [],
+    "pass": true
+  },
+  "frost_geometry_zoom": {
+    "checks": [
+      {
+        "name": "patients-en-commandbar62",
+        "pass": true,
+        "data": {
+          "height": 62
+        }
+      },
+      {
+        "name": "dashboard-en-commandbar62",
+        "pass": true,
+        "data": {
+          "height": 62
+        }
+      },
+      {
+        "name": "finance-en-commandbar62",
+        "pass": true,
+        "data": {
+          "height": 62
+        }
+      },
+      {
+        "name": "medical-alerts-visible-en",
+        "pass": true
+      },
+      {
+        "name": "desktop-frost-en",
+        "pass": true,
+        "data": {
+          "frost": "blur(5px)"
+        }
+      },
+      {
+        "name": "opaque-fallback-en",
+        "pass": true,
+        "data": {
+          "frost": "none"
+        }
+      },
+      {
+        "name": "real-toggle-changes-en",
+        "pass": true
+      },
+      {
+        "name": "css-zoom-1.25-en",
+        "pass": true
+      },
+      {
+        "name": "css-zoom-1.5-en",
+        "pass": true
+      },
+      {
+        "name": "mobile-no-blur-en",
+        "pass": true,
+        "data": {
+          "mobile": "none"
+        }
+      },
+      {
+        "name": "patients-ar-commandbar62",
+        "pass": true,
+        "data": {
+          "height": 62
+        }
+      },
+      {
+        "name": "dashboard-ar-commandbar62",
+        "pass": true,
+        "data": {
+          "height": 62
+        }
+      },
+      {
+        "name": "finance-ar-commandbar62",
+        "pass": true,
+        "data": {
+          "height": 62
+        }
+      },
+      {
+        "name": "medical-alerts-visible-ar",
+        "pass": true
+      },
+      {
+        "name": "desktop-frost-ar",
+        "pass": true,
+        "data": {
+          "frost": "blur(5px)"
+        }
+      },
+      {
+        "name": "opaque-fallback-ar",
+        "pass": true,
+        "data": {
+          "frost": "none"
+        }
+      },
+      {
+        "name": "real-toggle-changes-ar",
+        "pass": true
+      },
+      {
+        "name": "css-zoom-1.25-ar",
+        "pass": true
+      },
+      {
+        "name": "css-zoom-1.5-ar",
+        "pass": true
+      },
+      {
+        "name": "mobile-no-blur-ar",
+        "pass": true,
+        "data": {
+          "mobile": "none"
+        }
+      }
+    ],
+    "measurements": [
+      {
+        "label": "patients",
+        "lang": "en",
+        "metric": {
+          "x": 106,
+          "y": 154.34375,
+          "w": 726,
+          "h": 132,
+          "bg": "rgb(220, 236, 233)",
+          "color": "rgb(27, 48, 43)",
+          "font": "13px"
+        }
+      },
+      {
+        "label": "dashboard",
+        "lang": "en",
+        "metric": {
+          "x": 106,
+          "y": 154.34375,
+          "w": 358,
+          "h": 132,
+          "bg": "rgb(220, 236, 233)",
+          "color": "rgb(27, 48, 43)",
+          "font": "13px"
+        }
+      },
+      {
+        "label": "finance",
+        "lang": "en",
+        "metric": {
+          "x": 106,
+          "y": 156.34375,
+          "w": 358,
+          "h": 116,
+          "bg": "rgb(220, 236, 233)",
+          "color": "rgb(27, 48, 43)",
+          "font": "13px"
+        }
+      },
+      {
+        "label": "patients",
+        "lang": "ar",
+        "metric": {
+          "x": 754,
+          "y": 154.34375,
+          "w": 726,
+          "h": 132,
+          "bg": "rgb(220, 236, 233)",
+          "color": "rgb(27, 48, 43)",
+          "font": "13px"
+        }
+      },
+      {
+        "label": "dashboard",
+        "lang": "ar",
+        "metric": {
+          "x": 1122,
+          "y": 154.34375,
+          "w": 358,
+          "h": 132,
+          "bg": "rgb(220, 236, 233)",
+          "color": "rgb(27, 48, 43)",
+          "font": "13px"
+        }
+      },
+      {
+        "label": "finance",
+        "lang": "ar",
+        "metric": {
+          "x": 1122,
+          "y": 156.34375,
+          "w": 358,
+          "h": 116,
+          "bg": "rgb(220, 236, 233)",
+          "color": "rgb(27, 48, 43)",
+          "font": "13px"
+        }
+      }
+    ],
+    "pass": true,
+    "method": "Actual computed geometry, native controls and CSS zoom equivalent; not universal WCAG certification"
+  },
+  "contrast": {
+    "count": 86,
+    "failed": [],
+    "scope": "Computed visible primary headings/metrics/filter/custody/ledger copy; not universal WCAG conformance"
+  },
+  "performance": {
+    "status": "PASS",
+    "method": "Loopback PHP8.2/MariaDB10.4, same synthetic schema, production-mode no toolbar, three warm sequential HTTP responses each; server response only, not browser paint or network benchmark",
+    "rows": [
+      {
+        "path": "/dashboard?lang=en",
+        "before": {
+          "median_seconds": 0.203,
+          "queries": 223,
+          "bytes": 298503,
+          "trials": [
+            {
+              "seconds": 0.203,
+              "bytes": 298503,
+              "query_count": 223
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 298503,
+              "query_count": 223
+            },
+            {
+              "seconds": 0.203,
+              "bytes": 298503,
+              "query_count": 223
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 15,
+          "stylesheets": 7
+        },
+        "after": {
+          "median_seconds": 0.187,
+          "queries": 205,
+          "bytes": 246108,
+          "trials": [
+            {
+              "seconds": 0.172,
+              "bytes": 246108,
+              "query_count": 205
+            },
+            {
+              "seconds": 0.187,
+              "bytes": 246108,
+              "query_count": 205
+            },
+            {
+              "seconds": 0.188,
+              "bytes": 246108,
+              "query_count": 205
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 13,
+          "stylesheets": 13
+        },
+        "query_delta": -18,
+        "html_byte_delta": -52395
+      },
+      {
+        "path": "/patients?lang=en",
+        "before": {
+          "median_seconds": 0.187,
+          "queries": 199,
+          "bytes": 320570,
+          "trials": [
+            {
+              "seconds": 0.187,
+              "bytes": 320570,
+              "query_count": 199
+            },
+            {
+              "seconds": 0.188,
+              "bytes": 320570,
+              "query_count": 199
+            },
+            {
+              "seconds": 0.171,
+              "bytes": 320570,
+              "query_count": 199
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 21,
+          "stylesheets": 9
+        },
+        "after": {
+          "median_seconds": 0.187,
+          "queries": 193,
+          "bytes": 277656,
+          "trials": [
+            {
+              "seconds": 0.188,
+              "bytes": 277656,
+              "query_count": 193
+            },
+            {
+              "seconds": 0.187,
+              "bytes": 277656,
+              "query_count": 193
+            },
+            {
+              "seconds": 0.157,
+              "bytes": 277656,
+              "query_count": 193
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 22,
+          "stylesheets": 15
+        },
+        "query_delta": -6,
+        "html_byte_delta": -42914
+      },
+      {
+        "path": "/patient/1?lang=en",
+        "before": {
+          "median_seconds": 0.328,
+          "queries": 453,
+          "bytes": 963810,
+          "trials": [
+            {
+              "seconds": 0.328,
+              "bytes": 963810,
+              "query_count": 453
+            },
+            {
+              "seconds": 0.297,
+              "bytes": 963810,
+              "query_count": 453
+            },
+            {
+              "seconds": 0.343,
+              "bytes": 963810,
+              "query_count": 453
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 15,
+          "stylesheets": 8
+        },
+        "after": {
+          "median_seconds": 0.328,
+          "queries": 447,
+          "bytes": 910325,
+          "trials": [
+            {
+              "seconds": 0.297,
+              "bytes": 910325,
+              "query_count": 447
+            },
+            {
+              "seconds": 0.328,
+              "bytes": 910325,
+              "query_count": 447
+            },
+            {
+              "seconds": 0.329,
+              "bytes": 910325,
+              "query_count": 447
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 13,
+          "stylesheets": 14
+        },
+        "query_delta": -6,
+        "html_byte_delta": -53485
+      },
+      {
+        "path": "/appointments?lang=en",
+        "before": {
+          "median_seconds": 0.172,
+          "queries": 165,
+          "bytes": 289797,
+          "trials": [
+            {
+              "seconds": 0.187,
+              "bytes": 289797,
+              "query_count": 165
+            },
+            {
+              "seconds": 0.156,
+              "bytes": 289797,
+              "query_count": 165
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 289797,
+              "query_count": 165
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 14,
+          "stylesheets": 7
+        },
+        "after": {
+          "median_seconds": 0.171,
+          "queries": 159,
+          "bytes": 248308,
+          "trials": [
+            {
+              "seconds": 0.156,
+              "bytes": 248308,
+              "query_count": 159
+            },
+            {
+              "seconds": 0.204,
+              "bytes": 248308,
+              "query_count": 159
+            },
+            {
+              "seconds": 0.171,
+              "bytes": 248308,
+              "query_count": 159
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 12,
+          "stylesheets": 13
+        },
+        "query_delta": -6,
+        "html_byte_delta": -41489
+      },
+      {
+        "path": "/finance?lang=en",
+        "before": {
+          "median_seconds": 0.188,
+          "queries": 203,
+          "bytes": 342710,
+          "trials": [
+            {
+              "seconds": 0.172,
+              "bytes": 342710,
+              "query_count": 203
+            },
+            {
+              "seconds": 0.188,
+              "bytes": 342710,
+              "query_count": 203
+            },
+            {
+              "seconds": 0.203,
+              "bytes": 342710,
+              "query_count": 203
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 19,
+          "stylesheets": 7
+        },
+        "after": {
+          "median_seconds": 0.203,
+          "queries": 191,
+          "bytes": 289417,
+          "trials": [
+            {
+              "seconds": 0.187,
+              "bytes": 289417,
+              "query_count": 191
+            },
+            {
+              "seconds": 0.204,
+              "bytes": 289417,
+              "query_count": 191
+            },
+            {
+              "seconds": 0.203,
+              "bytes": 289417,
+              "query_count": 191
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 17,
+          "stylesheets": 14
+        },
+        "query_delta": -12,
+        "html_byte_delta": -53293
+      },
+      {
+        "path": "/inventory?lang=en",
+        "before": {
+          "median_seconds": 0.172,
+          "queries": 158,
+          "bytes": 329140,
+          "trials": [
+            {
+              "seconds": 0.172,
+              "bytes": 329140,
+              "query_count": 158
+            },
+            {
+              "seconds": 0.156,
+              "bytes": 329140,
+              "query_count": 158
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 329140,
+              "query_count": 158
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 16,
+          "stylesheets": 9
+        },
+        "after": {
+          "median_seconds": 0.172,
+          "queries": 146,
+          "bytes": 280905,
+          "trials": [
+            {
+              "seconds": 0.156,
+              "bytes": 280905,
+              "query_count": 146
+            },
+            {
+              "seconds": 0.187,
+              "bytes": 280905,
+              "query_count": 146
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 280905,
+              "query_count": 146
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 14,
+          "stylesheets": 17
+        },
+        "query_delta": -12,
+        "html_byte_delta": -48235
+      },
+      {
+        "path": "/settings?tab=hours&lang=ar",
+        "before": {
+          "median_seconds": 0.188,
+          "queries": 188,
+          "bytes": 448755,
+          "trials": [
+            {
+              "seconds": 0.203,
+              "bytes": 448755,
+              "query_count": 188
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 448755,
+              "query_count": 188
+            },
+            {
+              "seconds": 0.188,
+              "bytes": 448755,
+              "query_count": 188
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 16,
+          "stylesheets": 8
+        },
+        "after": {
+          "median_seconds": 0.141,
+          "queries": 176,
+          "bytes": 401303,
+          "trials": [
+            {
+              "seconds": 0.14,
+              "bytes": 401303,
+              "query_count": 176
+            },
+            {
+              "seconds": 0.141,
+              "bytes": 401303,
+              "query_count": 176
+            },
+            {
+              "seconds": 0.187,
+              "bytes": 401303,
+              "query_count": 176
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 14,
+          "stylesheets": 15
+        },
+        "query_delta": -12,
+        "html_byte_delta": -47452
+      },
+      {
+        "path": "/appointment/calendar?lang=en",
+        "before": {
+          "median_seconds": 0.172,
+          "queries": 160,
+          "bytes": 292370,
+          "trials": [
+            {
+              "seconds": 0.172,
+              "bytes": 292370,
+              "query_count": 160
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 292370,
+              "query_count": 160
+            },
+            {
+              "seconds": 0.156,
+              "bytes": 292370,
+              "query_count": 160
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 17,
+          "stylesheets": 8
+        },
+        "after": {
+          "median_seconds": 0.172,
+          "queries": 154,
+          "bytes": 245026,
+          "trials": [
+            {
+              "seconds": 0.172,
+              "bytes": 245026,
+              "query_count": 154
+            },
+            {
+              "seconds": 0.172,
+              "bytes": 245026,
+              "query_count": 154
+            },
+            {
+              "seconds": 0.156,
+              "bytes": 245026,
+              "query_count": 154
+            }
+          ],
+          "external_scripts": [
+            "https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js",
+            "https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js",
+            "https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js",
+            "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js",
+            "https://code.jquery.com/jquery-3.7.1.min.js"
+          ],
+          "all_script_tags": 14,
+          "stylesheets": 14
+        },
+        "query_delta": -6,
+        "html_byte_delta": -47344
+      }
+    ]
+  },
   "assets": [
     {
-      "asset": "public/assets/css/app-drawer.css",
-      "before": 10023,
-      "after": 10023
-    },
-    {
       "asset": "public/assets/css/patient-workspace.css",
-      "before": 12812,
-      "after": 12812
+      "before_95a3": 12812,
+      "after": 12906,
+      "gzip_after": 2376
     },
     {
       "asset": "public/assets/css/tailwind.css",
-      "before": 243084,
-      "after": 185199
+      "before_95a3": 185199,
+      "after": 184937,
+      "gzip_after": 26626
+    },
+    {
+      "asset": "public/assets/css/v3-architecture.css",
+      "before_95a3": 0,
+      "after": 20949,
+      "gzip_after": 3968
     },
     {
       "asset": "public/assets/css/v3-chart-chrome.css",
-      "before": 1622,
-      "after": 4482
+      "before_95a3": 4482,
+      "after": 4501,
+      "gzip_after": 991
     },
     {
       "asset": "public/assets/css/v3-clinical-kiosk.css",
-      "before": 4077,
-      "after": 4073
+      "before_95a3": 4073,
+      "after": 4084,
+      "gzip_after": 1011
     },
     {
       "asset": "public/assets/css/v3-components.css",
-      "before": 0,
-      "after": 8293
+      "before_95a3": 8293,
+      "after": 9046,
+      "gzip_after": 2086
     },
     {
       "asset": "public/assets/css/v3-control-plane.css",
-      "before": 25565,
-      "after": 25653
+      "before_95a3": 25653,
+      "after": 26708,
+      "gzip_after": 4446
     },
     {
       "asset": "public/assets/css/v3-flow-forms.css",
-      "before": 17989,
-      "after": 17979
+      "before_95a3": 17979,
+      "after": 18106,
+      "gzip_after": 3157
     },
     {
       "asset": "public/assets/css/v3-icons.css",
-      "before": 0,
-      "after": 42690
+      "before_95a3": 42690,
+      "after": 42784,
+      "gzip_after": 4744
     },
     {
       "asset": "public/assets/css/v3-inventory-forms.css",
-      "before": 2575,
-      "after": 2575
+      "before_95a3": 2575,
+      "after": 2579,
+      "gzip_after": 757
     },
     {
       "asset": "public/assets/css/v3-support-views.css",
-      "before": 39895,
-      "after": 39895
+      "before_95a3": 39895,
+      "after": 39895,
+      "gzip_after": 4823
     },
     {
       "asset": "public/assets/css/warm-clinical.css",
-      "before": 20216,
-      "after": 22888
+      "before_95a3": 22888,
+      "after": 22526,
+      "gzip_after": 5014
     },
     {
       "asset": "public/assets/css/warm-secondary-layout.css",
-      "before": 44934,
-      "after": 33295
+      "before_95a3": 33295,
+      "after": 33325,
+      "gzip_after": 3664
     },
     {
       "asset": "public/assets/css/warm-secondary.css",
-      "before": 17279,
-      "after": 17271
+      "before_95a3": 17271,
+      "after": 17413,
+      "gzip_after": 3269
     },
     {
       "asset": "public/assets/css/warm-workspaces.css",
-      "before": 13963,
-      "after": 13951
+      "before_95a3": 13951,
+      "after": 14028,
+      "gzip_after": 2641
     }
   ],
-  "review": "AGY timed out without verdict; fresh GitHub exact-head review pending"
+  "css_ownership": [
+    {
+      "name": "v3-control-plane.css",
+      "before": 65,
+      "removed": 40,
+      "remaining": {
+        "border-inline-end": 1,
+        "border-bottom": 6,
+        "border-top": 1,
+        "text-transform": 2,
+        "letter-spacing": 2,
+        "padding": 7,
+        "margin": 2,
+        "border-collapse": 1,
+        "width": 1,
+        "vertical-align": 1,
+        "border": 1
+      }
+    },
+    {
+      "name": "v3-support-views.css",
+      "before": 104,
+      "removed": 0,
+      "remaining": {
+        "top": 4,
+        "right": 6,
+        "left": 2,
+        "text-align": 9,
+        "position": 5,
+        "display": 19,
+        "align-items": 16,
+        "gap": 8,
+        "height": 3,
+        "border-collapse": 1,
+        "border-spacing": 1,
+        "width": 6,
+        "white-space": 2,
+        "vertical-align": 1,
+        "transform": 1,
+        "justify-content": 6,
+        "z-index": 1,
+        "opacity": 3,
+        "min-height": 3,
+        "order": 6,
+        "flex-direction": 1
+      }
+    }
+  ],
+  "preservation": {
+    "original_checkout_and_reference_hashes": 79,
+    "protected_source_hashes": 1021,
+    "mismatches": 0,
+    "existing_synthetic_history_changed": 0,
+    "existing_synthetic_history_removed": 0,
+    "new_synthetic_fixture": {
+      "patients": [
+        9,
+        10
+      ],
+      "odontogram_rows_for_patient9": 32,
+      "financial_records": 0
+    }
+  },
+  "review": {
+    "previous_exact_head": "95a3af2b350c3c5bb8ba6bbc4002ea544cbc6343",
+    "previous_decision": "COMMENTED",
+    "final_decision": "PENDING",
+    "owner_visual_acceptance": "OUTSTANDING"
+  },
+  "limitations": [
+    "No pixel-equivalence or exhaustive accessibility/interaction certification",
+    "CSS zoom equivalents are not native browser zoom",
+    "Loopback server timings do not establish Hostinger or browser paint performance",
+    "Native chart/print/signed presentation intentionally protected",
+    "No real consent, payment, clinical mutation or production certification"
+  ],
+  "gallery_verification": {
+    "checks": [
+      {
+        "name": "13-reference-thumbnails",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-patients",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-dashboard",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-finance",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-controlplane",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-clinical",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-dayboard",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-calendar",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-contracts",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-examinations",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-inventory",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-settings",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-kiosk",
+        "pass": true
+      },
+      {
+        "name": "reference-and-actual-design",
+        "pass": true
+      },
+      {
+        "name": "equal-pane-height",
+        "pass": true
+      },
+      {
+        "name": "synchronized-pan",
+        "pass": true
+      },
+      {
+        "name": "arabic-mobile-current-sample",
+        "pass": true
+      },
+      {
+        "name": "unique-gallery-ids",
+        "pass": true
+      }
+    ],
+    "errors": [],
+    "broken": [],
+    "pass": true
+  },
+  "capture_provenance": "Captured during the definitive presentation pass with state-specific confirmations. Final registry and native-compositor captures supersede earlier output. Render-local permission reuse was verified separately with routed authorization and query measurements; it changes no allowed presentation output. No claim that every screenshot was produced by a separate checkout of this commit.",
+  "capture_harness_correction": "Forced --disable-gpu produced blank native SVG in some desktop screenshots; normal Chromium compositor rendered it correctly. Native source hashes remained identical; six affected clinical captures replaced.",
+  "design_detector": {
+    "findings": 1,
+    "resolution": "Inter is explicitly mandated by the Owner-approved prototype. Retained with evidence, not suppressed or replaced."
+  },
+  "source_validation": {
+    "runtime": "2973c63d24d2c3f4839ce161dec1ab15e6672dc9",
+    "php_files": 46,
+    "lint_failures": [],
+    "preservation": [
+      {
+        "manifest": "original-preservation.json",
+        "checked": 79,
+        "mismatches": []
+      },
+      {
+        "manifest": "protected-baseline.json",
+        "checked": 1021,
+        "mismatches": []
+      }
+    ]
+  }
 }

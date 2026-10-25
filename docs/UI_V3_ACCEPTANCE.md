@@ -1,99 +1,88 @@
-# V3 architectural redesign acceptance
+# V3 reference-fidelity acceptance
 
-2026-10-24. Protected release: `89352fd20e0d5166e81f631cb743bead1f596a68`. Runtime: `7bb13d30517cd3e941646f7402c5442ed2707917`; subsequent evidence commits do not change runtime. Draft PR #21 awaits Owner visual acceptance and finished-candidate independent review. No deployment requested.
+2026-10-25. Draft PR #21 only. Protected release: `89352fd20e0d5166e81f631cb743bead1f596a68`. The runtime identity and exact evidence inventory are recorded in [component acceptance](ui-v3/component-acceptance.json); the final PR HEAD may add evidence/documentation only. **Owner visual acceptance is outstanding. No merge or deployment is requested.**
 
-## Actual visual evidence
+## Owner gallery and provenance
 
-Reliable local Chromium replaced the timed-out screenshot path. 210 actual CI4 captures cover 35 route/states ? EN/AR ? 1586?992, 1366?992 and 390?844: 204 HTTP-page captures return 200; six kiosk result captures are post-lookup UI states. No document-width overflow or recorded page errors in accepted captures. Late corrected captures supersede earlier attempts. One earlier navigation timeout and transient inventory diagnostic remain privately retained, not counted as passes. This is rendered coverage, not exhaustive interaction certification or pixel equivalence.
+Open `C:\Users\bassa\AppData\Local\Temp\denta-ui-v3-20261023\v3-owner-review\index.html` by double-clicking it or pasting that path into Edge/Chrome. It works offline. Thirteen reference thumbnails, pinned registry/dashboard/finance/platform views, equal-height reference/actual panes, synchronized zoom/pan, 1586x992 / 1366x992 / 390x844 selection, EN/AR, real state selection and a component strip replace the former long screenshot dump. All actual screens are CI4 with disposable synthetic data. Reference files remain unchanged outside the worktree.
 
-- [English desktop](ui-v3/v3-workspaces-en-1586.jpg), [Arabic desktop](ui-v3/v3-workspaces-ar-1586.jpg), [English mobile](ui-v3/v3-workspaces-en-390.jpg), [Arabic mobile](ui-v3/v3-workspaces-ar-390.jpg)
-- Registry before/after: [initial desktop](ui-v3/initial-patients-en-1586.png) ? [final desktop](ui-v3/v3-patients-en-1586.png); [initial AR mobile](ui-v3/initial-patients-ar-390.png) ? [final AR mobile](ui-v3/v3-patients-ar-390.png)
-- [Clinical](ui-v3/v3-clinical-en-1586.png), [Control Plane AR](ui-v3/v3-cp-clinics-ar-1586.png), [kiosk AR mobile](ui-v3/v3-kiosk-lookup-ar-390.png), [viewport matrix](ui-v3/viewport-acceptance.json)
+Current inventory: **277 unique actual captures across 51 named route/states**, with coverage detailed per locale/viewport in [viewport acceptance](ui-v3/viewport-acceptance.json). Not every supplementary state has every viewport; the manifest is authoritative. No recorded page errors, blocked business mutations or document-width overflow in the current selected set. Eighteen offline-gallery checks pass, including all thirteen reference selectors, image loading, equal-height panes, synchronized pan and AR mobile selection. These counts establish coverage, not pixel equivalence, exhaustive workflow certification or Owner acceptance.
 
-Reference, initial and corrected renders were visually compared. Legacy oversized headers, pastel cards, centered dialogs and scattered actions were replaced with the 88px rail, 62px command bar, matte panels, compact filter/table hierarchy and contextual edge workspaces. Markup was replaced where necessary, preserving functional hooks.
+The previous counts were different historical sets, not additive results:
 
-## Screen fidelity matrix
-
-EVIDENCED means rendered and inspected; ADAPTED identifies real-workflow differences, not Owner approval.
-
-| Reference | Replacement composition | Status / divergence |
+| Set | Runtime | Meaning |
 |---|---|---|
-| Identity board | Shared palette, spacing, typography, focus and component tokens | REFERENCE, no application route |
-| Dashboard | Actual KPIs, routing/activity and recovery/documentation queues | EVIDENCED / ADAPTED: no invented capacity statistics |
-| Reception | Five real-status lanes, compact cards, existing actions retained in disclosure | EVIDENCED / ADAPTED: no new transitions or checkout |
-| Calendar | FullCalendar filters and 520px edge drawer; footer clipping fixed | EVIDENCED / ADAPTED: dynamic resources OFF |
-| Registry | KPI/filter/zebra table, creation drawer, sectioned create/edit forms | EVIDENCED; original validation, search and consent hooks |
-| Clinical | Chart-first main column, context/actions/imaging sidebar | EVIDENCED / ADAPTED: native 32-tooth SVG/snapshots unchanged; empty fixture honest |
-| Contracts | Split plan/chart, agreement and actual signing panel | EVIDENCED / ADAPTED: no fabricated signatures; frozen evidence unchanged |
-| Examinations / Rx | Compact context, safety/history and protected forms | EVIDENCED / ADAPTED: existing separate clinical routes |
-| Finance / treasury | Real KPIs, operational tabs/filter/ledger, payment/expense drawers | EVIDENCED / ADAPTED: canonical figures; treasury remains existing route |
-| Inventory | Stock KPIs/table and consistent item, supplier, batch/receiving forms | EVIDENCED / ADAPTED: no invented supplier finance |
-| Settings | Organized tabs, real hours/impact controls, compact mobile navigation | EVIDENCED / ADAPTED: scheduling OFF |
-| Kiosk | Touch-first identity/keypad/privacy and real lookup stages | EVIDENCED / ADAPTED: actual PIN/four-stage privacy; no manufactured consent |
-| Control Plane | Rebuilt dashboard/registry and related management forms | EVIDENCED / ADAPTED: independent authority; unknown requested plan em dash, real summary retained |
+| 210 | `8a720c3593c961c0926ad258d0a3d3c9838359aa` | Earlier 35 states x two locales x three widths; 204 HTTP captures and six kiosk result states |
+| 176 | `7bb13d30517cd3e941646f7402c5442ed2707917` | Later 44 states x two locales x two widths; two mobile notification-dropdown states unavailable then |
+| 277 | Current runtime in component manifest | Deduplicated final presentation-pass captures, with targeted confirmations replacing affected earlier states |
 
-Related appointment, patient, expense, provider, report, inventory, user/role forms share V3 sections and actions. Static platform text is localized; existing dynamic JavaScript labels and technical identifiers can remain English. Native chart internal labels and legal/clinical print/signed snapshots retain protected presentation. No blanket claim for every historical state.
+The historical mobile notification gaps remain recorded. The current mobile notification trigger is visible and tested in EN/AR. Original attempts/diagnostics remain outside Git. Forced `--disable-gpu` produced blank native SVG in some desktop screenshots; normal Chromium composition rendered it correctly. Six clinical captures were replaced using the normal compositor. Native chart source hashes never changed. Capture sets and source changes are explicitly distinguished; no claim that every image was produced by checking out the final documentation commit.
 
-## Focused checks and preservation
+## Reviewable visual evidence
 
-- 124 changed PHP files lint; CSS parses and Tailwind build passes. SaaS guardrails pass using Git Bash. No Actions.
-- 42 HTTP/security checks pass: EN/AR routes, forged tenant IDs, session/Bearer separation, CSRF, role denial, Control Plane airlock and kiosk privacy/PIN.
-- 10 browser interaction checks pass: actual session patient search, calendar navigation/drawers, focus/Escape and canonical finance values. Six targeted finance/exam drawer checks pass. Final checks verify calendar footer geometry, kiosk touch/contrast and unique registry IDs.
-- Independent bounded source review found no substantiated blocking regression after checking form ownership, hooks and scripts. Platform Chart.js styling is the intentional page-script presentation change. This is not external approval.
-- Preservation manifests: 79 original-checkout files and 1,021 protected source files unchanged. Controllers/models/services, database/configuration, native odontogram and signed evidence remain protected. No migrations, dependencies, permissions or feature-switch changes.
-- Accepted backend evidence reused; no fresh full financial SQL or real patient consent certification claimed for this visual pass.
+- [English desktop contact sheet](ui-v3/v3-workspaces-en-1586.jpg), [Arabic desktop](ui-v3/v3-workspaces-ar-1586.jpg), [English mobile](ui-v3/v3-workspaces-en-390.jpg), [Arabic mobile](ui-v3/v3-workspaces-ar-390.jpg).
+- Registry: [initial](ui-v3/initial-patients-en-1586.png), [current directory](ui-v3/v3-patients-en-1586.png), [current intake](ui-v3/v3-registry-intake-en-1586.png), [AR mobile intake](ui-v3/v3-registry-intake-ar-390.png).
+- [Dashboard](ui-v3/v3-dashboard-en-1586.png), [finance](ui-v3/v3-finance-en-1586.png), [clinical](ui-v3/v3-clinical-en-1586.png), [platform overview](ui-v3/v3-cp-clinics-en-1586.png), [platform AR mobile](ui-v3/v3-cp-clinics-ar-390.png), [income drawer](ui-v3/v3-drawer-income-en-1586.png), [AR Select2](ui-v3/v3-select2-open-ar-390.png), [kiosk contract preview](ui-v3/v3-kiosk-sign-review-ar-390.png).
 
-## Performance
+[Offline gallery preview](ui-v3/v3-owner-gallery-preview.png). Native empty-form validation, actual login and an unsaved provider-form switch state are included in the gallery component strip. The full screenshot archive and private fixture credentials stay outside the repository. The identity board is reference-only. The supplied 1586 reference is scaled for 1366 comparison; no original 1366 reference was supplied. Prototype Arabic is incomplete on some extended screens; actual application translations remain authoritative.
 
-Idle-browser loopback PHP 8.2/MariaDB 10.4; three warm sequential trials per route. Server response, not paint or Hostinger measurement. Query deltas zero; HTML shrinks. Latency mixed: no global performance win. High existing query counts remain a separate backend limitation.
+## Visual fidelity and workflow matrix
+
+**REBUILT / ADAPTED** means the composition is implemented and rendered, with the stated real-workflow differences. It does not mean Owner approval or completion of every historical form state.
+
+| Reference | Actual replacement | Status and intentional divergence |
+|---|---|---|
+| Design system | Forest rail, Travertine canvas, Sandstone toolbar, matte data surfaces, outline icon family, shared controls | REFERENCE / REBUILT. No new identity-board route; print/signed evidence retains protected design |
+| Patient registry | Two primary facts, compact search/status task strip, labelled row action + disclosure, 600px contextual intake below toolbar | REBUILT / ADAPTED. Active/new counts replace unavailable medical-alert aggregate. Existing filters only; no invented active-plan or overdue-balance filter. Explicit save/book actions retain existing validation; no fake walk-in transition |
+| Dashboard | Four actual facts, vertical visit-stage rows, clinical/recovery action queue and capacity footer; graphs/history lower | REBUILT / ADAPTED. No chair occupancy or utilization percentage is fabricated. Empty stages remain honest |
+| Finance/treasury | Four canonical metrics, custody band, operational links, dense ledger and canonical outstanding-balance footer | REBUILT / ADAPTED. Actual account balances remain on Money Moves. No unlike-currency sum or new cash calculation |
+| Clinical workspace | Identity/context, chart-first main column, action/imaging dock and compact clinical navigation | REBUILT / ADAPTED. Native 32-tooth SVG, clinical colors, snapshots and signed evidence unchanged; a new isolated fixture demonstrates a populated chart |
+| Reception | Five actual visit lanes, compact cards/filter strip and existing authorized actions | REBUILT / ADAPTED. No new transitions, checkout authority or silent appointment change |
+| Calendar | Existing FullCalendar grid, compact tools, real patient autocomplete and booking edge workspace | REBUILT / ADAPTED. Dynamic doctor resources remain OFF; original scheduling safeguards preserved |
+| Contracts | Split plan/chart context, actual terms and signing panel | REBUILT / ADAPTED. No manufactured signature or signed-snapshot restyling; original concept reference is a collage |
+| Examinations/Rx | Clinical context, history/safety sections, protected record forms and prescription workflow | REBUILT / ADAPTED. Existing routes and immutable-record rules; no simulated medical decisions |
+| Inventory | Stock/risk surfaces, zebra table and consistent item/batch/supplier forms | REBUILT / ADAPTED. No invented supplier finance or stock movement |
+| Settings | Organized clinic administration, hours form and contextual impact assessment | REBUILT / ADAPTED. Preview remains the real protected workflow; doctor scheduling stays OFF |
+| Kiosk | Touch-first PIN, lookup, verification/details and contract review states | REBUILT / ADAPTED. Real shared-phone/no-match/session-reset states captured. No final check-in, patient update, consent or signature submitted |
+| Control Plane | Distinct 220px rail/terracotta identity, four overview facts, tenant directory and persistent read-only inspector | REBUILT / ADAPTED. Inspector uses already authorized row data; missing usage/admin/plan facts are not invented. Detail navigation and audited privileged actions remain separate |
+
+Associated patient/appointment/inventory forms, income/expense/examination drawers, provider screens, reports, users/roles and platform plan/settings/confirmation/detail screens have current captures. FullCalendar, DataTables and Select2 retain behavior while using V3 appearance. Precise inaccessible/unsupported prototype capabilities are not rendered as fake working controls.
+
+## Focused validation and preservation
+
+- Tailwind build and theme CSS parsing pass; 46 changed PHP templates linted at the final runtime. SaaS guardrails pass. No Actions.
+- **42 actual routed HTTP/security checks pass**: EN/AR shell/routes, forged and cross-tenant IDs, CSRF rejection, role denial, session/Bearer separation, Control Plane airlock and kiosk PIN/privacy. Existing synthetic financial/clinical rows have zero changes/removals.
+- **19 changed-interaction checks pass**: two primary registry cards, 88px rail, locale/filter roundtrip, dirty intake cancel/retain/discard, Escape/focus return, row-menu navigation safety, visible mobile notifications, populated native preview, scheduling OFF, 220px platform rail and real selected-row inspector/tab behavior.
+- **20 geometry/frost/zoom/control checks pass** in EN/AR: 62px clinic toolbar, visible medical alerts, native toggle state, desktop 5px scrim blur, opaque reduced-transparency fallback, no mobile blur and visible footer under 125%/150% CSS zoom equivalents. These are not native browser-zoom or full assistive-technology certification.
+- **86 computed primary-text contrast samples pass** after correcting clinical small-copy contrast. Scope: visible headings/metrics/filter/custody/ledger text, not universal WCAG certification. Inter detector warning is a documented intentional exception: the Owner-approved reference explicitly requires Inter.
+- 79 original-checkout/reference hashes and 1,021 protected-source hashes match. Controllers, models, services, database/config/security files, native odontogram and evidentiary print/signed files remain unchanged. Proprietary and third-party licensing preserved.
+- Synthetic additions are two new patients (IDs 9/10), with a 32-row nonbillable chart for patient 9. No original fixture is rewritten; no finance records created. No production or business-database access.
+
+Repeated expensive permission checks introduced by toolbar visibility were measured, then removed by reusing exact results within the current view renderer. Existing `has_permission()` remains authoritative, partials fall back to it, and controller/service authorization is unchanged. No session/cache permission snapshot, cross-request or cross-user cache is introduced.
+
+## Performance and cost
+
+Same synthetic database, loopback PHP 8.2/MariaDB 10.4, three warm sequential HTTP trials per route, browsers idle. Server response only; no Hostinger, cold-network, LCP or low-end-device performance claim. Query counts fall on all sampled routes, but latency is mixed and existing high backend counts remain a separate limitation.
 
 | Route | Before / after ms | Queries before / after | HTML byte change |
 |---|---:|---:|---:|
-| `/dashboard?lang=en` | 313 / 297 | 223 / 223 | -49,755 |
-| `/patients?lang=en` | 297 / 313 | 199 / 199 | -43,179 |
-| `/patient/1?lang=en` | 547 / 579 | 453 / 453 | -53,632 |
-| `/appointments?lang=en` | 297 / 313 | 165 / 165 | -38,727 |
-| `/finance?lang=en` | 312 / 375 | 203 / 203 | -52,309 |
-| `/inventory?lang=en` | 266 / 266 | 158 / 158 | -46,766 |
-| `/settings?tab=hours&lang=ar` | 250 / 203 | 188 / 188 | -48,273 |
-| `/appointment/calendar?lang=en` | 172 / 219 | 160 / 160 | -45,396 |
+| `/dashboard?lang=en` | 203 / 187 | 223 / 205 | -52395 |
+| `/patients?lang=en` | 187 / 187 | 199 / 193 | -42914 |
+| `/patient/1?lang=en` | 328 / 328 | 453 / 447 | -53485 |
+| `/appointments?lang=en` | 172 / 171 | 165 / 159 | -41489 |
+| `/finance?lang=en` | 188 / 203 | 203 / 191 | -53293 |
+| `/inventory?lang=en` | 172 / 172 | 158 / 146 | -48235 |
+| `/settings?tab=hours&lang=ar` | 188 / 141 | 188 / 176 | -47452 |
+| `/appointment/calendar?lang=en` | 172 / 172 | 160 / 154 | -47344 |
 
-Non-export pages avoid 2,253,608 decoded JS bytes from the prior unconditional export bundle; exporters retain dependencies. Duplicate FullCalendar major-version loading removed. Asset-size observations are not compressed-transfer or elapsed-time claims.
+Compared with the prior `95a3af2` candidate, scoped theme/source CSS grows from 431,056 to 453,787 uncompressed bytes (exact per-asset final figures in component manifest). The new architecture stylesheet is roughly 20KB uncompressed; it is not a new framework or dependency. No overall CSS-size or universal latency win is claimed. Forty purely visual `!important` declarations were removed from platform CSS; retained compatibility mechanics are inventoried. Previous secondary-layout reduction (252 to 58) remains historical evidence, not a new reduction in this pass.
 
-Route-scoped theme assets (not all loaded everywhere):
+Non-export routes retain the earlier avoidance of 2,253,608 decoded JS bytes from unconditional export dependencies. Export workflows keep their existing dependencies. Native chart assets and licensing notices are preserved. Frost is limited to temporary desktop scrims and the scrolled command bar, with opaque mobile/reduced-transparency/forced-color fallbacks; no glass on financial/clinical reading panels.
 
-| Asset | Bytes |
-|---|---:|
-| `v3-chart-chrome.css` | 1,624 |
-| `v3-clinical-kiosk.css` | 4,088 |
-| `v3-control-plane.css` | 26,503 |
-| `v3-flow-forms.css` | 18,116 |
-| `v3-inventory-forms.css` | 2,579 |
-| `v3-support-views.css` | 39,895 |
-| `warm-clinical.css` | 20,402 |
-| `warm-secondary-layout.css` | 44,989 |
-| `warm-secondary.css` | 17,421 |
-| `warm-workspaces.css` | 14,040 |
+## Remaining acceptance boundaries
 
-Support CSS consolidates repeated inline styles; secondary CSS pruned. New components add weight: no overall CSS reduction claimed. No new framework, dependency or query. Theme links are screen-only to protect printed evidence.
+Owner visual acceptance and fresh independent review of the final exact HEAD remain outstanding. Previous `95a3af2` review was **COMMENTED**, not APPROVED; its 210/176 discrepancy is reconciled above. No blanket complete status is inferred from captures or local tests. Source reviewer cannot certify inaccessible local gallery contents without opening the curated evidence or supplied gallery.
 
-## Preserved / unsupported
+Native clinical geometry/colors, legal/print documents, real validation field requirements, existing independent access boundaries and unavailable backend facts are intentional exceptions to literal prototype matching. Dynamic labels/technical identifiers may remain English where inherited canonical data requires it. Full kiosk consent/clinical/finance mutations were deliberately not performed for presentation acceptance; accepted backend evidence was reused rather than reopening financial suites.
 
-No invented prototype statistics, medical inference, checkout, supplier finance or dynamic resources. Corrections, scheduling, WhatsApp, checkout, contact history and derivatives retain OFF state. Legal documents, signatures and native odontogram remain stable. Localization exceptions above are explicit. Production and reference kit untouched. Full captures/private credentials remain outside source; curated screenshots are synthetic only. Ready for visual acceptance and independent review, not deployment.
-
-
-## Final component-purity pass
-
-Runtime freeze: `7bb13d30517cd3e941646f7402c5442ed2707917`. V3-native button/input/select/checkbox/switch/table/dialog tokens replace legacy colour utilities in active source, including generated controls. A local 1.8px outline SVG-mask catalog follows the supplied prototype geometry; retained `fa-*` names are functional selector aliases, not Font Awesome screen glyphs. Original third-party assets/notices remain preserved for protected print surfaces. No new runtime dependency.
-
-`warm-secondary-layout.css` compatibility declarations fall from 252 to 58 `!important` uses; remaining declarations preserve visibility/position/order/plugin mechanics. Pure visual declarations were replaced at source. Source CSS totals fall from 454,034 to 441,079 bytes including the new icon/component assets; Tailwind falls from 243,084 to 185,199 bytes. These are uncompressed repository sizes, not network or latency measurements. Existing paired query/latency evidence above remains applicable as a bounded backend observation; no new global speed claim.
-
-Actual visual inspection corrected source gradients, raw white surfaces, excessive radii/shadows, Select2's dynamically injected blue theme, native-chart outer dialog chrome, destructive variants, hidden-state precedence and icon contrast. A discovered finance widget startup race was fixed by moving the existing CSRF bootstrap unchanged before dependent page scripts and deferring the finance script. The affected 12 EN/AR finance/drawer captures pass without errors; 42 HTTP/security checks and SaaS guardrails pass afterward.
-
-The offline Owner gallery is outside the repository: `C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/v3-owner-review/index.html`. Double-click it in Explorer; no server required. It includes all 13 original reference images, matching actual CI4 workspaces, EN/AR desktop/mobile selectors, and real component/form/dialog/drawer states. Identity-board content remains reference-only. The full archive stays local; this directory contains only curated synthetic previews.
-
-Remaining intentional exceptions: native odontogram geometry, clinical condition colours/internal labels, signed snapshots and legal print documents are protected; browser-native date/validation chrome follows the operating system. Kiosk signing preview is captured from an existing eligible synthetic contract, but signature submission is disabled by existing entitlement and no consent is fabricated. Disabled prototype features stay OFF. Existing dynamic technical labels may remain English. These exceptions are not a blanket claim that every historical component is visually accepted.
-
-Independent AGY source review timed out without a final verdict; it is not approval. The previous GitHub COMMENTED review applies to `6612d175`, not this new source. A fresh exact-head decision is requested on the finished draft; Owner visual acceptance remains outstanding. No merge/deployment is authorized.
-
-Final gallery confirmation: **176 actual captures, 13 reference views, zero accepted overflow or recorded page errors**. Offline gallery opens with 13 comparison sections, no broken images and no script errors. Curated components: [income drawer](ui-v3/v3-drawer-income-en-1586.png), [AR autocomplete](ui-v3/v3-select2-open-ar-390.png), [native chart dialog](ui-v3/v3-native-chart-dialog-ar-390.png), [kiosk contract review](ui-v3/v3-kiosk-sign-review-ar-390.png). Full gallery stays outside source.
+All optional gates retain their disabled state: corrections, dynamic scheduling, WhatsApp, checkout, contact history and derivatives. No migration, dependency upgrade, new permission, main/release integration, production change or deployment. **Ready for Owner visual review; merge/deployment remain blocked.**

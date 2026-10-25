@@ -832,5 +832,7 @@
     "original": 79,
     "protected": 1021,
     "changed": []
-  }
+  },
+  "status": "HISTORICAL evidence from runtime 8a720c3, not the current capture set",
+  "superseded_current_inventory": "component-acceptance.json and viewport-acceptance.json"
 }
