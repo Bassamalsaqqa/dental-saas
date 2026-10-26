@@ -238,4 +238,6 @@ return [
     'stockCounts' => 'Catalogue counts',
     'draft' => 'Draft',
     'roleScope' => 'Scope',
+    'newestFirst' => 'Newest first',
+    'oldestFirst' => 'Oldest first',
 ];

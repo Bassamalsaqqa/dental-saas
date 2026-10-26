@@ -42,7 +42,7 @@ components:
 ## Overview
 The Owner rejected the previous V4 implementation. It remains preserved at checkpoint 9bf0622 and is not visual authority. The Owner generally approved the one-page direction, requesting stronger overall color and larger text. The latest Owner refinement requires larger text, denser appointment information, one-click language switching, filled text containers and borderless colored cards. The final dashboard direction was accepted at 99c9ecb; the Owner authorized the clean-base application rebuild. The Owner additionally requires distinct inner attention-task cards, full-row table navigation and no directional arrows anywhere, including dialogs and menus.
 
-This document describes only dashboard/index.php using layouts/studio.php and studio.css/studio.js. Other routes still use the rejected incumbent presentation. No claim of whole-application redesign, final Owner visual acceptance, external review or production readiness.
+The accepted dashboard defines the visual anchor. The system now extends through the rebuilt routes recorded in docs/UI_REBUILD_COVERAGE.csv, using Studio shells, semantic theme roles and shared components. Unrebuilt routes remain explicitly pending. No claim of whole-application completion, blanket Owner visual acceptance, external approval or production readiness.
 
 ## Colors
 A deep forest frame establishes persistent navigation; lime indicates the active location. A crisp reading surface, cool neutral canvas and sage attention region separate operational tasks. Status colors require actual persisted states and visible text.

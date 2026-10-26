@@ -238,4 +238,6 @@ return [
     'stockCounts' => 'إحصاءات الأصناف',
     'draft' => 'مسودة',
     'roleScope' => 'النطاق',
+    'newestFirst' => 'الأحدث أولاً',
+    'oldestFirst' => 'الأقدم أولاً',
 ];

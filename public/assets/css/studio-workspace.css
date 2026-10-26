@@ -32,3 +32,5 @@
 .patient-picker-native{display:grid;gap:10px}.patient-picker-native>input[type=search]{width:100%;font:17px var(--font);padding:10px 12px;border:0;background:var(--color-control);color:var(--color-ink);border-radius:8px;min-height:44px}.patient-picker-native>p{font-size:14px;color:var(--color-ink-muted)}.patient-picker-native>select{width:100%}
 
 .patient-picker-pages{display:flex;justify-content:space-between;gap:10px}.patient-picker-pages:empty{display:none}.patient-picker-pages .button{font-size:14px;min-height:38px}
+
+.operational-counts{padding:14px;background:var(--color-surface);border-radius:12px;margin-bottom:20px}.operational-counts>div{flex:1;justify-content:space-between;min-width:175px}.studio table.studio-grid>thead>tr>th{padding:0}.studio-grid .grid-heading{height:var(--grid-heading-height);max-height:var(--grid-heading-height);display:flex;align-items:center;padding:7px 12px;overflow:hidden}.studio-grid .grid-heading>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;max-height:37px}
