@@ -493,5 +493,21 @@
     "preserved_tables": 11,
     "material_issue": "Baseline and candidate initialItems1 -> rendered_items0 during original draft initialization. Warning visible; no save or financial/clinical logic change. Not production certified.",
     "next": "Continue patient clinical workspace and finance detail; no blanket app completion or deployment."
+  },
+  "finance_record_rollout": {
+    "base": "75d42e1",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\finance-record\\index.html",
+    "original_finance_script_byte_identical": true,
+    "original_calculation_setup_byte_identical": true,
+    "original_script_sha256": "20ee0e3e3004caf252095c8fb37bd357a8467ebe7875c9745bc664c3a0aa6c75",
+    "form_contracts_equal": 2,
+    "business_tables_unchanged": 11,
+    "intercepted_posts": 2,
+    "actual_checks": 41,
+    "presenter_checks": 60,
+    "fixture_browser_checks": 41,
+    "existing_limitations": "161 queries in one local sample; native browser confirm/prompt preserved; no DB settlement mutation or new financial-correctness claim",
+    "next": "Remaining patient clinical workspace, notification delivery ledger and reachability reconciliation. No blanket app completion."
   }
 }
