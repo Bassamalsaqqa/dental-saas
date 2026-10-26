@@ -1,59 +1,59 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset'); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-management.css') ?>?v=<?= esc(asset_version('assets/css/studio-management.css')) ?>">
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-slate-50">
-    <div class="container mx-auto relative z-10 px-4 py-6">
-        <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-2xl shadow-blue-500/10 transition-all duration-500 overflow-hidden">
-                <div class="p-8 border-b border-white/20">
-                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
-                                    <i class="fas fa-user-plus text-white text-lg"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-gray-900"><?= lang('UserRole.createNewUser') ?></h3>
-                                <p class="text-gray-600 font-medium"><?= lang('UserRole.addNewUserDescription') ?></p>
-                            </div>
-                        </div>
-
-                        <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
-                            <i class="fas fa-arrow-left rtl-back-icon me-2"></i>
-                            <span><?= lang('UserRole.backToUsers') ?></span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="p-8">
-                    <form action="<?= base_url('users/store') ?>" method="POST" class="space-y-8" data-user-create-form data-select2-dropdown-parent>
-                        <?= csrf_field() ?>
-                        <?php if (!empty($return_to)): ?>
-                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
-                        <?php endif; ?>
-                        <?= view('users/partials/create_form_fields', [
-                            'roles' => $roles ?? [],
-                            'departments' => $departments ?? [],
-                            'is_rtl' => !empty($is_rtl),
-                        ]) ?>
-
-                        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-slate-200">
-                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
-                                <i class="fas fa-times me-2"></i>
-                                <span><?= lang('UserRole.cancel') ?></span>
-                            </a>
-                            <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/25">
-                                <i class="fas fa-user-plus me-2"></i>
-                                <span><?= lang('UserRole.createUser') ?></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+<?php $userEditing=false; ?>
+<header class="page-title-row">
+<div>
+<h1>
+<?= esc(lang('UserRole.'.($userEditing?'editUser':'createNewUser'))) ?>
+</h1>
 </div>
-<?= view('components/email_check_script', ['emailCheckUrl' => base_url('users/check-email')]) ?>
+<a href="<?= esc(workflow_back('users',$return_to??null)) ?>" class="button secondary">
+<?= esc(lang('UserRole.backToUsers')) ?>
+</a>
+</header>
+<?php $managementErrors=is_array(session('errors'))?session('errors'):[];$managementValidation=session('validation');if($managementValidation instanceof \CodeIgniter\Validation\Validation)$managementErrors=array_merge($managementErrors,$managementValidation->getErrors());if(session('error')||$managementErrors): ?>
+<section class="form-notice form-notice--error" role="alert">
+<h2>
+<?= esc(lang('Studio.checkFields')) ?>
+</h2>
+<?php if(session('error')): ?>
+<p>
+<?= esc(strip_tags((string)session('error'))) ?>
+</p>
+<?php endif; ?>
+<ul>
+<?php foreach($managementErrors as $field=>$error): ?>
+<li>
+<a href="#<?= esc($field,'attr') ?>">
+<?= esc($error) ?>
+</a>
+</li>
+<?php endforeach; ?>
+</ul>
+</section>
+<?php endif; ?>
+
+<form action="<?= base_url($userEditing?'users/'.(int)$user->id.'/update':'users/store') ?>" method="POST" class="studio-form" <?= $userEditing?'':'data-user-create-form' ?>>
+<?= csrf_field() ?>
+<?php if(!empty($return_to)): ?>
+<input type="hidden" name="return_to" value="<?= esc($return_to,'attr') ?>">
+<?php endif; ?>
+<?= view('users/partials/studio_form',['userEditing'=>$userEditing,'editedUser'=>$userEditing?$user:null,'roles'=>$roles??[],'departments'=>$departments??[]]) ?>
+<footer class="form-actions">
+<a href="<?= esc(workflow_back('users',$return_to??null)) ?>" class="button secondary">
+<?= esc(lang('UserRole.cancel')) ?>
+</a>
+<button type="submit" class="button primary">
+<?= esc(lang('UserRole.'.($userEditing?'updateUser':'createUser'))) ?>
+</button>
+</footer>
+</form>
+<?php if(!$userEditing): ?>
+<?= view('components/email_check_script',['emailCheckUrl'=>base_url('users/check-email')]) ?>
+<?php endif; ?>
 <?= $this->endSection() ?>

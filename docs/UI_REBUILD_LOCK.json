@@ -1,5 +1,5 @@
 {
-  "status": "TWENTY_PAGE_PRESENTATION_BATCH_PENDING_FINAL_VISUAL_ACCEPTANCE",
+  "status": "APPLICATION_REBUILD_IN_PROGRESS_ACCOUNT_AND_PLATFORM_CHECKPOINT",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -182,5 +182,61 @@
     "visual_evidence": "80 EN/AR desktop/mobile actual CI4 captures; 20 release comparisons; populated synthetic dayboard date is explicitly selected; ledger arrow glyph removed; CSS/JS public asset hashes match source.",
     "review_status": "Codex source/visual review and focused local acceptance complete for these twenty pages. Owner visual approval outstanding. No external exact-head review claimed, no GitHub PR update or production release.",
     "asset_evidence": "../twenty-page-review/asset-acceptance.json: 24/24, 16 served assets byte-identical"
+  },
+  "management_access_batch": {
+    "base_commit": "0e805c2d8fe3964e03b70cdde8bd23f93a0d1338",
+    "state": "LOCALLY_IMPLEMENTED_AND_FOCUSED_ACCEPTANCE__OWNER_VISUAL_APPROVAL_PENDING",
+    "page_count": 20,
+    "view_count": 24,
+    "paths": [
+      "app/Views/activity_log/index.php",
+      "app/Views/auth/change_password.php",
+      "app/Views/auth/forgot_password.php",
+      "app/Views/auth/login.php",
+      "app/Views/auth/reset_password.php",
+      "app/Views/clinic/no_clinic.php",
+      "app/Views/clinic/select.php",
+      "app/Views/control_plane/entry.php",
+      "app/Views/control_plane/plan_form.php",
+      "app/Views/control_plane/plans.php",
+      "app/Views/profile/index.php",
+      "app/Views/roles/create.php",
+      "app/Views/roles/edit.php",
+      "app/Views/roles/index.php",
+      "app/Views/users/change_password.php",
+      "app/Views/users/create.php",
+      "app/Views/users/edit.php",
+      "app/Views/users/index.php",
+      "app/Views/users/show.php",
+      "app/Views/layouts/studio_access.php",
+      "app/Views/layouts/studio_control_plane.php",
+      "app/Views/roles/partials/studio_form.php",
+      "app/Views/users/partials/studio_action_dialog.php",
+      "app/Views/users/partials/studio_form.php"
+    ],
+    "gallery": "C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/management-review/index.html",
+    "evidence": [
+      "../management-review/acceptance.json",
+      "../management-review/extended-acceptance.json",
+      "../management-review/fixture-acceptance.json",
+      "../management-review/fixture-preservation.json"
+    ],
+    "boundaries": "No backend, routes, schema, production, dependency or feature-switch edits. A dedicated local synthetic actor and new financial DTO fixtures were appended only on verified 3307; original rows preserved before commit. Existing users login metadata may change normally during authenticated tests. No new runtime source permission capability.",
+    "limitations": [
+      "Actual /notifications is a Settings communications/alerts redirect; standalone notification view was restored and unused new JS removed. Active settings is still pending.",
+      "Control Plane Studio shell is used only by rebuilt role/plan pages; other CP views remain explicitly unreconstructed.",
+      "Provider allocations are the existing up-to-25 projection; payment history is the existing up-to-50 projection, both now explicitly labelled. No claim of full-history query redesign.",
+      "Payout request serialization and fail-closed UI verified with intercepted responses; no payout history modified. Existing canonical finance services are unchanged.",
+      "No external review or Owner acceptance claimed. No remote update or deployment.",
+      "Actual user creation reaches the existing fixture plan quota; values/errors preserved, no quota bypass. Successful new-account creation is not claimed. Equivalent clinic-role POST passed."
+    ],
+    "next": "Rebuild actual Settings/Communications and associated forms, then continue clinical, money, calendar/kiosk and remaining CP. No interim Owner approval needed.",
+    "final_evidence": [
+      "../management-review/final-acceptance.json (101 observations, including preserved successful prefix)",
+      "../management-review/fixture-acceptance.json (45 observations; requests intercepted for payouts)",
+      "../management-review/gallery-final.json (12 checks)",
+      "../management-review/final-fixture-preservation.json (4 owned payouts unchanged; 0 unexpected accounts)"
+    ],
+    "review_portal": "C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/review-all/index.html"
   }
 }

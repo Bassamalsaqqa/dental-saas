@@ -1,263 +1,80 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset'); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-management.css') ?>?v=<?= esc(asset_version('assets/css/studio-management.css')) ?>">
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<!-- Enhanced Change Password with Advanced Design -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-amber-400/10 to-orange-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-    </div>
-
-    <div class="container mx-auto relative z-10 px-4 py-6">
-
-        <!-- Enhanced Password Change Form with Glassmorphism -->
-        <div class="group relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 overflow-hidden">
-                <!-- Form Header -->
-                <div class="p-8 border-b border-white/20">
-                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-key text-white text-lg"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-red-900 transition-colors duration-300"><?= lang('UserRole.changePassword') ?></h3>
-                                <p class="text-gray-600 font-medium"><?= lang('UserRole.updatePasswordFor') ?> <?= ($user->first_name ?? '') . ' ' . ($user->last_name ?? '') ?></p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-3">
-                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('UserRole.backToUsers') ?></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Content -->
-                <div class="p-8">
-
-                    <form action="<?= base_url('users/' . $user->id . '/update-password') ?>" method="POST" class="space-y-8">
-                        <?= csrf_field() ?>
-                        <?php if (!empty($return_to)): ?>
-                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
-                        <?php endif; ?>
-                        
-                        <!-- User Information -->
-                        <div class="group/section relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
-                            <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-6">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-user text-white text-sm"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.userInformation') ?></h4>
-                                </div>
-                                
-                                <div class="flex items-center space-x-6">
-                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                                        <?= esc(ui_initials($user->first_name ?? '', $user->last_name ?? '', 'U')) ?>
-                                    </div>
-                                    <div>
-                                        <h5 class="text-lg font-bold text-gray-900">
-                                            <?= ($user->first_name ?? '') . ' ' . ($user->last_name ?? '') ?>
-                                        </h5>
-                                        <p class="text-gray-600"><?= $user->email ?></p>
-                                        <p class="text-sm text-gray-500">@<?= $user->username ?? $user->email ?></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Password Change -->
-                        <div class="group/section relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
-                            <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-6">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-shield-alt text-white text-sm"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.passwordChange') ?></h4>
-                                </div>
-                                
-                                <div class="space-y-8">
-                                    <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                            <i class="fas fa-lock text-red-600"></i>
-                                            <span><?= lang('UserRole.currentPasswordRequired') ?></span>
-                                        </label>
-                                        <div class="relative">
-                                            <input type="password" id="current_password" name="current_password" 
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('current_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                   placeholder="<?= lang('UserRole.enterCurrentPassword') ?>" required>
-                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                                <i class="fas fa-lock text-gray-400"></i>
-                                            </div>
-                                        </div>
-                                        <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('current_password')): ?>
-                                            <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                <i class="fas fa-exclamation-circle"></i>
-                                                <span><?= session()->getFlashdata('validation')->getError('current_password') ?></span>
-                                            </p>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div class="group/field relative">
-                                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                                <i class="fas fa-lock text-red-600"></i>
-                                                <span><?= lang('UserRole.newPasswordRequired') ?></span>
-                                            </label>
-                                            <div class="relative">
-                                                <input type="password" id="new_password" name="new_password" 
-                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('new_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="<?= lang('UserRole.enterNewPassword') ?>" required>
-                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                                    <i class="fas fa-lock text-gray-400"></i>
-                                                </div>
-                                            </div>
-                                            <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('new_password')): ?>
-                                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                    <i class="fas fa-exclamation-circle"></i>
-                                                    <span><?= session()->getFlashdata('validation')->getError('new_password') ?></span>
-                                                </p>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <div class="group/field relative">
-                                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                                <i class="fas fa-lock text-red-600"></i>
-                                                <span><?= lang('UserRole.confirmNewPasswordRequired') ?></span>
-                                            </label>
-                                            <div class="relative">
-                                                <input type="password" id="confirm_password" name="confirm_password" 
-                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('confirm_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="<?= lang('UserRole.confirmNewPassword') ?>" required>
-                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                                    <i class="fas fa-lock text-gray-400"></i>
-                                                </div>
-                                            </div>
-                                            <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('confirm_password')): ?>
-                                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                    <i class="fas fa-exclamation-circle"></i>
-                                                    <span><?= session()->getFlashdata('validation')->getError('confirm_password') ?></span>
-                                                </p>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Password Requirements -->
-                        <div class="group/section relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
-                            <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-6">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-info-circle text-white text-sm"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.passwordRequirements') ?></h4>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center space-x-3">
-                                            <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleMinLength') ?></span>
-                                        </div>
-                                        <div class="flex items-center space-x-3">
-                                            <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleUppercase') ?></span>
-                                        </div>
-                                        <div class="flex items-center space-x-3">
-                                            <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleLowercase') ?></span>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-3">
-                                        <div class="flex items-center space-x-3">
-                                            <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleNumber') ?></span>
-                                        </div>
-                                        <div class="flex items-center space-x-3">
-                                            <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleSpecialChar') ?></span>
-                                        </div>
-                                        <div class="flex items-center space-x-3">
-                                            <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleDifferent') ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
-                            <a href="<?= workflow_back('users', $return_to ?? null) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('UserRole.cancel') ?></span>
-                            </a>
-                            <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-bold rounded-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/25">
-                                <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                <i class="fas fa-key mr-2 relative z-10"></i>
-                                <span class="relative z-10"><?= lang('UserRole.changePassword') ?></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+<header class="page-title-row">
+<div>
+<h1>
+<?= esc(lang('UserRole.changePassword')) ?>
+</h1>
 </div>
-
-<script>
-// Form validation
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const newPassword = document.getElementById('new_password');
-    const confirmPassword = document.getElementById('confirm_password');
-
-    // Password confirmation validation
-    function validatePassword() {
-        if (newPassword.value && confirmPassword.value) {
-            if (newPassword.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity(<?= json_encode(lang('UserRole.passwordsDoNotMatch')) ?>);
-            } else {
-                confirmPassword.setCustomValidity('');
-            }
-        }
-    }
-
-    newPassword.addEventListener('input', validatePassword);
-    confirmPassword.addEventListener('input', validatePassword);
-
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        if (newPassword.value !== confirmPassword.value) {
-            e.preventDefault();
-            alert(<?= json_encode(lang('UserRole.newPasswordsDoNotMatch')) ?>);
-            confirmPassword.focus();
-            return false;
-        }
-        
-        if (newPassword.value.length < 8) {
-            e.preventDefault();
-            alert(<?= json_encode(lang('UserRole.newPasswordMinLengthAlert')) ?>);
-            newPassword.focus();
-            return false;
-        }
-    });
-});
+<a class="button secondary" href="<?= esc(workflow_back('users',$return_to??null)) ?>">
+<?= esc(lang('UserRole.backToUsers')) ?>
+</a>
+</header>
+<?php $managementErrors=is_array(session('errors'))?session('errors'):[];$managementValidation=session('validation');if($managementValidation instanceof \CodeIgniter\Validation\Validation)$managementErrors=array_merge($managementErrors,$managementValidation->getErrors());if(session('error')||$managementErrors): ?>
+<section class="form-notice form-notice--error" role="alert">
+<h2>
+<?= esc(lang('Studio.checkFields')) ?>
+</h2>
+<?php if(session('error')): ?>
+<p>
+<?= esc(strip_tags((string)session('error'))) ?>
+</p>
+<?php endif; ?>
+<ul>
+<?php foreach($managementErrors as $field=>$error): ?>
+<li>
+<a href="#<?= esc($field,'attr') ?>">
+<?= esc($error) ?>
+</a>
+</li>
+<?php endforeach; ?>
+</ul>
+</section>
+<?php endif; ?>
+<form action="<?= base_url('users/'.(int)$user->id.'/update-password') ?>" method="POST" class="studio-form" data-password-form>
+<?= csrf_field() ?>
+<?php if(!empty($return_to)): ?>
+<input type="hidden" name="return_to" value="<?= esc($return_to,'attr') ?>">
+<?php endif; ?>
+<section class="form-section">
+<header>
+<h2>
+<?= esc(trim(($user->first_name??'').' '.($user->last_name??''))) ?>
+</h2>
+<p>
+<?= esc($user->email) ?>
+</p>
+</header>
+<div class="password-grid">
+<?php foreach([['current_password','currentPasswordRequired','current-password'],['new_password','newPasswordRequired','new-password'],['confirm_password','confirmNewPasswordRequired','new-password']] as [$field,$label,$autocomplete]): ?>
+<div class="form-field">
+<label for="<?= $field ?>">
+<?= esc(lang('UserRole.'.$label)) ?>
+</label>
+<input id="<?= $field ?>" name="<?= $field ?>" type="password" dir="ltr" required autocomplete="<?= $autocomplete ?>" <?= $field==='new_password'?'minlength="8"':'' ?>>
+</div>
+<?php endforeach; ?>
+</div>
+<p class="password-policy">
+<?= esc(lang('UserRole.passwordRuleMinLength')) ?>
+</p>
+</section>
+<footer class="form-actions">
+<a class="button secondary" href="<?= esc(workflow_back('users',$return_to??null)) ?>">
+<?= esc(lang('UserRole.cancel')) ?>
+</a>
+<button class="button primary" type="submit">
+<?= esc(lang('UserRole.changePassword')) ?>
+</button>
+</footer>
+</form>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script src="<?= base_url('assets/js/studio-management.js') ?>?v=<?= esc(asset_version('assets/js/studio-management.js')) ?>" defer>
 </script>
 <?= $this->endSection() ?>
