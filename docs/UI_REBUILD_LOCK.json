@@ -1,5 +1,5 @@
 {
-  "status": "APPLICATION_REBUILD_IN_PROGRESS_ACCOUNT_AND_PLATFORM_CHECKPOINT",
+  "status": "SINGLE_PAGE_STOCK_ATTENTION_PILOT_AWAITING_OWNER_VISUAL_REVIEW",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -238,5 +238,28 @@
       "../management-review/final-fixture-preservation.json (4 owned payouts unchanged; 0 unexpected accounts)"
     ],
     "review_portal": "C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/review-all/index.html"
+  },
+  "attention_pilot": {
+    "base": "0c8c7338dc1bcb056a5296e64a3d3a581de42436",
+    "route": "inventory",
+    "target": "app/Views/inventory/index.php",
+    "scope": "One page only; do not propagate before Owner visual acceptance. Existing palette preserved; amber/rust reserved for actual stock conditions.",
+    "rework_required_after_review": [
+      "app/Views/appointment/show.php",
+      "app/Views/inventory/show.php",
+      "app/Views/prescription/show.php",
+      "app/Views/users/index.php"
+    ],
+    "evidence": "../attention-pilot/index.html; acceptance.json; confirmation.json",
+    "actual_load_failure": "Remote jQuery/DataTables scripts were blocked in the verification browser while both inventory endpoints returned valid HTTP200 JSON. Inventory now has a local vanilla client; other shared directory pages are untouched.",
+    "protected_source_changed": false,
+    "owner_review": "PENDING",
+    "new_runtime_dependencies": 0,
+    "inventory_mutations_executed": 0,
+    "research": [
+      "https://www.carbondesignsystem.com/building-blocks/core/components/data-table/guidelines",
+      "https://design-system.service.gov.uk/components/task-list/",
+      "https://design-system.service.gov.uk/components/tag/"
+    ]
   }
 }
