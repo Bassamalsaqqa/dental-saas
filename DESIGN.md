@@ -85,3 +85,11 @@ These are cumulative requirements, not suggestions to rediscover each session. R
 - Full-width cards also need a coherent full-width field composition: use proportionate grid columns and complete responsive rows. Do not leave a large unused side area by capping inner field groups. Core registration fields share one weighted desktop row; intermediate widths wrap into a name row and a three-field facts row; mobile uses paired names, full-row phone, paired date/gender.
 
 - Owner accepted patient editing and inventory reorder presentation at source checkpoint c3ff655. Preserve these accepted compositions and improve only substantiated issues; do not redesign them again while expanding coverage.
+
+
+## Binding Owner acceptance: inventory direction and future themes (2026-10-26)
+The stock workspace pilot at e003cb2 is accepted in direction. Its sparse Total / Active card is NOT accepted; replace it with a compact labelled count group in the catalogue heading. Propagate task-focused composition and restrained amber/rust attention cues, not its old layout or isolated hardcoded palette.
+- ALL application tables use deliberate fixed column tracks and uniform row height within each table. Expected content determines column widths, never the longest record. Long names/notes do not stretch rows or columns. Preserve full content through record access or a keyboard-accessible cell reader. Do not discard required information.
+- Responsive tables retain their full data in a contained, keyboard-accessible horizontal scroll region when columns cannot fit. Never cause whole-page horizontal overflow. Use fixed-height rows at narrow widths too; do not fall back to inconsistent wrapping cards.
+- Every system color in rebuilt presentation derives from public/assets/css/studio-theme.css semantic roles. Components may reference roles and transparent mixes only. Pair foreground/background roles; a future theme changes this single source. No theme settings, persistence, permissions, feature switch or database change is authorized now.
+- Do not restart accepted forms/dashboard. Extend the component rules consistently while replacing rejected workflow structures. All optional features remain OFF; backend and database are preserved.

@@ -10,37 +10,37 @@
 .form-field{display:flex;flex-direction:column;gap:9px;min-width:0}
 .form-field--wide{grid-column:1/-1}
 .form-field>label{font-size:17px;font-weight:700;color:var(--ink)}
-.form-field>label>span{color:#8d3d2f}
-.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;font-family:var(--font);border:0;border-radius:9px;background:#dfeadb;color:var(--ink);padding:9px 12px;font-size:17px;line-height:1.5;box-shadow:none}
+.form-field>label>span{color:var(--color-danger)}
+.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;font-family:var(--font);border:0;border-radius:9px;background:var(--color-control);color:var(--ink);padding:9px 12px;font-size:17px;line-height:1.5;box-shadow:none}
 .form-field select{appearance:none;cursor:pointer;min-height:44px}
 .form-field textarea{resize:vertical;min-height:90px}
-.form-field input:focus-visible,.form-field textarea:focus-visible,.form-field select:focus-visible{outline:3px solid #39794f;outline-offset:3px;background:#e7f0e1}
-.form-field input[aria-invalid=true],.form-field select[aria-invalid=true],.form-field .border-red-500{background:#f3dad1}
-.form-field .field-error{color:#913d2e;font-size:15px;font-weight:600}
+.form-field input:focus-visible,.form-field textarea:focus-visible,.form-field select:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px;background:var(--color-control)}
+.form-field input[aria-invalid=true],.form-field select[aria-invalid=true],.form-field .border-red-500{background:var(--color-danger-soft)}
+.form-field .field-error{color:var(--color-danger);font-size:15px;font-weight:600}
 .form-section-toggle{display:flex;align-items:center;justify-content:space-between;gap:24px}
 .form-section-toggle p{margin-top:7px}
 .form-switch{display:inline-flex;align-items:center;position:relative;flex:none;cursor:pointer}
 .form-switch input{position:absolute;inset:0;width:52px;height:30px;opacity:0;margin:0;cursor:pointer;z-index:1}
-.form-switch-track{position:relative;display:block;width:52px;height:30px;background:#b7cbb4;border-radius:20px}
-.form-switch-track::before{content:"";position:absolute;inset-inline-start:4px;top:4px;width:22px;height:22px;border-radius:50%;background:#f6f8ef;transition:inset-inline-start .15s}
-.form-switch:has(input:checked) .form-switch-track{background:#23684e}
+.form-switch-track{position:relative;display:block;width:52px;height:30px;background:var(--color-line-strong);border-radius:20px}
+.form-switch-track::before{content:"";position:absolute;inset-inline-start:4px;top:4px;width:22px;height:22px;border-radius:50%;background:var(--color-surface);transition:inset-inline-start .15s}
+.form-switch:has(input:checked) .form-switch-track{background:var(--color-action)}
 .form-switch:has(input:checked) .form-switch-track::before{inset-inline-start:26px}
-.form-switch:has(input:focus-visible) .form-switch-track{outline:3px solid #39794f;outline-offset:4px}
+.form-switch:has(input:focus-visible) .form-switch-track{outline:3px solid var(--color-focus);outline-offset:4px}
 .form-switch input:disabled+.form-switch-track{opacity:.5;cursor:not-allowed}
 .form-subsection{margin-top:28px}
 .form-subsection h3{font-size:20px;margin-bottom:17px}
 .medical-alert-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:start}
-.medical-alert-card{background:#e2edda;padding:11px 14px;border-radius:10px;min-width:0}
+.medical-alert-card{background:var(--color-surface-tonal);padding:11px 14px;border-radius:10px;min-width:0}
 .medical-alert-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:32px}
 .medical-alert-heading>label{font-size:17px;line-height:1.6;font-weight:650;cursor:pointer}
 .medical-alert-card>.form-field{margin-top:15px}
 .medical-alert-card .form-field>label{font-size:16px}
-.medical-alert-card .form-field input,.medical-alert-card .form-field textarea{background:#f1f6e9}
-.form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#d4e3d2;border-radius:14px;padding:18px 22px}
+.medical-alert-card .form-field input,.medical-alert-card .form-field textarea{background:var(--color-surface-raised)}
+.form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--color-surface-strong);border-radius:14px;padding:18px 22px}
 .form-actions>div{display:flex;gap:12px;flex-wrap:wrap}
 .form-actions .button{font-size:17px;padding:12px 18px;min-height:48px}
-.form-notice{background:#e0ebd9;border-radius:14px;padding:22px;margin-bottom:22px}
-.form-notice--error{background:#f1dcd2;color:#71392a}
+.form-notice{background:var(--color-surface-tonal);border-radius:14px;padding:22px;margin-bottom:22px}
+.form-notice--error{background:var(--color-danger-soft);color:var(--color-danger)}
 .form-notice h2{font-size:22px}
 .form-notice p,.form-notice li{font-size:17px;margin-top:7px}
 .form-notice li a{text-decoration:underline;text-underline-offset:4px}

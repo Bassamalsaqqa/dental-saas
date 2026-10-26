@@ -233,4 +233,9 @@ return [
 'stockRowActions'=>'Item actions',
 'stockClearSearch'=>'Clear search',
 'stockRecordStatus'=>'Record status',
+    'staffIdentity' => 'Team member',
+    'fullCell' => 'Read full value',
+    'stockCounts' => 'Catalogue counts',
+    'draft' => 'Draft',
+    'roleScope' => 'Scope',
 ];

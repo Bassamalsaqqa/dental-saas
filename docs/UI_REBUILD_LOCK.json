@@ -1,5 +1,5 @@
 {
-  "status": "SINGLE_PAGE_STOCK_ATTENTION_PILOT_AWAITING_OWNER_VISUAL_REVIEW",
+  "status": "ACCEPTED_SYSTEM_ROLLOUT_IN_PROGRESS",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -243,7 +243,7 @@
     "base": "0c8c7338dc1bcb056a5296e64a3d3a581de42436",
     "route": "inventory",
     "target": "app/Views/inventory/index.php",
-    "scope": "One page only; do not propagate before Owner visual acceptance. Existing palette preserved; amber/rust reserved for actual stock conditions.",
+    "scope": "Owner authorized application-wide continuation; former single-page restriction superseded. Work remains incomplete outside recorded coverage.",
     "rework_required_after_review": [
       "app/Views/appointment/show.php",
       "app/Views/inventory/show.php",
@@ -253,7 +253,7 @@
     "evidence": "../attention-pilot/index.html; acceptance.json; confirmation.json",
     "actual_load_failure": "Remote jQuery/DataTables scripts were blocked in the verification browser while both inventory endpoints returned valid HTTP200 JSON. Inventory now has a local vanilla client; other shared directory pages are untouched.",
     "protected_source_changed": false,
-    "owner_review": "PENDING",
+    "owner_review": "DIRECTION_ACCEPTED_WITH_FIXED_GRID_AND_COMPACT_COUNTS_CORRECTIONS",
     "new_runtime_dependencies": 0,
     "inventory_mutations_executed": 0,
     "research": [
@@ -261,5 +261,17 @@
       "https://design-system.service.gov.uk/components/task-list/",
       "https://design-system.service.gov.uk/components/tag/"
     ]
+  },
+  "accepted_system_rollout": {
+    "base": "e003cb2ccbf57db412fe9ab170637aaf7f1a472c",
+    "theme_source": "public/assets/css/studio-theme.css",
+    "theme_settings_implemented": false,
+    "presets_implemented": false,
+    "table_contract": "Fixed content-sized columns, uniform 96px data rows, contained RTL/LTR scrolling, full-value reader, native row controls",
+    "evidence": "../accepted-rollout/index.html",
+    "business_record_mutations": 0,
+    "production_contacted": false,
+    "backend_changes": false,
+    "remaining_scope": "Patient clinical workspace, clinical details, contracts, finance, reports, settings, calendars, kiosk and remaining Control Plane pages need source composition/review; no completion claim."
   }
 }

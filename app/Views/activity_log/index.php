@@ -89,7 +89,7 @@
 </p>
 </div>
 <div class="platform-table-scroll">
-<table id="activitiesTable" class="platform-table" hidden>
+<table id="activitiesTable" class="studio-grid platform-table" hidden>
 <thead>
 <tr>
 <?php foreach(['activity','user','entity','description','time','ipAddress'] as $label): ?>

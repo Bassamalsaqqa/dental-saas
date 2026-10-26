@@ -233,4 +233,9 @@ return [
 'stockRowActions'=>'إجراءات الصنف',
 'stockClearSearch'=>'مسح البحث',
 'stockRecordStatus'=>'حالة السجل',
+    'staffIdentity' => 'عضو الفريق',
+    'fullCell' => 'قراءة القيمة كاملة',
+    'stockCounts' => 'إحصاءات الأصناف',
+    'draft' => 'مسودة',
+    'roleScope' => 'النطاق',
 ];

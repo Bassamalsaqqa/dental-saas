@@ -1,0 +1,42 @@
+/* Authoritative application color roles. A future theme overrides these roles, never component selectors. */
+:root{
+  --color-ink:#102e27;
+  --color-ink-muted:#445f54;
+  --color-frame:#153f36;
+  --color-frame-deep:#10332c;
+  --color-frame-raised:#255044;
+  --color-frame-hover:#265748;
+  --color-on-frame:#f3f7ef;
+  --color-on-frame-muted:#c7d9cf;
+  --color-action:#23684e;
+  --color-action-hover:#24614c;
+  --color-focus:#39794f;
+  --color-selected:#c4dc87;
+  --color-selected-soft:#d5e6ad;
+  --color-canvas:#eaf0eb;
+  --color-outer:#d9e4dc;
+  --color-surface:#f3f7ef;
+  --color-surface-raised:#edf3e9;
+  --color-surface-tonal:#e1ebd9;
+  --color-surface-heading:#d5e3da;
+  --color-surface-strong:#d4e3d2;
+  --color-surface-hover:#d8e6d0;
+  --color-surface-active:#c6dfb3;
+  --color-control:#e1ebdb;
+  --color-line:#c9d8cf;
+  --color-line-strong:#afbeb6;
+  --color-success:#205c38;
+  --color-success-soft:#cce8d6;
+  --color-warning:#684512;
+  --color-warning-soft:#f0ddb0;
+  --color-danger:#773a2e;
+  --color-danger-soft:#edd0c5;
+  --color-info:#254f43;
+  --color-info-soft:#d9f0e4;
+  --color-avatar-olive:#dde2b4;
+  --color-avatar-olive-ink:#485523;
+  --color-avatar-copper:#ecd4be;
+  --color-avatar-copper-ink:#785035;
+  --grid-row-height:96px;
+  --grid-heading-height:52px;
+}

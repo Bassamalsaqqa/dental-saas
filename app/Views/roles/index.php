@@ -53,78 +53,11 @@
 </select>
 </div>
 </form>
-<div class="staff-rows">
-<?php foreach($roles as $role): ?>
-<?php $isSystem=(int)($role['is_system']??0)===1||$role['clinic_id']===null;$active=(int)($role['is_active']??0)===1;$editable=($global_mode?$role['clinic_id']===null:$role['clinic_id']!==null)&&$role['slug']!=='super_admin'; ?>
-<article class="staff-row" data-management-row data-search="<?= esc(mb_strtolower($role['name'].' '.$role['slug'].' '.($role['description']??'')),'attr') ?>" data-status="<?= $active?'active':'inactive' ?>">
-<div class="staff-person">
-<?php if($editable&&has_permission('users','edit')): ?>
-<a class="staff-primary" href="<?= esc(workflow_context_url($rolesRoute.'/'.(int)$role['id'].'/edit')) ?>">
-<?= esc($role['name']) ?>
-</a>
-<?php else: ?>
-<strong>
-<?= esc($role['name']) ?>
-</strong>
-<?php endif; ?>
-<span dir="ltr">
-<?= esc($role['slug']) ?>
-</span>
-<span>
-<?= esc($role['description']??'') ?>
-</span>
-</div>
-<dl class="role-counts">
-<div>
-<dt>
-<?= esc(lang('UserRole.users')) ?>
-</dt>
-<dd>
-<?= (int)($role['user_count']??0) ?>
-</dd>
-</div>
-<div>
-<dt>
-<?= esc(lang('UserRole.permissions')) ?>
-</dt>
-<dd>
-<?= (int)($role['permission_count']??0) ?>
-</dd>
-</div>
-</dl>
-<div class="staff-state">
-<span class="staff-badge <?= $active?'':'inactive' ?>">
-<?= esc(lang('UserRole.'.($active?'active':'inactive'))) ?>
-</span>
-<span class="staff-badge">
-<?= esc(lang('UserRole.'.($isSystem?'systemRoles':'role'))) ?>
-</span>
-<?php if(!empty($role['is_medical'])): ?>
-<span class="staff-badge">
-<?= esc(lang('UserRole.medical')) ?>
-</span>
-<?php endif; ?>
-</div>
-<?php if($editable): ?>
-<div class="staff-row-actions">
-<?php if(has_permission('users','edit')): ?>
-<a class="button secondary" href="<?= esc(workflow_context_url($rolesRoute.'/'.(int)$role['id'].'/edit')) ?>">
-<?= esc(lang('UserRole.edit')) ?>
-</a>
-<button type="button" class="button secondary" data-management-action data-url="<?= base_url($rolesRoute.'/'.(int)$role['id'].'/toggle-status') ?>" data-method="POST" data-status="<?= $active?0:1 ?>" data-confirm="<?= esc(lang('UserRole.confirmToggleRoleStatus',['action'=>lang('UserRole.'.($active?'deactivate':'activate'))]),'attr') ?>">
-<?= esc(lang('UserRole.'.($active?'deactivate':'activate'))) ?>
-</button>
-<?php endif; ?>
-<?php if(has_permission('users','delete')): ?>
-<button type="button" class="button destructive" data-management-action data-url="<?= base_url($rolesRoute.'/'.(int)$role['id']) ?>" data-method="DELETE" data-confirm="<?= esc(lang('UserRole.confirmDeleteRole'),'attr') ?>">
-<?= esc(lang('UserRole.delete')) ?>
-</button>
-<?php endif; ?>
-</div>
-<?php endif; ?>
-</article>
-<?php endforeach; ?>
-</div>
+<div class="staff-grid-wrap"><table class="studio-grid staff-table" data-grid-widths="30,16,10,12,18,14"><thead><tr><?php foreach(['UserRole.role','Studio.roleScope','UserRole.users','UserRole.permissions','UserRole.status','Studio.actions'] as $label): ?><th scope="col"><?= esc(lang($label)) ?></th><?php endforeach; ?></tr></thead><tbody class="staff-rows">
+<?php foreach($roles as $role):$isSystem=(int)($role['is_system']??0)===1||$role['clinic_id']===null;$active=(int)($role['is_active']??0)===1;$editable=($global_mode?$role['clinic_id']===null:$role['clinic_id']!==null)&&$role['slug']!=='super_admin'; ?>
+<tr class="staff-row" data-management-row data-search="<?= esc(mb_strtolower($role['name'].' '.$role['slug'].' '.($role['description']??'')),'attr') ?>" data-status="<?= $active?'active':'inactive' ?>"><td class="staff-person"><?php if($editable&&has_permission('users','edit')): ?><a class="staff-primary" href="<?= esc(workflow_context_url($rolesRoute.'/'.(int)$role['id'].'/edit')) ?>"><?= esc($role['name']) ?></a><?php else: ?><strong><?= esc($role['name']) ?></strong><?php endif; ?><small dir="ltr"><?= esc($role['slug']) ?></small><small><?= esc($role['description']??'') ?></small></td>
+<td><?= esc(lang('UserRole.'.($isSystem?'systemRoles':'role'))) ?></td><td><?= (int)($role['user_count']??0) ?></td><td><?= (int)($role['permission_count']??0) ?></td><td class="staff-state"><span class="staff-badge <?= $active?'':'inactive' ?>"><?= esc(lang('UserRole.'.($active?'active':'inactive'))) ?></span><?php if(!empty($role['is_medical'])): ?><span class="staff-badge"><?= esc(lang('UserRole.medical')) ?></span><?php endif; ?></td>
+<td><?php if($editable&&(has_permission('users','edit')||has_permission('users','delete'))): ?><details class="workspace-action-menu"><summary class="button secondary"><?= esc(lang('Studio.stockManage')) ?></summary><nav><?php if(has_permission('users','edit')): ?><a class="button secondary" href="<?= esc(workflow_context_url($rolesRoute.'/'.(int)$role['id'].'/edit')) ?>"><?= esc(lang('UserRole.edit')) ?></a><button type="button" class="button secondary" data-management-action data-url="<?= base_url($rolesRoute.'/'.(int)$role['id'].'/toggle-status') ?>" data-method="POST" data-status="<?= $active?0:1 ?>" data-confirm="<?= esc(lang('UserRole.confirmToggleRoleStatus',['action'=>lang('UserRole.'.($active?'deactivate':'activate'))]),'attr') ?>"><?= esc(lang('UserRole.'.($active?'deactivate':'activate'))) ?></button><?php endif; ?><?php if(has_permission('users','delete')): ?><button type="button" class="button destructive" data-management-action data-url="<?= base_url($rolesRoute.'/'.(int)$role['id']) ?>" data-method="DELETE" data-confirm="<?= esc(lang('UserRole.confirmDeleteRole'),'attr') ?>"><?= esc(lang('UserRole.delete')) ?></button><?php endif; ?></nav></details><?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div>
 <div class="staff-empty" data-management-empty hidden>
 <?= esc(lang('UserRole.noRolesFound')) ?>
 </div>

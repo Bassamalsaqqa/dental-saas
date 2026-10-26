@@ -13,6 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio.css') ?>?v=<?= esc(asset_version('assets/css/studio.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-platform.css') ?>?v=<?= esc(asset_version('assets/css/studio-platform.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-theme.css') ?>?v=<?= esc(asset_version('assets/css/studio-theme.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-workspace.css') ?>?v=<?= esc(asset_version('assets/css/studio-workspace.css')) ?>">
 <meta name="csrf-name" content="<?= csrf_token() ?>">
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 <meta name="csrf-header" content="<?= csrf_header() ?>">
@@ -146,5 +148,6 @@
 <script src="<?= base_url('assets/js/studio-platform.js') ?>?v=<?= esc(asset_version('assets/js/studio-platform.js')) ?>" defer>
 </script>
 <?= $this->renderSection('scripts') ?>
+<script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
 </body>
 </html>

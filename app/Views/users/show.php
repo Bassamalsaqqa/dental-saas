@@ -151,7 +151,7 @@
 <?= esc(lang('Studio.recentProviderAllocations')) ?>
 </h3>
 <div class="platform-table-scroll">
-<table class="platform-table">
+<table class="studio-grid platform-table">
 <thead>
 <tr>
 <?php foreach(['transactionId','patient','date','paidBalance','lastPaymentDate','status'] as $key): ?>

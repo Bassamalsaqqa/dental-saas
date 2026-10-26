@@ -74,11 +74,11 @@
 </select>
 </div>
 </form>
-<div class="staff-rows">
+<div class="staff-grid-wrap"><table class="studio-grid staff-table" data-grid-widths="25,21,22,20,12"><thead><tr><?php foreach(['Studio.staffIdentity','Studio.contactDetails','UserRole.role','UserRole.membershipStatus','Studio.actions'] as $label): ?><th scope="col"><?= esc(lang($label)) ?></th><?php endforeach; ?></tr></thead><tbody class="staff-rows">
 <?php foreach($users as $staff): ?>
 <?php $name=trim(($staff->first_name??'').' '.($staff->last_name??''))?:$staff->email;$active=($staff->membership_status??'active')==='active';$globallyDisabled=(int)($staff->active??0)!==1;$self=(int)$staff->id===$currentUserId;$roleNames=[];$roleIds=[];foreach(($staff->display_roles??[]) as $displayRole){$roleNames[]=is_array($displayRole)?($displayRole['name']??lang('UserRole.unknownRole')):($displayRole->name??lang('UserRole.unknownRole'));$roleIds[]=(string)(is_array($displayRole)?($displayRole['id']??$displayRole['role_id']??0):($displayRole->id??0));} ?>
-<article class="staff-row" data-management-row data-search="<?= esc(mb_strtolower($name.' '.$staff->email.' '.($staff->phone??'').' '.implode(' ',$roleNames)),'attr') ?>" data-roles="<?= esc(json_encode($roleIds),'attr') ?>" data-status="<?= $active?'active':'inactive' ?>">
-<div class="staff-person">
+<tr class="staff-row" data-management-row data-search="<?= esc(mb_strtolower($name.' '.$staff->email.' '.($staff->phone??'').' '.implode(' ',$roleNames)),'attr') ?>" data-roles="<?= esc(json_encode($roleIds),'attr') ?>" data-status="<?= $active?'active':'inactive' ?>">
+<td class="staff-person">
 <?php if(has_permission('users','view')): ?>
 <a class="staff-primary" href="<?= esc(workflow_context_url('users/'.(int)$staff->id)) ?>">
 <?= esc($name) ?>
@@ -88,14 +88,14 @@
 <?= esc($name) ?>
 </strong>
 <?php endif; ?>
-<span dir="ltr">
+</td><td class="staff-contact"><span dir="ltr">
 <?= esc($staff->email) ?>
 </span>
 <span dir="ltr">
 <?= esc($staff->phone??'') ?>
 </span>
-</div>
-<div class="staff-role">
+</td>
+<td class="staff-role">
 <?php foreach($roleNames as $roleName): ?>
 <span>
 <?= esc($roleName) ?>
@@ -106,8 +106,8 @@
 <?= esc(lang('UserRole.noRolesAssigned')) ?>
 </span>
 <?php endif; ?>
-</div>
-<div class="staff-state">
+</td>
+<td class="staff-state">
 <span class="staff-badge <?= $active?'':'inactive' ?>">
 <?= esc(lang('UserRole.'.($active?'activeMembership':'inactiveMembership'))) ?>
 </span>
@@ -116,8 +116,8 @@
 <?= esc(lang('UserRole.globallyDisabled')) ?>
 </span>
 <?php endif; ?>
-</div>
-<div class="staff-row-actions">
+</td>
+<td class="staff-row-actions"><details class="workspace-action-menu"><summary class="button secondary"><?= esc(lang('Studio.stockManage')) ?></summary><nav>
 <?php if(has_permission('users','edit')): ?>
 <a class="button secondary" href="<?= esc(workflow_context_url('users/'.(int)$staff->id.'/edit')) ?>">
 <?= esc(lang('UserRole.edit')) ?>
@@ -133,10 +133,10 @@
 <?= esc(lang('UserRole.removeClinicAccess')) ?>
 </button>
 <?php endif; ?>
-</div>
-</article>
+</nav></details></td>
+</tr>
 <?php endforeach; ?>
-</div>
+</tbody></table></div>
 <div class="staff-empty" data-management-empty hidden>
 <?= esc(lang('Studio.noMatchingRecords')) ?>
 </div>

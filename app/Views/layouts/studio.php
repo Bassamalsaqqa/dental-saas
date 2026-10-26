@@ -27,6 +27,8 @@ $studioNav=[
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio.css') ?>?v=<?= esc(asset_version('assets/css/studio.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-theme.css') ?>?v=<?= esc(asset_version('assets/css/studio-theme.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-workspace.css') ?>?v=<?= esc(asset_version('assets/css/studio-workspace.css')) ?>">
 <meta name="csrf-name" content="<?= csrf_token() ?>"><meta name="csrf-token" content="<?= csrf_hash() ?>"><meta name="csrf-header" content="<?= csrf_header() ?>">
 <?= $this->renderSection('styles') ?>
 </head>
@@ -69,4 +71,5 @@ $studioNav=[
 <dialog id="help-dialog" aria-labelledby="help-title" class="help-dialog"><header><div><h2 id="help-title"><?= esc(lang('Studio.help')) ?></h2><p><?= esc(lang('Studio.helpText')) ?></p></div><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></header><dl><div><dt><?= esc(lang('Studio.command')) ?></dt><dd><kbd>Ctrl</kbd> <kbd>K</kbd></dd></div><div><dt><?= esc(lang('Studio.escape')) ?></dt><dd><kbd>Esc</kbd></dd></div><div><dt><?= esc(lang('Studio.tab')) ?></dt><dd><kbd>Tab</kbd></dd></div></dl></dialog>
 <script src="<?= base_url('assets/js/studio.js') ?>?v=<?= esc(asset_version('assets/js/studio.js')) ?>" defer></script>
 <?= $this->renderSection('scripts') ?>
+<script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
 </body></html>

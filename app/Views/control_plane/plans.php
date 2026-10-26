@@ -61,7 +61,7 @@
 </a>
 </form>
 <div class="platform-table-scroll">
-<table class="platform-table">
+<table class="studio-grid platform-table">
 <thead>
 <tr>
 <?php foreach(['planName','planPrice','planLimits','planSubscriptions'] as $key): ?>
