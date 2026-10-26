@@ -1,4 +1,4 @@
-<?php helper('asset');include APPPATH.'Views/layouts/partials/studio_icons.php';$cpLocale=strtolower((string)($locale??service('request')->getLocale()));$cpActor=(object)($user??[]);$cpName=trim(($cpActor->first_name??'').' '.($cpActor->last_name??''))?:($cpActor->email??lang('UI.cpGlobalAdmin'));$cpPath=uri_string();$cpReturn=current_url(true)->__toString();$cpNav=[['dashboard','home','UI.menuDashboard'],['clinics','clinic','UI.cpClinics'],['users','people','UI.cpUsers'],['onboarding/clinic/create','plus','UI.cpOnboarding'],['plans','chart','UI.cpPlans'],['invoices','wallet','UI.cpInvoices'],['plan-requests','report','UI.cpRequests'],['operations','settings','UI.cpOperations'],['whatsapp','message','UI.cpWhatsAppOps'],['activity-log','clock','UI.cpSystemActivity'],['settings','settings','UI.cpSettings'],['roles','shield','UI.menuRoleManagement']]; ?>
+<?php helper('asset');include APPPATH.'Views/layouts/partials/studio_icons.php';$cpLocale=strtolower((string)($locale??service('request')->getLocale()));$cpActor=(object)($user??[]);$cpName=trim(($cpActor->first_name??'').' '.($cpActor->last_name??''))?:($cpActor->email??lang('UI.cpGlobalAdmin'));$cpPath=uri_string();$cpLanguageUri=clone current_url(true);$cpLanguageUri->addQuery('lang',$cpLocale==='ar'?'en':'ar');$cpNav=[['dashboard','home','UI.menuDashboard'],['clinics','clinic','UI.cpClinics'],['users','people','UI.cpUsers'],['onboarding/clinic/create','plus','UI.cpOnboarding'],['plans','chart','UI.cpPlans'],['invoices','wallet','UI.cpInvoices'],['plan-requests','report','UI.cpRequests'],['operations','settings','UI.cpOperations'],['whatsapp','message','UI.cpWhatsAppOps'],['activity-log','clock','UI.cpSystemActivity'],['settings','settings','UI.cpSettings'],['roles','shield','UI.menuRoleManagement']]; ?>
 <!doctype html>
 <html lang="<?= esc($cpLocale) ?>" dir="<?= $cpLocale==='ar'?'rtl':'ltr' ?>">
 <head>
@@ -98,7 +98,7 @@
 </span>
 <kbd>Ctrl K</kbd>
 </button>
-<a class="language-switch" href="<?= base_url('language/switch/'.($cpLocale==='ar'?'en':'ar').'?return_to='.urlencode($cpReturn)) ?>" lang="<?= $cpLocale==='ar'?'en':'ar' ?>">
+<a class="language-switch" href="<?= esc((string)$cpLanguageUri,'attr') ?>" lang="<?= $cpLocale==='ar'?'en':'ar' ?>">
 <?= $studioIcon('globe') ?>
 <span>
 <?= esc(lang('Studio.otherLanguage')) ?>

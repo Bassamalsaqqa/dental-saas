@@ -361,5 +361,18 @@
     "captures": 7,
     "remaining": "Finance detail, patient workspace/contracts, kiosk and outstanding platform views; campaign not complete.",
     "boundaries": "No backend/schema/dependency/feature activation; scheduling OFF. Native signed/print/odontogram preserved."
+  },
+  "platform_task_rollout": {
+    "base": "7de03cd786c78a868a2e8b640b04e52bd9991265",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-workspace\\index.html",
+    "actual_route_checks": 72,
+    "actual_captures": 22,
+    "visual_confirmations": 8,
+    "pure_request_projection_checks": 2,
+    "request_browser_fixture_checks": 21,
+    "preservation_tables": 11,
+    "known_issue": "Existing database health probe calls unavailable ClinicModel::withoutTenantScope(); displayed as inconclusive failure, not fixed or hidden.",
+    "remaining": "Platform clinic/user/detail/onboarding/billing/settings/communications plus outstanding tenant clinical/finance/kiosk surfaces. Campaign incomplete."
   }
 }
