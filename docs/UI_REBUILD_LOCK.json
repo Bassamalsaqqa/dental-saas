@@ -394,5 +394,14 @@
     "detail_browser_observations": 49,
     "limitations": "Zero existing synthetic invoice detail rows: populated detail states presenter-only. Existing backend payment/deletion/numbering/mixed-currency concerns not certified or corrected.",
     "remaining": "Platform clinic/user detail, onboarding/settings/WhatsApp, tenant clinical workspace/contracts/financial detail and kiosk remain."
+  },
+  "platform_onboarding_rollout": {
+    "base": "b9c56629b06cfef3af0dba5d9de77f6e347561a8",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-onboarding\\index.html",
+    "functional_checks": 22,
+    "capture_confirmation_observations": 17,
+    "mutations": 0,
+    "remaining": "Platform settings/communication/detail views plus tenant clinical workspace/contracts/finance detail/kiosk remain."
   }
 }
