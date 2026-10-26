@@ -444,5 +444,17 @@
     "preserved_tables": 11,
     "business_posts": 0,
     "next": "Platform WhatsApp operations; then remaining tenant clinical/finance/contracts/kiosk. All ledger states remain evidence bounded."
+  },
+  "messaging_operations_rollout": {
+    "base": "41a6f2d",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-whatsapp\\index.html",
+    "actual_checks": 57,
+    "confirmation_checks": 9,
+    "pure_presenter_checks": 12,
+    "fixture_browser_checks": 17,
+    "message_sends": 0,
+    "preserved_tables": 11,
+    "next": "Kiosk and remaining clinical/finance/contract workspaces; reconcile actual reachability before touching legacy files."
   }
 }
