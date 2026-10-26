@@ -351,5 +351,15 @@
       "source-size.json"
     ],
     "remaining": "Financial record detail, calendar, patient clinical workspace/contracts, kiosk and outstanding platform surfaces still tracked. No full-application completion claim."
+  },
+  "calendar_rollout": {
+    "base": "0b6826d4258448648a30b434e3bbc81ef16ed8b3",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\calendar-workspace\\index.html",
+    "browser_checks": 22,
+    "presenter_checks": 20,
+    "captures": 7,
+    "remaining": "Finance detail, patient workspace/contracts, kiosk and outstanding platform views; campaign not complete.",
+    "boundaries": "No backend/schema/dependency/feature activation; scheduling OFF. Native signed/print/odontogram preserved."
   }
 }

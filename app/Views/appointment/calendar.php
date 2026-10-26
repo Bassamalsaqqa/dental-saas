@@ -1,5 +1,6 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset'); include APPPATH.'Views/layouts/partials/studio_icons.php'; ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css"><link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-calendar.css') ?>?v=<?= esc(asset_version('assets/css/studio-calendar.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php
 $calendarWorkingHours = is_array($workingHours ?? null) ? $workingHours : [];
@@ -94,17 +95,7 @@ $calendarUpcomingCount = (int) ($calendarStats['upcoming_appointments'] ?? 0);
 $calendarCompletedCount = (int) ($calendarStats['completed_appointments'] ?? 0);
 $calendarCancelledCount = (int) ($calendarStats['cancelled_appointments'] ?? 0);
 $calendarWorkHoursLabel = substr($calendarWorkingStart, 0, 5) . ' - ' . substr($calendarWorkingEnd, 0, 5);
-$calendarStatusLegend = [
-    ['status' => 'scheduled', 'class' => 'bg-blue-500', 'label' => lang('UI.appointmentStatusScheduled')],
-    ['status' => 'confirmed', 'class' => 'bg-green-500', 'label' => lang('UI.appointmentStatusConfirmed')],
-    ['status' => 'completed', 'class' => 'bg-gray-500', 'label' => lang('UI.dashboardCompleted')],
-    ['status' => 'cancelled', 'class' => 'bg-red-500', 'label' => lang('UI.appointmentStatusCancelled')],
-    ['status' => 'no_show', 'class' => 'bg-yellow-500', 'label' => lang('UI.appointmentStatusNoShow')],
-    ['status' => 'arrived', 'class' => 'bg-cyan-500', 'label' => lang('UI.appointmentStageArrived')],
-    ['status' => 'ready', 'class' => 'bg-teal-500', 'label' => lang('UI.appointmentStageReady')],
-    ['status' => 'in_chair', 'class' => 'bg-indigo-500', 'label' => lang('UI.appointmentStageInChair')],
-    ['status' => 'checkout', 'class' => 'bg-violet-500', 'label' => lang('UI.appointmentStageCheckout')],
-];
+
 $bookingContext = $booking_context ?? null;
 if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryService::class)) {
     $activeClinicId = (int) (session('active_clinic_id') ?? 0);
@@ -131,505 +122,15 @@ if ($bookingContext === null && class_exists(\App\Services\ProviderDirectoryServ
 }
 $dynamicMode = !empty($bookingContext['enabled']);
 ?>
-<div class="appointment-calendar-page">
-<div class="appointment-calendar-wrap w-full space-y-5 px-3 py-4 sm:px-5 lg:px-6">
-    <section class="appointment-calendar-hero overflow-hidden rounded-[1.65rem] border border-white/20 text-white shadow-2xl shadow-blue-900/22">
-        <div class="relative p-5 sm:p-6 lg:p-7">
-            <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(30rem,.78fr)] xl:items-center">
-                <div class="flex min-w-0 items-start gap-4">
-                    <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-1 ring-white/20 backdrop-blur">
-                        <i class="fas fa-calendar-days text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-200"><?= esc(lang('UI.appointmentCalendarView')) ?></p>
-                        <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl"><?= esc(lang('UI.appointmentCalendarTitle')) ?></h1>
-                        <p class="mt-1 max-w-3xl text-sm font-semibold leading-6 text-blue-50/90"><?= esc(lang('UI.appointmentCalendarSubtitle')) ?></p>
-                        <div class="mt-3 flex flex-wrap gap-2 text-[11px] font-black">
-                            <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18" dir="ltr"><?= esc($calendarWorkHoursLabel) ?></span>
-                            <span class="rounded-full bg-white/16 px-3 py-1.5 text-white ring-1 ring-white/18"><?= count($calendarBusinessDays) ?> <?= esc(lang('UI.settingsHoursWorkingDays')) ?></span>
-                            <span class="rounded-full bg-emerald-400/20 px-3 py-1.5 text-emerald-50 ring-1 ring-emerald-200/25"><?= esc(lang('UI.appointmentTodaySchedule')) ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    <div class="appointment-calendar-hero-stat">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-blue-100"><?= esc(lang('UI.appointmentTodaySchedule')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarTodayCount ?></p>
-                    </div>
-                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--emerald">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-emerald-100"><?= esc(lang('UI.appointmentActive')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarUpcomingCount ?></p>
-                    </div>
-                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--cyan">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-cyan-100"><?= esc(lang('UI.dashboardCompleted')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarCompletedCount ?></p>
-                    </div>
-                    <div class="appointment-calendar-hero-stat appointment-calendar-hero-stat--rose">
-                        <p class="text-[11px] font-black uppercase tracking-wide text-rose-100"><?= esc(lang('UI.appointmentStatusCancelled')) ?></p>
-                        <p class="mt-1 text-2xl font-black text-white"><?= $calendarCancelledCount ?></p>
-                    </div>
-                </div>
-            </div>
-            <div class="relative mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <a href="<?= base_url('appointment') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-black text-white ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20">
-                    <i class="fas fa-list"></i>
-                    <span><?= esc(lang('UI.appointmentListView')) ?></span>
-                </a>
-                <?php if (has_permission('appointments', 'create')): ?>
-                    <a href="<?= base_url('appointment/create') ?>" data-appointment-create-modal-open class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-blue-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50">
-                        <i class="fas fa-plus"></i>
-                        <span><?= esc(lang('UI.appointmentNew')) ?></span>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </section>
-
-    <section class="appointment-calendar-panel overflow-hidden">
-        <div class="border-b border-slate-200/80 bg-gradient-to-r from-white via-blue-50/90 to-cyan-50/80 p-4 sm:p-5 lg:p-6">
-            <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div class="min-w-0">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-700 to-cyan-600 text-white shadow-lg shadow-blue-700/20">
-                            <i class="fas fa-calendar-week"></i>
-                        </span>
-                        <div>
-                            <h3 class="text-xl font-black text-slate-950"><?= esc(lang('UI.appointmentCalendarView')) ?></h3>
-                            <p class="mt-1 text-sm font-semibold text-slate-600"><?= esc(lang('UI.appointmentCalendarHint')) ?></p>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <?php foreach ($calendarStatusLegend as $legendItem): ?>
-                            <span class="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 text-xs font-black text-slate-700 shadow-sm ring-1 ring-slate-200/80">
-                                <span class="h-2.5 w-2.5 rounded-full <?= esc($legendItem['class']) ?>"></span>
-                                <?= esc($legendItem['label']) ?>
-                            </span>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div id="loading-indicator" class="hidden flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700 ring-1 ring-blue-100">
-                    <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                    <span><?= esc(lang('UI.appointmentLoadingAppointments')) ?></span>
-                </div>
-            </div>
-
-            <div class="mt-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-lg shadow-slate-200/55">
-                <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
-                    <div>
-                        <label for="calendarSearchFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentSearch')) ?></label>
-                        <div class="relative">
-                            <input
-                                type="text"
-                                id="calendarSearchFilter"
-                                class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 <?= $isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4' ?>"
-                                placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>"
-                                autocomplete="off"
-                            >
-                            <i class="fas fa-search pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 <?= $isRtl ? 'right-3' : 'left-3' ?>"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <label for="calendarStatusFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentStatusLabel')) ?></label>
-                        <select id="calendarStatusFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
-                            <option value=""><?= esc(lang('UI.appointmentAllStatuses')) ?></option>
-                            <option value="scheduled"><?= esc(lang('UI.appointmentStatusScheduled')) ?></option>
-                            <option value="confirmed"><?= esc(lang('UI.appointmentStatusConfirmed')) ?></option>
-                            <option value="completed"><?= esc(lang('UI.dashboardCompleted')) ?></option>
-                            <option value="cancelled"><?= esc(lang('UI.appointmentStatusCancelled')) ?></option>
-                            <option value="no_show"><?= esc(lang('UI.appointmentStatusNoShow')) ?></option>
-                            <option value="arrived"><?= esc(lang('UI.appointmentStageArrived')) ?></option>
-                            <option value="ready"><?= esc(lang('UI.appointmentStageReady')) ?></option>
-                            <option value="in_chair"><?= esc(lang('UI.appointmentStageInChair')) ?></option>
-                            <option value="checkout"><?= esc(lang('UI.appointmentStageCheckout')) ?></option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="calendarTypeFilter" class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600"><?= esc(lang('UI.appointmentTypeBadge')) ?></label>
-                        <select id="calendarTypeFilter" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
-                            <option value=""><?= esc(lang('UI.appointmentViewAll')) ?></option>
-                            <option value="Consultation"><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
-                            <option value="Treatment"><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
-                            <option value="Follow Up"><?= esc(lang('UI.appointmentTypeFollowUp')) ?></option>
-                            <option value="Emergency"><?= esc(lang('UI.appointmentTypeEmergency')) ?></option>
-                            <option value="Cleaning"><?= esc(lang('UI.appointmentTypeCleaning')) ?></option>
-                            <option value="Checkup"><?= esc(lang('UI.appointmentTypeCheckup')) ?></option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" id="calendarClearFilters" class="inline-flex w-full items-center justify-center rounded-xl border-2 border-slate-300 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-800 shadow-sm outline-none transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:ring-4 focus:ring-blue-500/15">
-                            <i class="fas fa-eraser me-2"></i><?= esc(lang('UI.appointmentClearAction')) ?>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-slate-50/55 p-3 sm:p-4 lg:p-5">
-            <div id="calendar" class="appointment-calendar-shell w-full"></div>
-        </div>
-    </section>
-
-    <div id="appointmentCalendarDetailsModal" class="appointment-calendar-details-modal fixed inset-0 z-[2147483500] hidden overflow-hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appointmentCalendarDetailsTitle">
-        <div class="appointment-calendar-details-modal__backdrop fixed inset-0 bg-slate-950/45 backdrop-blur-sm" data-calendar-details-close></div>
-        <div class="appointment-calendar-details-modal__shell relative z-10 flex h-full items-center justify-center p-4" data-calendar-details-close>
-            <div class="appointment-calendar-details-modal__panel grid w-full max-w-xl grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
-                <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
-                    <div class="flex min-w-0 items-center gap-3">
-                        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg">
-                            <i class="fas fa-calendar-check"></i>
-                        </span>
-                        <div class="min-w-0">
-                            <h2 id="appointmentCalendarDetailsTitle" class="truncate text-lg font-bold text-slate-900"><?= esc(lang('UI.appointmentDetails')) ?></h2>
-                            <p id="appointmentCalendarDetailsSubtitle" class="mt-1 truncate text-xs font-semibold text-slate-500"></p>
-                        </div>
-                    </div>
-                    <button type="button" class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" data-calendar-details-close aria-label="<?= esc(lang('UI.closeDrawer')) ?>">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-                <div class="min-h-0 space-y-4 overflow-y-auto bg-slate-50/75 p-5">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p id="appointmentCalendarDetailsTime" class="text-xl font-black text-slate-900" dir="ltr"></p>
-                                <p id="appointmentCalendarDetailsDate" class="mt-1 text-sm font-semibold text-slate-500" dir="ltr"></p>
-                            </div>
-                            <span id="appointmentCalendarDetailsStatus" class="inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide"></span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentPatientInfo')) ?></p>
-                            <p id="appointmentCalendarDetailsPatient" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentTypeLabel')) ?></p>
-                            <p id="appointmentCalendarDetailsType" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDoctorLabel')) ?></p>
-                            <p id="appointmentCalendarDetailsDoctor" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentDurationLabel')) ?></p>
-                            <p id="appointmentCalendarDetailsDuration" class="mt-2 text-sm font-bold text-slate-900"></p>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.appointmentBookedByLabel')) ?></p>
-                        <p id="appointmentCalendarDetailsBookedBy" class="mt-2 text-sm font-bold text-slate-900"></p>
-                    </div>
-                </div>
-                <div class="flex flex-col-reverse gap-3 border-t border-slate-200 bg-white px-5 py-4 sm:flex-row sm:justify-end">
-                    <button type="button" data-calendar-details-close class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                        <?= esc(lang('UI.closeDrawer')) ?>
-                    </button>
-                    <a id="appointmentCalendarDetailsPatientLink" href="#" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-bold text-blue-700 transition hover:bg-blue-100">
-                        <i class="fas fa-user me-2"></i><?= esc(lang('UI.patientView')) ?>
-                    </a>
-                    <a id="appointmentCalendarDetailsEditLink" href="#" class="inline-flex items-center justify-center rounded-xl border border-purple-200 bg-purple-50 px-5 py-2.5 text-sm font-bold text-purple-700 transition hover:bg-purple-100">
-                        <i class="fas fa-edit me-2"></i><?= esc(lang('UI.appointmentEdit')) ?>
-                    </a>
-                    <a id="appointmentCalendarDetailsOpenLink" href="#" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:from-blue-700 hover:to-purple-700">
-                        <i class="fas fa-external-link-alt me-2"></i><?= esc(lang('UI.openFullPage')) ?>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Native HTML/CSS Doctor Dayboard Partial -->
-    <?php if ($dynamicMode): ?>
-        <?= view('appointment/partials/doctor_dayboard', [
-            'appointments' => $dayboard_appointments ?? $appointments ?? [],
-            'selected_date' => $selected_date ?? date('Y-m-d'),
-            'booking_context' => $bookingContext ?? null,
-        ]) ?>
-    <?php endif; ?>
-
-</div>
-
-<?= view('appointment/partials/quick_create_modal', [
-    'isRtl' => $isRtl,
-    'return_to' => $returnToContext,
-    'contextual' => false,
-    'selected_patient' => null,
-    'chair_options' => $chair_options ?? [],
-    'booking_context' => $bookingContext ?? null,
-    'requested_date' => old('appointment_date', date('Y-m-d')),
-    'appointment_type_prefill' => old('appointment_type', ''),
-]) ?>
-
-<!-- FullCalendar CSS -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-
-<!-- FullCalendar JS -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
-
-<style>
-    .appointment-calendar-page {
-        font-family: var(--app-font-sans);
-        background: transparent;
-    }
-
-    [dir="rtl"] .appointment-calendar-page {
-        font-family: var(--app-font-ar);
-    }
-
-    .appointment-calendar-wrap {
-        max-width: 1520px;
-        margin-inline: auto;
-    }
-
-    .appointment-calendar-hero {
-        background:
-            radial-gradient(circle at 12% 12%, rgba(34, 211, 238, 0.52), transparent 30%),
-            radial-gradient(circle at 82% 4%, rgba(16, 185, 129, 0.38), transparent 27%),
-            linear-gradient(135deg, #123d91 0%, #1757c2 44%, #0f766e 100%);
-    }
-
-    [dir="rtl"] .appointment-calendar-hero {
-        background:
-            radial-gradient(circle at 88% 12%, rgba(34, 211, 238, 0.52), transparent 30%),
-            radial-gradient(circle at 18% 4%, rgba(16, 185, 129, 0.38), transparent 27%),
-            linear-gradient(225deg, #123d91 0%, #1757c2 44%, #0f766e 100%);
-    }
-
-    .appointment-calendar-hero-stat {
-        border-radius: 1.15rem;
-        padding: 0.9rem;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        backdrop-filter: blur(12px);
-    }
-
-    .appointment-calendar-hero-stat--emerald {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.32), rgba(255, 255, 255, 0.1));
-    }
-
-    .appointment-calendar-hero-stat--cyan {
-        background: linear-gradient(135deg, rgba(6, 182, 212, 0.28), rgba(255, 255, 255, 0.1));
-    }
-
-    .appointment-calendar-hero-stat--rose {
-        background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(255, 255, 255, 0.1));
-    }
-
-    .appointment-calendar-panel {
-        border-radius: 1.5rem;
-        border: 1px solid rgba(203, 213, 225, 0.88);
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 24px 62px -42px rgba(15, 23, 42, 0.52);
-    }
-
-    .appointment-calendar-shell {
-        min-height: 0;
-    }
-
-    .appointment-calendar-shell .fc {
-        --fc-border-color: #e5e7eb;
-        --fc-today-bg-color: rgba(59, 130, 246, 0.08);
-        font-family: inherit;
-        color: #0f172a;
-    }
-
-    .appointment-calendar-shell .fc-view-harness {
-        border-radius: 1.25rem;
-        overflow: hidden;
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 16px 34px -28px rgba(15, 23, 42, 0.45);
-    }
-
-    .appointment-calendar-shell .fc-toolbar-title {
-        font-size: clamp(1rem, 1.7vw, 1.35rem);
-        font-weight: 900;
-        color: #0f172a;
-    }
-
-    .appointment-calendar-shell .fc-button {
-        border-radius: 0.75rem;
-        border-color: #d1d5db;
-        background: #f8fafc;
-        color: #334155;
-        font-weight: 800;
-        text-transform: none;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-    }
-
-    .appointment-calendar-shell .fc-button:hover,
-    .appointment-calendar-shell .fc-button-primary:not(:disabled).fc-button-active {
-        border-color: #2563eb;
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-slot {
-        height: 1.08rem;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-slot-label {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: #64748b;
-    }
-
-    .appointment-calendar-shell .fc-col-header-cell-cushion {
-        padding-block: 0.45rem;
-        font-size: 0.78rem;
-        font-weight: 900;
-    }
-
-    .appointment-calendar-shell .fc-day-today .fc-col-header-cell-cushion {
-        color: #1d4ed8;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-now-indicator-line {
-        border-color: #ef4444;
-        border-width: 2px 0 0;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-now-indicator-arrow {
-        border-color: #ef4444;
-        border-top-color: transparent;
-        border-bottom-color: transparent;
-    }
-
-    .appointment-calendar-shell .fc-event {
-        border-radius: 0.65rem;
-        border: 0;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
-        overflow: hidden;
-        cursor: pointer;
-    }
-
-    .appointment-calendar-shell .fc-timegrid-event {
-        margin-inline: 1px;
-    }
-
-    .appointment-calendar-shell .fc-scroller {
-        scrollbar-gutter: stable;
-    }
-
-    .appointment-calendar-event {
-        display: flex;
-        flex-direction: column;
-        gap: 0.06rem;
-        padding: 0.18rem 0.34rem;
-        line-height: 1.05;
-        min-width: 0;
-    }
-
-    .appointment-calendar-event__time {
-        font-size: 0.62rem;
-        font-weight: 800;
-        opacity: 0.95;
-        direction: ltr;
-        unicode-bidi: isolate;
-    }
-
-    .appointment-calendar-event__title {
-        font-size: 0.69rem;
-        font-weight: 800;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .appointment-calendar-event__meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-        font-size: 0.62rem;
-        font-weight: 700;
-        opacity: 0.9;
-    }
-
-    .appointment-calendar-shell .fc-timeGridWeek-view .appointment-calendar-event__meta {
-        display: none;
-    }
-
-    .appointment-calendar-shell .fc-timeGridWeek-view .appointment-calendar-event__title {
-        font-size: 0.67rem;
-    }
-
-    .appointment-calendar-event__pill {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.22);
-        padding: 0.04rem 0.3rem;
-    }
-
-    .appointment-calendar-details-modal {
-        visibility: hidden;
-        pointer-events: none;
-        transition: visibility 0s linear 220ms;
-    }
-
-    .appointment-calendar-details-modal.is-open {
-        visibility: visible;
-        pointer-events: auto;
-        transition-delay: 0s;
-    }
-
-    .appointment-calendar-details-modal__backdrop {
-        opacity: 0;
-        transition: opacity 180ms ease;
-    }
-
-    .appointment-calendar-details-modal.is-open .appointment-calendar-details-modal__backdrop {
-        opacity: 1;
-    }
-
-    .appointment-calendar-details-modal__panel {
-        opacity: 0;
-        transform: scale(0.92);
-        transform-origin: center;
-        transition:
-            opacity 160ms ease,
-            transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        max-height: min(90dvh, 42rem);
-    }
-
-    .appointment-calendar-details-modal.is-open .appointment-calendar-details-modal__panel {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    @media (max-width: 640px) {
-        .appointment-calendar-shell .fc-header-toolbar {
-            align-items: stretch;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .appointment-calendar-shell .fc-toolbar-chunk {
-            display: flex;
-            justify-content: center;
-        }
-
-        .appointment-calendar-details-modal__shell {
-            align-items: stretch;
-            padding: 0;
-        }
-
-        .appointment-calendar-details-modal__panel {
-            width: 100vw;
-            max-width: none;
-            height: 100dvh;
-            max-height: 100dvh;
-            border-radius: 0;
-        }
-    }
-</style>
-
-<script>
+<header class="page-title-row calendar-heading"><h1><?= esc(lang('UI.appointmentCalendarTitle')) ?></h1><nav><a class="button secondary" href="<?= base_url('appointments') ?>"><?= esc(lang('Studio.dayboard')) ?></a><?php if(has_permission('appointments','create')): ?><a class="button primary" href="<?= base_url('appointment/create?return_to=appointment%2Fcalendar') ?>"><?= $studioIcon('plus') ?><?= esc(lang('Studio.book')) ?></a><?php endif; ?></nav></header>
+<section class="calendar-context" aria-label="<?= esc(lang('UI.appointmentTodaySchedule'),'attr') ?>"><div><strong><?= esc(lang('UI.appointmentTodaySchedule')) ?></strong><span><?= $calendarTodayCount ?></span></div><div><span><?= esc(lang('Studio.calendarUpcomingScheduled')) ?></span><strong><?= $calendarUpcomingCount ?></strong></div><div><span><?= esc(lang('Studio.calendarCompletedAllTime')) ?></span><strong><?= $calendarCompletedCount ?></strong></div><div><span><?= esc(lang('Studio.calendarCancelledAllTime')) ?></span><strong><?= $calendarCancelledCount ?></strong></div><div class="calendar-hours"><span><?= esc(lang('Studio.calendarWorkingHours')) ?></span><strong dir="ltr"><?= esc($calendarWorkHoursLabel) ?></strong></div></section>
+<section class="calendar-workspace"><details id="calendar-filter-panel" open><summary><?= esc(lang('Studio.calendarFilters')) ?></summary><form class="calendar-filters" onsubmit="event.preventDefault()"><div class="form-field"><label for="calendarSearchFilter"><?= esc(lang('UI.appointmentSearch')) ?></label><input type="search" id="calendarSearchFilter" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint'),'attr') ?>" autocomplete="off"></div><div class="form-field"><label for="calendarStatusFilter"><?= esc(lang('UI.appointmentStatusLabel')) ?></label><select id="calendarStatusFilter"><option value=""><?= esc(lang('UI.appointmentAllStatuses')) ?></option><?php foreach(['scheduled'=>'appointmentStatusScheduled','confirmed'=>'appointmentStatusConfirmed','completed'=>'dashboardCompleted','cancelled'=>'appointmentStatusCancelled','no_show'=>'appointmentStatusNoShow','arrived'=>'appointmentStageArrived','ready'=>'appointmentStageReady','in_chair'=>'appointmentStageInChair','checkout'=>'appointmentStageCheckout'] as $value=>$key): ?><option value="<?= $value ?>"><?= esc(lang('UI.'.$key)) ?></option><?php endforeach; ?></select></div><div class="form-field"><label for="calendarTypeFilter"><?= esc(lang('UI.appointmentTypeLabel')) ?></label><select id="calendarTypeFilter"><option value=""><?= esc(lang('UI.appointmentViewAll')) ?></option><?php foreach(['Consultation'=>'Consultation','Treatment'=>'Treatment','Follow Up'=>'FollowUp','Emergency'=>'Emergency','Cleaning'=>'Cleaning','Checkup'=>'Checkup'] as $value=>$key): ?><option value="<?= $value ?>"><?= esc(lang('UI.appointmentType'.$key)) ?></option><?php endforeach; ?></select></div><button type="button" id="calendarClearFilters" class="button secondary"><?= esc(lang('UI.appointmentClearAction')) ?></button></form></details>
+<div class="calendar-feedback"><button type="button" id="calendar-refresh" class="button secondary"><?= esc(lang('Studio.calendarRefresh')) ?></button><span id="loading-indicator" class="hidden" role="status"><?= esc(lang('UI.appointmentLoadingAppointments')) ?></span><div id="calendar-error" class="form-notice form-notice--error" role="alert" hidden><span></span><button id="calendar-retry" type="button" class="button secondary"><?= esc(lang('Studio.calendarRetry')) ?></button></div></div>
+<div id="calendar" aria-label="<?= esc(lang('UI.appointmentCalendarTitle'),'attr') ?>"></div></section>
+<dialog id="appointmentCalendarDetailsModal" class="calendar-details" aria-labelledby="appointmentCalendarDetailsTitle"><header><div><h2 id="appointmentCalendarDetailsTitle"><?= esc(lang('UI.appointmentDetails')) ?></h2><p id="appointmentCalendarDetailsSubtitle"></p></div><button class="icon-button" type="button" data-calendar-details-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header><div class="calendar-details-body"><section class="calendar-visit-time"><strong id="appointmentCalendarDetailsTime" dir="ltr"></strong><span id="appointmentCalendarDetailsDate"></span><span id="appointmentCalendarDetailsStatus"></span></section><dl class="calendar-details-facts"><?php foreach(['Patient'=>'appointmentPatientInfo','Type'=>'appointmentTypeLabel','Duration'=>'appointmentDurationLabel','Doctor'=>'appointmentDoctorLabel','BookedBy'=>'appointmentBookedByLabel'] as $key=>$label): ?><div><dt><?= esc(lang('UI.'.$label)) ?></dt><dd id="appointmentCalendarDetails<?= $key ?>"></dd></div><?php endforeach; ?></dl></div><footer><a id="appointmentCalendarDetailsOpenLink" class="button primary" href="#"><?= esc(lang('UI.openFullPage')) ?></a><?php if(has_permission('patients','view')): ?><a id="appointmentCalendarDetailsPatientLink" class="button secondary" href="#"><?= esc(lang('UI.patientView')) ?></a><?php endif; ?><?php if(has_permission('appointments','edit')): ?><a id="appointmentCalendarDetailsEditLink" class="button secondary" href="#"><?= esc(lang('UI.appointmentEdit')) ?></a><?php endif; ?><button class="button secondary" type="button" data-calendar-details-close><?= esc(lang('Studio.close')) ?></button></footer></dialog>
+<?php if($dynamicMode): ?><?= view('appointment/partials/doctor_dayboard',['appointments'=>$dayboard_appointments??$appointments??[],'selected_date'=>$selected_date??date('Y-m-d'),'booking_context'=>$bookingContext??null]) ?><?php endif; ?>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?><script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script><script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script><script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
     const loadingIndicator = document.getElementById('loading-indicator');
@@ -638,9 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const typeFilter = document.getElementById('calendarTypeFilter');
     const clearFilters = document.getElementById('calendarClearFilters');
     const detailsModal = document.getElementById('appointmentCalendarDetailsModal');
-    const isRtl = <?= !empty($is_rtl) ? 'true' : 'false' ?>;
+    const isRtl = <?= $isRtl ? 'true' : 'false' ?>;
     const locale = <?= json_encode(service('request')->getLocale() === 'ar' ? 'ar' : 'en') ?>;
     const isCompactViewport = window.matchMedia('(max-width: 768px)').matches;
+    document.getElementById('calendar-filter-panel').open = !isCompactViewport;
     const getCalendarHeight = function() {
         const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 720;
         const compact = window.matchMedia('(max-width: 768px)').matches;
@@ -676,17 +178,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     let calendarDetailsTrigger = null;
+    let loadedRange = '';
+    let loadedEvents = null;
     
+    if (!window.FullCalendar) { showError(appointmentI18n.loadFailed); return; }
     const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialDate: <?= json_encode($selected_date ?? date('Y-m-d')) ?>,
         initialView: isCompactViewport ? 'timeGridDay' : 'timeGridWeek',
         locale: locale,
         direction: isRtl ? 'rtl' : 'ltr',
+        buttonIcons: false,
+        buttonText: { prev: '<?= esc(lang('Studio.previous'),'js') ?>', next: '<?= esc(lang('Studio.next'),'js') ?>' },
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         events: function(info, successCallback, failureCallback) {
+            document.getElementById('calendar-error').hidden = true;
+            calendarEl.setAttribute('aria-busy','true');
             // Show loading indicator
             if (loadingIndicator) {
                 loadingIndicator.classList.remove('hidden');
@@ -695,7 +205,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const startDate = info.startStr;
             const endDate = info.endStr;
             
-            fetch(`<?= base_url('appointment/calendar-events') ?>?start=${startDate}&end=${endDate}`, {
+            const range = startDate + '/' + endDate;
+            const eventUrl = new URL(<?= json_encode(base_url('appointment/calendar-events')) ?>);
+            eventUrl.search = new URLSearchParams({start:startDate,end:endDate});
+            const fetchEvents = loadedRange === range && loadedEvents !== null ? Promise.resolve(loadedEvents) : fetch(eventUrl, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -708,7 +221,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return response.json();
             })
-            .then(data => {
+            ;
+            fetchEvents.then(data => {
+                if (data && data.error) throw new Error(String(data.error));
+                loadedRange = range;
+                loadedEvents = data;
                 // Refresh CSRF token if present
                 if (data.csrf_token && window.refreshCsrfToken) {
                     window.refreshCsrfToken(data.csrf_token);
@@ -732,14 +249,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     end: event.end,
                     backgroundColor: getStatusColor(event.status),
                     borderColor: getStatusColor(event.status),
-                    textColor: '#ffffff',
+                    textColor: getComputedStyle(document.documentElement).getPropertyValue('--color-on-frame').trim(),
                     url: `<?= base_url('appointment') ?>/${event.id}`,
                     extendedProps: {
                         status: event.status,
                         patient_id: event.patient_id,
                         appointment_type: event.appointment_type || '',
                         duration: event.duration || '',
-                        doctor_name: event.doctor_name || '',
+                        doctor_name: Number(event.provider_user_id) > 0 ? '#' + Number(event.provider_user_id) + (event.doctor_name ? ' - ' + event.doctor_name : '') : (event.doctor_name || ''),
                         booked_by: event.booked_by || '',
                         title: event.title || ''
                     }
@@ -756,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 failureCallback(error);
             })
             .finally(() => {
+                calendarEl.setAttribute('aria-busy','false');
                 // Hide loading indicator
                 if (loadingIndicator) {
                     loadingIndicator.classList.add('hidden');
@@ -763,10 +281,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         },
         eventClick: function(info) {
+            if (info.jsEvent.ctrlKey || info.jsEvent.metaKey || info.jsEvent.shiftKey || info.jsEvent.altKey) return;
             info.jsEvent.preventDefault();
             openAppointmentDetailsModal(info.event, info.el);
         },
         dateClick: function(info) {
+            <?php if (!has_permission('appointments','create')): ?>return;<?php endif; ?>
             const rawDate = String(info.dateStr || '');
             const parts = rawDate.split('T');
             const appointmentDate = (parts[0] || rawDate).slice(0, 10);
@@ -781,16 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             url.searchParams.set('return_to', <?= json_encode($returnToContext) ?>);
 
-            const trigger = document.createElement('a');
-            trigger.href = url.toString();
-            trigger.setAttribute('data-appointment-create-modal-open', '');
-            trigger.dataset.appointmentDate = appointmentDate;
-            if (appointmentTime) {
-                trigger.dataset.appointmentTime = appointmentTime;
-            }
-            document.body.appendChild(trigger);
-            trigger.click();
-            trigger.remove();
+            window.location.assign(url.toString());
         },
         eventContent: function(info) {
             return { domNodes: [buildAppointmentEventNode(info)] };
@@ -799,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add tooltip with appointment details
             const event = info.event;
             const doctorLine = event.extendedProps.doctor_name ? `\n${appointmentI18n.doctorLabel}: ${event.extendedProps.doctor_name}` : '';
-            const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}${doctorLine}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
+            const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${formatStatus(event.extendedProps.status)}${doctorLine}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
             info.el.setAttribute('title', tooltip);
         },
         height: getCalendarHeight(),
@@ -863,65 +374,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 180));
     });
 
-    if (clearFilters) {
-        clearFilters.addEventListener('click', function() {
-            [searchFilter, statusFilter, typeFilter].filter(Boolean).forEach(function(control) {
-                control.value = '';
-                control.dispatchEvent(new Event('change', { bubbles: true }));
-                control.dispatchEvent(new Event('input', { bubbles: true }));
-            });
-            calendar.refetchEvents();
-        });
-    }
-
-    document.addEventListener('click', function(event) {
-        const closeTrigger = event.target.closest('[data-calendar-details-close]');
-        if (closeTrigger) {
-            event.preventDefault();
-            closeAppointmentDetailsModal();
-        }
+    if (clearFilters) clearFilters.addEventListener('click', function() {
+        [searchFilter, statusFilter, typeFilter].filter(Boolean).forEach(control => { control.value = ''; });
+        calendar.refetchEvents();
     });
-
-    document.addEventListener('keydown', function(event) {
-        if (event.key !== 'Escape') {
-            return;
-        }
-        if (detailsModal && !detailsModal.classList.contains('hidden')) {
-            event.preventDefault();
-            closeAppointmentDetailsModal();
-        }
+    function refreshCalendar() { loadedRange = ''; loadedEvents = null; calendar.refetchEvents(); }
+    document.getElementById('calendar-retry')?.addEventListener('click', refreshCalendar);
+    document.getElementById('calendar-refresh')?.addEventListener('click', refreshCalendar);
+    window.addEventListener('focus', refreshCalendar);
+    document.querySelectorAll('[data-calendar-details-close]').forEach(button => button.addEventListener('click', () => detailsModal.close()));
+    detailsModal?.addEventListener('close', function() {
+        if (calendarDetailsTrigger?.isConnected) calendarDetailsTrigger.focus();
+        calendarDetailsTrigger = null;
     });
-    
     function getStatusColor(status) {
-        const colors = {
-            'scheduled': '#3b82f6',
-            'confirmed': '#10b981',
-            'completed': '#6b7280',
-            'cancelled': '#ef4444',
-            'no_show': '#f59e0b',
-            'arrived': '#06b6d4',
-            'ready': '#14b8a6',
-            'in_chair': '#6366f1',
-            'checkout': '#8b5cf6'
-        };
-        return colors[status] || '#6b7280';
+        const roles = {scheduled:'--color-action',confirmed:'--color-frame',completed:'--color-ink-muted',cancelled:'--color-danger',no_show:'--color-warning',arrived:'--color-info',ready:'--color-action',in_chair:'--color-frame-raised',checkout:'--color-frame-deep'};
+        return getComputedStyle(document.documentElement).getPropertyValue(roles[status] || '--color-ink-muted').trim();
     }
-
     function getStatusClasses(status) {
-        const classes = {
-            scheduled: 'bg-blue-100 text-blue-800',
-            confirmed: 'bg-green-100 text-green-800',
-            completed: 'bg-emerald-100 text-emerald-800',
-            cancelled: 'bg-red-100 text-red-800',
-            no_show: 'bg-amber-100 text-amber-800',
-            arrived: 'bg-cyan-100 text-cyan-800',
-            ready: 'bg-teal-100 text-teal-800',
-            in_chair: 'bg-indigo-100 text-indigo-800',
-            checkout: 'bg-violet-100 text-violet-800'
-        };
-        return classes[status] || 'bg-slate-100 text-slate-800';
+        return 'calendar-status calendar-status--' + (['scheduled','confirmed','completed','cancelled','no_show','arrived','ready','in_chair','checkout'].includes(status) ? status : 'unknown');
     }
-
     function formatStatus(status) {
         const key = String(status || '').toLowerCase();
         if (appointmentI18n.statuses[key]) {
@@ -999,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const statusEl = document.getElementById('appointmentCalendarDetailsStatus');
         if (statusEl) {
-            statusEl.className = `inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ${getStatusClasses(props.status)}`;
+            statusEl.className = getStatusClasses(props.status);
             statusEl.textContent = formatStatus(props.status);
         }
 
@@ -1013,28 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
             patientLink.classList.toggle('hidden', !props.patient_id);
         }
 
-        detailsModal.classList.remove('hidden');
-        detailsModal.setAttribute('aria-hidden', 'false');
-        document.documentElement.classList.add('app-drawer-lock');
-        document.body.classList.add('app-drawer-lock');
-        requestAnimationFrame(function() {
-            detailsModal.classList.add('is-open');
-        });
-    }
-
-    function closeAppointmentDetailsModal() {
-        if (!detailsModal || detailsModal.classList.contains('hidden')) return;
-        detailsModal.classList.remove('is-open');
-        detailsModal.setAttribute('aria-hidden', 'true');
-        document.documentElement.classList.remove('app-drawer-lock');
-        document.body.classList.remove('app-drawer-lock');
-        window.setTimeout(function() {
-            detailsModal.classList.add('hidden');
-            if (calendarDetailsTrigger && typeof calendarDetailsTrigger.focus === 'function') {
-                calendarDetailsTrigger.focus();
-            }
-            calendarDetailsTrigger = null;
-        }, 220);
+        detailsModal.showModal();
     }
 
     function eventMatchesCalendarFilters(event) {
@@ -1100,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const status = event.extendedProps.status || '';
         const doctor = event.extendedProps.doctor_name || '';
 
-        [duration, status, doctor].filter(Boolean).forEach(function(value) {
+        [duration, formatStatus(status), doctor].filter(Boolean).forEach(function(value) {
             const pill = document.createElement('span');
             pill.className = 'appointment-calendar-event__pill';
             pill.textContent = value;
@@ -1127,44 +578,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showError(message) {
-        // Create error notification
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-        
-        const flexContainer = document.createElement('div');
-        flexContainer.className = 'flex items-center space-x-2';
-        
-        const icon = document.createElement('i');
-        icon.className = 'fas fa-exclamation-triangle';
-        
-        const text = document.createElement('span');
-        text.textContent = message;
-        
-        const closeBtn = document.createElement('button');
-        closeBtn.className = 'ml-2 text-white hover:text-gray-200';
-        closeBtn.onclick = function() {
-            errorDiv.remove();
-        };
-        const closeIcon = document.createElement('i');
-        closeIcon.className = 'fas fa-times';
-        closeBtn.appendChild(closeIcon);
-        
-        flexContainer.appendChild(icon);
-        flexContainer.appendChild(text);
-        flexContainer.appendChild(closeBtn);
-        
-        errorDiv.appendChild(flexContainer);
-        document.body.appendChild(errorDiv);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            if (errorDiv.parentNode) {
-                errorDiv.remove();
-            }
-        }, 5000);
+        const notice = document.getElementById('calendar-error');
+        notice.hidden = false;
+        notice.querySelector('span').textContent = message;
     }
 });
-</script>
-</div>
-</div>
-<?= $this->endSection() ?>
+</script><?= $this->endSection() ?>

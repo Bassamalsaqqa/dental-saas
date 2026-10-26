@@ -340,4 +340,11 @@ return [
     'recordDetails' => 'What is this record for?',
     'effectiveDates' => 'Dates',
     'amountAdjustments' => 'Discount and tax',
+'calendarWorkingHours'=>'Clinic hours',
+'calendarRetry'=>'Try again',
+'calendarUpcomingScheduled'=>'Upcoming scheduled',
+'calendarCompletedAllTime'=>'Completed · all time',
+'calendarCancelledAllTime'=>'Cancelled · all time',
+'calendarRefresh'=>'Refresh appointments',
+'calendarFilters'=>'Find appointments · search and filters',
 ];

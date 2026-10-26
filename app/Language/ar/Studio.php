@@ -340,4 +340,11 @@ return [
     'recordDetails' => 'ما الغرض من هذا السجل؟',
     'effectiveDates' => 'التواريخ',
     'amountAdjustments' => 'الخصم والضريبة',
+'calendarWorkingHours'=>'ساعات العيادة',
+'calendarRetry'=>'إعادة المحاولة',
+'calendarUpcomingScheduled'=>'المجدولة القادمة',
+'calendarCompletedAllTime'=>'المكتملة · كل الفترات',
+'calendarCancelledAllTime'=>'الملغاة · كل الفترات',
+'calendarRefresh'=>'تحديث المواعيد',
+'calendarFilters'=>'البحث عن موعد · البحث والتصفية',
 ];
