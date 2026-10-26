@@ -470,5 +470,16 @@
     "clinical_mutations": 0,
     "preserved_tables": 11,
     "next": "Remaining tenant clinical patient/finance detail and contract workspaces. Reconcile unused/demo/print exceptions separately, no blanket completion."
+  },
+  "contract_review_rollout": {
+    "base": "4adc9a5",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\contract-review\\index.html",
+    "actual_checks": 18,
+    "pure_presenter_checks": 40,
+    "fixture_browser_checks": 29,
+    "native_signature_script_byte_identical": true,
+    "clinical_mutations": 0,
+    "remaining": "Contract create/edit; patient clinical workspace and finance detail plus remaining reachable flows."
   }
 }
