@@ -11,3 +11,5 @@
 .medicine-item{background:#d0dfc5}.medicine-item input{background:#f3f7ef}.form-field .select2-container{max-width:100%}.form-field .select2-selection__placeholder{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.form-field .select2-selection__rendered{min-width:0;max-width:100%}
 
 .care-money-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:650px){.care-money-grid{grid-template-columns:minmax(0,1fr)}}
+
+.visit-filters--all{grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto}@media(max-width:900px){.visit-filters--all{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.visit-filters--all>.button{grid-column:1/-1}}@media(max-width:600px){.visit-filters--all{grid-template-columns:minmax(0,1fr)}}
