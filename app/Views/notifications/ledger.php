@@ -1,109 +1,20 @@
-<?= $this->extend('layouts/main') ?>
-
+<?php helper('asset');include APPPATH.'Views/layouts/partials/studio_icons.php';$nl=static fn($key)=>esc(lang('Studio.nl'.$key));$ledgerStatus=(string)($filters['status']??'');$ledgerChannel=(string)($filters['channel']??'');$canRetry=has_permission('settings','edit');$maskAddress=static function($value):string{$address=(string)$value;if(str_contains($address,'@')){$parts=explode('@',$address);return substr($parts[0],0,2).'***@'.$parts[1];}return strlen($address)>4?'***'.substr($address,-4):'';};$currentPage=$pager->getCurrentPage();$pageCount=max(1,$pager->getPageCount()); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-notifications.css') ?>?v=<?= esc(asset_version('assets/css/studio-notifications.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Notification Ledger</h1>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
-        <form method="get" class="flex space-x-4">
-            <select name="status" class="form-select rounded-md border-gray-300">
-                <option value="">All Statuses</option>
-                <option value="sent" <?= ($filters['status'] == 'sent') ? 'selected' : '' ?>>Sent</option>
-                <option value="failed" <?= ($filters['status'] == 'failed') ? 'selected' : '' ?>>Failed</option>
-                <option value="blocked" <?= ($filters['status'] == 'blocked') ? 'selected' : '' ?>>Blocked</option>
-                <option value="pending" <?= ($filters['status'] == 'pending') ? 'selected' : '' ?>>Pending</option>
-            </select>
-            <select name="channel" class="form-select rounded-md border-gray-300">
-                <option value="">All Channels</option>
-                <option value="email" <?= ($filters['channel'] == 'email') ? 'selected' : '' ?>>Email</option>
-                <option value="sms" <?= ($filters['channel'] == 'sms') ? 'selected' : '' ?>>SMS</option>
-            </select>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Filter</button>
-        </form>
-    </div>
-
-    <!-- Ledger Table -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Channel</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($notifications as $note): ?>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <?= $note['created_at'] ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                            <?= esc($note['channel_type']) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <?= esc($note['recipient_type']) ?>
-                            <?php 
-                                // Mask address
-                                $addr = $note['recipient_address'] ?? 'N/A';
-                                if (strpos($addr, '@') !== false) {
-                                    $parts = explode('@', $addr);
-                                    echo ' (' . substr($parts[0], 0, 2) . '***@' . $parts[1] . ')';
-                                } elseif (strlen($addr) > 4) {
-                                    echo ' (***' . substr($addr, -4) . ')';
-                                }
-                            ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                <?= $note['status'] === 'sent' ? 'bg-green-100 text-green-800' : 
-                                   ($note['status'] === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') ?>">
-                                <?= esc($note['status']) ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="<?= esc($note['failure_reason']) ?>">
-                            <?= esc($note['failure_reason']) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <?php if (in_array($note['status'], ['failed', 'blocked'])): ?>
-                                <button onclick="retryNotification(<?= $note['id'] ?>)" class="text-indigo-600 hover:text-indigo-900">Retry</button>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-    <div class="p-4">
-        <?= $pager->links() ?>
-    </div>
-</div>
-
-<script>
-function retryNotification(id) {
-    if(!confirm('Retry this notification? A new pending record will be created.')) return;
-    
-    fetch('<?= base_url('notifications/ledger/retry/') ?>' + id, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            '<?= config('Security')->headerName ?>': '<?= csrf_hash() ?>'
-        }
-    }).then(res => res.json())
-      .then(data => {
-          if(data.success) {
-              alert(data.message);
-              location.reload();
-          } else {
-              alert(data.message);
-          }
-      });
-}
-</script>
-<?= $this->endSection() ?>
+<div class="delivery-workspace"><header class="delivery-heading"><div><h1><?= $nl('Title') ?></h1><p><?= $nl('Help') ?></p></div><a class="button secondary" href="<?= base_url('settings?tab=communications') ?>"><?= $nl('Settings') ?></a></header>
+<section class="delivery-records" aria-labelledby="delivery-list-title"><header><h2 id="delivery-list-title"><?= $nl('Records') ?></h2><dl><div><dt><?= $nl('Matching') ?></dt><dd><?= (int)$pager->getTotal() ?></dd></div><div><dt><?= $nl('Page') ?></dt><dd><?= (int)$currentPage ?> / <?= (int)$pageCount ?></dd></div></dl></header>
+<form method="get" class="delivery-filters"><div class="form-field"><label for="delivery-status"><?= $nl('Status') ?></label><select id="delivery-status" name="status"><option value=""><?= $nl('AllStatuses') ?></option><?php foreach(['sent','failed','blocked','pending'] as $status): ?><option value="<?= $status ?>" <?= $ledgerStatus===$status?'selected':'' ?>><?= $nl(ucfirst($status)) ?></option><?php endforeach; ?></select></div><div class="form-field"><label for="delivery-channel"><?= $nl('Channel') ?></label><select id="delivery-channel" name="channel"><option value=""><?= $nl('AllChannels') ?></option><?php foreach(['email','sms'] as $channel): ?><option value="<?= $channel ?>" <?= $ledgerChannel===$channel?'selected':'' ?>><?= $nl(ucfirst($channel)) ?></option><?php endforeach; ?></select></div><button class="button primary" type="submit"><?= $nl('Filter') ?></button><?php if($ledgerStatus!==''||$ledgerChannel!==''): ?><a class="button secondary" href="<?= base_url('notifications/ledger') ?>"><?= $nl('Reset') ?></a><?php endif; ?></form>
+<?php if(empty($notifications)): ?><div class="delivery-empty"><span class="delivery-empty-icon"><?= $studioIcon('message') ?></span><h3><?= $nl('Empty') ?></h3><p><?= $nl('EmptyHelp') ?></p></div><?php else: ?>
+<table class="studio-grid delivery-table" data-grid-widths="17,11,22,12,27,11" aria-label="<?= $nl('Records') ?>"><thead><tr><?php foreach(['Date','Channel','Recipient','Status','Reason','Details'] as $key): ?><th scope="col"><?= $nl($key) ?></th><?php endforeach; ?></tr></thead><tbody>
+<?php foreach($notifications as $note):$noteId=(int)$note['id'];$noteStatus=(string)$note['status'];$maskedAddress=$maskAddress($note['recipient_address']??'');$statusKey='Studio.nl'.ucfirst($noteStatus);$statusText=lang($statusKey);if($statusText===$statusKey)$statusText=$noteStatus; ?>
+<tr data-delivery-record="delivery-record-<?= $noteId ?>" tabindex="0" aria-label="<?= esc(lang('Studio.nlDetails').' #'.$noteId,'attr') ?>"><td><?= esc($note['created_at']) ?></td><td><?= esc(strtoupper((string)$note['channel_type'])) ?></td><td><strong><?= esc($note['recipient_type']) ?></strong><small dir="ltr"><?= esc($maskedAddress) ?></small></td><td><span class="delivery-status delivery-status--<?= in_array($noteStatus,['sent','pending'],true)?$noteStatus:'attention' ?>"><?= esc($statusText) ?></span></td><td><?= esc($note['failure_reason']??'') ?></td><td><button type="button" class="button secondary" data-delivery-open="delivery-record-<?= $noteId ?>"><?= $nl('Details') ?></button></td></tr>
+<?php endforeach; ?></tbody></table><?php endif; ?>
+<footer class="delivery-pagination"><p><?= $nl('PageHelp') ?></p><nav aria-label="<?= $nl('Pages') ?>"><?php if($currentPage>1): ?><a class="button secondary" href="<?= esc($pager->getPreviousPageURI(),'attr') ?>"><?= esc(lang('Studio.previous')) ?></a><?php endif; ?><?php if($currentPage<$pageCount): ?><a class="button secondary" href="<?= esc($pager->getNextPageURI(),'attr') ?>"><?= esc(lang('Studio.next')) ?></a><?php endif; ?></nav></footer></section>
+<?php foreach($notifications as $note):$noteId=(int)$note['id'];$maskedAddress=$maskAddress($note['recipient_address']??''); ?>
+<dialog id="delivery-record-<?= $noteId ?>" class="delivery-dialog" aria-labelledby="delivery-title-<?= $noteId ?>"><header><h2 id="delivery-title-<?= $noteId ?>"><?= $nl('Details') ?> #<?= $noteId ?></h2><button type="button" class="icon-button" data-delivery-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header><div class="delivery-dialog-body"><dl><?php foreach(['Date'=>$note['created_at'],'Channel'=>$note['channel_type'],'Recipient'=>trim($note['recipient_type'].' '.$maskedAddress),'Status'=>lang('Studio.nl'.ucfirst((string)$note['status']))===('Studio.nl'.ucfirst((string)$note['status']))?$note['status']:lang('Studio.nl'.ucfirst((string)$note['status'])),'Reason'=>$note['failure_reason']??''] as $label=>$value): ?><div><dt><?= $nl($label) ?></dt><dd><?= esc($value) ?></dd></div><?php endforeach; ?></dl>
+<?php if($canRetry&&in_array($note['status'],['failed','blocked'],true)): ?><div class="delivery-retry"><p><?= $nl('RetryHelp') ?></p><button type="button" class="button primary" data-delivery-retry="<?= $noteId ?>"><?= $nl('Retry') ?></button></div><?php endif; ?><p class="delivery-feedback" role="status" hidden></p></div></dialog><?php endforeach; ?>
+<dialog id="delivery-confirm" class="delivery-dialog" aria-labelledby="delivery-confirm-title"><header><h2 id="delivery-confirm-title"><?= $nl('ConfirmTitle') ?></h2><button type="button" class="icon-button" data-delivery-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header><form method="dialog" class="delivery-dialog-body"><p><?= $nl('ConfirmHelp') ?></p><footer><button class="button secondary" value="cancel"><?= esc(lang('Studio.cancel')) ?></button><button class="button primary" value="retry"><?= $nl('Retry') ?></button></footer></form></dialog>
+<script type="application/json" id="delivery-config"><?= json_encode(['retryUrl'=>base_url('notifications/ledger/retry/'),'header'=>config('Security')->headerName,'token'=>csrf_hash(),'failed'=>lang('Studio.nlFailedRequest'),'working'=>lang('Studio.nlWorking')],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
+</div><?= $this->endSection() ?>
+<?= $this->section('scripts') ?><script src="<?= base_url('assets/js/studio-notifications.js') ?>?v=<?= esc(asset_version('assets/js/studio-notifications.js')) ?>" defer></script><?= $this->endSection() ?>

@@ -509,5 +509,17 @@
     "fixture_browser_checks": 41,
     "existing_limitations": "161 queries in one local sample; native browser confirm/prompt preserved; no DB settlement mutation or new financial-correctness claim",
     "next": "Remaining patient clinical workspace, notification delivery ledger and reachability reconciliation. No blanket app completion."
+  },
+  "notification_ledger_rollout": {
+    "base": "f90c0c3",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\notification-ledger\\index.html",
+    "actual_checks": 27,
+    "presenter_checks": 28,
+    "fixture_browser_checks": 31,
+    "actual_notification_mutations": 0,
+    "intercepted_retry_fixture": 1,
+    "business_tables_unchanged": 11,
+    "limitations": "125 queries single sample; retry reuses saved payload, no regeneration or new idempotency policy added. Existing backend unchanged."
   }
 }
