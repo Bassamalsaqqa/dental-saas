@@ -7,13 +7,20 @@ $studioRtl=$studioLocale==='ar';$studioActor=(object)($user??[]);
 $studioName=trim(($studioActor->first_name??'').' '.($studioActor->last_name??'')) ?: ($studioActor->email??session('email')??lang('Studio.account'));
 $studioReturn=current_url(true)->__toString();
 $studioPageTitle=$segment1==='dashboard'?lang('Studio.overview'):$resolvedPageTitle;
-$studioIsActive=static function(string $url)use($segment1):bool{
+if($segment1==='finance')$studioPageTitle=lang('Studio.'.($segment2==='reports'?'financialAnalysis':($segment2==='payouts'?'providerBalances':'moneyWorkspace')));
+if($segment1==='providers')$studioPageTitle=lang('Studio.partnerDirectory');
+$studioAnalysisUrl=$v4Can('reports','view')?'reports':'finance/reports';
+$studioIsActive=static function(string $url)use($segment1,$segment2):bool{
+ if($url==='providers'&&$segment1==='finance'&&$segment2==='payouts')return true;
+ if($url==='finance'&&in_array($segment2,['payouts','reports'],true))return false;
+ if($url==='reports'&&$segment1==='finance'&&$segment2==='reports')return true;
  $aliases=['patients'=>['patient','patients'],'appointments'=>['appointment','appointments'],'examinations'=>['examination','examinations'],'treatments'=>['treatment','treatments'],'prescriptions'=>['prescription','prescriptions']];
  return in_array($segment1,$aliases[$url]??[$url],true);
 };
 $studioNav=[
 'workspace'=>[['dashboard','Studio.overview','home','dashboard'],['appointments','UI.menuAppointments','calendar','appointments'],['patients','UI.menuPatients','people','patients']],
-'clinical'=>[['examinations','UI.menuExaminations','chart','examinations'],['treatments','UI.menuTreatments','tooth','treatments'],['prescriptions','UI.menuPrescriptions','pill','prescriptions'],['finance','UI.menuFinance','wallet','finance'],['inventory','UI.menuInventory','box','inventory'],['providers','UI.menuProviders','people','@providers'],['reports','UI.menuReports','report','reports']],
+'clinical'=>[['examinations','UI.menuExaminations','chart','examinations'],['treatments','UI.menuTreatments','tooth','treatments'],['prescriptions','UI.menuPrescriptions','pill','prescriptions']],
+'operations'=>[['finance','Studio.moneyWorkspace','wallet','finance'],['inventory','UI.menuInventory','box','inventory'],['providers','Studio.partnerDirectory','people','@providers'],[$studioAnalysisUrl,'Studio.insightsWorkspace','report','@analysis']],
 'manage'=>[['users','UI.menuUserManagement','people','users'],['roles','UI.menuRoleManagement','shield','users','roles'],['activity-log','UI.menuActivityLog','clock','activity_log'],['settings','UI.menuSettings','settings','settings']],
 ];
 ?>
@@ -39,7 +46,7 @@ $studioNav=[
 <div class="brand-row"><a href="<?= base_url('dashboard') ?>" class="brand"><span class="brand-symbol"><?= $studioIcon('tooth') ?></span><span>denta<span class="brand-plus">+</span></span></a><button class="icon-button mobile-only nav-close" data-nav-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></div>
 <button class="clinic-picker" popovertarget="clinic-menu"><span class="clinic-symbol"><?= $studioIcon('clinic') ?></span><span><strong><?= esc($clinic['name']??'Denta+') ?></strong><small><?= esc(lang('Studio.live')) ?></small></span></button>
 <nav class="nav-groups">
-<?php foreach($studioNav as $group=>$items): $visible=array_filter($items,static fn($item)=>($item[3]==='@providers'?($v4Can('inventory','view')||$v4Can('finance','view')):$v4Can($item[3],$item[4]??'view'))); if(!$visible)continue; ?>
+<?php foreach($studioNav as $group=>$items): $visible=array_filter($items,static fn($item)=>($item[3]==='@providers'?($v4Can('inventory','view')||$v4Can('finance','view')):($item[3]==='@analysis'?($v4Can('reports','view')||$v4Can('finance','reports')):$v4Can($item[3],$item[4]??'view')))); if(!$visible)continue; ?>
 <?php if($group==='manage'): ?><details class="nav-management"><summary><?= esc(lang('Studio.'.$group)) ?></summary><?php else: ?><section class="nav-group"><h2><?= esc(lang('Studio.'.$group)) ?></h2><?php endif; ?>
 <?php foreach($visible as [$url,$label,$icon]): ?><a class="nav-link <?= $studioIsActive($url)?'active':'' ?>" <?= $studioIsActive($url)?'aria-current="page"':'' ?> href="<?= base_url($url) ?>"><?= $studioIcon($icon) ?><span><?= esc(lang($label)) ?></span><?php if($studioIsActive($url)): ?><span class="nav-active-dot"></span><?php endif; ?></a><?php endforeach; ?>
 <?= $group==='manage'?'</details>':'</section>' ?>

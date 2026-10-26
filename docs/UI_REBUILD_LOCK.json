@@ -314,5 +314,42 @@
     ],
     "next": "Continue remaining finance/calendar, clinical workspace/contracts, kiosk and platform views. See honest coverage ledger; not complete.",
     "boundaries": "Production, original checkout, database schema, backend, feature switches, signed/print evidence and odontogram unchanged. Synthetic browser tests only. No source push, merge or deployment."
+  },
+  "task_architecture_money_rollout": {
+    "base": "5a32c380b01effb73600843a1119f4af32a0aa1d",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\money-workspace\\index.html",
+    "views": [
+      "app/Views/finance/create.php",
+      "app/Views/finance/edit.php",
+      "app/Views/finance/expense_create.php",
+      "app/Views/finance/expense_edit.php",
+      "app/Views/finance/index.php",
+      "app/Views/finance/payables.php",
+      "app/Views/finance/payouts.php",
+      "app/Views/finance/reports.php",
+      "app/Views/finance/transfers.php",
+      "app/Views/layouts/studio.php",
+      "app/Views/providers/index.php",
+      "app/Views/reports/content.php",
+      "app/Views/components/studio_money_config.php",
+      "app/Views/components/studio_money_drawer.php",
+      "app/Views/components/studio_money_table.php",
+      "app/Views/components/studio_workflow_navigation.php",
+      "app/Views/finance/partials/studio_analysis_ledger.php",
+      "app/Views/finance/partials/studio_charge_picker.php",
+      "app/Views/finance/partials/studio_provider_allocations.php",
+      "app/Views/finance/partials/studio_transaction_form.php"
+    ],
+    "decisions": "Task architecture and old workflows are explicitly open to replacement. Money ledger, shared Analysis, Partners/provider balance context. No silent removal of accounting capabilities.",
+    "evidence": [
+      "acceptance.json",
+      "analysis-acceptance.json",
+      "interaction-acceptance.json",
+      "entry-acceptance.json",
+      "preservation-result.json",
+      "source-size.json"
+    ],
+    "remaining": "Financial record detail, calendar, patient clinical workspace/contracts, kiosk and outstanding platform surfaces still tracked. No full-application completion claim."
   }
 }

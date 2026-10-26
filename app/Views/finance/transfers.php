@@ -3,6 +3,7 @@
 <?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-reports.css') ?>?v=<?= esc(asset_version('assets/css/studio-reports.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <div class="record-workspace"><header class="record-heading"><div><h1><?= esc($tr('treasuryTransfers')) ?></h1></div><nav><a class="button secondary" href="<?= base_url('finance') ?>"><?= esc($tr('finance')) ?></a><?php if(!empty($can_access_finance_reports)): ?><a class="button secondary" href="<?= base_url('finance/reports') ?>"><?= esc($tr('backToReports')) ?></a><?php endif; ?></nav></header>
+<?= view('components/studio_workflow_navigation',['workflowArea'=>'money','can_access_finance_reports'=>$can_access_finance_reports??false]) ?>
 <?php if(session('error')): ?><p class="form-notice form-notice--error" role="alert"><?= esc(session('error')) ?></p><?php endif; ?>
 <div class="treasury-transfer-layout"><section class="form-section"><header><h2><?= esc($tr('recordTransfer')) ?></h2></header><?php if($validation??null): ?><?php foreach($validation->getErrors() as $error): ?><p class="form-notice form-notice--error" role="alert"><?= esc($error) ?></p><?php endforeach;endif; ?>
 <form method="post" action="<?= base_url('finance/transfers/store') ?>" class="studio-form" data-studio-dirty-form><?= csrf_field() ?><div class="form-grid">

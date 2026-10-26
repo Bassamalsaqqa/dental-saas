@@ -14,3 +14,7 @@ Replace the presentation system and workflow composition across existing routes,
 
 ## Source of confirmation
 These facts and operating constraints come directly from the accepted visual proof, current Owner rules, docs/UI_REBUILD_EXECUTION.md, and existing repository contracts; no additional product assumptions or approvals were inferred.
+
+
+## Owner direction — task architecture takes priority (2026-10-26)
+All presentation work through 5a32c38 is SOFT_ACCEPTED only. Earlier acceptance records preserve history, not a requirement to retain their workflow, hierarchy, page inventory, form grouping or information architecture. Reassess every surface from the user's actual task. Consolidate fragmented navigation and split overloaded workspaces where supported by canonical data and permissions. Old routes/templates are behavior evidence, not a specification for composition. Preserve legitimate capabilities, financial/clinical semantics, authorization and durable evidence; do not silently remove workflows or invent policy. Existing strong semantic palette, readable type, proportionate fields, fixed responsive grids, arrow-free controls and one-click language remain current component constraints. Presentation-only and production/database protection remain binding. Research current usability guidance per workflow family and implement useful changes rather than repeatedly requesting approval.
