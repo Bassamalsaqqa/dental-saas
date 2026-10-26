@@ -975,4 +975,10 @@ return [
     'nlFailedRequest' => 'تعذّر إتمام إعادة المحاولة. حاول مجدداً أو تواصل مع مسؤول العيادة.',
     'nlWorking' => 'جارٍ التحقق من إعادة المحاولة…',
     'nlPage' => 'الصفحة',
+    'traceWindow' => 'يظهر {shown} من أصل {available} سجلاً مرتبطاً في هذا الملخص.',
+    'traceProcedure' => 'العمل السريري',
+    'traceRecord' => 'السجل',
+    'traceReceipts' => 'المقبوضات والحركات العكسية',
+    'traceProviders' => 'توزيعات مستحقات مقدّمي الخدمة',
+    'traceRecordedBalance' => 'الرصيد المسجّل',
 ];

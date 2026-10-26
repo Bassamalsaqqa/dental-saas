@@ -975,4 +975,10 @@ return [
     'nlFailedRequest' => 'The retry could not be completed. Try again or ask your clinic administrator.',
     'nlWorking' => 'Checking retry…',
     'nlPage' => 'Page',
+    'traceWindow' => 'Showing {shown} of {available} linked records in this summary.',
+    'traceProcedure' => 'Clinical work',
+    'traceRecord' => 'Record',
+    'traceReceipts' => 'Receipts and reversals',
+    'traceProviders' => 'Provider allocations',
+    'traceRecordedBalance' => 'Recorded balance',
 ];
