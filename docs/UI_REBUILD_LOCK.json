@@ -374,5 +374,14 @@
     "preservation_tables": 11,
     "known_issue": "Existing database health probe calls unavailable ClinicModel::withoutTenantScope(); displayed as inconclusive failure, not fixed or hidden.",
     "remaining": "Platform clinic/user/detail/onboarding/billing/settings/communications plus outstanding tenant clinical/finance/kiosk surfaces. Campaign incomplete."
+  },
+  "platform_directory_rollout": {
+    "base": "3b2a467e67733cf45fceb191937040f7f6e19e3a",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-directories\\index.html",
+    "initial_browser_checks": 47,
+    "scoped_confirmation_observations": 18,
+    "business_mutations": 0,
+    "remaining": "Platform detail/onboarding/billing/settings/communications and tenant clinical/financial/kiosk surfaces remain pending. No full application completion."
   }
 }
