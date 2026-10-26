@@ -383,5 +383,16 @@
     "scoped_confirmation_observations": 18,
     "business_mutations": 0,
     "remaining": "Platform detail/onboarding/billing/settings/communications and tenant clinical/financial/kiosk surfaces remain pending. No full application completion."
+  },
+  "platform_billing_rollout": {
+    "base": "803477c",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-billing\\index.html",
+    "actual_checks": 28,
+    "form_confirmation_observations": 10,
+    "pure_detail_checks": 6,
+    "detail_browser_observations": 49,
+    "limitations": "Zero existing synthetic invoice detail rows: populated detail states presenter-only. Existing backend payment/deletion/numbering/mixed-currency concerns not certified or corrected.",
+    "remaining": "Platform clinic/user detail, onboarding/settings/WhatsApp, tenant clinical workspace/contracts/financial detail and kiosk remain."
   }
 }
