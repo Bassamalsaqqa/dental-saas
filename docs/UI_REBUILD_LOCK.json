@@ -433,5 +433,16 @@
     "pure_presenter_checks": 12,
     "standalone_template": "preserved unchanged; current GET route redirects to shared settings workspace",
     "next": "Inspect full clinic detail admin/subscription/WhatsApp contracts before rebuilding; preserve all expected-admin and subscription stale-state inputs."
+  },
+  "clinic_detail_rollout": {
+    "base": "e18594fa1ec4092540a35d046a5fd7607d78217b",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-clinic\\index.html",
+    "actual_checks": 40,
+    "presenter_checks": 74,
+    "equal_form_contracts": 12,
+    "preserved_tables": 11,
+    "business_posts": 0,
+    "next": "Platform WhatsApp operations; then remaining tenant clinical/finance/contracts/kiosk. All ledger states remain evidence bounded."
   }
 }
