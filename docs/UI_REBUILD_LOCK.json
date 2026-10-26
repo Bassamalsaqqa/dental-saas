@@ -521,5 +521,20 @@
     "intercepted_retry_fixture": 1,
     "business_tables_unchanged": 11,
     "limitations": "125 queries single sample; retry reuses saved payload, no regeneration or new idempotency policy added. Existing backend unchanged."
+  },
+  "patient_workspace_rollout": {
+    "base": "067dd6e",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\patient-workspace\\index.html",
+    "initial_checks": 55,
+    "final_checks": 61,
+    "patient_owned_forms_equal": 7,
+    "old_shell_global_forms_replaced_by_accepted_native_routes": 2,
+    "native_page_script_byte_identical": true,
+    "canonical_setup_byte_identical": true,
+    "business_tables_unchanged": 11,
+    "business_mutations": 0,
+    "performance_limit": "435 queries one local request, outside frontend scope",
+    "remaining": "Historical chart versions and remaining reachable partial/error/feature-gated surfaces; no whole-app completion."
   }
 }

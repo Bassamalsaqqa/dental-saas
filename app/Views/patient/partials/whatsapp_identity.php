@@ -59,75 +59,75 @@ if ($waStatus === 'verified') {
 }
 ?>
 <?php if (!$embedOnly): ?>
-<div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
-        <h3 class="text-lg font-semibold text-gray-800 inline-flex items-center">
-            <i class="fab fa-whatsapp text-green-600 mr-2"></i><?= esc($copy['title']) ?>
+<div >
+    <div >
+        <h3 >
+            <?= esc($copy['title']) ?>
         </h3>
         <?php if (!empty($waOptout)): ?>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">
+            <span >
                 <?= esc($copy['optedOut']) ?>
             </span>
         <?php endif; ?>
     </div>
-    <div class="px-6 py-4">
+    <div >
         <?php if (!empty($wa)): ?>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="patient-fields">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc($copy['number']) ?></label>
-                    <p class="text-gray-900 font-medium" dir="ltr"><?= esc($waNumber) ?></p>
+                    <label ><?= esc($copy['number']) ?></label>
+                    <p  dir="ltr"><?= esc($waNumber) ?></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc($copy['status']) ?></label>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold <?= $statusClass ?>">
+                    <label ><?= esc($copy['status']) ?></label>
+                    <span >
                         <?= esc(ucfirst((string) $waStatus)) ?>
                     </span>
                 </div>
                 <?php if (!empty($waVerifiedAt)): ?>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc($copy['verifiedAt']) ?></label>
-                        <p class="text-gray-900"><?= esc(formatDateTime($waVerifiedAt)) ?></p>
+                        <label ><?= esc($copy['verifiedAt']) ?></label>
+                        <p ><?= esc(formatDateTime($waVerifiedAt)) ?></p>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($wa['bsuid'])): ?>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">BSUID</label>
-                        <p class="text-gray-900 font-mono text-xs" dir="ltr"><?= esc($wa['bsuid']) ?></p>
+                        <label >BSUID</label>
+                        <p  dir="ltr"><?= esc($wa['bsuid']) ?></p>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($wa['parent_bsuid'])): ?>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Parent BSUID</label>
-                        <p class="text-gray-900 font-mono text-xs" dir="ltr"><?= esc($wa['parent_bsuid']) ?></p>
+                        <label >Parent BSUID</label>
+                        <p  dir="ltr"><?= esc($wa['parent_bsuid']) ?></p>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($wa['username'])): ?>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">WhatsApp Username</label>
-                        <p class="text-gray-900 font-mono text-xs" dir="ltr">@<?= esc(ltrim((string) $wa['username'], '@')) ?></p>
+                        <label >WhatsApp Username</label>
+                        <p  dir="ltr">@<?= esc(ltrim((string) $wa['username'], '@')) ?></p>
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="mt-4 flex flex-wrap gap-2">
+            <div >
                 <?php if (has_permission('patients', 'edit')): ?>
-                    <button type="button" class="inline-flex items-center px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium"
+                    <button type="button"
                             onclick="openPatientWhatsAppIdentityModal('<?= esc($waNumber, 'js') ?>')">
-                        <i class="fas fa-pen mr-2"></i><?= esc($copy['update']) ?>
+                        <?= esc($copy['update']) ?>
                     </button>
                 <?php endif; ?>
                 <?php if (!empty($waOptout)): ?>
-                    <span class="inline-flex items-center px-3 py-2 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-sm">
-                        <i class="fas fa-ban mr-2"></i><?= esc($copy['blocked']) ?>
+                    <span >
+                        <?= esc($copy['blocked']) ?>
                     </span>
                 <?php endif; ?>
             </div>
         <?php else: ?>
-            <p class="text-sm text-gray-600"><?= esc($copy['empty']) ?></p>
+            <p ><?= esc($copy['empty']) ?></p>
             <?php if (has_permission('patients', 'edit')): ?>
-                <div class="mt-4">
-                    <button type="button" class="inline-flex items-center px-3 py-2 rounded-lg border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 text-sm font-medium"
+                <div >
+                    <button type="button"
                             onclick="openPatientWhatsAppIdentityModal('')">
-                        <i class="fas fa-plus mr-2"></i><?= esc($copy['add']) ?>
+                        <?= esc($copy['add']) ?>
                     </button>
                 </div>
             <?php endif; ?>
@@ -137,27 +137,27 @@ if ($waStatus === 'verified') {
 <?php endif; ?>
 
 <?php if (has_permission('patients', 'edit')): ?>
-<div id="patientWhatsAppIdentityModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4">
-    <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden" dir="<?= $isArabic ? 'rtl' : 'ltr' ?>">
-        <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between gap-4">
+<div id="patientWhatsAppIdentityModal" class="hidden">
+    <div  dir="<?= $isArabic ? 'rtl' : 'ltr' ?>">
+        <div >
             <div>
-                <h4 id="patientWhatsAppIdentityModalTitle" class="text-lg font-semibold text-slate-900"><?= esc($copy['modalTitleAdd']) ?></h4>
-                <p class="text-sm text-slate-500 mt-1"><?= esc($copy['modalHelp']) ?></p>
+                <h4 id="patientWhatsAppIdentityModalTitle" ><?= esc($copy['modalTitleAdd']) ?></h4>
+                <p ><?= esc($copy['modalHelp']) ?></p>
             </div>
-            <button type="button" class="text-slate-400 hover:text-slate-600" onclick="closePatientWhatsAppIdentityModal()">
-                <i class="fas fa-times"></i>
+            <button type="button"  onclick="closePatientWhatsAppIdentityModal()">
+                <?= esc(lang('Studio.close')) ?>
             </button>
         </div>
-        <div class="px-6 py-5 space-y-4">
+        <div >
             <div>
-                <label for="patientWhatsAppIdentityInput" class="block text-sm font-medium text-slate-700 mb-2"><?= esc($copy['number']) ?></label>
-                <input id="patientWhatsAppIdentityInput" type="text" dir="ltr" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="+970599999999">
-                <p id="patientWhatsAppIdentityError" class="mt-2 hidden text-sm text-rose-600"></p>
+                <label for="patientWhatsAppIdentityInput" ><?= esc($copy['number']) ?></label>
+                <input id="patientWhatsAppIdentityInput" type="text" dir="ltr"  placeholder="+970599999999">
+                <p id="patientWhatsAppIdentityError" class="hidden"></p>
             </div>
         </div>
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-3">
-            <button type="button" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors" onclick="closePatientWhatsAppIdentityModal()"><?= esc($copy['cancel']) ?></button>
-            <button type="button" id="patientWhatsAppIdentitySaveButton" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors" onclick="submitPatientWhatsAppIdentity()">
+        <div >
+            <button type="button"  onclick="closePatientWhatsAppIdentityModal()"><?= esc($copy['cancel']) ?></button>
+            <button type="button" id="patientWhatsAppIdentitySaveButton"  onclick="submitPatientWhatsAppIdentity()">
                 <?= esc($copy['save']) ?>
             </button>
         </div>

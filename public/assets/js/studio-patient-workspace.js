@@ -1,0 +1,13 @@
+/* Patient presentation enhancements; canonical page runtime owns tab/filter/clinical behavior. */
+(()=>{'use strict';document.addEventListener('DOMContentLoaded',()=>window.initializeClinicDateInputs?.(document),{once:true});for(const button of document.querySelectorAll('.patient-workspace button,.app-drawer button')){if(button.textContent.trim()||button.querySelector('svg'))continue;const label=button.getAttribute('aria-label')||button.title;if(label)button.textContent=label;}
+for(const table of document.querySelectorAll('.patient-record-table')){const count=table.tHead?.rows[0]?.cells.length||0;if(count&&!table.dataset.gridWidths){const widths=Array(count).fill((100-28)/(count-1));widths[Math.min(1,count-1)]=28;table.dataset.gridWidths=widths.join(',');}}
+for(const node of document.querySelectorAll('.patient-workspace nav[aria-label]')){if(node.closest('.patient-shell-nav'))continue;node.classList.add('patient-history-navigation');}
+for(const panel of document.querySelectorAll('.patient-workspace [id$="-content"]')){panel.addEventListener('transitionend',()=>window.dispatchEvent(new Event('resize')));}
+// Match original drawer stack with inert background and reliable focus restoration.
+const drawers=[...document.querySelectorAll('.app-drawer')],saved=new Map();let lastDrawerTrigger=null;
+function drawerState(){const open=drawers.some(d=>!d.classList.contains('hidden'));if(open){if(!lastDrawerTrigger||!drawers.some(d=>d.contains(document.activeElement)))lastDrawerTrigger=document.activeElement;for(const node of document.body.children){if(drawers.includes(node)||['SCRIPT','LINK','STYLE'].includes(node.tagName))continue;if(!saved.has(node))saved.set(node,node.inert);node.inert=true;}}else{for(const[node,value]of saved)node.inert=value;saved.clear();const trigger=lastDrawerTrigger;lastDrawerTrigger=null;if(trigger)requestAnimationFrame(()=>trigger.focus());}}
+for(const drawer of drawers)new MutationObserver(drawerState).observe(drawer,{attributes:true,attributeFilter:['class']});
+const tabs=document.querySelectorAll('.tab-button');for(const tab of tabs)tab.addEventListener('click',()=>requestAnimationFrame(()=>window.dispatchEvent(new Event('resize'))));
+// Native record links retain browser gestures and selection instead of overriding them.
+document.addEventListener('click',event=>{const row=event.target.closest('.patient-record-row[data-href]');if(!row||event.target.closest('a,button,input,select,textarea,form'))return;if(getSelection()?.toString()){event.stopImmediatePropagation();return;}if(event.ctrlKey||event.metaKey||event.shiftKey){event.preventDefault();event.stopImmediatePropagation();window.open(row.dataset.href,'_blank','noopener');}},true);
+})();

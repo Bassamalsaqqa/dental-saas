@@ -14,24 +14,24 @@ $closeLabel = (string) ($close_label ?? lang('UI.closeDrawer'));
     <div class="app-drawer__shell">
         <section class="app-drawer__panel app-drawer__panel--<?= esc($drawerSize) ?>" tabindex="-1">
             <header class="app-drawer__header">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex min-w-0 items-start gap-3">
-                        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm <?= esc($drawerTone) ?>">
-                            <i class="<?= esc($drawerIcon) ?>"></i>
+                <div>
+                    <div>
+                        <span >
+
                         </span>
-                        <div class="min-w-0">
-                            <h2 id="<?= esc($drawerId) ?>Title" class="text-lg font-bold leading-6 text-slate-950"><?= esc($drawerTitle) ?></h2>
+                        <div>
+                            <h2 id="<?= esc($drawerId) ?>Title" ><?= esc($drawerTitle) ?></h2>
                             <?php if ($drawerDescription !== ''): ?>
-                                <p class="mt-1 text-sm leading-5 text-slate-500"><?= esc($drawerDescription) ?></p>
+                                <p ><?= esc($drawerDescription) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
-                    <button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900" data-app-drawer-close="<?= esc($drawerId) ?>" aria-label="<?= esc($closeLabel) ?>">
-                        <i class="fas fa-times"></i>
+                    <button type="button"  data-app-drawer-close="<?= esc($drawerId) ?>" aria-label="<?= esc($closeLabel) ?>">
+                        <?= esc(lang('Studio.close')) ?>
                     </button>
                 </div>
             </header>
-            <div class="app-drawer__body custom-scrollbar">
+            <div class="app-drawer__body">
                 <?= $drawerBody ?>
             </div>
             <?php if ($drawerFooter !== ''): ?>
