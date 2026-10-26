@@ -273,5 +273,46 @@
     "production_contacted": false,
     "backend_changes": false,
     "remaining_scope": "Patient clinical workspace, clinical details, contracts, finance, reports, settings, calendars, kiosk and remaining Control Plane pages need source composition/review; no completion claim."
+  },
+  "settings_clinical_reporting_rollout": {
+    "base": "9d744ab23e6a93c4bbe5a84d08438c6b4b7354d3",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\settings-rebuild\\index.html",
+    "evidence": [
+      "first-pass.json",
+      "focused-acceptance.json",
+      "report-failure.json (successful observations only; export failure corrected in context interception)",
+      "transfer-export-acceptance.json",
+      "final-confirmation.json",
+      "source-size.json"
+    ],
+    "views": [
+      "app/Views/examination/partials/clinical_note_governance.php",
+      "app/Views/examination/show.php",
+      "app/Views/finance/transfers.php",
+      "app/Views/reports/content.php",
+      "app/Views/reports/index.php",
+      "app/Views/settings/index.php",
+      "app/Views/settings/partials/backup.php",
+      "app/Views/settings/partials/clinic.php",
+      "app/Views/settings/partials/communications/alerts.php",
+      "app/Views/settings/partials/communications/channels.php",
+      "app/Views/settings/partials/communications/email.php",
+      "app/Views/settings/partials/communications/sms.php",
+      "app/Views/settings/partials/communications/whatsapp.php",
+      "app/Views/settings/partials/hours.php",
+      "app/Views/settings/partials/kiosk.php",
+      "app/Views/settings/partials/provider_schedules.php",
+      "app/Views/settings/partials/subscription.php",
+      "app/Views/settings/partials/system.php",
+      "app/Views/settings/schedule_impact_preview.php",
+      "app/Views/settings/schedule_impact_report.php",
+      "app/Views/treatment/show.php",
+      "app/Views/components/studio_money_trail.php",
+      "app/Views/settings/partials/studio_impact_rows.php",
+      "app/Views/settings/partials/studio_proposed_schedule.php"
+    ],
+    "next": "Continue remaining finance/calendar, clinical workspace/contracts, kiosk and platform views. See honest coverage ledger; not complete.",
+    "boundaries": "Production, original checkout, database schema, backend, feature switches, signed/print evidence and odontogram unchanged. Synthetic browser tests only. No source push, merge or deployment."
   }
 }
