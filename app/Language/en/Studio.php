@@ -840,4 +840,11 @@ return [
     'woFallback' => 'Clinic fallback template',
     'woSelectTrigger' => 'Choose a workflow',
     'woNoEligibleClinic' => 'No validated and enabled clinic channel is available for a test send. Review channel setup; this page will not enable it.',
+    'kkWelcome' => 'Welcome. Find your record, then review the available tasks.',
+    'kkReceptionHelp' => 'For assistance, please ask reception.',
+    'kkKeypad' => 'Phone number keypad',
+    'kkAvailableTasks' => 'Your check-in tasks',
+    'kkTasksHelp' => 'Available tasks appear after a successful record lookup.',
+    'kkPrivacy' => 'Your session clears after 90 seconds of inactivity to protect your privacy.',
+    'kkClose' => 'Close',
 ];

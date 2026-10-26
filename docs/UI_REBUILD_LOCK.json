@@ -456,5 +456,19 @@
     "message_sends": 0,
     "preserved_tables": 11,
     "next": "Kiosk and remaining clinical/finance/contract workspaces; reconcile actual reachability before touching legacy files."
+  },
+  "kiosk_rollout": {
+    "base": "ee21e1c",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\kiosk-workspace\\index.html",
+    "actual_checks": 32,
+    "confirmation_checks": 9,
+    "presenter_checks": 32,
+    "fixture_browser_checks": 37,
+    "all_baseline_forms_equal": 3,
+    "native_signing_tail_byte_identical": true,
+    "clinical_mutations": 0,
+    "preserved_tables": 11,
+    "next": "Remaining tenant clinical patient/finance detail and contract workspaces. Reconcile unused/demo/print exceptions separately, no blanket completion."
   }
 }

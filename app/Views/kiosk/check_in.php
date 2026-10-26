@@ -1,536 +1,347 @@
 <?= $this->extend('layouts/kiosk') ?>
-
 <?= $this->section('content') ?>
-<?php
-$localeCode = $locale ?? 'ar';
-$isArabic = str_starts_with($localeCode, 'ar');
-$stepFindLabel = $isArabic ? 'ابحث عن الملف' : 'Find record';
-$stepConfirmLabel = $isArabic ? 'تأكيد الزيارة' : 'Confirm visit';
-$stepDetailsLabel = $isArabic ? 'تحديث البيانات' : 'Update details';
-$stepContractsLabel = $isArabic ? 'مراجعة وتوقيع' : 'Review & sign';
-$workflowTitle = $isArabic ? 'رحلة تسجيل الوصول' : 'Check-in flow';
-$privacyNote = $isArabic ? 'يتم مسح الجلسة تلقائياً بعد عدم الاستخدام لحماية الخصوصية.' : 'This session clears automatically after inactivity to protect privacy.';
-$helpNote = $isArabic ? 'إذا احتجت مساعدة، اطلب من موظف الاستقبال.' : 'If you need help, ask the reception desk.';
-$secureAccessLabel = $isArabic ? 'وصول آمن' : 'Secure access';
-$readyLabel = $isArabic ? 'جاهز للبدء' : 'Ready to begin';
-$taskQueueLabel = $isArabic ? 'المهام المتاحة' : 'Available tasks';
-$searchCardTitle = $isArabic ? 'ابدأ بالعثور على الملف' : 'Start by finding the record';
-$resultsHeading = $isArabic ? 'نتيجة البحث' : 'Lookup result';
-$resultsEmptyLabel = $isArabic ? 'لا توجد نتائج حتى الآن' : 'No results yet';
-$resultsEmptyHint = $isArabic ? 'بعد إدخال رقم الجوال ستظهر المواعيد أو البيانات أو العقود المطلوبة هنا.' : 'Appointments, details, and pending signatures will appear here after a phone lookup.';
-$contractModalHint = $isArabic ? 'راجع الخطة ثم وقع لإكمال الطلب.' : 'Review the plan, then sign to complete the request.';
-$clinicTagline = trim((string) ($settings['clinic_tagline'] ?? ''));
-$heroLine = $clinicTagline !== '' ? $clinicTagline : lang('Kiosk.headerCompactLine');
-$footerHelp = $isArabic ? 'إذا احتجت مساعدة، راجع موظف الاستقبال.' : 'If you need help, please ask the reception desk.';
-
-
-$logoPath = $settings['clinic_logo_path'] ?? '';
-$logoSrc = '';
-if (!empty($logoPath)) {
-    $logoSrc = (strpos($logoPath, 'http://') === 0 || strpos($logoPath, 'https://') === 0)
-        ? $logoPath
-        : base_url(ltrim($logoPath, '/'));
-}
-
-$hasConfirmable = false;
-foreach (($appointments ?? []) as $appointment) {
-    if (!empty($appointment['can_confirm'])) {
-        $hasConfirmable = true;
-        break;
-    }
-}
-$hasAppointments = !empty($appointments);
-$hasPatients = !empty($patients);
-$hasContracts = !empty($contracts);
-$primaryAction = $hasConfirmable ? 'checkin' : ($hasPatients ? 'details' : ($hasContracts ? 'contracts' : 'checkin'));
-$priorityTaskTitle = $hasConfirmable
-    ? ($isArabic ? 'موعد اليوم جاهز للتأكيد' : 'Today\'s visit is ready to confirm')
-    : ($hasPatients
-        ? ($isArabic ? 'راجع البيانات قبل الاستقبال' : 'Review patient details before arrival')
-        : ($hasContracts
-            ? ($isArabic ? 'يوجد توقيع مطلوب' : 'A signature is waiting')
-            : ($isArabic ? 'ابدأ بالبحث عن الملف' : 'Start by finding the record')));
-$priorityTaskHelp = $hasConfirmable
-    ? ($isArabic ? 'إذا كان الموعد لليوم، أكد الزيارة أولاً ثم أكمل أي بيانات أو توقيع مطلوب.' : 'If the appointment is for today, confirm the visit first, then complete any details or signatures.')
-    : ($hasPatients
-        ? ($isArabic ? 'يمكن للمريض تحديث الجوال أو البريد الإلكتروني قبل إنهاء الوصول.' : 'The patient can update phone or email before finishing check-in.')
-        : ($hasContracts
-            ? ($isArabic ? 'أكمل مراجعة الخطة والتوقيع إذا طُلب ذلك.' : 'Complete treatment-plan review and signature if needed.')
-            : ($isArabic ? 'أدخل رقم الجوال لعرض المهام المناسبة.' : 'Enter the mobile number to show the relevant tasks.')));
-$workflowSteps = [
-    ['number' => '1', 'label' => $stepFindLabel, 'active' => true],
-    ['number' => '2', 'label' => $stepConfirmLabel, 'active' => $hasAppointments],
-    ['number' => '3', 'label' => $stepDetailsLabel, 'active' => $hasPatients],
-    ['number' => '4', 'label' => $stepContractsLabel, 'active' => $hasContracts],
-];
-$balanceSummary = $balance_summary ?? null;
-$completionState = $completion ?? null;
-$completionBalance = $completionState['balance_summary'] ?? null;
-?>
-<div id="kioskSessionRoot"
-     class="min-h-screen"
-     data-pin-verified="<?= !empty($pin_verified) ? '1' : '0' ?>"
-     data-reset-url="<?= esc(base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset')) ?>"
-     data-timeout-ms="90000">
-    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <div class="mb-4 flex items-center justify-between gap-3">
-            <div class="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
-                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=ar') ?>"
-                   class="rounded-xl px-4 py-2 text-sm font-semibold transition-all <?= $isArabic ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-50' ?>">
-                    العربية
-                </a>
-                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=en') ?>"
-                   class="rounded-xl px-4 py-2 text-sm font-semibold transition-all <?= !$isArabic ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-50' ?>">
-                    English
-                </a>
-            </div>
-            <?php if (!empty($pin_verified)): ?>
-                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50">
-                    <i class="fas fa-rotate-left text-slate-400"></i>
-                    <?= esc(lang('Kiosk.notYouReenter')) ?>
-                </a>
-            <?php endif; ?>
-        </div>
-
-        <div class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-2xl shadow-slate-200/60">
-            <div class="border-b border-slate-200 bg-gradient-to-br <?= $isArabic ? 'from-slate-950 via-indigo-950 to-blue-900' : 'from-blue-950 via-indigo-950 to-slate-900' ?> px-6 py-6 sm:px-8">
-                <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                    <div class="flex items-start gap-4">
-                        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-white/15 bg-white/10 shadow-inner shadow-white/10 backdrop-blur-sm">
-                            <?php if ($logoSrc): ?>
-                                <img src="<?= esc($logoSrc) ?>" alt="<?= esc($settings['clinic_name'] ?? $clinic['name']) ?>" class="h-11 w-11 object-contain">
-                            <?php else: ?>
-                                <i class="fas fa-tooth text-2xl text-white"></i>
-                            <?php endif; ?>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100/80">
-                                <span><?= esc(lang('Kiosk.title')) ?></span>
-                                <span class="h-1 w-1 rounded-full bg-white/50"></span>
-                                <span><?= esc(!empty($pin_verified) ? $readyLabel : $secureAccessLabel) ?></span>
-                            </div>
-                            <h1 class="text-2xl font-bold tracking-tight text-white sm:text-3xl" dir="auto" style="unicode-bidi: plaintext;">
-                                <?= esc($settings['clinic_name'] ?? $clinic['name']) ?>
-                            </h1>
-                            <p class="max-w-2xl text-sm leading-6 text-slate-200" dir="auto" style="unicode-bidi: plaintext;">
-                                <?= esc($heroLine) ?>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-semibold text-white/85 backdrop-blur-sm">
-                            <i class="fas fa-clock text-[11px]"></i>
-                            <?= esc($privacyNote) ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-50/80 px-6 py-4 sm:px-8">
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <?php foreach ($workflowSteps as $step): ?>
-                        <div class="flex items-center gap-3 rounded-2xl border px-4 py-3 <?= $step['active'] ? 'border-indigo-200 bg-indigo-50 text-indigo-900' : 'border-slate-200 bg-white text-slate-500' ?>">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold <?= $step['active'] ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500' ?>"><?= esc($step['number']) ?></span>
-                            <span class="text-sm font-semibold"><?= esc($step['label']) ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <div class="px-6 py-6 sm:px-8 sm:py-8">
-                <?php if (!($pin_verified ?? false)): ?>
-                    <div class="mx-auto max-w-xl rounded-[1.75rem] border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/60">
-                        <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
-                            <i class="fas fa-shield-halved text-xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.enterClinicPin')) ?></h2>
-                        <p class="mt-2 text-sm leading-6 text-slate-500"><?= esc(lang('Kiosk.kioskProtected')) ?></p>
-                        <form action="<?= base_url('kiosk/' . $clinic['uuid'] . '/unlock') ?>" method="POST" class="mt-6 space-y-4">
-                            <?= csrf_field() ?>
-                            <div>
-                                <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.clinicPin')) ?></label>
-                                <input type="password" name="kiosk_pin" inputmode="numeric" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-4 text-lg tracking-[0.25em] text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Kiosk.enterPin')) ?>" required>
-                            </div>
-                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700">
-                                <i class="fas fa-lock-open"></i>
-                                <?= esc(lang('Kiosk.unlockKiosk')) ?>
-                            </button>
-                        </form>
-                    </div>
-                <?php elseif (!empty($completionState)): ?>
-                    <div class="mx-auto max-w-3xl space-y-6">
-                        <section class="rounded-[1.75rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-8 shadow-lg shadow-emerald-100/60">
-                            <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                                <div class="flex items-start gap-4">
-                                    <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-emerald-600 text-white shadow-lg shadow-emerald-200">
-                                        <i class="fas fa-circle-check text-2xl"></i>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                                            <i class="fas fa-check"></i>
-                                            <?= esc(lang('Kiosk.completionBadge')) ?>
-                                        </div>
-                                        <h2 class="text-2xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.completionTitle')) ?></h2>
-                                        <p class="text-sm leading-6 text-slate-600"><?= esc($completionState['message'] ?? lang('Kiosk.msgAppointmentConfirmed')) ?></p>
-                                        <div class="flex flex-wrap gap-3 pt-1 text-sm text-slate-700">
-                                            <?php if (!empty($completionState['patient_name'])): ?>
-                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2"><i class="fas fa-user text-slate-400"></i><?= esc($completionState['patient_name']) ?></span>
-                                            <?php endif; ?>
-                                            <?php if (!empty($completionState['appointment_date']) || !empty($completionState['appointment_time'])): ?>
-                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2"><i class="fas fa-calendar-day text-slate-400"></i><?= esc(trim(($completionState['appointment_date'] ?? '') . ' ' . ($completionState['appointment_time'] ?? ''))) ?></span>
-                                            <?php endif; ?>
-                                            <?php if (!empty($completionState['appointment_type'])): ?>
-                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2"><i class="fas fa-stethoscope text-slate-400"></i><?= esc($completionState['appointment_type']) ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
-                                    <i class="fas fa-rotate-left text-slate-400"></i>
-                                    <?= esc(lang('Kiosk.notYouReenter')) ?>
-                                </a>
-                            </div>
-                        </section>
-
-                        <section class="grid gap-4 md:grid-cols-2">
-                            <article class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600"><i class="fas fa-chair"></i></span>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.completionNextStepTitle')) ?></h3>
-                                        <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.completionNextStepHelp')) ?></p>
-                                    </div>
-                                </div>
-                            </article>
-                            <article class="rounded-[1.5rem] border <?= !empty($completionBalance['has_due']) ? 'border-amber-200 bg-amber-50' : 'border-emerald-200 bg-emerald-50' ?> p-6 shadow-lg <?= !empty($completionBalance['has_due']) ? 'shadow-amber-100/60' : 'shadow-emerald-100/60' ?>">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl <?= !empty($completionBalance['has_due']) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
-                                        <i class="fas <?= !empty($completionBalance['has_due']) ? 'fa-wallet' : 'fa-circle-check' ?>"></i>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-lg font-semibold <?= !empty($completionBalance['has_due']) ? 'text-amber-900' : 'text-emerald-900' ?>"><?= esc(lang('Kiosk.balanceCardTitle')) ?></h3>
-                                        <?php if (!empty($completionBalance['has_due'])): ?>
-                                            <p class="text-lg font-bold text-amber-900"><?= esc($completionBalance['outstanding_formatted'] ?? formatCurrency(0)) ?></p>
-                                            <p class="text-sm text-amber-800"><?= esc(lang('Kiosk.balancePayAtReception')) ?></p>
-                                        <?php else: ?>
-                                            <p class="text-lg font-bold text-emerald-900"><?= esc(lang('Kiosk.balanceClearTitle')) ?></p>
-                                            <p class="text-sm text-emerald-800"><?= esc(lang('Kiosk.balanceClearHelp')) ?></p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </article>
-                        </section>
-                    </div>
-                <?php else: ?>
-                    <div class="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(22rem,0.7fr)]">
-                        <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
-                            <div class="mb-6 flex items-start justify-between gap-4">
-                                <div>
-                                    <div class="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-                                        <i class="fas fa-mobile-screen-button text-[11px]"></i>
-                                        <?= esc($searchCardTitle) ?>
-                                    </div>
-                                    <h2 class="text-2xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.checkIn')) ?></h2>
-                                    <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500"><?= esc(lang('Kiosk.checkInHint')) ?></p>
-                                </div>
-                            </div>
-
-                            <form id="kioskLookupForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/lookup') ?>" method="POST" class="space-y-5" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
-                                <?= csrf_field() ?>
-                                <div>
-                                    <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
-                                    <input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-5 py-4 text-xl tracking-[0.08em] text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Kiosk.mobilePlaceholder')) ?>" required>
-                                </div>
-
-                                <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4" dir="ltr">
-                                    <div class="grid grid-cols-3 gap-3" dir="ltr">
-                                        <?php foreach (['1','2','3','4','5','6','7','8','9','clear','0','back'] as $key): ?>
-                                            <?php if ($key === 'clear'): ?>
-                                                <button type="button" data-key="clear" class="kiosk-key rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-100"><?= esc(lang('Kiosk.clear')) ?></button>
-                                            <?php elseif ($key === 'back'): ?>
-                                                <button type="button" data-key="back" class="kiosk-key rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-100"><?= esc(lang('Kiosk.back')) ?></button>
-                                            <?php else: ?>
-                                                <button type="button" data-key="<?= $key ?>" class="kiosk-key rounded-2xl border border-slate-200 bg-white py-3 text-xl font-bold text-slate-800 shadow-sm transition hover:bg-slate-100"><?= $key ?></button>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700">
-                                    <i class="fas fa-user-check"></i>
-                                    <?= esc(lang('Kiosk.findRecord')) ?>
-                                </button>
-                            </form>
-                        </section>
-
-                        <aside class="space-y-6">
-                            <section class="rounded-[1.75rem] border border-indigo-200 bg-indigo-50/80 p-6 shadow-lg shadow-indigo-100/40">
-                                <div class="flex items-start gap-3">
-                                    <span class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-600 text-white">
-                                        <i class="fas fa-bell-concierge"></i>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-indigo-950"><?= esc($priorityTaskTitle) ?></h3>
-                                        <p class="mt-2 text-sm leading-6 text-indigo-800"><?= esc($priorityTaskHelp) ?></p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
-                                <div class="mb-4 flex items-center gap-2 text-slate-900">
-                                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600"><i class="fas fa-list-check"></i></span>
-                                    <div>
-                                        <h3 class="text-lg font-semibold"><?= esc($taskQueueLabel) ?></h3>
-                                        <p class="text-sm text-slate-500"><?= esc($helpNote) ?></p>
-                                    </div>
-                                </div>
-                                <div id="kioskActionBar"
-                                     class="space-y-3"
-                                     data-has-appointments="<?= $hasAppointments ? '1' : '0' ?>"
-                                     data-has-patients="<?= $hasPatients ? '1' : '0' ?>"
-                                     data-has-contracts="<?= $hasContracts ? '1' : '0' ?>"
-                                     data-has-confirmable="<?= $hasConfirmable ? '1' : '0' ?>"
-                                     data-primary-action="<?= esc($primaryAction) ?>">
-                                    <button type="button" data-kiosk-action-btn data-action="checkin" class="flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-150">
-                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fas fa-calendar-check"></i></span><?= esc(lang('Kiosk.actionConfirmVisit')) ?></span>
-                                        <i class="fas fa-chevron-right text-xs opacity-60"></i>
-                                    </button>
-                                    <button type="button" data-kiosk-action-btn data-action="details" class="flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-150">
-                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fas fa-address-card"></i></span><?= esc(lang('Kiosk.actionUpdateDetails')) ?></span>
-                                        <i class="fas fa-chevron-right text-xs opacity-60"></i>
-                                    </button>
-                                    <button type="button" data-kiosk-action-btn data-action="contracts" class="flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-150">
-                                        <span class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fas fa-file-signature"></i></span><?= esc(lang('Kiosk.actionReviewSign')) ?></span>
-                                        <i class="fas fa-chevron-right text-xs opacity-60"></i>
-                                    </button>
-                                </div>
-                            </section>
-
-                            <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
-                                <h3 class="text-lg font-semibold text-slate-900"><?= esc($resultsHeading) ?></h3>
-                                <p class="mt-2 text-sm leading-6 text-slate-500"><?= esc($resultsEmptyHint) ?></p>
-                                <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Kiosk.mobileNumber')) ?></div>
-                                        <div id="kioskLookupPhonePreview" class="mt-1 text-sm font-semibold text-slate-700"><?= esc($lookup_phone ?: ($isArabic ? 'غير محدد' : 'Not entered')) ?></div>
-                                    </div>
-                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Kiosk.needHelp')) ?></div>
-                                        <div class="mt-1 text-sm font-semibold text-slate-700"><?= esc($footerHelp) ?></div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section id="kioskBalanceSummaryCard" class="rounded-[1.75rem] border <?= !empty($balanceSummary['has_due']) ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white' ?> p-6 shadow-lg shadow-slate-200/60 <?= $balanceSummary ? '' : 'hidden' ?>">
-                                <div class="flex items-start gap-3">
-                                    <span id="kioskBalanceIcon" class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl <?= !empty($balanceSummary['has_due']) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
-                                        <i class="fas <?= !empty($balanceSummary['has_due']) ? 'fa-wallet' : 'fa-circle-check' ?>"></i>
-                                    </span>
-                                    <div class="min-w-0">
-                                        <h3 class="text-lg font-semibold <?= !empty($balanceSummary['has_due']) ? 'text-amber-900' : 'text-slate-900' ?>"><?= esc(lang('Kiosk.balanceCardTitle')) ?></h3>
-                                        <p id="kioskBalanceAmount" class="mt-2 text-xl font-bold <?= !empty($balanceSummary['has_due']) ? 'text-amber-900' : 'text-emerald-700' ?>">
-                                            <?= esc(($balanceSummary['has_due'] ?? false) ? ($balanceSummary['outstanding_formatted'] ?? formatCurrency(0)) : lang('Kiosk.balanceClearTitle')) ?>
-                                        </p>
-                                        <p id="kioskBalanceHelp" class="mt-1 text-sm <?= !empty($balanceSummary['has_due']) ? 'text-amber-800' : 'text-slate-500' ?>">
-                                            <?= esc(($balanceSummary['has_due'] ?? false) ? lang('Kiosk.balancePayAtReception') : lang('Kiosk.balanceLookupHelp')) ?>
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-                        </aside>
-                    </div>
-
-                    <div id="kioskResults" class="mt-8 space-y-6 <?= $hasAppointments || $hasPatients || $hasContracts || !empty($info_message) ? '' : 'hidden' ?>">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc($resultsHeading) ?></div>
-                                <h3 id="kioskResultsTitle" class="mt-1 text-xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.resultsFor')) ?> <?= esc($lookup_phone ?? '') ?></h3>
-                            </div>
-                            <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
-                                <i class="fas fa-rotate-left text-slate-400"></i>
-                                <?= esc(lang('Kiosk.notYouReenter')) ?>
-                            </a>
-                        </div>
-
-                        <section id="kioskResultsList" class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
-                            <div class="mb-5 flex items-center justify-between gap-3">
-                                <div>
-                                    <h4 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.actionConfirmVisit')) ?></h4>
-                                    <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.confirmAvailableOnDay')) ?></p>
-                                </div>
-                                <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"><?= count($appointments ?? []) ?></span>
-                            </div>
-                            <div id="kioskAppointmentRows" class="space-y-4">
-                                <?php foreach ($appointments as $appointment): ?>
-                                    <div class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between">
-                                        <div class="space-y-1">
-                                            <p class="text-sm font-semibold text-slate-900" dir="auto" style="unicode-bidi: plaintext;"><?= esc($appointment['patient_display'] ?? '') ?></p>
-                                            <p class="text-sm text-slate-500">
-                                                <?= esc($appointment['appointment_date'] ?? '') ?> - <?= esc($appointment['appointment_time'] ?? '') ?> - <?= esc($appointment['appointment_type'] ?? '') ?>
-                                                <?php if (!empty($appointment['status'])): ?>
-                                                    - <?= esc($appointment['status_label'] ?? $appointment['status']) ?>
-                                                <?php endif; ?>
-                                            </p>
-                                        </div>
-                                        <?php if (!empty($appointment['can_confirm'])): ?>
-                                            <form action="<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>" method="POST">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="appointment_id" value="<?= (int) ($appointment['id'] ?? 0) ?>">
-                                                <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700">
-                                                    <i class="fas fa-check-circle"></i>
-                                                    <?= esc(lang('Kiosk.confirmToday')) ?>
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="text-xs font-semibold text-slate-500"><?= esc(lang('Kiosk.confirmAvailableOnDay')) ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
-                                <?php if (empty($appointments) && !empty($info_message)): ?>
-                                    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-700">
-                                        <?= esc($info_message) ?>
-                                    </div>
-                                <?php elseif (empty($appointments)): ?>
-                                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-                                        <?= esc($resultsEmptyLabel) ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </section>
-
-                        <section id="kioskPatientDetails" class="<?= !empty($patients) ? '' : 'hidden' ?> rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
-                            <div class="mb-5 flex items-center justify-between gap-3">
-                                <div>
-                                    <h4 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.updateYourDetails')) ?></h4>
-                                    <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.detailsHint')) ?></p>
-                                </div>
-                                <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700"><?= count($patients ?? []) ?></span>
-                            </div>
-                            <form id="kioskDetailsForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/update-details') ?>" method="POST" class="space-y-4" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
-                                <?= csrf_field() ?>
-                                <div>
-                                    <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.selectPatient')) ?></label>
-                                    <select name="patient_id" id="kioskPatientSelect" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100">
-                                        <?php foreach ($patients ?? [] as $patient): ?>
-                                            <option value="<?= (int) $patient['id'] ?>" data-phone="<?= esc($patient['phone'] ?? '') ?>" data-email="<?= esc($patient['email'] ?? '') ?>">
-                                                <?= esc($patient['name'] ?? '') ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div>
-                                        <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
-                                        <input type="tel" name="phone" id="kioskPhoneUpdate" inputmode="numeric" class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100">
-                                    </div>
-                                    <div>
-                                        <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.email')) ?></label>
-                                        <input type="email" name="email" id="kioskEmailUpdate" class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100">
-                                    </div>
-                                </div>
-                                <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700">
-                                    <i class="fas fa-save"></i>
-                                    <?= esc(lang('Kiosk.updateDetailsButton')) ?>
-                                </button>
-                            </form>
-                        </section>
-
-                        <section id="kioskContracts" class="<?= !empty($contracts) ? '' : 'hidden' ?> rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
-                            <div class="mb-5 flex items-center justify-between gap-3">
-                                <div>
-                                    <h4 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.treatmentPlan')) ?></h4>
-                                    <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.treatmentPlanHint')) ?></p>
-                                </div>
-                                <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><?= count($contracts ?? []) ?></span>
-                            </div>
-                            <div id="kioskContractList" class="space-y-4">
-                                <?php foreach ($contracts ?? [] as $contract): ?>
-                                    <div class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between">
-                                        <div class="space-y-1">
-                                            <p class="text-sm font-semibold text-slate-900"><?= esc(lang('Kiosk.planPrefix')) ?><?= (int) $contract['id'] ?></p>
-                                            <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.total')) ?>: <?= esc($contract['currency']) ?> <?= number_format((float) $contract['total_cost'], 2) ?></p>
-                                        </div>
-                                        <button type="button" class="kiosk-sign-btn inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700"
-                                                data-contract='<?= esc(json_encode($contract), 'attr') ?>'>
-                                            <i class="fas fa-pen-fancy"></i>
-                                            <?= esc(lang('Kiosk.reviewAndSign')) ?>
-                                        </button>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </section>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="mt-4 text-center text-xs text-slate-500" dir="auto" style="unicode-bidi: plaintext;">
-            <?= esc($footerHelp) ?>
-        </div>
-    </div>
+<?php $localeCode=$locale??'ar';$isArabic=str_starts_with($localeCode,'ar');$kk=static fn($key)=>esc(lang('Studio.kk'.$key));$hasAppointments=!empty($appointments);$hasPatients=!empty($patients);$hasContracts=!empty($contracts);$hasConfirmable=false;foreach($appointments??[] as $appointment){if(!empty($appointment['can_confirm'])){$hasConfirmable=true;break;}}$primaryAction=$hasConfirmable?'checkin':($hasPatients?'details':($hasContracts?'contracts':'checkin'));$balanceSummary=$balance_summary??null;$completionState=$completion??null;$completionBalance=$completionState['balance_summary']??null;$logoPath=$settings['clinic_logo_path']??'';$logoSrc=$logoPath!==''?((str_starts_with($logoPath,'http://')||str_starts_with($logoPath,'https://'))?$logoPath:base_url(ltrim($logoPath,'/'))):''; ?>
+<div id="kioskSessionRoot" data-pin-verified="<?= !empty($pin_verified)?'1':'0' ?>" data-reset-url="<?= esc(base_url('kiosk/'.$clinic['uuid'].'/check-in/reset')) ?>" data-timeout-ms="90000">
+<header class="kiosk-header">
+<div class="kiosk-clinic-brand">
+<?php if($logoSrc): ?>
+<img src="<?= esc($logoSrc,'attr') ?>" alt="<?= esc($settings['clinic_name']??$clinic['name'],'attr') ?>">
+<?php else: ?>
+<span class="kiosk-brand-mark">denta+</span>
+<?php endif; ?>
+<span>
+<?= esc($settings['clinic_name']??$clinic['name']) ?>
+</span>
 </div>
-
-<div id="kioskContractModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm">
-    <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-slate-400/40">
-            <div class="flex items-center justify-between bg-slate-950 px-6 py-5 text-white">
-                <div>
-                    <h3 class="text-xl font-semibold"><?= esc(lang('Kiosk.treatmentPlan')) ?></h3>
-                    <p class="mt-1 text-sm text-slate-300" id="kioskContractMeta"></p>
-                </div>
-                <button type="button" id="kioskCloseContract" class="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/10 transition hover:bg-white/20">
-                    <i class="fas fa-times text-white"></i>
-                </button>
-            </div>
-            <div class="space-y-6 overflow-y-auto p-6">
-                <div id="kioskContractSnapshot" class="rounded-3xl border border-slate-200 bg-slate-50 p-4"></div>
-                <div>
-                    <h4 class="mb-3 text-lg font-semibold text-slate-800"><?= esc(lang('Kiosk.planItems')) ?></h4>
-                    <div class="overflow-x-auto rounded-3xl border border-slate-200">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-slate-50 text-xs uppercase tracking-[0.14em] text-slate-500">
-                                <tr>
-                                    <th class="px-3 py-3 text-left"><?= esc(lang('Kiosk.tooth')) ?></th>
-                                    <th class="px-3 py-3 text-left"><?= esc(lang('Kiosk.description')) ?></th>
-                                    <th class="px-3 py-3 text-left"><?= esc(lang('Kiosk.qty')) ?></th>
-                                    <th class="px-3 py-3 text-left"><?= esc(lang('Kiosk.price')) ?></th>
-                                </tr>
-                            </thead>
-                            <tbody id="kioskContractItems" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <form id="kioskContractForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/sign-contract') ?>" method="POST" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="contract_id" id="kioskContractId">
-                    <input type="hidden" name="patient_id" id="kioskContractPatientId">
-                    <input type="hidden" name="signature_data" id="kioskSignatureData">
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.typedName')) ?></label>
-                            <input type="text" name="signer_name" id="kioskSignerName" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" required>
-                        </div>
-                        <div class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-500">
-                            <?= esc($contractModalHint) ?>
-                            <div class="mt-2 text-slate-400"><?= esc(lang('Kiosk.signHint')) ?></div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label class="mb-2 block text-sm font-semibold text-slate-700"><?= esc(lang('Kiosk.drawSignature')) ?></label>
-                        <canvas id="kioskSignatureCanvas" class="w-full rounded-3xl border border-slate-300 bg-white" height="160" style="touch-action: none; -ms-touch-action: none;"></canvas>
-                        <button type="button" id="kioskClearSignature" class="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
-                            <i class="fas fa-eraser text-slate-500"></i>
-                            <?= esc(lang('Kiosk.clearSignature')) ?>
-                        </button>
-                    </div>
-                    <button type="submit" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700">
-                        <i class="fas fa-signature"></i>
-                        <?= esc(lang('Kiosk.signPlan')) ?>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+<?php if(!empty($pin_verified)): ?><a class="kiosk-button secondary" href="<?= base_url('kiosk/'.$clinic['uuid'].'/check-in/reset') ?>"><?= esc(lang('Kiosk.notYouReenter')) ?></a><?php endif; ?><a class="kiosk-button secondary" href="<?= base_url('kiosk/'.$clinic['uuid'].'/check-in?lang='.($isArabic?'en':'ar')) ?>" lang="<?= $isArabic?'en':'ar' ?>">
+<?= $isArabic?'English':'العربية' ?>
+</a>
+</header>
+<main class="kiosk-main" id="main">
+<div class="kiosk-welcome">
+<h1>
+<?= esc(lang('Kiosk.title')) ?>
+</h1>
+<p>
+<?= $kk('Welcome') ?>
+</p>
+</div>
+<?php foreach(['success','error'] as $kind):if(session($kind)): ?>
+<p class="kiosk-note <?= $kind==='error'?'is-error':'' ?>" role="status">
+<?= esc(session($kind)) ?>
+</p>
+<?php endif;endforeach; ?>
+<?php if(!($pin_verified??false)): ?>
+<section class="kiosk-unlock kiosk-panel">
+<div>
+<h2>
+<?= esc(lang('Kiosk.enterClinicPin')) ?>
+</h2>
+<p>
+<?= esc(lang('Kiosk.kioskProtected')) ?>
+</p>
+<p class="kiosk-help">
+<?= $kk('ReceptionHelp') ?>
+</p>
+</div>
+<form class="kiosk-form" action="<?= base_url('kiosk/'.$clinic['uuid'].'/unlock') ?>" method="POST">
+<?= csrf_field() ?>
+<label for="kiosk-pin">
+<?= esc(lang('Kiosk.clinicPin')) ?>
+</label>
+<input id="kiosk-pin" type="password" name="kiosk_pin" inputmode="numeric" placeholder="<?= esc(lang('Kiosk.enterPin'),'attr') ?>" required autocomplete="off">
+<button class="kiosk-button" type="submit">
+<?= esc(lang('Kiosk.unlockKiosk')) ?>
+</button>
+</form>
+</section>
+<?php elseif(!empty($completionState)): ?>
+<section class="kiosk-panel kiosk-completed">
+<h2>
+<?= esc(lang('Kiosk.completionTitle')) ?>
+</h2>
+<p>
+<?= esc($completionState['message']??lang('Kiosk.msgAppointmentConfirmed')) ?>
+</p>
+<div class="kiosk-completion-facts">
+<?php foreach(['patient_name','appointment_date','appointment_time','appointment_type'] as $field):if(!empty($completionState[$field])): ?>
+<span>
+<?= esc($completionState[$field]) ?>
+</span>
+<?php endif;endforeach; ?>
+</div>
+<p>
+<?= esc(lang('Kiosk.completionNextStepHelp')) ?>
+</p>
+<div class="kiosk-balance <?= !empty($completionBalance['has_due'])?'has-due':'' ?>">
+<h3>
+<?= esc(lang('Kiosk.balanceCardTitle')) ?>
+</h3>
+<strong>
+<?= !empty($completionBalance['has_due'])?esc($completionBalance['outstanding_formatted']??formatCurrency(0)):esc(lang('Kiosk.balanceClearTitle')) ?>
+</strong>
+<p>
+<?= esc(lang(!empty($completionBalance['has_due'])?'Kiosk.balancePayAtReception':'Kiosk.balanceClearHelp')) ?>
+</p>
+</div>
+<a class="kiosk-button" href="<?= base_url('kiosk/'.$clinic['uuid'].'/check-in/reset') ?>">
+<?= esc(lang('Kiosk.notYouReenter')) ?>
+</a>
+</section>
+<?php else: ?>
+<div class="kiosk-find-layout">
+<section class="kiosk-panel">
+<h2>
+<?= esc(lang('Kiosk.checkIn')) ?>
+</h2>
+<p>
+<?= esc(lang('Kiosk.checkInHint')) ?>
+</p>
+<form class="kiosk-form" id="kioskLookupForm" action="<?= base_url('kiosk/'.$clinic['uuid'].'/lookup') ?>" method="POST" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
+<?= csrf_field() ?>
+<label for="kioskPhoneInput">
+<?= esc(lang('Kiosk.mobileNumber')) ?>
+</label>
+<input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" placeholder="<?= esc(lang('Kiosk.mobilePlaceholder'),'attr') ?>" required autocomplete="off">
+<div class="kiosk-keypad" aria-label="<?= $kk('Keypad') ?>">
+<?php foreach(['1','2','3','4','5','6','7','8','9','clear','0','back'] as $key): ?>
+<button class="kiosk-key" type="button" data-key="<?= $key ?>">
+<?= esc($key==='clear'?lang('Kiosk.clear'):($key==='back'?lang('Kiosk.back'):$key)) ?>
+</button>
+<?php endforeach; ?>
+</div>
+<button class="kiosk-button" type="submit">
+<?= esc(lang('Kiosk.findRecord')) ?>
+</button>
+</form>
+</section>
+<aside class="kiosk-panel kiosk-task-panel">
+<h2>
+<?= $kk('AvailableTasks') ?>
+</h2>
+<nav id="kioskActionBar" data-has-appointments="<?= $hasAppointments?'1':'0' ?>" data-has-patients="<?= $hasPatients?'1':'0' ?>" data-has-contracts="<?= $hasContracts?'1':'0' ?>" data-has-confirmable="<?= $hasConfirmable?'1':'0' ?>" data-primary-action="<?= esc($primaryAction) ?>">
+<?php foreach(['checkin'=>'actionConfirmVisit','details'=>'actionUpdateDetails','contracts'=>'actionReviewSign'] as $action=>$key): ?>
+<button type="button" class="kiosk-task" data-kiosk-action-btn data-action="<?= $action ?>">
+<?= esc(lang('Kiosk.'.$key)) ?>
+</button>
+<?php endforeach; ?>
+</nav>
+<p class="kiosk-help">
+<?= $kk('TasksHelp') ?>
+</p>
+<div class="kiosk-current-record">
+<span>
+<?= esc(lang('Kiosk.mobileNumber')) ?>
+</span>
+<strong id="kioskLookupPhonePreview">
+<?= esc($lookup_phone??'—') ?>
+</strong>
+</div>
+<div id="kioskBalanceSummaryCard" class="kiosk-balance <?= !$balanceSummary?'hidden':'' ?> <?= !empty($balanceSummary['has_due'])?'has-due':'' ?>">
+<span id="kioskBalanceIcon" aria-hidden="true">
+</span>
+<h3>
+<?= esc(lang('Kiosk.balanceCardTitle')) ?>
+</h3>
+<strong id="kioskBalanceAmount">
+<?= esc(!empty($balanceSummary['has_due'])?($balanceSummary['outstanding_formatted']??formatCurrency(0)):lang('Kiosk.balanceClearTitle')) ?>
+</strong>
+<p id="kioskBalanceHelp">
+<?= esc(lang(!empty($balanceSummary['has_due'])?'Kiosk.balancePayAtReception':'Kiosk.balanceLookupHelp')) ?>
+</p>
+</div>
+</aside>
+</div>
+<div id="kioskResults" class="kiosk-results <?= $hasAppointments||$hasPatients||$hasContracts||!empty($info_message)?'':'hidden' ?>">
+<header>
+<h2 id="kioskResultsTitle">
+<?= esc(lang('Kiosk.resultsFor')) ?> <?= esc($lookup_phone??'') ?>
+</h2>
+<a class="kiosk-button secondary" href="<?= base_url('kiosk/'.$clinic['uuid'].'/check-in/reset') ?>">
+<?= esc(lang('Kiosk.notYouReenter')) ?>
+</a>
+</header>
+<section id="kioskResultsList" class="kiosk-panel">
+<h3>
+<?= esc(lang('Kiosk.actionConfirmVisit')) ?>
+</h3>
+<p>
+<?= esc(lang('Kiosk.confirmAvailableOnDay')) ?>
+</p>
+<div id="kioskAppointmentRows">
+<?php foreach($appointments??[] as $appointment): ?>
+<article class="kiosk-record">
+<div class="kiosk-record-copy">
+<strong dir="auto" style="unicode-bidi:plaintext">
+<?= esc($appointment['patient_display']??'') ?>
+</strong>
+<p>
+<?= esc($appointment['appointment_date']??'') ?> · <?= esc($appointment['appointment_time']??'') ?> · <?= esc($appointment['appointment_type']??'') ?>
+<?php if(!empty($appointment['status'])): ?> · <?= esc($appointment['status_label']??$appointment['status']) ?>
+<?php endif; ?>
+</p>
+</div>
+<?php if(!empty($appointment['can_confirm'])): ?>
+<form action="<?= base_url('kiosk/'.$clinic['uuid'].'/confirm') ?>" method="POST">
+<?= csrf_field() ?>
+<input type="hidden" name="appointment_id" value="<?= (int)($appointment['id']??0) ?>">
+<button class="kiosk-button" type="submit">
+<?= esc(lang('Kiosk.confirmToday')) ?>
+</button>
+</form>
+<?php else: ?>
+<span class="kiosk-muted">
+<?= esc(lang('Kiosk.confirmAvailableOnDay')) ?>
+</span>
+<?php endif; ?>
+</article>
+<?php endforeach; ?>
+<?php if(empty($appointments)): ?>
+<p class="kiosk-note">
+<?= esc($info_message??lang('Kiosk.noUpcomingForMobile')) ?>
+</p>
+<?php endif; ?>
+</div>
+</section>
+<section id="kioskPatientDetails" class="kiosk-panel <?= !$hasPatients?'hidden':'' ?>">
+<h3>
+<?= esc(lang('Kiosk.updateYourDetails')) ?>
+</h3>
+<p>
+<?= esc(lang('Kiosk.detailsHint')) ?>
+</p>
+<form class="kiosk-form" id="kioskDetailsForm" action="<?= base_url('kiosk/'.$clinic['uuid'].'/update-details') ?>" method="POST" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
+<?= csrf_field() ?>
+<div class="kiosk-detail-fields">
+<div>
+<label for="kioskPatientSelect">
+<?= esc(lang('Kiosk.selectPatient')) ?>
+</label>
+<select name="patient_id" id="kioskPatientSelect">
+<?php foreach($patients??[] as $patient): ?>
+<option value="<?= (int)$patient['id'] ?>" data-phone="<?= esc($patient['phone']??'','attr') ?>" data-email="<?= esc($patient['email']??'','attr') ?>">
+<?= esc($patient['name']??'') ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<div>
+<label for="kioskPhoneUpdate">
+<?= esc(lang('Kiosk.mobileNumber')) ?>
+</label>
+<input type="tel" name="phone" id="kioskPhoneUpdate" inputmode="numeric">
+</div>
+<div>
+<label for="kioskEmailUpdate">
+<?= esc(lang('Kiosk.email')) ?>
+</label>
+<input type="email" name="email" id="kioskEmailUpdate">
+</div>
+</div>
+<button class="kiosk-button" type="submit">
+<?= esc(lang('Kiosk.updateDetailsButton')) ?>
+</button>
+</form>
+</section>
+<section id="kioskContracts" class="kiosk-panel <?= !$hasContracts?'hidden':'' ?>">
+<h3>
+<?= esc(lang('Kiosk.treatmentPlan')) ?>
+</h3>
+<p>
+<?= esc(lang('Kiosk.treatmentPlanHint')) ?>
+</p>
+<div id="kioskContractList">
+<?php foreach($contracts??[] as $contract): ?>
+<article class="kiosk-record">
+<div>
+<strong>
+<?= esc(lang('Kiosk.planPrefix')) ?>
+<?= (int)$contract['id'] ?>
+</strong>
+<p>
+<?= esc(lang('Kiosk.total')) ?>: <?= esc($contract['currency']) ?> <?= number_format((float)$contract['total_cost'],2) ?>
+</p>
+</div>
+<button type="button" class="kiosk-sign-btn kiosk-button" data-contract='<?= esc(json_encode($contract),'attr') ?>'>
+<?= esc(lang('Kiosk.reviewAndSign')) ?>
+</button>
+</article>
+<?php endforeach; ?>
+</div>
+</section>
+</div>
+<?php endif; ?>
+<footer class="kiosk-footer">
+<p>
+<?= $kk('Privacy') ?>
+</p>
+<p>
+<?= $kk('ReceptionHelp') ?>
+</p>
+</footer>
+</main>
+<div id="kioskContractModal" class="kiosk-modal hidden" role="dialog" aria-modal="true" aria-labelledby="kioskContractTitle">
+<div class="kiosk-modal-panel">
+<header>
+<div>
+<h2 id="kioskContractTitle">
+<?= esc(lang('Kiosk.treatmentPlan')) ?>
+</h2>
+<p id="kioskContractMeta">
+</p>
+</div>
+<button type="button" class="kiosk-button secondary" id="kioskCloseContract">
+<?= $kk('Close') ?>
+</button>
+</header>
+<div id="kioskContractSnapshot" class="kiosk-snapshot">
+</div>
+<h3>
+<?= esc(lang('Kiosk.planItems')) ?>
+</h3>
+<div class="kiosk-contract-table" tabindex="0" role="region" aria-label="<?= esc(lang('Kiosk.planItems'),'attr') ?>">
+<table>
+<thead>
+<tr>
+<?php foreach(['tooth','description','qty','price'] as $key): ?>
+<th scope="col">
+<?= esc(lang('Kiosk.'.$key)) ?>
+</th>
+<?php endforeach; ?>
+</tr>
+</thead>
+<tbody id="kioskContractItems">
+</tbody>
+</table>
+</div>
+<form class="kiosk-form" id="kioskContractForm" action="<?= base_url('kiosk/'.$clinic['uuid'].'/sign-contract') ?>" method="POST" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
+<?= csrf_field() ?>
+<input type="hidden" name="contract_id" id="kioskContractId">
+<input type="hidden" name="patient_id" id="kioskContractPatientId">
+<input type="hidden" name="signature_data" id="kioskSignatureData">
+<label for="kioskSignerName">
+<?= esc(lang('Kiosk.typedName')) ?>
+</label>
+<input type="text" name="signer_name" id="kioskSignerName" required>
+<p>
+<?= esc(lang('Kiosk.signHint')) ?>
+</p>
+<label for="kioskSignatureCanvas">
+<?= esc(lang('Kiosk.drawSignature')) ?>
+</label>
+<canvas id="kioskSignatureCanvas" height="160" style="touch-action:none;-ms-touch-action:none">
+</canvas>
+<div class="kiosk-modal-actions">
+<button class="kiosk-button secondary" type="button" id="kioskClearSignature">
+<?= esc(lang('Kiosk.clearSignature')) ?>
+</button>
+<button class="kiosk-button" type="submit">
+<?= esc(lang('Kiosk.signPlan')) ?>
+</button>
+</div>
+</form>
+</div>
+</div>
 </div>
 <script>
 const kioskI18n = <?= json_encode([
@@ -558,7 +369,7 @@ const kioskI18n = <?= json_encode([
     'balanceClearTitle' => lang('Kiosk.balanceClearTitle'),
     'balanceLookupHelp' => lang('Kiosk.balanceLookupHelp'),
     'balancePayAtReception' => lang('Kiosk.balancePayAtReception'),
-], JSON_UNESCAPED_UNICODE) ?>;
+], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>;
 const kioskActionBar = document.getElementById('kioskActionBar');
 const kioskActionButtons = Array.from(document.querySelectorAll('[data-kiosk-action-btn]'));
 const kioskActionTargets = {
@@ -566,28 +377,7 @@ const kioskActionTargets = {
     details: 'kioskPatientDetails',
     contracts: 'kioskContracts',
 };
-const setActionButtonState = (button, active, enabled) => {
-    if (!button) return;
-    button.disabled = !enabled;
-    button.classList.remove(
-        'border-indigo-200', 'bg-indigo-50', 'text-indigo-900', 'shadow-sm',
-        'border-slate-200', 'bg-white', 'text-slate-700', 'hover:bg-slate-50',
-        'opacity-50', 'cursor-not-allowed'
-    );
-
-    if (!enabled) {
-        button.classList.add('border-slate-200', 'bg-white', 'text-slate-400', 'opacity-50', 'cursor-not-allowed');
-        return;
-    }
-
-    if (active) {
-        button.classList.add('border-indigo-200', 'bg-indigo-50', 'text-indigo-900', 'shadow-sm');
-        return;
-    }
-
-    button.classList.add('border-slate-200', 'bg-white', 'text-slate-700', 'hover:bg-slate-50');
-};
-
+const setActionButtonState = (button, active, enabled) => {if(!button)return;button.disabled=!enabled;button.classList.toggle('is-current',active&&enabled);button.setAttribute('aria-pressed',String(active&&enabled));};
 const choosePrimaryAction = (state) => {
     if (state.hasConfirmable) return 'checkin';
     if (state.hasPatients) return 'details';
@@ -674,19 +464,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const createAppointmentRow = (appointment, lookupForm) => {
         const row = document.createElement('div');
-        row.className = 'flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between';
+        row.className = 'kiosk-record';
 
         const info = document.createElement('div');
-        info.className = 'space-y-1';
+        info.className = 'kiosk-record-copy';
 
         const name = document.createElement('p');
-        name.className = 'text-sm font-semibold text-slate-900';
+        name.className = 'kiosk-record-name';
         name.setAttribute('dir', 'auto');
         name.style.unicodeBidi = 'plaintext';
         name.textContent = appointment.patient_display || '';
 
         const meta = document.createElement('p');
-        meta.className = 'text-sm text-slate-500';
+        meta.className = 'kiosk-muted';
         const dateLabel = appointment.appointment_date ? `${appointment.appointment_date} - ` : '';
         const statusLabel = appointment.status_label ? ` - ${appointment.status_label}` : '';
         meta.textContent = `${dateLabel}${appointment.appointment_time || ''} - ${appointment.appointment_type || ''}${statusLabel}`;
@@ -714,10 +504,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const confirmBtn = document.createElement('button');
             confirmBtn.type = 'submit';
-            confirmBtn.className = 'inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700';
+            confirmBtn.className = 'kiosk-button';
 
             const icon = document.createElement('i');
-            icon.className = 'fas fa-check-circle';
+            icon.className = 'kiosk-icon-check';
             confirmBtn.appendChild(icon);
             confirmBtn.appendChild(document.createTextNode(kioskI18n.confirmToday));
 
@@ -727,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function () {
             row.appendChild(confirmForm);
         } else {
             const note = document.createElement('span');
-            note.className = 'text-xs font-semibold text-slate-500';
+            note.className = 'kiosk-muted';
             note.textContent = kioskI18n.confirmAvailableOnDay;
             row.appendChild(note);
         }
@@ -806,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 } else {
                     const empty = document.createElement('div');
-                    empty.className = 'rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-700';
+                    empty.className = 'kiosk-note';
                     empty.textContent = data.info_message || kioskI18n.noUpcomingForMobile;
                     resultsList.appendChild(empty);
                 }
@@ -850,18 +640,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearNode(contractsList);
                     (data.contracts || []).forEach((contract) => {
                         const card = document.createElement('div');
-                        card.className = 'flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between';
+                        card.className = 'kiosk-record';
 
-                        const info = createElement('div', 'space-y-1');
-                        const title = createElement('p', 'text-sm font-semibold text-slate-900', `${kioskI18n.planPrefix}${contract.id}`);
+                        const info = createElement('div', 'kiosk-record-copy');
+                        const title = createElement('p', 'kiosk-record-name', `${kioskI18n.planPrefix}${contract.id}`);
                         const totalValue = Number(contract.total_cost || 0).toFixed(2);
-                        const total = createElement('p', 'text-sm text-slate-500', `${kioskI18n.total}: ${contract.currency} ${totalValue}`);
+                        const total = createElement('p', 'kiosk-muted', `${kioskI18n.total}: ${contract.currency} ${totalValue}`);
                         info.appendChild(title);
                         info.appendChild(total);
 
-                        const button = createElement('button', 'kiosk-sign-btn inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700');
+                        const button = createElement('button', 'kiosk-sign-btn kiosk-button');
                         button.type = 'button';
-                        const icon = createElement('i', 'fas fa-pen-fancy');
+                        const icon = createElement('i', 'kiosk-icon-sign');
                         button.appendChild(icon);
                         appendText(button, kioskI18n.reviewAndSign);
 
@@ -891,30 +681,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (balanceCard && balanceAmount && balanceHelp && balanceIcon) {
                     const summary = data.balance_summary || null;
                     if (!summary) {
-                        balanceCard.classList.add('hidden');
+
                     } else {
-                        balanceCard.classList.remove('hidden');
+
                         const hasDue = !!summary.has_due;
-                        balanceCard.classList.remove('border-amber-200', 'bg-amber-50', 'border-slate-200', 'bg-white');
-                        balanceIcon.classList.remove('bg-amber-100', 'text-amber-700', 'bg-emerald-100', 'text-emerald-700');
-                        balanceAmount.classList.remove('text-amber-900', 'text-emerald-700');
-                        balanceHelp.classList.remove('text-amber-800', 'text-slate-500');
-                        const iconNode = balanceIcon.querySelector('i');
-                        if (iconNode) {
-                            iconNode.className = `fas ${hasDue ? 'fa-wallet' : 'fa-circle-check'}`;
-                        }
+                        balanceCard.classList.toggle('has-due',hasDue);
                         if (hasDue) {
-                            balanceCard.classList.add('border-amber-200', 'bg-amber-50');
-                            balanceIcon.classList.add('bg-amber-100', 'text-amber-700');
-                            balanceAmount.classList.add('text-amber-900');
-                            balanceHelp.classList.add('text-amber-800');
+
+
+
+
                             balanceAmount.textContent = summary.outstanding_formatted || '';
                             balanceHelp.textContent = kioskI18n.balancePayAtReception;
                         } else {
-                            balanceCard.classList.add('border-slate-200', 'bg-white');
-                            balanceIcon.classList.add('bg-emerald-100', 'text-emerald-700');
-                            balanceAmount.classList.add('text-emerald-700');
-                            balanceHelp.classList.add('text-slate-500');
+
+
+
+
                             balanceAmount.textContent = kioskI18n.balanceClearTitle;
                             balanceHelp.textContent = kioskI18n.balanceLookupHelp;
                         }
@@ -1188,5 +971,6 @@ if (kioskForm) {
     });
 }
 </script>
+<script src="<?= base_url('assets/js/studio-kiosk-access.js') ?>" defer>
+</script>
 <?= $this->endSection() ?>
-
