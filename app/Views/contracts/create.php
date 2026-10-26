@@ -33,230 +33,134 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
     || !empty($contract['notes'] ?? '');
 ?>
 
-<?= $this->extend('layouts/main_auth') ?>
+<?php helper('asset');$cb=static fn($key)=>esc(lang('Studio.cb'.$key)); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-contract-builder.css') ?>?v=<?= esc(asset_version('assets/css/studio-contract-builder.css')) ?>">
+<style>
+#odontogramSvgWrapper svg {
+    width: 100%;
+    height: auto;
+}
 
+#odontogramSvgWrapper text {
+    pointer-events: none;
+    font-family: inherit;
+}
+
+#odontogramSvgWrapper .tooth-hit {
+    outline: none;
+}
+
+#odontogramSvgWrapper .tooth-outline {
+    stroke: #3b82f6;
+    opacity: 0;
+}
+
+#odontogramSvgWrapper .tooth-overlay {
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}
+
+#odontogramSvgWrapper .tooth-group {
+    cursor: pointer;
+}
+
+#odontogramSvgWrapper .tooth-group.is-hover .tooth-outline {
+    opacity: 0.9;
+}
+
+#odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f97316;
+    stroke-width: 2;
+}
+
+#odontogramSvgWrapper .tooth-group.is-batch-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f59e0b;
+    stroke-width: 2;
+}</style>
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 contract-full-width">
-    <div class="backdrop-blur-md bg-white/80 border-b border-white/20 shadow-sm">
-        <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 contract-shell">
-            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center py-6 space-y-4 lg:space-y-0">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-file-signature text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                            <?= $mode === 'edit' ? 'Edit Treatment Contract' : 'Create Treatment Contract' ?>
-                        </h1>
-                        <p class="text-gray-600 mt-1 flex items-center">
-                            <i class="fas fa-user-circle mr-2 text-blue-500"></i>
-                            <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?>
-                            <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                <?= esc($patient['patient_id'] ?? $patient['id']) ?>
-                            </span>
-                        </p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="<?= workflow_back('patient/' . $patient['id'], $returnTo) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                        <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <form id="contractForm" action="<?= $actionUrl ?>" method="post">
-        <?= csrf_field() ?>
-        <input type="hidden" name="odontogram_json" id="odontogramJson">
-        <input type="hidden" name="odontogram_svg" id="odontogramSvg">
-        <?php if (!empty($returnTo)): ?>
-            <input type="hidden" name="return_to" value="<?= esc($returnTo) ?>">
-        <?php endif; ?>
-        <?php if (!empty($examination_id)): ?>
-            <input type="hidden" name="examination_id" value="<?= (int) $examination_id ?>">
-        <?php endif; ?>
-
-        <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 pb-12 contract-shell">
-            <div class="space-y-6 mt-8 w-full max-w-none contract-grid">
-                <div class="space-y-6">
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-black/10"></div>
-                            <div class="relative z-10 flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-tooth text-white text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-2xl font-bold mb-1">Interactive Dental Chart</h3>
-                                        <p class="text-blue-100 flex items-center">
-                                            <i class="fas fa-mouse-pointer mr-2"></i>
-                                            Click on any tooth to view or update its condition
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end gap-3">
-                                    <div class="hidden md:flex items-center space-x-2 text-blue-100">
-                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span class="text-sm font-medium">Live Updates</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button"
-                                                id="legendToggleBtn"
-                                                class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                            <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
-                                            <span id="legendToggleText">Show Legend</span>
-                                        </button>
-                                        <button id="batchModeToggleBtn"
-                                                type="button"
-                                                onclick="toggleBatchMode()"
-                                                class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                            <i class="fas fa-object-group mr-2"></i>
-                                            <span id="batchModeToggleText">Batch Select</span>
-                                        </button>
-                                        <div id="batchTopControls" class="hidden items-center gap-2">
-                                            <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 bg-amber-400/90 text-amber-950 rounded-full text-xs font-bold">
-                                                0 selected
-                                            </span>
-                                            <button type="button" id="batchApplyBtn" onclick="openBatchModal()"
-                                                    class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border transition-all duration-200 disabled:cursor-not-allowed"
-                                                    disabled>
-                                                <i class="fas fa-layer-group mr-1.5"></i>Apply
-                                            </button>
-                                            <button type="button" id="batchClearBtn" onclick="clearBatchSelection()"
-                                                    class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                                Clear
-                                            </button>
-                                            <button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"
-                                                    class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                                Exit
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                        </div>
-
-                        <div class="p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200/50">
-                            <div class="flex items-center justify-between">
-                                <h4 class="text-lg font-bold text-gray-800 flex items-center">
-                                    <i class="fas fa-palette mr-3 text-blue-600"></i>
-                                    Condition Legend
-                                </h4>
-                            </div>
-                            <div id="legendContent" class="hidden mt-6">
-                            <div class="grid grid-cols-6 gap-4">
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-green-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 border-2 border-green-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-check text-green-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Healthy</span>
-                                        <div class="text-xs text-gray-500">No issues</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-yellow-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-yellow-100 to-yellow-200 border-2 border-yellow-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Cavity</span>
-                                        <div class="text-xs text-gray-500">Needs filling</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-blue-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-tools text-blue-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Filling</span>
-                                        <div class="text-xs text-gray-500">Restored</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-purple-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-crown text-purple-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Crown</span>
-                                        <div class="text-xs text-gray-500">Capped</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-pink-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-pink-100 to-pink-200 border-2 border-pink-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-tooth text-pink-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Root Canal</span>
-                                        <div class="text-xs text-gray-500">Endodontic</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-red-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-red-100 to-red-200 border-2 border-red-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-times text-red-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Extracted</span>
-                                        <div class="text-xs text-gray-500">Removed</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-indigo-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-indigo-100 to-indigo-200 border-2 border-indigo-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-screwdriver text-indigo-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Implant</span>
-                                        <div class="text-xs text-gray-500">Titanium</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-teal-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-teal-100 to-teal-200 border-2 border-teal-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-link text-teal-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Bridge</span>
-                                        <div class="text-xs text-gray-500">Connected</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-orange-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 border-2 border-orange-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-teeth text-orange-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Partial Denture</span>
-                                        <div class="text-xs text-gray-500">Removable</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-amber-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-amber-100 to-amber-200 border-2 border-amber-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-teeth-open text-amber-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Full Denture</span>
-                                        <div class="text-xs text-gray-500">Complete</div>
-                                    </div>
-                                </div>
-                                <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-gray-200/50">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-question text-gray-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm font-semibold text-gray-800">Other</span>
-                                        <div class="text-xs text-gray-500">Special</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-8 bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
-                            <div class="w-full">
-                                <div class="relative bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/30 overflow-hidden">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-pink-50/30 via-white to-blue-50/20 rounded-3xl"></div>
-                                    <div id="odontogramSvgWrapper" class="relative z-10 min-h-[320px] flex items-center justify-center">
-                                        <?php
+<header class="page-title-row">
+<h1>
+<?= $cb($mode==='edit'?'EditTitle':'CreateTitle') ?>
+</h1>
+<a class="button secondary" href="<?= esc(workflow_back('patient/'.$patient['id'],$returnTo)) ?>">
+<?= $cb('Back') ?>
+</a>
+</header>
+<div class="contract-build-context">
+<strong>
+<?= esc($patient['first_name'].' '.$patient['last_name']) ?>
+</strong>
+<span>
+<?= esc($patient['patient_id']??$patient['id']) ?>
+</span>
+<span>
+<?= $cb('Draft') ?>
+</span>
+</div>
+<form class="studio-form contract-build" id="contractForm" action="<?= $actionUrl ?>" method="post">
+<?= csrf_field() ?>
+<input type="hidden" name="odontogram_json" id="odontogramJson">
+<input type="hidden" name="odontogram_svg" id="odontogramSvg">
+<?php if(!empty($returnTo)): ?>
+<input type="hidden" name="return_to" value="<?= esc($returnTo) ?>">
+<?php endif; ?>
+<?php if(!empty($examination_id)): ?>
+<input type="hidden" name="examination_id" value="<?= (int)$examination_id ?>">
+<?php endif; ?>
+<p id="contract-item-preservation-note" class="form-notice form-notice--error" role="alert" hidden><?= $cb('ExistingItemsWarning') ?></p><div class="contract-build-layout">
+<div class="contract-build-main">
+<section class="form-section">
+<header>
+<h2>
+<?= $cb('Chart') ?>
+</h2>
+<p>
+<?= $cb('ChartHelp') ?>
+</p>
+</header>
+<div class="contract-chart-tools">
+<button class="button secondary" type="button" id="legendToggleBtn">
+<span id="legendToggleIcon" aria-hidden="true">
+</span>
+<span id="legendToggleText">
+<?= $cb('ShowLegend') ?>
+</span>
+</button>
+<button class="button secondary" id="batchModeToggleBtn" type="button" onclick="toggleBatchMode()">
+<span id="batchModeToggleText">
+<?= $cb('BatchSelect') ?>
+</span>
+</button>
+<div id="batchTopControls" class="hidden">
+<span id="batchTopCount">
+<?= $cb('NoneSelected') ?>
+</span>
+<button class="button secondary" type="button" id="batchApplyBtn" onclick="openBatchModal()" disabled>
+<?= $cb('Apply') ?>
+</button>
+<button class="button secondary" type="button" id="batchClearBtn" onclick="clearBatchSelection()" >
+<?= $cb('Clear') ?>
+</button>
+<button class="button secondary" type="button" id="batchExitBtn" onclick="toggleBatchMode(false)">
+<?= $cb('Exit') ?>
+</button>
+</div>
+</div>
+<div id="legendContent" class="contract-condition-legend hidden">
+<?php foreach($condition_types as $key=>$label): ?>
+<span>
+<?= esc($label) ?>
+</span>
+<?php endforeach; ?>
+</div>
+<div id="odontogramSvgWrapper">
+<?php
                                         $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
                                         if (is_file($svgPath)) {
                                             echo file_get_contents($svgPath);
@@ -264,310 +168,261 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                             echo '<p class="text-sm text-gray-500">Odontogram SVG not found.</p>';
                                         }
                                         ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-table text-white text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-xl font-bold">Teeth with Conditions</h3>
-                                        <p class="text-blue-100 text-sm" id="conditionsSummary"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="overflow-x-auto rounded-lg border border-gray-200">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Tooth</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">FDI</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Position</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Condition</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Treatment</th>
-                                            <th class="text-left py-2 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th class="text-left py-2 px-3 w-16"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="teethTableBody" class="divide-y divide-gray-100"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
-                        <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white p-5">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-receipt text-white"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold">Contract Summary</h3>
-                                    <p class="text-emerald-100 text-xs">Currency and total</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-5 bg-white/70 contract-panel-body">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5">Currency</label>
-                                    <?php
-                                        $baseCurrency = $base_currency ?? 'ILS';
-                                        $selectedCurrency = $contract['currency'] ?? $baseCurrency;
-                                    ?>
-                                    <select name="currency" class="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                                        <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
-                                            <option value="<?= esc($option) ?>" <?= ($selectedCurrency === $option) ? 'selected' : '' ?>><?= esc($option) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5">Total</label>
-                                    <input type="number" step="0.01" min="0" name="total_cost" id="contractTotalInput"
-                                           value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
-                                           class="w-full h-9 px-3 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display bg-white">
-                                    <p class="mt-1 text-[10px] text-gray-400">Auto-calculated from items. You can override.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
-                        <div class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white p-5">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-list text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold">Treatment Items</h3>
-                                        <p class="text-blue-100 text-xs">Auto-filled from tooth updates or add manually</p>
-                                    </div>
-                                </div>
-                                <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
-                                    <i class="fas fa-plus mr-2"></i>Add Item
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4 bg-white/70 contract-panel-body">
-                            <div class="overflow-x-auto rounded-lg border border-gray-200">
-                                <table class="min-w-full text-sm">
-                                    <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Code</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Tooth</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-16">Qty</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-24">Price</th>
-                                        <th class="px-3 py-2 w-16"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="itemsBody" class="divide-y divide-gray-100"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
-                        <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-gray-900 text-white p-5">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-pen-fancy text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold">Contract Terms</h3>
-                                        <p class="text-slate-200 text-xs">Optional terms, timeline, and notes</p>
-                                    </div>
-                                </div>
-                                <button type="button"
-                                        id="contractTermsToggleBtn"
-                                        class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
-                                    <i id="contractTermsToggleIcon" class="fas <?= $hasContractTerms ? 'fa-chevron-up' : 'fa-chevron-down' ?> mr-2"></i>
-                                    <span id="contractTermsToggleText"><?= $hasContractTerms ? 'Hide' : 'Show' ?></span>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="contractTermsContent" class="p-4 space-y-3 bg-white/70 contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1">Terms &amp; Conditions</label>
-                                <textarea name="terms_conditions" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1">Payment Terms</label>
-                                <textarea name="payment_terms" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1">Duration Plan</label>
-                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1">Notes</label>
-                                <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button type="submit" class="inline-flex items-center px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
-                            <i class="fas fa-save mr-2"></i><?= $mode === 'edit' ? 'Save Changes' : 'Save Contract Draft' ?>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
 </div>
-
-<div id="toothModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                                <i class="fas fa-layer-group text-white text-lg"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold leading-tight">Tooth <span id="modalToothNumber"></span></h3>
-                                <p class="text-orange-100 text-xs">Apply condition details</p>
-                            </div>
-                    </div>
-                    <button type="button" onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                        <i class="fas fa-times text-white"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="p-4">
-                <form id="toothForm" class="space-y-3.5">
-                    <input type="hidden" id="toothNumber" name="tooth_number">
-                    <div>
-                        <label for="condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
-                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
-                            <option value="">Select a condition type</option>
-                            <?php foreach ($condition_types as $key => $label): ?>
-                                <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional description..."></textarea>
-                    </div>
-                    <div>
-                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
-                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional treatment notes..."></textarea>
-                    </div>
-                    <div>
-                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
-                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="needs_attention">Needs Attention</option>
-                        </select>
-                    </div>
-                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
-                                Cancel
-                            </button>
-                            <button type="button" onclick="removeToothCondition()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
-                                Remove Status
-                            </button>
-                        </div>
-                        <button type="submit" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
-                            <i class="fas fa-save mr-2"></i>Apply Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+</section>
+<section class="form-section">
+<header>
+<h2>
+<?= $cb('Conditions') ?>
+</h2>
+<p id="conditionsSummary">
+</p>
+</header>
+<div class="contract-build-scroll grid-scroll" tabindex="0" role="region" aria-label="<?= $cb('Conditions') ?>">
+<table class="contract-conditions-table studio-grid" data-grid-widths="8,8,16,15,18,18,10,7">
+<thead>
+<tr>
+<?php foreach(['Tooth','FDI','Position','Condition','Description','Treatment','Status','Actions'] as $key): ?>
+<th scope="col">
+<?= $cb($key) ?>
+</th>
+<?php endforeach; ?>
+</tr>
+</thead>
+<tbody id="teethTableBody">
+</tbody>
+</table>
 </div>
-
-<div id="batchModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="batchModalContent">
-            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                            <i class="fas fa-layer-group text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold leading-tight">Apply to Selected Teeth</h3>
-                            <p class="text-orange-100 text-xs">Selected: <span id="batchModalCount">0</span> teeth</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="closeBatchModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                        <i class="fas fa-times text-white"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4">
-                <form id="batchForm" class="space-y-3.5">
-                    <div>
-                        <label for="batch_condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
-                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
-                            <option value="">Select a condition type</option>
-                            <?php foreach ($condition_types as $key => $label): ?>
-                                <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="batch_condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared description..."></textarea>
-                    </div>
-                    <div>
-                        <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
-                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared treatment notes..."></textarea>
-                    </div>
-                    <div>
-                        <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
-                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="needs_attention">Needs Attention</option>
-                        </select>
-                    </div>
-                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
-                                Cancel
-                            </button>
-                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
-                                Remove Status
-                            </button>
-                        </div>
-                        <button type="submit" id="batchSubmitBtn" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
-                            <i class="fas fa-save mr-2"></i>Apply Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+</section>
+<section class="form-section">
+<header>
+<h2>
+<?= $cb('Items') ?>
+</h2>
+<button type="button" class="button secondary" id="addItemBtn">
+<?= $cb('AddItem') ?>
+</button>
+</header>
+<div class="contract-build-scroll grid-scroll" tabindex="0" role="region" aria-label="<?= $cb('Items') ?>">
+<table class="contract-items-table studio-grid" data-grid-widths="14,9,39,10,14,14">
+<thead>
+<tr>
+<?php foreach(['Code','Tooth','Description','Quantity','Price','Actions'] as $key): ?>
+<th scope="col">
+<?= $cb($key) ?>
+</th>
+<?php endforeach; ?>
+</tr>
+</thead>
+<tbody id="itemsBody">
+</tbody>
+</table>
 </div>
-
+</section>
+</div>
+<aside class="contract-build-side">
+<section class="form-section">
+<h2>
+<?= $cb('FinancialTerms') ?>
+</h2>
+<div class="contract-build-money">
+<div class="form-field">
+<label for="contract-currency">
+<?= $cb('Currency') ?>
+</label>
+<?php $baseCurrency=$base_currency??'ILS';$selectedCurrency=$contract['currency']??$baseCurrency; ?>
+<select id="contract-currency" name="currency">
+<?php foreach($currency_options??['ILS'] as $option): ?>
+<option value="<?= esc($option) ?>" <?= $selectedCurrency===$option?'selected':'' ?>>
+<?= esc($option) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<div class="form-field">
+<label for="contractTotalInput">
+<?= $cb('Total') ?>
+</label>
+<input type="number" step="0.01" min="0" name="total_cost" id="contractTotalInput" value="<?= esc(number_format((float)($contract['total_cost']??0),2,'.','')) ?>">
+</div>
+</div>
+</section>
+<section class="form-section">
+<header>
+<h2>
+<?= $cb('Terms') ?>
+</h2>
+<button type="button" class="button secondary" id="contractTermsToggleBtn">
+<span id="contractTermsToggleIcon" aria-hidden="true">
+</span>
+<span id="contractTermsToggleText">
+<?= $cb($hasContractTerms?'Hide':'Show') ?>
+</span>
+</button>
+</header>
+<div id="contractTermsContent" class="contract-build-terms <?= $hasContractTerms?'':'hidden' ?>">
+<?php foreach(['terms_conditions'=>'TermsConditions','payment_terms'=>'PaymentTerms','duration_plan'=>'Duration','notes'=>'Notes'] as $name=>$key): ?>
+<div class="form-field">
+<label for="contract-<?= $name ?>">
+<?= $cb($key) ?>
+</label>
+<?php if($name==='duration_plan'): ?>
+<input id="contract-<?= $name ?>" name="<?= $name ?>" value="<?= esc($contract[$name]??'','attr') ?>">
+<?php else: ?>
+<textarea id="contract-<?= $name ?>" name="<?= $name ?>" rows="3">
+<?= esc($contract[$name]??'') ?>
+</textarea>
+<?php endif; ?>
+</div>
+<?php endforeach; ?>
+</div>
+</section>
+<footer class="contract-build-save">
+<button class="button primary" type="submit">
+<?= $cb($mode==='edit'?'SaveChanges':'SaveDraft') ?>
+</button>
+</footer>
+</aside>
+</div>
+</form>
+<div id="toothModal" class="contract-build-modal hidden" role="dialog" aria-modal="true" aria-labelledby="toothModalTitle">
+<div class="contract-build-modal-panel" id="modalContent">
+<header>
+<h2 id="toothModalTitle">
+<?= $cb('Tooth') ?> <span id="modalToothNumber">
+</span>
+</h2>
+<button class="button secondary" type="button" onclick="closeToothModal()">
+<?= $cb('Close') ?>
+</button>
+</header>
+<form class="studio-form" id="toothForm">
+<input type="hidden" id="toothNumber" name="tooth_number">
+<div class="form-field">
+<label for="condition_type">
+<?= $cb('Condition') ?>
+</label>
+<select id="condition_type" name="condition_type" required>
+<option value="">
+<?= $cb('SelectCondition') ?>
+</option>
+<?php foreach($condition_types as $key=>$label): ?>
+<option value="<?= esc($key) ?>">
+<?= esc($label) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<div class="form-field">
+<label for="condition_description">
+<?= $cb('Description') ?>
+</label>
+<textarea id="condition_description" name="condition_description" rows="3">
+</textarea>
+</div>
+<div class="form-field">
+<label for="treatment_notes">
+<?= $cb('TreatmentNotes') ?>
+</label>
+<textarea id="treatment_notes" name="treatment_notes" rows="3">
+</textarea>
+</div>
+<div class="form-field">
+<label for="treatment_status">
+<?= $cb('Status') ?>
+</label>
+<select id="treatment_status" name="treatment_status">
+<?php foreach(['pending'=>'Pending','in_progress'=>'InProgress','completed'=>'Completed','needs_attention'=>'NeedsAttention'] as $value=>$key): ?>
+<option value="<?= $value ?>">
+<?= $cb($key) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<footer>
+<button class="button secondary" type="button" onclick="closeToothModal()">
+<?= $cb('Cancel') ?>
+</button>
+<button class="button secondary" type="button" onclick="removeToothCondition()">
+<?= $cb('Reset') ?>
+</button>
+<button class="button primary" type="submit" >
+<?= $cb('Apply') ?>
+</button>
+</footer>
+</form>
+</div>
+</div>
+<div id="batchModal" class="contract-build-modal hidden" role="dialog" aria-modal="true" aria-labelledby="batchModalTitle">
+<div class="contract-build-modal-panel" id="batchModalContent">
+<header>
+<h2 id="batchModalTitle">
+<?= $cb('BatchTitle') ?> <span id="batchModalCount">
+</span>
+</h2>
+<button class="button secondary" type="button" onclick="closeBatchModal()">
+<?= $cb('Close') ?>
+</button>
+</header>
+<form class="studio-form" id="batchForm">
+<div class="form-field">
+<label for="batch_condition_type">
+<?= $cb('Condition') ?>
+</label>
+<select id="batch_condition_type" name="condition_type" required>
+<option value="">
+<?= $cb('SelectCondition') ?>
+</option>
+<?php foreach($condition_types as $key=>$label): ?>
+<option value="<?= esc($key) ?>">
+<?= esc($label) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<div class="form-field">
+<label for="batch_condition_description">
+<?= $cb('Description') ?>
+</label>
+<textarea id="batch_condition_description" name="condition_description" rows="3">
+</textarea>
+</div>
+<div class="form-field">
+<label for="batch_treatment_notes">
+<?= $cb('TreatmentNotes') ?>
+</label>
+<textarea id="batch_treatment_notes" name="treatment_notes" rows="3">
+</textarea>
+</div>
+<div class="form-field">
+<label for="batch_treatment_status">
+<?= $cb('Status') ?>
+</label>
+<select id="batch_treatment_status" name="treatment_status">
+<?php foreach(['pending'=>'Pending','in_progress'=>'InProgress','completed'=>'Completed','needs_attention'=>'NeedsAttention'] as $value=>$key): ?>
+<option value="<?= $value ?>">
+<?= $cb($key) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<footer>
+<button class="button secondary" type="button" onclick="closeBatchModal()">
+<?= $cb('Cancel') ?>
+</button>
+<button class="button secondary" type="button" onclick="batchResetSelected()">
+<?= $cb('Reset') ?>
+</button>
+<button class="button primary" type="submit" id="batchSubmitBtn">
+<?= $cb('Apply') ?>
+</button>
+</footer>
+</form>
+</div>
+</div>
 <script>
+const contractBuildUi = <?= json_encode(['batchOn'=>lang('Studio.cbBatchOn'),'batchSelect'=>lang('Studio.cbBatchSelect'),'selected'=>lang('Studio.cbSelected'),'conditions'=>lang('Studio.cbConditionsSummary'),'healthy'=>lang('Studio.cbAllHealthy'),'noConditions'=>lang('Studio.cbNoConditions'),'noItems'=>lang('Studio.cbNoItems'),'remove'=>lang('Studio.cbRemove'),'edit'=>lang('Studio.cbEdit'),'show'=>lang('Studio.cbShow'),'hide'=>lang('Studio.cbHide'),'showLegend'=>lang('Studio.cbShowLegend'),'hideLegend'=>lang('Studio.cbHideLegend')],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>;
+
 const svgNS = 'http://www.w3.org/2000/svg';
 const conditionTypes = <?= json_encode($condition_types) ?>;
 const conditionColors = {
@@ -920,7 +775,7 @@ function updateBatchUi() {
     }
 
     if (toggleText) {
-        toggleText.textContent = batchModeEnabled ? 'Batch Mode On' : 'Batch Select';
+        toggleText.textContent = batchModeEnabled ? contractBuildUi.batchOn : contractBuildUi.batchSelect;
     }
 
     if (topControls) {
@@ -929,7 +784,7 @@ function updateBatchUi() {
     }
 
     if (countEl) {
-        countEl.textContent = `${count} selected`;
+        countEl.textContent = contractBuildUi.selected.replace('{count}',String(count));
     }
 
     if (applyBtn) {
@@ -1318,7 +1173,7 @@ function updateConditionsTable() {
     tableBody.replaceChildren();
 
     if (summaryEl) {
-        summaryEl.textContent = `Showing ${conditions.length} teeth with conditions (out of 32 total)`;
+        summaryEl.textContent = contractBuildUi.conditions.replace('{count}',String(conditions.length));
     }
 
     if (conditions.length === 0) {
@@ -1332,10 +1187,10 @@ function updateConditionsTable() {
         icon.className = 'fas fa-smile text-4xl text-green-400';
         const title = document.createElement('div');
         title.className = 'text-lg font-medium';
-        title.textContent = 'All teeth are healthy!';
+        title.textContent = contractBuildUi.healthy;
         const subtitle = document.createElement('div');
         subtitle.className = 'text-sm';
-        subtitle.textContent = 'No conditions found for this contract.';
+        subtitle.textContent = contractBuildUi.noConditions;
         wrapper.appendChild(icon);
         wrapper.appendChild(title);
         wrapper.appendChild(subtitle);
@@ -1413,7 +1268,7 @@ function updateConditionsTable() {
         editLink.href = '#';
         editLink.className = 'inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors';
         editLink.title = 'Edit tooth ' + toothNumber;
-        editLink.innerHTML = '<i class="fas fa-pen text-xs"></i>';
+        editLink.textContent = contractBuildUi.edit;
         editLink.addEventListener('click', (e) => { e.preventDefault(); openToothModal(toothNumber); });
         actionCell.appendChild(editLink);
 
@@ -1507,7 +1362,7 @@ function renderItems() {
         const cell = document.createElement('td');
         cell.colSpan = 6;
         cell.className = 'px-4 py-6 text-center text-gray-500';
-        cell.textContent = 'No items added.';
+        cell.textContent = contractBuildUi.noItems;
         row.appendChild(cell);
         itemsBody.appendChild(row);
         updateTotal();
@@ -1528,7 +1383,7 @@ function renderItems() {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'text-[11px] text-rose-500 hover:text-rose-700 font-medium';
-        removeBtn.textContent = '×';
+        removeBtn.textContent = contractBuildUi.remove;
         removeBtn.addEventListener('click', () => {
             items.splice(index, 1);
             renderItems();
@@ -1671,7 +1526,7 @@ function attachFormHandlers() {
             termsIcon.classList.toggle('fa-chevron-up', willShow);
         }
         if (termsText) {
-            termsText.textContent = willShow ? 'Hide' : 'Show';
+            termsText.textContent = willShow ? contractBuildUi.hide : contractBuildUi.show;
         }
     });
 
@@ -1684,7 +1539,7 @@ function attachFormHandlers() {
             legendToggleIcon.classList.toggle('fa-chevron-up', willShow);
         }
         if (legendToggleText) {
-            legendToggleText.textContent = willShow ? 'Hide Legend' : 'Show Legend';
+            legendToggleText.textContent = willShow ? contractBuildUi.hideLegend : contractBuildUi.showLegend;
         }
     });
 }
@@ -1700,95 +1555,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<style>
-#odontogramSvgWrapper svg {
-    width: 100%;
-    height: auto;
-}
 
-#odontogramSvgWrapper text {
-    pointer-events: none;
-    font-family: inherit;
-}
-
-#odontogramSvgWrapper .tooth-hit {
-    outline: none;
-}
-
-#odontogramSvgWrapper .tooth-outline {
-    stroke: #3b82f6;
-    opacity: 0;
-}
-
-#odontogramSvgWrapper .tooth-overlay {
-    pointer-events: none;
-    mix-blend-mode: multiply;
-}
-
-#odontogramSvgWrapper .tooth-group {
-    cursor: pointer;
-}
-
-#odontogramSvgWrapper .tooth-group.is-hover .tooth-outline {
-    opacity: 0.9;
-}
-
-#odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
-    opacity: 1;
-    stroke: #f97316;
-    stroke-width: 2;
-}
-
-#odontogramSvgWrapper .tooth-group.is-batch-selected .tooth-outline {
-    opacity: 1;
-    stroke: #f59e0b;
-    stroke-width: 2;
-}
-
-.contract-full-width,
-.contract-full-width .contract-shell,
-.contract-full-width .contract-grid {
-    width: 100%;
-    max-width: none;
-}
-
-.contract-full-width #main-content,
-.contract-full-width main,
-.contract-full-width main > div {
-    width: 100%;
-    max-width: none;
-}
-
-.contract-full-main {
-    width: 100%;
-    max-width: none;
-}
-
-.contract-panel {
-    border-color: rgba(148, 163, 184, 0.25);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
-}
-
-.contract-panel-body {
-    background: linear-gradient(180deg, rgba(248, 250, 252, 0.76) 0%, rgba(255, 255, 255, 0.72) 100%);
-}
-
-.contract-panel input,
-.contract-panel select,
-.contract-panel textarea {
-    background-color: #fff !important;
-    border: 1px solid #d3dce8 !important;
-    color: #0f172a;
-    outline: none !important;
-}
-.contract-panel input:focus,
-.contract-panel select:focus,
-.contract-panel textarea:focus {
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
-    border-color: #93c5fd !important;
-}
-.contract-total-display {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(15, 23, 42, 0.05);
-}
-</style>
+<script src="<?= base_url('assets/js/studio-contract-builder-access.js') ?>?v=<?= esc(asset_version('assets/js/studio-contract-builder-access.js')) ?>" defer></script>
 <?= $this->endSection() ?>

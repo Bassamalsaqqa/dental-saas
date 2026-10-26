@@ -481,5 +481,17 @@
     "native_signature_script_byte_identical": true,
     "clinical_mutations": 0,
     "remaining": "Contract create/edit; patient clinical workspace and finance detail plus remaining reachable flows."
+  },
+  "contract_builder_rollout": {
+    "base": "e2f5a33",
+    "status": "PRESENTATION_IMPLEMENTED_WITH_EXISTING_WORKFLOW_LIMITATION",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\contract-builder\\index.html",
+    "actual_checks": 47,
+    "final_checks": 31,
+    "native_functions_byte_identical": 16,
+    "business_posts": 0,
+    "preserved_tables": 11,
+    "material_issue": "Baseline and candidate initialItems1 -> rendered_items0 during original draft initialization. Warning visible; no save or financial/clinical logic change. Not production certified.",
+    "next": "Continue patient clinical workspace and finance detail; no blanket app completion or deployment."
   }
 }
