@@ -403,5 +403,16 @@
     "capture_confirmation_observations": 17,
     "mutations": 0,
     "remaining": "Platform settings/communication/detail views plus tenant clinical workspace/contracts/finance detail/kiosk remain."
+  },
+  "platform_account_rollout": {
+    "base": "2a473f3",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-accounts\\index.html",
+    "actual_browser_observations": 28,
+    "scoped_confirmation_observations": 11,
+    "pure_state_presenter_checks": 42,
+    "preservation_tables": 11,
+    "mutations": 0,
+    "remaining": "Clinic detail, platform settings/communications and tenant clinical/finance detail/contracts/kiosk remain incomplete."
   }
 }
