@@ -16,7 +16,7 @@ const actions=$('#directory-actions'),remove=$('#directory-delete');
 function link(label,url){const a=document.createElement('a');a.className='button secondary';a.textContent=label;a.href=context(url);return a;}
 function addFact(label,value){const pair=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=String(value??'')||'—';pair.append(dt,dd);$('#directory-record-facts').append(pair);}
 function openActions(row,trigger){if(!safeId(row))return;selected=row;opener=trigger;$('#directory-record-title').textContent=nameOf(row);const facts=$('#directory-record-facts');facts.replaceChildren();
- if(inventory){[[L.recordId,row[0]],[L.category,row[2]],[L.quantity,row[3]],[L.unitPrice,row[4]],[L.supplier,row[5]],[L.expiry,row[6]],[L.status,plain(row[7])]].forEach(x=>addFact(...x));}
+ if(inventory){[[L.recordId,row[0]],[L.category,c.categories[row[2]]||row[2]],[L.quantity,quantityLabel(row[3])],[L.unitPrice,baseMoney(row[4])],[L.supplier,row[5]],[L.expiry,row[6]],[L.status,plain(row[7])]].forEach(x=>addFact(...x));}
  else{[[L.recordId,row.patient_id],[L.phone,row.phone],[L.email,row.email],[L.birth,row.date_of_birth],[L.gender,c.genders[row.gender]||row.gender],[L.exams,row.examinations]].forEach(x=>addFact(...x));}
  const nav=$('#directory-record-actions');nav.replaceChildren();if(c.can.view)nav.append(link(L.openRecord,recordUrl(row)));if(c.can.edit)nav.append(link(L.editRecord,recordUrl(row)+'/edit'));
  if(!inventory){if(c.can.book)nav.append(link(L.book,c.appBase+'appointment/create?patient_id='+idOf(row)));if(c.can.exam)nav.append(link(L.examination,c.appBase+'examination/create?patient_id='+idOf(row)));if(c.can.treatment)nav.append(link(L.treatment,c.appBase+'treatment/create?patient_id='+idOf(row)));if(c.can.view)nav.append(link(L.chart,c.appBase+'odontogram/'+idOf(row)));}
@@ -34,9 +34,11 @@ const patientColumns=[
  {data:null,render:(d,t,r)=>t==='display'?'<span>'+text(r.created_at)+'</span><small>'+escape(L.exams)+': '+text(r.examinations??0)+'</small>':r.created_at},
  {data:null,render:(d,t,r)=>t==='display'?actionButton(r):''}
 ];
+function baseMoney(value){const match=/^\$(-?[\d,]+\.\d{2})$/.exec(String(value??''));return match&&c.money?(c.money.position==='after'?match[1]+' '+c.money.symbol:c.money.symbol+match[1]):value;}
+function quantityLabel(value){return String(value??'').replace(/^(\d+)\s+(\w+)$/,(_,number,unit)=>number+' '+(c.units[unit]||unit));}
 const inventoryColumns=[
  {data:null,render:(d,t,r)=>t==='display'?primary(r):r[1]},
- ...[2,3,4,5,6].map(i=>({data:i,render:(d,t)=>{const value=i===2?(c.categories[d]||d):i===3?String(d).replace(/^(\d+)\s+(\w+)$/,(_,n,u)=>n+' '+(c.units[u]||u)):d;return t==='display'?text(value):plain(value);}})),
+ ...[2,3,4,5,6].map(i=>({data:i,render:(d,t)=>{const value=i===2?(c.categories[d]||d):i===4?baseMoney(d):i===3?String(d).replace(/^(\d+)\s+(\w+)$/,(_,n,u)=>n+' '+(c.units[u]||u)):d;return t==='display'?text(value):plain(value);}})),
  {data:7,render:(d,t)=>t==='display'?'<span class="directory-status">'+text(plain(d))+'</span>':plain(d)},
  {data:null,render:(d,t,r)=>t==='display'?actionButton(r):''}
 ];
@@ -61,7 +63,7 @@ function navigateRow(event){
 $('#directory-table').addEventListener('click',navigateRow);
 $('#directory-table').addEventListener('auxclick',navigateRow);
 let timer;$('#directory-search').addEventListener('input',e=>{clearTimeout(timer);timer=setTimeout(()=>table.search(e.target.value).draw(),300);});$('#directory-size').addEventListener('change',e=>table.page.len(Number(e.target.value)).draw());$('#directory-sort').addEventListener('change',()=>table.draw());$('#directory-retry').addEventListener('click',()=>{table.ajax.reload();loadStats();});loadStats();
-function exportRows(){return rows.map(r=>inventory?[r[0],r[1],r[2],r[3],r[4],r[5],r[6],plain(r[7])]:[r.patient_id,r.name,r.phone,r.email,c.statuses[r.status]||r.status,r.created_at]);}
+function exportRows(){return rows.map(r=>inventory?[r[0],r[1],r[2],r[3],baseMoney(r[4]),r[5],r[6],plain(r[7])]:[r.patient_id,r.name,r.phone,r.email,c.statuses[r.status]||r.status,r.created_at]);}
 function exportHeaders(){return inventory?[L.recordId,...c.headings.slice(0,-1)]:[L.recordId,L.openRecord,L.phone,L.email,L.status,L.registered];}
 document.querySelectorAll('[data-export]').forEach(button=>button.addEventListener('click',()=>{
  if(button.dataset.export==='print'){window.print();return;}

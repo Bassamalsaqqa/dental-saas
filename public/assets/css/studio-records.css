@@ -23,3 +23,5 @@
 
 /* Native checkbox semantics, branded filled appearance; keyboard focus stays visible. */
 .records-table input[type=checkbox],.care-stages input[type=checkbox]{appearance:none;-webkit-appearance:none;width:22px;height:22px;min-width:22px;min-height:22px;margin:0;border:0;border-radius:5px;background:#c5d9b6;cursor:pointer;vertical-align:middle;background-position:center;background-repeat:no-repeat;background-size:20px}.records-table input[type=checkbox]:checked,.care-stages input[type=checkbox]:checked{background-color:#23684e;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='m4 10 4 4 8-8' fill='none' stroke='%23f3f7ef' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+
+[data-selection-count]:empty{display:none}.records-dialog [data-record-delete-error][hidden]{display:none}

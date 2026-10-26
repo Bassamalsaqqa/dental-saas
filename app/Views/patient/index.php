@@ -8,7 +8,7 @@ $inventory=$directoryType==='inventory';
 $module=$inventory?'inventory':'patients';
 $directoryTitle=lang($inventory?'Inventory.inventoryManagement':'UI.patientPatientRegistry');
 $directory=[
- 'type'=>$directoryType,'url'=>base_url($inventory?'inventory/getInventoryData':'patient/get-data'),
+ 'money'=>$inventory?['symbol'=>settings()->getCurrencySymbol(),'position'=>settings()->get('currency_position','before')]:null,'type'=>$directoryType,'url'=>base_url($inventory?'inventory/getInventoryData':'patient/get-data'),
  'statsUrl'=>base_url($inventory?'inventory/getInventoryStats':'patient/get-statistics'),
  'recordBase'=>base_url($inventory?'inventory/':'patient/'),'appBase'=>rtrim(base_url(),'/').'/',
  'title'=>$directoryTitle,'locale'=>service('request')->getLocale(),

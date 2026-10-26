@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Finish final post-freeze EN/AR desktop/mobile capture and gallery for the exact twenty-page batch, inspect actual layouts, record verification and provide one Owner visual handback. No source integration/deployment.",
+  "next_step": "Create the final exact-source twenty-page visual gallery and verify served assets; Owner reviews all twenty together. Other modules remain unfinished. No merge, deployment or automatic AGY.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -121,13 +121,13 @@
       "verification": "62 canonical list/form/stock checks; 22 validation/security/responsive checks; 8 export checks. Initial duplicate dialog IDs corrected; accepted prefix evidence reused, unfinished stock acceptance resumed on the same synthetic fixture.",
       "visual_status": "Rendered EN/AR desktop/mobile; Codex inspected captures, Owner acceptance pending. Not whole-app completion.",
       "limitations": [
-        "Existing inventory list endpoint hardcodes dollar symbol while detail uses clinic currency; preserved for backend follow-up, no conversion invented.",
         "Existing patient status filter has no backend implementation; no nonfunctional filter is shown.",
         "Table exports are explicitly current-page only; browser Print / save PDF preserves actual AR fonts without a duplicate PDF runtime.",
         "Item receipt retains the existing ILS batch currency behavior. No new costing policy.",
         "Existing stock history is bounded by controller to 100 movements / 50 batches; no new silent limit introduced.",
         "Unrebuilt destinations intentionally retain baseline appearance.",
-        "Server queries remain high; only view permission memoization/asset reductions applied."
+        "Server queries remain high; only view permission memoization/asset reductions applied.",
+        "Legacy internal endpoints still hardcode dollar decoration. These rebuilt stock/usage views apply the existing clinic-base currency symbol/position only, without altering amounts; API producer cleanup remains outside presentation scope."
       ]
     }
   },
@@ -169,12 +169,14 @@
       "prescription/{id}/edit",
       "prescription/{id}"
     ],
-    "state": "CODE_FREEZE_PENDING_FINAL_VISUAL_CAPTURE; canonical workflow checks passed, synthetic preexisting data fingerprints preserved; Owner visual acceptance outstanding.",
+    "state": "IMPLEMENTED_FUNCTIONALLY_VERIFIED_PENDING_OWNER_VISUAL_ACCEPTANCE",
     "excluded": "Calendar, native odontogram, signed/legal print templates, and unrelated application modules are preserved, not claimed rebuilt.",
     "functional_evidence": [
       "../directory-item-batch/connected-acceptance.json (36/36)",
       "../directory-item-batch/connected-extra-acceptance.json (18/18)",
-      "../twenty-page-review/table-acceptance.json (19/19)"
-    ]
+      "../twenty-page-review/table-acceptance.json (19/19)",
+      "../twenty-page-review/bounded-history-acceptance.json (12/12; no deletions)"
+    ],
+    "final_corrections": "Usage history retains existing bounded endpoint; full immutable usage items in real detail dialog. Existing appointment delete capability preserved behind permission and confirmation. Known clinic-base price strings use configured currency decoration without changing digits/FX/accounting."
   }
 }
