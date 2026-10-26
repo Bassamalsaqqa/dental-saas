@@ -131,4 +131,5 @@ return [
 'paymentCount'=>'{count} payments',
 'back'=>'Back',
 'selectRecords'=>'Select',
+'stockBeforeAfter'=>'Before / after',
 ];

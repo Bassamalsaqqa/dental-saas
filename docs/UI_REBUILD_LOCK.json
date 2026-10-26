@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Create the final exact-source twenty-page visual gallery and verify served assets; Owner reviews all twenty together. Other modules remain unfinished. No merge, deployment or automatic AGY.",
+  "next_step": "Owner reviews the twenty-page gallery/live preview together. Apply substantiated visual feedback before extending to further modules. Do not merge/deploy or claim whole-application completion.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -169,7 +169,7 @@
       "prescription/{id}/edit",
       "prescription/{id}"
     ],
-    "state": "IMPLEMENTED_FUNCTIONALLY_VERIFIED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "state": "IMPLEMENTED_AND_LOCALLY_VERIFIED_AWAITING_OWNER_VISUAL_REVIEW",
     "excluded": "Calendar, native odontogram, signed/legal print templates, and unrelated application modules are preserved, not claimed rebuilt.",
     "functional_evidence": [
       "../directory-item-batch/connected-acceptance.json (36/36)",
@@ -177,6 +177,10 @@
       "../twenty-page-review/table-acceptance.json (19/19)",
       "../twenty-page-review/bounded-history-acceptance.json (12/12; no deletions)"
     ],
-    "final_corrections": "Usage history retains existing bounded endpoint; full immutable usage items in real detail dialog. Existing appointment delete capability preserved behind permission and confirmation. Known clinic-base price strings use configured currency decoration without changing digits/FX/accounting."
+    "final_corrections": "Usage history retains existing bounded endpoint; full immutable usage items in real detail dialog. Existing appointment delete capability preserved behind permission and confirmation. Known clinic-base price strings use configured currency decoration without changing digits/FX/accounting.",
+    "gallery": "C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/twenty-page-review/index.html",
+    "visual_evidence": "80 EN/AR desktop/mobile actual CI4 captures; 20 release comparisons; populated synthetic dayboard date is explicitly selected; ledger arrow glyph removed; CSS/JS public asset hashes match source.",
+    "review_status": "Codex source/visual review and focused local acceptance complete for these twenty pages. Owner visual approval outstanding. No external exact-head review claimed, no GitHub PR update or production release.",
+    "asset_evidence": "../twenty-page-review/asset-acceptance.json: 24/24, 16 served assets byte-identical"
   }
 }

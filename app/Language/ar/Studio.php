@@ -131,4 +131,5 @@ return [
 'paymentCount'=>'عدد الدفعات: {count}',
 'back'=>'رجوع',
 'selectRecords'=>'تحديد',
+'stockBeforeAfter'=>'قبل / بعد',
 ];
