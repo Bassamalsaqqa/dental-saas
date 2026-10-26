@@ -1,2 +1,1 @@
-<?= $this->include('control_plane/settings_partials/communications/email_templates') ?>
-<?= $this->include('control_plane/settings_partials/communications/whatsapp') ?>
+<?php include APPPATH.'Views/control_plane/settings_partials/communications/email_templates.php';include APPPATH.'Views/control_plane/settings_partials/communications/whatsapp.php'; ?>

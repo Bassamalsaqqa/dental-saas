@@ -414,5 +414,16 @@
     "preservation_tables": 11,
     "mutations": 0,
     "remaining": "Clinic detail, platform settings/communications and tenant clinical/finance detail/contracts/kiosk remain incomplete."
+  },
+  "platform_settings_rollout": {
+    "base": "f79df38217996594bf789232b4b272398dbcdd83",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\platform-settings\\index.html",
+    "actual_browser_observations": 67,
+    "scoped_confirmation_observations": 26,
+    "rendered_form_contracts_equal": 12,
+    "preservation_tables": 11,
+    "configuration_mutations": 0,
+    "remaining": "Clinic detail, standalone platform communication/role surfaces and tenant clinical/finance detail/contracts/kiosk remain unfinished."
   }
 }

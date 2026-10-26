@@ -1,85 +1,113 @@
-                            <div id="tab-email-templates" data-section-title="Email Templates" class="settings-content hidden space-y-6">
-                                <div id="section-email-template-metrics" data-section-title="Template Metrics" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <div class="control-settings-metric p-4"><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Total</p><p class="mt-2 text-2xl font-black text-slate-950"><?= number_format($templateStats['total'] ?? 0) ?></p></div>
-                                    <div class="control-settings-metric p-4 bg-emerald-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-emerald-600">Active</p><p class="mt-2 text-2xl font-black text-emerald-700"><?= number_format($templateStats['active'] ?? 0) ?></p></div>
-                                    <div class="control-settings-metric p-4 bg-amber-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-amber-600">Draft</p><p class="mt-2 text-2xl font-black text-amber-700"><?= number_format($templateStats['draft'] ?? 0) ?></p></div>
-                                    <div class="control-settings-metric p-4 bg-blue-50/80"><p class="text-xs font-bold uppercase tracking-[0.14em] text-blue-600">Filtered</p><p class="mt-2 text-2xl font-black text-blue-700"><?= number_format($templateStats['filtered'] ?? 0) ?></p></div>
-                                </div>
-
-                                <form id="section-email-template-filters" data-section-title="Template Filters" method="get" action="<?= base_url('controlplane/settings') ?>" class="control-settings-surface flex flex-wrap gap-3 items-end p-5">
-                                    <input type="hidden" name="tab" value="email-templates">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search</label>
-                                        <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="control-settings-field w-64" placeholder="Search templates...">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
-                                        <select name="status" class="control-settings-field">
-                                            <?php $currentTemplateStatus = $templateFilters['status'] ?? ''; ?>
-                                            <option value="" <?= $currentTemplateStatus === '' ? 'selected' : '' ?>>All</option>
-                                            <option value="active" <?= $currentTemplateStatus === 'active' ? 'selected' : '' ?>>Active</option>
-                                            <option value="draft" <?= $currentTemplateStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="control-settings-submit">Apply</button>
-                                </form>
-
-                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <div id="section-email-template-library" data-section-title="Template Library" class="control-settings-card">
-                                        <div class="control-settings-header">
-                                            <div class="flex items-center space-x-4">
-                                                <div class="w-12 h-12 rounded-xl flex items-center justify-center">
-                                                    <i class="fas fa-layer-group text-xl"></i>
-                                                </div>
-                                                <div>
-                                                    <h4 class="text-lg font-bold">Template Library</h4>
-                                                    <p class="text-sm">Browse and select shared email templates.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="max-h-[28rem] overflow-y-auto divide-y divide-slate-100">
-                                            <?php if (empty($templates)): ?>
-                                                <div class="p-6 text-sm text-slate-500">No templates found.</div>
-                                            <?php else: ?>
-                                                <?php foreach ($templates as $template): ?>
-                                                    <a href="<?= base_url('controlplane/settings?tab=email-templates&template_id=' . (int) $template['id']) ?>" class="block p-4 hover:bg-slate-50/90 transition-colors">
-                                                        <p class="text-sm font-semibold text-slate-900"><?= esc($template['name']) ?></p>
-                                                        <p class="text-xs text-slate-500"><?= esc($template['slug']) ?></p>
-                                                    </a>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-
-                                    <?php $editorTemplate = $activeTemplate ?? null; ?>
-                                    <div id="section-email-template-editor" data-section-title="Template Editor" class="control-settings-card">
-                                        <div class="control-settings-header">
-                                            <div class="flex items-center space-x-4">
-                                                <div class="w-12 h-12 rounded-xl flex items-center justify-center">
-                                                    <i class="fas fa-pen-ruler text-xl"></i>
-                                                </div>
-                                                <div>
-                                                    <h4 class="text-lg font-bold"><?= $editorTemplate ? 'Edit Template' : 'Create Template' ?></h4>
-                                                    <p class="text-sm"><?= $editorTemplate ? 'Update the selected shared email template.' : 'Create a new shared email template.' ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <form action="<?= base_url('controlplane/settings/email-templates' . ($editorTemplate ? '/' . (int) $editorTemplate['id'] : '')) ?>" method="post" class="space-y-4 p-6" data-settings-form="true" data-saving-label="Saving template...">
-                                            <?= csrf_field() ?>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Name</label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="control-settings-field" required></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Slug</label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="control-settings-field"></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject</label><input type="text" name="subject" value="<?= esc($editorTemplate['subject'] ?? '') ?>" class="control-settings-field" required></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HTML Body</label><textarea name="body_html" rows="6" class="control-settings-field"><?= esc($editorTemplate['body_html'] ?? '') ?></textarea></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Text Body</label><textarea name="body_text" rows="4" class="control-settings-field"><?= esc($editorTemplate['body_text'] ?? '') ?></textarea></div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
-                                                <select name="status" class="control-settings-field">
-                                                    <option value="draft" <?= (($editorTemplate['status'] ?? 'draft') === 'draft') ? 'selected' : '' ?>>Draft</option>
-                                                    <option value="active" <?= (($editorTemplate['status'] ?? '') === 'active') ? 'selected' : '' ?>>Active</option>
-                                                </select>
-                                            </div>
-                                            <button type="submit" class="control-settings-submit">Save Template</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+<section id="tab-email-templates" class="settings-content" hidden aria-labelledby="nav-email-templates">
+<div class="settings-template-facts">
+<?php foreach(['total'=>'Total','active'=>'Active','draft'=>'Draft','filtered'=>'Filtered'] as $k=>$label): ?>
+<span>
+<?= $st($label) ?>
+<strong>
+<?= number_format($templateStats[$k]??0) ?>
+</strong>
+</span>
+<?php endforeach; ?>
+</div>
+<form method="get" action="<?= base_url('controlplane/settings') ?>" class="studio-form settings-filter">
+<input type="hidden" name="tab" value="email-templates">
+<div class="form-field">
+<label for="email-search">
+<?= $st('Search') ?>
+</label>
+<input id="email-search" name="q" value="<?= esc($templateFilters['q']??'','attr') ?>">
+</div>
+<div class="form-field">
+<label for="email-status">
+<?= $st('Status') ?>
+</label>
+<select id="email-status" name="status">
+<?php foreach([''=>'All','active'=>'Active','draft'=>'Draft'] as $value=>$key): ?>
+<option value="<?= esc($value) ?>" <?= ($templateFilters['status']??'')===$value?'selected':'' ?>>
+<?= $st($key) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+<button class="button secondary" type="submit">
+<?= $st('Apply') ?>
+</button>
+</form>
+<div class="settings-editor-layout">
+<section class="form-section settings-library">
+<header>
+<h2>
+<?= $st('Library') ?>
+</h2>
+<a class="button secondary" href="<?= base_url('controlplane/settings?tab=email-templates') ?>">
+<?= $st('NewTemplate') ?>
+</a>
+</header>
+<?php if(empty($templates)): ?>
+<p>
+<?= $st('NoTemplates') ?>
+</p>
+<?php endif; ?>
+<?php foreach($templates??[] as $template): ?>
+<a class="settings-template-link" href="<?= base_url('controlplane/settings?tab=email-templates&template_id='.(int)$template['id']) ?>" <?= (int)($activeTemplate['id']??0)===(int)$template['id']?'aria-current="true"':'' ?>>
+<strong>
+<?= esc($template['name']) ?>
+</strong>
+<span>
+<?= esc($template['slug']) ?>
+</span>
+</a>
+<?php endforeach; ?>
+</section>
+<?php $editorTemplate=$activeTemplate??null;$settingOpen('controlplane/settings/email-templates'.($editorTemplate?'/'.(int)$editorTemplate['id']:''),$editorTemplate?'EditTemplate':'NewTemplate'); ?>
+<div class="settings-fields">
+<div class="form-field">
+<label for="email-name">
+<?= $st('Name') ?>
+</label>
+<input id="email-name" name="name" value="<?= esc($editorTemplate['name']??'','attr') ?>" required>
+</div>
+<div class="form-field">
+<label for="email-slug">
+<?= $st('Slug') ?>
+</label>
+<input id="email-slug" name="slug" value="<?= esc($editorTemplate['slug']??'','attr') ?>" >
+</div>
+<div class="form-field">
+<label for="email-subject">
+<?= $st('Subject') ?>
+</label>
+<input id="email-subject" name="subject" value="<?= esc($editorTemplate['subject']??'','attr') ?>" required>
+</div>
+<div class="form-field settings-wide">
+<label for="email-body_html">
+<?= $st('HtmlBody') ?>
+</label>
+<textarea id="email-body_html" name="body_html" rows="6">
+<?= esc($editorTemplate['body_html']??'') ?>
+</textarea>
+</div>
+<div class="form-field settings-wide">
+<label for="email-body_text">
+<?= $st('TextBody') ?>
+</label>
+<textarea id="email-body_text" name="body_text" rows="4">
+<?= esc($editorTemplate['body_text']??'') ?>
+</textarea>
+</div>
+<div class="form-field">
+<label for="email-editor-status">
+<?= $st('Status') ?>
+</label>
+<select id="email-editor-status" name="status">
+<?php foreach(['draft'=>'Draft','active'=>'Active'] as $value=>$key): ?>
+<option value="<?= esc($value) ?>" <?= ($editorTemplate['status']??'draft')===$value?'selected':'' ?>>
+<?= $st($key) ?>
+</option>
+<?php endforeach; ?>
+</select>
+</div>
+</div>
+<?php $settingClose(); ?>
+</div>
+</section>
