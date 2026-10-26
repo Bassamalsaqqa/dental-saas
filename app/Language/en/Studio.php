@@ -686,4 +686,5 @@ return [
     'psTrigger_payment_reminder' => 'Payment reminder',
     'psOperatingModel' => 'Shared Arabic templates and rollout layers',
     'psOperatingModelNote' => 'Template language is fixed to Arabic. Clinic identity comes from tenant settings. Sending remains governed by the clinic plan, platform and clinic switches, consent and delivery checks.',
+    'psReset' => 'Reset filters',
 ];

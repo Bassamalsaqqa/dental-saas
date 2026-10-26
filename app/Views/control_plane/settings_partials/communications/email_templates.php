@@ -29,9 +29,9 @@
 <?php endforeach; ?>
 </select>
 </div>
-<button class="button secondary" type="submit">
+<div class="settings-filter-actions"><a class="button secondary" href="<?= base_url('controlplane/settings?tab=email-templates') ?>"><?= $st('Reset') ?></a><button class="button secondary" type="submit">
 <?= $st('Apply') ?>
-</button>
+</button></div>
 </form>
 <div class="settings-editor-layout">
 <section class="form-section settings-library">
@@ -55,7 +55,7 @@
 </strong>
 <span>
 <?= esc($template['slug']) ?>
-</span>
+</span><span><?= in_array($template['status']??'', ['active','draft'],true)?$st($template['status']==='active'?'Active':'Draft'):esc($template['status']??'?') ?> ? <?= esc($template['updated_at']??'?') ?></span>
 </a>
 <?php endforeach; ?>
 </section>
