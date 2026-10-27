@@ -548,5 +548,25 @@
     "business_tables_unchanged": 11,
     "clinical_mutations": 0,
     "existing_issue": "tooth1 lookup incompatible with original tooth-1 SVG identifiers. Baseline and candidate show zero condition overlays. Visible warning; no clinical preview acceptance."
+  },
+  "calendar_and_status_rollout": {
+    "base": "9ec29fc",
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "examination_calendar": {
+      "checks": 48,
+      "captures": 10,
+      "runtime": "Existing FullCalendar6.1.8",
+      "remaining_query_limit": 129
+    },
+    "status_pages": {
+      "browser_checks": 30,
+      "presenter_checks": 35,
+      "captures": 12,
+      "actual404_verified": true,
+      "api_json_unchanged": true,
+      "actual500_not_triggered": true
+    },
+    "business_table_fingerprints_unchanged": 11,
+    "production_actions": 0
   }
 }
