@@ -1,0 +1,2 @@
+/* Native correction-document links; no new financial action. */
+(()=>{'use strict';for(const row of document.querySelectorAll('.ic-record-row[data-href]')){row.addEventListener('click',event=>{if(event.target.closest('a,button,input,select,textarea')||getSelection()?.toString())return;const link=row.querySelector('a[href]');if(!link)return;if(event.ctrlKey||event.metaKey||event.shiftKey)window.open(link.href,'_blank','noopener');else location.assign(link.href);});}})();

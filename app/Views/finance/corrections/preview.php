@@ -1,4 +1,6 @@
-<?= $this->extend('layouts/main_auth') ?>
+<?php helper('asset'); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-corrections.css') ?>?v=<?= esc(asset_version('assets/css/studio-corrections.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php
 $tr = static fn(string $key) => lang('InvoiceCorrections.' . $key);
@@ -6,9 +8,9 @@ $invoice = $preview['invoice']; $invoiceId = (int) $invoice['id'];
 $requiresApproval = !empty($preview['requires_manager_approval']);
 $hasApproval = !empty($payload['approval_id']);
 ?>
-<?= $this->include('finance/corrections/styles') ?>
-<main class="ic-wrap" dir="<?= service('request')->getLocale() === 'ar' ? 'rtl' : 'ltr' ?>">
-<h1><?= esc($tr('preview')) ?></h1><div class="ic-note ic-warning"><?= esc($tr('operationalNotice')) ?></div>
+
+<div class="ic-wrap" dir="<?= service('request')->getLocale() === 'ar' ? 'rtl' : 'ltr' ?>">
+<header class="ic-heading"><h1><?= esc($tr('preview')) ?></h1><a class="button secondary" href="<?= esc(site_url('finance/'.$invoiceId.'/corrections'),'attr') ?>"><?= esc($tr('returnCorrections')) ?></a></header><div class="ic-note ic-warning"><?= esc($tr('operationalNotice')) ?></div>
 <section class="ic-card"><dl class="ic-grid">
 <div><dt><?= esc($tr('invoice')) ?></dt><dd><bdi><?= esc($invoice['transaction_id'] ?? $invoiceId) ?></bdi></dd></div>
 <div><dt><?= esc($tr('amountLabel')) ?></dt><dd><bdi><?= esc($payload['amount_original']) ?> <?= esc($invoice['currency'] ?? '') ?></bdi></dd></div>
@@ -22,7 +24,7 @@ $hasApproval = !empty($payload['approval_id']);
 
 <?php if ($requiresApproval): ?>
 <section class="ic-card"><h2><?= esc($tr('providerTitle')) ?></h2><p class="ic-help"><?= esc($tr('providerNotice')) ?></p>
-<?php if (!empty($preview['provider_impact'])): ?><div class="ic-scroll"><table class="ic-table"><thead><tr><th><?= esc($tr('providerGross')) ?></th><th><?= esc($tr('providerShare')) ?></th><th><?= esc($tr('providerPaid')) ?></th><th><?= esc($tr('currency')) ?></th></tr></thead><tbody>
+<?php if (!empty($preview['provider_impact'])): ?><div class="ic-scroll" role="region" tabindex="0" aria-label="<?= esc($tr('providerTitle'),'attr') ?>"><table class="ic-table" data-studio-grid data-grid-widths="28,28,28,16"><thead><tr><th><?= esc($tr('providerGross')) ?></th><th><?= esc($tr('providerShare')) ?></th><th><?= esc($tr('providerPaid')) ?></th><th><?= esc($tr('currency')) ?></th></tr></thead><tbody>
 <?php foreach (($preview['provider_impact']['allocations'] ?? []) as $impact): if (!is_array($impact)) { continue; } ?>
 <tr><td><bdi><?= esc($impact['gross_amount'] ?? $impact['gross'] ?? '') ?></bdi></td><td><bdi><?= esc($impact['provider_share_amount'] ?? $impact['provider_share'] ?? '') ?></bdi></td><td><bdi><?= esc($impact['provider_paid_amount'] ?? $impact['paid_amount'] ?? '') ?></bdi></td><td><bdi><?= esc($impact['currency'] ?? '') ?></bdi></td></tr>
 <?php endforeach ?></tbody></table></div><?php endif ?>
@@ -38,5 +40,7 @@ $hasApproval = !empty($payload['approval_id']);
 <button class="ic-button" type="submit"><?= esc($tr($isApproval ? 'approveAction' : 'issueAction')) ?></button>
 </form><?php endif ?>
 <p class="ic-help"><?= esc($tr('snapshotNotice')) ?></p><div class="ic-actions"><a href="<?= esc(site_url('finance/' . $invoiceId . '/corrections'), 'attr') ?>"><?= esc($tr('returnCorrections')) ?></a></div>
-</main>
+</div>
 <?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?><script src="<?= base_url('assets/js/studio-corrections.js') ?>?v=<?= esc(asset_version('assets/js/studio-corrections.js')) ?>" defer></script><?= $this->endSection() ?>

@@ -1,14 +1,15 @@
-<?= $this->extend('layouts/main_auth') ?>
+<?php helper('asset'); ?>
+<?= $this->extend('layouts/studio') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-corrections.css') ?>?v=<?= esc(asset_version('assets/css/studio-corrections.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php $tr = static fn(string $key) => lang('InvoiceCorrections.' . $key); $invoiceId = (int) $invoice['id']; ?>
-<?= $this->include('finance/corrections/styles') ?>
-<main class="ic-wrap" dir="<?= service('request')->getLocale() === 'ar' ? 'rtl' : 'ltr' ?>">
-<h1><?= esc($tr('title')) ?></h1>
-<p class="ic-help"><?= esc($tr('intro')) ?></p>
+
+<div class="ic-wrap" dir="<?= service('request')->getLocale() === 'ar' ? 'rtl' : 'ltr' ?>">
+<header class="ic-heading"><div><h1><?= esc($tr('title')) ?></h1><p><?= esc($tr('intro')) ?></p></div><a class="button secondary" href="<?= esc(site_url('finance/'.$invoiceId),'attr') ?>"><?= esc($tr('back')) ?></a></header>
 <div class="ic-note ic-warning"><?= esc($tr('operationalNotice')) ?></div>
 <?php if (session()->getFlashdata('correction_error')): ?><div class="ic-note ic-error" role="alert"><?= esc(session()->getFlashdata('correction_error')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('correction_success')): ?><div class="ic-note" role="status"><?= esc(session()->getFlashdata('correction_success')) ?></div><?php endif ?>
-<section class="ic-card" aria-labelledby="ic-original">
+<section class="ic-card ic-original" aria-labelledby="ic-original">
 <h2 id="ic-original"><?= esc($tr('invoice')) ?> <bdi><?= esc($invoice['transaction_id'] ?? $invoiceId) ?></bdi></h2>
 <p class="ic-help"><?= esc($tr('accountingBasis')) ?></p>
 <dl class="ic-grid">
@@ -19,7 +20,7 @@
 </dl>
 </section>
 <?php if ($canWrite): ?>
-<form class="ic-card" method="post" action="<?= esc(site_url('finance/' . $invoiceId . '/corrections/preview'), 'attr') ?>">
+<form class="ic-card ic-correction-compose" method="post" action="<?= esc(site_url('finance/' . $invoiceId . '/corrections/preview'), 'attr') ?>">
 <?= csrf_field() ?><input type="hidden" name="idempotency_key" value="<?= esc($idempotencyKey, 'attr') ?>">
 <h2><?= esc($tr('preview')) ?></h2>
 <label for="ic-amount"><?= esc($tr('amount')) ?></label>
@@ -30,10 +31,10 @@
 <div class="ic-actions"><button class="ic-button" type="submit"><?= esc($tr('previewAction')) ?></button></div>
 </form>
 <?php endif ?>
-<section class="ic-card"><h2><?= esc($tr('history')) ?></h2>
+<section class="ic-card ic-issued-history"><h2><?= esc($tr('history')) ?></h2>
 <?php if (!$corrections): ?><p><?= esc($tr('empty')) ?></p><?php else: ?>
-<div class="ic-scroll"><table class="ic-table"><thead><tr><th><?= esc($tr('number')) ?></th><th><?= esc($tr('amountLabel')) ?></th><th><?= esc($tr('date')) ?></th><th><?= esc($tr('document')) ?></th></tr></thead><tbody>
-<?php foreach ($corrections as $correction): ?><tr><td><bdi><?= esc($correction['document_number']) ?></bdi></td><td><bdi><?= esc($correction['amount_original']) ?> <?= esc($correction['currency']) ?></bdi></td><td><bdi><?= esc($correction['issued_at']) ?></bdi></td><td><a href="<?= esc(site_url('finance/corrections/' . (int) $correction['id']), 'attr') ?>"><?= esc($tr('view')) ?></a></td></tr><?php endforeach ?>
+<div class="ic-scroll" role="region" tabindex="0" aria-label="<?= esc($tr('history'),'attr') ?>"><table class="ic-table" data-studio-grid data-grid-widths="28,22,28,22"><thead><tr><th><?= esc($tr('number')) ?></th><th><?= esc($tr('amountLabel')) ?></th><th><?= esc($tr('date')) ?></th><th><?= esc($tr('document')) ?></th></tr></thead><tbody>
+<?php foreach ($corrections as $correction): ?><tr class="ic-record-row" data-href="<?= esc(site_url('finance/corrections/'.(int)$correction['id']),'attr') ?>"><td><bdi><?= esc($correction['document_number']) ?></bdi></td><td><bdi><?= esc($correction['amount_original']) ?> <?= esc($correction['currency']) ?></bdi></td><td><bdi><?= esc($correction['issued_at']) ?></bdi></td><td><a href="<?= esc(site_url('finance/corrections/' . (int) $correction['id']), 'attr') ?>"><?= esc($tr('view')) ?></a></td></tr><?php endforeach ?>
 </tbody></table></div><?php endif ?>
 </section>
 <?php if ($canWrite): ?>
@@ -45,5 +46,7 @@
 <button class="ic-button" type="submit"><?= esc($tr('linkAction')) ?></button>
 </form><?php endif ?>
 <p class="ic-help"><?= esc($tr('separateRefund')) ?></p><div class="ic-actions"><a href="<?= esc(site_url('finance/' . $invoiceId), 'attr') ?>"><?= esc($tr('back')) ?></a></div>
-</main>
+</div>
 <?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?><script src="<?= base_url('assets/js/studio-corrections.js') ?>?v=<?= esc(asset_version('assets/js/studio-corrections.js')) ?>" defer></script><?= $this->endSection() ?>
