@@ -160,6 +160,9 @@ $conditionLabelMap = [
                 overlay.setAttribute('class', 'tooth-overlay');
                 overlay.setAttribute('fill', conditionColors[condition]);
                 overlay.setAttribute('fill-opacity', '0.38');
+                // Native SVG hit/base shapes can be intentionally transparent. The
+                // new read-only condition overlay must not inherit that invisibility.
+                overlay.setAttribute('opacity', '1');
                 overlay.setAttribute('stroke', 'none');
                 group.appendChild(overlay);
             }

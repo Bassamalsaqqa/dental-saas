@@ -124,3 +124,6 @@ Correction-B malformed-document guard: invalid/null snapshot JSON is no longer n
 
 
 Correction-C source-boundary follow-up: the signed-delete current read is owned by ExaminationNoteGovernanceService, shared with edit/sign checks. The raw-query controller guard initially identified the new inline query; it was corrected through that existing service rather than adding an allowlist exception. All three real SQL concurrency cases and SaaS guardrails pass with this ownership. Existing stale DOM-allowlist note remains visible and unchanged; no security check was weakened.
+
+
+Correction-B visual acceptance: actual screenshot review and computed-style inspection caught a native base shape with inherited opacity0 on the crown overlay. Fill attributes alone were insufficient evidence. The read-only overlay now explicitly uses opacity1 while retaining the original crown/cavity colors and fill-opacity0.38. Saved native SVG bytes remain unchanged. Corrected computed styles verify cavity rgb(250,204,21) and crown rgb(139,92,246), both opacity1; all 13 relevant browser overlay checks and standalone mapping regression pass after this correction.
