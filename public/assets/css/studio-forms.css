@@ -12,7 +12,7 @@
 .form-field>label{font-size:17px;font-weight:700;color:var(--ink)}
 .form-field>label>span{color:var(--color-danger)}
 .form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;font-family:var(--font);border:0;border-radius:9px;background:var(--color-control);color:var(--ink);padding:9px 12px;font-size:17px;line-height:1.5;box-shadow:none}
-.form-field select{appearance:none;cursor:pointer;min-height:44px}
+.form-field select{appearance:auto;cursor:pointer;min-height:44px}
 .form-field textarea{resize:vertical;min-height:90px}
 .form-field input:focus-visible,.form-field textarea:focus-visible,.form-field select:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px;background:var(--color-control)}
 .form-field input[aria-invalid=true],.form-field select[aria-invalid=true],.form-field .border-red-500{background:var(--color-danger-soft)}

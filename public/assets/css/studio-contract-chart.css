@@ -1,0 +1,43 @@
+#odontogramSvgWrapper svg {
+    width: 100%;
+    height: auto;
+}
+
+#odontogramSvgWrapper text {
+    pointer-events: none;
+    font-family: inherit;
+}
+
+#odontogramSvgWrapper .tooth-hit {
+    outline: none;
+}
+
+#odontogramSvgWrapper .tooth-outline {
+    stroke: #3b82f6;
+    opacity: 0;
+}
+
+#odontogramSvgWrapper .tooth-overlay {
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}
+
+#odontogramSvgWrapper .tooth-group {
+    cursor: pointer;
+}
+
+#odontogramSvgWrapper .tooth-group.is-hover .tooth-outline {
+    opacity: 0.9;
+}
+
+#odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f97316;
+    stroke-width: 2;
+}
+
+#odontogramSvgWrapper .tooth-group.is-batch-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f59e0b;
+    stroke-width: 2;
+}

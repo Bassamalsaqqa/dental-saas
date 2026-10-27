@@ -1,0 +1,227 @@
+{
+  "starting_sha": "0d86f59d78395c3d417b9a63b6b8d0b2fc50f1fe",
+  "starting_tree": "285d6a653cc4bc332ea690996bcebbbf6e8d4031",
+  "protected_release": "89352fd20e0d5166e81f631cb743bead1f596a68",
+  "changed_view_and_asset_bytes_before": 695554,
+  "changed_view_and_asset_bytes_after": 722033,
+  "delta_bytes": 26479,
+  "view_seams": [
+    {
+      "view": "patient/show.php",
+      "before_lines": 3891,
+      "main_view_after_lines": 1257,
+      "names_count": 24,
+      "successful_names_equal": true,
+      "original_handlers": 20,
+      "remaining_handlers_in_expanded_source": 7
+    },
+    {
+      "view": "finance/show.php",
+      "before_lines": 2059,
+      "main_view_after_lines": 990,
+      "names_count": 30,
+      "successful_names_equal": true,
+      "original_handlers": 19,
+      "remaining_handlers_in_expanded_source": 0
+    },
+    {
+      "view": "contracts/create.php",
+      "before_lines": 1560,
+      "main_view_after_lines": 386,
+      "names_count": 17,
+      "successful_names_equal": true,
+      "original_handlers": 10,
+      "remaining_handlers_in_expanded_source": 0
+    },
+    {
+      "view": "appointment/calendar.php",
+      "before_lines": 586,
+      "main_view_after_lines": 133,
+      "names_count": 0,
+      "successful_names_equal": true,
+      "original_handlers": 1,
+      "remaining_handlers_in_expanded_source": 0
+    }
+  ],
+  "grid_benchmark": {
+    "fixture": "8 tables \u00c3\u0192\u00e2\u20ac\u201d25 rows \u00c3\u0192\u00e2\u20ac\u201d4 columns; ten updates to first table; three isolated browser runs per source",
+    "results": [
+      {
+        "run": 0,
+        "version": "before",
+        "prepareCalls": 88,
+        "duplicateWrappers": 0,
+        "duplicateCellBoxes": 0,
+        "wallMs": 233
+      },
+      {
+        "run": 0,
+        "version": "after",
+        "prepareCalls": 10,
+        "duplicateWrappers": 0,
+        "duplicateCellBoxes": 0,
+        "wallMs": 135
+      },
+      {
+        "run": 1,
+        "version": "before",
+        "prepareCalls": 80,
+        "duplicateWrappers": 0,
+        "duplicateCellBoxes": 0,
+        "wallMs": 139
+      },
+      {
+        "run": 1,
+        "version": "after",
+        "prepareCalls": 10,
+        "duplicateWrappers": 0,
+        "duplicateCellBoxes": 0,
+        "wallMs": 140
+      },
+      {
+        "run": 2,
+        "version": "before",
+        "prepareCalls": 80,
+        "duplicateWrappers": 0,
+        "duplicateCellBoxes": 0,
+        "wallMs": 139
+      },
+      {
+        "run": 2,
+        "version": "after",
+        "prepareCalls": 10,
+        "duplicateWrappers": 0,
+        "duplicateCellBoxes": 0,
+        "wallMs": 136
+      }
+    ],
+    "limitation": "Synthetic DOM benchmark; wall time includes browser frame scheduling/tool overhead, not user INP or server performance."
+  },
+  "preservation": {
+    "synthetic_tables_unchanged": 11,
+    "production_access": false,
+    "migrations": false,
+    "feature_activation": false
+  },
+  "not_certified": [
+    "Successful new clinical/financial mutation persistence",
+    "Contract draft item-sync correction",
+    "Clinical chart-history tooth-ID correction",
+    "Physical screen reader/password manager extensions",
+    "Whole-application final Owner acceptance",
+    "New exact-head independent approval"
+  ],
+  "performance_samples": [
+    {
+      "viewport": 390,
+      "dataset": "all",
+      "runs": 3,
+      "cls_min": 0.0056257264155161,
+      "cls_max": 0.0056257264155161,
+      "document_ms_median": 498,
+      "ttfb_ms_median": 253,
+      "queries": [
+        "143"
+      ]
+    },
+    {
+      "viewport": 390,
+      "dataset": "bounded-search",
+      "runs": 3,
+      "cls_min": 0.0056257264155161,
+      "cls_max": 0.0056257264155161,
+      "document_ms_median": 441,
+      "ttfb_ms_median": 255,
+      "queries": [
+        "143"
+      ]
+    },
+    {
+      "viewport": 390,
+      "dataset": "empty",
+      "runs": 3,
+      "cls_min": 0.08682028225462171,
+      "cls_max": 0.08682028225462171,
+      "document_ms_median": 393,
+      "ttfb_ms_median": 254,
+      "queries": [
+        "143"
+      ]
+    },
+    {
+      "viewport": 1366,
+      "dataset": "all",
+      "runs": 3,
+      "cls_min": 0.0011317065647517429,
+      "cls_max": 0.0011317065647517429,
+      "document_ms_median": 403,
+      "ttfb_ms_median": 262,
+      "queries": [
+        "143"
+      ]
+    },
+    {
+      "viewport": 1366,
+      "dataset": "bounded-search",
+      "runs": 3,
+      "cls_min": 0.04081068388600241,
+      "cls_max": 0.04081068388600241,
+      "document_ms_median": 384,
+      "ttfb_ms_median": 248,
+      "queries": [
+        "143"
+      ]
+    },
+    {
+      "viewport": 1366,
+      "dataset": "empty",
+      "runs": 3,
+      "cls_min": 0.04081068388600241,
+      "cls_max": 0.04081068388600241,
+      "document_ms_median": 415,
+      "ttfb_ms_median": 271,
+      "queries": [
+        "143"
+      ]
+    }
+  ],
+  "patient_care_samples": [
+    {
+      "run": 0,
+      "documentMs": 719.1000000238419,
+      "ttfbMs": 504.90000000596046,
+      "queryCount": "441",
+      "cls": 0.044648618118856884
+    },
+    {
+      "run": 1,
+      "documentMs": 992.1999999880791,
+      "ttfbMs": 807.8999999761581,
+      "queryCount": "441",
+      "cls": 0.05321594600195784
+    },
+    {
+      "run": 2,
+      "documentMs": 803,
+      "ttfbMs": 615.1999999880791,
+      "queryCount": "441",
+      "cls": 0.05321594600195784
+    }
+  ],
+  "test_receipts": {
+    "focused": 46,
+    "responsive_states": 44,
+    "system_route_states": 62,
+    "system_assertions": 436,
+    "calendar_context_legibility": 9,
+    "password_final": 4,
+    "business_table_fingerprints_unchanged": 11,
+    "session_expiry": 6,
+    "php_lint_files": 35,
+    "javascript_syntax_files": 15,
+    "frontend_source_guard": "failures=[]; campaign_complete=false pending Owner acceptance",
+    "saas_guardrails": "passed; unchanged historical stale fixed-icon allowlist note"
+  },
+  "gallery_bytes": 688961,
+  "review_status": "Pending new exact-head independent review; earlier5665529605 COMMENTED; automated reviewer quota blocked"
+}

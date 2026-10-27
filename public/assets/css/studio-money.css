@@ -9,4 +9,4 @@
 @media(max-width:550px){.analysis-period .form-field{min-width:130px;max-width:none}.analysis-task-navigation{padding:9px;gap:7px}.analysis-task-navigation a{min-width:100%;font-size:17px;padding:11px 14px}.analysis-cash-result,.analysis-position{padding:19px}.analysis-cash-result dd{font-size:24px}.analysis-cash-breakdown dl>div{align-items:start;flex-direction:column;gap:5px}.analysis-aging>div{min-width:130px}.analysis-question{padding:19px}.analysis-question h2{font-size:23px}}
 @media print{.analysis-period,.analysis-task-navigation,.money-accounting-note,.analysis-event-tools{display:none!important}.analysis-panel[hidden]{display:block!important}.analysis-panel{break-before:page}.analysis-monthly-series{max-height:none;overflow:visible}.analysis-workspace .grid-scroll{overflow:visible}.analysis-event-table{min-width:0!important}}
 
-.money-ledger-tools select,.money-filter-strip select,.analysis-event-tools select{appearance:none}
+.money-ledger-tools select,.money-filter-strip select,.analysis-event-tools select{appearance:auto}

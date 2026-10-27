@@ -65,7 +65,7 @@ $medicalAlerts=[
 <section class="form-section registration-additional">
     <div class="form-section-toggle">
         <h2><?= esc(lang('Studio.optionalDetails')) ?></h2>
-        <?php if(!$studioEditing): ?><label class="form-switch"><input type="checkbox" id="optionalEnabled" <?= $optionalEnabled?'checked':'' ?> aria-controls="optionalSection" aria-label="<?= esc(lang('Studio.optionalDetails'),'attr') ?>"><span id="optionalTrack" class="form-switch-track"><span id="optionalDot"></span></span></label><?php endif; ?>
+        <?php if(!$studioEditing): ?><button type="button" id="optionalEnabled" class="button secondary" aria-expanded="<?= $optionalEnabled?'true':'false' ?>" aria-controls="optionalSection" data-show="<?= esc(lang('Studio.showOptionalDetails'),'attr') ?>" data-hide="<?= esc(lang('Studio.hideOptionalDetails'),'attr') ?>"><?= esc(lang('Studio.'.($optionalEnabled?'hideOptionalDetails':'showOptionalDetails'))) ?></button><?php endif; ?>
     </div>
     <div id="optionalSection" class="<?= $optionalEnabled?'':'hidden' ?>">
         <div class="registration-details">

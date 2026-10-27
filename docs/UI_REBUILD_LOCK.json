@@ -650,5 +650,20 @@
     "skeleton_display_threshold_ms": 300,
     "directory_timeout_ms": 12000,
     "backend_or_feature_changes": false
+  },
+  "studio_modular_refinement": {
+    "starting_commit": "0d86f59d78395c3d417b9a63b6b8d0b2fc50f1fe",
+    "starting_tree": "285d6a653cc4bc332ea690996bcebbbf6e8d4031",
+    "independent_starting_review": "5665529605 COMMENTED with changes required; no approval of later source",
+    "current_gallery": "docs/ui-evidence/modular/README.md",
+    "component_contracts": "docs/UI_STUDIO_COMPONENTS.md",
+    "view_extraction_scope": "Presentation only, original successful field names, clinical runtime scripts and contract algorithms preserved",
+    "optional_features": "UNCHANGED_OFF",
+    "database_mutations": 0,
+    "production_access": false,
+    "source_guard_failures": [],
+    "owner_full_visual_acceptance": false,
+    "final_independent_review": "PENDING",
+    "whole_pr_acceptance": "NOT_READY; explicit clinical/history, contract item sync, mutation and independent/Owner acceptance gates remain"
   }
 }

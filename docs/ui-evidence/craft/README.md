@@ -16,6 +16,8 @@ Password suffix, full mobile identity/contact, actual delayed first load and fai
 
 ![Arabic mobile component states](component-states.jpg)
 
+
+> Superseded module evidence: the earlier contracts404 and finance/examination error/loading crops below were not positive workflow acceptance. See [the corrected current supported-route gallery](../modular/README.md). Those original captures remain for audit history.
 ## Current workspaces
 
 Each sheet pairs English 1586×992 with Arabic 390×844, from actual application routes. These are current presentation captures, not a re-execution of all clinical/accounting/security acceptance. Desktop grids retain fixed geometry; patient and chart directories now have explicit narrow-screen record equivalents with full identity/contact.

@@ -137,7 +137,7 @@
 <?= $studioIcon('search') ?>
 <input id="platform-search" type="search" autocomplete="off" aria-label="<?= esc(lang('UI.cpSearchPlaceholder')) ?>" data-recent-label="<?= esc(lang('UI.cpRecentSection'),'attr') ?>" data-url="<?= base_url('controlplane/search/global') ?>" data-base="<?= base_url() ?>" data-empty="<?= esc(lang('UI.cpNoResults'),'attr') ?>" data-error="<?= esc(lang('UI.cpSearchFailed'),'attr') ?>" data-start="<?= esc(lang('UI.cpTypeToSearch'),'attr') ?>">
 </div>
-<p class="studio-request-status" role="status" data-search-status data-loading="<?= esc(lang('Studio.refreshingList'),'attr') ?>" data-previous="<?= esc(lang('Studio.previousResults'),'attr') ?>" data-ready="<?= esc(lang('Studio.listReady'),'attr') ?>"></p><div class="command-results" id="platform-search-results" aria-live="polite">
+<p class="studio-request-status" role="status" data-search-status data-denied="<?= esc(lang('Studio.requestDenied'),'attr') ?>" data-loading="<?= esc(lang('Studio.refreshingList'),'attr') ?>" data-previous="<?= esc(lang('Studio.previousResults'),'attr') ?>" data-ready="<?= esc(lang('Studio.listReady'),'attr') ?>"></p><div class="command-results" id="platform-search-results" aria-live="polite">
 <p>
 <?= esc(lang('UI.cpTypeToSearch')) ?>
 </p>

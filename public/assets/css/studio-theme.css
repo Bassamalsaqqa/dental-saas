@@ -37,13 +37,24 @@
   --color-avatar-olive-ink:#485523;
   --color-avatar-copper:#ecd4be;
   --color-avatar-copper-ink:#785035;
+  /* Foundation categories; existing route skins adopt these incrementally. */
+  --font-body:Manrope,"Noto Sans Arabic",sans-serif;
+  --font-arabic:"Noto Sans Arabic",Manrope,sans-serif;
+  --text-caption:.875rem;--text-body:1.0625rem;--text-section:1.5rem;--text-page:clamp(1.75rem,2.5vw,2.75rem);
+  --leading-body:1.65;--weight-label:700;--weight-title:800;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;
+  --radius-control:9px;--radius-panel:16px;--radius-dialog:18px;
+  --elevation-panel:0 8px 24px color-mix(in srgb,var(--color-frame) 7%,transparent);
+  --motion-short:120ms;--motion-panel:230ms;--ease-panel:cubic-bezier(.22,1,.36,1);
+  --layer-toolbar:10;--layer-menu:30;--layer-dialog:50;
+  --grid-row-compact:72px;--content-reading:75ch;
   --grid-row-height:96px;
   --grid-heading-height:52px;
 }
 
 /* Integrated password input: shared across access, clinic and platform forms. */
-.studio-password{display:flex;align-items:stretch;min-width:0;width:100%;background:var(--color-control);border-radius:9px}
-.studio-password>input{flex:1;min-width:0!important;width:0!important;border-radius:9px 0 0 9px;outline-offset:-3px}
+.studio-password{overflow:hidden;display:flex;align-items:stretch;min-width:0;width:100%;background:var(--color-control);border-radius:9px}
+.studio-password>input[id]{flex:1;min-width:0!important;width:0!important;border-radius:0;outline-offset:-3px}
 .studio-password>.studio-password-toggle{display:flex;align-items:center;justify-content:center;gap:6px;flex:none;min-width:44px;min-height:44px;padding:8px 12px;border:0;border-radius:9px;background:transparent;color:var(--color-frame);font:inherit;font-size:14px;font-weight:750;cursor:pointer}
 .studio-password-toggle svg{width:21px;height:21px;flex:none}.studio-password-toggle:hover{background:var(--color-surface-strong)}
 .studio-password:focus-within{outline:2px solid var(--color-focus);outline-offset:2px}.studio-password-toggle:focus-visible{outline:3px solid var(--color-focus);outline-offset:-3px}
@@ -53,7 +64,7 @@
 .access-introduction.studio-contour{background:var(--color-frame)}.access-introduction.studio-contour::before{opacity:.17;background:var(--color-on-frame);inset-inline-end:-170px;inset-block-start:auto;height:420px;inset-block-end:-70px}
 :dir(rtl) .studio-contour::before{transform:scaleX(-1)}
 @media(forced-colors:active){.studio-contour::before{display:none}.studio-password{outline:1px solid CanvasText}}
-@media(max-width:480px){.studio-password-toggle span{max-width:85px;line-height:1.4}.studio-contour{padding:18px}}
+@media(max-width:480px){.studio-password-toggle span{white-space:nowrap;line-height:1.4}.studio-contour{padding:18px}}
 
 .studio-skeleton{pointer-events:none;user-select:none;min-height:80px;display:flex;gap:16px;padding:20px;background:var(--color-surface-tonal)}
 tr.studio-skeleton{display:table-row;height:var(--grid-row-height,96px)}.studio-skeleton>span{flex:1;display:block}.studio-skeleton-line{display:block;height:16px;width:75%;border-radius:5px;background:var(--color-surface-strong);margin-block:14px}
@@ -62,3 +73,7 @@ tr.studio-skeleton{display:table-row;height:var(--grid-row-height,96px)}.studio-
 @media(forced-colors:active){.studio-skeleton-line{outline:1px solid GrayText}}
 
 .studio-request-status{font-size:15px;line-height:1.6;color:var(--color-ink-muted);padding:0 22px;margin:8px 0}.studio-request-status:empty{display:none}
+
+/* Native select keeps its platform arrow and keyboard model; no duplicate combobox. */
+select:not([multiple]):not([size]):not(.select2-hidden-accessible){appearance:auto}
+.studio-password-toggle{font-variant-numeric:tabular-nums}.studio-password-toggle span{white-space:nowrap}
