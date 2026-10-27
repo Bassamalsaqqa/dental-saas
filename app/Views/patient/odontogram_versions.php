@@ -68,7 +68,7 @@ $conditionLabelMap = [
 <section class="chart-history-detail"><header><div><h2><?= esc(lang('UI.patientChartHistoryDetailTitle')) ?></h2><p><?= esc(lang('UI.patientChartHistoryDetailHelp')) ?></p></div><?php if(!empty($selected_snapshot['source_url'])): ?><a class="button secondary" href="<?= esc($selected_snapshot['source_url']) ?>"><?= esc(lang('UI.patientChartHistoryOpenSource')) ?></a><?php endif; ?></header>
 <?php if(!empty($selected_snapshot)):$selectedSourceLabel=$sourceLabelMap[$selected_snapshot['source_type']??'']??lang('UI.patientSnapshotSourceUnknown'); ?>
 <dl class="chart-history-context"><div><dt><?= esc(lang('UI.patientSnapshotReferenceLabel')) ?></dt><dd><?= esc($selected_snapshot['label']??('#'.(int)$selected_snapshot['id'])) ?></dd></div><div><dt><?= esc(lang('UI.patientStatus')) ?></dt><dd><?= esc($selectedSourceLabel) ?></dd></div><div><dt><?= esc(lang('UI.patientChartHistoryTitle')) ?></dt><dd><?= esc(lang('UI.patientSnapshotTeethAffected',['count'=>(int)($selected_snapshot['affected_count']??0)])) ?></dd></div><div><dt><?= esc(lang('UI.patientCreatedBy')) ?></dt><dd><?= esc($selected_snapshot['creator_name']??lang('UI.patientUnknownDoctor')) ?></dd></div></dl>
-<section class="chart-history-preview"><header><div><h3><?= esc(lang('Studio.historyChartTitle')) ?></h3><p><?= esc(lang('UI.patientSnapshotCapturedOn',['date'=>!empty($selected_snapshot['created_at'])?formatDateTime($selected_snapshot['created_at']):'--'])) ?></p></div><a class="button secondary" href="<?= base_url('patient/'.$patient['id'].'/odontogram-versions/'.$selected_snapshot['id']) ?>"><?= esc(lang('UI.patientChartHistoryOpenSelected')) ?></a></header><?php if($selectedSnapshotRows!==[]&&!str_contains($historySvg,'id="tooth1"')): ?><p class="chart-history-warning" role="note"><?= esc(lang('Studio.historyPreviewWarning')) ?></p><?php endif; ?><div class="patient-history-preview-shell"><?php if(!empty($historySvg)): ?><div id="patientHistoryOdontogramPreview" class="patient-history-odontogram-svg"><?= $historySvg ?></div><?php else: ?><p class="chart-history-empty"><?= esc(lang('UI.patientNoOdontogramPreview')) ?></p><?php endif; ?></div></section>
+<section class="chart-history-preview"><header><div><h3><?= esc(lang('Studio.historyChartTitle')) ?></h3><p><?= esc(lang('UI.patientSnapshotCapturedOn',['date'=>!empty($selected_snapshot['created_at'])?formatDateTime($selected_snapshot['created_at']):'--'])) ?></p></div><a class="button secondary" href="<?= base_url('patient/'.$patient['id'].'/odontogram-versions/'.$selected_snapshot['id']) ?>"><?= esc(lang('UI.patientChartHistoryOpenSelected')) ?></a></header><p id="patientHistoryPreviewUnavailable" class="chart-history-warning" role="status"><?= esc(lang('Studio.historyPreviewWarning')) ?></p><div class="patient-history-preview-shell"><?php if(!empty($historySvg)): ?><div id="patientHistoryOdontogramPreview" hidden class="patient-history-odontogram-svg"><?= $historySvg ?></div><?php else: ?><p class="chart-history-empty"><?= esc(lang('UI.patientNoOdontogramPreview')) ?></p><?php endif; ?></div></section>
 <section class="chart-history-affected"><h3><?= esc(lang('UI.patientSnapshotAffectedTeethTitle')) ?></h3><p><?= esc(lang('UI.patientSnapshotAffectedTeethHelp')) ?></p>
 <?php if(!empty($selectedAffectedRows)): ?><table class="studio-grid chart-history-table" data-grid-widths="10,12,28,50" aria-label="<?= esc(lang('UI.patientSnapshotAffectedTeethTitle'),'attr') ?>"><thead><tr><th scope="col">#</th><th scope="col">FDI</th><th scope="col"><?= esc(lang('UI.patientSnapshotConditionLabel')) ?></th><th scope="col"><?= esc(lang('UI.patientNotesTitle')) ?></th></tr></thead><tbody>
 <?php foreach($selectedAffectedRows as $affectedRow):$conditionType=(string)($affectedRow['condition_type']??'healthy');$conditionLabel=$conditionLabelMap[$conditionType]??ucwords(str_replace('_',' ',$conditionType));$conditionDescription=trim((string)($affectedRow['condition_description']??''));$statusText=trim((string)($affectedRow['treatment_status']??''));$detailText=$conditionDescription!==''?$conditionDescription:($statusText!==''?ucwords(str_replace('_',' ',$statusText)):'—'); ?><tr><td><?= esc((string)($affectedRow['tooth_number']??'--')) ?></td><td><?= esc((string)getFDINumber((int)($affectedRow['tooth_number']??0))) ?></td><td><?= esc($conditionLabel) ?></td><td><?= esc($detailText) ?></td></tr><?php endforeach; ?></tbody></table><?php else: ?><p class="chart-history-empty"><?= esc(lang('UI.patientSnapshotNoAffectedTeeth')) ?></p><?php endif; ?></section>
@@ -80,7 +80,8 @@ $conditionLabelMap = [
 
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('patientHistoryOdontogramPreview');
-        if (!container || !Array.isArray(patientHistorySnapshotData) || patientHistorySnapshotData.length === 0) {
+        const unavailable = document.getElementById('patientHistoryPreviewUnavailable');
+        if (!container || !Array.isArray(patientHistorySnapshotData)) {
             return;
         }
 
@@ -125,34 +126,44 @@ $conditionLabelMap = [
             return best || shapes[0];
         };
 
-        const applyToothCondition = (toothNumber, conditionType) => {
-            const group = container.querySelector('#tooth' + toothNumber);
-            if (!group) {
-                return;
-            }
-
-            group.querySelectorAll('.tooth-overlay, .tooth-outline, .tooth-hit').forEach(el => el.remove());
+        // Validate the complete overlay before painting anything. Never guess a tooth.
+        const reject = () => { container.hidden = true; };
+        // Synchronous validation completes before the browser paints; SVG geometry
+        // must participate in layout for getBBox to select the correct base shape.
+        container.hidden = false;
+        const overlays = [];
+        const seen = new Set();
+        for (const record of patientHistorySnapshotData) {
+            const raw = record?.tooth_number;
+            if (!['string', 'number'].includes(typeof raw) || !/^[1-9][0-9]*$/.test(String(raw))) return reject();
+            const number = Number(raw);
+            if (!Number.isSafeInteger(number) || number > 32 || seen.has(number)) return reject();
+            seen.add(number);
+            const condition = record.condition_type;
+            if (typeof condition !== 'string' || (condition !== 'healthy' && !Object.hasOwn(conditionColors, condition))) return reject();
+            // The canonical native ID contains a hyphen. A legacy exact ID is safe only
+            // when it is the single matching element; both formats together are ambiguous.
+            const matches = container.querySelectorAll(`[id="tooth-${number}"], [id="tooth${number}"]`);
+            if (matches.length !== 1) return reject();
+            const group = matches[0];
             const base = getLargestShape(group);
-            if (!base) {
-                return;
-            }
-
-            if (conditionType !== 'healthy' && conditionColors[conditionType]) {
+            if (!base) return reject();
+            overlays.push({group, base, condition});
+        }
+        for (const {group, base, condition} of overlays) {
+            group.querySelectorAll('.tooth-overlay, .tooth-outline, .tooth-hit').forEach(el => el.remove());
+            if (condition !== 'healthy') {
                 const overlay = base.cloneNode(true);
+                overlay.removeAttribute('id');
                 overlay.setAttribute('class', 'tooth-overlay');
-                overlay.setAttribute('fill', conditionColors[conditionType]);
+                overlay.setAttribute('fill', conditionColors[condition]);
                 overlay.setAttribute('fill-opacity', '0.38');
                 overlay.setAttribute('stroke', 'none');
                 group.appendChild(overlay);
             }
-        };
-
-        patientHistorySnapshotData.forEach(record => {
-            if (!record || typeof record.tooth_number === 'undefined') {
-                return;
-            }
-            applyToothCondition(record.tooth_number, record.condition_type || 'healthy');
-        });
+        }
+        container.hidden = false;
+        if (unavailable) unavailable.hidden = true;
     });
 </script>
 <?= $this->endSection() ?>
