@@ -34,7 +34,9 @@ if ($patientGenderValue === 'female') {
     $patientHeroThemeClass = 'patient-hero-card-male';
     $patientAvatarIconClass = 'fas fa-person';
 }
-$selectedSnapshotRows = array_values($selected_snapshot['snapshot_rows'] ?? []);
+// A malformed saved document must not become an apparently healthy empty preview.
+$historyPreviewRows = json_decode((string) ($selected_snapshot['snapshot_json'] ?? 'null'), true);
+$historyPreviewRows = is_array($historyPreviewRows) && array_is_list($historyPreviewRows) ? $historyPreviewRows : null;
 $selectedAffectedRows = array_values($selected_snapshot['affected_rows'] ?? []);
 $historySvg = loadInlinePatientHistoryOdontogramSvg();
 $sourceLabelMap = [
@@ -76,7 +78,7 @@ $conditionLabelMap = [
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script>
-    const patientHistorySnapshotData = <?= json_encode($selectedSnapshotRows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const patientHistorySnapshotData = <?= json_encode($historyPreviewRows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('patientHistoryOdontogramPreview');

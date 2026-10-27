@@ -118,3 +118,6 @@ Additional unchanged-source acceptance now passes: 12 routed restricted-role, CS
 
 
 Correction-A hardening: nested/non-scalar item values reject before numeric coercion; a nested revision rejects without a string-conversion error. Two additional actual forged-form checks returned safe redirects with original item rows unchanged. The pinned failing-before replay helper needed an 8MiB process buffer for the unchanged SVG; that harness issue is corrected and the baseline bugs reproduce as expected. It is explicitly not a current-code pass criterion.
+
+
+Correction-B malformed-document guard: invalid/null snapshot JSON is no longer normalized to a healthy-looking empty overlay. Two separate newly owned synthetic invalid documents render HTTP200 with the preview hidden and unavailable warning visible; their saved bytes are retained. The existing textual history remains available. No historical records were changed.
