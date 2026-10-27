@@ -109,7 +109,7 @@
       17
     ],
     "protected_source": "Run php scripts/ci/frontend_rebuild_guard.php; no production, migrations or feature activation",
-    "external_review": "NOT_REQUESTED_STALE_PR21_HEAD_NEEDS_AUTHORIZED_PUBLICATION",
+    "external_review": "Final exact-head review to be requested on published PR21; no approval claimed",
     "validation_correction": "../clean-foundation/registration-validation-fixed.json: 15/15; existing synthetic patient query snapshots identical; no new records",
     "registration_refinement": "../registration-refined/acceptance.json: 46/46 field-contract, responsive, compact sizing and canonical toggles; no submissions or DB mutations",
     "registration_arrangement": "../registration-refined/arrangement-acceptance.json: 6/6; cards and each adaptive field row fill available width, EN/AR 1586/1366/900/390; source-only presentation change",
@@ -607,7 +607,7 @@
     "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\review-all\\index.html",
     "protected_data": "11 synthetic business table row counts/fingerprints unchanged",
     "owner_visual_acceptance": "PENDING",
-    "external_review": "PENDING_PUBLICATION",
+    "external_review": "Requested through existing PR21 after final exact-head publication; decision not claimed",
     "production_actions": 0,
     "feature_activations": 0,
     "no_backend_changes_except_previously_authorized_patient_validation_return": true
@@ -618,10 +618,17 @@
     "remote_branch": "feature/warm-clinical-v3-20261023",
     "clean_branch": "feature/denta-ui-approved-system",
     "head_replacement_authorized": true,
-    "source_merge_or_force_push_performed": false,
+    "source_merge_or_force_push_performed": "Owner-authorized atomic exact-lease replacement of PR feature ref only; no source merge or release/main update",
     "reason": "Clean branch deliberately excludes rejected ancestry; existing PR cannot be updated by ordinary fast-forward.",
     "authorization": "Owner 2026-10-27: ok, i approve; finish views/popups, commit and push for review.",
-    "status": "OWNER_AUTHORIZED_PENDING_ATOMIC_LEASED_PUSH"
+    "status": "PUBLISHED_OWNER_AUTHORIZED_REVIEW_ONLY",
+    "first_published_commit": "e09ce2ca38e0e7a377e3f1f39a66daa397999142",
+    "first_published_tree": "c4c48d269e5d03cac8b07e71eeb8c2c6f2b7852a",
+    "archive_tag": "archive/pr21-before-approved-system-20261027",
+    "archived_commit": "a09a9330fc633b5e35c1cbfb8e6803ce387c930a",
+    "release_unchanged": "89352fd20e0d5166e81f631cb743bead1f596a68",
+    "main_unchanged": "485a19824d08e35fcd1a2a68923c63ec265867ca",
+    "final_head_identity": "Containing commit; GitHub PR21 is authoritative for subsequent review status"
   },
   "final_dialogs": {
     "browser_checks": 70,
