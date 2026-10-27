@@ -92,3 +92,10 @@ One isolated current patient1 profile issued442 queries including an extra ident
 ## Next gate
 
 BLOCKED. Authorize only the three bounded protected corrections above before critical workflows can be certified; resolve the clinical assessment policy separately. Keep remaining role/finance/provider/gated-signing/AT evidence gaps explicit. Independent exact-head review is not invented or repeatedly requested from the exhausted bot. This candidate may be inspected for the safe copy/time fixes, but **must not merge, deploy, migrate or activate features**.
+
+
+## Authorized surgical correction A — local implementation checkpoint
+
+Owner explicitly authorized draft-item preservation on 2026-10-27. Saved lines now retain persisted IDs and explicit provenance. Refreshing chart suggestions cannot remove or replace them. Under the existing signing-service transaction and parent/contract/item locks, an exact consent-content revision rejects stale forms; every existing line must be present or explicitly listed for removal. Unknown/duplicate IDs and incomplete/invalid fields reject before writes. Equivalent line values leave original row bytes/timestamps untouched; authorized edits update only changed fields. Deletions remain explicit soft-deletes. No schema, billing, signature evidence or feature-gate change.
+
+Before: the retained 5785e4c characterization and actual SQL receipt demonstrate a lost priced tooth-11 line. After: genuine corrected-behavior Node regression passes; 11 actual browser/routed/SQL assertions pass on denta_pr21_acceptance_20261027: create, saved same-tooth reopen, revision presence, accidental omission, equivalent resave, invalid price rollback, explicit edit with stable ID, stale retry, explicit removal intent, selective soft-delete and cancellation. Current chart suggestions are separately identifiable new lines, not counted as preexisting rows in preservation checks. All 339 original synthetic rows across 15 tables and schema definitions remain unchanged. More concurrent/security acceptance remains pending; this checkpoint is not final clinical certification. No push/merge/deployment.

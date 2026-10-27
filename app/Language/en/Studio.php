@@ -1,5 +1,6 @@
 <?php
 return [
+    'cbDraftConflict' => 'This draft changed, or its item submission was incomplete. No changes were saved. Reopen the draft and review every plan item before saving.',
 'today'=>'Today', 'overview'=>'Clinic overview', 'subtitle'=>'Your day, with a clear next step.',
 'workspace'=>'Workspace','clinical'=>'Patient care','manage'=>'Management','search'=>'Find a patient',
 'searchShort'=>'Search patients…','searchHint'=>'Search by name or phone.','searchEmpty'=>'No matching patients. Try another name or phone number.',

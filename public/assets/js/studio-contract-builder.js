@@ -882,12 +882,13 @@ function normalizeItems() {
     items = [];
     initialItems.forEach(item => {
         items.push({
+            id: item.id || '',
             code: item.procedure_code || '',
             tooth: item.tooth_no || '',
             description: item.description || '',
-            qty: Number(item.qty || 1),
-            price: Number(item.price || 0),
-            source: item.tooth_no ? 'auto' : 'manual'
+            qty: Number(item.qty ?? 1),
+            price: Number(item.price ?? 0),
+            source: 'persisted'
         });
     });
 }
@@ -896,7 +897,7 @@ function syncItemsFromConditions() {
     const conditionTeeth = odontogramData.filter(row => row.condition_type && row.condition_type !== 'healthy');
     const existingAuto = new Map();
     items.forEach(item => {
-        if (item.source === 'auto' && item.tooth) {
+        if (item.tooth) {
             existingAuto.set(String(item.tooth), item);
         }
     });
@@ -914,7 +915,7 @@ function syncItemsFromConditions() {
             });
         } else {
             const item = existingAuto.get(key);
-            if (!item.description) {
+            if (item.source === 'auto' && !item.description) {
                 item.description = `${conditionTypes?.[row.condition_type] || 'Condition'} - Tooth ${key}`;
             }
         }
@@ -950,7 +951,13 @@ function renderItems() {
     items.forEach((item, index) => {
         const row = document.createElement('tr');
 
-        row.appendChild(buildItemCell('code', item.code, index));
+        const identity = document.createElement('input');
+        identity.type = 'hidden';
+        identity.name = `items[${index}][id]`;
+        identity.value = item.id || '';
+        const codeCell = buildItemCell('code', item.code, index);
+        codeCell.appendChild(identity);
+        row.appendChild(codeCell);
         row.appendChild(buildItemCell('tooth', item.tooth, index));
         row.appendChild(buildItemCell('description', item.description, index));
         row.appendChild(buildItemCell('qty', item.qty, index, 'number'));
@@ -963,6 +970,13 @@ function renderItems() {
         removeBtn.className = 'text-[11px] text-rose-500 hover:text-rose-700 font-medium';
         removeBtn.textContent = contractBuildUi.remove;
         removeBtn.addEventListener('click', () => {
+            if (item.id) {
+                const removed = document.createElement('input');
+                removed.type = 'hidden';
+                removed.name = 'removed_item_ids[]';
+                removed.value = item.id;
+                document.getElementById('contractRemovedItems').appendChild(removed);
+            }
             items.splice(index, 1);
             renderItems();
         });
@@ -989,6 +1003,7 @@ function buildItemCell(field, value, index, type = 'text') {
     }
     input.addEventListener('input', () => {
         items[index][field] = (field === 'qty' || field === 'price') ? Number(input.value || 0) : input.value;
+        if (items[index].source === 'auto') items[index].source = 'manual';
         updateTotal();
     });
     cell.appendChild(input);

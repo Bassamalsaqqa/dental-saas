@@ -149,6 +149,11 @@
       "approved_git_blob": "bc9e6697e410c100fdba7e9bdeedc43eddfce0a4",
       "authorization": "Owner 2026-10-27 explicitly authorized presentation markup only and confirmed always authorized. Native SVG, clinical chart JavaScript, algorithms, snapshots, fields and records remain protected.",
       "scope": "Surrounding Studio presentation and localized controls; directory uses unchanged read-only tenant endpoint/full canonical registration; no clinical or backend behavior change."
+    },
+    "app/Controllers/TreatmentContracts.php": {
+      "authorization": "Owner 2026-10-27 surgical correction A: preserve draft item identities; explicit removal, stale/incomplete submission checks under existing signing lock. No signed evidence or billing policy changes.",
+      "baseline_git_blob": "2964fe9378dbc5e1d2fb2ab745888aecc172d857",
+      "approved_git_blob": "33a8e029a58ee979efb94fd3e4da8c88fe83740f"
     }
   },
   "owner_registration_acceptance": "2026-10-25: generally accepted with required full-workspace card width; field sizing must not constrain the containing form. Cumulative Owner notes are authoritative in DESIGN.md.",

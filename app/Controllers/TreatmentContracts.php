@@ -248,6 +248,7 @@ class TreatmentContracts extends BaseController
 
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
+        $draftRevision = $this->contractSigningService->immutableConsentFingerprint($contract, $items, $snapshot);
         if ($snapshot) {
             $snapshot['svg_snapshot'] = $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? null);
         }
@@ -256,6 +257,7 @@ class TreatmentContracts extends BaseController
             : null;
 
         $data = [
+            'draft_revision' => $draftRevision,
             'title' => 'Edit Treatment Contract',
             'mode' => 'edit',
             'contract' => $contract,
@@ -379,6 +381,8 @@ class TreatmentContracts extends BaseController
             'cost_details'     => $costDetails ?: null,
         ];
         $itemsToInsert     = $items;
+        $draftRevision = (string) $this->request->getPost('draft_revision');
+        $removedItems = $this->request->getPost('removed_item_ids') ?? [];
         $svgEncoded        = $this->odontogramSvgSnapshotService->encode($odontogramSvg);
         $snapshotJsonField = $odontogramJson ?: null;
         $contractIdInt     = (int) $contractId;
@@ -388,22 +392,74 @@ class TreatmentContracts extends BaseController
             $this->contractSigningService->updateDraftWithLock(
                 (int) $clinicId,
                 $contractIdInt,
-                function ($db, array $locked) use ($contractIdInt, $contractFields, $itemsToInsert, $svgEncoded, $snapshotJsonField): bool {
+                function ($db, array $locked) use ($contractIdInt, $contractFields, $itemsToInsert, $svgEncoded, $snapshotJsonField, $draftRevision, $removedItems): bool {
                     $clinicId = (int) $locked['clinic_id'];
-                    if (!$this->contractModel->update($contractIdInt, $contractFields)
-                        || !$this->itemModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->delete()) {
-                        return false;
+                    // The signing service already owns clinic/patient/exam/contract/item locks.
+                    $existing = $this->itemModel->where('clinic_id', $clinicId)
+                        ->where('contract_id', $contractIdInt)->orderBy('id')->findAll();
+                    $frozen = $this->snapshotModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->first();
+                    $revision = $this->contractSigningService->immutableConsentFingerprint($locked, $existing, $frozen);
+                    if (!hash_equals($revision, $draftRevision)) {
+                        throw new \DomainException('CONTRACT_DRAFT_STALE');
                     }
+                    if (!is_array($removedItems)) { throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE'); }
+                    $byId = array_column($existing, null, 'id');
+                    $seen = [];
+                    $remove = [];
+                    foreach ($removedItems as $id) {
+                        if (!is_scalar($id) || !preg_match('/^[1-9][0-9]*$/D', (string) $id)
+                            || !isset($byId[(int) $id]) || isset($remove[(int) $id])) {
+                            throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE');
+                        }
+                        $remove[(int) $id] = true;
+                    }
+                    $writes = [];
                     foreach ($itemsToInsert as $item) {
-                        if (!$this->itemModel->insert([
-                            'clinic_id' => $clinicId,
-                            'contract_id' => $contractIdInt,
-                            'procedure_code' => trim((string) ($item['code'] ?? '')) ?: null,
-                            'tooth_no' => trim((string) ($item['tooth'] ?? '')) ?: null,
-                            'description' => trim((string) ($item['description'] ?? '')) ?: null,
-                            'qty' => isset($item['qty']) ? (int) $item['qty'] : 1,
-                            'price' => isset($item['price']) ? (float) $item['price'] : 0,
-                        ])) { return false; }
+                        if (!is_array($item)) { throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE'); }
+                        $id = $item['id'] ?? '';
+                        if (!is_scalar($id) || ($id !== '' && (!preg_match('/^[1-9][0-9]*$/D', (string) $id)
+                            || !isset($byId[(int) $id]) || isset($seen[(int) $id]) || isset($remove[(int) $id])))) {
+                            throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE');
+                        }
+                        if ($id !== '') { $seen[(int) $id] = true; }
+                        foreach (['code', 'tooth', 'description', 'qty', 'price'] as $field) {
+                            if (!array_key_exists($field, $item) || !is_scalar($item[$field])) {
+                                throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE');
+                            }
+                        }
+                        if (!preg_match('/^[1-9][0-9]*$/D', (string) $item['qty'])
+                            || !preg_match('/^[0-9]+(?:\.[0-9]{1,2})?$/D', (string) $item['price'])) {
+                            throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE');
+                        }
+                        $writes[] = [$id, [
+                            'procedure_code' => $id !== '' ? (string) $item['code'] : (trim((string) $item['code']) ?: null),
+                            'tooth_no' => $id !== '' ? (string) $item['tooth'] : (trim((string) $item['tooth']) ?: null),
+                            'description' => $id !== '' ? (string) $item['description'] : (trim((string) $item['description']) ?: null),
+                            'qty' => (int) $item['qty'], 'price' => $item['price'],
+                        ]];
+                    }
+                    if (count($seen) + count($remove) !== count($byId)) {
+                        throw new \DomainException('CONTRACT_ITEMS_INCOMPLETE');
+                    }
+                    if (!$this->contractModel->update($contractIdInt, $contractFields)) { return false; }
+                    foreach ($writes as [$id, $values]) {
+                        if ($id !== '') {
+                            // Equivalent roundtrips leave persisted line bytes and timestamps alone.
+                            $old = $byId[(int) $id];
+                            $changes = [];
+                            foreach ($values as $field => $value) {
+                                $equal = in_array($field, ['qty', 'price'], true)
+                                    ? (string) (0 + $old[$field]) === (string) (0 + $value)
+                                    : ($old[$field] ?? '') === ($value ?? '');
+                                if (!$equal) { $changes[$field] = $value; }
+                            }
+                            if ($changes && !$this->itemModel->update((int) $id, $changes)) { return false; }
+                        } elseif (!$this->itemModel->insert($values + ['clinic_id' => $clinicId, 'contract_id' => $contractIdInt])) {
+                            return false;
+                        }
+                    }
+                    foreach (array_keys($remove) as $id) {
+                        if (!$this->itemModel->delete($id)) { return false; }
                     }
                     $existingSnapshot = $this->snapshotModel->where('clinic_id', $clinicId)->where('contract_id', $contractIdInt)->first();
                     $snapshot = ['svg_snapshot' => $svgEncoded, 'data_snapshot_json' => $snapshotJsonField];
@@ -413,6 +469,9 @@ class TreatmentContracts extends BaseController
                     return (bool) $this->snapshotModel->insert($snapshot + ['clinic_id' => $clinicId, 'contract_id' => $contractIdInt]);
                 }
             );
+        } catch (\DomainException $e) {
+            return redirect()->to(base_url('contracts/' . $contractId . '/edit'))
+                ->with('error', lang('Studio.cbDraftConflict'));
         } catch (\RuntimeException $e) {
             $code = explode(':', $e->getMessage())[0];
             if ($code === 'SIGN_ERR_NOT_DRAFT') {

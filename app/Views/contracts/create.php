@@ -62,6 +62,10 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 </div>
 <form class="studio-form contract-build" id="contractForm" action="<?= $actionUrl ?>" method="post">
 <?= csrf_field() ?>
+<?php if ($mode === 'edit'): ?>
+<input type="hidden" name="draft_revision" value="<?= esc($draft_revision ?? '') ?>">
+<?php endif; ?>
+<div id="contractRemovedItems" hidden></div>
 <input type="hidden" name="odontogram_json" id="odontogramJson">
 <input type="hidden" name="odontogram_svg" id="odontogramSvg">
 <?php if(!empty($returnTo)): ?>
