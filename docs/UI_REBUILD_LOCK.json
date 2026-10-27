@@ -158,12 +158,12 @@
     "app/Controllers/Examination.php": {
       "authorization": "Owner 2026-10-27 surgical correction C: examination narrative/audit/snapshot atomicity, shared edit/completion/sign serialization and locked signed-delete recheck. No clinical policy, schema or evidence rewrite. Strict snapshot persistence is opt-in only for authorized examination paths.",
       "baseline_git_blob": "dcb806b764c7cce3f9d63e163b066e0d5e094ec7",
-      "approved_git_blob": "bb1fb7a340b3715ffa392086a21b918a919355fa"
+      "approved_git_blob": "24a842a781a6597aab53f2c850f212ff5faef6e1"
     },
     "app/Services/ExaminationNoteGovernanceService.php": {
       "authorization": "Owner 2026-10-27 surgical correction C: examination narrative/audit/snapshot atomicity, shared edit/completion/sign serialization and locked signed-delete recheck. No clinical policy, schema or evidence rewrite. Strict snapshot persistence is opt-in only for authorized examination paths.",
       "baseline_git_blob": "c16e43d1400758e31ff5eb548e0008383fe04f37",
-      "approved_git_blob": "5cb7c3d02a73c09a83eda4b7dbd4997ff209c772"
+      "approved_git_blob": "cbb09b9b416a2fbaaa6d48031e956c87f6c6f6ca"
     },
     "app/Services/OdontogramSnapshotService.php": {
       "authorization": "Owner 2026-10-27 surgical correction C: examination narrative/audit/snapshot atomicity, shared edit/completion/sign serialization and locked signed-delete recheck. No clinical policy, schema or evidence rewrite. Strict snapshot persistence is opt-in only for authorized examination paths.",

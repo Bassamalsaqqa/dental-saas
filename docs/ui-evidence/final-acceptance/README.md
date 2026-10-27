@@ -121,3 +121,6 @@ Correction-A hardening: nested/non-scalar item values reject before numeric coer
 
 
 Correction-B malformed-document guard: invalid/null snapshot JSON is no longer normalized to a healthy-looking empty overlay. Two separate newly owned synthetic invalid documents render HTTP200 with the preview hidden and unavailable warning visible; their saved bytes are retained. The existing textual history remains available. No historical records were changed.
+
+
+Correction-C source-boundary follow-up: the signed-delete current read is owned by ExaminationNoteGovernanceService, shared with edit/sign checks. The raw-query controller guard initially identified the new inline query; it was corrected through that existing service rather than adding an allowlist exception. All three real SQL concurrency cases and SaaS guardrails pass with this ownership. Existing stale DOM-allowlist note remains visible and unchanged; no security check was weakened.

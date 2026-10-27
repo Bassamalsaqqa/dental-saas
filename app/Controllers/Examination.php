@@ -1075,9 +1075,7 @@ class Examination extends BaseController
 
             $guard = new \App\Services\FinancialParentDeletionGuard($this->examinationModel->db);
             $guard->deleteExamination((int) $clinicId, (int) $id, function () use ($clinicId, $id) {
-                if ($this->db->query('SELECT id FROM examination_note_signatures WHERE clinic_id=? AND examination_id=? FOR UPDATE', [(int) $clinicId, (int) $id])->getRowArray()) {
-                    throw new \DomainException('Signed examinations cannot be deleted.');
-                }
+                $this->noteGovernanceService->assertUnsignedInTransaction((int) $clinicId, (int) $id);
                 $deleted = $this->examinationModel->delete($id);
                 if (!$deleted || $this->examinationModel->db->affectedRows() !== 1) {
                     $errors = $this->examinationModel->errors();

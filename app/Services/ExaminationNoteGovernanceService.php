@@ -101,10 +101,20 @@ class ExaminationNoteGovernanceService
         if (!$examination || (int) $examination['patient_id'] !== (int) $hint['patient_id']) {
             throw new DomainException('Examination ownership changed; reload before continuing.');
         }
-        if ($row('SELECT id FROM examination_note_signatures WHERE clinic_id=? AND examination_id=? FOR UPDATE', [$clinicId, $examinationId])) {
+        $this->assertUnsignedInTransaction($clinicId, $examinationId);
+        return $examination;
+    }
+
+    /** Caller owns clinic/examination locks; use a current read, never an old MVCC snapshot. */
+    public function assertUnsignedInTransaction(int $clinicId, int $examinationId): void
+    {
+        if ((int) $this->db->transDepth !== 1 || !$this->db->transStatus()) {
+            throw new DomainException('Unsigned-state validation requires an owned healthy transaction.');
+        }
+        if ($this->db->query('SELECT id FROM examination_note_signatures WHERE clinic_id=? AND examination_id=? FOR UPDATE',
+            [$clinicId, $examinationId])->getRowArray()) {
             throw new DomainException('This clinical note is already signed.');
         }
-        return $examination;
     }
 
     public function sign(int $clinicId, int $examinationId, int $actorUserId, string $actorName): array
