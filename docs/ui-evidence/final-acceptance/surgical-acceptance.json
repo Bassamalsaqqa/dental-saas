@@ -1,0 +1,391 @@
+{
+  "runtime_source_head": "a10b0985c3f50d90bec27cd4c9dc8f8d3dbd7ebf",
+  "runtime_source_tree": "f4546b22e2f1499ef11411e9041c34345b9a49a1",
+  "before_head": "5785e4c71902e06b61c2bb08a021b34ad7a3be20",
+  "protected_release": "89352fd20e0d5166e81f631cb743bead1f596a68",
+  "recommendation": "READY_FOR_INDEPENDENT_EXACT_HEAD_ACCEPTANCE; DRAFT_ONLY; NOT_MERGE_OR_DEPLOY_APPROVAL",
+  "environment": {
+    "database": "denta_pr21_acceptance_20261027",
+    "port": 3307,
+    "loopback_only": true,
+    "new_owned_synthetic_records_only": true,
+    "migrations": 0,
+    "production_contact": false
+  },
+  "groups": {
+    "contract_rows": {
+      "status": "PASS",
+      "checks": [
+        {
+          "name": "create disposable three-line plan",
+          "pass": true
+        },
+        {
+          "name": "saved tooth-linked and same-tooth items survive reopen",
+          "pass": true
+        },
+        {
+          "name": "revision supplied",
+          "pass": true
+        },
+        {
+          "name": "omission rejected without row changes",
+          "pass": true
+        },
+        {
+          "name": "equivalent resave preserves every original item byte and ID",
+          "pass": true
+        },
+        {
+          "name": "invalid priced submission rolls back all original lines",
+          "pass": true
+        },
+        {
+          "name": "explicit edit retains line identity",
+          "pass": true
+        },
+        {
+          "name": "stale duplicate cannot overwrite or duplicate plan rows",
+          "pass": true
+        },
+        {
+          "name": "remove button records explicit persisted ID",
+          "pass": true
+        },
+        {
+          "name": "explicit removal soft-deletes only requested item",
+          "pass": true
+        },
+        {
+          "name": "cancel navigation leaves plan intact",
+          "pass": true
+        }
+      ],
+      "scope": "Actual routed requests and full persisted item rows; owned synthetic target only"
+    },
+    "contract_concurrency": {
+      "status": "PASS",
+      "checks": [
+        "two independent HTTP servers/sessions contend on same clinic lock",
+        "one fresh revision commits; stale contender rejects",
+        "every original plan-item row and ID remains unchanged"
+      ],
+      "scope": "Actual routed concurrent contract saves with real MariaDB locks; synthetic owned draft only"
+    },
+    "contract_forged_types": {
+      "status": "PASS",
+      "checks": [
+        "nested revision rejects without500 or item changes",
+        "nested quantity rejects before coercion or writes"
+      ],
+      "scope": "Scoped synthetic acceptance; details in README"
+    },
+    "history_mapping": {
+      "status": "PASS",
+      "checks": [
+        "actual saved facts paint exact native groups and original computed colors/opacity",
+        "four universal extremes",
+        "healthy row",
+        "missing number",
+        "invalid number",
+        "injection ID",
+        "duplicate condition rows",
+        "unsupported condition",
+        "missing svg group",
+        "duplicate svg ID",
+        "ambiguous legacy and native",
+        "single exact legacy group",
+        "saved snapshot bytes and identity unchanged"
+      ],
+      "scope": "Actual saved CI4 history plus browser-only malformed preview fixtures; no snapshot mutation"
+    },
+    "history_invalid_documents": {
+      "status": "PASS",
+      "checks": [
+        "invalid_json remains explicitly unavailable on actual saved CI4 page",
+        "null_json remains explicitly unavailable on actual saved CI4 page"
+      ],
+      "scope": "Scoped synthetic acceptance; details in README"
+    },
+    "examination_routes": {
+      "status": "PASS",
+      "checks": [
+        {
+          "name": "create owned examination",
+          "pass": true
+        },
+        {
+          "name": "draft edit returns redirect not500 and persists",
+          "pass": true
+        },
+        {
+          "name": "edit has durable audit",
+          "pass": true
+        },
+        {
+          "name": "validation rejects without changing stored narrative",
+          "pass": true
+        },
+        {
+          "name": "validation response renders safely",
+          "pass": true
+        },
+        {
+          "name": "completion update persists and responds success",
+          "pass": true
+        },
+        {
+          "name": "new completion creates exactly one baseline snapshot",
+          "pass": true
+        },
+        {
+          "name": "identical completed retry does not duplicate snapshot",
+          "pass": true
+        },
+        {
+          "name": "existing permitted unsigned completed edit preserved",
+          "pass": true
+        },
+        {
+          "name": "clinical signature persists once",
+          "pass": true
+        },
+        {
+          "name": "signed update denied with original clinical bytes",
+          "pass": true
+        }
+      ],
+      "scope": "Real routed isolated SQL acceptance; no production contact"
+    },
+    "examination_update_faults": {
+      "status": "PASS",
+      "checks": [
+        "audit SQL failure rolls back narrative, audit and snapshot with truthful retry UI",
+        "snapshot SQL failure rolls back narrative, audit and snapshot with truthful retry UI",
+        "successful retry after injected failures persists once"
+      ],
+      "scope": "Actual routed real SQL faults scoped to owned examination; temporary test triggers removed"
+    },
+    "examination_complete_faults": {
+      "status": "PASS",
+      "checks": [
+        "audit SQL failure rolls back narrative, audit and snapshot with truthful retry UI",
+        "snapshot SQL failure rolls back narrative, audit and snapshot with truthful retry UI",
+        "successful retry after injected failures persists once"
+      ],
+      "scope": "Actual routed real SQL faults scoped to owned examination; temporary test triggers removed"
+    },
+    "examination_concurrency": {
+      "status": "PASS",
+      "checks": [
+        {
+          "name": "edit-first",
+          "consistentSignedNarrative": true,
+          "outcomes": [
+            {
+              "ok": true,
+              "denied": false
+            },
+            {
+              "ok": true,
+              "denied": false
+            }
+          ]
+        },
+        {
+          "name": "sign-first",
+          "consistentSignedNarrative": true,
+          "outcomes": [
+            {
+              "ok": true,
+              "denied": false
+            },
+            {
+              "ok": false,
+              "denied": true
+            }
+          ]
+        },
+        {
+          "name": "duplicate-sign",
+          "consistentSignedNarrative": true,
+          "outcomes": [
+            {
+              "ok": true,
+              "denied": false
+            },
+            {
+              "ok": false,
+              "denied": true
+            }
+          ]
+        }
+      ],
+      "scope": "Real simultaneous independent PHP processes and MariaDB connections; service-level races, fixtures created/completed through real routes"
+    },
+    "role_bearer_csrf": {
+      "status": "PASS",
+      "checks": [
+        {
+          "name": "web session alone never authenticates Bearer API",
+          "pass": true,
+          "status": 401
+        },
+        {
+          "name": "Bearer requires explicit clinic header",
+          "pass": true,
+          "status": 422
+        },
+        {
+          "name": "valid Bearer plus canonical clinic succeeds independently of session",
+          "pass": true,
+          "status": 200
+        },
+        {
+          "name": "Bearer cannot inherit another clinics authority",
+          "pass": true,
+          "status": 403
+        },
+        {
+          "name": "Bearer alone cannot open session search",
+          "pass": true,
+          "status": 401
+        },
+        {
+          "name": "restricted viewer has legitimate read workflow",
+          "pass": true
+        },
+        {
+          "name": "restricted direct POST denied /contracts/7/update",
+          "pass": true,
+          "status": 403
+        },
+        {
+          "name": "restricted direct POST denied /examination/1143/update",
+          "pass": true,
+          "status": 403
+        },
+        {
+          "name": "restricted direct POST denied /finance/payouts/1/payments",
+          "pass": true,
+          "status": 403
+        },
+        {
+          "name": "restricted direct POST denied /controlplane/impersonate",
+          "pass": true,
+          "status": 404
+        },
+        {
+          "name": "restricted mutation attempts preserve clinical rows",
+          "pass": true
+        },
+        {
+          "name": "missing CSRF denies contract mutation",
+          "pass": true,
+          "status": 303
+        }
+      ],
+      "scope": "Actual isolated routed requests; separate real sessions and Bearer token, no permission relaxation"
+    },
+    "provider_payouts": {
+      "status": "PASS",
+      "checks": [
+        "owned invoice and provider allocation persisted through routed form",
+        "partial provider payment persists",
+        "mark-paid preserves gross/share/invoice and settles only remaining obligation",
+        "mark-paid retry creates no duplicate payout"
+      ],
+      "scope": "Actual enabled existing workflow, synthetic-only; optional features remain OFF"
+    },
+    "platform_impersonation": {
+      "status": "PASS",
+      "checks": [
+        "genuine synthetic platform actor enters independent global plane",
+        "global mode cannot use tenant session search",
+        "explicit platform impersonation enters only selected synthetic clinic",
+        "impersonating tenant session cannot simultaneously access global surfaces",
+        "impersonation never supplies missing Bearer authority",
+        "explicit exit restores global plane and clears tenant impersonation"
+      ],
+      "scope": "Actual isolated session transitions and route denials; no permission or production changes"
+    },
+    "final_browser": {
+      "status": "PASS",
+      "checks": [
+        "signed completion rejected",
+        "signed deletion rejected",
+        "forged item identity from another contract rejected",
+        "existing contract-signature feature-OFF remains enforced without activation",
+        "signed narrative and signature evidence bytes unchanged",
+        "contract ar 390 real page reflow and focus",
+        "examination ar 390 real page reflow",
+        "history ar 390 real page reflow",
+        "contract ar 820 real page reflow and focus",
+        "examination ar 820 real page reflow",
+        "history ar 820 real page reflow",
+        "contract en 1586 real page reflow and focus",
+        "examination en 1586 real page reflow",
+        "history en 1586 real page reflow",
+        "no JavaScript runtime errors in representative corrected workflows"
+      ],
+      "scope": "Actual CI4 synthetic pages and denied mutations; screenshots outside repository; no manual assistive-technology certification"
+    }
+  },
+  "tracked_service_sql_regression": {
+    "status": "PASS",
+    "assertions": 9,
+    "scope": "Real MariaDB rollback, nested ownership, cross-clinic and immutable signing; retained owned fixture1147; not HTTP authorization evidence"
+  },
+  "flags": {
+    "scope": "Effective isolated synthetic application only; no production contact",
+    "flags": {
+      "invoice_corrections": false,
+      "checkout": false,
+      "derivatives": false,
+      "contact_history": false,
+      "dynamic_scheduling": false,
+      "contract_signature": false,
+      "whatsapp_plan": false
+    }
+  },
+  "preservation": {
+    "original_business_rows_unchanged": 339,
+    "original_business_tables": 15,
+    "schema_equal": true,
+    "native_svg_and_algorithms_unchanged": true,
+    "signed_existing_evidence_unchanged": true,
+    "configuration_dependencies_migrations_unchanged": true,
+    "original_preview_fingerprint_tables_unchanged": 11,
+    "protected_source_groups_compared_to_before": [
+      "app/Views/odontogram/odontogram.svg",
+      "app/Views/odontogram/index.php",
+      "app/Models",
+      "app/Config",
+      "app/Database",
+      "app/Services/ContractSigningService.php",
+      "app/Services/FinanceMutationService.php",
+      "app/Services/FinanceSettlementService.php",
+      "composer.json",
+      "composer.lock",
+      "package.json",
+      "package-lock.json"
+    ]
+  },
+  "reproduction_commands": [
+    "node scripts/ci/pr21_contract_items_regression.cjs",
+    "node scripts/ci/pr21_history_preview_regression.cjs",
+    "php tests/regression/Pr21ExaminationTransactionSql.php --bootstrap=<existing guarded private synthetic bootstrap>",
+    "php scripts/ci/frontend_rebuild_guard.php",
+    "bash scripts/ci/saas_guardrails.sh"
+  ],
+  "limitations": [
+    "Independent exact-head acceptance pending; earlier review is COMMENTED with changes required",
+    "Medical Unassessed/No/Yes provenance policy remains an Owner decision; historical0 is not assessed No",
+    "Contract-signature feature stays OFF: no newly successful routed contract consent; existing unchanged M2 service evidence is reused",
+    "First-party app API over local HTTP returns426 by design; TLS App API workflow not newly certified",
+    "Physical assistive technology, native browser zoom and hardware device matrix not certified",
+    "Prior patient workspace query profile442 remains a separately scoped backend concern; no performance optimization claim",
+    "Existing numbering/FDI presentation is preserved exactly; no clinical renumbering or retrospective interpretation"
+  ],
+  "evidence_archive": "Full private harnesses, SQL receipts and screenshots retained outside Git in the existing final-acceptance directory"
+}

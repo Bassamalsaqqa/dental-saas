@@ -1,5 +1,10 @@
 # Project State
 
+## PR21 surgical corrections — 2026-10-27
+
+Owner-authorized contract-item preservation, historical-preview mapping/visibility and examination update durability are locally corrected. Runtime freeze `a10b0985c3f50d90bec27cd4c9dc8f8d3dbd7ebf`; exact final publication identity is in the PR handback. Real routed SQL/fault/concurrency and EN/AR evidence: [current correction gate](ui-evidence/final-acceptance/README.md). Draft PR21 remains pending independent exact-head acceptance. No production contact, migration, source integration or feature activation. Historical receipts below remain historical, not today's live-installed-source certification.
+
+
 Last updated: 2026-10-27 (source authority reconciled from existing receipts; PR21 actual-persistence acceptance blocked; no live production verification).
 
 ## Source authority reconciliation — 2026-10-27

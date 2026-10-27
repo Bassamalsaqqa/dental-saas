@@ -1,5 +1,5 @@
 {
-  "status": "IMPLEMENTATION_PASS_READY_FOR_OWNER_VISUAL_AND_EXTERNAL_REVIEW_PUBLICATION_GATE",
+  "status": "SURGICAL_CORRECTIONS_LOCALLY_VERIFIED_PENDING_INDEPENDENT_ACCEPTANCE",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -62,7 +62,7 @@
     "V4.skip removed; Studio.skip present in EN/AR",
     "Approved dashboard preserved after clean transfer: 41 browser checks passed"
   ],
-  "next_step": "Owner reviews the twenty-page gallery/live preview together. Apply substantiated visual feedback before extending to further modules. Do not merge/deploy or claim whole-application completion.",
+  "next_step": "Independent exact-head clinical/backend correction review of draft PR21; no merge/deploy. Retain Owner visual/policy and disclosed untested gates.",
   "feature_policy": "All optional production features remain OFF. No backend/schema/dependency/production changes.",
   "execution_protocol": "Read docs/UI_REBUILD_EXECUTION.md and DESIGN.md; update coverage and exact source/evidence checkpoint after each internal batch.",
   "protected_baseline_git_objects": {
@@ -684,23 +684,19 @@
     "source_guard_failures": [],
     "owner_full_visual_acceptance": false,
     "final_independent_review": "PENDING",
-    "whole_pr_acceptance": "NOT_READY; explicit clinical/history, contract item sync, mutation and independent/Owner acceptance gates remain"
+    "whole_pr_acceptance": "NOT_CLAIMED: narrow corrections locally verified; independent/Owner final acceptance remains pending"
   },
   "final_actual_workflow_acceptance": {
     "starting_head": "27bc01ec3865224b1cb0dd78b037b815a0fbdf3a",
     "foundation": "ACCEPTED by review5666649981; full acceptance not approved",
-    "recommendation": "BLOCKED",
+    "recommendation": "READY_FOR_INDEPENDENT_CORRECTION_REVIEW_NOT_RELEASE",
     "receipt": "docs/ui-evidence/final-acceptance/README.md",
     "actual_mutations": "New owned records only in denta_pr21_acceptance_20261027 on127.0.0.1:3307; separate user/writable/session",
     "original_rows_preserved": 339,
     "original_tables_preserved": 15,
     "source_preview_fingerprints_unchanged": 11,
-    "protected_blockers": [
-      "Historical preview tooth-ID lookup omits conditions",
-      "Draft tooth-linked priced item lost during synchronization/resave",
-      "Examination draft edit persists then500 due undefined previousStatus"
-    ],
-    "protected_fixes_implemented": false,
+    "protected_blockers": [],
+    "protected_fixes_implemented": true,
     "safe_ui_changes": [
       "Medical no-positive does not establish assessed No",
       "Chronological numeric calendar ranges isolated LTR"
@@ -709,9 +705,16 @@
     "migrations": 0,
     "feature_activation": false,
     "pending_evidence": [
-      "Fresh restricted-role/Bearer/impersonation and provider-payout matrix",
-      "Gated contract signing remains OFF; success not tested anew",
-      "Physical AT/native zoom/device matrix"
-    ]
+      "Independent exact-head acceptance pending; earlier review is COMMENTED with changes required",
+      "Medical Unassessed/No/Yes provenance policy remains an Owner decision; historical0 is not assessed No",
+      "Contract-signature feature stays OFF: no newly successful routed contract consent; existing unchanged M2 service evidence is reused",
+      "First-party app API over local HTTP returns426 by design; TLS App API workflow not newly certified",
+      "Physical assistive technology, native browser zoom and hardware device matrix not certified",
+      "Prior patient workspace query profile442 remains a separately scoped backend concern; no performance optimization claim",
+      "Existing numbering/FDI presentation is preserved exactly; no clinical renumbering or retrospective interpretation"
+    ],
+    "runtime_source_head": "a10b0985c3f50d90bec27cd4c9dc8f8d3dbd7ebf",
+    "protected_correction_disposition": "Three substantiated defects locally corrected/tested under explicit Owner authorization; independent acceptance pending",
+    "current_receipt": "docs/ui-evidence/final-acceptance/surgical-acceptance.json"
   }
 }

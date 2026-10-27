@@ -1,129 +1,86 @@
-# PR21: actual workflow certification and protected correction gate
+# PR21 — authorized clinical corrections and independent acceptance gate
 
-**Recommendation: BLOCKED for final acceptance, merge and release.** The Studio visual foundation remains accepted. This pass performed real SQL-backed application actions rather than treating screenshots or intercepted requests as persistence. It found three concrete protected clinical/backend defects. None was fixed, waived or reclassified as accepted.
+**Recommendation: ready for independent exact-head correction review; keep PR21 Draft. No merge or deployment approval.** The accepted Studio design is preserved. The three failures in [review5667106157](https://github.com/Bassamalsaqqa/dental-saas/pull/21#pullrequestreview-5667106157) have been corrected under explicit Owner authorization and locally checked with real SQL and browser workflows. They are not yet independently accepted.
 
-Starting source:27bc01ec3865224b1cb0dd78b037b815a0fbdf3a /28ef8eb72399bde4dfff22efbfaa4a9c2d3413d6. Independent review5666649981 is GitHub COMMENTED with an explicit changes-required verdict. Current release ref89352fd is preserved. No production access or GitHub Actions.
+Runtime source freeze: `a10b0985c3f50d90bec27cd4c9dc8f8d3dbd7ebf`, tree `f4546b22e2f1499ef11411e9041c34345b9a49a1`. Subsequent packaging changes contain evidence/tests/governance only. The final published PR SHA/tree is recorded in the review handback, avoiding self-referential commit metadata.
 
-## Isolation and recoverability
+- [Current sanitized acceptance matrix](surgical-acceptance.json)
+- [Original before-correction receipt](acceptance.json) and [historical report at5785e4c](https://github.com/Bassamalsaqqa/dental-saas/blob/5785e4c71902e06b61c2bb08a021b34ad7a3be20/docs/ui-evidence/final-acceptance/README.md)
+- [Existing frontend/gallery evidence](../modular/README.md)
+- Local actual-page correction gallery: `C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/final-acceptance/surgical-gallery.html` (double-click). Full captures/private harnesses stay outside Git.
 
-A new `denta_pr21_acceptance_20261027` database was restored from a consistent synthetic-only dump of the existing preview database on the already-owned MariaDB instance127.0.0.1:3307. Before creation, the target was absent and the instance/datadir identity matched the preserved dedicated disposable instance. No existing database/datadir was overwritten. A new restricted DB actor and separate writable/cache/uploads/log/session tree were used; every HTTP request failed closed unless the exact new database/port was active. Authentication used a separate cookie/session. The old57131 preview was not switched to this target.
+![Actual synthetic CI4 history and Arabic contract evidence](surgical-corrections.jpg)
 
-The local acceptance server used127.0.0.1:57321 after Windows denied binding57132; no existing process was terminated and no system networking configuration changed. SQL seed, private instance credentials, sessions, full diagnostics and screenshots remain outside Git at `C:/Users/bassa/AppData/Local/Temp/denta-ui-v3-20261023/final-acceptance/`. Preserve them. The seed is a reproducible restore point for another explicitly owned disposable target; never restore it over production or the existing preview. No migrations were run.
+## Corrections and before/after evidence
 
-Original-source synthetic DB:11 business-table fingerprints remain unchanged. In the acceptance clone, **339 pre-existing rows across15 business tables match their originals**, and schema metadata matches. Actual workflow writes affect only newly owned synthetic records; logs/auth metadata in the disposable target may change as expected. Synthetic signatures are test evidence, not real patient consent. No production/customer data was used.
+| Area | Failing before at5785e4c | Corrected behavior | Primary commit |
+|---|---|---|---|
+| Draft contract | Persisted priced tooth11 line classified auto, dropped on chart refresh, then soft-deleted by resave | Persisted IDs/provenance retained; suggestions separated; every saved ID must be submitted or explicitly removed; stale/incomplete/forged submissions reject under existing draft locks; equivalent row bytes preserved | `3e5675a` |
+| Historical preview | toothN lookup misses native tooth-N groups; actual saved conditions have no overlays | Validate exact unique IDs and entire batch before paint; invalid/ambiguous/missing/unsupported data shows unavailable with text retained; visible original color overlays | `c25abcc` |
+| Examination | Narrative persisted, then undefined previousStatus produced500 | Locked previous state; mandatory narrative/audit/completion snapshot share one checked transaction; edit/completion/sign serialize; best-effort follow-up after commit; truthful retry response | `4738101` |
 
-## Actual routed workflow matrix
+Bounded follow-ups in the same correction scopes: `60ae805` rejects nested form types before coercion; `3f9708e` keeps invalid/null saved JSON unavailable; `381a581` owns locked signed-state queries in the existing governance service; `a10b098` prevents a transparent native base shape from making the new historical crown overlay invisible. These are ordinary commits, without history replacement.
 
-All below used manager role in synthetic clinic1 unless stated. HTTP responses, redirects and database state were independently checked; the test harness preserves failed assertions instead of converting them to passes.
+Visual inspection found the crown's cloned native shape had opacity0 despite a correct fill attribute. The preview now explicitly uses opacity1 and retains fill-opacity0.38 and the original colors. Computed browser colors are cavity rgb(250,204,21) and crown rgb(139,92,246); both are visible. Native SVG assets, interactive chart algorithms, numbering/FDI labels, stored snapshot bytes and signed evidence are unchanged. Multiple conflicting conditions on a single tooth are reported unavailable rather than flattened to a guessed color. This preserves the application's existing numbering contract; it does not certify or redefine clinical numbering conventions.
 
-| Workflow / source route | Action and actual result | Persistence / security classification |
+Contract updates retain row identity instead of delete/reinsert. Explicit removals remain soft-deletes. Revision validation covers current contract/items/frozen snapshot under existing clinic/patient/exam/contract/item locks. No automatic billing, provider obligation or signed-document change is introduced. On incomplete/stale validation, the user must reopen and review the draft; rejected writes preserve the stored plan.
+
+Examination locking is clinic -> numerically ordered patient(s) -> examination -> signature. Completion shares that boundary and only first completion captures a baseline. Deletion rechecks signing under its existing financial-parent deletion locks. Strict snapshot insertion failure is opt-in for these authorized examination paths; empty baselines retain null behavior. Mandatory activity failure rolls back the save. Transaction-depth checks prevent nested callbacks from falsely reporting a committed save. Signing reads its persisted snapshot state before commit. No clinic-scale lock-capacity claim is made.
+
+## Actual acceptance, with scope distinguished
+
+All mutations target new owned fixtures in `denta_pr21_acceptance_20261027`, the existing dedicated MariaDB on127.0.0.1:3307. Separate HTTP/writable/session credentials are retained privately. The original synthetic seed, original preview, original checkout and historical forensic staging are preserved. No migrations were run. Required-write fault triggers were scoped to owned examination IDs and removed in finally blocks.
+
+| Workflow | Evidence type | Result / limit |
 |---|---|---|
-| `/patient/create` → `/patient/store` | Invalid names/date/phone rejected; corrected synthetic patient saved and reopened with identity | **PASS actual persistence**; invalid request made no patient |
-| Same form, missing CSRF | Direct forged POST made no patient | **PASS denial**, not success |
-| `/appointment/create` | Booked new patient, edited10:00→11:00 and re-read; conflicting11:00 booking made no second appointment | **PASS actual persistence/conflict** |
-| `/appointment/{id}/transition` | Allowed confirmed state persisted; invented stage422 left confirmed state intact | **PASS actual state/denial** |
-| `/examination/create` | Synthetic draft persisted; reopen and edit stored changed narrative | **FAIL workflow:** edit wrote changes then returned500; undefined `$previousStatus` at `Examination.php:502` |
-| `/examination/{id}/complete` and clinical-note/sign | Completion persisted; one signature persisted; repeat signing made no duplicate; subsequent signed edit did not change narrative | **PASS actual completion/signature/immutability**, separate from the broken draft-edit response |
-| New patient's chart before fixture seeding | Draft/completion actions did not write baseline conditions | **PASS baseline separation**. Later explicit reproduction-only fixture deliberately inserted two new owned baseline conditions |
-| `/contracts/create/{patient}` | Actual draft with tooth11/qty1/price125 persisted server-side | **PASS create/storage only** |
-| `/contracts/{id}/edit` | Server delivered the priced item in initialItems; browser removed it because no matching condition existed | **FAIL synchronization**, not a render-success claim |
-| Same owned draft, actual resave | Original tooth11/125 item was soft-deleted; current synthetic condition teeth1/32 became zero-price auto items | **FAIL confirmed data-loss workflow** on a disposable draft. Existing records outside the fixture unchanged |
-| Separate manual no-tooth item | Server stored it; reopen retained its code/price25 | **PASS bounded equivalent case** |
-| Contract cancel | Back/cancel left stored draft items unchanged | **PASS cancellation** before destructive resave reproduction |
-| Contract signature endpoint | Existing plan feature `contracts.signature.enabled` remained OFF;404 retained draft and no attachment | **EXPECTED FEATURE-GATE DENIAL**; successful signed-contract publication/edit/delete/retry not freshly certified. No feature bypass/activation |
-| Contract validation failure/retry | Full state-preservation cycle not certified because reopen/resave already loses priced items | **BLOCKED**, not silently passed |
-| `/finance/store` | Invoice100.00 ILS persisted with correct currency/total | **PASS actual persistence** |
-| `/finance/{id}/payments` | Receipt40 persisted once with actual treasury-account attribution; invoice amount_paid40/balance60 | **PASS actual payment/balance**. Initial harness incorrectly supplied `cash` as an account key; server rejected it. Using the real form payload without an invented override succeeded; no application fix |
-| `/finance/{id}/payments/refund` | Separate10 refund history persisted; negative receipt made no extra payment | **PASS actual refund/validation/history** |
-| Foreign clinic2 patient | Read403/404; forged clinic1 appointment referencing clinic2 patient made no cross-clinic insert | **PASS isolation denial** |
-| Anonymous/Bearer/platform/restricted roles | Earlier source/route evidence retained; not all newly requested role/impersonation/session/Bearer mutation permutations executed | **PARTIAL / REUSED**, no new full security certification |
-| Provider payout | Existing source remains unchanged; fresh payout persistence not executed in this pass | **NOT TESTED anew**, not included in payment certification |
+| Reopen/manual/tooth/same-tooth contract plans, equivalent resave, authorized edit/removal, validation retry/cancel, stale duplicate | Actual routed browser forms + full SQL item rows | PASS: IDs and unchanged fields persist; omissions/invalid inputs leave original rows intact |
+| Concurrent contract updates | Two HTTP servers and independent sessions contending on real MariaDB clinic lock | PASS: one fresh revision commits, stale contender rejects, original item rows intact |
+| Foreign/nested item identity and revision forgery | Actual routed POST + SQL | PASS: safe rejection, no500, no row changes |
+| History1/16/17/32, cavity/crown/healthy, missing/invalid/duplicate IDs, unsupported types, missing/duplicate SVG groups, legacy ambiguity | Actual saved CI4 page + DOM-only malformed fixtures | PASS; malformed edge cases are not represented as persisted clinical tests |
+| Invalid/null saved JSON | Separate new owned snapshot records + actual CI4 page | PASS: HTTP200, preview hidden, unavailable warning visible; original saved records untouched |
+| Draft edit, completion, permitted unsigned completed edit, validation, identical retry, signing and signed denial | Actual routed requests + SQL | PASS: response agrees with durable state; one completion snapshot |
+| Required activity/snapshot failures on update and completion | Real MariaDB failure triggers + actual routed saves | PASS: narrative/audit/snapshot rows roll back together; later retry commits once |
+| Edit-first/sign-first/duplicate-sign races | Independent PHP processes and actual MariaDB connections | PASS: signed snapshot equals durable narrative; signed edit denied; one signature; no observed deadlocks |
+| Owned transaction failure, nested transaction violation, cross-clinic denial, signing/immutability | Tracked real-SQL regression | PASS9 assertions; service evidence, not routed RBAC evidence |
+| Restricted-role direct clinical/contract/payout/platform POSTs, missing CSRF | Actual routes with genuine restricted session | PASS; no permission relaxation |
+| Session/Bearer isolation, mandatory clinic header, unauthorized clinic, Bearer-only attempt at session search | Actual independent sessions/tokens/routes | PASS; no inherited authority |
+| Platform entry, tenant search airlock, impersonation/exit, global-surface denial, Bearer separation | Actual synthetic platform session and routed transitions | PASS; first-party App API over local HTTP remains426 by design, not newly TLS-certified |
+| Provider allocation, partial payout, mark-paid and repeat | Actual enabled existing finance routes + SQL | PASS: gross/share/original invoice preserved; only remaining obligation paid; no duplicate history |
+| Contract-signature featureOFF | Actual routed request | PASS404 without activation; no new successful routed consent claim; unchanged M2 signing evidence reused |
+| Corrected contract/exam/history EN/AR390/820/1586 | Actual CI4 rendering, reflow, keyboard focus and JS-error observation | PASS representative checks; not formal accessibility/device certification |
+| Registration, appointment create/edit/conflict/status, invoice receipt/refund, original signed-note protections | Earlier actual SQL receipts, reused | No repetition of accepted broad suites; see original receipt |
 
-Private raw receipts contain full routed diagnostics and SQL state; committed [acceptance.json](acceptance.json) includes only sanitized outcomes. One earlier test asserted draft-update persistence without requiring a successful response; the resulting500 was caught by independent log/response inspection and is explicitly FAILED here. Some fixture/harness failures (wrong signature hash-column name, incorrect tooth-position enum) were corrected against actual schema, not by changing schema/validation. The first synthetic history snapshot was preserved when its subsequent baseline fixture insert failed.
+The JSON contains88 scoped routed/browser observations plus the separately executed9-assertion service SQL test. These are different evidence types, not a claim of complete workflow or accessibility certification.
 
-## Clinical defect A: exact historical tooth-ID impact
+## Preservation and scope
 
-Actual synthetic snapshot: cavity on universal tooth1 and crown on tooth32. Stored rows were present. The history route's original `container.querySelector('#tooth' + toothNumber)` finds zero groups in the real SVG, which exposes `tooth-1`…`tooth-32`; **zero history condition overlays** render. The list of conditions and existing preview warning remain. The current native interactive chart uses the original hyphenated mapping and correctly rendered both yellow cavity and purple crown overlays.
+- All339 original copied business rows across15 tables match; schemas match. Eleven original-preview table fingerprints match the preserved pre-campaign baseline.
+- Native SVG/current chart source, models, Config/schema/migrations, ContractSigningService, canonical finance services and Composer/npm manifests/locks are unchanged against5785e4c. Exact authorized backend exceptions remain pinned by the source guard.
+- Corrections, checkout, derivatives, contact history, dynamic scheduling, contract signatures and WhatsApp entitlement remainOFF in the isolated effective configuration. No feature/configuration/permission was changed in production.
+- GitHub release remains89352fd; main remains485a198. No live production contact was performed; the prior deployment receipt remains the last recorded installed-source evidence.
+- SaaS and exact protected-source guards pass. A preexisting stale DOM allowlist note remains visible; no guard was weakened. GitHub reports0 workflow files; no Actions were run.
+- No new CSS/assets/dependencies or redesign. The approximately442-query patient profile is still a separately scoped backend concern, not a claimed performance improvement.
 
-Impact is omission/under-representation in the historical preview; no wrong-tooth remapping was observed, and persisted findings/snapshot rows were not changed. This can mislead a clinician relying on color instead of the condition list. It remains **HIGH clinical workflow risk / release-blocking for history preview**.
+## Reproduction and retained evidence
 
-**Separate authorization needed:** narrowly correct history-preview target lookup for validated universal1–32 IDs, with explicit handling for genuinely historical alternate SVG IDs, duplicate/unknown IDs and an honest unavailable state. Preserve saved SVG/JSON bytes, condition meanings/colors, native current-chart algorithm and signed evidence. Tests must include teeth1/16/17/32, absent/invalid/duplicate IDs, mixed conditions, unchanged source snapshot hashes and native-chart nonregression. Do not implement a broad renderer rewrite or silently rewrite old snapshots.
+```text
+node scripts/ci/pr21_contract_items_regression.cjs
+node scripts/ci/pr21_history_preview_regression.cjs
+php tests/regression/Pr21ExaminationTransactionSql.php --bootstrap=<existing guarded private synthetic bootstrap>
+php scripts/ci/frontend_rebuild_guard.php
+bash scripts/ci/saas_guardrails.sh
+```
 
-Reproduce without SQL/network: `node scripts/ci/pr21_clinical_characterization.cjs`. Exit0 means the **documented defect is reproduced**, not that the workflow is safe. Actual routed snapshot evidence is separately retained in `final-acceptance/history-reproduction.json`.
+`pr21_clinical_characterization.cjs` is explicitly pinned to5785e4c and succeeds when it reproduces the original defects. It is **not** a corrected-behavior test. Its process buffer was increased to read the unchanged large SVG; that harness issue did not change clinical expectations.
 
-## Clinical defect B: draft item provenance/synchronization
+Private route/fault/concurrency runners, seed and full SQL receipts remain in the existing external `final-acceptance` directory. They require the guarded synthetic instance and are not public production utilities. The tracked SQL runner refuses the original/business/production DB, wrong source root, root account, wrong instance/port and unowned patient. No fixture credentials, sessions, `.env`, raw diagnostic logs or customer data are published.
 
-`normalizeItems()` marks every persisted item with a tooth as source=auto. `syncItemsFromConditions()` filters those entries out when its current nonhealthy condition list does not contain the tooth. Reopen therefore loses item identity, qty, price and description from the submitted form even though the database initially retains them. The canonical update then soft-deletes all old items and inserts the submitted set. In the owned reproduction, priced tooth11 was removed and current condition teeth1/32 acquired auto zero-price items. A manual no-tooth item remains, demonstrating the specific classification path rather than a universal rendering failure.
+## Remaining decisions / untested boundaries
 
-**HIGH clinical/financial plan-integrity risk / release blocker.** No protected algorithm or business rule changed.
+- Independent exact-head acceptance is pending; earlier COMMENTED review is not an approval of these corrections. Keep draft, no merge/deploy.
+- Medical assessment provenance remains separate: historical0 is not reinterpreted as assessedNo. Existing safe warning remains. Owner must decide future Unassessed/No/Yes policy/provenance before any storage change.
+- Contract-signing success was not re-enabled for a new browser test; featureOFF is intentionally preserved. Native Hostinger/filesystem work is reused from earlier M2 evidence, not rerun or claimed newly certified.
+- Physical assistive technology, native browser zoom, hardware touch/password managers and full device matrix remain untested. No formal WCAG compliance claim.
+- Earlier large patient query count, existing numbering semantics and unrelated workflows were not redesigned or silently changed.
 
-**Separate authorization needed:** preserve persisted items as explicit plan records regardless of current chart condition. Do not infer removable provenance from tooth_no. Define explicit clinician add/remove/reconcile behavior; retain item identifiers/quantity/tooth/currency/amount unless the operator deliberately edits them; no automatic billable treatments or liabilities. Decide how intentionally removed conditions affect unsaved suggestions versus persisted plan items. Add create→edit→validation→retry→reopen tests for manual/tooth-linked/multiple-same-tooth/priced/historical entries, cancellation, signed-denied requests and duplicate submission. Existing signatures and financial obligations must not be rewritten. The current UI PR must not quietly adopt that accounting/clinical policy.
-
-## Clinical/backend defect C: examination update response after persistence
-
-Actual `POST /examination/1130/update` wrote the changed draft chief complaint then returned500. Local log identifies undefined `$previousStatus` in `app/Controllers/Examination.php:502`, after the model update and activity call. The backend file matches the protected release source. Thus a user may see failure despite a changed clinical record and retry, with uncertain lifecycle/snapshot expectations.
-
-**HIGH reliability/clinical-audit risk / release blocker for draft editing.** No backend patch was made.
-
-**Separate authorization needed:** capture and validate the previous state before mutation in the appropriate tenant-scoped serialized transaction, and ensure narrative update, activity and any newly-completed snapshot succeed or roll back coherently. Review the existing signing lock order before adding locks; do not “fix” only the exception while claiming atomicity. Focused tests: pending→pending, pending→completed, failed audit/snapshot, signed-denied, simultaneous sign/edit and identical retry. Preserve clinical histories and original chart/SVG authority.
-
-## Medical assessment: safe presentation, policy still pending
-
-Storage has boolean/hidden0 controls with no assessment provenance. Historical0 cannot distinguish unanswered from explicitly No. This pass changes **only UI wording**: the zero-alert summary says “Assessment not confirmed”, and intake/patient context explains that no recorded positive does not establish a completed negative assessment. All named inputs, hidden0, checked1, current validation and stored meanings are unchanged. Positive recorded alerts keep their existing warning prominence.
-
-**Clinical Owner decision still needed:** approve explicit Unassessed/No/Yes wording, who may assess and when, whether any fields must be answered, how actor/time/provenance are captured, and how historical0 displays. Recommended safe historical disposition is provenance-unconfirmed until explicitly assessed, never mass-remapped to No. This is a proposal, not a new schema/default/validation policy.
-
-## Safe UI correction and responsiveness
-
-The Arabic agenda showed a numerically reversed-looking09:30–09:00. Actual stored appointment starts09:00, duration30; FullCalendar text is chronological09:00–09:30. Isolating the numeric time range LTR within RTL fixes presentation only; modal time and event time share the numeric direction. Scheduling/event source/doctor authority and feature-OFF state remain unchanged.
-
-![Chronological numeric agenda and honest medical-intake copy](presentation-disposition.jpg)
-
-Sixteen change-relevant EN/AR patient/intake reflow observations passed at320/390/820/1366, no runtime errors. Prior full-width/container/keyboard/loading evidence is reused. Physical screen reader, native browser zoom, hardware keyboard/touch, password-manager extensions and the entire newly requested device matrix remain explicitly untested. No formal WCAG compliance claimed.
-
-## Deployment authority reconciliation, no production contact
-
-The GitHub protected release ref was read-only verified at89352fd20e0d5166e81f631cb743bead1f596a68. Existing local `release-execution-89352fd-20261023T120943Z/FINAL_RELEASE_REPORT.json` records installed89352fd, tree71fcf67a0def31a99619437169a58ddfabc7b141, previousf86376a4. `PROJECT_STATE.md` now distinguishes that last recorded deployment from its retained older M2 receipt. No live server was contacted; today's actual installation/customer activity is not inferred from a branch name or old report.
-
-## Bounded performance diagnosis
-
-One isolated current patient1 profile issued442 queries including an extra identity guard query. Redacted groups include user63, clinic61, canonical clinic-membership61, role61, granted-permission60 and current-user lookup60 queries. Approximate total database durations per group were12–20ms in this local run. This explains substantial repeated authority resolution but is **not** permission-cache authorization to change security freshness. A subsequent bounded proposal should examine request-local reuse keyed by actor/clinic/global-mode and explicit invalidation, measuring before/after query counts and tenant/role revocation; no cross-request authorization caching should be introduced casually. No backend/performance change here, and no app-wide FCP/INP claim.
-
-## Next gate
-
-BLOCKED. Authorize only the three bounded protected corrections above before critical workflows can be certified; resolve the clinical assessment policy separately. Keep remaining role/finance/provider/gated-signing/AT evidence gaps explicit. Independent exact-head review is not invented or repeatedly requested from the exhausted bot. This candidate may be inspected for the safe copy/time fixes, but **must not merge, deploy, migrate or activate features**.
-
-
-## Authorized surgical correction A — local implementation checkpoint
-
-Owner explicitly authorized draft-item preservation on 2026-10-27. Saved lines now retain persisted IDs and explicit provenance. Refreshing chart suggestions cannot remove or replace them. Under the existing signing-service transaction and parent/contract/item locks, an exact consent-content revision rejects stale forms; every existing line must be present or explicitly listed for removal. Unknown/duplicate IDs and incomplete/invalid fields reject before writes. Equivalent line values leave original row bytes/timestamps untouched; authorized edits update only changed fields. Deletions remain explicit soft-deletes. No schema, billing, signature evidence or feature-gate change.
-
-Before: the retained 5785e4c characterization and actual SQL receipt demonstrate a lost priced tooth-11 line. After: genuine corrected-behavior Node regression passes; 11 actual browser/routed/SQL assertions pass on denta_pr21_acceptance_20261027: create, saved same-tooth reopen, revision presence, accidental omission, equivalent resave, invalid price rollback, explicit edit with stable ID, stale retry, explicit removal intent, selective soft-delete and cancellation. Current chart suggestions are separately identifiable new lines, not counted as preexisting rows in preservation checks. All 339 original synthetic rows across 15 tables and schema definitions remain unchanged. More concurrent/security acceptance remains pending; this checkpoint is not final clinical certification. No push/merge/deployment.
-
-
-## Authorized surgical correction B — historical preview
-
-Exact, unique native tooth-N mapping now precedes all overlay painting. A single legacy toothN group is supported only if unambiguous; invalid/missing numbers, duplicate tooth records or elements, mixed old/new IDs, absent shapes and unknown condition types leave the visual preview unavailable with textual clinical history retained. Multiple conflicting conditions on one tooth are not flattened to a guessed single color. Healthy records are supported. The existing color constants, universal/FDI mapping, native interactive SVG/algorithms and every persisted snapshot remain unchanged.
-
-Corrected-behavior synthetic DOM regression passes. Thirteen actual browser checks pass: saved cavity/crown facts on native groups, four universal extremes, healthy, missing/invalid/injection IDs, duplicate rows, unknown conditions, missing/duplicate SVG groups, ambiguous old/new identity, single legacy identity, and saved snapshot byte preservation. Original saved fixture and native interactive code were not rewritten. Malformed edge cases are browser-only fixtures, not customer-data mutations. FDI labels continue to use the unchanged existing application numbering contract; no renumbering is introduced.
-
-
-## Authorized surgical correction C — examination durability and signing serialization
-
-The previous status is now obtained from the clinic-scoped locked examination. The existing shared DB connection owns one checked transaction for narrative, mandatory activity and any newly-completed baseline snapshot. Snapshot insertion failure is strict only for these authorized update/completion paths; empty baselines retain existing null behavior. Edit, completion and signing use clinic -> numerically ordered patient(s) -> examination -> signature locking. Signing reads the persisted consent snapshot before commit and checks transaction ownership/depth. Completion no longer bypasses that serialization, duplicate completion does not duplicate baseline capture, and deletion rechecks signing evidence under its existing parent-deletion locks. No signed records are modified. Best-effort WhatsApp follow-up stays post-commit and OFF under existing gates. Failure copy says save could not be confirmed rather than falsely claiming a rollback after an uncertain commit. Validation uses serializable error strings, not a validator object in the session.
-
-After: 11 actual routed/SQL save assertions pass (draft save, audit, validation/no mutation, visible validation, completion/snapshot, equivalent retry, permitted unsigned completed edit, signing and signed denial). Three injected real SQL failure/retry checks pass on update and three on completion: required audit failure and required snapshot failure leave narrative/audit/snapshot byte-for-byte unchanged; retry commits one snapshot. Temporary triggers are scoped to the owned fixture and removed in finally blocks. Three independent-PHP-process real-MariaDB races pass: edit then sign snapshots edited text; sign then edit denies editing; simultaneous signatures yield one signature. No deadlocks observed in those bounded races; this is not clinic-scale performance certification.
-
-Additional unchanged-source acceptance now passes: 12 routed restricted-role, CSRF, separate-session/Bearer, mandatory clinic-header and cross-clinic denial assertions; four actual payout checks cover routed allocation creation, partial payment, mark-paid preserving the original invoice/gross/share, and duplicate mark-paid history protection. Broader browser/impersonation and final exact-head evidence reconciliation are still pending. Production/release/main are unchanged and no feature is activated.
-
-
-Correction-A hardening: nested/non-scalar item values reject before numeric coercion; a nested revision rejects without a string-conversion error. Two additional actual forged-form checks returned safe redirects with original item rows unchanged. The pinned failing-before replay helper needed an 8MiB process buffer for the unchanged SVG; that harness issue is corrected and the baseline bugs reproduce as expected. It is explicitly not a current-code pass criterion.
-
-
-Correction-B malformed-document guard: invalid/null snapshot JSON is no longer normalized to a healthy-looking empty overlay. Two separate newly owned synthetic invalid documents render HTTP200 with the preview hidden and unavailable warning visible; their saved bytes are retained. The existing textual history remains available. No historical records were changed.
-
-
-Correction-C source-boundary follow-up: the signed-delete current read is owned by ExaminationNoteGovernanceService, shared with edit/sign checks. The raw-query controller guard initially identified the new inline query; it was corrected through that existing service rather than adding an allowlist exception. All three real SQL concurrency cases and SaaS guardrails pass with this ownership. Existing stale DOM-allowlist note remains visible and unchanged; no security check was weakened.
-
-
-Correction-B visual acceptance: actual screenshot review and computed-style inspection caught a native base shape with inherited opacity0 on the crown overlay. Fill attributes alone were insufficient evidence. The read-only overlay now explicitly uses opacity1 while retaining the original crown/cavity colors and fill-opacity0.38. Saved native SVG bytes remain unchanged. Corrected computed styles verify cavity rgb(250,204,21) and crown rgb(139,92,246), both opacity1; all 13 relevant browser overlay checks and standalone mapping regression pass after this correction.
+**Engineering handback: the three demonstrated failures are locally corrected with auditable evidence. Ready for independent assessment of the actual final head, not release authorization.**
