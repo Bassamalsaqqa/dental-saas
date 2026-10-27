@@ -1123,4 +1123,6 @@ return [
     'passwordRevealShort' => 'Show',
     'passwordConcealShort' => 'Hide',
     'searchTreatmentRecords' => 'Search patients or treatments',
+    'medicalAssessmentUnconfirmed' => 'Assessment not confirmed',
+    'medicalAssessmentNotice' => 'An unchecked alert means no positive alert is recorded; it does not confirm that the question was assessed or answered No. Review with the patient before clinical care.',
 ];

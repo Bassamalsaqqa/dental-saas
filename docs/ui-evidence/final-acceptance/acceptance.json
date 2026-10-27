@@ -1,0 +1,88 @@
+{
+  "starting_head": "27bc01ec3865224b1cb0dd78b037b815a0fbdf3a",
+  "starting_tree": "28ef8eb72399bde4dfff22efbfaa4a9c2d3413d6",
+  "protected_release": "89352fd20e0d5166e81f631cb743bead1f596a68",
+  "environment": {
+    "host": "127.0.0.1",
+    "port": 3307,
+    "database": "denta_pr21_acceptance_20261027",
+    "http": "127.0.0.1:57321",
+    "separate_writable_session_and_user": true,
+    "synthetic_seed_preserved": true,
+    "migrations": 0,
+    "production_access": false
+  },
+  "preservation": {
+    "original_preview_tables_unchanged": 11,
+    "copied_original_business_tables": 15,
+    "copied_original_rows_unchanged": 339,
+    "schema_unchanged": true
+  },
+  "actual_workflows": {
+    "registration": "PASS valid persisted/reopened; invalid and missing CSRF no record",
+    "appointments": "PASS create/edit/conflict/confirmed transition; invalid transition rejected",
+    "clinical_draft": "FAIL update persists narrative but HTTP500 undefined previousStatus; no false success certification",
+    "examination_complete_sign": "PASS completed/signature persists; repeat no duplicate; signed edit unchanged",
+    "contract_items": "FAIL existing priced tooth11 item absent from form; actual resave soft-deletes it and inserts zero-price current-condition items",
+    "contract_manual_item": "PASS persisted manual no-tooth item remains in frontend reopen",
+    "contract_signature": "EXPECTED_GATE_DENIAL feature OFF; no activation; success/immutable signed contract path NOT TESTED anew",
+    "finance": "PASS invoice100.00 ILS; receipt40.00 with account attribution; amount_paid40/balance60; refund10; invalid receipt no new history",
+    "tenancy": "PASS foreign patient read403/404 and forged booking no cross-clinic insert",
+    "baseline_history": "FAIL history preview0 overlays for stored cavity tooth1 and crown tooth32; native original current chart renders both correctly"
+  },
+  "sql_profile": {
+    "route": "patient/1",
+    "query_count": 442,
+    "literal_redacted_top_groups": [
+      {
+        "query": "SELECT * FROM `users` WHERE `users`.`id` = ?",
+        "count": 63,
+        "ms": 16.102000000000004
+      },
+      {
+        "query": "SELECT * FROM `clinics` WHERE `clinics`.`id` = ?",
+        "count": 61,
+        "ms": 12.688000000000004
+      },
+      {
+        "query": "SELECT * FROM `clinic_users` WHERE `user_id` = ? AND `clinic_id` = ? AND `status` = ? LIMIT ?",
+        "count": 61,
+        "ms": 13.072999999999997
+      },
+      {
+        "query": "SELECT * FROM `roles` WHERE `roles`.`id` = ?",
+        "count": 61,
+        "ms": 12.081
+      },
+      {
+        "query": "SELECT `rp`.`granted` FROM `role_permissions` `rp` JOIN `permissions` `p` ON `p`.`id` = `rp`.`permission_id` WHERE `rp`.`role_id` = ? AND `p`.`module` = ? AND `p`.`action` = ? AND `rp`.`granted` = ?",
+        "count": 60,
+        "ms": 14.338
+      },
+      {
+        "query": "SELECT `users`.*, `users`.`id` as `id`, `users`.`id` as `user_id` FROM `users` WHERE `users`.`id` = ? ORDER BY `users`.`id` DESC LIMIT ?",
+        "count": 60,
+        "ms": 19.627
+      },
+      {
+        "query": "SELECT * FROM `clinic_subscriptions` WHERE `clinic_id` = ? ORDER BY COALESCE(end_at, ?) DESC, `id` DESC LIMIT ?",
+        "count": 5,
+        "ms": 1.6660000000000001
+      },
+      {
+        "query": "SELECT * FROM `settings` WHERE `clinic_id` = ? AND `setting_key` = ?",
+        "count": 5,
+        "ms": 1.3900000000000001
+      }
+    ],
+    "scope": "Single disposable run; instrumentation adds one isolation SELECT; no server performance fix"
+  },
+  "remaining_blockers": [
+    "Protected historical preview mapping correction requires separate explicit authorization",
+    "Protected draft contract item-identity/source synchronization correction requires separate explicit authorization",
+    "Examination update writes then500/audit-snapshot boundary correction requires separate explicit authorization",
+    "Medical explicit Unassessed/No/Yes policy/provenance still needs clinical Owner decision",
+    "Full restricted-role/Bearer/impersonation/physical AT and successful gated signing/payout matrix not freshly certified"
+  ],
+  "recommendation": "BLOCKED for final acceptance/release; Studio foundation preserved; no merge/deploy"
+}

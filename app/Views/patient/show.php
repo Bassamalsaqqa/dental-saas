@@ -622,8 +622,8 @@ $heroInfoCapsules = [
 $patientHeaderSnapshotCards = [
     [
         'label' => lang('UI.patientMedicalAlertsSummary'),
-        'value' => $medicalAlertCount > 0 ? (string) $medicalAlertCount : lang('UI.patientNoneShort'),
-        'detail' => $medicalAlertCount > 0 ? lang('UI.patientProfileAlertSummary', ['count' => $medicalAlertCount]) : lang('UI.patientStatusActive'),
+        'value' => $medicalAlertCount > 0 ? (string) $medicalAlertCount : lang('Studio.medicalAssessmentUnconfirmed'),
+        'detail' => $medicalAlertCount > 0 ? lang('UI.patientProfileAlertSummary', ['count' => $medicalAlertCount]) : lang('Studio.medicalAssessmentNotice'),
         'icon' => 'fas fa-triangle-exclamation',
         'class' => $medicalAlertCount > 0 ? 'patient-header-snapshot-card-alert' : 'patient-header-snapshot-card-calm',
     ],
@@ -784,6 +784,7 @@ if (isset($workspace_history)) {
 <div class="patient-workspace patient-view">
     <div >
         <header class="patient-identity"><div class="patient-identity-name"><span class="patient-identity-avatar"><?= esc(ui_initials($patient['first_name']??'',$patient['last_name']??'','P')) ?></span><div><h1><?= esc($fullName) ?></h1><p><?= esc($patient['patient_id']??'') ?> <span><?= esc($patientStatusLabel) ?></span></p></div></div><div class="patient-identity-actions"><?php if(has_permission('patients','edit')): ?><button type="button" class="button secondary" data-app-drawer-open="patientProfileEditDrawer"><?= esc(lang('UI.patientEditPatient')) ?></button><?php endif; ?><a class="button secondary" href="<?= esc(workflow_back('patients',$return_to??null)) ?>"><?= esc(lang('UI.back')) ?></a></div></header>
+<p class="medical-assessment-note" role="note"><?= esc(lang('Studio.medicalAssessmentNotice')) ?></p>
 <dl class="patient-identity-facts"><?php foreach($heroInfoCapsules as $capsule):$capsuleValue=(string)($capsule['value']??lang('UI.patientNotProvided'));$capsuleLabel=(string)($capsule['label']??''); ?><div><dt><?= esc($capsuleLabel) ?></dt><dd><?php if(!empty($capsule['is_button'])): ?><button type="button" onclick="openPatientWhatsAppIdentityModal('<?= esc($patientWhatsAppNumber,'js') ?>')"><?= esc($capsuleValue) ?></button><?php else: ?><?= esc($capsuleValue) ?><?php endif; ?></dd></div><?php endforeach; ?><?php foreach($patientHeaderSnapshotCards as $snapshotCard): ?><div><dt><?= esc($snapshotCard['label']) ?></dt><dd title="<?= esc($snapshotCard['detail'],'attr') ?>"><?= esc($snapshotCard['value']) ?></dd></div><?php endforeach; ?></dl>
 <?php if (has_permission('patients', 'edit')): ?>
             <?php

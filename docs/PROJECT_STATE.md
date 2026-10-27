@@ -1,8 +1,16 @@
 # Project State
 
-Last updated: 2026-10-23 (protected M2; consolidated nonproduction candidate in PR #20).
+Last updated: 2026-10-27 (source authority reconciled from existing receipts; PR21 actual-persistence acceptance blocked; no live production verification).
 
-## Deployed source
+## Source authority reconciliation — 2026-10-27
+
+- GitHub protected `release/production-20261017` was verified read-only at `89352fd20e0d5166e81f631cb743bead1f596a68` (tree `71fcf67a0def31a99619437169a58ddfabc7b141`). `main` remains historical and is not deployment authority.
+- Existing local deployment receipt `release-execution-89352fd-20261023T120943Z/FINAL_RELEASE_REPORT.json` records installed SHA `89352fd20e0d5166e81f631cb743bead1f596a68` and matching tree, previous source `f86376a4`. This reconciles the stale M2 text below as historical evidence.
+- The current live installation was **not contacted** for this development acceptance task. The receipt establishes last recorded deployment, not proof of today's installed state or unchanged customer activity.
+- PR21 Studio foundation accepted by independent review5666649981 at27bc01e; full workflow/UI/release acceptance remains blocked. Actual disposable mutation findings and separate protected correction proposals: [final acceptance evidence](ui-evidence/final-acceptance/README.md).
+
+## Historical M2 deployment receipt (retained)
+
 
 - Production and GitHub `release/production-20261017`: `f86376a4a6c8f6bf0fe4471f08093af71e76e042`.
 - Exact tree: `4f12c340f8869b4b8f8aff57881c4b29ee98a72c`. M1 and M2 are deployed; do not reapply their corrections.

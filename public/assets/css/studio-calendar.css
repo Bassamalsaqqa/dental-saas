@@ -64,3 +64,6 @@
 /* List events use a pale reading surface, unlike status-filled time-grid blocks. */
 .fc-list-event-title .appointment-calendar-event{color:var(--color-ink);padding:0}.fc-list-event-title .appointment-calendar-event__time{display:none}.fc-list-event-title .appointment-calendar-event__title{font-size:17px;line-height:1.6;color:var(--color-ink)}.fc-list-event-title .appointment-calendar-event__pill{color:var(--color-ink-muted);background:var(--color-surface-tonal);padding:4px 8px;border-radius:6px}
 @container(max-width:650px){.fc-list-event{display:grid;grid-template-columns:minmax(0,1fr)}.calendar-workspace .fc-list-event-time{display:block;width:100%;inline-size:100%;white-space:nowrap;padding-block-end:0!important}.fc-list-event-title{display:block}.fc-list-event-title .appointment-calendar-event{width:100%}.fc-list-event-title .appointment-calendar-event__title{font-size:18px}}
+
+/* Numeric time ranges retain chronological order inside RTL appointment layouts. */
+.fc-list-event-time,.appointment-calendar-event__time,#appointmentCalendarDetailsTime{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}

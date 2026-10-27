@@ -1123,4 +1123,6 @@ return [
     'passwordRevealShort' => 'إظهار',
     'passwordConcealShort' => 'إخفاء',
     'searchTreatmentRecords' => 'البحث عن مريض أو علاج',
+    'medicalAssessmentUnconfirmed' => 'التقييم غير مؤكد',
+    'medicalAssessmentNotice' => 'عدم تحديد التنبيه يعني عدم تسجيل إجابة إيجابية، ولا يثبت تقييم السؤال أو الإجابة عنه بالنفي. يُرجى المراجعة مع المريض قبل الرعاية السريرية.',
 ];

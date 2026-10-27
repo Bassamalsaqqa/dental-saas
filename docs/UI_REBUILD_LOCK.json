@@ -665,5 +665,33 @@
     "owner_full_visual_acceptance": false,
     "final_independent_review": "PENDING",
     "whole_pr_acceptance": "NOT_READY; explicit clinical/history, contract item sync, mutation and independent/Owner acceptance gates remain"
+  },
+  "final_actual_workflow_acceptance": {
+    "starting_head": "27bc01ec3865224b1cb0dd78b037b815a0fbdf3a",
+    "foundation": "ACCEPTED by review5666649981; full acceptance not approved",
+    "recommendation": "BLOCKED",
+    "receipt": "docs/ui-evidence/final-acceptance/README.md",
+    "actual_mutations": "New owned records only in denta_pr21_acceptance_20261027 on127.0.0.1:3307; separate user/writable/session",
+    "original_rows_preserved": 339,
+    "original_tables_preserved": 15,
+    "source_preview_fingerprints_unchanged": 11,
+    "protected_blockers": [
+      "Historical preview tooth-ID lookup omits conditions",
+      "Draft tooth-linked priced item lost during synchronization/resave",
+      "Examination draft edit persists then500 due undefined previousStatus"
+    ],
+    "protected_fixes_implemented": false,
+    "safe_ui_changes": [
+      "Medical no-positive does not establish assessed No",
+      "Chronological numeric calendar ranges isolated LTR"
+    ],
+    "production_contact": false,
+    "migrations": 0,
+    "feature_activation": false,
+    "pending_evidence": [
+      "Fresh restricted-role/Bearer/impersonation and provider-payout matrix",
+      "Gated contract signing remains OFF; success not tested anew",
+      "Physical AT/native zoom/device matrix"
+    ]
   }
 }

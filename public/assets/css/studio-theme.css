@@ -77,3 +77,6 @@ tr.studio-skeleton{display:table-row;height:var(--grid-row-height,96px)}.studio-
 /* Native select keeps its platform arrow and keyboard model; no duplicate combobox. */
 select:not([multiple]):not([size]):not(.select2-hidden-accessible){appearance:auto}
 .studio-password-toggle{font-variant-numeric:tabular-nums}.studio-password-toggle span{white-space:nowrap}
+
+/* Recorded flags are not evidence of a completed clinical assessment. */
+.medical-assessment-note{background:var(--color-surface);color:var(--color-ink-muted);padding:14px 18px;border-radius:var(--radius-control);font-size:16px;line-height:1.7;max-inline-size:var(--content-reading)}

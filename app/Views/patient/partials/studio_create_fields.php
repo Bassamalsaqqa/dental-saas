@@ -84,6 +84,7 @@ $medicalAlerts=[
             </section>
             <section class="registration-medical" aria-labelledby="medical-alerts-title">
                 <h3 id="medical-alerts-title"><?= esc(lang('Studio.medicalDetails')) ?></h3>
+                <p class="medical-assessment-note" role="note"><?= esc(lang('Studio.medicalAssessmentNotice')) ?></p>
                 <div class="medical-alert-grid">
                     <?php foreach($medicalAlerts as [$key,$label,$detail,$detailLabel,$type,$pregnancy]): $checked=$studioChecked($key); ?>
                     <div class="medical-alert-card" data-medical-alert-item <?= $pregnancy?'data-pregnancy-only="1"':'' ?>>
