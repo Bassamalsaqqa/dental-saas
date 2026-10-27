@@ -1,5 +1,5 @@
 {
-  "status": "ACCEPTED_SYSTEM_ROLLOUT_IN_PROGRESS",
+  "status": "IMPLEMENTATION_PASS_READY_FOR_OWNER_VISUAL_AND_EXTERNAL_REVIEW_PUBLICATION_GATE",
   "owner_visual_anchor": {
     "commit": "99c9ecbc9d87311d887fcc81c138f42fc4a03af4",
     "tree": "6f891257a86df54ac31e345fc5dab8565c04a047",
@@ -99,7 +99,7 @@
     "rejected_ancestry_included": false
   },
   "latest_acceptance": {
-    "source_checkpoint": "Foundation/registration batch follows 503f052f919548edbc9b6f1209edc72505bd67c0; exact identity is the containing Git commit",
+    "source_checkpoint": "Current containing commit; completed interactive-workspace pass, Owner visual acceptance pending",
     "form_visual_checks": "../clean-foundation/registration-acceptance.json (36/36)",
     "routed_checks": "../clean-foundation/registration-submit.json: historical 13 passes and baseline validation failure, superseded for validation only by registration-validation-fixed.json",
     "baseline_failure_trace": "../validation-closure-paths.json",
@@ -109,7 +109,7 @@
       17
     ],
     "protected_source": "Run php scripts/ci/frontend_rebuild_guard.php; no production, migrations or feature activation",
-    "external_review": "NOT_REQUESTED_INTERMEDIATE_WORK",
+    "external_review": "NOT_REQUESTED_STALE_PR21_HEAD_NEEDS_AUTHORIZED_PUBLICATION",
     "validation_correction": "../clean-foundation/registration-validation-fixed.json: 15/15; existing synthetic patient query snapshots identical; no new records",
     "registration_refinement": "../registration-refined/acceptance.json: 46/46 field-contract, responsive, compact sizing and canonical toggles; no submissions or DB mutations",
     "registration_arrangement": "../registration-refined/arrangement-acceptance.json: 6/6; cards and each adaptive field row fill available width, EN/AR 1586/1366/900/390; source-only presentation change",
@@ -597,5 +597,28 @@
     "native_single_batch_field_parity": true,
     "read_endpoint": "Existing odontogram/get-patients-data only",
     "no_native_clinical_algorithm_changes": true
+  },
+  "consolidated_acceptance": {
+    "route_states": 62,
+    "final_read_only_browser_observations": 466,
+    "source_evidence": "../final-frontend-integration/acceptance.json",
+    "native_chart_observations": 102,
+    "curated_screenshots": "docs/ui-evidence (6 PNGs, synthetic only)",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\review-all\\index.html",
+    "protected_data": "11 synthetic business table row counts/fingerprints unchanged",
+    "owner_visual_acceptance": "PENDING",
+    "external_review": "PENDING_PUBLICATION",
+    "production_actions": 0,
+    "feature_activations": 0,
+    "no_backend_changes_except_previously_authorized_patient_validation_return": true
+  },
+  "publication_gate": {
+    "pr": 21,
+    "remote_head": "a09a9330fc633b5e35c1cbfb8e6803ce387c930a",
+    "remote_branch": "feature/warm-clinical-v3-20261023",
+    "clean_branch": "feature/denta-ui-approved-system",
+    "head_replacement_authorized": false,
+    "source_merge_or_force_push_performed": false,
+    "reason": "Clean branch deliberately excludes rejected ancestry; existing PR cannot be updated by ordinary fast-forward."
   }
 }
