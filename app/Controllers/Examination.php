@@ -436,7 +436,7 @@ class Examination extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $boolField = static function ($value): int {
@@ -487,38 +487,50 @@ class Examination extends BaseController
             'status' => $this->request->getPost('status')
         ];
 
-        if ($this->examinationModel->update($id, $examinationData)) {
-            // Get patient name for the activity log (scoped)
-            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($examinationData['patient_id']);
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-            
-            // Log the examination update activity
-            $this->activityLogger->logExaminationActivity(
-                'update',
-                $id,
-                "Examination updated for {$patientName} - {$examinationData['examination_type']} - Status: {$examinationData['status']}"
-            );
-
-            if ($previousStatus !== 'completed' && (string) ($examinationData['status'] ?? '') === 'completed') {
-                $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
-                $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
-                    (int) $clinicId,
-                    (int) $examination['patient_id'],
-                    'examination',
-                    (int) $id,
-                    $actorUserId,
-                    'Examination ' . ($examination['examination_id'] ?? $id)
-                );
-
-                try {
-                    $this->whatsAppWorkflowService->queueFollowUpForCompletedExamination((int) $clinicId, (int) $id, $actorUserId);
-                } catch (\Throwable $e) {
-                    log_message('warning', 'WhatsApp follow-up enqueue failed for examination_id={examination_id}: {message}', [
-                        'examination_id' => $id,
-                        'message' => substr($e->getMessage(), 0, 255),
-                    ]);
+        // Required writes commit together; signing uses the identical parent/row lock order.
+        $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+        try {
+            $newlyCompleted = $this->noteGovernanceService->updateUnsignedWithLock(
+                (int) $clinicId, (int) $id, (int) $examinationData['patient_id'],
+                function (array $locked) use ($clinicId, $id, $examinationData, $actorUserId): bool {
+                    $previousStatus = (string) $locked['status'];
+                    if (!$this->examinationModel->update($id, $examinationData)) {
+                        throw new \RuntimeException('Examination narrative update failed.');
+                    }
+                    $patient = $this->patientModel->where('clinic_id', $clinicId)->find($examinationData['patient_id']);
+                    if (!$patient) { throw new \RuntimeException('Examination patient unavailable.'); }
+                    $patientName = $patient['first_name'] . ' ' . $patient['last_name'];
+                    if (!$this->activityLogger->logExaminationActivity(
+                        'update', $id,
+                        "Examination updated for {$patientName} - {$examinationData['examination_type']} - Status: {$examinationData['status']}"
+                    )) { throw new \RuntimeException('Examination activity write failed.'); }
+                    $completed = $previousStatus !== 'completed' && (string) $examinationData['status'] === 'completed';
+                    if ($completed) {
+                        $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
+                            (int) $clinicId, (int) $examinationData['patient_id'], 'examination', (int) $id,
+                            $actorUserId, 'Examination ' . ($locked['examination_id'] ?? $id), true
+                        );
+                    }
+                    return $completed;
                 }
+            );
+        } catch (\Throwable $e) {
+            log_message('error', 'Examination update could not be confirmed for id={id}: {message}', [
+                'id' => (int) $id, 'message' => substr($e->getMessage(), 0, 255),
+            ]);
+            return redirect()->to(base_url('examination/' . (int) $id . '/edit'))->withInput()
+                ->with('error', lang('Examination.update_not_confirmed'));
+        }
+        // Best-effort follow-up is explicitly post-commit; failure cannot undo a saved note.
+        if ($newlyCompleted) {
+            try {
+                $this->whatsAppWorkflowService->queueFollowUpForCompletedExamination((int) $clinicId, (int) $id, $actorUserId);
+            } catch (\Throwable $e) {
+                log_message('warning', 'WhatsApp follow-up enqueue failed for examination_id={examination_id}: {message}', [
+                    'examination_id' => $id, 'message' => substr($e->getMessage(), 0, 255),
+                ]);
             }
+        }
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
             if ($this->request->getPost('after_save') === 'odontogram') {
@@ -537,9 +549,6 @@ class Examination extends BaseController
             
             return $this->redirectAfterWorkflow('examination/' . $id, ['patient', 'patients', 'examination', 'examinations'])
                 ->with('success', 'Examination updated successfully');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update examination');
-        }
     }
 
     public function updateToothCondition()
@@ -655,15 +664,24 @@ class Examination extends BaseController
             'examination_notes' => $this->request->getPost('examination_notes')
         ];
 
-        if ($this->examinationModel->update($id, $updateData)) {
+        try {
             $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
-            $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
-                (int) $clinicId,
-                (int) $examination['patient_id'],
-                'examination',
-                (int) $id,
-                $actorUserId,
-                'Examination ' . ($examination['examination_id'] ?? $id)
+            $this->noteGovernanceService->updateUnsignedWithLock(
+                (int) $clinicId, (int) $id, (int) $examination['patient_id'],
+                function (array $locked) use ($clinicId, $id, $updateData, $actorUserId): bool {
+                    if (!$this->examinationModel->update($id, $updateData)
+                        || !$this->activityLogger->logExaminationActivity('complete', $id, 'Examination completed.')) {
+                        throw new \RuntimeException('Required examination completion write failed.');
+                    }
+                    $completed = (string) $locked['status'] !== 'completed';
+                    if ($completed) {
+                        $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
+                            (int) $clinicId, (int) $locked['patient_id'], 'examination', (int) $id,
+                            $actorUserId, 'Examination ' . ($locked['examination_id'] ?? $id), true
+                        );
+                    }
+                    return $completed;
+                }
             );
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => true, 'message' => 'Examination completed successfully']);
@@ -675,12 +693,16 @@ class Examination extends BaseController
             }
 
             return redirect()->to(base_url('examination/' . $id))->with('success', 'Examination completed successfully');
-        } else {
+        } catch (\Throwable $e) {
+            log_message('error', 'Examination completion could not be confirmed for id={id}: {message}', [
+                'id' => (int) $id, 'message' => substr($e->getMessage(), 0, 255),
+            ]);
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to complete examination']);
+                return $this->response->setStatusCode(409)->setJSON([
+                    'success' => false, 'message' => lang('Examination.update_not_confirmed'),
+                ]);
             }
-
-            return redirect()->back()->with('error', 'Failed to complete examination');
+            return redirect()->back()->withInput()->with('error', lang('Examination.update_not_confirmed'));
         }
     }
 
@@ -1052,7 +1074,10 @@ class Examination extends BaseController
             }
 
             $guard = new \App\Services\FinancialParentDeletionGuard($this->examinationModel->db);
-            $guard->deleteExamination((int) $clinicId, (int) $id, function () use ($id) {
+            $guard->deleteExamination((int) $clinicId, (int) $id, function () use ($clinicId, $id) {
+                if ($this->db->query('SELECT id FROM examination_note_signatures WHERE clinic_id=? AND examination_id=? FOR UPDATE', [(int) $clinicId, (int) $id])->getRowArray()) {
+                    throw new \DomainException('Signed examinations cannot be deleted.');
+                }
                 $deleted = $this->examinationModel->delete($id);
                 if (!$deleted || $this->examinationModel->db->affectedRows() !== 1) {
                     $errors = $this->examinationModel->errors();

@@ -22,7 +22,8 @@ class OdontogramSnapshotService
         string $sourceType,
         ?int $sourceId = null,
         ?int $createdBy = null,
-        ?string $label = null
+        ?string $label = null,
+        bool $requirePersistence = false
     ): ?int {
         $rows = $this->odontogramModel
             ->where('clinic_id', $clinicId)
@@ -60,6 +61,9 @@ class OdontogramSnapshotService
             'created_by' => $createdBy,
         ], true);
 
+        if (!$snapshotId && $requirePersistence) {
+            throw new \RuntimeException('Unable to persist required odontogram baseline snapshot.');
+        }
         return $snapshotId ?: null;
     }
 }

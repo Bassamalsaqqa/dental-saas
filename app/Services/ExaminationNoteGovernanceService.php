@@ -51,17 +51,67 @@ class ExaminationNoteGovernanceService
             ->countAllResults() > 0;
     }
 
+    /** Shared edit/sign serialization: clinic -> patient(s) -> examination -> signature.
+     * The callback must keep all mandatory narrative/audit/snapshot writes on this DB.
+     * Notifications and filesystem operations belong outside this transaction.
+     */
+    public function updateUnsignedWithLock(int $clinicId, int $examinationId, int $patientId, callable $write): bool
+    {
+        $this->beginOwnedTransaction();
+        try {
+            $locked = $this->lockUnsignedExamination($clinicId, $examinationId, $patientId);
+            $completed = $write($locked);
+            if (!is_bool($completed) || (int) $this->db->transDepth !== 1 || !$this->db->transStatus() || !$this->db->transCommit()) {
+                throw new DomainException('Unable to confirm examination update commit.');
+            }
+            return $completed;
+        } catch (\Throwable $e) {
+            while ((int) $this->db->transDepth > 0) {
+                if (!$this->db->transRollback()) {
+                    throw new DomainException('Examination update requires reconciliation; rollback could not be confirmed.', 0, $e);
+                }
+            }
+            throw $e;
+        }
+    }
+
+    private function beginOwnedTransaction(): void
+    {
+        if ((int) $this->db->transDepth !== 0 || !$this->db->transStatus() || !$this->db->transBegin()) {
+            throw new DomainException('A healthy exclusively owned examination transaction is required.');
+        }
+    }
+
+    private function lockUnsignedExamination(int $clinicId, int $examinationId, ?int $targetPatientId = null): array
+    {
+        $row = fn(string $sql, array $args) => $this->db->query($sql, $args)->getRowArray();
+        if (!$row('SELECT id FROM clinics WHERE id=? FOR UPDATE', [$clinicId])) {
+            throw new DomainException('Clinic not found.');
+        }
+        $hint = $row('SELECT patient_id FROM examinations WHERE clinic_id=? AND id=?', [$clinicId, $examinationId]);
+        if (!$hint) { throw new DomainException('Examination not found.'); }
+        $patientIds = array_unique([(int) $hint['patient_id'], $targetPatientId ?? (int) $hint['patient_id']]);
+        sort($patientIds, SORT_NUMERIC);
+        foreach ($patientIds as $patientId) {
+            if (!$row('SELECT id FROM patients WHERE clinic_id=? AND id=? FOR UPDATE', [$clinicId, $patientId])) {
+                throw new DomainException('Patient not found in this clinic.');
+            }
+        }
+        $examination = $row('SELECT * FROM examinations WHERE clinic_id=? AND id=? FOR UPDATE', [$clinicId, $examinationId]);
+        if (!$examination || (int) $examination['patient_id'] !== (int) $hint['patient_id']) {
+            throw new DomainException('Examination ownership changed; reload before continuing.');
+        }
+        if ($row('SELECT id FROM examination_note_signatures WHERE clinic_id=? AND examination_id=? FOR UPDATE', [$clinicId, $examinationId])) {
+            throw new DomainException('This clinical note is already signed.');
+        }
+        return $examination;
+    }
+
     public function sign(int $clinicId, int $examinationId, int $actorUserId, string $actorName): array
     {
-        $this->db->transBegin();
+        $this->beginOwnedTransaction();
         try {
-            $examination = $this->db->table('examinations')
-                ->where('clinic_id', $clinicId)
-                ->where('id', $examinationId)
-                ->get()->getRowArray();
-            if (!$examination) {
-                throw new DomainException('Examination not found.');
-            }
+            $examination = $this->lockUnsignedExamination($clinicId, $examinationId);
             if (($examination['status'] ?? '') !== 'completed') {
                 throw new DomainException('Complete the examination before signing the clinical note.');
             }
@@ -77,7 +127,7 @@ class ExaminationNoteGovernanceService
             $signedAt = date('Y-m-d H:i:s');
             $contentHash = hash('sha256', $clinicId . '|' . $examinationId . '|' . $actorUserId . '|' . $signedAt . '|' . $snapshotJson);
 
-            $this->db->table('examination_note_signatures')->insert([
+            $written = $this->db->table('examination_note_signatures')->insert([
                 'clinic_id' => $clinicId,
                 'examination_id' => $examinationId,
                 'patient_id' => (int) $examination['patient_id'],
@@ -90,13 +140,16 @@ class ExaminationNoteGovernanceService
                 'created_at' => $signedAt,
             ]);
 
-            if ($this->db->transStatus() === false) {
+            if (!$written || (int) $this->db->transDepth !== 1 || $this->db->transStatus() === false) {
                 throw new DomainException('Unable to sign the clinical note.');
             }
-            $this->db->transCommit();
-            return $this->state($clinicId, $examinationId);
+            $state = $this->state($clinicId, $examinationId);
+            if (!$this->db->transCommit()) { throw new DomainException('Unable to confirm clinical note signature commit.'); }
+            return $state;
         } catch (\Throwable $e) {
-            $this->db->transRollback();
+            while ((int) $this->db->transDepth > 0) {
+                if (!$this->db->transRollback()) { throw new DomainException('Signature rollback could not be confirmed.', 0, $e); }
+            }
             if ($e instanceof DomainException) {
                 throw $e;
             }

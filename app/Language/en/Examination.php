@@ -1,6 +1,7 @@
 ﻿<?php
 
 return [
+    'update_not_confirmed' => 'The save could not be confirmed. Your entered information is retained. Reload the examination and check its current status before retrying.',
     'calendar_title' => 'Examination Calendar',
     'calendar_subtitle' => 'View and manage examination schedules',
     'back_to_examinations' => 'Back to Examinations',
