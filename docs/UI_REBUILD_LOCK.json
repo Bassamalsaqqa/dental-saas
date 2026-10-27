@@ -536,5 +536,17 @@
     "business_mutations": 0,
     "performance_limit": "435 queries one local request, outside frontend scope",
     "remaining": "Historical chart versions and remaining reachable partial/error/feature-gated surfaces; no whole-app completion."
+  },
+  "chart_history_rollout": {
+    "base": "5585cfe",
+    "status": "PRESENTATION_IMPLEMENTED_WITH_EXISTING_CLINICAL_PREVIEW_LIMITATION",
+    "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\chart-history\\index.html",
+    "actual_and_fixture_browser_checks": 30,
+    "presenter_checks": 22,
+    "native_algorithm_unchanged": true,
+    "only_runtime_change": "Previously authorized HTML-safe JSON embedding",
+    "business_tables_unchanged": 11,
+    "clinical_mutations": 0,
+    "existing_issue": "tooth1 lookup incompatible with original tooth-1 SVG identifiers. Baseline and candidate show zero condition overlays. Visible warning; no clinical preview acceptance."
   }
 }

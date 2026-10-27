@@ -981,4 +981,6 @@ return [
     'traceReceipts' => 'Receipts and reversals',
     'traceProviders' => 'Provider allocations',
     'traceRecordedBalance' => 'Recorded balance',
+    'historyPreviewWarning' => 'This chart preview does not reliably show the recorded condition colors. Read the condition list below and open the source record for clinical evidence.',
+    'historyChartTitle' => 'Saved chart preview',
 ];
