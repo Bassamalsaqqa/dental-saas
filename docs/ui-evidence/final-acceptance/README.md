@@ -1,5 +1,15 @@
 # PR21 — authorized clinical corrections and independent acceptance gate
 
+## Latest narrow correction — empty historical snapshot (review5669868977)
+
+Review5669868977 on d8547f1 provisionally accepted the earlier three corrections but requested one remaining empty-list safety fix. The guard now returns before revealing a chart when saved tooth data is `[]`. English/Arabic copy explicitly says no tooth data was recorded and this is not evidence of healthy teeth or completed assessment. Invalid/null data retains the separate unavailable warning. Valid previews have a persistent recorded-findings-only scope notice; explicitly saved healthy teeth are listed separately, with unchanged numbering/FDI labels. Unrecorded teeth are never asserted healthy. Native SVG, stored snapshots, clinical colors, signed evidence and earlier contract/examination corrections remain unchanged.
+
+[Current empty-snapshot receipt](empty-history-acceptance.json). The new empty-list assertion **failed before** the fix and passes afterward. Actual saved empty and healthy fixtures were added only to the existing guarded disposable database. Twenty real CI4 route observations cover empty/healthy/invalid/null/cavity+crown in EN/AR at390 and1586px, including HTTP200, visibility, translated copy, keyboard focus and reflow. Thirteen mapping/ambiguity browser checks and two existing invalid-document checks pass. All26 snapshot rows are unchanged across browser reads, all24 preexisting snapshot hashes match their pre-fixture values, and the339 original business rows/schemas remain unchanged. No broad suites repeated; no production access, migration or activation. Source guard, SaaS guardrails and PHP/JS checks pass. Independent acceptance of this new head remains pending; keep Draft.
+
+![Actual saved empty versus explicitly healthy CI4 snapshots](empty-history-comparison.jpg)
+
+Full new EN/AR captures remain in the existing external `final-acceptance` directory (`empty-fix-*.png`). The historical surgical correction evidence below remains valid; its runtime pin describes that earlier evidence, not the latest empty-state source.
+
 **Recommendation: ready for independent exact-head correction review; keep PR21 Draft. No merge or deployment approval.** The accepted Studio design is preserved. The three failures in [review5667106157](https://github.com/Bassamalsaqqa/dental-saas/pull/21#pullrequestreview-5667106157) have been corrected under explicit Owner authorization and locally checked with real SQL and browser workflows. They are not yet independently accepted.
 
 Runtime source freeze: `a10b0985c3f50d90bec27cd4c9dc8f8d3dbd7ebf`, tree `f4546b22e2f1499ef11411e9041c34345b9a49a1`. Subsequent packaging changes contain evidence/tests/governance only. The final published PR SHA/tree is recorded in the review handback, avoiding self-referential commit metadata.

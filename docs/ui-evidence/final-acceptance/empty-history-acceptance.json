@@ -1,0 +1,205 @@
+{
+  "checks": [
+    {
+      "kind": "empty",
+      "lang": "en",
+      "width": 390,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "healthy",
+      "lang": "en",
+      "width": 390,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "invalid",
+      "lang": "en",
+      "width": 390,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "null",
+      "lang": "en",
+      "width": 390,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "nonhealthy",
+      "lang": "en",
+      "width": 390,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "empty",
+      "lang": "ar",
+      "width": 390,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "healthy",
+      "lang": "ar",
+      "width": 390,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "invalid",
+      "lang": "ar",
+      "width": 390,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "null",
+      "lang": "ar",
+      "width": 390,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "nonhealthy",
+      "lang": "ar",
+      "width": 390,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "empty",
+      "lang": "en",
+      "width": 1586,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "healthy",
+      "lang": "en",
+      "width": 1586,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "invalid",
+      "lang": "en",
+      "width": 1586,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "null",
+      "lang": "en",
+      "width": 1586,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "nonhealthy",
+      "lang": "en",
+      "width": 1586,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "empty",
+      "lang": "ar",
+      "width": 1586,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "healthy",
+      "lang": "ar",
+      "width": 1586,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "invalid",
+      "lang": "ar",
+      "width": 1586,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "null",
+      "lang": "ar",
+      "width": 1586,
+      "http": 200,
+      "preview": "hidden",
+      "keyboardFocus": true,
+      "reflow": true
+    },
+    {
+      "kind": "nonhealthy",
+      "lang": "ar",
+      "width": 1586,
+      "http": 200,
+      "preview": "recorded findings",
+      "keyboardFocus": true,
+      "reflow": true
+    }
+  ],
+  "snapshotsUnchanged": 26,
+  "originalBusinessRowsUnchanged": 339,
+  "originalSchemasUnchanged": true,
+  "jsErrors": [],
+  "scope": "Actual saved synthetic CI4 snapshots, no request interception; original snapshots and business records preserved",
+  "before_head": "d8547f10c5d8d4e8b1f6b0138301977b335f5be0",
+  "before_review": 5669868977,
+  "before_regression": "FAIL reproduced: empty array incorrectly set available=true; genuine corrected-behavior assertion failed before source fix",
+  "after_regression": "PASS: empty is hidden/unavailable; explicit healthy remains valid; invalid/null/duplicate/ambiguous mappings fail closed",
+  "existing_mapping_browser_checks": 13,
+  "existing_invalid_saved_document_checks": 2,
+  "preexisting_snapshot_hashes_unchanged": 24,
+  "new_owned_fixtures": [
+    "empty array []",
+    "explicit healthy tooth1"
+  ],
+  "native_svg_backend_finance_contract_examination_unchanged": true,
+  "review_status": "PENDING independent exact-head acceptance; Draft only",
+  "production_contact": false,
+  "migrations": 0,
+  "feature_activation": false
+}

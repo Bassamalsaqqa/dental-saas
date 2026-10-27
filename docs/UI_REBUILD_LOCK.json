@@ -715,6 +715,13 @@
     ],
     "runtime_source_head": "a10b0985c3f50d90bec27cd4c9dc8f8d3dbd7ebf",
     "protected_correction_disposition": "Three substantiated defects locally corrected/tested under explicit Owner authorization; independent acceptance pending",
-    "current_receipt": "docs/ui-evidence/final-acceptance/surgical-acceptance.json"
+    "current_receipt": "docs/ui-evidence/final-acceptance/surgical-acceptance.json",
+    "empty_history_correction": {
+      "review": 5669868977,
+      "receipt": "docs/ui-evidence/final-acceptance/empty-history-acceptance.json",
+      "before_assertion": "FAIL reproduced",
+      "after": "PASS actual saved empty/healthy and EN/AR responsive checks",
+      "independent_acceptance": "PENDING"
+    }
   }
 }

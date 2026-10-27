@@ -1,5 +1,9 @@
 <?php
 return [
+    'historyNoRecordedTeeth' => 'No tooth data was recorded in this saved snapshot. The chart preview is unavailable; this does not establish healthy teeth or a completed assessment.',
+    'historyRecordedScope' => 'This preview shows only the recorded findings. Unmarked or unrecorded teeth are not confirmed healthy. Healthy findings, where explicitly recorded, are identified below.',
+    'historyRecordedHealthyTeeth' => 'Explicitly recorded healthy teeth',
+
     'cbDraftConflict' => 'This draft changed, or its item submission was incomplete. No changes were saved. Reopen the draft and review every plan item before saving.',
 'today'=>'Today', 'overview'=>'Clinic overview', 'subtitle'=>'Your day, with a clear next step.',
 'workspace'=>'Workspace','clinical'=>'Patient care','manage'=>'Management','search'=>'Find a patient',
