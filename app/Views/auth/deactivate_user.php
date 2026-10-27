@@ -1,17 +1,6 @@
-<h1><?php echo lang('Auth.deactivate_heading');?></h1>
-<p><?php echo sprintf(lang('Auth.deactivate_subheading'), $user->username);?></p>
-
-<?php echo form_open('auth/deactivate/' . $user->id);?>
-
-  <p>
-  	<?php echo form_label(lang('Auth.deactivate_confirm_y_label'), 'confirm');?>
-    <input type="radio" name="confirm" value="yes" checked="checked" />
-    <?php echo form_label(lang('Auth.deactivate_confirm_n_label'), 'confirm');?>
-    <input type="radio" name="confirm" value="no" />
-  </p>
-
-  <?php echo form_hidden('id', $user->id); ?>
-
-  <p><?php echo form_submit('submit', lang('Auth.deactivate_submit_btn'));?></p>
-
-<?php echo form_close();?>
+<?php helper(['asset','form']);$deactivationTarget=$user;$this->setData(['user'=>(object)[]]); ?>
+<?= $this->extend('layouts/studio_control_plane') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-platform-maintenance.css') ?>?v=<?= esc(asset_version('assets/css/studio-platform-maintenance.css')) ?>"><?= $this->endSection() ?>
+<?= $this->section('content') ?>
+<div class="maintenance-page"><header class="maintenance-heading"><div><h1><?= esc(lang('Studio.accountDisableTitle')) ?></h1><p><?= esc(lang('Studio.accountDisableScope')) ?></p></div><a class="button secondary" href="<?= base_url('controlplane/users/'.(int)$deactivationTarget->id) ?>"><?= esc(lang('Studio.accountReview')) ?></a></header><section class="account-deactivation"><h2><?= esc($deactivationTarget->username??$deactivationTarget->email??('#'.(int)$deactivationTarget->id)) ?></h2><p><?= esc(lang('Studio.accountDisableQuestion')) ?></p><?= form_open('auth/deactivate/'.(int)$deactivationTarget->id,['class'=>'deactivation-form']) ?><fieldset><legend><?= esc(lang('Studio.accountDecision')) ?></legend><label><input id="deactivate-confirm-yes" type="radio" name="confirm" value="yes" checked><span><?= esc(lang('Studio.accountDisableYes')) ?></span></label><label><input id="deactivate-confirm-no" type="radio" name="confirm" value="no"><span><?= esc(lang('Studio.accountDisableNo')) ?></span></label></fieldset><?= form_hidden('id',$deactivationTarget->id) ?><footer><a class="button secondary" href="<?= base_url('controlplane/users/'.(int)$deactivationTarget->id) ?>"><?= esc(lang('Studio.cancel')) ?></a><button class="button destructive" type="submit" name="submit" value="<?= esc(lang('Auth.deactivate_submit_btn'),'attr') ?>"><?= esc(lang('Studio.accountDisableSubmit')) ?></button></footer><?= form_close() ?></section></div>
+<?= $this->endSection() ?>
