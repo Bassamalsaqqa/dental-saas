@@ -146,7 +146,7 @@
     },
     "app/Views/odontogram/list.php": {
       "baseline_git_blob": "afd10ae0b873cd9710917f8cfe14fd9fa7f632a0",
-      "approved_git_blob": "c11efea3f2d7ae8b2060bb6ef145f69fb65e85e5",
+      "approved_git_blob": "bc9e6697e410c100fdba7e9bdeedc43eddfce0a4",
       "authorization": "Owner 2026-10-27 explicitly authorized presentation markup only and confirmed always authorized. Native SVG, clinical chart JavaScript, algorithms, snapshots, fields and records remain protected.",
       "scope": "Surrounding Studio presentation and localized controls; directory uses unchanged read-only tenant endpoint/full canonical registration; no clinical or backend behavior change."
     }
@@ -637,5 +637,18 @@
     "business_mutations_executed": 0,
     "gallery": "../final-dialogs/index.html",
     "unsupported_chart_bulk_actions": "Explicitly disabled; original native algorithms untouched"
+  },
+  "studio_craft_refinement": {
+    "source_start": "5f1f97ed89a823760324f1f2fcd7b67c8756e8ec",
+    "source_start_tree": "896390f6dc534626c16b8b356361165b577414eb",
+    "independent_review": "5664422143 COMMENTED at source_start; no approval",
+    "owner_whole_frontend_visual_acceptance": false,
+    "gallery": "docs/ui-evidence/craft/README.md",
+    "local_full_size_gallery": "../studio-craft/index.html",
+    "protected_source_guard": "failures=[]",
+    "synthetic_business_tables_unchanged": 11,
+    "skeleton_display_threshold_ms": 300,
+    "directory_timeout_ms": 12000,
+    "backend_or_feature_changes": false
   }
 }

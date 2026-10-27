@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>
-<?= esc($title??lang('UI.cpControlPlane')) ?> · Denta+</title>
+<?= esc($title??lang('UI.cpControlPlane')) ?> Â· Denta+</title>
 <meta name="theme-color" content="#153f36">
 <link rel="icon" href="<?= base_url('assets/images/favicon.png') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,7 +137,7 @@
 <?= $studioIcon('search') ?>
 <input id="platform-search" type="search" autocomplete="off" aria-label="<?= esc(lang('UI.cpSearchPlaceholder')) ?>" data-recent-label="<?= esc(lang('UI.cpRecentSection'),'attr') ?>" data-url="<?= base_url('controlplane/search/global') ?>" data-base="<?= base_url() ?>" data-empty="<?= esc(lang('UI.cpNoResults'),'attr') ?>" data-error="<?= esc(lang('UI.cpSearchFailed'),'attr') ?>" data-start="<?= esc(lang('UI.cpTypeToSearch'),'attr') ?>">
 </div>
-<div class="command-results" id="platform-search-results" aria-live="polite">
+<p class="studio-request-status" role="status" data-search-status data-loading="<?= esc(lang('Studio.refreshingList'),'attr') ?>" data-previous="<?= esc(lang('Studio.previousResults'),'attr') ?>" data-ready="<?= esc(lang('Studio.listReady'),'attr') ?>"></p><div class="command-results" id="platform-search-results" aria-live="polite">
 <p>
 <?= esc(lang('UI.cpTypeToSearch')) ?>
 </p>
@@ -145,11 +145,13 @@
 </dialog>
 <script src="<?= base_url('assets/js/studio.js') ?>?v=<?= esc(asset_version('assets/js/studio.js')) ?>" defer>
 </script>
+<script src="<?= base_url('assets/js/studio-loading.js') ?>?v=<?= esc(asset_version('assets/js/studio-loading.js')) ?>" defer></script>
 <script src="<?= base_url('assets/js/studio-platform.js') ?>?v=<?= esc(asset_version('assets/js/studio-platform.js')) ?>" defer>
 </script>
 <?= view('components/studio_action_dialog',['studioIcon'=>$studioIcon]) ?>
 <script src="<?= base_url('assets/js/studio-dialogs.js') ?>?v=<?= esc(asset_version('assets/js/studio-dialogs.js')) ?>" defer></script>
 <?= $this->renderSection('scripts') ?>
 <script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
+<?= view('components/studio_password_controls') ?>
 </body>
 </html>

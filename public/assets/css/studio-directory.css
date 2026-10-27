@@ -8,3 +8,13 @@
 .registration-heading{padding-block:20px;margin-bottom:20px}.registration-heading h1{font-size:32px;letter-spacing:-.7px}@media(max-width:800px){.registration-heading h1{font-size:27px}}
 
 .directory-record-link::after{pointer-events:none}.directory-table tbody tr:has(.directory-record-link){cursor:pointer}.directory-table tbody tr:focus-within{outline:2px solid var(--color-focus);outline-offset:2px}
+
+.directory-mobile-records{display:none}.directory-mobile-record{padding:18px;background:var(--color-surface-raised);border-radius:12px;display:grid;gap:12px;min-width:0}.directory-mobile-record h2{font-size:20px;line-height:1.6;margin:0;overflow-wrap:anywhere}.directory-mobile-record p{font-size:16px;margin:0;white-space:normal;overflow-wrap:anywhere}.directory-mobile-contact{padding:12px;background:var(--color-surface-tonal);border-radius:8px;display:grid;gap:6px}.directory-mobile-record nav{display:flex;gap:10px;flex-wrap:wrap}.directory-mobile-record nav .button{flex:1;justify-content:center}.directory-mobile-records[aria-busy=true]{opacity:.7}
+@media(max-width:750px){.directory-mobile-records{display:grid;gap:14px}#directory-table,.directory-panel .grid-scroll:has(>#directory-table){display:none}}
+
+/* Reserve quiet status geometry and the first bounded page; no artificial data delay. */
+.directory-loading{padding:0;margin:10px 0;min-block-size:28px;background:transparent;line-height:28px}.directory-loading[hidden]{display:block;visibility:hidden}
+@media(min-width:751px){.directory-panel[data-initial-loading=true] .grid-scroll:has(>#directory-table){min-block-size:calc(var(--grid-row-height,96px)*10 + var(--grid-heading-height,52px))}}
+@media(max-width:750px){.directory-panel[data-initial-loading=true] .directory-mobile-records{min-block-size:100vh}}
+
+.directory-loading.is-idle{visibility:hidden}

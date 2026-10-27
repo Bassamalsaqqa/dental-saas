@@ -40,11 +40,12 @@
         drawer.setAttribute('aria-hidden', 'false');
         drawer.classList.remove('is-settled');
         drawer.classList.remove('hidden');
-        requestAnimationFrame(() => drawer.classList.add('is-open'));
+        requestAnimationFrame(() => { if (openStack.includes(drawer.id)) drawer.classList.add('is-open'); });
         openStack.push(drawer.id);
         setBodyLock();
 
         window.setTimeout(() => {
+            if (!openStack.includes(drawer.id)) return;
             if (typeof window.initAppSelects === 'function') {
                 window.initAppSelects(drawer);
             }
@@ -80,7 +81,7 @@
 
     function closeDrawer(id) {
         const drawer = getDrawer(id);
-        if (!drawer || !drawer.classList.contains('is-open')) return;
+        if (!drawer || !openStack.includes(drawer.id)) return;
 
         drawer.classList.remove('is-open');
         drawer.classList.remove('is-settled');
@@ -88,13 +89,13 @@
         setBodyLock();
 
         window.setTimeout(() => {
+            if (openStack.includes(drawer.id)) return;
             drawer.setAttribute('aria-hidden', 'true');
             drawer.classList.add('hidden');
             const trigger = triggerMap.get(drawer.id);
             triggerMap.delete(drawer.id);
-            if (trigger && typeof trigger.focus === 'function') {
-                trigger.focus();
-            }
+            const restoreTarget = trigger?.getClientRects().length ? trigger : trigger?.closest('details')?.querySelector('summary');
+            restoreTarget?.focus();
         }, 230);
     }
 

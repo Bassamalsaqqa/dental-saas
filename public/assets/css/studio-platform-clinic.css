@@ -5,3 +5,5 @@
 @media(max-width:650px){.clinic-contact-facts,.clinic-subscription-actions,.clinic-field-pair,.clinic-policy-limits{grid-template-columns:1fr}.clinic-sections .button{flex:1;font-size:15px}.clinic-identity dl{grid-template-columns:1fr}.clinic-actions .button{flex:1}.clinic-dialog dl{grid-template-columns:1fr}.clinic-dialog dd{margin-bottom:10px}.clinic-dialog footer .button{flex:1}.clinic-authority-facts>div,.clinic-subscription-facts>div{min-width:100px}.clinic-operation-form footer .button{flex:1}}
 
 .clinic-danger .button.primary,.clinic-dialog:has(form[action$="/terminate"]) .button.primary,.clinic-dialog.is-destructive [data-clinic-proceed]{background:var(--color-danger);color:var(--color-on-frame)}
+
+@media(min-width:1001px){.clinic-sections{position:sticky;inset-block-start:8px;z-index:3;padding:12px;background:var(--color-surface);border-radius:12px;box-shadow:0 6px 20px color-mix(in srgb,var(--color-frame) 9%,transparent)}.clinic-main>section{scroll-margin-block-start:105px}}

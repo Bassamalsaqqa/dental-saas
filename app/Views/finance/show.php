@@ -1747,7 +1747,7 @@ function initSettlementForm(form) {
 }
 
 async function markAsPaid(transactionId) {
-    if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmMarkTransactionPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>)) {
+    if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmMarkTransactionPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.markAsPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.markAsPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>})) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('finance') ?>/${transactionId}/mark-paid`, {
@@ -1777,7 +1777,7 @@ async function markAsPaid(transactionId) {
 }
 
 async function deleteFinance(id) {
-    if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmDeleteTransaction'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{destructive:true})) {
+    if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmDeleteTransaction'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Studio.delete'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Studio.delete'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,destructive:true})) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('finance') ?>/${id}`, {
@@ -1808,7 +1808,7 @@ async function deleteFinance(id) {
 
 async function closeBalance(transactionId) {
     if (!window.StudioDialogs) return;
-    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmCloseBalance'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.reasonOptionalPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{destructive:true});
+    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmCloseBalance'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.reasonOptionalPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.closeBalanceCredit'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.closeBalanceCredit'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,destructive:true});
     if (reason === null) return;
     const formData = new FormData();
     formData.append('reason', reason);
@@ -1933,7 +1933,7 @@ if (invoiceRefundForm) {
 
 async function voidPayment(paymentId) {
     if (!window.StudioDialogs) return;
-    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmVoidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.voidReasonPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{destructive:true});
+    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmVoidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.voidReasonPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.voidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.voidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>+' · #'+paymentId,destructive:true});
     if (reason === null) return;
     const formData = new FormData();
     formData.append('notes', reason);

@@ -40,3 +40,25 @@
   --grid-row-height:96px;
   --grid-heading-height:52px;
 }
+
+/* Integrated password input: shared across access, clinic and platform forms. */
+.studio-password{display:flex;align-items:stretch;min-width:0;width:100%;background:var(--color-control);border-radius:9px}
+.studio-password>input{flex:1;min-width:0!important;width:0!important;border-radius:9px 0 0 9px;outline-offset:-3px}
+.studio-password>.studio-password-toggle{display:flex;align-items:center;justify-content:center;gap:6px;flex:none;min-width:44px;min-height:44px;padding:8px 12px;border:0;border-radius:9px;background:transparent;color:var(--color-frame);font:inherit;font-size:14px;font-weight:750;cursor:pointer}
+.studio-password-toggle svg{width:21px;height:21px;flex:none}.studio-password-toggle:hover{background:var(--color-surface-strong)}
+.studio-password:focus-within{outline:2px solid var(--color-focus);outline-offset:2px}.studio-password-toggle:focus-visible{outline:3px solid var(--color-focus);outline-offset:-3px}
+/* Original static architectural contours, confined to non-data headings. No additional asset request. */
+.studio-contour{position:relative;isolation:isolate;overflow:hidden;border-radius:16px;padding:22px;background:var(--color-surface-strong)}
+.studio-contour::before{content:"";position:absolute;z-index:-1;pointer-events:none;inset-block:-100px;inset-inline-end:-155px;width:480px;opacity:.08;background:var(--color-frame);mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 440' fill='none' stroke='black' stroke-width='1.2'%3E%3Cpath d='M450 430C50 430 50 10 450 10M450 390C105 390 105 50 450 50M450 350C160 350 160 90 450 90M450 310C215 310 215 130 450 130M450 270C270 270 270 170 450 170'/%3E%3C/svg%3E") center/contain no-repeat}
+.access-introduction.studio-contour{background:var(--color-frame)}.access-introduction.studio-contour::before{opacity:.17;background:var(--color-on-frame);inset-inline-end:-170px;inset-block-start:auto;height:420px;inset-block-end:-70px}
+:dir(rtl) .studio-contour::before{transform:scaleX(-1)}
+@media(forced-colors:active){.studio-contour::before{display:none}.studio-password{outline:1px solid CanvasText}}
+@media(max-width:480px){.studio-password-toggle span{max-width:85px;line-height:1.4}.studio-contour{padding:18px}}
+
+.studio-skeleton{pointer-events:none;user-select:none;min-height:80px;display:flex;gap:16px;padding:20px;background:var(--color-surface-tonal)}
+tr.studio-skeleton{display:table-row;height:var(--grid-row-height,96px)}.studio-skeleton>span{flex:1;display:block}.studio-skeleton-line{display:block;height:16px;width:75%;border-radius:5px;background:var(--color-surface-strong);margin-block:14px}
+.studio-skeleton:nth-child(even) .studio-skeleton-line{width:55%}
+[aria-busy=true] .chart-record-card,[aria-busy=true] tr[data-href]{opacity:.65}
+@media(forced-colors:active){.studio-skeleton-line{outline:1px solid GrayText}}
+
+.studio-request-status{font-size:15px;line-height:1.6;color:var(--color-ink-muted);padding:0 22px;margin:8px 0}.studio-request-status:empty{display:none}

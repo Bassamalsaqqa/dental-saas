@@ -1107,4 +1107,10 @@ return [
     'dialogUnderstood' => 'حسنًا',
     'dialogDecisionContext' => 'راجع التفاصيل قبل المتابعة',
     'chartBulkUnavailable' => 'هذه الإجراءات الجماعية غير متاحة حاليًا. استخدم الإجراء الحالي للسن الواحد أو للأسنان المحددة.',
+    'refreshingList' => 'جارٍ تحديث النتائج…',
+    'previousResults' => 'تُعرض النتائج السابقة حتى اكتمال التحديث.',
+    'listReady' => 'تم تحديث النتائج.',
+    'submittingForm' => 'جارٍ الإرسال…',
+    'requestDenied' => 'الوصول غير متاح. سجّل الدخول مجددًا أو تواصل مع المسؤول.',
+    'patientMoreActions' => 'إجراءات أخرى',
 ];

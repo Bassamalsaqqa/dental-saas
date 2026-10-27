@@ -24,12 +24,7 @@
 <label for="password">
 <?= esc(lang('Auth.login_password_label')) ?>
 </label>
-<div class="access-password">
 <?= form_input($password+['autocomplete'=>'current-password','dir'=>'ltr']) ?>
-<button type="button" id="togglePassword" data-password-toggle="password" data-show="<?= esc(lang('Studio.passwordVisible'),'attr') ?>" data-hide="<?= esc(lang('Studio.passwordHidden'),'attr') ?>" aria-controls="password" aria-pressed="false">
-<?= esc(lang('Studio.passwordVisible')) ?>
-</button>
-</div>
 </div>
 <div class="access-options">
 <label for="remember">

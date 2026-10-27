@@ -33,7 +33,7 @@ $accessReturn=current_url(true)->__toString();
 </a>
 </header>
 <main id="access-main" class="access-stage">
-<aside class="access-introduction">
+<aside class="access-introduction studio-contour">
 <?php $accessIntroduction=$this->renderSection('accessIntroduction');if($accessIntroduction!==''): ?>
 <?= $accessIntroduction ?>
 <?php else: ?>
@@ -73,7 +73,6 @@ $accessReturn=current_url(true)->__toString();
 <a href="https://wa.me/972569885000" target="_blank" rel="noopener">+972 56 988 5000</a>
 </div>
 </footer>
-<script src="<?= base_url('assets/js/studio-access.js') ?>?v=<?= esc(asset_version('assets/js/studio-access.js')) ?>" defer>
-</script>
+<?= view('components/studio_password_controls') ?>
 </body>
 </html>

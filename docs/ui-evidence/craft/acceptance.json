@@ -1,0 +1,53 @@
+{
+  "source_start": "5f1f97ed89a823760324f1f2fcd7b67c8756e8ec",
+  "review": "5664422143 COMMENTED; no approval",
+  "business_data": {
+    "synthetic_tables": 11,
+    "unchanged": true
+  },
+  "checks": {
+    "initial_pass_successful": 40,
+    "auth_platform": 16,
+    "edge": 7,
+    "patient_mobile": 6,
+    "stock_observations": 7,
+    "finance_decision_and_search_observations": 11,
+    "php_lint": "14 changed/new PHP files passed",
+    "source_guard": "failures=[]; campaign_complete=false pending Owner acceptance"
+  },
+  "performance": {
+    "changed_asset_bytes_before": 82516,
+    "changed_asset_bytes_after": 98664,
+    "delta": 16148,
+    "new_api_requests": 0,
+    "new_runtime_dependencies": 0,
+    "new_migrations": 0,
+    "additional_shared_scripts_clinic_platform": 2,
+    "pattern_network_requests": 0,
+    "curated_gallery_bytes": 1676340,
+    "synthetic_preserved_tables": 11
+  },
+  "patient_directory_cls": {
+    "before_loading_geometry_fix": 0.25492611957572003,
+    "after": 0.0008632012568978738,
+    "viewport": "1366x992",
+    "requests_before_after": [
+      18,
+      18
+    ],
+    "long_tasks_before_after": [
+      0,
+      0
+    ],
+    "limitation": "Single synthetic local samples, not production benchmarks"
+  },
+  "boundaries": {
+    "production_access": false,
+    "business_writes": false,
+    "migrations": false,
+    "new_dependencies": false,
+    "github_actions": false,
+    "independent_approval": false,
+    "owner_full_visual_acceptance": false
+  }
+}

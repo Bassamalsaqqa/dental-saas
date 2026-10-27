@@ -1107,4 +1107,10 @@ return [
     'dialogUnderstood' => 'Understood',
     'dialogDecisionContext' => 'Review before continuing',
     'chartBulkUnavailable' => 'These bulk operations are not implemented. Use the existing individual or selected-teeth workflow.',
+    'refreshingList' => 'Updating results…',
+    'previousResults' => 'Previous results are shown while updating.',
+    'listReady' => 'Results updated.',
+    'submittingForm' => 'Submitting…',
+    'requestDenied' => 'Access is unavailable. Sign in again or ask your administrator.',
+    'patientMoreActions' => 'More actions',
 ];
