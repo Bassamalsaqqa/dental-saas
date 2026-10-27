@@ -362,6 +362,10 @@ class TreatmentContracts extends BaseController
 
         $calculatedTotal = 0.0;
         foreach ($items as $item) {
+            if (!is_array($item) || array_filter($item, static fn($value): bool => !is_scalar($value)) !== []) {
+                return redirect()->to(base_url('contracts/' . $contractId . '/edit'))
+                    ->with('error', lang('Studio.cbDraftConflict'));
+            }
             $qty   = isset($item['qty'])   ? (int)   $item['qty']   : 1;
             $price = isset($item['price']) ? (float) $item['price'] : 0;
             $calculatedTotal += ($qty > 0 ? $qty : 1) * $price;
@@ -381,7 +385,8 @@ class TreatmentContracts extends BaseController
             'cost_details'     => $costDetails ?: null,
         ];
         $itemsToInsert     = $items;
-        $draftRevision = (string) $this->request->getPost('draft_revision');
+        $draftRevision = $this->request->getPost('draft_revision');
+        $draftRevision = is_string($draftRevision) ? $draftRevision : '';
         $removedItems = $this->request->getPost('removed_item_ids') ?? [];
         $svgEncoded        = $this->odontogramSvgSnapshotService->encode($odontogramSvg);
         $snapshotJsonField = $odontogramJson ?: null;

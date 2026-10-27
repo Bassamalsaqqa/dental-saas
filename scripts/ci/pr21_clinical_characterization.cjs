@@ -4,7 +4,7 @@
  */
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),cp=require('node:child_process');
-const root=path.resolve(__dirname,'../..'),baselineRef='5785e4c71902e06b61c2bb08a021b34ad7a3be20',read=name=>cp.execFileSync('git',['show',baselineRef+':'+name],{cwd:root,encoding:'utf8'});
+const root=path.resolve(__dirname,'../..'),baselineRef='5785e4c71902e06b61c2bb08a021b34ad7a3be20',read=name=>cp.execFileSync('git',['show',baselineRef+':'+name],{cwd:root,encoding:'utf8',maxBuffer:8*1024*1024});
 const history=read('app/Views/patient/odontogram_versions.php'),svg=read('app/Views/odontogram/odontogram.svg'),builder=read('public/assets/js/studio-contract-builder.js');
 const legacyLookup=history.includes("container.querySelector('#tooth' + toothNumber)"),nativeIds=svg.includes('id="tooth-1"')&&svg.includes('id="tooth-32"');
 const normalize=builder.slice(builder.indexOf('function normalizeItems()'),builder.indexOf('function syncItemsFromConditions()'));

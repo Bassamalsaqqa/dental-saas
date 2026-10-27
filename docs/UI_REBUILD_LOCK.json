@@ -153,7 +153,7 @@
     "app/Controllers/TreatmentContracts.php": {
       "authorization": "Owner 2026-10-27 surgical correction A: preserve draft item identities; explicit removal, stale/incomplete submission checks under existing signing lock. No signed evidence or billing policy changes.",
       "baseline_git_blob": "2964fe9378dbc5e1d2fb2ab745888aecc172d857",
-      "approved_git_blob": "33a8e029a58ee979efb94fd3e4da8c88fe83740f"
+      "approved_git_blob": "5f6e870489f04162d9ca62fe4c2e0ab90cf6f4cb"
     },
     "app/Controllers/Examination.php": {
       "authorization": "Owner 2026-10-27 surgical correction C: examination narrative/audit/snapshot atomicity, shared edit/completion/sign serialization and locked signed-delete recheck. No clinical policy, schema or evidence rewrite. Strict snapshot persistence is opt-in only for authorized examination paths.",
