@@ -5,14 +5,14 @@ $selectedIds = array_map('strval', $selectedIds);
 $isRtl = !empty($is_rtl);
 ?>
 <?php if (!empty($chargeLines)): ?>
-    <div class="mt-5 rounded-2xl border border-sky-100 bg-sky-50/70 p-4" data-clinical-charge-picker>
-        <div class="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+    <div class="context-charge-picker" data-clinical-charge-picker>
+        <div >
             <div>
-                <p class="text-sm font-bold text-slate-900"><?= esc(lang('Finance.billClinicalWork')) ?></p>
+                <p ><?= esc(lang('Finance.billClinicalWork')) ?></p>
             </div>
-            <span class="text-xs font-bold text-sky-700" data-clinical-charge-total>0.00</span>
+            <span  data-clinical-charge-total>0.00</span>
         </div>
-        <div class="space-y-2">
+        <div class="context-field-stack">
             <?php foreach ($chargeLines as $line): ?>
                 <?php
                 $lineId = (int) ($line['id'] ?? 0);
@@ -25,26 +25,26 @@ $isRtl = !empty($is_rtl);
                     !empty($line['service_date']) ? formatDate($line['service_date']) : null,
                 ]);
                 ?>
-                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-sky-200 hover:bg-sky-50">
+                <label >
                     <input type="checkbox"
                            name="clinical_charge_line_ids[]"
                            value="<?= $lineId ?>"
-                           class="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+
                            data-clinical-charge-line
                            data-amount="<?= esc(number_format($amount, 2, '.', '')) ?>"
                            data-currency="<?= esc($currency) ?>"
                            data-label="<?= esc($label, 'attr') ?>"
                            <?= in_array((string) $lineId, $selectedIds, true) ? 'checked' : '' ?>>
-                    <span class="min-w-0 flex-1">
-                        <span class="block text-sm font-bold text-slate-900"><?= esc($label) ?></span>
+                    <span >
+                        <span ><?= esc($label) ?></span>
                         <?php if ($meta): ?>
-                            <span class="mt-0.5 block text-xs text-slate-500"><?= esc(implode(' · ', $meta)) ?></span>
+                            <span ><?= esc(implode(' · ', $meta)) ?></span>
                         <?php endif; ?>
                     </span>
-                    <span class="whitespace-nowrap text-sm font-black text-sky-700" dir="ltr"><?= esc($currency) ?> <?= number_format($amount, 2) ?></span>
+                    <span  dir="ltr"><?= esc($currency) ?> <?= number_format($amount, 2) ?></span>
                 </label>
             <?php endforeach; ?>
         </div>
-        <p class="mt-3 text-xs font-medium text-slate-500"><?= esc(lang('Finance.billClinicalWorkServerOwned')) ?></p>
+        <p ><?= esc(lang('Finance.billClinicalWorkServerOwned')) ?></p>
     </div>
 <?php endif; ?>

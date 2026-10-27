@@ -775,6 +775,7 @@ if (isset($workspace_history)) {
 
 <?php helper('asset'); ?>
 <?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-context-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-context-forms.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-patient-workspace.css') ?>?v=<?= esc(asset_version('assets/css/studio-patient-workspace.css')) ?>">
 <?= $this->endSection() ?>
