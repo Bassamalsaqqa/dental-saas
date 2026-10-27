@@ -137,6 +137,18 @@
       "approved_git_blob": "6046c4d0474e0ac5e83d5f53b7340b7c927cda98",
       "authorization": "Owner authorized narrow patient registration validation-return fix in conversation on 2026-10-25.",
       "scope": "Remove only Patient::store full Validation-object flash; preserve existing scalar errors, old input, validation rules and all mutations."
+    },
+    "app/Views/odontogram/index.php": {
+      "baseline_git_blob": "d9d44eeab34b89dfa01e3b0353a89de4c3b2403c",
+      "approved_git_blob": "c409480a0bd8a3073a9802e816cc07df4a1cbbdd",
+      "authorization": "Owner 2026-10-27 explicitly authorized presentation markup only and confirmed always authorized. Native SVG, clinical chart JavaScript, algorithms, snapshots, fields and records remain protected.",
+      "scope": "Surrounding Studio presentation and localized controls; directory uses unchanged read-only tenant endpoint/full canonical registration; no clinical or backend behavior change."
+    },
+    "app/Views/odontogram/list.php": {
+      "baseline_git_blob": "afd10ae0b873cd9710917f8cfe14fd9fa7f632a0",
+      "approved_git_blob": "c11efea3f2d7ae8b2060bb6ef145f69fb65e85e5",
+      "authorization": "Owner 2026-10-27 explicitly authorized presentation markup only and confirmed always authorized. Native SVG, clinical chart JavaScript, algorithms, snapshots, fields and records remain protected.",
+      "scope": "Surrounding Studio presentation and localized controls; directory uses unchanged read-only tenant endpoint/full canonical registration; no clinical or backend behavior change."
     }
   },
   "owner_registration_acceptance": "2026-10-25: generally accepted with required full-workspace card width; field sizing must not constrain the containing form. Cumulative Owner notes are authoritative in DESIGN.md.",
@@ -568,5 +580,22 @@
     },
     "business_table_fingerprints_unchanged": 11,
     "production_actions": 0
+  },
+  "native_chart_presentation": {
+    "status": "IMPLEMENTED_PENDING_OWNER_VISUAL_ACCEPTANCE",
+    "invariants": {
+      "native_script_sha256": "a22442240d9a31fab0202d4f991d83fa00d0ed63ad89cda4f6e3d76337268d79",
+      "svg_loader_sha256": "c8ef2af380214b213df21f326cb9e87982e3f388a1b790c4de83fd432cb6221c",
+      "native_css_sha256": "0cb22926f3a09f7caf6120efdfd75f1252d5b49b051c3f84383d67657dc0bf02",
+      "initial_php_helpers_sha256": "53ff11c1413e7ae2f0d5ea03e4a1a58c942617809505ad5589559f53df620676",
+      "context_php_sha256": "53d3ff7e5019863e9c25e4bbfdb3c622b0c163d90210efeffa8e928595502ccc",
+      "authorization": "Owner 2026-10-27: Authorize presentation markup only; always authorized. Native SVG, JS, algorithms, snapshots and fields preserved."
+    },
+    "native_clinical_script_byte_identical": true,
+    "svg_asset_changed": false,
+    "clinical_mutations": 0,
+    "native_single_batch_field_parity": true,
+    "read_endpoint": "Existing odontogram/get-patients-data only",
+    "no_native_clinical_algorithm_changes": true
   }
 }

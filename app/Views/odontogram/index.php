@@ -1,19 +1,19 @@
-<?= $this->extend('layouts/main_auth') ?>
-
+<?php helper('asset'); ?>
+<?= $this->extend('layouts/studio') ?>
 <?php
 // Function to convert Universal numbering to FDI numbering
 function getFDINumber($universalNumber) {
     $fdiMap = [
         // Upper Right (1-8) -> FDI 11-18
         1 => '11', 2 => '12', 3 => '13', 4 => '14', 5 => '15', 6 => '16', 7 => '17', 8 => '18',
-        // Upper Left (9-16) -> FDI 21-28  
+        // Upper Left (9-16) -> FDI 21-28
         9 => '21', 10 => '22', 11 => '23', 12 => '24', 13 => '25', 14 => '26', 15 => '27', 16 => '28',
         // Lower Left (17-24) -> FDI 31-38
         17 => '31', 18 => '32', 19 => '33', 20 => '34', 21 => '35', 22 => '36', 23 => '37', 24 => '38',
         // Lower Right (25-32) -> FDI 41-48
         25 => '41', 26 => '42', 27 => '43', 28 => '44', 29 => '45', 30 => '46', 31 => '47', 32 => '48'
     ];
-    
+
     return $fdiMap[$universalNumber] ?? $universalNumber;
 }
 
@@ -80,6 +80,78 @@ function getStatusText($status) {
 }
 ?>
 
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-chart.css') ?>?v=<?= esc(asset_version('assets/css/studio-chart.css')) ?>"><?php // Original native SVG/outline styles remain unchanged. ?><style>
+#odontogramSvgWrapper svg {
+    width: 100%;
+    height: auto;
+}
+
+#odontogramSvgWrapper text {
+    pointer-events: none;
+    font-family: inherit;
+}
+
+#odontogramSvgWrapper .tooth-hit {
+    outline: none;
+}
+
+#odontogramSvgWrapper .tooth-outline {
+    stroke: #3b82f6;
+    opacity: 0;
+}
+
+#odontogramSvgWrapper .tooth-overlay {
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}
+
+#odontogramSvgWrapper .tooth-group {
+    cursor: pointer;
+}
+
+#odontogramSvgWrapper .tooth-group.is-hover .tooth-outline {
+    opacity: 0.9;
+}
+
+#odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f97316;
+    stroke-width: 2;
+}
+
+#odontogramSvgWrapper .tooth-group.is-batch-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f59e0b;
+    stroke-width: 2;
+}
+
+/* Animation classes for tooth updates */
+.updating {
+    animation: pulse 1s infinite;
+    opacity: 0.7;
+}
+
+.success {
+    animation: bounce 0.6s ease-in-out;
+    background: linear-gradient(135deg, #10b981, #34d399) !important;
+    border-color: #059669 !important;
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0,0,0);
+    }
+    40%, 43% {
+        transform: translate3d(0, -8px, 0);
+    }
+    70% {
+        transform: translate3d(0, -4px, 0);
+    }
+    90% {
+        transform: translate3d(0, -2px, 0);
+    }
+}
+</style><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php
 $isExaminationChart = !empty($examination_id);
@@ -101,322 +173,36 @@ $contractCreateUrl = $isExaminationChart
     )
     : workflow_context_url('contracts/create/' . (int) $patient['id'], $chartReturnTo);
 ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-    <!-- Enhanced Page Header with Glassmorphism -->
-    <div class="backdrop-blur-md bg-white/80 border-b border-white/20 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center py-6 space-y-4 lg:space-y-0">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-tooth text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                            <?= esc($chartTitle) ?>
-                        </h1>
-                        <p class="text-gray-600 mt-1 flex items-center">
-                            <i class="fas fa-user-circle mr-2 text-blue-500"></i>
-                            <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> 
-                            <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                <?= $patient['patient_id'] ?>
-                            </span>
-                        </p>
-                        <p class="mt-2 max-w-2xl text-sm font-semibold text-slate-600">
-                            <?= esc($chartHelp) ?>
-                            <?php if ($isExaminationChart): ?>
-                                <span class="ms-1 font-black text-blue-700" dir="ltr"><?= esc($examination['examination_id'] ?? ('EX-' . $examination_id)) ?></span>
-                            <?php endif; ?>
-                        </p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <?php if (has_permission('treatments', 'create')): ?>
-                        <a href="<?= esc($treatmentCreateUrl, 'attr') ?>" class="group relative inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-200">
-                            <i class="fas fa-plus me-2"></i><?= esc(lang('Examination.add_treatment')) ?>
-                        </a>
-                    <?php endif; ?>
-                    <?php if (has_permission('patients', 'edit')): ?>
-                        <a href="<?= esc($contractCreateUrl, 'attr') ?>" class="group relative inline-flex items-center px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-200">
-                            <i class="fas fa-file-signature me-2"></i><?= esc(lang('Examination.create_treatment_plan')) ?>
-                        </a>
-                    <?php endif; ?>
-                    <button onclick="printOdontogram()" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                        <i class="fas fa-print mr-2 group-hover:animate-pulse"></i>Print
-                    </button>
-                    <a href="<?= workflow_back('patient/' . $patient['id'], $return_to ?? null) ?>" class="group relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Enhanced Interactive Odontogram with Chat-Style Interface -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-            <!-- Enhanced Header with Chat-Style Design -->
-            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                <i class="fas fa-tooth text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold mb-1">Interactive Dental Chart</h3>
-                                <p class="text-blue-100 flex items-center">
-                                    <i class="fas fa-mouse-pointer mr-2"></i>
-                                    Click on any tooth to view or update its condition
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-3">
-                            <div class="hidden md:flex items-center space-x-2 text-blue-100">
-                                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span class="text-sm font-medium">Live Updates</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button type="button"
-                                        id="legendToggleBtn"
-                                        class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                    <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
-                                    <span id="legendToggleText">Show Legend</span>
-                                </button>
-                                <button id="batchModeToggleBtn"
-                                        onclick="toggleBatchMode()"
-                                        class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                    <i class="fas fa-object-group mr-2"></i>
-                                    <span id="batchModeToggleText">Batch Select</span>
-                                </button>
-                                <div id="batchTopControls" class="hidden items-center gap-2">
-                                    <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 bg-amber-400/90 text-amber-950 rounded-full text-xs font-bold">
-                                        0 selected
-                                    </span>
-                                    <button type="button" id="batchApplyBtn" onclick="openBatchModal()"
-                                            class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border transition-all duration-200 disabled:cursor-not-allowed"
-                                            disabled>
-                                        <i class="fas fa-layer-group mr-1.5"></i>Apply
-                                    </button>
-                                    <button type="button" id="batchClearBtn" onclick="clearBatchSelection()"
-                                            class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                        Clear
-                                    </button>
-                                    <button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"
-                                            class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
-                                        Exit
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Decorative Elements --> 
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-            </div>
-        
-            <!-- Enhanced Interactive Legend -->
-            <div class="p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200/50">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-lg font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-palette mr-3 text-blue-600"></i>
-                        Condition Legend
-                    </h4>
-                </div>
-                <div id="legendContent" class="hidden mt-6">
-                <div class="grid grid-cols-6 gap-4">
-                    <!-- Healthy -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-green-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 border-2 border-green-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-check text-green-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Healthy</span>
-                            <div class="text-xs text-gray-500">No issues</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Cavity -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-yellow-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-yellow-100 to-yellow-200 border-2 border-yellow-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Cavity</span>
-                            <div class="text-xs text-gray-500">Needs filling</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Filling -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-blue-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-tools text-blue-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Filling</span>
-                            <div class="text-xs text-gray-500">Restored</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Crown -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-purple-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-crown text-purple-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Crown</span>
-                            <div class="text-xs text-gray-500">Capped</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Root Canal -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-pink-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-pink-100 to-pink-200 border-2 border-pink-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-tooth text-pink-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Root Canal</span>
-                            <div class="text-xs text-gray-500">Endodontic</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Extracted -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-red-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-red-100 to-red-200 border-2 border-red-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-times text-red-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Extracted</span>
-                            <div class="text-xs text-gray-500">Removed</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Implant -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-indigo-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-indigo-100 to-indigo-200 border-2 border-indigo-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-screwdriver text-indigo-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Implant</span>
-                            <div class="text-xs text-gray-500">Titanium</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Bridge -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-teal-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-teal-100 to-teal-200 border-2 border-teal-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-link text-teal-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Bridge</span>
-                            <div class="text-xs text-gray-500">Connected</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Partial Denture -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-orange-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 border-2 border-orange-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-teeth text-orange-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Partial Denture</span>
-                            <div class="text-xs text-gray-500">Removable</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Full Denture -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-amber-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-amber-100 to-amber-200 border-2 border-amber-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-teeth-open text-amber-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Full Denture</span>
-                            <div class="text-xs text-gray-500">Complete</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Other -->
-                    <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-gray-200/50">
-                        <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-question text-gray-600 text-sm"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-800">Other</span>
-                            <div class="text-xs text-gray-500">Special</div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-
-            <!-- Realistic Jaw Interface -->
-            <div class="p-8 bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
-                <div class="max-w-6xl mx-auto">
-                    <!-- Jaw Interface Container -->
-                    <div class="relative bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/30 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-pink-50/30 via-white to-blue-50/20 rounded-3xl"></div>
-                        <div id="odontogramSvgWrapper" class="relative z-10 min-h-[320px] flex items-center justify-center">
-                            <?php
+<div class="chart-workspace">
+<header class="chart-heading"><div><h1><?= esc($chartTitle) ?></h1><p><?= esc($chartHelp) ?> <?php if($isExaminationChart): ?><bdi><?= esc($examination['examination_id']??('EX-'.$examination_id)) ?></bdi><?php endif; ?></p></div><a class="button secondary" href="<?= esc(workflow_back('patient/'.$patient['id'],$return_to??null),'attr') ?>"><?= esc(lang('Studio.back')) ?></a></header>
+<section class="chart-context"><div><span><?= esc(lang('UI.currentPatient')) ?></span><strong><?= esc(trim($patient['first_name'].' '.$patient['last_name'])) ?></strong><bdi><?= esc($patient['patient_id']) ?></bdi></div><nav aria-label="<?= esc(lang('Studio.chartActions'),'attr') ?>"><?php if(has_permission('treatments','create')): ?><a class="button secondary" href="<?= esc($treatmentCreateUrl,'attr') ?>"><?= esc(lang('Examination.add_treatment')) ?></a><?php endif; ?><?php if(has_permission('patients','edit')): ?><a class="button secondary" href="<?= esc($contractCreateUrl,'attr') ?>"><?= esc(lang('Examination.create_treatment_plan')) ?></a><?php endif; ?><button class="button secondary" type="button" onclick="printOdontogram()"><?= esc(lang('Studio.printPage')) ?></button></nav></section>
+<div class="chart-layout"><section class="chart-canvas-panel"><header><div><h2><?= esc(lang('Studio.chartInteractive')) ?></h2><p><?= esc(lang('Studio.chartInstruction')) ?></p></div><div class="chart-toolbar"><button type="button" id="legendToggleBtn"><span id="legendToggleIcon" hidden></span><span id="legendToggleText"><?= esc(lang('Studio.chartShowLegend')) ?></span></button><button type="button" id="batchModeToggleBtn" onclick="toggleBatchMode()"><span id="batchModeToggleText"><?= esc(lang('Studio.chartBatchSelect')) ?></span></button></div></header>
+<div id="batchTopControls" class="hidden chart-batch-tools"><span id="batchTopCount">0 <?= esc(lang('Studio.chartSelected')) ?></span><button type="button" id="batchApplyBtn" onclick="openBatchModal()" disabled><?= esc(lang('Studio.chartApply')) ?></button><button type="button" id="batchClearBtn" onclick="clearBatchSelection()"><?= esc(lang('Studio.stockClearSearch')) ?></button><button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"><?= esc(lang('Studio.chartExitBatch')) ?></button></div>
+<div id="legendContent" class="hidden chart-legend"><?php foreach(['healthy','cavity','filling','crown','root_canal','extracted','implant','bridge','partial_denture','full_denture','other'] as $condition): ?><div><span class="chart-condition-swatch chart-swatch-<?= esc($condition,'attr') ?>" aria-hidden="true"></span><span><?= esc(lang('UI.patientCondition'.str_replace(' ','',ucwords(str_replace('_',' ',$condition))))) ?></span></div><?php endforeach; ?></div>
+<div class="chart-svg-scroll" role="region" tabindex="0" aria-label="<?= esc(lang('Studio.chartInteractive'),'attr') ?>"><div id="odontogramSvgWrapper">                            <?php
                             $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
                             $odontogramSvg = '';
                             if (is_file($svgPath)) {
                                 $odontogramSvg = preg_replace('/<\?xml.*?\?>/i', '', file_get_contents($svgPath), 1);
                             }
                             ?>
-                            <?= $odontogramSvg ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-    <!-- Teeth Condition Table -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 mt-16">
-        <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-            <!-- Table Header -->
-            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                            <i class="fas fa-table text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold">Teeth with Conditions</h3>
-                            <p class="text-blue-100 text-sm">
-                                <?php 
-                                $conditionsCount = 0;
-                                foreach ($odontogram as $tooth) {
-                                    if ($tooth['condition_type'] !== 'healthy') {
-                                        $conditionsCount++;
-                                    }
-                                }
-                                ?>
-                                Showing <?= $conditionsCount ?> teeth with conditions (out of 32 total)
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Content -->
-            <div class="p-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
+                            <?= $odontogramSvg ?></div></div>
+</section><aside class="chart-summary"><section><h2><?= esc(lang('Studio.chartRecordedState')) ?></h2><dl><?php foreach(['totalConditions'=>['total_teeth','chartRecordedEntries'],'healthyCount'=>['healthy_teeth','chartHealthy'],'cavitiesCount'=>['cavities','chartCavities'],'fillingsCount'=>['fillings','chartFillings'],'crownsCount'=>['crowns','chartCrowns'],'extractedCount'=>['extracted','chartExtracted'],'needsTreatmentCount'=>['needs_attention','chartNeedsAttention']] as $id=>[$key,$label]): ?><div><dt><?= esc(lang('Studio.'.$label)) ?></dt><dd id="<?= $id ?>"><?= $id==='totalConditions'?count($odontogram):esc($stats[$key]??0) ?></dd></div><?php endforeach; ?></dl></section><section><h2><?= esc(lang('Studio.chartRecordActions')) ?></h2><div class="chart-record-actions"><button type="button" onclick="exportData()"><?= esc(lang('Studio.chartExport')) ?></button><details><summary><?= esc(lang('Studio.chartBulkActions')) ?></summary><button type="button" onclick="resetAllTeeth()"><?= esc(lang('Studio.chartResetAll')) ?></button><button type="button" onclick="markAllHealthy()"><?= esc(lang('Studio.chartMarkHealthy')) ?></button></details></div></section></aside></div>
+<section class="chart-condition-records"><header><h2><?= esc(lang('Studio.chartConditionRecords')) ?></h2><p><?= esc(lang('Studio.chartRecordedConditionsHelp')) ?></p></header><div class="chart-table-scroll" role="region" tabindex="0" aria-label="<?= esc(lang('Studio.chartConditionRecords'),'attr') ?>">                    <table class="studio-grid chart-condition-table" data-grid-widths="7,7,14,13,20,17,12,10">
                         <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Tooth #</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">FDI #</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Position</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Condition</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Treatment</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                            <tr >
+                                <th ><?= esc(lang('Studio.chartTooth')) ?></th>
+                                <th ><?= esc(lang('Studio.chartFdi')) ?></th>
+                                <th ><?= esc(lang('Studio.chartPosition')) ?></th>
+                                <th ><?= esc(lang('Studio.chartCondition')) ?></th>
+                                <th ><?= esc(lang('Studio.chartDescription')) ?></th>
+                                <th ><?= esc(lang('Studio.chartTreatmentNotes')) ?></th>
+                                <th ><?= esc(lang('Studio.chartTreatmentStatus')) ?></th>
+                                <th ><?= esc(lang('Studio.actions')) ?></th>
                             </tr>
                         </thead>
                         <tbody id="teethTableBody">
-                            <?php 
+                            <?php
                             $teethWithConditions = [];
                             for ($i = 1; $i <= 32; $i++) {
                                 $toothData = null;
@@ -426,9 +212,9 @@ $contractCreateUrl = $isExaminationChart
                                         break;
                                     }
                                 }
-                                
+
                                 $condition = $toothData ? $toothData['condition_type'] : 'healthy';
-                                
+
                                 // Only include teeth with conditions other than healthy
                                 if ($condition !== 'healthy') {
                                     $teethWithConditions[] = [
@@ -438,23 +224,23 @@ $contractCreateUrl = $isExaminationChart
                                     ];
                                 }
                             }
-                            
+
                             if (empty($teethWithConditions)): ?>
                                 <tr>
-                                    <td colspan="8" class="py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center space-y-3">
-                                            <i class="fas fa-smile text-4xl text-green-400"></i>
-                                            <div class="text-lg font-medium">All teeth are healthy!</div>
-                                            <div class="text-sm">No conditions found for this patient.</div>
+                                    <td colspan="8" >
+                                        <div >
+
+                                            <div ><?= esc(lang('Studio.chartNoRecordedConditions')) ?></div>
+                                            <div ><?= esc(lang('Studio.chartNoConditionsHelp')) ?></div>
                                         </div>
                                     </td>
                                 </tr>
                             <?php else: ?>
-                                <?php foreach ($teethWithConditions as $toothInfo): 
+                                <?php foreach ($teethWithConditions as $toothInfo):
                                     $i = $toothInfo['tooth_number'];
                                     $toothData = $toothInfo['tooth_data'];
                                     $condition = $toothInfo['condition'];
-                                    
+
                                     // Determine tooth position
                                     $position = '';
                                     if ($i >= 1 && $i <= 8) {
@@ -466,326 +252,145 @@ $contractCreateUrl = $isExaminationChart
                                     } elseif ($i >= 25 && $i <= 32) {
                                         $position = 'Lower Right';
                                     }
-                                    
+
                                     $description = $toothData ? $toothData['condition_description'] : '';
                                     $treatment = $toothData ? $toothData['treatment_notes'] : '';
                                     $status = $toothData ? $toothData['treatment_status'] : 'completed';
                                 ?>
-                                <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-200" data-tooth="<?= $i ?>">
-                                    <td class="py-3 px-4 font-semibold text-blue-600"><?= $i ?></td>
-                                    <td class="py-3 px-4 text-gray-600"><?= getFDINumber($i) ?></td>
-                                    <td class="py-3 px-4 text-gray-600"><?= $position ?></td>
-                                    <td class="py-3 px-4">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <?= getConditionClass($condition) ?>">
-                                            <?= ucfirst(str_replace('_', ' ', $condition)) ?>
+                                <tr  data-tooth="<?= $i ?>">
+                                    <td ><?= $i ?></td>
+                                    <td ><?= getFDINumber($i) ?></td>
+                                    <td ><?= esc(lang('Studio.chartPosition'.str_replace(' ','',$position))) ?></td>
+                                    <td >
+                                        <span >
+                                            <?= esc(lang('UI.patientCondition'.str_replace(' ','',ucwords(str_replace('_',' ',$condition))))) ?>
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4 text-gray-600 max-w-xs truncate" title="<?= htmlspecialchars($description) ?>">
+                                    <td  title="<?= htmlspecialchars($description) ?>">
                                         <?= $description ? htmlspecialchars($description) : '-' ?>
                                     </td>
-                                    <td class="py-3 px-4 text-gray-600 max-w-xs truncate" title="<?= htmlspecialchars($treatment) ?>">
+                                    <td  title="<?= htmlspecialchars($treatment) ?>">
                                         <?= $treatment ? htmlspecialchars($treatment) : '-' ?>
                                     </td>
-                                    <td class="py-3 px-4">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <?= getStatusClass($status) ?>">
+                                    <td >
+                                        <span >
                                             <?= getStatusText($status) ?>
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4">
-                                        <button onclick="openToothModal(<?= $i ?>)" class="text-blue-600 hover:text-blue-800 font-medium text-xs transition-colors duration-200">
-                                            <i class="fas fa-edit mr-1"></i>Edit
+                                    <td >
+                                        <button onclick="openToothModal(<?= $i ?>)" >
+                                            <?= esc(lang('Studio.editRecord')) ?>
                                         </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Patient Info and Analytics Section - Moved to Bottom -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <!-- Enhanced Patient Info Card -->
-            <div class="group relative bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-blue-200/50">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3">
-                            <i class="fas fa-user text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800">Patient Information</h3>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center py-2 px-3 bg-white/50 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Name:</span>
-                            <span class="font-semibold text-gray-800"><?= $patient['first_name'] . ' ' . $patient['last_name'] ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-white/50 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Patient ID:</span>
-                            <span class="font-semibold text-blue-600"><?= $patient['patient_id'] ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-white/50 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Age:</span>
-                            <span class="font-semibold text-gray-800">
-                                <?php
-                                $dob = new DateTime($patient['date_of_birth']);
-                                $now = new DateTime();
-                                echo $now->diff($dob)->y;
-                                ?> years
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-white/50 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Gender:</span>
-                            <span class="font-semibold text-gray-800"><?= ucfirst($patient['gender']) ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Enhanced Tooth Statistics Card -->
-            <div class="group relative bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-green-200/50">
-                <div class="absolute inset-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3">
-                            <i class="fas fa-chart-pie text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800">Tooth Statistics</h3>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center py-2 px-3 bg-white/50 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Total Teeth:</span>
-                            <span id="totalConditions" class="font-bold text-xl text-gray-800"><?= $stats['total_teeth'] ?? 0 ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-green-50/70 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Healthy:</span>
-                            <span id="healthyCount" class="font-bold text-lg text-green-600"><?= $stats['healthy_teeth'] ?? 0 ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-yellow-50/70 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Cavities:</span>
-                            <span id="cavitiesCount" class="font-bold text-lg text-yellow-600"><?= $stats['cavities'] ?? 0 ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-blue-50/70 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Fillings:</span>
-                            <span id="fillingsCount" class="font-bold text-lg text-blue-600"><?= $stats['fillings'] ?? 0 ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Enhanced Treatment Status Card -->
-            <div class="group relative bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-purple-200/50">
-                <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-3">
-                            <i class="fas fa-tools text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800">Treatment Status</h3>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center py-2 px-3 bg-purple-50/70 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Crowns:</span>
-                            <span id="crownsCount" class="font-bold text-lg text-purple-600"><?= $stats['crowns'] ?? 0 ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-red-50/70 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Extracted:</span>
-                            <span id="extractedCount" class="font-bold text-lg text-red-600"><?= $stats['extracted'] ?? 0 ?></span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 px-3 bg-orange-50/70 rounded-lg">
-                            <span class="text-sm text-gray-600 font-medium">Needs Attention:</span>
-                            <span id="needsTreatmentCount" class="font-bold text-lg text-orange-600"><?= $stats['needs_attention'] ?? 0 ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Enhanced Quick Actions Card -->
-            <div class="group relative bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-indigo-200/50">
-                <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center mr-3">
-                            <i class="fas fa-bolt text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800">Quick Actions</h3>
-                    </div>
-                    <div class="space-y-3">
-                        <button onclick="resetAllTeeth()" class="group/btn w-full flex items-center justify-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                            <i class="fas fa-undo mr-2 group-hover/btn:animate-spin"></i>Reset All
-                        </button>
-                        <button onclick="markAllHealthy()" class="group/btn w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                            <i class="fas fa-check mr-2 group-hover/btn:animate-pulse"></i>Mark All Healthy
-                        </button>
-                        <button onclick="exportData()" class="group/btn w-full flex items-center justify-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                            <i class="fas fa-file-export mr-2 group-hover/btn:animate-bounce"></i>Export Data
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </table></div></section>
 </div>
-
-<div id="toothModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                            <i class="fas fa-layer-group text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold leading-tight">Tooth <span id="modalToothNumber"></span></h3>
-                            <p class="text-orange-100 text-xs">Apply condition details</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                        <i class="fas fa-times text-white"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4">
-                <form id="toothForm" class="space-y-3.5">
+<div id="toothModal" class="chart-modal hidden" role="dialog" aria-modal="true" aria-labelledby="chart-tooth-title"><div class="chart-modal-panel" id="modalContent"><header><h2 id="chart-tooth-title"><?= esc(lang('Studio.chartTooth')) ?> <bdi id="modalToothNumber"></bdi></h2><button type="button" onclick="closeToothModal()"><?= esc(lang('Studio.close')) ?></button></header><div class="chart-modal-body"><form id="toothForm" >
                     <?= csrf_field() ?>
                     <input type="hidden" id="toothNumber" name="tooth_number">
                     <input type="hidden" name="patient_id" value="<?= $patient['id'] ?>">
                     <input type="hidden" name="examination_id" value="<?= esc($examination_id ?? '') ?>">
 
                     <div>
-                        <label for="condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
-                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
-                            <option value="">Select a condition type</option>
+                        <label for="condition_type" ><?= esc(lang('Studio.chartCondition')) ?></label>
+                        <select id="condition_type" name="condition_type"  required>
+                            <option value=""><?= esc(lang('Studio.chartSelectCondition')) ?></option>
                             <?php foreach ($condition_types as $key => $label): ?>
-                                <option value="<?= $key ?>"><?= $label ?></option>
+                                <option value="<?= $key ?>"><?php $conditionLabel=lang('UI.patientCondition'.str_replace(' ','',ucwords(str_replace('_',' ',$key)))); ?><?= esc(str_starts_with($conditionLabel,'UI.')?$label:$conditionLabel) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
                     <div>
-                        <label for="condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional description..."></textarea>
+                        <label for="condition_description" ><?= esc(lang('Studio.chartDescription')) ?></label>
+                        <textarea id="condition_description" name="condition_description" rows="2"  placeholder="<?= esc(lang('Studio.chartDescriptionHint'),'attr') ?>"></textarea>
                     </div>
 
                     <div>
-                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Examination.follow_up_note')) ?></label>
-                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="<?= esc(lang('Examination.follow_up_note_placeholder')) ?>"></textarea>
+                        <label for="treatment_notes" ><?= esc(lang('Examination.follow_up_note')) ?></label>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2"  placeholder="<?= esc(lang('Examination.follow_up_note_placeholder')) ?>"></textarea>
                     </div>
 
                     <div>
-                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc(lang('Examination.tooth_attention_status')) ?></label>
-                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="needs_attention">Needs Attention</option>
+                        <label for="treatment_status" ><?= esc(lang('Examination.tooth_attention_status')) ?></label>
+                        <select id="treatment_status" name="treatment_status" >
+                            <option value="pending"><?= esc(lang('Studio.chartPending')) ?></option>
+                            <option value="in_progress"><?= esc(lang('Studio.chartInProgress')) ?></option>
+                            <option value="completed"><?= esc(lang('Studio.chartCompleted')) ?></option>
+                            <option value="needs_attention"><?= esc(lang('Studio.chartNeedsAttention')) ?></option>
                         </select>
                     </div>
 
-                    <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs font-semibold text-blue-900">
+                    <div >
                         <?= esc(lang('Examination.odontogram_record_boundary')) ?>
                     </div>
 
-                    <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-200">
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
-                                Cancel
+                    <div >
+                        <div >
+                            <button type="button" onclick="closeToothModal()" >
+                                <?= esc(lang('Studio.cancel')) ?>
                             </button>
-                            <button type="button" onclick="resetTooth()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
-                                Remove Status
+                            <button type="button" onclick="resetTooth()" >
+                                <?= esc(lang('Studio.chartRemoveStatus')) ?>
                             </button>
                             <?php if (has_permission('treatments', 'create')): ?>
-                                <a id="createTreatmentForToothLink" href="<?= esc($treatmentCreateUrl, 'attr') ?>" class="inline-flex h-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 px-3 text-sm font-bold text-emerald-800 hover:bg-emerald-100">
-                                    <i class="fas fa-plus me-2"></i><?= esc(lang('Examination.add_treatment')) ?>
+                                <a id="createTreatmentForToothLink" href="<?= esc($treatmentCreateUrl, 'attr') ?>" >
+                                    <?= esc(lang('Examination.add_treatment')) ?>
                                 </a>
                             <?php endif; ?>
                         </div>
-                        <button type="submit" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
-                            <i class="fas fa-save mr-2"></i>Apply Changes
+                        <button type="submit" >
+                            <?= esc(lang('Studio.chartApply')) ?>
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="batchModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="batchModalContent">
-            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                            <i class="fas fa-layer-group text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold leading-tight">Apply to Selected Teeth</h3>
-                            <p class="text-orange-100 text-xs">Selected: <span id="batchModalCount">0</span> teeth</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="closeBatchModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                        <i class="fas fa-times text-white"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4">
-                <form id="batchForm" class="space-y-3.5">
+                </form></div></div></div>
+<div id="batchModal" class="chart-modal hidden" role="dialog" aria-modal="true" aria-labelledby="chart-batch-title"><div class="chart-modal-panel" id="batchModalContent"><header><div><h2 id="chart-batch-title"><?= esc(lang('Studio.chartApplySelected')) ?></h2><p><?= esc(lang('Studio.chartSelected')) ?>: <bdi id="batchModalCount">0</bdi></p></div><button type="button" onclick="closeBatchModal()"><?= esc(lang('Studio.close')) ?></button></header><div class="chart-modal-body"><form id="batchForm" >
                     <div>
-                        <label for="batch_condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
-                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
-                            <option value="">Select a condition type</option>
+                        <label for="batch_condition_type" ><?= esc(lang('Studio.chartCondition')) ?></label>
+                        <select id="batch_condition_type" name="condition_type"  required>
+                            <option value=""><?= esc(lang('Studio.chartSelectCondition')) ?></option>
                             <?php foreach ($condition_types as $key => $label): ?>
-                                <option value="<?= $key ?>"><?= $label ?></option>
+                                <option value="<?= $key ?>"><?php $conditionLabel=lang('UI.patientCondition'.str_replace(' ','',ucwords(str_replace('_',' ',$key)))); ?><?= esc(str_starts_with($conditionLabel,'UI.')?$label:$conditionLabel) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div>
-                        <label for="batch_condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared description..."></textarea>
+                        <label for="batch_condition_description" ><?= esc(lang('Studio.chartDescription')) ?></label>
+                        <textarea id="batch_condition_description" name="condition_description" rows="2"  placeholder="<?= esc(lang('Studio.chartSharedDescriptionHint'),'attr') ?>"></textarea>
                     </div>
                     <div>
-                        <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
-                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared treatment notes..."></textarea>
+                        <label for="batch_treatment_notes" ><?= esc(lang('Studio.chartTreatmentNotes')) ?></label>
+                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2"  placeholder="<?= esc(lang('Studio.chartSharedNotesHint'),'attr') ?>"></textarea>
                     </div>
                     <div>
-                        <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
-                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="needs_attention">Needs Attention</option>
+                        <label for="batch_treatment_status" ><?= esc(lang('Studio.chartTreatmentStatus')) ?></label>
+                        <select id="batch_treatment_status" name="treatment_status" >
+                            <option value="pending"><?= esc(lang('Studio.chartPending')) ?></option>
+                            <option value="in_progress"><?= esc(lang('Studio.chartInProgress')) ?></option>
+                            <option value="completed"><?= esc(lang('Studio.chartCompleted')) ?></option>
+                            <option value="needs_attention"><?= esc(lang('Studio.chartNeedsAttention')) ?></option>
                         </select>
                     </div>
-                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
-                                Cancel
+                    <div >
+                        <div >
+                            <button type="button" onclick="closeBatchModal()" >
+                                <?= esc(lang('Studio.cancel')) ?>
                             </button>
-                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
-                                Remove Status
+                            <button type="button" onclick="batchResetSelected()" >
+                                <?= esc(lang('Studio.chartRemoveStatus')) ?>
                             </button>
                         </div>
-                        <button type="submit" id="batchSubmitBtn" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
-                            <i class="fas fa-save mr-2"></i>Apply Changes
+                        <button type="submit" id="batchSubmitBtn" >
+                            <?= esc(lang('Studio.chartApply')) ?>
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+                </form></div></div></div>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script>window.csrfConfig={name:document.querySelector('meta[name="csrf-name"]').content,header:document.querySelector('meta[name="csrf-header"]').content};window.csrfHash=document.querySelector('meta[name="csrf-token"]').content;window.getCsrfToken=()=>window.csrfHash;window.refreshCsrfToken=token=>{if(token){window.csrfHash=token;document.querySelector('meta[name="csrf-token"]').content=token;for(const field of document.querySelectorAll('input[type=hidden]'))if(field.name===window.csrfConfig.name)field.value=token;}return window.csrfHash;};</script>
 <script>
 const patientId = <?= $patient['id'] ?>;
 const examinationId = <?= isset($examination_id) && $examination_id ? (int)$examination_id : 'null' ?>;
@@ -1957,80 +1562,8 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 </script>
-
-
-
-<style>
-#odontogramSvgWrapper svg {
-    width: 100%;
-    height: auto;
-}
-
-#odontogramSvgWrapper text {
-    pointer-events: none;
-    font-family: inherit;
-}
-
-#odontogramSvgWrapper .tooth-hit {
-    outline: none;
-}
-
-#odontogramSvgWrapper .tooth-outline {
-    stroke: #3b82f6;
-    opacity: 0;
-}
-
-#odontogramSvgWrapper .tooth-overlay {
-    pointer-events: none;
-    mix-blend-mode: multiply;
-}
-
-#odontogramSvgWrapper .tooth-group {
-    cursor: pointer;
-}
-
-#odontogramSvgWrapper .tooth-group.is-hover .tooth-outline {
-    opacity: 0.9;
-}
-
-#odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
-    opacity: 1;
-    stroke: #f97316;
-    stroke-width: 2;
-}
-
-#odontogramSvgWrapper .tooth-group.is-batch-selected .tooth-outline {
-    opacity: 1;
-    stroke: #f59e0b;
-    stroke-width: 2;
-}
-
-/* Animation classes for tooth updates */
-.updating {
-    animation: pulse 1s infinite;
-    opacity: 0.7;
-}
-
-.success {
-    animation: bounce 0.6s ease-in-out;
-    background: linear-gradient(135deg, #10b981, #34d399) !important;
-    border-color: #059669 !important;
-}
-
-@keyframes bounce {
-    0%, 20%, 53%, 80%, 100% {
-        transform: translate3d(0,0,0);
-    }
-    40%, 43% {
-        transform: translate3d(0, -8px, 0);
-    }
-    70% {
-        transform: translate3d(0, -4px, 0);
-    }
-    90% {
-        transform: translate3d(0, -2px, 0);
-    }
-}
-</style>
-
+<?php $chartConditionLabels=[];foreach(array_keys($condition_types) as $key){$chartConditionLabels[$key]=lang('UI.patientCondition'.str_replace(' ','',ucwords(str_replace('_',' ',$key))));} ?>
+<script type="application/json" id="chart-condition-labels"><?= json_encode($chartConditionLabels,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
+<script type="application/json" id="chart-presentation-labels"><?= json_encode(array_combine(['chartCondition', 'chartSelectCondition', 'chartDescription', 'chartDescriptionHint', 'chartSharedDescriptionHint', 'chartSharedNotesHint', 'chartTreatmentNotes', 'chartTreatmentStatus', 'chartPending', 'chartInProgress', 'chartCompleted', 'chartNeedsAttention', 'chartRemoveStatus', 'chartApply', 'chartTooth', 'chartFdi', 'chartPosition', 'chartNoRecordedConditions', 'chartNoConditionsHelp', 'chartPositionUpperRight', 'chartPositionUpperLeft', 'chartPositionLowerLeft', 'chartPositionLowerRight', 'chartActions', 'chartInteractive', 'chartInstruction', 'chartShowLegend', 'chartHideLegend', 'chartBatchSelect', 'chartBatchOn', 'chartSelected', 'chartExitBatch', 'chartRecordedState', 'chartTotalTeeth', 'chartHealthy', 'chartCavities', 'chartFillings', 'chartCrowns', 'chartExtracted', 'chartRecordActions', 'chartExport', 'chartBulkActions', 'chartResetAll', 'chartMarkHealthy', 'chartConditionRecords', 'chartRecordedConditionsHelp', 'chartApplySelected', 'chartSaving'], array_map(static fn($key)=>lang('Studio.'.$key), ['chartCondition', 'chartSelectCondition', 'chartDescription', 'chartDescriptionHint', 'chartSharedDescriptionHint', 'chartSharedNotesHint', 'chartTreatmentNotes', 'chartTreatmentStatus', 'chartPending', 'chartInProgress', 'chartCompleted', 'chartNeedsAttention', 'chartRemoveStatus', 'chartApply', 'chartTooth', 'chartFdi', 'chartPosition', 'chartNoRecordedConditions', 'chartNoConditionsHelp', 'chartPositionUpperRight', 'chartPositionUpperLeft', 'chartPositionLowerLeft', 'chartPositionLowerRight', 'chartActions', 'chartInteractive', 'chartInstruction', 'chartShowLegend', 'chartHideLegend', 'chartBatchSelect', 'chartBatchOn', 'chartSelected', 'chartExitBatch', 'chartRecordedState', 'chartTotalTeeth', 'chartHealthy', 'chartCavities', 'chartFillings', 'chartCrowns', 'chartExtracted', 'chartRecordActions', 'chartExport', 'chartBulkActions', 'chartResetAll', 'chartMarkHealthy', 'chartConditionRecords', 'chartRecordedConditionsHelp', 'chartApplySelected', 'chartSaving'])),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
+<script src="<?= base_url('assets/js/studio-chart.js') ?>?v=<?= esc(asset_version('assets/js/studio-chart.js')) ?>" defer></script>
 <?= $this->endSection() ?>
