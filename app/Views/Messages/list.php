@@ -1,5 +1,5 @@
 <?php if (! empty($messages)) : ?>
-	<div class="alert alert-info" role="alert">
+	<div class="access-message" role="status">
 		<ul>
 		<?php foreach ($messages as $message) : ?>
 			<li><?= esc($message) ?></li>

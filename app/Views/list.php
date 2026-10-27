@@ -1,6 +1,6 @@
 <?php if (! empty($errors)): ?>
-    <div class="alert alert-danger">
-        <ul class="mb-0">
+    <div class="access-message" role="alert">
+        <ul >
             <?php foreach ($errors as $error): ?>
                 <li><?= esc($error) ?></li>
             <?php endforeach ?>
