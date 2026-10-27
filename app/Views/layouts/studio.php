@@ -77,6 +77,8 @@ $studioNav=[
 <?php foreach([['patients','patient/create','people','register','registerHelp'],['appointments','appointment/create','calendar','book','bookHelp']] as [$module,$url,$icon,$titleKey,$helpKey]): if(!$v4Can($module,'create'))continue; ?><a class="create-choice" href="<?= base_url($url) ?>"><span class="choice-icon"><?= $studioIcon($icon) ?></span><span><strong><?= esc(lang('Studio.'.$titleKey)) ?></strong><small><?= esc(lang('Studio.'.$helpKey)) ?></small></span></a><?php endforeach; ?></dialog>
 <dialog id="help-dialog" aria-labelledby="help-title" class="help-dialog"><header><div><h2 id="help-title"><?= esc(lang('Studio.help')) ?></h2><p><?= esc(lang('Studio.helpText')) ?></p></div><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></header><dl><div><dt><?= esc(lang('Studio.command')) ?></dt><dd><kbd>Ctrl</kbd> <kbd>K</kbd></dd></div><div><dt><?= esc(lang('Studio.escape')) ?></dt><dd><kbd>Esc</kbd></dd></div><div><dt><?= esc(lang('Studio.tab')) ?></dt><dd><kbd>Tab</kbd></dd></div></dl></dialog>
 <script src="<?= base_url('assets/js/studio.js') ?>?v=<?= esc(asset_version('assets/js/studio.js')) ?>" defer></script>
+<?= view('components/studio_action_dialog',['studioIcon'=>$studioIcon]) ?>
+<script src="<?= base_url('assets/js/studio-dialogs.js') ?>?v=<?= esc(asset_version('assets/js/studio-dialogs.js')) ?>" defer></script>
 <?= $this->renderSection('scripts') ?>
 <script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
 </body></html>

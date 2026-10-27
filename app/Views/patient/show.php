@@ -1597,7 +1597,7 @@ if (isset($workspace_history)) {
                                                                    class="patient-table-action" title="<?= esc(lang('UI.patientDownload')) ?>"><?= esc(lang('UI.patientDownload')) ?></a>
                                                                 <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/' . $attachment['id'] . '/delete') ?>" method="post" >
                                                                     <?= csrf_field() ?>
-                                                                    <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteAttachmentConfirm'), 'js') ?>');">
+                                                                    <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" data-confirm-message="<?= esc(lang('UI.patientDeleteAttachmentConfirm'),'attr') ?>" onclick="return window.StudioDialogs ? window.StudioDialogs.submitConfirm(event) : false;">
 
                                                                     </button>
                                                                 </form>
@@ -1684,7 +1684,7 @@ if (isset($workspace_history)) {
                                                                class="patient-table-action" title="<?= esc(lang('UI.patientEdit')) ?>"><?= esc(lang('UI.patientEdit')) ?></a>
                                                             <form action="<?= base_url('contracts/' . $contract['id'] . '/delete') ?>" method="post" >
                                                                 <?= csrf_field() ?>
-                                                                <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteContractConfirm'), 'js') ?>');">
+                                                                <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" data-confirm-message="<?= esc(lang('UI.patientDeleteContractConfirm'),'attr') ?>" onclick="return window.StudioDialogs ? window.StudioDialogs.submitConfirm(event) : false;">
 
                                                                 </button>
                                                             </form>

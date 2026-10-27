@@ -147,6 +147,8 @@
 </script>
 <script src="<?= base_url('assets/js/studio-platform.js') ?>?v=<?= esc(asset_version('assets/js/studio-platform.js')) ?>" defer>
 </script>
+<?= view('components/studio_action_dialog',['studioIcon'=>$studioIcon]) ?>
+<script src="<?= base_url('assets/js/studio-dialogs.js') ?>?v=<?= esc(asset_version('assets/js/studio-dialogs.js')) ?>" defer></script>
 <?= $this->renderSection('scripts') ?>
 <script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
 </body>

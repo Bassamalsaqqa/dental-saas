@@ -1101,4 +1101,10 @@ return [
     'chartAdded' => 'Registered',
     'age' => 'Age',
     'chartRefresh' => 'Refresh list',
+    'dialogReviewAction' => 'Review this action',
+    'dialogNoticeTitle' => 'Action update',
+    'dialogContinue' => 'Confirm action',
+    'dialogUnderstood' => 'Understood',
+    'dialogDecisionContext' => 'Review before continuing',
+    'chartBulkUnavailable' => 'These bulk operations are not implemented. Use the existing individual or selected-teeth workflow.',
 ];

@@ -140,7 +140,7 @@
     },
     "app/Views/odontogram/index.php": {
       "baseline_git_blob": "d9d44eeab34b89dfa01e3b0353a89de4c3b2403c",
-      "approved_git_blob": "c409480a0bd8a3073a9802e816cc07df4a1cbbdd",
+      "approved_git_blob": "945f859f2b4e2bb4584c80d43321647b34cf7ef9",
       "authorization": "Owner 2026-10-27 explicitly authorized presentation markup only and confirmed always authorized. Native SVG, clinical chart JavaScript, algorithms, snapshots, fields and records remain protected.",
       "scope": "Surrounding Studio presentation and localized controls; directory uses unchanged read-only tenant endpoint/full canonical registration; no clinical or backend behavior change."
     },
@@ -603,7 +603,7 @@
     "final_read_only_browser_observations": 466,
     "source_evidence": "../final-frontend-integration/acceptance.json",
     "native_chart_observations": 102,
-    "curated_screenshots": "docs/ui-evidence (6 PNGs, synthetic only)",
+    "curated_screenshots": "docs/ui-evidence (7 PNGs, synthetic only)",
     "gallery": "C:\\Users\\bassa\\AppData\\Local\\Temp\\denta-ui-v3-20261023\\review-all\\index.html",
     "protected_data": "11 synthetic business table row counts/fingerprints unchanged",
     "owner_visual_acceptance": "PENDING",
@@ -617,8 +617,18 @@
     "remote_head": "a09a9330fc633b5e35c1cbfb8e6803ce387c930a",
     "remote_branch": "feature/warm-clinical-v3-20261023",
     "clean_branch": "feature/denta-ui-approved-system",
-    "head_replacement_authorized": false,
+    "head_replacement_authorized": true,
     "source_merge_or_force_push_performed": false,
-    "reason": "Clean branch deliberately excludes rejected ancestry; existing PR cannot be updated by ordinary fast-forward."
+    "reason": "Clean branch deliberately excludes rejected ancestry; existing PR cannot be updated by ordinary fast-forward.",
+    "authorization": "Owner 2026-10-27: ok, i approve; finish views/popups, commit and push for review.",
+    "status": "OWNER_AUTHORIZED_PENDING_ATOMIC_LEASED_PUSH"
+  },
+  "final_dialogs": {
+    "browser_checks": 70,
+    "captures": 4,
+    "financial_requests_and_FormData_unchanged": true,
+    "business_mutations_executed": 0,
+    "gallery": "../final-dialogs/index.html",
+    "unsupported_chart_bulk_actions": "Explicitly disabled; original native algorithms untouched"
   }
 }

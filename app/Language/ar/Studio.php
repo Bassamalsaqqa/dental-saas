@@ -1101,4 +1101,10 @@ return [
     'chartAdded' => 'تاريخ التسجيل',
     'age' => 'العمر',
     'chartRefresh' => 'تحديث القائمة',
+    'dialogReviewAction' => 'مراجعة الإجراء',
+    'dialogNoticeTitle' => 'تحديث الإجراء',
+    'dialogContinue' => 'تأكيد الإجراء',
+    'dialogUnderstood' => 'حسنًا',
+    'dialogDecisionContext' => 'راجع التفاصيل قبل المتابعة',
+    'chartBulkUnavailable' => 'هذه الإجراءات الجماعية غير متاحة حاليًا. استخدم الإجراء الحالي للسن الواحد أو للأسنان المحددة.',
 ];

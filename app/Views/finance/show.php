@@ -1746,8 +1746,8 @@ function initSettlementForm(form) {
     syncSettlementForm(form);
 }
 
-function markAsPaid(transactionId) {
-    if (confirm('<?= lang('Finance.confirmMarkTransactionPaid') ?>')) {
+async function markAsPaid(transactionId) {
+    if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmMarkTransactionPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>)) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('finance') ?>/${transactionId}/mark-paid`, {
@@ -1766,18 +1766,18 @@ function markAsPaid(transactionId) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
+                window.StudioDialogs.notice('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('<?= lang('Finance.errorUpdatingTransaction') ?>');
+            window.StudioDialogs.notice('<?= lang('Finance.errorUpdatingTransaction') ?>');
         });
     }
 }
 
-function deleteFinance(id) {
-    if (confirm('<?= lang('Finance.confirmDeleteTransaction') ?>')) {
+async function deleteFinance(id) {
+    if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmDeleteTransaction'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{destructive:true})) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('finance') ?>/${id}`, {
@@ -1796,22 +1796,20 @@ function deleteFinance(id) {
             if (data.success) {
                 window.location.href = '<?= base_url('finance') ?>';
             } else {
-                alert('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
+                window.StudioDialogs.notice('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('<?= lang('Finance.errorDeletingTransaction') ?>');
+            window.StudioDialogs.notice('<?= lang('Finance.errorDeletingTransaction') ?>');
         });
     }
 }
 
-function closeBalance(transactionId) {
-    if (!confirm('<?= lang('Finance.confirmCloseBalance') ?>')) {
-        return;
-    }
-
-    const reason = prompt('<?= lang('Finance.reasonOptionalPrompt') ?>') || '';
+async function closeBalance(transactionId) {
+    if (!window.StudioDialogs) return;
+    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmCloseBalance'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.reasonOptionalPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{destructive:true});
+    if (reason === null) return;
     const formData = new FormData();
     formData.append('reason', reason);
 
@@ -1834,12 +1832,12 @@ function closeBalance(transactionId) {
         if (data.success) {
             location.reload();
         } else {
-            alert('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
+            window.StudioDialogs.notice('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('<?= lang('Finance.errorClosingBalance') ?>');
+        window.StudioDialogs.notice('<?= lang('Finance.errorClosingBalance') ?>');
     });
 }
 
@@ -1874,14 +1872,14 @@ if (invoicePaymentForm) {
                 closeFinanceModal('paymentModal');
                 location.reload();
             } else {
-                alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
+                window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('<?= esc(lang('Finance.errorAddingPayment')) ?>');
+            window.StudioDialogs.notice('<?= esc(lang('Finance.errorAddingPayment')) ?>');
             btn.disabled = false;
             btn.textContent = originalText;
         });
@@ -1919,25 +1917,24 @@ if (invoiceRefundForm) {
                 closeFinanceModal('refundModal');
                 location.reload();
             } else {
-                alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
+                window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('<?= esc(lang('Finance.errorRecordingRefund')) ?>');
+            window.StudioDialogs.notice('<?= esc(lang('Finance.errorRecordingRefund')) ?>');
             btn.disabled = false;
             btn.textContent = originalText;
         });
     });
 }
 
-function voidPayment(paymentId) {
-    if (!confirm('<?= esc(lang('Finance.confirmVoidPayment')) ?>')) {
-        return;
-    }
-    const reason = prompt('<?= esc(lang('Finance.voidReasonPrompt')) ?>') || '';
+async function voidPayment(paymentId) {
+    if (!window.StudioDialogs) return;
+    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmVoidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.voidReasonPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{destructive:true});
+    if (reason === null) return;
     const formData = new FormData();
     formData.append('notes', reason);
 
@@ -1960,12 +1957,12 @@ function voidPayment(paymentId) {
         if (data.success) {
             location.reload();
         } else {
-            alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
+            window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('<?= esc(lang('Finance.errorVoidingPayment')) ?>');
+        window.StudioDialogs.notice('<?= esc(lang('Finance.errorVoidingPayment')) ?>');
     });
 }
 
@@ -2048,12 +2045,12 @@ document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
                 }
                 location.reload();
             } else {
-                alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
+                window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('<?= esc(lang('Finance.errorRecordingProviderPayout')) ?>');
+            window.StudioDialogs.notice('<?= esc(lang('Finance.errorRecordingProviderPayout')) ?>');
         });
     });
 });
