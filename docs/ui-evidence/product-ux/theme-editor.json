@@ -1,0 +1,221 @@
+{
+  "code_head": "d21e2e2f5a38974374889402f195e2214f23f902",
+  "captured_utc": "2026-10-28T14:57:43.344297+00:00",
+  "status": "IMPLEMENTED_FOCUSED_VERIFICATION_NOT_INDEPENDENTLY_ACCEPTED",
+  "pure_checks": 454,
+  "sql_store_checks": 28,
+  "canonical_rbac_sql_checks": 12,
+  "browser": {
+    "theme-browser": {
+      "checks": [
+        "Default OFF denies editor against existing schema without migration",
+        "Actual practice-manager native editor renders 42 safe roles",
+        "Server-validated contained preview studio-forest",
+        "Server-validated contained preview sandstone-copper",
+        "Server-validated contained preview slate-sage",
+        "Server-validated contained preview deep-charcoal",
+        "Server-validated contained preview high-contrast",
+        "Unreadable palette rejected with recoverable inline feedback",
+        "Cancel restores actual saved custom colors",
+        "Confirmation cancel restores focus without publishing",
+        "Actual CSRF-authorized clinic publish redirects back",
+        {
+          "case": "Native editor reflow and real locale",
+          "width": 1586,
+          "lang": "en"
+        },
+        {
+          "case": "Native editor reflow and real locale",
+          "width": 390,
+          "lang": "ar"
+        },
+        {
+          "case": "Native editor reflow and real locale",
+          "width": 320,
+          "lang": "ar"
+        },
+        "Restricted-role route denied",
+        "Session does not grant BearerAPI access"
+      ],
+      "scope": "Actual synthetic routes, preview, native confirmation and clinic publication; global publishing/first-paint not yet certified"
+    },
+    "theme-platform-browser": {
+      "checks": [
+        "Forged clinic_id cannot select another tenant; native session scope wins with actual SQL verification",
+        "Missing-CSRF direct POST cannot change a theme",
+        "Tenant manager cannot reach platform editor",
+        "Canonical SuperAdmin global entry reaches native platform editor",
+        "Actual platform publication preserves explicit clinic overrides",
+        "Real clinic inherit action clears only explicit theme configuration",
+        "Impersonation retains fixed security banner and cannot implicitly publish tenant appearance",
+        "All prior theme history rows preserved exactly across routed changes"
+      ],
+      "scope": "Actual synthetic tenant/platform CSRF routes plus SQL state/history; first-paint and role-revocation concurrency remain pending"
+    },
+    "theme-firstpaint": {
+      "checks": [
+        {
+          "case": "Verified tenant theme in initial HTML",
+          "route": "/dashboard",
+          "queries": "189"
+        },
+        {
+          "case": "Verified tenant theme in initial HTML",
+          "route": "/patients",
+          "queries": "146"
+        },
+        {
+          "case": "Verified tenant theme in initial HTML",
+          "route": "/appointment/calendar",
+          "queries": "162"
+        },
+        {
+          "case": "Verified tenant theme in initial HTML",
+          "route": "/finance",
+          "queries": "204"
+        },
+        {
+          "case": "Verified tenant theme in initial HTML",
+          "route": "/inventory",
+          "queries": "141"
+        },
+        {
+          "case": "Verified tenant theme in initial HTML",
+          "route": "/settings/appearance",
+          "queries": "134"
+        },
+        "Other clinic retains its explicit high-contrast selection",
+        "Control Plane identity never inherits tenant or platform reading palette",
+        "Public login ignores forged clinic/theme query and uses platform brand only"
+      ],
+      "scope": "Real first-response CSS, verified session scopes, six representative tenant routes, other-tenant custom theme and public/platform separation; not all-route color certification"
+    },
+    "theme-preset-routes": {
+      "checks": [
+        {
+          "preset": "studio-forest",
+          "route": "/dashboard",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "studio-forest",
+          "route": "/patient/create",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "sandstone-copper",
+          "route": "/dashboard",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "sandstone-copper",
+          "route": "/patient/create",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "slate-sage",
+          "route": "/dashboard",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "slate-sage",
+          "route": "/patient/create",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "deep-charcoal",
+          "route": "/dashboard",
+          "readingSize": "20px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "deep-charcoal",
+          "route": "/patient/create",
+          "readingSize": "20px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "high-contrast",
+          "route": "/dashboard",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        {
+          "preset": "high-contrast",
+          "route": "/patient/create",
+          "readingSize": "18px",
+          "source": "actual first paint and native permitted synthetic publish"
+        },
+        "Actual Arabic mobile registration remains usable under high contrast"
+      ],
+      "scope": "Five actual presets on dashboard/registration, bounded reading-size/density publication; not all-consumer or physical-device certification"
+    },
+    "theme-exact-head": {
+      "head": "d21e2e2f5a38974374889402f195e2214f23f902",
+      "equivalent_routed_publish_preserves_all_history": true,
+      "captures": 3,
+      "scope": "Current source native read routes, EN/AR captures and audited equivalent retry; no production access"
+    }
+  },
+  "assets": [
+    {
+      "path": "public/assets/css/studio.css",
+      "baseline_uncompressed_bytes": 30772,
+      "current_uncompressed_bytes": 30838,
+      "sha256": "fb77017069aabaa54f45428d58b845da03f35a70cc71e97c024e2cc06368a2c2"
+    },
+    {
+      "path": "public/assets/css/studio-theme.css",
+      "baseline_uncompressed_bytes": 5657,
+      "current_uncompressed_bytes": 5801,
+      "sha256": "7191a27e30493c1133e5ca07c899a6c43554f0a5c51c7f56580010c5ff45a774"
+    },
+    {
+      "path": "public/assets/css/studio-access.css",
+      "baseline_uncompressed_bytes": 5735,
+      "current_uncompressed_bytes": 7835,
+      "sha256": "6b1c39c26d379db4ae19e493a53b44014a4b441c26d5eb632c5a7a40fd503280"
+    },
+    {
+      "path": "public/assets/js/studio-access.js",
+      "baseline_uncompressed_bytes": 3342,
+      "current_uncompressed_bytes": 3363,
+      "sha256": "a66ed55f1665436151a8e06bbf23acb3b1586128c08d6d334e05120ad4f29009"
+    },
+    {
+      "path": "public/assets/css/studio-appearance.css",
+      "baseline_uncompressed_bytes": 0,
+      "current_uncompressed_bytes": 5997,
+      "sha256": "d9bb9b6d576a2102087fbc7dac454c39193facbb7833ee5c6c9e7c9ff0272d0d"
+    },
+    {
+      "path": "public/assets/js/studio-appearance.js",
+      "baseline_uncompressed_bytes": 0,
+      "current_uncompressed_bytes": 5392,
+      "sha256": "9a2744446cca1ba17b729635fa7042615a4b9138af0cbd0179a725a43f681e31"
+    }
+  ],
+  "preservation": {
+    "original_checkout_status_sha256": "43c5f4b9e6144b32803e820c95c6d242328dec4000ab6385c53c9e89fbf6eb67",
+    "tailwind_sha256": "3a51d2fffb54ae89fbb4188e3b1ddfc2bce09c7e81148adba78ce750b7fd801a",
+    "baseline_business_rows_verified": 339,
+    "original_schemas_unchanged": true,
+    "new_theme_tables_applied_only_to": "denta_theme_synthetic_20261028",
+    "production_contact": false
+  },
+  "limits": [
+    "Current SQL counts are snapshots, not paired performance improvements.",
+    "No production schema/migration/recovery operation or feature activation.",
+    "Theme access browser fixture copied synthetic tables/indexes using CREATE LIKE; it does not certify business FK/trigger behavior.",
+    "Five fixed reviewed presets; platform catalog administration and per-clinic override registry remain to implement.",
+    "Supported accessibility preference precedence and complete consumer contrast audit remain pending.",
+    "Routed stale-save messaging, role-change concurrency, CSP-enabled first paint, print and forced-colors still require final focused acceptance.",
+    "Other flagship workflows and product-wide rollout are incomplete."
+  ]
+}
