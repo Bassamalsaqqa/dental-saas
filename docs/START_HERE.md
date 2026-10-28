@@ -7,6 +7,7 @@ This is the authoritative active document map for Denta+. Read only the document
 | Need | Source |
 |---|---|
 | Current implementation, release authority & active campaign | `PROJECT_STATE.md` |
+| UX/theme delivery matrix, journey contracts and decisions | `STUDIO_UX_THEME_PROGRAM.md` |
 | Authoritative product-wide UX, workflow & theme brief | Owner-supplied `DentaPlus_StateOfTheArt_UX_Workflow_Theme_System_Codex_Master.md` (read-only original checkout asset; not a tracked file here) |
 | Recent implementation history | `CHANGELOG.md` |
 | Durable architecture/product decisions | `DECISIONS.md` |
