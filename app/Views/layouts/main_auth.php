@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <?php
     helper('asset');
+    include APPPATH.'Views/layouts/partials/studio_platform_context.php';
     $rawPageTitle = $pageTitle ?? $title ?? ($clinic['name'] ?? 'Denta+');
     $uri = service('uri');
     $segments = $uri->getSegments();
@@ -794,6 +795,7 @@
             }
         }
     </style>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-security.css') ?>?v=<?= esc(asset_version('assets/css/studio-security.css')) ?>">
 </head>
 <body class="bg-gray-50 min-h-screen overflow-x-hidden">
     <!-- Toast Notification System -->
@@ -1054,6 +1056,7 @@
         
         <!-- Smart Top Navigation Bar -->
         <header class="tenant-app-header sticky top-0 px-4 sm:px-5 py-3 transition-all duration-300 relative z-30 backdrop-blur-xl" id="main-header">
+            <?= view('components/studio_impersonation_banner', ['studioImpersonating'=>$studioImpersonating, 'clinic'=>$clinic ?? []]) ?>
             <!-- Animated Background Elements -->
             <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent pointer-events-none"></div>
             
@@ -1109,15 +1112,6 @@
                             <span class="tenant-language-option !min-h-7 !px-2"><?= $activeLocale === 'ar' ? 'EN' : esc(lang('UI.settingsLanguageAr')) ?></span>
                         </a>
                     </div>
-                    <?php if (session()->get('is_impersonating')): ?>
-                    <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="hidden sm:flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
-                        <?= csrf_field() ?>
-                        <span class="text-xs font-semibold text-rose-600">Impersonating</span>
-                        <button type="submit" class="text-xs font-semibold text-rose-700 hover:text-rose-800">
-                            Exit
-                        </button>
-                    </form>
-                    <?php endif; ?>
                     <!-- Clinic Switcher (Moved here) -->
                     <?php if (isset($user_memberships) && count($user_memberships) > 1): ?>
                     <div class="relative group mobile-hide-compact" id="clinic-switcher">
@@ -1274,15 +1268,10 @@
                                     <span><?= lang('UI.switchClinic') ?></span>
                                 </a>
                                 
-                                <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
-                                    <div class="border-t border-gray-100 my-2"></div>
-                                    <form action="<?= base_url('controlplane/enter') ?>" method="post">
-                                        <?= csrf_field() ?>
-                                        <button type="submit" class="tenant-menu-row w-full text-start !text-indigo-700 hover:!bg-indigo-50">
-                                            <span class="tenant-menu-row__icon !text-indigo-600 !bg-indigo-50"><i class="fas fa-rocket text-sm"></i></span>
-                                            <span><?= lang('UI.enterControlPlane') ?></span>
-                                        </button>
-                                    </form>
+                                <?php if ($studioPlatformAdmin && !$studioImpersonating): ?>
+                                    <a href="<?= base_url('controlplane') ?>" class="tenant-menu-row" data-studio-platform-entry>
+                                        <span><?= esc(lang('Studio.openControlPlane')) ?></span>
+                                    </a>
                                 <?php endif; ?>
 
                                 <div class="border-t border-gray-100 my-2"></div>

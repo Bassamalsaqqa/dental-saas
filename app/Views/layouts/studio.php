@@ -2,6 +2,7 @@
 include APPPATH.'Views/layouts/partials/page_context.php';
 include APPPATH.'Views/layouts/partials/view_permissions.php';
 include APPPATH.'Views/layouts/partials/studio_icons.php';
+include APPPATH.'Views/layouts/partials/studio_platform_context.php';
 $studioLocale=strtolower((string)($locale ?? service('request')->getLocale()));
 $studioRtl=$studioLocale==='ar';$studioActor=(object)($user??[]);
 $studioName=trim(($studioActor->first_name??'').' '.($studioActor->last_name??'')) ?: ($studioActor->email??session('email')??lang('Studio.account'));
@@ -38,6 +39,7 @@ $studioNav=[
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-workspace.css') ?>?v=<?= esc(asset_version('assets/css/studio-workspace.css')) ?>">
 <meta name="csrf-name" content="<?= csrf_token() ?>"><meta name="csrf-token" content="<?= csrf_hash() ?>"><meta name="csrf-header" content="<?= csrf_header() ?>">
 <?= $this->renderSection('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-security.css') ?>?v=<?= esc(asset_version('assets/css/studio-security.css')) ?>">
 </head>
 <body class="studio">
 <a class="skip" href="#main"><?= esc(lang('Studio.skip')) ?></a>
@@ -56,6 +58,7 @@ $studioNav=[
 </aside>
 <div class="nav-backdrop" data-nav-close hidden></div>
 <div class="workspace" id="studio-workspace">
+<?= view('components/studio_impersonation_banner', ['studioImpersonating'=>$studioImpersonating, 'clinic'=>$clinic ?? []]) ?>
 <header class="toolbar">
 <div class="toolbar-location"><button class="icon-button mobile-only" data-nav-open aria-controls="studio-nav" aria-expanded="false" aria-label="<?= esc(lang('Studio.menu')) ?>"><?= $studioIcon('menu') ?></button><span class="toolbar-breadcrumb"><?= esc(lang('Studio.workspace')) ?></span><span class="breadcrumb-divider">/</span><strong><?= esc($studioPageTitle) ?></strong></div>
 <div class="toolbar-actions">
@@ -70,7 +73,7 @@ $studioNav=[
 <div id="clinic-menu" popover class="popover clinic-popover"><h2><?= esc(lang('Studio.clinic')) ?></h2>
 <?php if(empty($user_memberships)): ?><p><?= esc($clinic['name']??'Denta+') ?></p><?php endif; ?>
 <?php foreach(($user_memberships??[]) as $membership): ?><a href="<?= base_url('clinic/switch/'.(int)$membership['clinic_id']) ?>"><?= $studioIcon('clinic') ?><span><?= esc($membership['clinic_name']) ?></span><?php if((int)$membership['clinic_id']===(int)session('active_clinic_id')): ?><?= $studioIcon('check') ?><?php endif; ?></a><?php endforeach; ?></div>
-<div id="account-menu" popover class="popover account-popover"><div class="account-intro"><strong><?= esc($studioName) ?></strong><small><?= esc($studioActor->email??'') ?></small></div><a href="<?= base_url('profile') ?>"><?= $studioIcon('people') ?><span><?= esc(lang('Studio.profile')) ?></span></a><a href="<?= base_url('auth/logout') ?>"><span><?= esc(lang('Studio.signOut')) ?></span></a></div>
+<div id="account-menu" popover class="popover account-popover"><div class="account-intro"><strong><?= esc($studioName) ?></strong><small><?= esc($studioActor->email??'') ?></small></div><a href="<?= base_url('profile') ?>"><?= $studioIcon('people') ?><span><?= esc(lang('Studio.profile')) ?></span></a><?php if ($studioPlatformAdmin && !$studioImpersonating): ?><a href="<?= base_url('controlplane') ?>" data-studio-platform-entry><?= $studioIcon('shield') ?><span><?= esc(lang('Studio.openControlPlane')) ?></span></a><?php endif; ?><a href="<?= base_url('auth/logout') ?>"><span><?= esc(lang('Studio.signOut')) ?></span></a></div>
 <div id="notification-menu" popover class="popover notification-popover" data-url="<?= base_url('api/notifications') ?>"><header><h2><?= esc(lang('Studio.notifications')) ?></h2><?= $studioIcon('bell') ?></header><div class="notification-content" aria-live="polite" data-empty="<?= esc(lang('Studio.notificationEmpty'),'attr') ?>" data-help="<?= esc(lang('Studio.notificationHelp'),'attr') ?>" data-error="<?= esc(lang('Studio.notificationFail'),'attr') ?>"></div><button class="text-button notification-retry" hidden><?= esc(lang('Studio.retry')) ?></button><a class="popover-footer" href="<?= base_url('notifications') ?>"><?= esc(lang('Studio.allNotifications')) ?></a></div>
 <?php if($v4Can('patients','view')): ?><dialog id="search-dialog" aria-labelledby="search-title" class="command-dialog"><header><h2 id="search-title"><?= esc(lang('Studio.search')) ?></h2><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></header><div class="command-field"><?= $studioIcon('search') ?><input type="search" id="patient-search" autocomplete="off" placeholder="<?= esc(lang('Studio.searchHint'),'attr') ?>" aria-label="<?= esc(lang('Studio.searchHint')) ?>" data-url="<?= base_url('api/search/patients') ?>" data-record-base="<?= base_url('patient/') ?>" data-empty="<?= esc(lang('Studio.searchEmpty'),'attr') ?>" data-error="<?= esc(lang('Studio.searchFail'),'attr') ?>"></div><p class="studio-request-status" role="status" data-search-status data-denied="<?= esc(lang('Studio.requestDenied'),'attr') ?>" data-loading="<?= esc(lang('Studio.refreshingList'),'attr') ?>" data-previous="<?= esc(lang('Studio.previousResults'),'attr') ?>" data-ready="<?= esc(lang('Studio.listReady'),'attr') ?>"></p><div id="search-results" class="command-results" aria-live="polite"><p><?= esc(lang('Studio.searchStart')) ?></p></div><footer><?php if($v4Can('patients','view')): ?><a href="<?= base_url('patients') ?>"><?= esc(lang('Studio.registry')) ?></a><?php endif; ?><kbd>Esc</kbd></footer></dialog>
 <?php endif; ?><dialog id="create-dialog" aria-labelledby="create-title" class="create-dialog"><header><div><h2 id="create-title"><?= esc(lang('Studio.new')) ?></h2><p><?= esc(lang('Studio.newHelp')) ?></p></div><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></header>

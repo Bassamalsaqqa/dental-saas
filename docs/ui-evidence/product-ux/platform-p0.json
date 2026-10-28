@@ -1,0 +1,69 @@
+{
+  "checks": [
+    "ordinary clinic manager sees neither platform privilege nor impersonation controls",
+    "ordinary manager cannot enter via forged direct POST",
+    "canonical entry/impersonation displays real POST+CSRF return control",
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/dashboard",
+      "width": 1366,
+      "lang": "en"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/patients",
+      "width": 1366,
+      "lang": "en"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/appointment/calendar",
+      "width": 1366,
+      "lang": "en"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/dashboard",
+      "width": 390,
+      "lang": "ar"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/patients",
+      "width": 390,
+      "lang": "ar"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/appointment/calendar",
+      "width": 390,
+      "lang": "ar"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/dashboard",
+      "width": 320,
+      "lang": "ar"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/patients",
+      "width": 320,
+      "lang": "ar"
+    },
+    {
+      "case": "persistent mobile/desktop security context",
+      "route": "/appointment/calendar",
+      "width": 320,
+      "lang": "ar"
+    },
+    "missing-CSRF exit cannot change impersonation state",
+    "no GET state-changing exit or session inheritance into BearerAPI",
+    "visible return action regenerates session and restores platform route",
+    "second-tab refresh clears stale tenant UI after exit",
+    "post-exit global airlock denies tenant search"
+  ],
+  "originalRowsPreserved": 339,
+  "schemaUnchanged": true,
+  "scope": "Actual synthetic sessions, routed POST/CSRF, browser actions; no backend/permission changes"
+}

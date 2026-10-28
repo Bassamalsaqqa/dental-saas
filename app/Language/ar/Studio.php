@@ -1130,4 +1130,8 @@ return [
     'searchTreatmentRecords' => 'البحث عن مريض أو علاج',
     'medicalAssessmentUnconfirmed' => 'التقييم غير مؤكد',
     'medicalAssessmentNotice' => 'عدم تحديد التنبيه يعني عدم تسجيل إجابة إيجابية، ولا يثبت تقييم السؤال أو الإجابة عنه بالنفي. يُرجى المراجعة مع المريض قبل الرعاية السريرية.',
+    'platformViewingClinic' => 'عرض العيادة بصلاحية مسؤول المنصة',
+    'returnControlPlane' => 'العودة إلى إدارة المنصة',
+    'openControlPlane' => 'إدارة المنصة',
+    'platformClinicReference' => 'العيادة رقم {0}',
 ];
