@@ -35,9 +35,14 @@ class StudioThemes extends BaseController
         $this->response->setHeader('Cache-Control','private, no-store');
         $presets = [];
         foreach (StudioThemeCatalog::presets() as $id => $_) $presets[$id] = StudioThemeCatalog::normalize(['preset'=>$id]);
+        $page=max(1,min(10000,(int)$this->request->getGet('page')));
+        $search=$this->request->getGet('q');
+        $search=is_string($search)?mb_substr(trim($search),0,100):'';
         return view('settings/appearance',[
             'title'=>lang('Themes.title'),'platformEditor'=>$platform,
             'themeState'=>$store->load($clinic),'themeHistory'=>$store->history($clinic),
+            'themeCatalog'=>$store->catalog(),'catalogHistory'=>$platform?$store->catalogHistory():[],
+            'themeClinics'=>$platform?$store->clinicOverrides($page,$search):null,'themeClinicSearch'=>$search,
             'themePresets'=>$presets,'canPublish'=>session('is_impersonating') !== true && ($platform || (new PermissionService($db))->hasPermission((int)$this->ionAuth->getUserId(),'settings','edit')),
             'saveUrl'=>base_url($platform?'controlplane/settings/appearance':'settings/appearance'),
         ]);
@@ -48,7 +53,7 @@ class StudioThemes extends BaseController
         [$db,$store,$clinic,$actor] = $this->context($platform);
         $this->response->setHeader('Cache-Control','private, no-store');
         $intent = $this->request->getPost('intent');
-        if (!in_array($intent,['preview','publish','inherit','revert'],true)) return $this->response->setStatusCode(422)->setJSON(['error'=>lang('Themes.invalid')]);
+        if (!in_array($intent,$platform?['preview','publish','inherit','revert','catalog']:['preview','publish','inherit','revert'],true)) return $this->response->setStatusCode(422)->setJSON(['error'=>lang('Themes.invalid')]);
         try {
             $input = ['schema'=>1,'preset'=>$this->request->getPost('preset'),'colors'=>$this->request->getPost('colors'),'density'=>$this->request->getPost('density'),'text_size'=>$this->request->getPost('text_size')];
             if ($intent === 'preview') {
@@ -66,8 +71,13 @@ class StudioThemes extends BaseController
                 if (!is_string($raw) || !ctype_digit($raw) || strlen($raw)>10) throw new \DomainException('Invalid recovery revision.');
                 $revert=(int)$raw;
             }
+            if ($intent==='catalog') {
+                $store->publishCatalog($actor,(int)$version,(int)$platformVersion,['schema'=>1,'enabled'=>$this->request->getPost('enabled')??[]],$reason,
+                    fn($connection,$scope,$user)=>(new StudioThemeAccess())->allows($connection,$scope,$user,true));
+            } else {
             $store->publish($clinic,$actor,(int)$version,(int)$platformVersion,$intent==='publish'?$input:null,$reason,
                 fn($connection,$scope,$user)=>(new StudioThemeAccess())->allows($connection,$scope,$user,true),$revert);
+            }
             return redirect()->to(base_url($platform?'controlplane/settings/appearance':'settings/appearance'))->with('success',lang('Themes.saved'));
         } catch (\DomainException $e) {
             // No raw SQL or source details in browser errors. Input remains in the native form on validation failure.

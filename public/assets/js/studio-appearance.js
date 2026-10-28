@@ -13,6 +13,14 @@
     let busy = false;
     let confirmed = false;
     let submitter = null;
+    let activeForm = form;
+    const trackedForms = [form, document.getElementById('appearance-catalog-form')].filter(Boolean);
+    const snapshot = form => JSON.stringify(Array.from(form.elements).filter(e => e.name && !['hidden','submit','button'].includes(e.type)).map(e => [e.name,e.type==='checkbox'||e.type==='radio'?e.checked:e.value]));
+    const originals = new Map(trackedForms.map(f => [f,snapshot(f)]));
+    let leaving = false;
+    window.addEventListener('beforeunload', event => {
+        if (!leaving && trackedForms.some(f => snapshot(f)!==originals.get(f))) { event.preventDefault(); event.returnValue=''; }
+    });
     const selectedPreset = () => form.querySelector('[name=preset]:checked')?.value;
     function setColors(colors) {
         form.querySelectorAll('[data-theme-color]').forEach(input => { input.value = colors[input.dataset.themeColor]; });
@@ -66,16 +74,21 @@
         } catch (_) { status.textContent = config.labels.invalid; }
         finally { busy = false; preview.disabled = false; }
     });
-    form.addEventListener('submit', event => {
+    function reviewSubmit(event) {
         if (confirmed) return;
         event.preventDefault();
         if (busy) return;
+        activeForm = event.target;
         submitter = event.submitter;
         if (!submitter) return;
-        const reason = form.elements.namedItem('reason');
+        const reason = activeForm.elements.namedItem('reason');
         if (!reason || !reason.reportValidity()) return;
+        confirm.querySelector('h2').textContent = submitter.textContent.trim();
+        confirm.querySelector('.appearance-confirm-body>p').textContent = activeForm.id === 'appearance-catalog-form' ? config.labels.catalogHelp : config.labels.publishHelp;
         confirm.showModal();
-    });
+    }
+    form.addEventListener('submit', reviewSubmit);
+    document.getElementById('appearance-catalog-form')?.addEventListener('submit', reviewSubmit);
     confirm.addEventListener('close', () => { confirmed = false; submitter?.focus(); });
     document.getElementById('theme-confirm-cancel').addEventListener('click', () => confirm.close());
     document.getElementById('theme-confirm-go').addEventListener('click', () => {
@@ -86,7 +99,8 @@
             const input = document.createElement('input'); input.type='hidden';input.name='revert_version';input.value=submitter.dataset.revertVersion;form.appendChild(input);
         }
         confirmed = true;
-        form.requestSubmit(submitter);
+        leaving = true;
+        activeForm.requestSubmit(submitter);
         document.getElementById('theme-confirm-go').disabled = true;
     });
 })();

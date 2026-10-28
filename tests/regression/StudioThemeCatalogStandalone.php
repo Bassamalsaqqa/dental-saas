@@ -14,6 +14,9 @@ function rejects(array $payload, string $message): void {
     throw new RuntimeException($message);
 }
 check(count(Catalog::presets()) === 5, 'Five curated presets');
+$grouped=array_merge(...array_values(Catalog::roleGroups()));
+check(count(array_unique($grouped))===count($grouped), 'No duplicated editor roles');
+check(array_diff(Catalog::roles(),$grouped)===[] && array_diff($grouped,Catalog::roles())===[], 'All semantic roles grouped exactly once');
 foreach (Catalog::presets() as $id => $_) {
     $theme = Catalog::normalize(['preset'=>$id]);
     check($theme === Catalog::normalize($theme), 'Canonical roundtrip '.$id);

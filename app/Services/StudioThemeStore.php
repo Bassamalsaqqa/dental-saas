@@ -57,6 +57,81 @@ final class StudioThemeStore
         return StudioThemeCatalog::normalize($input);
     }
 
+    public function catalog(): array
+    {
+        if (!$this->available()) return ['version'=>0,'policy'=>StudioThemeCatalog::normalizePolicy([])];
+        $row = $this->db->table('studio_theme_current')->select('version,payload_json')->where('scope_key','catalog')->get()->getRowArray();
+        return $this->catalogState($row ?: null);
+    }
+
+    private function catalogState(?array $row): array
+    {
+        $payload = $row['payload_json'] ?? null;
+        return ['version'=>(int)($row['version'] ?? 0),'policy'=>$payload === null ? StudioThemeCatalog::normalizePolicy([]) : StudioThemeCatalog::normalizePolicy(json_decode($payload,true,32,JSON_THROW_ON_ERROR))];
+    }
+
+    /** Platform-only caller: bounded clinic metadata, no patient or financial joins. */
+    public function clinicOverrides(int $page = 1, string $search = ''): array
+    {
+        if (!$this->available()) return ['rows'=>[],'has_more'=>false,'page'=>1];
+        if ($page < 1 || $page > 10000 || mb_strlen($search)>100) throw new \DomainException('Invalid clinic appearance page.');
+        $query = $this->db->table('clinics c')->select('c.id,c.name,c.status,t.version,t.payload_json')
+            ->join('studio_theme_current t', "t.scope_key=CONCAT('clinic:',c.id)",'left',false);
+        if ($search !== '') $query->like('c.name',$search);
+        $rows = $query->orderBy('c.id','ASC')->limit(51,($page-1)*50)->get()->getResultArray();
+        $more = count($rows)>50;
+        $rows = array_slice($rows,0,50);
+        foreach ($rows as &$row) {
+            $row['inherited'] = $row['payload_json'] === null;
+            $row['preset'] = $row['inherited'] ? null : $this->decode($row['payload_json'])['preset'];
+            unset($row['payload_json']);
+        }
+        unset($row);
+        return ['rows'=>$rows,'has_more'=>$more,'page'=>$page];
+    }
+
+    public function catalogHistory(): array
+    {
+        if (!$this->available()) return [];
+        return $this->db->table('studio_theme_revisions')->select('version,actor_id,action,reason,created_at')->where('scope_key','catalog')->orderBy('version','DESC')->limit(25)->get()->getResultArray();
+    }
+
+    /** Reuses current/revision schema; no new records per tenant or destructive catalog removal. */
+    public function publishCatalog(int $actorId, int $expectedVersion, int $expectedPlatformVersion, array $input, string $reason, callable $authorize): array
+    {
+        if (!$this->available()) throw new \DomainException('Theme editing is unavailable.');
+        $reason=trim($reason);
+        if ($actorId<=0 || $expectedVersion<0 || $expectedPlatformVersion<0 || $reason==='' || mb_strlen($reason)>500 || !preg_match('//u',$reason)) throw new \DomainException('Catalog publication requires a bounded reason and current versions.');
+        $policy=StudioThemeCatalog::normalizePolicy($input);
+        $payload=json_encode($policy,JSON_THROW_ON_ERROR);
+        if ((int)$this->db->transDepth!==0 || !$this->db->transStatus() || !$this->db->transBegin()) throw new \RuntimeException('Catalog publication requires a healthy owned transaction.');
+        try {
+            $platform=$this->db->query('SELECT version,payload_json FROM '.$this->table('studio_theme_current').' WHERE scope_key=? FOR UPDATE',['platform'])->getRowArray();
+            if (!$platform || (int)$platform['version']!==$expectedPlatformVersion) throw new \DomainException('Platform default changed; reload.');
+            $defaultPreset=$platform['payload_json']===null ? StudioThemeCatalog::DEFAULT_PRESET : $this->decode($platform['payload_json'])['preset'];
+            if (!in_array($defaultPreset,$policy['enabled'],true)) throw new \DomainException('The active platform default must remain available.');
+            $current=$this->db->query('SELECT version,payload_json FROM '.$this->table('studio_theme_current').' WHERE scope_key=? FOR UPDATE',['catalog'])->getRowArray();
+            if (!$current) {
+                if (!$this->db->table('studio_theme_current')->insert(['scope_key'=>'catalog','version'=>0,'payload_json'=>null,'updated_at'=>gmdate('Y-m-d H:i:s')])) throw new \RuntimeException('Cannot initialize theme catalog.');
+                $current=['version'=>0,'payload_json'=>null];
+            }
+            if ((int)$current['version']!==$expectedVersion) throw new \DomainException('Catalog changed; reload.');
+            if ($authorize($this->db,null,$actorId)!==true) throw new \DomainException('Catalog publication is not authorized.');
+            if ($this->catalogState($current)['policy']===$policy) {
+                if (!$this->db->transStatus() || !$this->db->transCommit()) throw new \RuntimeException('Cannot confirm unchanged catalog.');
+                return ['version'=>$expectedVersion,'policy'=>$policy];
+            }
+            $version=$expectedVersion+1;$now=gmdate('Y-m-d H:i:s');
+            if (!$this->db->table('studio_theme_revisions')->insert(['scope_key'=>'catalog','version'=>$version,'actor_id'=>$actorId,'action'=>'catalog','reason'=>$reason,'before_json'=>$current['payload_json'],'payload_json'=>$payload,'created_at'=>$now])) throw new \RuntimeException('Cannot append catalog audit.');
+            if (!$this->db->table('studio_theme_current')->where('scope_key','catalog')->where('version',$expectedVersion)->update(['version'=>$version,'payload_json'=>$payload,'updated_at'=>$now]) || $this->db->affectedRows()!==1) throw new \RuntimeException('Cannot advance catalog version.');
+            if (!$this->db->transStatus() || !$this->db->transCommit()) throw new \RuntimeException('Cannot commit catalog.');
+            return ['version'=>$version,'policy'=>$policy];
+        } catch (\Throwable $e) {
+            if ((int)$this->db->transDepth>0) $this->db->transRollback();
+            throw $e;
+        }
+    }
+
     /** Bounded, scope-specific audit list. No historical row locking. */
     public function history(?int $clinicId): array
     {
@@ -103,6 +178,13 @@ final class StudioThemeStore
                 if (!$old) throw new \DomainException('Theme recovery revision not found in this scope.');
                 $payload = $old['payload_json'] === null ? null : json_encode($this->decode($old['payload_json']), JSON_THROW_ON_ERROR);
                 $action = 'revert';
+            }
+            if ($payload !== null || $clinicId === null) {
+                $policyRow=$this->db->query('SELECT version,payload_json FROM '.$this->table('studio_theme_current').' WHERE scope_key=?',['catalog'])->getRowArray();
+                $enabled=$this->catalogState($policyRow ?: null)['policy']['enabled'];
+                $selected=$payload===null ? StudioThemeCatalog::DEFAULT_PRESET : $this->decode($payload)['preset'];
+                $existing=$current['payload_json']===null ? null : $this->decode($current['payload_json'])['preset'];
+                if (!in_array($selected,$enabled,true) && ($clinicId===null || $existing!==$selected)) throw new \DomainException('This preset is unavailable for new selection.');
             }
             // Exact duplicate is a no-op only after freshness and current authorization checks.
             if ($current['payload_json'] === $payload) {

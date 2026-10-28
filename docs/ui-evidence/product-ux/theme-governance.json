@@ -1,0 +1,127 @@
+{
+  "status": "IMPLEMENTED_FOCUSED_VERIFICATION_NOT_ACCEPTED",
+  "preceding_code_head": "d21e2e2f5a38974374889402f195e2214f23f902",
+  "checks": {
+    "pure_catalog": 456,
+    "catalog_sql": 44,
+    "catalog_browser": {
+      "checks": [
+        "Native SuperAdmin catalog and bounded real clinic metadata render",
+        "Native catalog publish audited without touching any clinic override",
+        "Tenant sees current catalog but no platform registry or management",
+        "Direct forged POST cannot choose an unavailable preset",
+        {
+          "case": "Actual catalog and registry localized reflow",
+          "width": 1586,
+          "lang": "en"
+        },
+        {
+          "case": "Actual catalog and registry localized reflow",
+          "width": 390,
+          "lang": "ar"
+        },
+        "Restoring availability appends history without rewriting earlier evidence"
+      ],
+      "scope": "Actual local native platform publication, tenant visibility, forged POST, registry and EN/AR screenshots; no production"
+    },
+    "preference_and_unsaved_browser": {
+      "checks": [
+        "Browser high-contrast preference overrides platform colors before any JS preference handler",
+        "Print retains shipped palette even with high-contrast preference",
+        "All42 roles belong to seven localized purpose groups",
+        "Real native leave warning prevents loss of unsaved values",
+        "Explicit cancel restores saved values and allows ordinary navigation",
+        {
+          "case": "Actual localized mobile role-group composition",
+          "lang": "en"
+        },
+        {
+          "case": "Actual localized mobile role-group composition",
+          "lang": "ar"
+        }
+      ],
+      "scope": "Actual browser media preference, print, native unsaved warning and role grouping; no physical assistive technology or full print PDF claim"
+    },
+    "preservation": {
+      "verified": {
+        "patients": {
+          "rows": 16,
+          "sha256": "23eb1e021951e87a103ee6d085823cb32802384d988cbd0d35174a405dba93e3"
+        },
+        "appointments": {
+          "rows": 141,
+          "sha256": "453e39cc1a66185c72a126399bf8161049f163030ba4573a7d5fdb48bed05493"
+        },
+        "examinations": {
+          "rows": 149,
+          "sha256": "1a6c7fbc2e544a302d31c66aedc5a6d283efd3631955add014421fa1af177ab5"
+        },
+        "odontograms": {
+          "rows": 34,
+          "sha256": "f5e6b4de9adc6a525899e1f2320190785b286c667009950abed38dcd85744612"
+        },
+        "treatment_contracts": {
+          "rows": 7,
+          "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+        },
+        "treatment_contract_items": {
+          "rows": 23,
+          "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+        },
+        "finances": {
+          "rows": 11,
+          "sha256": "766b8ee396d33832668ee02166bf5f95ac3434fc23d1016c32ccc5c88e1cb18e"
+        },
+        "finance_payments": {
+          "rows": 7,
+          "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+        },
+        "provider_payouts": {
+          "rows": 6,
+          "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+        },
+        "provider_payout_payments": {
+          "rows": 6,
+          "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+        },
+        "inventory": {
+          "rows": 3,
+          "sha256": "089910768d7175e699bf0d2e5b90650ed978a38b3c04228ccfbf6d61fa41b585"
+        },
+        "suppliers": {
+          "rows": 2,
+          "sha256": "50347676860f07d7057128c6ff781f6c5c694afc055f6381b2b717267d8e37fb"
+        },
+        "patient_odontogram_snapshots": {
+          "rows": 26,
+          "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+        },
+        "examination_note_signatures": {
+          "rows": 14,
+          "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+        },
+        "examination_note_addenda": {
+          "rows": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "all_equal": true,
+      "scope": "Whole copied synthetic business tables; authentication/session/audit/theme fixture changes are separate"
+    }
+  },
+  "implementation": [
+    "Catalog availability uses the existing two theme tables, separately versioned catalog scope and append-only history.",
+    "Global lock precedes catalog/tenant locks; new selections revalidate current availability, including global reset and historical revert.",
+    "Existing disabled-preset clinic choices remain frozen, editable and recoverable subject to current permissions.",
+    "Current platform default cannot be retired; no clinic backfill or mass override.",
+    "Global clinic registry projects only bounded clinic metadata, inherited/custom status and preset/revision; no tenant access.",
+    "Native unsaved-value warning, seven purpose groups for42 roles, browser high-contrast precedence, screen-only published token maps."
+  ],
+  "limits": [
+    "Deep Charcoal still uses light reading surfaces; full accessible dark consumer conversion remains incomplete.",
+    "Complete component contrast graph and legal-document PDF comparisons remain pending.",
+    "The two theme tables remain unapplied outside disposable development; shipped feature config stays OFF.",
+    "Physical device/AT and screenreader certification remain untested.",
+    "Three flagship journeys and product-wide rollout remain in progress."
+  ]
+}

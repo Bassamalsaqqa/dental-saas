@@ -99,6 +99,36 @@ final class StudioThemeCatalog
         ];
     }
 
+    /** Catalog availability affects new selections, never existing clinic history or retained colors. */
+    public static function normalizePolicy(array $input): array
+    {
+        if (array_diff(array_keys($input), ['schema','enabled']) || ($input['schema'] ?? 1) !== 1) {
+            throw new \DomainException('Unsupported theme catalog policy.');
+        }
+        $enabled = $input['enabled'] ?? array_keys(self::presets());
+        if (!is_array($enabled) || !array_is_list($enabled) || !$enabled || count($enabled) > count(self::presets())) {
+            throw new \DomainException('Choose at least one known preset.');
+        }
+        foreach ($enabled as $id) if (!is_string($id) || !array_key_exists($id,self::presets())) throw new \DomainException('Unknown catalog preset.');
+        if (count(array_unique($enabled)) !== count($enabled)) throw new \DomainException('Duplicate catalog preset.');
+        // Stable source order makes equivalent administrative retries exact no-ops.
+        return ['schema'=>1,'enabled'=>array_values(array_intersect(array_keys(self::presets()), $enabled))];
+    }
+
+    /** Human task groups share the same complete role whitelist; no second token authority. */
+    public static function roleGroups(): array
+    {
+        return [
+            'navigation'=>['frame','frame-deep','frame-raised','frame-hover','on-frame','on-frame-muted'],
+            'surfaces'=>['canvas','outer','surface','surface-raised','surface-tonal','surface-heading','surface-strong','surface-hover','surface-active','control'],
+            'text'=>['ink','ink-muted','link'],
+            'actions'=>['action','action-hover','on-action','selected','selected-soft','on-selected'],
+            'boundaries'=>['line','line-strong','focus','control-border'],
+            'status'=>['success','success-soft','warning','warning-soft','danger','danger-soft','info','info-soft','on-info'],
+            'identity'=>['avatar-olive','avatar-olive-ink','avatar-copper','avatar-copper-ink'],
+        ];
+    }
+
     public static function roles(): array
     {
         return array_keys(self::BASE);

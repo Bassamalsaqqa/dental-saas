@@ -15,8 +15,11 @@ try {
     $themeStore = new \App\Services\StudioThemeStore(\Config\Database::connect(), true);
     $effectiveTheme = $themeStore->load($themeClinicId);
     $themeCss = \App\Services\StudioThemeCatalog::css($effectiveTheme['theme']);
+    $contrastTheme = $effectiveTheme['theme'];
+    $contrastTheme['colors'] = \App\Services\StudioThemeCatalog::palette('high-contrast');
+    $contrastCss = \App\Services\StudioThemeCatalog::css($contrastTheme);
     $themeNonce = config('App')->CSPEnabled ? service('response')->getCSP()->getStyleNonce() : '';
-    echo '<style id="studio-effective-theme" data-theme="'.esc($effectiveTheme['theme']['preset'],'attr').'"'.($themeNonce!==''?' nonce="'.esc($themeNonce,'attr').'"':'').'>'.$themeCss.'</style>';
+    echo '<style id="studio-effective-theme" data-theme="'.esc($effectiveTheme['theme']['preset'],'attr').'"'.($themeNonce!==''?' nonce="'.esc($themeNonce,'attr').'"':'').'>@media screen{'.$themeCss.'}@media screen and (prefers-contrast:more){'.$contrastCss.'}</style>';
 } catch (\Throwable $error) {
     // Invalid/missing configuration cannot break clinical access. Never echo stored payloads or SQL errors.
     log_message('error','Theme resolution failed safely: {type}',['type'=>get_class($error)]);
