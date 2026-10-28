@@ -1,0 +1,99 @@
+{
+  "status": "FOUNDATION_VERIFIED_NOT_ROUTED_OR_ACTIVATED",
+  "palette_contract": {
+    "passed": 449,
+    "presets": 5,
+    "pairs_per_preset": 73,
+    "scope": "Pure palette/input/contrast contract; not browser or persistence acceptance"
+  },
+  "sql": {
+    "passed": 28,
+    "database": "denta_theme_synthetic_20261028",
+    "port": 3307,
+    "new_database": true,
+    "migration": "2026-10-28-120000_CreateStudioThemeHistory",
+    "tables": [
+      "studio_theme_current",
+      "studio_theme_revisions"
+    ],
+    "scope": "Actual MariaDB inheritance, explicit overrides, reset, audited revert, stale checks, duplicate retries, injected rollback; callback authorization fixture only"
+  },
+  "concurrency": {
+    "same_scope": {
+      "seconds": 0.422,
+      "results": [
+        {
+          "result": "rejected",
+          "scope": null,
+          "message": "Platform theme changed; reload before publishing."
+        },
+        {
+          "result": "committed",
+          "scope": null,
+          "version": 3,
+          "preset": "sandstone-copper"
+        }
+      ]
+    },
+    "cross_clinic": {
+      "seconds": 0.656,
+      "results": [
+        {
+          "result": "committed",
+          "scope": 1,
+          "version": 4,
+          "preset": "sandstone-copper"
+        },
+        {
+          "result": "committed",
+          "scope": 2,
+          "version": 1,
+          "preset": "high-contrast"
+        }
+      ]
+    },
+    "passed": true,
+    "scope": "Concurrent real MariaDB CAS; synthetic authorizer callback, routed RBAC not certified"
+  },
+  "audit_failure": {
+    "audit_failure_rejected": true,
+    "state_and_all_history_unchanged": true,
+    "transaction_depth": 0,
+    "engines": [
+      {
+        "TABLE_NAME": "studio_theme_current",
+        "ENGINE": "InnoDB"
+      },
+      {
+        "TABLE_NAME": "studio_theme_revisions",
+        "ENGINE": "InnoDB"
+      }
+    ],
+    "history_columns": [
+      "scope_key",
+      "version",
+      "actor_id",
+      "action",
+      "reason",
+      "before_json",
+      "payload_json",
+      "created_at"
+    ],
+    "passed": true
+  },
+  "preservation": {
+    "original_synthetic_rows": 339,
+    "original_schemas_equal": true,
+    "original_checkout_untouched": true,
+    "production_contact": false,
+    "production_migrations": 0,
+    "tailwind_unchanged": true
+  },
+  "limitations": [
+    "Not connected to routes, shell or editors yet.",
+    "Routed RBAC, revocation, CSRF and first-paint/theme browser acceptance remain required.",
+    "Deep Charcoal is charcoal navigation with light reading surfaces, not full dark mode.",
+    "Theme current/history storage has app-controlled append-only writes, not database-account immutability.",
+    "Source-only rollback disables feature; schema/history deletion is intentionally refused."
+  ]
+}
