@@ -313,7 +313,6 @@ class Treatment extends BaseController
                 ) ?: 'treatment';
                 return redirect()->to(base_url($modalReturnTo))
                     ->withInput()
-                    ->with('validation', $this->validator)
                     ->with('errors', $this->validator->getErrors())
                     ->with('error', 'Please review the highlighted fields and try again.');
             }

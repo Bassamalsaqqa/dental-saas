@@ -377,7 +377,7 @@ $clinicEnd=static function($label,$disabled=false){echo '<footer>
 <div class="clinic-trigger-list">
 <?php foreach($waTriggerCatalog as $triggerKey=>$triggerMeta):$platformEnabled=(int)($waGlobalTriggerToggles[$triggerKey]??($triggerMeta['default_enabled']??1))===1;$clinicEnabled=(int)($waPolicyToggles[$triggerKey]??($triggerMeta['default_enabled']??1))===1;$triggerConfig=is_array($waGlobalTriggerTemplates[$triggerKey]??null)?$waGlobalTriggerTemplates[$triggerKey]:[];$displayTemplateName=trim((string)($triggerConfig['name']??''))!==''?(string)$triggerConfig['name']:(string)($triggerMeta['suggested_template_name']??($triggerKey.'_ar_v1')); ?>
 <label>
-<input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" <?= $clinicEnabled?'checked':'' ?> <?= !$platformEnabled||empty($wa_feature_enabled)?'disabled':'' ?>>
+<input type="checkbox" role="switch" class="studio-switch-input" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" <?= $clinicEnabled?'checked':'' ?> <?= !$platformEnabled||empty($wa_feature_enabled)?'disabled':'' ?>>
 <span>
 <strong>
 <?= esc(lang('Studio.psTrigger_'.$triggerKey)==='Studio.psTrigger_'.$triggerKey?($triggerMeta['label']??$triggerKey):lang('Studio.psTrigger_'.$triggerKey)) ?>
@@ -396,7 +396,7 @@ $clinicEnd=static function($label,$disabled=false){echo '<footer>
 </div>
 <div class="clinic-field-pair">
 <label class="clinic-pause">
-<input type="checkbox" name="suspended" value="1" <?= !empty($waPolicy['suspended'])?'checked':'' ?>>
+<input type="checkbox" role="switch" class="studio-switch-input" name="suspended" value="1" <?= !empty($waPolicy['suspended'])?'checked':'' ?>>
 <span>
 <?= $cl('EmergencyPause') ?>
 </span>

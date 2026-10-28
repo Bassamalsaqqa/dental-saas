@@ -48,3 +48,7 @@
 - Messaging State: [WHATSAPP_CURRENT_STATE.md](WHATSAPP_CURRENT_STATE.md)
 - Architecture Decisions: [DECISIONS.md](DECISIONS.md)
 - Historical Deployments: Retained in Git history and release receipts outside the working tree.
+
+## Latest component correction candidate
+
+Shared compact scale/panel spacing, flat tenant/platform sidebar, native switches and registry create dialogs are implemented on the active branch. No production source/schema/feature change has occurred. Creation-error flash data is now serializable arrays; rules/writers/accounting remain unchanged. See [current actual gallery](ui-evidence/product-ux/component-gallery.html) and scoped receipt for tested workflows and retained full-page exceptions. Exact current source acceptance and targeted native rehearsal remain pending; the earlierb444 native receipt does not cover later code. Fresh certified recovery belongs to the accepted release preflight. The former independent reviewer is no longer a repository collaborator (GitHub422); no review or permission was fabricated.

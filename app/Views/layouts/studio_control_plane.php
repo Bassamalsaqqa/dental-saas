@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-scale.css') ?>?v=<?= esc(asset_version('assets/css/studio-scale.css')) ?>">
 <?= $this->renderSection('styles') ?>
 <?php $studioThemePlane='platform'; include APPPATH.'Views/layouts/partials/studio_effective_theme.php'; ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-controls.css') ?>?v=<?= esc(asset_version('assets/css/studio-controls.css')) ?>">
 </head>
 <body class="studio">
 <a href="#main" class="skip">
@@ -49,9 +50,9 @@
 </span>
 </div>
 <nav class="nav-groups">
-<section class="nav-group">
+<ul class="studio-nav-list">
 <?php foreach($cpNav as [$route,$icon,$label]):$active=str_starts_with($cpPath,'controlplane/'.$route); ?>
-<a class="nav-link <?= $active?'active':'' ?>" href="<?= base_url('controlplane/'.$route) ?>" <?= $active?'aria-current="page"':'' ?>>
+<li><a class="nav-link <?= $active?'active':'' ?>" href="<?= base_url('controlplane/'.$route) ?>" <?= $active?'aria-current="page"':'' ?>>
 <?= $studioIcon($icon) ?>
 <span>
 <?= esc(lang($label)) ?>
@@ -60,9 +61,9 @@
 <span class="nav-active-dot">
 </span>
 <?php endif; ?>
-</a>
+</a></li>
 <?php endforeach; ?>
-</section>
+</ul>
 </nav>
 <footer class="nav-bottom">
 <div class="nav-person">

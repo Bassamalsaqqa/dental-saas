@@ -240,7 +240,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
 <div class="settings-rollout">
 <?php foreach($waTriggerCatalog as $triggerKey=>$triggerMeta):$platformEnabled=(int)($waGlobalTriggerToggles[$triggerKey]??($triggerMeta['default_enabled']??1))===1;$readiness=$waTriggerReadiness[$triggerKey]??[]; ?>
 <label>
-<input type="checkbox" name="global_trigger_toggles[<?= esc($triggerKey) ?>]" value="1" <?= $platformEnabled?'checked':'' ?>>
+<input type="checkbox" role="switch" class="studio-switch-input" name="global_trigger_toggles[<?= esc($triggerKey) ?>]" value="1" <?= $platformEnabled?'checked':'' ?>>
 <span>
 <strong>
 <?= esc(lang('Studio.psTrigger_'.$triggerKey) === 'Studio.psTrigger_'.$triggerKey ? ($triggerMeta['label']??$triggerKey) : lang('Studio.psTrigger_'.$triggerKey)) ?>

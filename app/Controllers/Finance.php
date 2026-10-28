@@ -945,7 +945,7 @@ class Finance extends BaseController
             'due_date' => 'permit_empty|valid_date',
         ];
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $amountOriginal = floatval($this->request->getPost('amount_original'));
@@ -1133,10 +1133,10 @@ class Finance extends BaseController
             if ($this->request->getPost('source_modal') === 'finance_income_quick_create') {
                 return redirect()->to(base_url('finance'))
                     ->withInput()
-                    ->with('validation', $this->validator)
+                    ->with('errors', $this->validator->getErrors())
                     ->with('error', 'Please review the highlighted fields.');
             }
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $patientId = intval($this->request->getPost('patient_id') ?? 0);

@@ -44,4 +44,4 @@ app/Controllers/Settings.php:579:        $rows = $db->table('clinic_users cu')->
 app/Controllers/Settings.php:584:        if ($ready) foreach ($db->table('clinic_provider_profiles')->where('clinic_id', $clinicId)->get()->getResultArray() as $profile) $profiles[(int) $profile['user_id']] = $profile;
 
 # Treatments-edit authority; checked parent-lock transaction and clinic/id-bound NOWAIT current identity validation.
-app/Controllers/Treatment.php:686:            $lockedQuery = $this->db->query(
+app/Controllers/Treatment.php:685:            $lockedQuery = $this->db->query(

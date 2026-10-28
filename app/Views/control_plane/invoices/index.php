@@ -3,14 +3,14 @@
 <?= $this->section('styles') ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-platform-billing.css') ?>?v=<?= esc(asset_version('assets/css/studio-platform-billing.css')) ?>">
-<?= $this->endSection() ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-create-dialog.css') ?>?v=<?= esc(asset_version('assets/css/studio-create-dialog.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php $filters=is_array($filters??null)?$filters:[];$invoices=is_array($invoices??null)?$invoices:[];$billingStatus=static function($value){$key='Studio.platformInvoiceStatus_'.(string)$value;$label=lang($key);return $label===$key?(string)$value:$label;}; ?>
 <header class="page-title-row">
 <h1>
 <?= esc(lang('UI.cpInvoices')) ?>
 </h1>
-<a class="button primary" href="<?= base_url('controlplane/invoices/create') ?>">
+<a class="button primary" data-native-create="platform-invoice-create-dialog" href="<?= base_url('controlplane/invoices/create') ?>">
 <?= $studioIcon('plus') ?>
 <?= esc(lang('Studio.platformInvoiceCreate')) ?>
 </a>
@@ -150,6 +150,7 @@
 </dl>
 </details>
 </section>
+<?php include APPPATH.'Views/layouts/partials/studio_icons.php'; ?><?= view('components/studio_native_create_dialog',['studioIcon'=>$studioIcon,'createId'=>'platform-invoice-create-dialog','createFormId'=>'invoiceForm','createTitle'=>lang('Studio.platformInvoiceCreate'),'createAction'=>base_url('controlplane/invoices'),'createSource'=>'studio_platform_invoice_create','createReturn'=>'controlplane/invoices','createFields'=>'control_plane/invoices/partials/studio_compose_fields','createData'=>$this->getData(),'createFullPage'=>base_url('controlplane/invoices/create'),'createSubmit'=>lang('Studio.platformInvoiceCreate')]) ?>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('assets/js/studio-platform-billing.js') ?>?v=<?= esc(asset_version('assets/js/studio-platform-billing.js')) ?>" defer>

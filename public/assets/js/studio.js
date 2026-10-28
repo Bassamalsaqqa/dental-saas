@@ -11,6 +11,9 @@ $('[data-nav-open]')?.addEventListener('click',e=>{navOpener=e.currentTarget;app
 $$('[data-nav-close]').forEach(b=>b.addEventListener('click',closeNav));
 nav.addEventListener('keydown',e=>{if(!app.classList.contains('nav-open'))return;if(e.key==='Escape'){e.preventDefault();closeNav();}if(e.key==='Tab'){const all=focusable(nav),first=all[0],last=all.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 window.addEventListener('resize',()=>{if(innerWidth>800&&app.classList.contains('nav-open'))closeNav();positionPopovers();});
+// Preserve only menu scroll position, never patient/session identity or protected records.
+const navList=nav.querySelector('.nav-groups'),navScrollKey=nav.classList.contains('platform-navigation')?'studio-nav-scroll-platform':'studio-nav-scroll-clinic';
+if(navList){try{const saved=Number(sessionStorage.getItem(navScrollKey));if(Number.isFinite(saved))navList.scrollTop=navList.scrollHeight<=navList.clientHeight?0:saved;}catch{}navList.addEventListener('scroll',()=>{try{sessionStorage.setItem(navScrollKey,String(Math.round(navList.scrollTop)));}catch{}},{passive:true});const active=navList.querySelector('[aria-current=page]');if(active){const r=active.getBoundingClientRect(),v=navList.getBoundingClientRect();if(r.top<v.top)navList.scrollTop-=v.top-r.top;else if(r.bottom>v.bottom)navList.scrollTop+=r.bottom-v.bottom;}}
 const dialogOpeners=new WeakMap();
 function requestDialogClose(dialog){if(dialog.dispatchEvent(new Event('studio:request-close',{cancelable:true})))dialog.close();}
 function openDialog(id,trigger){const d=document.getElementById(id);if(!d||d.open)return;if(app.classList.contains('nav-open'))closeNav();dialogOpeners.set(d,trigger||document.activeElement);d.showModal();if(id==='search-dialog')$('#patient-search')?.focus();}

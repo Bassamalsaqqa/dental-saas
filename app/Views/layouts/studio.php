@@ -42,6 +42,7 @@ $studioNav=[
 <?= $this->renderSection('styles') ?>
 <?php $studioThemePlane='tenant'; include APPPATH.'Views/layouts/partials/studio_effective_theme.php'; ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-security.css') ?>?v=<?= esc(asset_version('assets/css/studio-security.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-controls.css') ?>?v=<?= esc(asset_version('assets/css/studio-controls.css')) ?>">
 </head>
 <body class="studio">
 <a class="skip" href="#main"><?= esc(lang('Studio.skip')) ?></a>
@@ -49,21 +50,19 @@ $studioNav=[
 <aside class="navigation" id="studio-nav" aria-label="<?= esc(lang('UI.mainMenu')) ?>">
 <div class="brand-row"><a href="<?= base_url('dashboard') ?>" class="brand"><span class="brand-symbol"><?= $studioIcon('tooth') ?></span><span>denta<span class="brand-plus">+</span></span></a><button class="icon-button mobile-only nav-close" data-nav-close aria-label="<?= esc(lang('Studio.close')) ?>"><?= $studioIcon('close') ?></button></div>
 <button class="clinic-picker" popovertarget="clinic-menu"><span class="clinic-symbol"><?= $studioIcon('clinic') ?></span><span><strong><?= esc($clinic['name']??'Denta+') ?></strong><small><?= esc(lang('Studio.live')) ?></small></span></button>
-<nav class="nav-groups">
-<?php foreach($studioNav as $group=>$items): $visible=array_filter($items,static fn($item)=>($item[3]==='@providers'?($v4Can('inventory','view')||$v4Can('finance','view')):($item[3]==='@analysis'?($v4Can('reports','view')||$v4Can('finance','reports')):$v4Can($item[3],$item[4]??'view')))); if(!$visible)continue; ?>
-<?php if($group==='manage'): ?><details class="nav-management"><summary><?= esc(lang('Studio.'.$group)) ?></summary><?php else: ?><section class="nav-group"><h2><?= esc(lang('Studio.'.$group)) ?></h2><?php endif; ?>
-<?php foreach($visible as [$url,$label,$icon]): ?><a class="nav-link <?= $studioIsActive($url)?'active':'' ?>" <?= $studioIsActive($url)?'aria-current="page"':'' ?> href="<?= base_url($url) ?>"><?= $studioIcon($icon) ?><span><?= esc(lang($label)) ?></span><?php if($studioIsActive($url)): ?><span class="nav-active-dot"></span><?php endif; ?></a><?php endforeach; ?>
-<?= $group==='manage'?'</details>':'</section>' ?>
-<?php endforeach; ?>
-</nav>
-<footer class="nav-bottom"><button data-dialog="help-dialog" class="nav-link"><?= $studioIcon('help') ?><span><?= esc(lang('Studio.help')) ?></span></button><div class="nav-person"><span class="avatar"><?= esc($studioInitials($studioName)) ?></span><span><strong><?= esc($studioName) ?></strong><small><?= esc(lang('Studio.account')) ?></small></span><a href="<?= base_url('profile') ?>" class="icon-button" aria-label="<?= esc(lang('Studio.profile')) ?>"><?= $studioIcon('settings') ?></a></div></footer>
+<nav class="nav-groups" aria-label="<?= esc(lang('UI.mainMenu'),'attr') ?>"><ul class="studio-nav-list">
+<?php foreach($studioNav as $items): foreach($items as $item): [$url,$label,$icon]=$item; $allowed=$item[3]==='@providers'?($v4Can('inventory','view')||$v4Can('finance','view')):($item[3]==='@analysis'?($v4Can('reports','view')||$v4Can('finance','reports')):$v4Can($item[3],$item[4]??'view')); if(!$allowed)continue; ?>
+<li><a class="nav-link <?= $studioIsActive($url)?'active':'' ?>" <?= $studioIsActive($url)?'aria-current="page"':'' ?> href="<?= base_url($url) ?>"><?= $studioIcon($icon) ?><span><?= esc(lang($label)) ?></span><?php if($studioIsActive($url)): ?><span class="nav-active-dot"></span><?php endif ?></a></li>
+<?php endforeach; endforeach ?>
+</ul></nav>
+<footer class="nav-bottom"><button data-dialog="help-dialog" class="nav-link"><?= $studioIcon('help') ?><span><?= esc(lang('Studio.help')) ?></span></button></footer>
 </aside>
 <div class="nav-backdrop" data-nav-close hidden></div>
 <div class="workspace" id="studio-workspace">
 <?= view('components/studio_impersonation_banner', ['studioImpersonating'=>$studioImpersonating, 'clinic'=>$clinic ?? []]) ?>
 <header class="toolbar">
 <div class="toolbar-location"><button class="icon-button mobile-only" data-nav-open aria-controls="studio-nav" aria-expanded="false" aria-label="<?= esc(lang('Studio.menu')) ?>"><?= $studioIcon('menu') ?></button><span class="toolbar-breadcrumb"><?= esc(lang('Studio.workspace')) ?></span><span class="breadcrumb-divider">/</span><strong><?= esc($studioPageTitle) ?></strong></div>
-<div class="toolbar-actions">
+<div class="toolbar-actions"><?php if($studioPlatformAdmin&&!$studioImpersonating): ?><a class="button secondary toolbar-platform-entry" data-studio-platform-entry href="<?= base_url('controlplane') ?>" aria-label="<?= esc(lang('Studio.openControlPlane'),'attr') ?>"><?= $studioIcon('shield') ?><span><?= esc(lang('Studio.openControlPlane')) ?></span></a><?php endif ?>
 <?php if($v4Can('patients','view')): ?><button class="search-trigger" data-dialog="search-dialog"><?= $studioIcon('search') ?><span><?= esc(lang('Studio.searchShort')) ?></span><kbd>Ctrl K</kbd></button><?php endif; ?>
 <a class="language-switch" href="<?= base_url('language/switch/'.($studioLocale==='ar'?'en':'ar').'?return_to='.urlencode($studioReturn)) ?>" lang="<?= $studioLocale==='ar'?'en':'ar' ?>" aria-label="<?= esc(lang('Studio.switchLanguage'),'attr') ?>"><?= $studioIcon('globe') ?><span><?= esc(lang('Studio.otherLanguage')) ?></span></a>
 <button class="icon-button notification-trigger" popovertarget="notification-menu" aria-label="<?= esc(lang('Studio.notifications')) ?>"><?= $studioIcon('bell') ?></button>

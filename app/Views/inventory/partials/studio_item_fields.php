@@ -1,4 +1,4 @@
-<?php
+<?php include APPPATH.'Views/layouts/partials/view_permissions.php';
 $item=is_array($item??null)?$item:[];$editing=!empty($editing);
 $prefLink=is_array($preferred_supplier_link??null)?$preferred_supplier_link:[];
 $errors=is_array(session('errors'))?session('errors'):[];
@@ -20,7 +20,7 @@ $categories=$editing?($categories??[]):['medication'=>lang('Inventory.categoryMe
     <div class="form-field"><label for="unit"><?= esc(lang('Inventory.unit')) ?></label><select id="unit" name="unit" data-force-select2 data-allow-clear="false"><?php foreach(['pieces','boxes','bottles','tubes','packs','sets'] as $unit): ?><option value="<?= $unit ?>" <?= $value('unit','pieces')===$unit?'selected':'' ?>><?= esc(lang('Inventory.unit'.ucfirst($unit))) ?></option><?php endforeach; ?></select></div>
     <?php $field('unit_price','unitPriceRequired','number','min="0" step="0.01" required'); ?>
 </div></section>
-<section class="form-section"><header class="item-supplier-heading"><h2><?= esc(lang('Inventory.supplier')) ?></h2><div><a class="button secondary" href="<?= base_url('providers') ?>" target="_blank" rel="noopener"><?= esc(lang('Inventory.manageSuppliers')) ?></a><?php if(has_permission('inventory','edit')): ?><button class="button secondary" type="button" data-dialog="item-supplier-dialog"><?= esc(lang('Inventory.quickAdd')) ?></button><?php endif; ?></div></header><div class="form-grid">
+<section class="form-section"><header class="item-supplier-heading"><h2><?= esc(lang('Inventory.supplier')) ?></h2><div><a class="button secondary" href="<?= base_url('providers') ?>" target="_blank" rel="noopener"><?= esc(lang('Inventory.manageSuppliers')) ?></a><?php if($v4Can('inventory','edit')): ?><button class="button secondary" type="button" data-dialog="item-supplier-dialog"><?= esc(lang('Inventory.quickAdd')) ?></button><?php endif; ?></div></header><div class="form-grid">
     <div class="form-field"><label for="supplier_id"><?= esc(lang('Inventory.supplierDirectory')) ?></label><select id="supplier_id" name="supplier_id" data-force-select2 data-allow-clear="false"><option value=""><?= esc(lang('Inventory.noLinkedSupplier')) ?></option><?php foreach($supplier_directory??[] as $supplier): ?><option value="<?= (int)$supplier['id'] ?>" <?= $value('supplier_id')===(string)$supplier['id']?'selected':'' ?>><?= esc($supplier['name']) ?></option><?php endforeach; ?></select></div>
     <?php $field('supplier','customSupplierNameOptional'); ?>
 </div><details class="item-mapping" <?= $prefLink||old('supplier_sku')||old('preferred_order_qty')?'open':'' ?>><summary><?= esc(lang('Studio.supplierTerms')) ?></summary><div class="item-mapping-grid">

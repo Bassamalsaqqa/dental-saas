@@ -1,0 +1,29 @@
+/* Native forms retain canonical POST/redirect contracts. The component owns only focus, dirty state and mounting. */
+(()=>{'use strict';
+const routes={'/inventory/create':'inventory-create-dialog','/users/create':'users-create-dialog','/prescription/create':'prescription-create-dialog','/treatment/create':'treatment-create-dialog','/examination/create':'examination-create-dialog','/finance/create':'finance-create-dialog','/finance/expenses/create':'finance-create-dialog','/roles/create':'role-create-dialog','/controlplane/roles/create':'role-create-dialog','/controlplane/plans/create':'platform-plan-create-dialog','/controlplane/invoices/create':'platform-invoice-create-dialog'};
+document.querySelectorAll('[data-native-create-dialog]').forEach(dialog=>{
+ if(dialog.dataset.createBound)return;dialog.dataset.createBound='true';
+ const discard=dialog.querySelector('[data-native-discard]'),body=dialog.querySelector('[data-native-body]'),cached=new Map(),bound=new WeakSet();
+ let form=dialog.querySelector('form'),original='',opener=null,submitting=false,lastFocus=null,mode=null;
+ const snapshot=()=>form?JSON.stringify(Array.from(form.elements).filter(e=>e.name&&!['submit','button'].includes(e.type)&&e.name!==document.querySelector('meta[name=csrf-name]')?.content&&!['source_modal','return_to','csrf_test_name'].includes(e.name)).map(e=>[e.name,['checkbox','radio'].includes(e.type)?e.checked:e.value])):'';
+ function bind(){if(!form||bound.has(form))return;bound.add(form);form.addEventListener('submit',e=>{if(e.defaultPrevented)return;if(submitting){e.preventDefault();return;}submitting=true;queueMicrotask(()=>{if(e.defaultPrevented)submitting=false;});});}
+ function mount(trigger){
+  if(!body)return;
+  const url=trigger?new URL(trigger.href,location.href):null;mode=url?.pathname.endsWith('/expenses/create')?'expense':dialog.dataset.reopenMode||'transaction';
+  let content=cached.get(mode);if(!content){content=document.createElement('div');content.className='studio-native-content';content.append(dialog.querySelector('template[data-native-template="'+mode+'"]').content.cloneNode(true));content.querySelector('#form-discard-dialog')?.remove();cached.set(mode,content);}
+  body.replaceChildren(content);form=content.querySelector('form');form.removeAttribute('data-unsaved-form');
+  let marker=form.elements.namedItem('source_modal');if(!marker){marker=document.createElement('input');marker.type='hidden';marker.name='source_modal';form.append(marker);}marker.value='studio_finance_'+mode;
+  const csrfName=document.querySelector('meta[name=csrf-name]')?.content,csrfToken=document.querySelector('meta[name=csrf-token]')?.content;if(csrfName)form.querySelectorAll('input[type=hidden]').forEach(e=>{if(e.name===csrfName)e.value=csrfToken;});
+  window.initFinanceCalculators?.(content);window.initStudioPatientPickers?.(content);window.initStudioFinanceEntry?.(content);window.initStudioProviderAllocations?.(content);
+  const preset=url?.searchParams.get('transaction_type'),type=form.elements.namedItem('transaction_type');if(type&&['invoice','payment','refund','adjustment'].includes(preset)){type.value=preset;type.dispatchEvent(new Event('change',{bubbles:true}));}
+  dialog.querySelector('[data-native-title]').textContent=mode==='expense'?dialog.dataset.expenseTitle:dialog.dataset.transactionTitle;dialog.querySelector('[data-native-fullpage]').href=url?.href||dialog.dataset.fullPage;bind();original=snapshot();
+ }
+ function close(){if(submitting)return;if(snapshot()===original){dialog.close();return;}lastFocus=document.activeElement;discard.hidden=false;discard.querySelector('[data-native-keep]').focus();}
+ function open(trigger){opener=trigger||document.activeElement;const parent=trigger?.closest('dialog');if(parent?.open)parent.close();mount(trigger);dialog.showModal();(dialog.querySelector('[data-native-errors]')||form?.querySelector('input:not([type=hidden]),select,textarea'))?.focus();}
+ bind();original=snapshot();
+ document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;const url=new URL(a.href,location.href);if(url.origin!==location.origin||(a.dataset.nativeCreate||routes[url.pathname])!==dialog.id)return;e.preventDefault();open(a);});
+ dialog.addEventListener('click',e=>{if(e.target.closest('[data-native-close],[data-form-cancel]')){e.preventDefault();close();}});
+ dialog.addEventListener('studio:request-close',e=>{e.preventDefault();close();});dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
+ dialog.querySelector('[data-native-keep]').addEventListener('click',()=>{discard.hidden=true;lastFocus?.focus();});dialog.querySelector('[data-native-confirm-discard]').addEventListener('click',()=>{form.reset();if(body)cached.delete(mode);original=snapshot();discard.hidden=true;dialog.close();});
+ dialog.addEventListener('close',()=>{if(body)body.replaceChildren();opener?.isConnected&&opener.focus();});window.addEventListener('beforeunload',e=>{if(dialog.open&&!submitting&&snapshot()!==original){e.preventDefault();e.returnValue='';}});window.addEventListener('pageshow',()=>{submitting=false;});if(dialog.dataset.openOnLoad==='true')open(null);
+});})();

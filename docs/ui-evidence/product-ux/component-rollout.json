@@ -1,0 +1,377 @@
+{
+  "component-second-pass": {
+    "results": [
+      {
+        "route": "dashboard",
+        "dialog": "patient-intake-dialog",
+        "fields": 36,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "dashboard",
+        "dialog": "booking-create-dialog",
+        "fields": 10,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "inventory",
+        "dialog": "inventory-create-dialog",
+        "fields": 21,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "users",
+        "dialog": "users-create-dialog",
+        "fields": 13,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "prescriptions",
+        "dialog": "prescription-create-dialog",
+        "fields": 12,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "treatments",
+        "dialog": "treatment-create-dialog",
+        "fields": 30,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "examinations",
+        "dialog": "examination-create-dialog",
+        "fields": 23,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "finance",
+        "dialog": "finance-create-dialog",
+        "fields": 25,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "route": "finance",
+        "dialog": "finance-create-dialog",
+        "fields": 25,
+        "status": "Actual native form opened in place; no POST"
+      },
+      {
+        "case": "Arabic persisted setting is a keyboard-operable native switch",
+        "name": "kiosk_enabled"
+      },
+      {
+        "case": "Sidebar remains aligned after long-page scroll",
+        "initialY": 12,
+        "scrolledY": 12
+      }
+    ],
+    "errors": [],
+    "scope": "Actual UI form/dialog/switch/sidebar checks, no mutation submissions"
+  },
+  "component-platform-results": {
+    "checks": [
+      {
+        "route": "controlplane/plans",
+        "fields": 28,
+        "fullPageParity": true
+      },
+      {
+        "route": "controlplane/invoices",
+        "fields": 8,
+        "fullPageParity": true
+      },
+      {
+        "route": "controlplane/roles",
+        "fields": 60,
+        "fullPageParity": true
+      }
+    ],
+    "errors": [],
+    "noBusinessPost": true
+  },
+  "component-acceptance-results": {
+    "checks": [
+      {
+        "route": "inventory",
+        "full": "inventory/create",
+        "defaultSuccessfulFields": 18,
+        "exactParity": true
+      },
+      {
+        "route": "users",
+        "full": "users/create",
+        "defaultSuccessfulFields": 10,
+        "exactParity": true
+      },
+      {
+        "route": "prescriptions",
+        "full": "prescription/create",
+        "defaultSuccessfulFields": 8,
+        "exactParity": true
+      },
+      {
+        "route": "treatments",
+        "full": "treatment/create",
+        "defaultSuccessfulFields": 22,
+        "exactParity": true
+      },
+      {
+        "route": "examinations",
+        "full": "examination/create",
+        "defaultSuccessfulFields": 14,
+        "exactParity": true
+      },
+      {
+        "route": "finance",
+        "full": "finance/create",
+        "defaultSuccessfulFields": 26,
+        "exactParity": true
+      },
+      {
+        "route": "finance",
+        "full": "finance/expenses/create",
+        "defaultSuccessfulFields": 19,
+        "exactParity": true
+      },
+      "Real rejected expense POST restores expense mode, entered payee and focused errors without a financial insert",
+      "Real server-side inventory validation rejection returns to original registry and reopens the native form with input/errors; no insert",
+      "Arabic mobile preference uses native switch semantics",
+      {
+        "route": "inventory",
+        "mobileRTL": true,
+        "dialogWidth": 390
+      },
+      {
+        "route": "users",
+        "mobileRTL": true,
+        "dialogWidth": 390
+      },
+      {
+        "route": "finance",
+        "mobileRTL": true,
+        "dialogWidth": 390
+      }
+    ],
+    "errors": [],
+    "preservation": {
+      "passed": true,
+      "preserved_original_rows": 445,
+      "owned_patient": 21,
+      "owned_appointment": 1143
+    },
+    "scope": "Exact native successful-field parity, real rejected POST, actual RTL mobile dialogs; no successful business mutation"
+  },
+  "component-rejected-posts": {
+    "checks": [
+      {
+        "route": "users",
+        "case": "Actual invalid native POST restores dialog and server errors; no successful business mutation"
+      },
+      {
+        "route": "examinations",
+        "case": "Actual invalid native POST restores dialog and server errors; no successful business mutation"
+      },
+      {
+        "route": "treatments",
+        "case": "Actual invalid native POST restores dialog and server errors; no successful business mutation"
+      },
+      {
+        "route": "prescriptions",
+        "case": "Actual invalid native POST restores dialog and server errors; no successful business mutation"
+      },
+      {
+        "route": "finance",
+        "case": "Actual invalid native POST restores dialog and server errors; no successful business mutation"
+      },
+      {
+        "route": "controlplane/invoices",
+        "case": "Actual invalid native POST restores dialog and server errors; no successful business mutation"
+      }
+    ],
+    "errors": [],
+    "preserved": 445
+  },
+  "component-visual-performance": {
+    "captures": [
+      {
+        "route": "dashboard",
+        "width": 1586,
+        "height": 992,
+        "lang": "en",
+        "file": "components-dashboard.jpg",
+        "actual_viewport": {
+          "width": 1586,
+          "height": 992
+        }
+      },
+      {
+        "route": "inventory",
+        "width": 1366,
+        "height": 900,
+        "lang": "en",
+        "file": "components-inventory-dialog.jpg",
+        "actual_viewport": {
+          "width": 1366,
+          "height": 900
+        }
+      },
+      {
+        "route": "finance",
+        "width": 390,
+        "height": 844,
+        "lang": "ar",
+        "file": "components-finance-ar.jpg",
+        "actual_viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "route": "settings?tab=kiosk",
+        "width": 390,
+        "height": 844,
+        "lang": "ar",
+        "file": "components-settings-ar.jpg",
+        "actual_viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "route": "controlplane/plans",
+        "width": 1366,
+        "height": 900,
+        "lang": "en",
+        "file": "components-platform-plan.jpg",
+        "actual_viewport": {
+          "width": 1366,
+          "height": 900
+        }
+      },
+      {
+        "route": "controlplane/invoices",
+        "width": 390,
+        "height": 844,
+        "lang": "ar",
+        "file": "components-platform-invoice-ar.jpg",
+        "actual_viewport": {
+          "width": 390,
+          "height": 844
+        }
+      }
+    ],
+    "measurements": [
+      {
+        "route": "dashboard",
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        },
+        "queries": 200,
+        "navigation_ms": 244,
+        "body_font": "17px"
+      },
+      {
+        "route": "inventory",
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        },
+        "queries": 141,
+        "navigation_ms": 255,
+        "body_font": "17px"
+      },
+      {
+        "route": "finance",
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        },
+        "queries": 204,
+        "navigation_ms": 448,
+        "body_font": "17px"
+      },
+      {
+        "route": "users",
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        },
+        "queries": 174,
+        "navigation_ms": 487,
+        "body_font": "17px"
+      }
+    ],
+    "errors": [],
+    "scope": "Actual matched viewport captures and single-run local timings; no successful business mutations"
+  },
+  "source_status": "Local verification before publication; exact published commit/tree is recorded on PR #22. No independent approval claimed.",
+  "rehearsal": "Prior native evidence covers b444e99 only; this changed component candidate still requires targeted native acceptance.",
+  "boundaries": {
+    "production_changed": false,
+    "production_migrations": 0,
+    "production_features_activated": [],
+    "original_business_rows_preserved": 445,
+    "native_chart_print_dependencies_unchanged": true
+  },
+  "exceptions": [
+    "Complex chart-derived contract planning and signing retain full pages.",
+    "Multi-step clinic onboarding retains a full page.",
+    "Context-dependent create links without a mounted authorized form keep their full-page destination.",
+    "Protected native charts, legal print/signed evidence retain their rendering scale.",
+    "Settings permissions/multiple selections remain checkboxes; boolean persisted preferences use switches.",
+    "Physical assistive technology, universal accessibility and all production writes are not certified."
+  ],
+  "component-role-denials": {
+    "checks": [
+      "Ordinary manager cannot enter Control Plane through forged POST",
+      {
+        "role": "manager",
+        "sessionCannotAuthenticateBearerAPI": true,
+        "noPlatformPrivilegeUI": true
+      },
+      {
+        "role": "viewer",
+        "url": "/users/store",
+        "status": 403,
+        "kind": "Routed HTTP permission denial"
+      },
+      {
+        "role": "viewer",
+        "url": "/inventory/store",
+        "status": 403,
+        "kind": "Routed HTTP permission denial"
+      },
+      {
+        "role": "viewer",
+        "url": "/finance/store",
+        "status": 403,
+        "kind": "Routed HTTP permission denial"
+      },
+      {
+        "role": "viewer",
+        "url": "/examination/store",
+        "status": 403,
+        "kind": "Routed HTTP permission denial"
+      },
+      {
+        "role": "viewer",
+        "url": "/treatment/store",
+        "status": 403,
+        "kind": "Routed HTTP permission denial"
+      },
+      {
+        "role": "viewer",
+        "sessionCannotAuthenticateBearerAPI": true,
+        "noPlatformPrivilegeUI": true
+      }
+    ],
+    "scope": "Actual synthetic roles and routed denials; no privilege grants or successful business mutation"
+  },
+  "detector": {
+    "pass_count": 1,
+    "advisory_count": 162,
+    "severity": "advisory only",
+    "scope": "Existing accepted radii and semantic tokens differ from stale design sidecar; no checks were suppressed. Native switch pill and checkbox shapes are intentional."
+  }
+}

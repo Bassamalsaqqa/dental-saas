@@ -6,12 +6,12 @@ foreach(['medication','equipment','supplies','consumables','other'] as $key)$sto
 foreach(['pieces','boxes','bottles','tubes','packs','sets'] as $key)$stockConfig['units'][$key]=lang('Inventory.unit'.ucfirst($key));
 ?>
 <?= $this->extend('layouts/studio') ?>
-<?= $this->section('styles') ?>
+<?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-stock-pilot.css') ?>?v=<?= esc(asset_version('assets/css/studio-stock-pilot.css')) ?>">
-<?= $this->endSection() ?>
+<?php if($v4Can('inventory','create')): ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-create-dialog.css') ?>?v=<?= esc(asset_version('assets/css/studio-create-dialog.css')) ?>"><link rel="stylesheet" href="<?= base_url('assets/css/studio-items.css') ?>?v=<?= esc(asset_version('assets/css/studio-items.css')) ?>"><?php endif ?><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <div class="stock-page">
-<header class="stock-heading"><div><h1><?= esc(lang('Studio.stockWorkspace')) ?></h1></div><div class="stock-heading-actions"><a class="button secondary" href="<?= base_url('inventory/movements') ?>"><?= $studioIcon('clock') ?><?= esc(lang('Inventory.movements')) ?></a><?php if($v4Can('inventory','create')): ?><a class="button primary" href="<?= base_url('inventory/create?return_to=inventory') ?>"><?= $studioIcon('plus') ?><?= esc(lang('Studio.addInventoryItem')) ?></a><?php endif; ?></div></header>
+<header class="stock-heading"><div><h1><?= esc(lang('Studio.stockWorkspace')) ?></h1></div><div class="stock-heading-actions"><a class="button secondary" href="<?= base_url('inventory/movements') ?>"><?= $studioIcon('clock') ?><?= esc(lang('Inventory.movements')) ?></a><?php if($v4Can('inventory','create')): ?><a class="button primary" data-native-create="inventory-create-dialog" href="<?= base_url('inventory/create?return_to=inventory') ?>"><?= $studioIcon('plus') ?><?= esc(lang('Studio.addInventoryItem')) ?></a><?php endif; ?></div></header>
 <?php if(session('error')): ?><p class="stock-error" role="alert"><?= esc(session('error')) ?></p><?php endif; ?>
 <section class="stock-overview" aria-label="<?= esc(lang('Studio.stockReview'),'attr') ?>">
 <div class="stock-attention"><div class="stock-attention-title"><?= $studioIcon('bell') ?><h2><?= esc(lang('Studio.stockReview')) ?></h2></div><div class="stock-attention-links"><a class="stock-alert stock-alert--amber" href="<?= base_url('inventory/low-stock') ?>"><span><strong><?= esc(lang('Studio.stockLowReview')) ?></strong><small><span><span><?= esc(lang('Inventory.lowStockItems')) ?></span><b data-stock-stat="low_stock_items">—</b></span><span><span><?= esc(lang('Inventory.outOfStock')) ?></span><b data-stock-stat="out_of_stock_items">—</b></span></small></span><?= $studioIcon('box') ?></a><a class="stock-alert stock-alert--rust" href="<?= base_url('inventory/expired') ?>"><span><strong><?= esc(lang('Studio.stockExpiryReview')) ?></strong><small><?= esc(lang('Inventory.expiredItems')) ?> <b data-stock-stat="expired_items">—</b></small></span><?= $studioIcon('clock') ?></a></div><p id="stock-stats-error" role="status" hidden></p></div>
@@ -27,5 +27,10 @@ foreach(['pieces','boxes','bottles','tubes','packs','sets'] as $key)$stockConfig
 <dialog id="stock-delete-dialog" class="stock-delete-dialog" aria-labelledby="stock-delete-title"><header><h2 id="stock-delete-title"><?= esc(lang('Studio.confirmDelete')) ?></h2><button type="button" class="icon-button" data-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header><p id="stock-delete-name"></p><p class="stock-error" id="stock-delete-error" role="alert" hidden></p><footer><button type="button" class="button secondary" id="stock-delete-cancel"><?= esc(lang('UI.cancel')) ?></button><button type="button" class="button stock-destructive" id="stock-delete-confirm"><?= esc(lang('Studio.delete')) ?></button></footer></dialog>
 </div>
 <script type="application/json" id="stock-config"><?= json_encode($stockConfig,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
+<?php if($v4Can('inventory','create')): ?>
+<?= view('components/studio_native_create_dialog',['studioIcon'=>$studioIcon,'createId'=>'inventory-create-dialog','createTitle'=>lang('Inventory.addNewInventoryItem'),'createAction'=>base_url('inventory/store'),'createSource'=>'inventory_quick_create','createReturn'=>'inventory','createFields'=>'inventory/partials/studio_item_fields','createData'=>array_merge($this->getData(),['editing'=>false,'item'=>[]]),'createFullPage'=>base_url('inventory/create?return_to=inventory'),'createSubmit'=>lang('Inventory.addItem')]) ?>
+<?= view('inventory/partials/studio_supplier_dialog') ?>
+<script src="<?= base_url('assets/js/studio-items.js') ?>?v=<?= esc(asset_version('assets/js/studio-items.js')) ?>" defer></script>
+<?php endif ?>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?><script src="<?= base_url('assets/js/studio-stock-pilot.js') ?>?v=<?= esc(asset_version('assets/js/studio-stock-pilot.js')) ?>" defer></script><?= $this->endSection() ?>

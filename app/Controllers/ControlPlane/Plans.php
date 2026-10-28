@@ -74,6 +74,8 @@ class Plans extends BaseController
         return view('control_plane/plans', [
             'title' => 'Plans',
             'plans' => $cards,
+            'plan_create_limits' => $this->defaultLimits(),
+            'plan_create_features' => $this->defaultFeatures(),
             'stats' => [
                 'total' => $totalPlans,
                 'active' => $activePlans,

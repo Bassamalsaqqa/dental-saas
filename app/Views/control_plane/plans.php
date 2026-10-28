@@ -1,9 +1,9 @@
-<?php helper('asset'); ?>
+<?php helper('asset');include APPPATH.'Views/layouts/partials/studio_icons.php'; ?>
 <?= $this->extend('layouts/studio_control_plane') ?>
 <?= $this->section('styles') ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-management.css') ?>?v=<?= esc(asset_version('assets/css/studio-management.css')) ?>">
-<?= $this->endSection() ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-create-dialog.css') ?>?v=<?= esc(asset_version('assets/css/studio-create-dialog.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <header class="page-title-row">
 <div>
@@ -11,7 +11,7 @@
 <?= esc(lang('UI.cpPlans')) ?>
 </h1>
 </div>
-<a class="button primary" href="<?= base_url('controlplane/plans/create') ?>">
+<a class="button primary" data-native-create="platform-plan-create-dialog" href="<?= base_url('controlplane/plans/create') ?>">
 <?= esc(lang('Studio.planCreate')) ?>
 </a>
 </header>
@@ -24,10 +24,10 @@
 <input id="plan-search" type="search" name="q" value="<?= esc($filters['q']??'','attr') ?>">
 </div>
 <div class="form-field">
-<label for="plan-status">
+<label for="plan-filter-status">
 <?= esc(lang('UserRole.status')) ?>
 </label>
-<select id="plan-status" name="status">
+<select id="plan-filter-status" name="status">
 <option value="">
 <?= esc(lang('Studio.all')) ?>
 </option>
@@ -39,10 +39,10 @@
 </select>
 </div>
 <div class="form-field">
-<label for="plan-duration">
+<label for="plan-filter-duration">
 <?= esc(lang('Studio.planDuration')) ?>
 </label>
-<select id="plan-duration" name="duration">
+<select id="plan-filter-duration" name="duration">
 <option value="">
 <?= esc(lang('Studio.chooseOption')) ?>
 </option>
@@ -134,6 +134,7 @@
 <?php endif; ?>
 </section>
 <?= view('users/partials/studio_action_dialog') ?>
+<?= view('components/studio_native_create_dialog',['studioIcon'=>$studioIcon,'createId'=>'platform-plan-create-dialog','createFormId'=>'platform-plan-form','createTitle'=>lang('Studio.planCreate'),'createAction'=>base_url('controlplane/plans'),'createSource'=>'studio_platform_plan_create','createReturn'=>'controlplane/plans','createFields'=>'control_plane/partials/studio_plan_fields','createData'=>['plan'=>[],'limits'=>$plan_create_limits??[],'features'=>$plan_create_features??[]],'createFullPage'=>base_url('controlplane/plans/create'),'createSubmit'=>lang('Studio.planCreate')]) ?>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('assets/js/studio-management.js') ?>?v=<?= esc(asset_version('assets/js/studio-management.js')) ?>" defer>

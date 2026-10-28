@@ -165,6 +165,7 @@ class Users extends BaseController
                 'users' => $users,
                 'available_groups' => $availableGroups,
                 'roles' => $roles,
+                'departments' => $this->getDepartments(),
                 'permissions' => $permissions,
                 'diagnostics' => $diagnostics,
                 'total_users' => $totalClinicMembers,
@@ -246,7 +247,7 @@ class Users extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $roleId = (int) $this->request->getPost('role');

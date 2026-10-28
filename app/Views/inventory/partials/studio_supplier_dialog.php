@@ -1,5 +1,5 @@
-<?php include APPPATH.'Views/layouts/partials/studio_icons.php'; ?>
-<?php if(has_permission('inventory','edit')): ?>
+<?php include APPPATH.'Views/layouts/partials/view_permissions.php'; include APPPATH.'Views/layouts/partials/studio_icons.php'; ?>
+<?php if($v4Can('inventory','edit')): ?>
 <dialog id="item-supplier-dialog" class="help-dialog" aria-labelledby="item-supplier-title"><header><h2 id="item-supplier-title"><?= esc(lang('Inventory.quickAddSupplierTitle')) ?></h2><button class="icon-button" data-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header>
 <form id="item-supplier-form" class="item-supplier-form" action="<?= base_url('inventory/suppliers/quick-create') ?>" method="post" data-failed="<?= esc(lang('Inventory.failedToCreateSupplier'),'attr') ?>" data-success="<?= esc(lang('Inventory.supplierCreatedSelected'),'attr') ?>">
 <?= csrf_field() ?>

@@ -80,3 +80,13 @@ Inventory usage-history remains clinic-wide: the existing producer does not cons
 `studio-scale.css` owns the safe screen-only default. Route styles consume `--studio-font-*` roles with original pixel fallbacks; `StudioThemeCatalog` produces the same declaration map and enumerated Compact/Comfortable variants. Larger text expands row height, and mobile native inputs retain16px minimum to avoid focus zoom. No body transform or browser zoom is used. Print documents and diagnostic chart rendering remain excluded. Platform reads only platform layout declarations and never tenant colors. Theme feature remains defaultOFF until separately reviewed schema/activation.
 
 `studio-create-dialog.js` owns patient-registry and booking task lifecycle: explicit trigger-kind matching, native validation, CSRF-aware existing JSON endpoints, dirty-discard/keep, actual record-ID success, unconfirmed-transport handling without automatic retries, focus restoration and full-page fallback. Availability starts on opening. DataTable refresh keeps patient list context; dayboard offers an explicit schedule refresh and calendar refetches its established source. Complex initial-stock creation and clinical/signing workflows retain full pages. [Focused current evidence](ui-evidence/product-ux/compact-rollout.json).
+
+## Native component rollout ownership
+
+`studio-controls.css` owns native switch/checkbox/radio/focus/disabled appearance. Switches retain successful checkbox values and persisted-preference semantics; permission sets and working-day multi-selection stay checkboxes.
+
+`studio_native_create_dialog.php` and `studio-native-create.js` own fixed, application-selected form presentation, keyboard focus, dirty state, explicit discard, native validation/redirect recovery and full-page fallback. The finance dialog mounts one inert canonical form template at a time. Existing calculator, patient picker and provider presenter initializers are idempotent and scoped; no arbitrary HTML fetching or script execution is used. Hidden business payloads participate in dirty detection. Clinically complex and multi-step provisioning workflows remain full pages.
+
+`studio-provider-allocations.js` extracts the original presenter body without changing monetary preview logic. Source equivalence is independently checked after PHP JSON/date configuration substitution. Durable accounting authority remains in existing services/controllers. Create rejection responses use plain session error arrays instead of nonserializable validator objects. These bounded response changes are explicit source exceptions, not a claim that all controllers are unchanged.
+
+[Current actual gallery and coverage limits](ui-evidence/product-ux/component-gallery.html).

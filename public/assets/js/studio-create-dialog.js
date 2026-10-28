@@ -1,7 +1,7 @@
 /* Register in context using the existing authenticated endpoint. No automatic retries after uncertain writes. */
 (() => {
  'use strict';
- const dialog=document.querySelector('[data-studio-create-dialog]');if(!dialog)return;
+ document.querySelectorAll('[data-studio-create-dialog]').forEach(dialog=>{if(dialog.dataset.createBound)return;dialog.dataset.createBound='true';
  const form=dialog.querySelector('form'),feedback=dialog.querySelector('[data-create-feedback]'),discard=dialog.querySelector('[data-create-discard]'),success=dialog.querySelector('[data-create-success]');
  const patient=dialog.dataset.createKind==='patient';
  const focusFirst=()=>form.querySelector('input:not([type=hidden]):not([disabled]),select:not([disabled]),textarea:not([disabled])')?.focus();
@@ -52,4 +52,5 @@
   }catch(_){uncertain=true;feedback.querySelector('p').textContent=dialog.dataset.uncertain;feedback.hidden=false;feedback.focus();}
   finally{busy=false;dialog.removeAttribute('aria-busy');controls().forEach(b=>b.disabled=uncertain);}
  });
+});
 })();

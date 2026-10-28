@@ -1,8 +1,9 @@
-<?php helper('asset'); ?>
+<?php include APPPATH.'Views/layouts/partials/view_permissions.php'; helper('asset'); ?>
 <?= $this->extend('layouts/studio') ?>
 <?= $this->section('styles') ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-management.css') ?>?v=<?= esc(asset_version('assets/css/studio-management.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-create-dialog.css') ?>?v=<?= esc(asset_version('assets/css/studio-create-dialog.css')) ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php include APPPATH.'Views/layouts/partials/studio_icons.php';$currentUserId=(int)($current_user->id??session('user_id')??0); ?>
@@ -13,13 +14,13 @@
 </h1>
 </div>
 <div class="management-actions">
-<?php if(has_permission('users','roles')): ?>
+<?php if($v4Can('users','roles')): ?>
 <a class="button secondary" href="<?= base_url('roles') ?>">
 <?= esc(lang('UI.menuRoleManagement')) ?>
 </a>
 <?php endif; ?>
-<?php if(has_permission('users','create')): ?>
-<a class="button primary" href="<?= esc(workflow_context_url('users/create')) ?>">
+<?php if($v4Can('users','create')): ?>
+<a class="button primary" data-native-create="users-create-dialog" href="<?= esc(workflow_context_url('users/create')) ?>">
 <?= $studioIcon('plus') ?>
 <?= esc(lang('UserRole.createNewUser')) ?>
 </a>
@@ -79,7 +80,7 @@
 <?php $name=trim(($staff->first_name??'').' '.($staff->last_name??''))?:$staff->email;$active=($staff->membership_status??'active')==='active';$globallyDisabled=(int)($staff->active??0)!==1;$self=(int)$staff->id===$currentUserId;$roleNames=[];$roleIds=[];foreach(($staff->display_roles??[]) as $displayRole){$roleNames[]=is_array($displayRole)?($displayRole['name']??lang('UserRole.unknownRole')):($displayRole->name??lang('UserRole.unknownRole'));$roleIds[]=(string)(is_array($displayRole)?($displayRole['id']??$displayRole['role_id']??0):($displayRole->id??0));} ?>
 <tr class="staff-row" data-management-row data-search="<?= esc(mb_strtolower($name.' '.$staff->email.' '.($staff->phone??'').' '.implode(' ',$roleNames)),'attr') ?>" data-roles="<?= esc(json_encode($roleIds),'attr') ?>" data-status="<?= $active?'active':'inactive' ?>">
 <td class="staff-person">
-<?php if(has_permission('users','view')): ?>
+<?php if($v4Can('users','view')): ?>
 <a class="staff-primary" href="<?= esc(workflow_context_url('users/'.(int)$staff->id)) ?>">
 <?= esc($name) ?>
 </a>
@@ -118,7 +119,7 @@
 <?php endif; ?>
 </td>
 <td class="staff-row-actions"><details class="workspace-action-menu"><summary class="button secondary"><?= esc(lang('Studio.stockManage')) ?></summary><nav>
-<?php if(has_permission('users','edit')): ?>
+<?php if($v4Can('users','edit')): ?>
 <a class="button secondary" href="<?= esc(workflow_context_url('users/'.(int)$staff->id.'/edit')) ?>">
 <?= esc(lang('UserRole.edit')) ?>
 </a>
@@ -128,7 +129,7 @@
 </button>
 <?php endif; ?>
 <?php endif; ?>
-<?php if(!$self&&has_permission('users','delete')): ?>
+<?php if(!$self&&$v4Can('users','delete')): ?>
 <button type="button" class="button destructive" data-management-action data-url="<?= base_url('users/'.(int)$staff->id) ?>" data-method="DELETE" data-confirm="<?= esc(lang('UserRole.confirmRemoveClinicAccess'),'attr') ?>">
 <?= esc(lang('UserRole.removeClinicAccess')) ?>
 </button>
@@ -154,6 +155,7 @@
 </footer>
 </section>
 <?= view('users/partials/studio_action_dialog') ?>
+<?php if($v4Can('users','create')): ?><?= view('components/studio_native_create_dialog',['studioIcon'=>$studioIcon,'createId'=>'users-create-dialog','createFormId'=>'users-create-form','createUserForm'=>true,'createTitle'=>lang('UserRole.createNewUser'),'createAction'=>base_url('users/store'),'createSource'=>'studio_users_create','createReturn'=>'users','createFields'=>'users/partials/studio_form','createData'=>['userEditing'=>false,'editedUser'=>null,'roles'=>$roles??[],'departments'=>$departments??[]],'createFullPage'=>base_url('users/create?return_to=users'),'createSubmit'=>lang('UserRole.createUser')]) ?><?= view('components/email_check_script',['emailCheckUrl'=>base_url('users/check-email')]) ?><?php endif ?>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('assets/js/studio-management.js') ?>?v=<?= esc(asset_version('assets/js/studio-management.js')) ?>" defer>
