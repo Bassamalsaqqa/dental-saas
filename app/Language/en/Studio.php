@@ -1145,4 +1145,8 @@ return [
     'refreshDayboardHelp'=>'Refresh the schedule to see the confirmed appointment. Your current date and filters will be kept.',
     'bookAnother'=>'Book another appointment',
     'refreshSchedule'=>'Refresh schedule',
+    'scalePreview'=>'Display scale comparison',
+    'scalePreviewHelp'=>'Dashboard preview only. No platform or clinic setting has been changed.',
+    'scaleCurrent'=>'Current scale',
+    'scaleCompact'=>'Slightly smaller',
 ];

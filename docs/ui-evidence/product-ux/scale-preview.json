@@ -1,0 +1,263 @@
+{
+  "checks": [
+    "1586 en current: fitted actual dashboard, creation menu and keyboard close",
+    "1586 en compact: fitted actual dashboard, creation menu and keyboard close",
+    "1366 en current: fitted actual dashboard, creation menu and keyboard close",
+    "1366 en compact: fitted actual dashboard, creation menu and keyboard close",
+    "390 ar current: fitted actual dashboard, creation menu and keyboard close",
+    "390 ar compact: fitted actual dashboard, creation menu and keyboard close",
+    "Unrelated route ignores scale trial and does not load its stylesheet",
+    "Default dashboard remains unchanged without explicit review parameter"
+  ],
+  "measurements": [
+    {
+      "width": 1586,
+      "lang": "en",
+      "scale": false,
+      "body": {
+        "font": "18px",
+        "width": 1586,
+        "height": 1504.296875
+      },
+      "heading": {
+        "font": "44px",
+        "width": 316.3125,
+        "height": 57.1875
+      },
+      "nav": {
+        "font": "18px",
+        "width": 260,
+        "height": 968
+      },
+      "navItem": {
+        "font": "17px",
+        "width": 228,
+        "height": 46.34375
+      },
+      "toolbar": {
+        "font": "18px",
+        "width": 1302,
+        "height": 80
+      },
+      "row": {
+        "font": "16px",
+        "width": 883,
+        "height": 96
+      },
+      "button": {
+        "font": "16px",
+        "width": 142.078125,
+        "height": 44.796875
+      },
+      "overflow": false
+    },
+    {
+      "width": 1586,
+      "lang": "en",
+      "scale": true,
+      "body": {
+        "font": "17px",
+        "width": 1586,
+        "height": 1355.125
+      },
+      "heading": {
+        "font": "40px",
+        "width": 289.734375,
+        "height": 52
+      },
+      "nav": {
+        "font": "17px",
+        "width": 242,
+        "height": 968
+      },
+      "navItem": {
+        "font": "16px",
+        "width": 214,
+        "height": 42.796875
+      },
+      "toolbar": {
+        "font": "17px",
+        "width": 1320,
+        "height": 72
+      },
+      "row": {
+        "font": "16px",
+        "width": 921,
+        "height": 84
+      },
+      "button": {
+        "font": "15px",
+        "width": 132.578125,
+        "height": 41.25
+      },
+      "overflow": false
+    },
+    {
+      "width": 1366,
+      "lang": "en",
+      "scale": false,
+      "body": {
+        "font": "18px",
+        "width": 1366,
+        "height": 1797.515625
+      },
+      "heading": {
+        "font": "44px",
+        "width": 316.3125,
+        "height": 57.1875
+      },
+      "nav": {
+        "font": "18px",
+        "width": 238,
+        "height": 968
+      },
+      "navItem": {
+        "font": "17px",
+        "width": 206,
+        "height": 46.34375
+      },
+      "toolbar": {
+        "font": "18px",
+        "width": 1104,
+        "height": 80
+      },
+      "row": {
+        "font": "16px",
+        "width": 1053,
+        "height": 96
+      },
+      "button": {
+        "font": "16px",
+        "width": 142.078125,
+        "height": 44.796875
+      },
+      "overflow": false
+    },
+    {
+      "width": 1366,
+      "lang": "en",
+      "scale": true,
+      "body": {
+        "font": "17px",
+        "width": 1366,
+        "height": 1605.96875
+      },
+      "heading": {
+        "font": "40px",
+        "width": 289.734375,
+        "height": 52
+      },
+      "nav": {
+        "font": "17px",
+        "width": 224,
+        "height": 968
+      },
+      "navItem": {
+        "font": "16px",
+        "width": 196,
+        "height": 42.796875
+      },
+      "toolbar": {
+        "font": "17px",
+        "width": 1118,
+        "height": 72
+      },
+      "row": {
+        "font": "16px",
+        "width": 1055,
+        "height": 84
+      },
+      "button": {
+        "font": "15px",
+        "width": 132.578125,
+        "height": 41.25
+      },
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "lang": "ar",
+      "scale": false,
+      "body": {
+        "font": "18px",
+        "width": 390,
+        "height": 2539.8125
+      },
+      "heading": {
+        "font": "30px",
+        "width": 222.078125,
+        "height": 39
+      },
+      "nav": {
+        "font": "18px",
+        "width": 0,
+        "height": 0
+      },
+      "navItem": {
+        "font": "17px",
+        "width": 0,
+        "height": 0
+      },
+      "toolbar": {
+        "font": "18px",
+        "width": 390,
+        "height": 68
+      },
+      "row": {
+        "font": "16px",
+        "width": 828,
+        "height": 96
+      },
+      "button": {
+        "font": "16px",
+        "width": 121.5625,
+        "height": 44.796875
+      },
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "lang": "ar",
+      "scale": true,
+      "body": {
+        "font": "17px",
+        "width": 390,
+        "height": 2421.140625
+      },
+      "heading": {
+        "font": "28px",
+        "width": 222.078125,
+        "height": 36.390625
+      },
+      "nav": {
+        "font": "17px",
+        "width": 0,
+        "height": 0
+      },
+      "navItem": {
+        "font": "16px",
+        "width": 0,
+        "height": 0
+      },
+      "toolbar": {
+        "font": "17px",
+        "width": 390,
+        "height": 64
+      },
+      "row": {
+        "font": "16px",
+        "width": 828,
+        "height": 84
+      },
+      "button": {
+        "font": "15px",
+        "width": 116.78125,
+        "height": 44
+      },
+      "overflow": false
+    }
+  ],
+  "scope": "Read-only actual CI4 dashboard trial; no persisted theme or database changes; no full-app accessibility certification",
+  "owner_visual_acceptance": "PENDING",
+  "persistent_configuration_changed": false
+}

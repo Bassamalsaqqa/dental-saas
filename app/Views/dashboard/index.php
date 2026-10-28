@@ -10,6 +10,9 @@ $studioCanVisits=!empty($can_route_appointments);
 $studioStageLabels=['scheduled'=>'appointmentStageScheduled','confirmed'=>'appointmentStageConfirmed','arrived'=>'appointmentStageArrived','ready'=>'appointmentStageReady','in_chair'=>'appointmentStageInChair','checkout'=>'appointmentStageCheckout','completed'=>'appointmentStageCompleted','cancelled'=>'appointmentStageCancelled','no_show'=>'appointmentStageNoShow'];
 $studioDocs=$clinical_documentation_queue??[];$studioRecovery=$appointment_recovery_queue??[];$studioAccepted=$accepted_treatment_queue??[];
 ?>
+<?php if(in_array(service('request')->getGet('studio_scale'),['current','compact'],true)): ?>
+<nav class="scale-review" aria-label="<?= esc(lang('Studio.scalePreview'),'attr') ?>"><div><strong><?= esc(lang('Studio.scalePreview')) ?></strong><p><?= esc(lang('Studio.scalePreviewHelp')) ?></p></div><div class="scale-review-options"><?php foreach(['current'=>'scaleCurrent','compact'=>'scaleCompact'] as $scale=>$label): ?><a class="button secondary" <?= service('request')->getGet('studio_scale')===$scale?'aria-current="true"':'' ?> href="<?= base_url('dashboard?studio_scale='.$scale) ?>"><?= esc(lang('Studio.'.$label)) ?></a><?php endforeach ?></div></nav>
+<?php endif ?>
 <div class="page-title-row studio-contour"><div><h1><?= esc(lang('Studio.overview')) ?><span class="title-period">.</span></h1><p><?= esc(lang('Studio.subtitle')) ?></p></div><div class="heading-actions"><span class="date-chip"><?= $studioIcon('calendar') ?><span><?= esc(formatDate(date('Y-m-d'))) ?></span></span><?php if($v4Can('patients','create')||$v4Can('appointments','create')): ?><button class="button primary" data-dialog="create-dialog"><?= $studioIcon('plus') ?><?= esc(lang('Studio.new')) ?></button><?php endif; ?></div></div>
 <div class="desk-layout">
 <section class="appointment-desk" aria-labelledby="desk-title">
