@@ -11,7 +11,7 @@ function updateToken(data){if(typeof data?.csrf_token!=='string')return;document
 function quantity(row){const raw=String(row[3]??''),match=/^(-?\d+(?:\.\d+)?)\s+(.*)$/.exec(raw);return match?{number:match[1],unit:c.units[match[2]]||match[2],zero:Number(match[1])===0}:{number:raw,unit:'',zero:false};}
 function money(raw){const match=/^\$(-?[\d,]+\.\d{2})$/.exec(String(raw??''));return match?(c.currency.position==='after'?match[1]+' '+c.currency.symbol:c.currency.symbol+match[1]):String(raw??'—');}
 const expired=row=>/^\d{4}-\d{2}-\d{2}$/.test(String(row[6]))&&row[6]<c.today;
-function date(raw){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(raw)))return L.stockNoExpiry;try{return new Intl.DateTimeFormat(c.locale,{day:'numeric',month:'short',year:'numeric',timeZone:'UTC',calendar:'gregory'}).format(new Date(raw+'T12:00:00Z'));}catch{return raw;}}
+function date(raw){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(raw)))return L.stockNoExpiry;try{return new Intl.DateTimeFormat(c.locale,{day:'numeric',month:'short',year:'numeric',numberingSystem:'latn',timeZone:'UTC',calendar:'gregory'}).format(new Date(raw+'T12:00:00Z'));}catch{return raw;}}
 function element(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=String(text);return el;}
 function tag(text,tone='rust'){return element('span','stock-tag stock-tag--'+tone,text);}
 const headers=Array.from(table.querySelectorAll('th')).map(th=>th.textContent);

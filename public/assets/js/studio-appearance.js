@@ -51,6 +51,7 @@
         form.querySelectorAll('[name=preset]').forEach(input => {input.checked = input.value === config.initial.preset;});
         form.elements.namedItem('density').value = config.initial.density;
         form.elements.namedItem('text_size').value = config.initial.text_size;
+        form.elements.namedItem('scale').value = config.initial.scale;
         const reason = form.elements.namedItem('reason'); if (reason) reason.value = '';
     });
     preview.addEventListener('click', async () => {

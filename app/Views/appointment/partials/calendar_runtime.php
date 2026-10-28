@@ -223,12 +223,14 @@ document.addEventListener('DOMContentLoaded', function() {
         eventTimeFormat: {
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false
+            hour12: false,
+                numberingSystem: 'latn'
         },
         slotLabelFormat: {
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false
+            hour12: false,
+                numberingSystem: 'latn'
         },
         scrollTime: <?= json_encode($calendarWorkingStart) ?>,
         slotMinTime: <?= json_encode($calendarSlotMin) ?>,
@@ -297,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!dateValue) return '';
         try {
             return new Intl.DateTimeFormat(locale === 'ar' ? 'ar' : 'en', {
+                numberingSystem: 'latn',
                 weekday: 'short',
                 year: 'numeric',
                 month: 'short',
@@ -313,7 +316,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return new Intl.DateTimeFormat('en', {
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: false
+                hour12: false,
+                numberingSystem: 'latn'
             }).format(dateValue);
         } catch (error) {
             return String(dateValue);
@@ -459,7 +463,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return date.toLocaleTimeString(locale, {
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false
+            hour12: false,
+                numberingSystem: 'latn'
         });
     }
     

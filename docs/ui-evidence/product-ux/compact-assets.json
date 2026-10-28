@@ -1,0 +1,32 @@
+{
+  "condition": "Exact Git baseline assets vs working candidate; gzip9 estimate, not measured network performance",
+  "assets": [
+    {
+      "asset": "public/assets/css/studio.css",
+      "before_bytes": 30772,
+      "after_bytes": 33631
+    },
+    {
+      "asset": "public/assets/css/studio-theme.css",
+      "before_bytes": 5657,
+      "after_bytes": 5801
+    },
+    {
+      "asset": "public/assets/css/studio-workspace.css",
+      "before_bytes": 18008,
+      "after_bytes": 19174
+    },
+    {
+      "asset": "public/assets/css/studio-scale.css",
+      "before_bytes": 0,
+      "after_bytes": 2260
+    }
+  ],
+  "combined_before_bytes": 54437,
+  "combined_after_bytes": 60866,
+  "combined_before_gzip_bytes": 11453,
+  "combined_after_gzip_bytes": 12303,
+  "new_runtime_dependency": false,
+  "additional_shared_stylesheet_requests": 1,
+  "query_improvement_claim": false
+}

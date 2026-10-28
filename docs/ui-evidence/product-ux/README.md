@@ -1,6 +1,6 @@
 # Product UX and theme campaign evidence
 
-Development baseline29dce746; branch feature/studio-workflows-themes-20261028. No production operations. Clinical/financial/RBAC authority unchanged.
+Development baseline29dce746; branch feature/studio-workflows-themes-20261028. Production source/runtime discovery was read-only; no production changes. Clinical/financial/RBAC authority unchanged.
 
 ## Platform P0
 
@@ -71,3 +71,11 @@ All 445 pre-existing synthetic business rows remain byte-equivalent under the ex
 Actual EN desktop and AR mobile captures are in the private campaign evidence directory. This acceptance covers these two contextual workflows, not every application route, physical accessibility hardware, or financial/clinical transaction correctness.
 
 [Contextual workflow gallery](workflow-gallery.html) | [Sanitized focused receipt](contextual-create.json). The older frontend-rebuild guard is still pinned to the pre-theme campaign and flags the new theme backend paths against that historical authorization ledger. It is not represented as a passed current-campaign gate; new theme schema/security acceptance remains pending. Current SaaS guardrails pass, with one pre-existing stale contract-builder DOM-sink allowlist entry.
+
+## Accepted compact scale: shared rollout
+
+[Actual current gallery](workflow-gallery.html) | [Scoped acceptance](compact-rollout.json) | [Asset comparison](compact-assets.json). Scale is now shared across44 route-owned styles and tenant/platform/access/kiosk layouts. Fixed semantic typography roles preserve original print fallbacks; native chart skins and protected documents are excluded. Current Control Plane/clinic editor supports enumerated Compact/Comfortable scale with independent larger reading text and table density. The feature is still OFF in shipped configuration. Existing source-only production can use the new safe default without theme tables or migrations.
+
+36 actual route renders are read-only evidence, not36 successful transactions. Six actual populated table/dialog/theme-publish/session checks and six constrained-width/role checks passed. Current production source remained29dce746/tree188433ad during read-only verification. New theme schema/security acceptance, isolated native hosting rehearsal and fresh recoverable checkpoint are still mandatory release gates. No deployment has occurred.
+
+Core shared CSS changed from54,437 to60,866 bytes; a gzip9 estimate grows from11,453 to12,303 bytes (+850 bytes). One small shared stylesheet request was added, with no runtime dependency. These are file/compression measurements, not network or backend performance claims. The existing patient query hotspot is not solved by this presentation pass.

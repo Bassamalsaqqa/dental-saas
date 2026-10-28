@@ -1,0 +1,525 @@
+{
+  "status": "IMPLEMENTED_FOCUSED_VERIFICATION_PENDING_INDEPENDENT_REVIEW",
+  "receipts": {
+    "scale-rollout": {
+      "results": [
+        {
+          "path": "dashboard",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "189",
+          "elapsed_ms": 357,
+          "body": "17px",
+          "heading": "40px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 4
+        },
+        {
+          "path": "patients",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "158",
+          "elapsed_ms": 622,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 7
+        },
+        {
+          "path": "patient/create",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "120",
+          "elapsed_ms": 529,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "patient/1?tab=finances",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "443",
+          "elapsed_ms": 707,
+          "body": "18px",
+          "heading": "32px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 10
+        },
+        {
+          "path": "appointments",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "143",
+          "elapsed_ms": 478,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "appointment/calendar",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "168",
+          "elapsed_ms": 754,
+          "body": "17px",
+          "heading": "40px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "appointment/1",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "160",
+          "elapsed_ms": 409,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "examinations",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "151",
+          "elapsed_ms": 267,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "examination/1129",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "179",
+          "elapsed_ms": 546,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 4
+        },
+        {
+          "path": "contracts/create/1",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "124",
+          "elapsed_ms": 1509,
+          "body": "17px",
+          "heading": "40px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "finance",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "204",
+          "elapsed_ms": 705,
+          "body": "17px",
+          "heading": "29px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "finance/1",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "163",
+          "elapsed_ms": 789,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "providers",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "199",
+          "elapsed_ms": 316,
+          "body": "17px",
+          "heading": "29px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 7
+        },
+        {
+          "path": "inventory",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "141",
+          "elapsed_ms": 699,
+          "body": "17px",
+          "heading": "36px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "inventory/3",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "136",
+          "elapsed_ms": 633,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 10
+        },
+        {
+          "path": "prescriptions",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "129",
+          "elapsed_ms": 374,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 4
+        },
+        {
+          "path": "prescription/2",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "139",
+          "elapsed_ms": 453,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "settings",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "171",
+          "elapsed_ms": 549,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "users",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "234",
+          "elapsed_ms": 438,
+          "body": "17px",
+          "heading": "40px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "reports",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "queries": "199",
+          "elapsed_ms": 613,
+          "body": "17px",
+          "heading": "30px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 4
+        },
+        {
+          "path": "dashboard",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "189",
+          "elapsed_ms": 401,
+          "body": "17px",
+          "heading": "28px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 4
+        },
+        {
+          "path": "patient/create",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "120",
+          "elapsed_ms": 235,
+          "body": "17px",
+          "heading": "25px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "patient/1?tab=finances",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "443",
+          "elapsed_ms": 666,
+          "body": "17px",
+          "heading": "24px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "appointment/calendar",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "168",
+          "elapsed_ms": 287,
+          "body": "17px",
+          "heading": "28px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "inventory",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "141",
+          "elapsed_ms": 389,
+          "body": "17px",
+          "heading": "29px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "finance",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "204",
+          "elapsed_ms": 577,
+          "body": "17px",
+          "heading": "26px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 6
+        },
+        {
+          "path": "settings/appearance",
+          "width": 390,
+          "lang": "ar",
+          "status": 200,
+          "queries": "135",
+          "elapsed_ms": 569,
+          "body": "17px",
+          "heading": "25px",
+          "overflow": false,
+          "scale": "72px",
+          "roles": 5
+        },
+        {
+          "path": "controlplane/dashboard",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/clinics",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/users",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/plan-requests",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/invoices",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/operations",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/activity-log",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/settings",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        },
+        {
+          "path": "controlplane/roles",
+          "width": 1366,
+          "lang": "en",
+          "status": 200,
+          "scale": "72px",
+          "overflow": false
+        }
+      ],
+      "checks": [
+        "Actual native preview changes compact/comfortable scale and large reading layout without publishing",
+        "Cancel restores saved scale and no shared-page preference is changed",
+        "Genuine platform account enters through visible existing CSRF form",
+        "Control Plane exposes shared scale control without tenant color inheritance"
+      ],
+      "scope": "Read-only route/render and native non-persisting preview checks; not workflow persistence or production acceptance"
+    },
+    "compact-functional": {
+      "checks": [
+        "Populated inventory has uniform 84px rows, Western digits, real action dialog and keyboard close",
+        "Populated finance record drawer opens and returns without submitting a financial mutation",
+        "Compact registration keeps dirty-input protection and explicit discard",
+        "Actual native appearance publish persists comfortable scale and first paint follows it",
+        "Compact restored by append-only publish; previous revisions and other clinic unchanged",
+        "Actual Arabic mobile impersonation return remains 44px+, exits to platform and tenant API airlock denies access"
+      ],
+      "scope": "Actual owned synthetic native theme persistence; inventory/finance read-only interactions; real platform session entry/exit; no patient/clinical/financial mutations"
+    },
+    "compact-responsive-denial": {
+      "checks": [
+        {
+          "route": "patient/create",
+          "width": 320,
+          "lang": "ar",
+          "scope": "actual responsive layout; no page overflow"
+        },
+        {
+          "route": "appointment/calendar",
+          "width": 820,
+          "lang": "ar",
+          "scope": "actual responsive layout; no page overflow"
+        },
+        {
+          "route": "dashboard",
+          "width": 1920,
+          "lang": "en",
+          "scope": "actual responsive layout; no page overflow"
+        },
+        {
+          "route": "patients",
+          "width": 390,
+          "lang": "en",
+          "scope": "actual responsive layout; no page overflow"
+        },
+        "Compact Arabic mobile booking keeps real time slots, visible actions and Escape",
+        "Restricted clinic role has no create dialog/platform entry, cannot enter platform, and session is not Bearer API authorization"
+      ],
+      "scope": "Read-only synthetic layout, keyboard and routed denial checks; physical device, native zoom and screen-reader certification not claimed"
+    },
+    "compact-source-boundary": {
+      "baseline": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
+      "protected_paths_unchanged": [
+        "app/Models",
+        "app/Filters",
+        "system",
+        "app/Views/odontogram",
+        "composer.json",
+        "composer.lock",
+        "package.json",
+        "package-lock.json",
+        "LICENSE",
+        "THIRD_PARTY_NOTICES.md",
+        "app/Views/finance/invoice.php",
+        "app/Views/prescription/print.php",
+        "app/Views/examination/print.php",
+        "app/Views/contracts/print.php"
+      ],
+      "original_checkout_status_sha256": "43c5f4b9e6144b32803e820c95c6d242328dec4000ab6385c53c9e89fbf6eb67",
+      "tailwind_sha256": "3a51d2fffb54ae89fbb4188e3b1ddfc2bce09c7e81148adba78ce750b7fd801a",
+      "bounded_theme_paths": [
+        "app/Config/Routes.php",
+        "app/Config/StudioThemes.php",
+        "app/Controllers/StudioThemes.php",
+        "app/Database/Migrations/2026-10-28-120000_CreateStudioThemeHistory.php",
+        "app/Services/StudioThemeAccess.php",
+        "app/Services/StudioThemeCatalog.php",
+        "app/Services/StudioThemeContrastException.php",
+        "app/Services/StudioThemeStore.php"
+      ],
+      "production_migrations_executed": 0,
+      "theme_feature_default": "OFF",
+      "scope": "Source preservation, not production runtime or full workflow certification"
+    }
+  },
+  "pure_palette_layout_checks": 583,
+  "platform_presentation_checks": 18,
+  "production": "Read-only source authority confirmed at29dce746; not deployed",
+  "scope_limits": [
+    "Read-only route checks are not successful clinical/financial transactions",
+    "Existing accepted clinical/finance SQL evidence reused; not rerun without domain change",
+    "Physical assistive technology and native zoom not certified",
+    "Deep Charcoal darkens chrome; full dark clinical reading surfaces not delivered",
+    "Themes require separate schema/security activation gate; shipped switch OFF"
+  ]
+}

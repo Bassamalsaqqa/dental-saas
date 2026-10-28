@@ -25,7 +25,6 @@ $studioNav=[
 'manage'=>[['users','UI.menuUserManagement','people','users'],['roles','UI.menuRoleManagement','shield','users','roles'],['activity-log','UI.menuActivityLog','clock','activity_log'],['settings','UI.menuSettings','settings','settings']],
 ];
 ?>
-<?php $studioScaleTrial = uri_string()==='dashboard' && in_array(service('request')->getGet('studio_scale'), ['current','compact'], true); $studioScaleCompact = $studioScaleTrial && service('request')->getGet('studio_scale')==='compact'; ?>
 <!doctype html>
 <html lang="<?= esc($studioLocale) ?>" dir="<?= $studioRtl?'rtl':'ltr' ?>">
 <head>
@@ -39,12 +38,12 @@ $studioNav=[
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-theme.css') ?>?v=<?= esc(asset_version('assets/css/studio-theme.css')) ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-workspace.css') ?>?v=<?= esc(asset_version('assets/css/studio-workspace.css')) ?>">
 <meta name="csrf-name" content="<?= csrf_token() ?>"><meta name="csrf-token" content="<?= csrf_hash() ?>"><meta name="csrf-header" content="<?= csrf_header() ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-scale.css') ?>?v=<?= esc(asset_version('assets/css/studio-scale.css')) ?>">
 <?= $this->renderSection('styles') ?>
 <?php $studioThemePlane='tenant'; include APPPATH.'Views/layouts/partials/studio_effective_theme.php'; ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-security.css') ?>?v=<?= esc(asset_version('assets/css/studio-security.css')) ?>">
-<?php if($studioScaleTrial): ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-scale-preview.css') ?>?v=<?= esc(asset_version('assets/css/studio-scale-preview.css')) ?>"><?php endif ?>
 </head>
-<body class="studio<?= $studioScaleCompact?' studio-scale-compact':'' ?>">
+<body class="studio">
 <a class="skip" href="#main"><?= esc(lang('Studio.skip')) ?></a>
 <div class="application" id="application">
 <aside class="navigation" id="studio-nav" aria-label="<?= esc(lang('UI.mainMenu')) ?>">

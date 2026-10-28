@@ -45,8 +45,21 @@ rejects(['colors'=>['control-border'=>'#e1ebdb']], 'Block invisible control boun
 rejects(['colors'=>['surface-heading'=>'#a0bba6','ink-muted'=>'#102e27']], 'Block retained hover navigation label missed by former body-pair checks');
 rejects(['colors'=>['action'=>'#39794f']], 'Block retained action-link contrast even if action button text has a separately valid role');
 $large = Catalog::normalize(['density'=>'compact','text_size'=>'large']);
-check(str_contains(Catalog::css($large), '--grid-row-height:80px'), 'Bounded density');
+check(str_contains(Catalog::css(Catalog::normalize(['density'=>'compact'])), '--grid-row-height:80px'), 'Bounded density');
 check(str_contains(Catalog::css($large), '--text-body:1.25rem'), 'Bounded readable scale');
+$compact=Catalog::normalize([]);
+check($compact['scale']==='compact', 'Owner accepted compact fallback');
+check(str_contains(Catalog::css($compact),'--studio-font-18:1.0625rem'), 'Compact body-sized text uses 17px equivalent');
+$comfortable=Catalog::normalize(['scale'=>'comfortable']);
+check(str_contains(Catalog::css($comfortable),'--studio-font-18:1.125rem'), 'Comfortable typography remains selectable');
+check(str_contains(Catalog::layoutCss($comfortable),'--ui-toolbar:80px'), 'Comfortable toolbar dimensions');
+check(!str_contains(Catalog::layoutCss($comfortable),'--color-'), 'Platform layout-only CSS cannot inherit tenant colors');
+check(str_contains(Catalog::css($large),'--grid-row-height:104px'), 'Large text expands fixed rows instead of clipping');
+check(str_contains(Catalog::css($large),'--studio-font-14:1rem'), 'Large text raises caption floor');
+rejects(['scale'=>'url(evil)'], 'Only enumerated interface scales');
+$shared=file_get_contents(dirname(__DIR__,2).'/public/assets/css/studio-scale.css');
+check(str_contains($shared,Catalog::layoutCss([])), 'Shipped fallback layout equals canonical catalog output');
+check(str_contains($shared,'@media screen'), 'Scale does not override print evidence');
 // Existing semantic fallback is still authoritative. Additional new roles do not change it implicitly.
 $source = file_get_contents(dirname(__DIR__,2).'/public/assets/css/studio-theme.css');
 preg_match_all('/--color-([a-z-]+):\s*(#[a-fA-F0-9]{6});/', $source, $matches, PREG_SET_ORDER);

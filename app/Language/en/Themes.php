@@ -111,4 +111,8 @@ return [
     'group_identity'=>'Identity accents',
     'restoreShipped'=>'Restore Studio Forest default',
     'contrastBetween'=>'Improve contrast between {0} and {1} (at least {2}:1).',
+    'interfaceScale'=>'Interface scale',
+    'scaleCompact'=>'Compact (recommended)',
+    'scaleComfortable'=>'Comfortable',
+    'scaleHelp'=>'Sizes navigation, text and controls together. Larger reading text and table density remain separate choices.',
 ];

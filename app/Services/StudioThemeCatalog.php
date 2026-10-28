@@ -146,7 +146,7 @@ final class StudioThemeCatalog
     /** Canonical complete palette freezes explicit clinic choices against future platform changes. */
     public static function normalize(array $input): array
     {
-        if (array_diff(array_keys($input), ['schema','preset','colors','density','text_size'])) {
+        if (array_diff(array_keys($input), ['schema','preset','colors','density','text_size','scale'])) {
             throw new \DomainException('Unknown theme property.');
         }
         if (($input['schema'] ?? self::VERSION) !== self::VERSION) {
@@ -164,6 +164,8 @@ final class StudioThemeCatalog
             }
             $colors[$role] = strtolower($value);
         }
+        $scale = $input['scale'] ?? 'compact';
+        if (!in_array($scale, ['compact','comfortable'], true)) throw new \DomainException('Unsupported interface scale.');
         $density = $input['density'] ?? 'comfortable';
         $textSize = $input['text_size'] ?? 'standard';
         if (!in_array($density, ['comfortable','compact'], true) || !in_array($textSize, ['standard','large'], true)) {
@@ -174,7 +176,7 @@ final class StudioThemeCatalog
         if ($failures) {
             throw new StudioThemeContrastException(array_intersect_key(self::contrastPairs(), $failures));
         }
-        return ['schema'=>self::VERSION,'preset'=>$preset,'colors'=>$palette,'density'=>$density,'text_size'=>$textSize];
+        return ['schema'=>self::VERSION,'preset'=>$preset,'colors'=>$palette,'density'=>$density,'text_size'=>$textSize,'scale'=>$scale];
     }
 
     /** Explicit consumer pairs: decorative separators are not represented as essential control borders. */
@@ -243,8 +245,33 @@ final class StudioThemeCatalog
         $theme = self::normalize($input);
         $rules = [];
         foreach ($theme['colors'] as $role => $color) $rules[] = '--color-'.$role.':'.$color;
-        $rules[] = '--grid-row-height:'.($theme['density']==='compact'?'80px':'96px');
-        $rules[] = '--text-body:'.($theme['text_size']==='large'?'1.25rem':'1.125rem');
-        return ':root{'.implode(';', $rules).'}';
+        return ':root{'.implode(';', $rules).';'.self::layoutDeclarations($theme).'}';
     }
+    /** Fixed layout declarations only. Control Plane can use these without inheriting tenant colors. */
+    public static function layoutCss(array $input): string
+    {
+        return ':root{'.self::layoutDeclarations(self::normalize($input)).'}';
+    }
+
+    private static function layoutDeclarations(array $theme): string
+    {
+        $compact=$theme['scale']==='compact';
+        $large=$theme['text_size']==='large';
+        $sizes=[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,34,36,38,40,42,44,46,48,50,52,56,60,64,72];
+        $reduced=[15=>14,16=>15,17=>16,18=>17,19=>18,20=>19,21=>20,22=>20,23=>21,24=>22,25=>23,26=>24,27=>25,28=>26,29=>27,30=>28,31=>29,32=>30,34=>32,36=>34,38=>36,40=>38,42=>40,44=>40,46=>42,48=>44,50=>46,52=>48,56=>52,60=>56,64=>60,72=>66];
+        $rules=[];
+        foreach($sizes as $size){
+            $resolved=max(14,$compact?($reduced[$size]??$size):$size);
+            if($large)$resolved+=2;
+            $rules[]='--studio-font-'.$size.':'.($resolved/16).'rem';
+        }
+        $rules[]='--text-body:'.($large?'1.25rem':($compact?'1.0625rem':'1.125rem'));
+        $rules[]='--grid-row-height:'.($large?'104px':($theme['density']==='compact'?'80px':($compact?'84px':'96px')));
+        $rules[]='--grid-heading-height:'.($large?'52px':($compact?'44px':'48px'));
+        foreach(['nav-width'=>[242,260],'nav-narrow'=>[224,238],'toolbar'=>[72,80],'toolbar-mobile'=>[64,68],'canvas-block'=>[30,38],'canvas-inline'=>[28,36],'panel-space'=>[20,24],'section-gap'=>[20,24],'field-height'=>[42,46],'nav-height'=>[42,46]] as $role=>$values){
+            $rules[]='--ui-'.$role.':'.$values[$compact?0:1].'px';
+        }
+        return implode(';',$rules);
+    }
+
 }

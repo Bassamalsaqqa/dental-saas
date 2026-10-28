@@ -1,22 +1,22 @@
 /* Shared form components in the Owner-approved Studio system. */
 .studio .hidden{display:none!important}
 .studio-form{display:grid;gap:18px}
-.form-section{background:var(--paper);border-radius:16px;padding:24px}
+.form-section{background:var(--paper);border-radius:16px;padding:var(--ui-panel-space,24px)}
 .form-section header{margin-bottom:18px}
-.form-section h2{font-size:22px}
-.form-section p{font-size:16px;color:var(--muted);line-height:1.7}
+.form-section h2{font-size:var(--studio-font-22,22px)}
+.form-section p{font-size:var(--studio-font-16,16px);color:var(--muted);line-height:1.7}
 .form-section header p{margin-top:7px}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}
 .form-field{display:flex;flex-direction:column;gap:9px;min-width:0}
 .form-field--wide{grid-column:1/-1}
-.form-field>label{font-size:17px;font-weight:700;color:var(--ink)}
+.form-field>label{font-size:var(--studio-font-17,17px);font-weight:700;color:var(--ink)}
 .form-field>label>span{color:var(--color-danger)}
-.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;font-family:var(--font);border:0;border-radius:9px;background:var(--color-control);color:var(--ink);padding:9px 12px;font-size:17px;line-height:1.5;box-shadow:none}
+.form-field input,.form-field textarea,.form-field select{width:100%;min-width:0;font-family:var(--font);border:0;border-radius:9px;background:var(--color-control);color:var(--ink);padding:9px 12px;font-size:var(--studio-font-17,17px);line-height:1.5;box-shadow:none}
 .form-field select{appearance:auto;cursor:pointer;min-height:44px}
 .form-field textarea{resize:vertical;min-height:90px}
 .form-field input:focus-visible,.form-field textarea:focus-visible,.form-field select:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px;background:var(--color-control)}
 .form-field input[aria-invalid=true],.form-field select[aria-invalid=true],.form-field .border-red-500{background:var(--color-danger-soft)}
-.form-field .field-error{color:var(--color-danger);font-size:15px;font-weight:600}
+.form-field .field-error{color:var(--color-danger);font-size:var(--studio-font-15,15px);font-weight:600}
 .form-section-toggle{display:flex;align-items:center;justify-content:space-between;gap:24px}
 .form-section-toggle p{margin-top:7px}
 .form-switch{display:inline-flex;align-items:center;position:relative;flex:none;cursor:pointer}
@@ -28,52 +28,52 @@
 .form-switch:has(input:focus-visible) .form-switch-track{outline:3px solid var(--color-focus);outline-offset:4px}
 .form-switch input:disabled+.form-switch-track{opacity:.5;cursor:not-allowed}
 .form-subsection{margin-top:28px}
-.form-subsection h3{font-size:20px;margin-bottom:17px}
+.form-subsection h3{font-size:var(--studio-font-20,20px);margin-bottom:17px}
 .medical-alert-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:start}
 .medical-alert-card{background:var(--color-surface-tonal);padding:11px 14px;border-radius:10px;min-width:0}
 .medical-alert-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:32px}
-.medical-alert-heading>label{font-size:17px;line-height:1.6;font-weight:650;cursor:pointer}
+.medical-alert-heading>label{font-size:var(--studio-font-17,17px);line-height:1.6;font-weight:650;cursor:pointer}
 .medical-alert-card>.form-field{margin-top:15px}
-.medical-alert-card .form-field>label{font-size:16px}
+.medical-alert-card .form-field>label{font-size:var(--studio-font-16,16px)}
 .medical-alert-card .form-field input,.medical-alert-card .form-field textarea{background:var(--color-surface-raised)}
 .form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--color-surface-strong);border-radius:14px;padding:18px 22px}
 .form-actions>div{display:flex;gap:12px;flex-wrap:wrap}
-.form-actions .button{font-size:17px;padding:12px 18px;min-height:48px}
+.form-actions .button{font-size:var(--studio-font-17,17px);padding:12px 18px;min-height:48px}
 .form-notice{background:var(--color-surface-tonal);border-radius:14px;padding:22px;margin-bottom:22px}
 .form-notice--error{background:var(--color-danger-soft);color:var(--color-danger)}
-.form-notice h2{font-size:22px}
-.form-notice p,.form-notice li{font-size:17px;margin-top:7px}
+.form-notice h2{font-size:var(--studio-font-22,22px)}
+.form-notice p,.form-notice li{font-size:var(--studio-font-17,17px);margin-top:7px}
 .form-notice li a{text-decoration:underline;text-underline-offset:4px}
 .discard-actions{display:flex;justify-content:flex-end;gap:12px;padding:0 25px 25px}
-.discard-actions .button{font-size:16px}
+.discard-actions .button{font-size:var(--studio-font-16,16px)}
 @media(max-width:800px){.form-section{padding:20px 17px}
-.form-section h2{font-size:22px}
+.form-section h2{font-size:var(--studio-font-22,22px)}
 .form-grid,.medical-alert-grid{grid-template-columns:minmax(0,1fr)}
 .form-section-toggle{gap:15px}
-.form-section-toggle h2{font-size:21px}
-.form-section-toggle p{font-size:16px}
+.form-section-toggle h2{font-size:var(--studio-font-21,21px)}
+.form-section-toggle p{font-size:var(--studio-font-16,16px)}
 .form-actions{padding:16px;align-items:stretch;flex-direction:column}
 .form-actions>div{display:flex;flex-direction:column}
-.form-actions .button{width:100%;font-size:17px}
+.form-actions .button{width:100%;font-size:var(--studio-font-17,17px)}
 .discard-actions{flex-direction:column;padding-inline:20px}
 .discard-actions .button{width:100%}}
 @media(prefers-reduced-motion:reduce){.form-switch-track::before{transition:none}}
 
 /* Registration composition: long identity values, short factual values, optional context. */
 .registration-heading{padding-block:20px;margin-bottom:20px}
-.registration-heading h1{font-size:32px;letter-spacing:-.7px}
-.registration-heading .button{font-size:16px}
+.registration-heading h1{font-size:var(--studio-font-32,32px);letter-spacing:-.7px}
+.registration-heading .button{font-size:var(--studio-font-16,16px)}
 .registration-fields{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr);gap:16px;align-items:start}
 .registration-details{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.35fr);gap:28px;margin-top:24px;align-items:start}
-.registration-details h3{font-size:19px;margin-bottom:16px}
+.registration-details h3{font-size:var(--studio-font-19,19px);margin-bottom:16px}
 .registration-contact-fields{display:grid;gap:16px;max-width:40ch}
 .registration-additional .form-section-toggle{min-height:34px}
 @media(max-width:1199px){.registration-fields{grid-template-columns:repeat(6,minmax(0,1fr))}.registration-fields>.form-field{grid-column:span 2}.registration-fields>.form-field:nth-child(-n+2){grid-column:span 3}}
 @media(max-width:1100px){.registration-details{grid-template-columns:minmax(0,1fr)}.registration-contact-fields{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none}.registration-contact-fields>.form-field:last-child{grid-column:1/-1}}
-@media(max-width:800px){.registration-heading h1{font-size:27px}.registration-fields{gap:16px 12px}.registration-contact-fields{grid-template-columns:minmax(0,1fr)}.registration-heading{padding-block:18px}.registration-details{gap:24px}}
+@media(max-width:800px){.registration-heading h1{font-size:var(--studio-font-27,27px)}.registration-fields{gap:16px 12px}.registration-contact-fields{grid-template-columns:minmax(0,1fr)}.registration-heading{padding-block:18px}.registration-details{gap:24px}}
 
 @media(max-width:540px){.registration-fields>.form-field{grid-column:span 3}.registration-fields>.form-field--phone{grid-column:1/-1}}
 
-.patient-edit-identity{display:flex;gap:12px;flex-wrap:wrap;font-size:17px;margin-top:8px;color:var(--muted)}.patient-edit-identity>span{font-size:15px;align-self:center}
+.patient-edit-identity{display:flex;gap:12px;flex-wrap:wrap;font-size:var(--studio-font-17,17px);margin-top:8px;color:var(--muted)}.patient-edit-identity>span{font-size:var(--studio-font-15,15px);align-self:center}
 
 .form-field input[type=number]{appearance:textfield;-moz-appearance:textfield}.form-field input[type=number]::-webkit-inner-spin-button,.form-field input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}

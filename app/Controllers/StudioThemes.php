@@ -55,7 +55,7 @@ class StudioThemes extends BaseController
         $intent = $this->request->getPost('intent');
         if (!in_array($intent,$platform?['preview','publish','inherit','revert','catalog']:['preview','publish','inherit','revert'],true)) return $this->response->setStatusCode(422)->setJSON(['error'=>lang('Themes.invalid')]);
         try {
-            $input = ['schema'=>1,'preset'=>$this->request->getPost('preset'),'colors'=>$this->request->getPost('colors'),'density'=>$this->request->getPost('density'),'text_size'=>$this->request->getPost('text_size')];
+            $input = ['schema'=>1,'preset'=>$this->request->getPost('preset'),'colors'=>$this->request->getPost('colors'),'density'=>$this->request->getPost('density'),'text_size'=>$this->request->getPost('text_size'),'scale'=>$this->request->getPost('scale')??'compact'];
             if ($intent === 'preview') {
                 $theme = StudioThemeCatalog::normalize($input);
                 return $this->response->setJSON(['theme'=>$theme,'css'=>StudioThemeCatalog::css($theme),'csrf'=>['name'=>csrf_token(),'hash'=>csrf_hash()]]);

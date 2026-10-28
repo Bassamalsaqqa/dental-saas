@@ -17,6 +17,7 @@
 <meta name="csrf-name" content="<?= csrf_token() ?>">
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 <meta name="csrf-header" content="<?= csrf_header() ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-scale.css') ?>?v=<?= esc(asset_version('assets/css/studio-scale.css')) ?>">
 </head>
 <body>
 <div id="kiosk-toast" class="kiosk-toast hidden" role="status" aria-live="polite">
