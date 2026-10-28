@@ -1,0 +1,479 @@
+{
+  "baseline_english": [
+    {
+      "lang": "en",
+      "width": 320,
+      "height": 568,
+      "status": 200,
+      "ctaBottom": 842,
+      "ctaVisible": false,
+      "overflow": false,
+      "documentHeight": 1098,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "height": 640,
+      "status": 200,
+      "ctaBottom": 842,
+      "ctaVisible": false,
+      "overflow": false,
+      "documentHeight": 1098,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "height": 667,
+      "status": 200,
+      "ctaBottom": 775,
+      "ctaVisible": false,
+      "overflow": false,
+      "documentHeight": 1030,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "ctaBottom": 775,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 1030,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 430,
+      "height": 932,
+      "status": 200,
+      "ctaBottom": 713,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 969,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "height": 1024,
+      "status": 200,
+      "ctaBottom": 749,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 1024,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "height": 768,
+      "status": 200,
+      "ctaBottom": 668,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 861,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "height": 720,
+      "status": 200,
+      "ctaBottom": 668,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 861,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1366,
+      "height": 768,
+      "status": 200,
+      "ctaBottom": 668,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 861,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "height": 900,
+      "status": 200,
+      "ctaBottom": 668,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 900,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 844,
+      "height": 390,
+      "status": 200,
+      "ctaBottom": 749,
+      "ctaVisible": false,
+      "overflow": false,
+      "documentHeight": 905,
+      "formFirst": "access-introduction studio-contour",
+      "passwordAutoComplete": "current-password"
+    }
+  ],
+  "after": [
+    {
+      "lang": "en",
+      "width": 320,
+      "height": 568,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 558,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 765,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "height": 640,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 508,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 715,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "height": 667,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 540,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 756,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 540,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 844,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 430,
+      "height": 932,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 514,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 932,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "height": 1024,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 545,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 1024,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "height": 768,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 593,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 768,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "height": 720,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 569,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 720,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1366,
+      "height": 768,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 593,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 768,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "height": 900,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 671,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 900,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "en",
+      "width": 844,
+      "height": 390,
+      "status": 200,
+      "actualLanguage": "en",
+      "ctaBottom": 324,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 481,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 320,
+      "height": 568,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 558,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 765,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 360,
+      "height": 640,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 483,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 690,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 390,
+      "height": 667,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 514,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 729,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 514,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 844,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 430,
+      "height": 932,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 514,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 932,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 768,
+      "height": 1024,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 545,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 1024,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 1024,
+      "height": 768,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 593,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 768,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 1280,
+      "height": 720,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 569,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 720,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 1366,
+      "height": 768,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 593,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 768,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 1440,
+      "height": 900,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 671,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 900,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    },
+    {
+      "lang": "ar",
+      "width": 844,
+      "height": 390,
+      "status": 200,
+      "actualLanguage": "ar",
+      "ctaBottom": 324,
+      "ctaVisible": true,
+      "overflow": false,
+      "documentHeight": 481,
+      "formFirst": "access-workspace",
+      "passwordAutoComplete": "current-password"
+    }
+  ],
+  "interactions": {
+    "checks": [
+      {
+        "lang": "en",
+        "case": "integrated native password reveal/hide and autocomplete"
+      },
+      {
+        "lang": "en",
+        "case": "real invalid login response displays visible error and preserves protected password type"
+      },
+      {
+        "lang": "en",
+        "case": "forgot-password page and real safe return accessible; no email sent"
+      },
+      {
+        "lang": "en",
+        "case": "expired/invalid reset link fails safely"
+      },
+      {
+        "lang": "ar",
+        "case": "integrated native password reveal/hide and autocomplete"
+      },
+      {
+        "lang": "ar",
+        "case": "real invalid login response displays visible error and preserves protected password type"
+      },
+      {
+        "lang": "ar",
+        "case": "forgot-password page and real safe return accessible; no email sent"
+      },
+      {
+        "lang": "ar",
+        "case": "expired/invalid reset link fails safely"
+      },
+      "short keyboard-height viewport retains scrolling and submit reachability"
+    ],
+    "untested": [
+      "physical password managers/autofill",
+      "native browser zoom",
+      "physical virtual keyboard and assistive hardware"
+    ]
+  },
+  "comparison": {
+    "english_CTA_outside_before": 4,
+    "english_CTA_outside_after": 0,
+    "final_actual_EN_AR_cases": 22,
+    "final_CTA_outside": 0,
+    "horizontal_overflow": 0
+  },
+  "limits": [
+    "Initial ARbaseline runner did not verify actual authlocale; those baseline-labelled rows are excluded, not claimed Arabic measurements.",
+    "Corrected private test harness baseURL environment to match existing injectedAppconfig; source NavigationService unchanged.",
+    "No physical password-manager/autofill/nativezoom/virtualkeyboard/AT certification. Short260pxviewport scrolling verified."
+  ],
+  "source_scope": "Presentation only; existing fields/CSRF/endpoints/errors/passwordcontrols preserved; no businessDB/schema/controllerchanges"
+}

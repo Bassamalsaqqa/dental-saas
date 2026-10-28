@@ -33,6 +33,10 @@ $accessReturn=current_url(true)->__toString();
 </a>
 </header>
 <main id="access-main" class="access-stage">
+<section class="access-workspace">
+<?= $this->renderSection('content') ?>
+</section>
+
 <aside class="access-introduction studio-contour">
 <?php $accessIntroduction=$this->renderSection('accessIntroduction');if($accessIntroduction!==''): ?>
 <?= $accessIntroduction ?>
@@ -58,9 +62,6 @@ $accessReturn=current_url(true)->__toString();
 </div>
 <?php endif; ?>
 </aside>
-<section class="access-workspace">
-<?= $this->renderSection('content') ?>
-</section>
 </main>
 <footer class="access-footer">
 <span>Palsync Dental © <?= date('Y') ?>

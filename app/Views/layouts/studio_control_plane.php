@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>
-<?= esc($title??lang('UI.cpControlPlane')) ?> Â· Denta+</title>
+<?= esc($title??lang('UI.cpControlPlane')) ?> &middot; Denta+</title>
 <meta name="theme-color" content="#153f36">
 <link rel="icon" href="<?= base_url('assets/images/favicon.png') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
