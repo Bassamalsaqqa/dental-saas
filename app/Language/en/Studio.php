@@ -1134,4 +1134,5 @@ return [
     'returnControlPlane' => 'Return to Control Plane',
     'openControlPlane' => 'Control Plane',
     'platformClinicReference' => 'Clinic #{0}',
+    'allClinicUsage'=>'All clinic usage',
 ];

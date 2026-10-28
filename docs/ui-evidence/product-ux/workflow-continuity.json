@@ -1,0 +1,161 @@
+{
+  "status": "PRESENTATION_SLICE_VERIFIED_NOT_FINAL_ACCEPTANCE",
+  "baseline": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
+  "observations": {
+    "workflow-continuity": {
+      "checks": [
+        "Appointment -> patient -> same visit uses explicit local return context",
+        "Patient billing -> actual finance record -> selected billing panel, with quick-form return targets aligned",
+        "Inventory item -> existing edit -> explicit cancel returns to same item",
+        "Truthfully labeled clinic-wide usage history returns to originating item; no unsupported item filter",
+        "Clinical plan creation carries actual examination return context",
+        {
+          "case": "Actual mobile/tablet selected billing panel and return context",
+          "width": 390,
+          "lang": "ar"
+        },
+        {
+          "case": "Actual mobile/tablet selected billing panel and return context",
+          "width": 820,
+          "lang": "en"
+        }
+      ],
+      "scope": "Real read-only route/click/cancel and contextual form-target checks; no mutation certification or fabricated task-time improvement"
+    },
+    "reception-persistence": {
+      "checks": [
+        "Native registration required-field failure performs no persistence",
+        "Actual patient creation persisted in correct synthetic clinic and handed selected identity directly to booking",
+        "Actual appointment persisted once with canonical patient/clinic/date/time and returned to patient context"
+      ],
+      "patientId": 21,
+      "appointmentId": 1143,
+      "expectedAddedRows": {
+        "patients": [
+          21
+        ],
+        "appointments": [
+          1143
+        ],
+        "examinations": [
+          1149
+        ]
+      },
+      "scope": "Real native synthetic register/save-and-book persistence; no financial/clinical concurrency claim; copied schema has no FK/trigger certification; no outbound channels configured"
+    },
+    "clinical-handoff": {
+      "checks": [
+        "Real clinical disclosure preserves entered narrative while opening/collapsing and keeps patient/visit identity",
+        "Actual pending draft persisted once with native patient/clinic/appointment and narrative",
+        "Draft plan opening/cancel returns to actual source examination without signing or creating charges",
+        "Restricted view-only role can open the linked draft but cannot create an examination"
+      ],
+      "examinationId": 1149,
+      "scope": "Actual owned synthetic pending draft persistence, plan cancel and view/create role separation; no signing, billing or clinical-domain changes"
+    },
+    "workflow-preservation": {
+      "passed": true,
+      "original_rows": 445,
+      "tables": {
+        "patients": {
+          "original_rows": 16,
+          "original_sha256": "23eb1e021951e87a103ee6d085823cb32802384d988cbd0d35174a405dba93e3",
+          "added_owned_fixture_ids": [
+            "21"
+          ]
+        },
+        "appointments": {
+          "original_rows": 141,
+          "original_sha256": "453e39cc1a66185c72a126399bf8161049f163030ba4573a7d5fdb48bed05493",
+          "added_owned_fixture_ids": [
+            "1143"
+          ]
+        },
+        "examinations": {
+          "original_rows": 149,
+          "original_sha256": "1a6c7fbc2e544a302d31c66aedc5a6d283efd3631955add014421fa1af177ab5",
+          "added_owned_fixture_ids": [
+            "1149"
+          ]
+        },
+        "odontograms": {
+          "original_rows": 34,
+          "original_sha256": "f5e6b4de9adc6a525899e1f2320190785b286c667009950abed38dcd85744612",
+          "added_owned_fixture_ids": []
+        },
+        "treatment_contracts": {
+          "original_rows": 7,
+          "original_sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0",
+          "added_owned_fixture_ids": []
+        },
+        "treatment_contract_items": {
+          "original_rows": 23,
+          "original_sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e",
+          "added_owned_fixture_ids": []
+        },
+        "finances": {
+          "original_rows": 11,
+          "original_sha256": "766b8ee396d33832668ee02166bf5f95ac3434fc23d1016c32ccc5c88e1cb18e",
+          "added_owned_fixture_ids": []
+        },
+        "finance_payments": {
+          "original_rows": 7,
+          "original_sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237",
+          "added_owned_fixture_ids": []
+        },
+        "provider_payouts": {
+          "original_rows": 6,
+          "original_sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d",
+          "added_owned_fixture_ids": []
+        },
+        "provider_payout_payments": {
+          "original_rows": 6,
+          "original_sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71",
+          "added_owned_fixture_ids": []
+        },
+        "inventory": {
+          "original_rows": 3,
+          "original_sha256": "089910768d7175e699bf0d2e5b90650ed978a38b3c04228ccfbf6d61fa41b585",
+          "added_owned_fixture_ids": []
+        },
+        "suppliers": {
+          "original_rows": 2,
+          "original_sha256": "50347676860f07d7057128c6ff781f6c5c694afc055f6381b2b717267d8e37fb",
+          "added_owned_fixture_ids": []
+        },
+        "patient_odontogram_snapshots": {
+          "original_rows": 26,
+          "original_sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b",
+          "added_owned_fixture_ids": []
+        },
+        "examination_note_signatures": {
+          "original_rows": 14,
+          "original_sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c",
+          "added_owned_fixture_ids": []
+        },
+        "examination_note_addenda": {
+          "original_rows": 0,
+          "original_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "added_owned_fixture_ids": []
+        }
+      },
+      "scope": "All pre-existing synthetic business rows unchanged; exactly one owned patient and one appointment added through native application forms"
+    }
+  },
+  "changes": [
+    "Visit patient link carries return_to; linked examination opening follows view permission independently from create permission.",
+    "Patient billing/history tab is remembered in existing local record links, row targets and designated quick-form return values; clinical algorithms unchanged.",
+    "Examination plan creation/detail carries original encounter context.",
+    "Inventory edit/cancel returns to item; clinic-wide usage is accurately labeled and no unsupported inventory_id filter is implied.",
+    "Examination optional fields use a native disclosure with expanded/controls semantics, preserving entered and submitted values."
+  ],
+  "honest_limits": [
+    "This copied synthetic schema uses CREATE LIKE and does not reproduce all business FK/trigger constraints. No new financial or clinical transaction correctness claim.",
+    "Native clinical fixture remains pending; no signatures, completed treatments, charges or payments were created.",
+    "Exactly three owned synthetic business rows added through existing forms: patient21, appointment1143, examination1149. All445 pre-existing rows preserved.",
+    "Existing independent M2/clinical acceptance evidence is reused; not all mutation suites rerun.",
+    "No stopwatch/task-time or broad query-reduction claim.",
+    "NavigationService placeholder nextActions remain source-only unused code (no runtime callers found); do not expose them as functionality.",
+    "Full roadmap and exhaustive component/route-state acceptance remain incomplete."
+  ]
+}

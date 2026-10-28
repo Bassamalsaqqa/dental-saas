@@ -23,7 +23,7 @@ $footer = static function (string $drawerId, string $submitLabel, string $fullPa
     ob_start();
     ?>
     <div >
-        <a href="<?= esc($fullPageUrl) ?>" >
+        <a href="<?= esc($fullPageUrl) ?>" data-patient-context-link>
 
             <span><?= esc(lang('UI.openFullPage')) ?></span>
         </a>
@@ -40,7 +40,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
     ?>
     <form id="<?= esc($formId) ?>" action="<?= esc($action) ?>" method="post" <?= $multipart ? 'enctype="multipart/form-data"' : '' ?>  <?= $attrs ?>>
         <?= csrf_field() ?>
-        <?php if ($returnTo): ?><input type="hidden" name="return_to" value="<?= esc($returnTo) ?>"><?php endif; ?>
+        <?php if ($returnTo): ?><input type="hidden" name="return_to" data-patient-return value="<?= esc($returnTo) ?>"><?php endif; ?>
         <?= $body ?>
     </form>
     <?php

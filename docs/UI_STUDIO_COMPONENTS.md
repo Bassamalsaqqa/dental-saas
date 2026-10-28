@@ -4,7 +4,7 @@ This catalog governs existing CI4 presentation. It is not a second UI framework,
 
 ## Foundations and four header jobs
 
-`public/assets/css/studio-theme.css` owns brand/neutral/semantic colors and now names type, Arabic font, line-height/weight, spacing, radius, elevation, focus, motion, layer and grid-density roles. New components consume these roles. Existing route skins adopt them incrementally; scattered historical spacing values are not falsely described as fully consolidated. Warm forest/sage remains the accepted direction. No theme settings, storage or permission feature was added.
+`public/assets/css/studio-theme.css` owns brand/neutral/semantic colors and now names type, Arabic font, line-height/weight, spacing, radius, elevation, focus, motion, layer and grid-density roles. New components consume these roles. Existing route skins adopt them incrementally; scattered historical spacing values are not falsely described as fully consolidated. Warm forest/sage remains the accepted direction. The later development-only Theme Studio adds versioned safe theme configuration behind `StudioThemes.enabled=false`; see `STUDIO_UX_THEME_PROGRAM.md`. Existing domain permissions are reused, with scope-specific administration checks; no new production grants.
 
 | Header job | Existing owner / input | Deliberate treatment and non-use |
 |---|---|---|
@@ -66,3 +66,11 @@ Patient registry retains its existing jQuery3.7.1/DataTables1.13.7 CDN dependenc
 ## Acceptance evidence and remaining gates
 
 See [current portable gallery, reconciliation and test matrix](ui-evidence/modular/README.md). Physical screen-reader, real touch hardware/password-manager extension, native browser zoom and successful new clinical/finance persistence were not certified. Local role/tenant/CSRF source authority and previously completed backend evidence were preserved, not relabelled as new tests. PR remains Draft; Owner whole-frontend visual acceptance and independent exact-current-head review are separate gates. No production access, migrations, source integration or deployment.
+
+## Current workflow continuity slice
+
+Patient Care/History tabs own presentation state, while the native patient runtime still owns clinical/filter facts. `studio-patient-sections.js` synchronizes only explicit same-patient return targets, designated quick forms and existing row navigation. Cross-origin targets and unrelated return destinations are retained unchanged. It does not rewrite clinical or money values.
+
+Examination optional narrative fields now use a native disclosure button, not a persisted on/off switch. Hidden content remains in the form and entered values survive collapse. Medical assessment storage and positive-alert policy remain unchanged. Visit links distinguish opening an existing examination (`view`) from creating one (`create`), without granting either permission.
+
+Inventory usage-history remains clinic-wide: the existing producer does not consume an item-ID filter. Its item-detail link is labeled honestly and preserves a local return to the item. Item-filtered history is a separately scoped backend follow-up, not simulated by frontend filtering. [Focused evidence](ui-evidence/product-ux/workflow-continuity.json).

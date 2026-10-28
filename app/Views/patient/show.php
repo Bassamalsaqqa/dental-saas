@@ -781,7 +781,7 @@ if (isset($workspace_history)) {
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
-<div class="patient-workspace patient-view">
+<div class="patient-workspace patient-view" data-patient-return-base="<?= esc('patient/'.(int)$patient['id'],'attr') ?>">
     <div >
         <header class="patient-identity"><div class="patient-identity-name"><span class="patient-identity-avatar"><?= esc(ui_initials($patient['first_name']??'',$patient['last_name']??'','P')) ?></span><div><h1><?= esc($fullName) ?></h1><p><?= esc($patient['patient_id']??'') ?> <span><?= esc($patientStatusLabel) ?></span></p></div></div><div class="patient-identity-actions"><?php if(has_permission('patients','edit')): ?><button type="button" class="button secondary" data-app-drawer-open="patientProfileEditDrawer"><?= esc(lang('UI.patientEditPatient')) ?></button><?php endif; ?><a class="button secondary" href="<?= esc(workflow_back('patients',$return_to??null)) ?>"><?= esc(lang('UI.back')) ?></a></div></header>
 <p class="medical-assessment-note" role="note"><?= esc(lang('Studio.medicalAssessmentNotice')) ?></p>
@@ -794,7 +794,7 @@ if (isset($workspace_history)) {
             ?>
             <form id="<?= esc($patientEditFormId) ?>" action="<?= base_url('patient/' . (int) $patient['id'] . '/update') ?>" method="post" class="patient-form-stack">
                 <?= csrf_field() ?>
-                <input type="hidden" name="return_to" value="<?= esc('patient/' . (int) $patient['id']) ?>">
+                <input type="hidden" name="return_to" data-patient-return value="<?= esc('patient/' . (int) $patient['id']) ?>">
                 <?php foreach ([
                     'alert_has_allergies',
                     'alert_allergies_details',

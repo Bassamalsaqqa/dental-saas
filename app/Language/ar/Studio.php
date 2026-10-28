@@ -1134,4 +1134,5 @@ return [
     'returnControlPlane' => 'العودة إلى إدارة المنصة',
     'openControlPlane' => 'إدارة المنصة',
     'platformClinicReference' => 'العيادة رقم {0}',
+    'allClinicUsage'=>'جميع استخدامات مخزون العيادة',
 ];
