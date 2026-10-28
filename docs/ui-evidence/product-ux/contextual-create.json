@@ -1,0 +1,46 @@
+{
+  "status": "FOCUSED_CONTEXTUAL_WORKFLOWS_VERIFIED_NOT_FINAL_ACCEPTANCE",
+  "baseline": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
+  "observations": {
+    "patient-dialog-validation": {
+      "checks": [
+        "Actual server validation rejects forged short name without leaving dialog or losing entered fields",
+        "Validation summary moves keyboard focus to the actual invalid field",
+        "Injected transport failure remains explicitly unconfirmed, with no automatic retry or false success"
+      ],
+      "scope": "Actual server validation; intentionally blocked browser-only transport failure (no request reached DB); populated creation already verified separately"
+    },
+    "booking-dialog-acceptance": {
+      "checks": [
+        "No availability request before dialog opens; real server slots populate after opening",
+        "Escape protects unsaved booking and Keep editing retains entered data",
+        "Actual AJAX booking persists exactly once and confirms real ID without losing schedule context",
+        "ar 390 dialog fits viewport and closes cleanly",
+        "en 1366 dialog fits viewport and closes cleanly"
+      ],
+      "scope": "Owned synthetic database only; actual existing booking endpoint, no scheduling activation or financial mutations"
+    },
+    "booking-dialog-conflict": {
+      "checks": [
+        "Forged already-booked slot rejected by existing server with 422, entered notes preserved, no duplicate row or false success",
+        "appointments en 1586 actual responsive dialog and keyboard close",
+        "appointment/calendar en 1366 actual responsive dialog and keyboard close",
+        "appointments ar 390 actual responsive dialog and keyboard close"
+      ],
+      "scope": "Existing server conflict rejection, deliberately forged unavailable time in owned synthetic fixture; no new records"
+    }
+  },
+  "preservation": {
+    "original_business_rows": 445,
+    "result": "unchanged",
+    "schema_limitation": "Copied browser fixture does not certify all original foreign keys/triggers"
+  },
+  "production_access": false,
+  "new_dependencies": false,
+  "backend_changes_in_this_slice": false,
+  "scope_limitations": [
+    "No all-route or formal accessibility certification",
+    "Complex initial-stock creation remains native full page",
+    "Final campaign exact-head independent review pending"
+  ]
+}

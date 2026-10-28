@@ -10,16 +10,25 @@ Baseline: deployed/release29dce746c0fc3be436b85a2c1a67fbbb41be3b55 (tree188433ad
 | Platform entry/impersonation | IMPLEMENTED / focused verification | b152ffc;17actual local session/browser checks,18presentation checks. Additional role-revocation/expiredclinic/legacyprint coverage remains explicit. |
 | Auth fit/title/demo-label | IMPLEMENTED / focused verification | 170127d;22actualEN/ARviewportchecks,9interactions. Physicalhardware/nativezoom/AT untested. |
 | Theme system | IMPLEMENTED SLICE / focused verification; NOT ACCEPTED | d21e2e2: native tenant/platform editor, validated sample and first paint, actual RBAC/SQL/CSRF/scope tests. Catalog administration, bounded override registry and browser accessibility precedence implemented with affected checks. Full consumer contrast/dark/print audit remains pending. |
-| Three flagship journeys | CONTINUITY SLICE IMPLEMENTED / focused evidence | Native synthetic register-to-book and visit-to-pending-draft; examination-plan cancel, patient billing return-tab and inventory edit/history return. All445 original fixture rows preserved; three owned additions. Full journey composition, timing and product-wide rollout still incomplete. |
+| Three flagship journeys | CONTINUITY SLICE IMPLEMENTED / focused evidence | Native synthetic register-to-book and visit-to-pending-draft; examination-plan cancel, patient billing return-tab and inventory edit/history return. All445 original fixture rows preserved; explicitly recorded owned additions. Full journey composition, timing and product-wide rollout still incomplete. |
+| Contextual creation | IMPLEMENTED / focused evidence | Patient registry and dayboard/calendar native dialogs reuse existing forms/endpoints; real registration and booking, server validation/conflict rejection, unsaved-input protection, focus return and full-page fallback. Complex initial-stock creation remains full-page because it has a native redirect contract and stock-movement consequences. |
 | Product-wide component rollout | NOT COMPLETE |539registered method/patterns in routeinventory are aliases/methods, not539pages. Reachability,featurestate and role-specific task evidence remain to map. |
 | Independent acceptance / draftPR | NOT REQUESTED / NOT READY | Final combined exactheadreview and portablegallery after implementation. No approval or deployment implied. |
 
 Actual source route/filter inventory: [CSV](ui-evidence/product-ux/route-inventory.csv). Every entry is explicitly registered-source evidence; it does not assert runtime or mutation acceptance. [Focused evidence](ui-evidence/product-ux/README.md) distinguishes browser,SQL and presentation assertions.
 
+## Owner refinement (2026-10-28)
+
+The current direction is generally accepted. Draw product-wide inspiration from shadcn dashboard/component composition and Linear's focused navigation, compact toolbars, readable tables, coherent tabs, useful source-backed metrics and responsive views. Apply patterns to forms, details, settings, dialogs, navigation, loading/error states and workspaces; retain the olive/sand identity, existing CI4 components, actual Arabic RTL and Western digits. No React rewrite, borrowed demo figures or permission changes.
+
+Prefer contextual create dialogs/drawers when they reduce context loss. This is conditional component-fit guidance, not an instruction to cram every form into a modal. Short registration/booking/context edits may stay in the current workspace, with native full-page fallback, dirty-input protection, real validation and deliberate next actions. Signing, complex clinical records, financial corrections and multi-step management retain appropriate full pages and explicit returns. Do not create fake popups or fetch arbitrary HTML/scripts to manufacture overlays.
+
 ## Evidence to design decisions
 
 | Source | Applicable pattern | Adoption / rejection |
 |---|---|---|
+| [shadcn blocks](https://ui.shadcn.com/blocks) / [Dialog](https://ui.shadcn.com/docs/components/base/dialog) | Composable dashboard hierarchy and focused overlay semantics | Adapt spacing, compact controls and task hierarchy to existing native CI4 components; do not install React or copy sample metrics. |
+| [Linear dashboards](https://linear.app/docs/dashboards) / [Display options](https://linear.app/docs/display-options) | Source-backed insight drilldown, deliberate list grouping and visible controls | Keep meaningful clinic facts and direct permitted actions; preserve source scope and existing list filters, without generic KPI decoration. |
 | [GOV.UK password input](https://design-system.service.gov.uk/components/password-input/) | Nativepasswordfield, revealcontrol, autocomplete/paste | Preserve nativefield and integrated suffix; do not create customcredentialstate or blockpaste. |
 | [WAI disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) | Button plus managed visibility | Optional content uses disclosure; do not treat a panel as a persistedon/offpreference. |
 | [USWDS modal](https://designsystem.digital.gov/components/modal/) | Focused interruption/confirmation | Reuse focus-safe dialogs for shortconfirmations; complexclinical/finance tasks retain dedicatedpages. |

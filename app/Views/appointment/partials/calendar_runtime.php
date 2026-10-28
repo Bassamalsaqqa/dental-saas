@@ -262,6 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.refetchEvents();
     });
     function refreshCalendar() { loadedRange = ''; loadedEvents = null; calendar.refetchEvents(); }
+    document.addEventListener('studio:appointment-created',refreshCalendar);
     document.getElementById('calendar-retry')?.addEventListener('click', refreshCalendar);
     document.getElementById('calendar-refresh')?.addEventListener('click', refreshCalendar);
     window.addEventListener('focus', refreshCalendar);

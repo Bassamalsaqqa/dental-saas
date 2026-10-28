@@ -75,4 +75,5 @@ document.querySelectorAll('[data-export]').forEach(button=>button.addEventListen
  }catch{error(L.exportFailed);}
 }));
 document.querySelectorAll('.directory-tools').forEach(d=>d.addEventListener('keydown',e=>{if(e.key==='Escape'){d.open=false;d.querySelector('summary').focus();}}));
+document.addEventListener('studio:patient-created',()=>{if(!inventory){table.ajax.reload(null,false);loadStats();}});
 })();
