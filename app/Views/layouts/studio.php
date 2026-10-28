@@ -39,6 +39,7 @@ $studioNav=[
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-workspace.css') ?>?v=<?= esc(asset_version('assets/css/studio-workspace.css')) ?>">
 <meta name="csrf-name" content="<?= csrf_token() ?>"><meta name="csrf-token" content="<?= csrf_hash() ?>"><meta name="csrf-header" content="<?= csrf_header() ?>">
 <?= $this->renderSection('styles') ?>
+<?php $studioThemePlane='tenant'; include APPPATH.'Views/layouts/partials/studio_effective_theme.php'; ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/studio-security.css') ?>?v=<?= esc(asset_version('assets/css/studio-security.css')) ?>">
 </head>
 <body class="studio">

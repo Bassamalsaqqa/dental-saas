@@ -37,6 +37,11 @@ final class StudioThemeStore
         if (!isset($byScope['platform'])) throw new \RuntimeException('Theme platform anchor is missing.');
         $platform = $byScope['platform'];
         $current = $byScope[$scope] ?? ['version'=>0,'payload_json'=>null];
+        return $this->resolvedState($clinicId, $current, $platform);
+    }
+
+    private function resolvedState(?int $clinicId, array $current, array $platform): array
+    {
         $payload = $current['payload_json'] ?? $platform['payload_json'];
         return [
             'theme'=>$payload === null ? StudioThemeCatalog::normalize([]) : $this->decode($payload),
@@ -101,18 +106,21 @@ final class StudioThemeStore
             }
             // Exact duplicate is a no-op only after freshness and current authorization checks.
             if ($current['payload_json'] === $payload) {
+                $result = $this->resolvedState($clinicId, $current, $platform);
                 if (!$this->db->transStatus() || !$this->db->transCommit()) throw new \RuntimeException('Cannot commit unchanged theme check.');
-                return $this->load($clinicId);
+                return $result;
             }
             $version = $expectedVersion + 1;
             $now = gmdate('Y-m-d H:i:s');
             if (!$this->db->table('studio_theme_revisions')->insert(['scope_key'=>$scope,'version'=>$version,'actor_id'=>$actorId,'action'=>$action,'reason'=>$reason,'before_json'=>$current['payload_json'],'payload_json'=>$payload,'created_at'=>$now])) throw new \RuntimeException('Cannot append theme audit.');
             if (!$this->db->table('studio_theme_current')->where('scope_key',$scope)->where('version',$expectedVersion)->update(['version'=>$version,'payload_json'=>$payload,'updated_at'=>$now]) || $this->db->affectedRows() !== 1) throw new \RuntimeException('Cannot advance theme revision.');
+            $committedState = ['version'=>$version,'payload_json'=>$payload];
+            $result = $this->resolvedState($clinicId, $committedState, $clinicId === null ? $committedState : $platform);
             if (!$this->db->transStatus() || !$this->db->transCommit()) throw new \RuntimeException('Cannot commit theme revision.');
         } catch (\Throwable $e) {
             if ((int)$this->db->transDepth > 0) $this->db->transRollback();
             throw $e;
         }
-        return $this->load($clinicId);
+        return $result;
     }
 }

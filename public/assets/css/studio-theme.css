@@ -37,10 +37,15 @@
   --color-avatar-olive-ink:#485523;
   --color-avatar-copper:#ecd4be;
   --color-avatar-copper-ink:#785035;
+  --color-on-action:#f3f7ef;
+  --color-on-selected:#153f36;
+  --color-link:#23684e;
+  --color-control-border:#5d7063;
+  --color-on-info:#f3f7ef;
   /* Foundation categories; existing route skins adopt these incrementally. */
   --font-body:Manrope,"Noto Sans Arabic",sans-serif;
   --font-arabic:"Noto Sans Arabic",Manrope,sans-serif;
-  --text-caption:.875rem;--text-body:1.0625rem;--text-section:1.5rem;--text-page:clamp(1.75rem,2.5vw,2.75rem);
+  --text-caption:.875rem;--text-body:1.125rem;--text-section:1.5rem;--text-page:clamp(1.75rem,2.5vw,2.75rem);
   --leading-body:1.65;--weight-label:700;--weight-title:800;
   --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;
   --radius-control:9px;--radius-panel:16px;--radius-dialog:18px;

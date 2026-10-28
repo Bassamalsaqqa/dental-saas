@@ -40,7 +40,7 @@ rejects(['colors'=>['danger'=>'#edd0c5']], 'Block unreadable clinical warning');
 rejects(['colors'=>['control-border'=>'#e1ebdb']], 'Block invisible control boundary');
 $large = Catalog::normalize(['density'=>'compact','text_size'=>'large']);
 check(str_contains(Catalog::css($large), '--grid-row-height:80px'), 'Bounded density');
-check(str_contains(Catalog::css($large), '--text-body:1.1875rem'), 'Bounded readable scale');
+check(str_contains(Catalog::css($large), '--text-body:1.25rem'), 'Bounded readable scale');
 // Existing semantic fallback is still authoritative. Additional new roles do not change it implicitly.
 $source = file_get_contents(dirname(__DIR__,2).'/public/assets/css/studio-theme.css');
 preg_match_all('/--color-([a-z-]+):\s*(#[a-fA-F0-9]{6});/', $source, $matches, PREG_SET_ORDER);

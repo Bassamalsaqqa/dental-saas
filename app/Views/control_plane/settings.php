@@ -49,6 +49,7 @@ $settingClose=static function($key='Save')use($st){echo '<footer class="settings
 <?php endif; ?>
 <div class="platform-settings-layout">
 <nav class="settings-navigation" aria-label="<?= $st('Areas') ?>">
+<?php if(config('StudioThemes')->enabled): ?><a class="button secondary" href="<?= base_url('controlplane/settings/appearance') ?>"><?= esc(lang('Themes.title')) ?></a><?php endif ?>
 <?php foreach(['platform'=>'Profile','system-preferences'=>'Defaults','working-hours'=>'Hours','governance'=>'Governance','email-templates'=>'Email','whatsapp-templates'=>'WhatsApp'] as $tab=>$key): ?>
 <button type="button" id="nav-<?= esc($tab) ?>" data-settings-tab="<?= esc($tab) ?>" aria-controls="tab-<?= esc($tab) ?>">
 <?= $st($key) ?>

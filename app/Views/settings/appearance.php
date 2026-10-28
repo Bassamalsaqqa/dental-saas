@@ -1,0 +1,48 @@
+<?php
+helper('asset');
+$st=static fn(string $key)=>esc(lang('Themes.'.$key));
+$theme=$themeState['theme'];
+$savedTheme=$theme;
+$oldPreset=old('preset');
+if(is_string($oldPreset)&&isset($themePresets[$oldPreset]))$theme['preset']=$oldPreset;
+$oldColors=old('colors');
+if(is_array($oldColors))foreach($theme['colors'] as $role=>$value){if(isset($oldColors[$role])&&is_string($oldColors[$role])&&preg_match('/\A#[0-9a-fA-F]{6}\z/D',$oldColors[$role]))$theme['colors'][$role]=$oldColors[$role];}
+foreach(['density'=>['comfortable','compact'],'text_size'=>['standard','large']] as $key=>$allowed){if(in_array(old($key),$allowed,true))$theme[$key]=old($key);}
+$presetNames=['studio-forest'=>'studioForest','sandstone-copper'=>'sandstoneCopper','slate-sage'=>'slateSage','deep-charcoal'=>'deepCharcoal','high-contrast'=>'highContrast'];
+$css=str_replace(':root{','#theme-sample{',\App\Services\StudioThemeCatalog::css($savedTheme));
+$nonce=config('App')->CSPEnabled?service('response')->getCSP()->getStyleNonce():'';
+?>
+<?= $this->extend($platformEditor?'layouts/studio_control_plane':'layouts/studio') ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-forms.css') ?>?v=<?= esc(asset_version('assets/css/studio-forms.css')) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/studio-appearance.css') ?>?v=<?= esc(asset_version('assets/css/studio-appearance.css')) ?>">
+<style id="theme-preview-style" <?= $nonce!==''?'nonce="'.esc($nonce,'attr').'"':'' ?>><?= $css ?></style>
+<?= $this->endSection() ?>
+<?= $this->section('content') ?>
+<header class="record-heading"><div><h1><?= $st('title') ?></h1><p><?= $st($platformEditor?'platformIntro':'intro') ?></p></div><a class="button secondary" href="<?= base_url($platformEditor?'controlplane/settings':'settings') ?>"><?= esc(lang('UI.menuSettings')) ?></a></header>
+<?php if(session('error')): ?><p class="form-notice form-notice--error" role="alert"><?= esc(session('error')) ?></p><?php endif ?>
+<?php if(session('success')): ?><p class="form-notice" role="status"><?= esc(session('success')) ?></p><?php endif ?>
+<?php if(!$canPublish): ?><p class="form-notice" role="note"><?= $st('readonly') ?></p><?php endif ?>
+<div class="appearance-status"><strong><?= $st($platformEditor?'platform':($themeState['inherited']?'inherited':'custom')) ?></strong><span><?= $st('version') ?> <bdi><?= (int)$themeState['version'] ?></bdi></span></div>
+<div class="appearance-layout">
+<form id="appearance-form" class="studio-form" method="post" action="<?= esc($saveUrl,'attr') ?>">
+<?= csrf_field() ?>
+<input type="hidden" name="version" value="<?= esc(old('version')??$themeState['version'],'attr') ?>"><input type="hidden" name="platform_version" value="<?= esc(old('platform_version')??$themeState['platform_version'],'attr') ?>">
+<fieldset class="appearance-presets"><legend><?= $st('preset') ?></legend>
+<?php foreach($themePresets as $id=>$preset): ?><label class="appearance-preset"><input type="radio" name="preset" value="<?= esc($id,'attr') ?>" <?= $theme['preset']===$id?'checked':'' ?>><span class="appearance-preset-swatches appearance-preset--<?= esc($id,'attr') ?>" aria-hidden="true"><i></i><i></i><i></i></span><strong><?= $st($presetNames[$id]) ?></strong></label><?php endforeach ?>
+</fieldset>
+<section class="form-section"><div class="appearance-options"><div class="form-field"><label for="theme-density"><?= $st('density') ?></label><select id="theme-density" name="density"><?php foreach(['comfortable','compact'] as $value): ?><option value="<?= $value ?>" <?= $theme['density']===$value?'selected':'' ?>><?= $st($value) ?></option><?php endforeach ?></select></div><div class="form-field"><label for="theme-size"><?= $st('textSize') ?></label><select id="theme-size" name="text_size"><?php foreach(['standard','large'] as $value): ?><option value="<?= $value ?>" <?= $theme['text_size']===$value?'selected':'' ?>><?= $st($value) ?></option><?php endforeach ?></select></div></div>
+<details class="appearance-colors"><summary><?= $st('advanced') ?></summary><p><?= $st('advancedHelp') ?></p><div class="appearance-color-grid">
+<?php foreach($theme['colors'] as $role=>$value): ?><div class="appearance-color"><label for="theme-<?= esc($role,'attr') ?>"><?= $st('role_'.$role) ?></label><div><input type="color" id="theme-<?= esc($role,'attr') ?>" data-theme-color="<?= esc($role,'attr') ?>" value="<?= esc($value,'attr') ?>" aria-label="<?= $st('role_'.$role) ?>"><input type="text" name="colors[<?= esc($role,'attr') ?>]" data-theme-hex="<?= esc($role,'attr') ?>" value="<?= esc($value,'attr') ?>" pattern="#[a-fA-F0-9]{6}" maxlength="7" dir="ltr" aria-label="<?= $st('role_'.$role) ?> HEX"><button type="button" class="button secondary" data-theme-reset="<?= esc($role,'attr') ?>" aria-label="<?= $st('resetRole').' '.$st('role_'.$role) ?>"><?= $st('resetRole') ?></button></div></div><?php endforeach ?>
+</div></details>
+<div class="appearance-preview-actions"><button type="button" class="button secondary" id="theme-preview"><?= $st('preview') ?></button><button type="reset" class="button secondary"><?= $st('cancel') ?></button></div><p id="theme-status" class="appearance-feedback" role="status" aria-live="polite"><?= $st('unchanged') ?></p>
+</section>
+<?php if($canPublish): ?><section class="form-section"><div class="form-field"><label for="theme-reason"><?= $st('reason') ?></label><textarea id="theme-reason" name="reason" maxlength="500" required aria-describedby="theme-reason-help"><?= esc(old('reason')??'') ?></textarea><p id="theme-reason-help"><?= $st('reasonHelp') ?></p></div><footer class="appearance-preview-actions"><button type="submit" class="button primary" name="intent" value="publish"><?= $st('publish') ?></button><button type="submit" class="button secondary" name="intent" value="inherit" formnovalidate><?= $st('inherit') ?></button></footer></section><?php endif ?>
+</form>
+<aside class="appearance-preview" aria-labelledby="appearance-sample-heading"><h2 id="appearance-sample-heading"><?= $st('sample') ?></h2><section id="theme-sample"><header><strong>Denta+</strong><span><?= $st('samplePatient') ?></span></header><div class="appearance-sample-body"><p><?= $st('sampleData') ?></p><div class="appearance-sample-control" tabindex="0"><?= $st('textSize') ?></div><span class="appearance-sample-action"><?= $st('sampleAction') ?></span><p class="appearance-sample-warning"><?= $st('sampleWarning') ?></p></div></section></aside>
+</div>
+<section class="record-panel appearance-history"><header><h2><?= $st('history') ?></h2></header><?php if(!$themeHistory): ?><p><?= $st('empty') ?></p><?php else: ?><div class="appearance-history-scroll"><table><thead><tr><th><?= $st('version') ?></th><th><?= $st('actor') ?></th><th><?= $st('date') ?></th><th><?= $st('reason') ?></th><?php if($canPublish): ?><th><?= $st('action') ?></th><?php endif ?></tr></thead><tbody><?php foreach($themeHistory as $entry): ?><tr><td><?= (int)$entry['version'] ?></td><td><bdi>#<?= (int)$entry['actor_id'] ?></bdi></td><td><bdi><?= esc($entry['created_at']) ?></bdi></td><td><span title="<?= esc($entry['reason'],'attr') ?>"><?= esc($entry['reason']) ?></span></td><?php if($canPublish): ?><td><button type="submit" class="button secondary" form="appearance-form" name="intent" value="revert" formnovalidate data-revert-version="<?= (int)$entry['version'] ?>"><?= $st('revert') ?></button></td><?php endif ?></tr><?php endforeach ?></tbody></table></div><?php endif ?></section>
+<dialog id="theme-confirm" aria-labelledby="theme-confirm-title"><header><h2 id="theme-confirm-title"><?= $st('publish') ?></h2></header><div class="appearance-confirm-body"><p><?= $st($platformEditor?'platformIntro':'intro') ?></p><footer class="appearance-preview-actions"><button type="button" class="button secondary" id="theme-confirm-cancel"><?= esc(lang('Studio.cancel')) ?></button><button type="button" class="button primary" id="theme-confirm-go"><?= esc(lang('Studio.confirmAction')) ?></button></footer></div></dialog>
+<script type="application/json" id="appearance-config"><?= json_encode(['presets'=>$themePresets,'initial'=>$savedTheme,'labels'=>['ready'=>lang('Themes.previewReady'),'invalid'=>lang('Themes.invalid'),'unchanged'=>lang('Themes.unchanged')]],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?><script src="<?= base_url('assets/js/studio-appearance.js') ?>?v=<?= esc(asset_version('assets/js/studio-appearance.js')) ?>" defer></script><?= $this->endSection() ?>

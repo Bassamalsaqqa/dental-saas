@@ -81,6 +81,8 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('whatsapp', 'ControlPlane\WhatsApp::index');
         $routes->post('whatsapp/send-test', 'ControlPlane\WhatsApp::sendTest');
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
+        $routes->get('settings/appearance', 'StudioThemes::platform');
+        $routes->post('settings/appearance', 'StudioThemes::savePlatform');
         $routes->get('email-templates', static function () {
             return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates'), 301);
         }); // CP-UX-25-MODULAR
@@ -651,6 +653,8 @@ $routes->group('profile', ['filter' => ['auth', 'tenant', 'subscription']], func
 
 // Settings routes (Tenant Plane)
 $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('appearance', 'StudioThemes::tenant', ['filter'=>'permission:settings,view']);
+    $routes->post('appearance', 'StudioThemes::saveTenant', ['filter'=>'permission:settings,edit']);
     $routes->get('/', 'Settings::index', ['filter' => 'permission:settings,view']);
     $routes->post('update', 'Settings::update', ['filter' => 'permission:settings,edit']);
     $routes->post('updateClinic', 'Settings::updateClinic', ['filter' => 'permission:settings,edit']);

@@ -204,7 +204,7 @@ final class StudioThemeCatalog
         $rules = [];
         foreach ($theme['colors'] as $role => $color) $rules[] = '--color-'.$role.':'.$color;
         $rules[] = '--grid-row-height:'.($theme['density']==='compact'?'80px':'96px');
-        $rules[] = '--text-body:'.($theme['text_size']==='large'?'1.1875rem':'1.0625rem');
+        $rules[] = '--text-body:'.($theme['text_size']==='large'?'1.25rem':'1.125rem');
         return ':root{'.implode(';', $rules).'}';
     }
 }
