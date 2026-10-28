@@ -172,7 +172,7 @@ final class StudioThemeCatalog
         $palette = array_replace(self::palette($preset), $colors);
         $failures = self::contrastFailures($palette);
         if ($failures) {
-            throw new \DomainException('Theme contrast fails: '.implode(', ', array_keys($failures)));
+            throw new StudioThemeContrastException(array_intersect_key(self::contrastPairs(), $failures));
         }
         return ['schema'=>self::VERSION,'preset'=>$preset,'colors'=>$palette,'density'=>$density,'text_size'=>$textSize];
     }
@@ -193,6 +193,16 @@ final class StudioThemeCatalog
         foreach (['surface','canvas','control','outer','surface-raised','selected-soft'] as $background) $pairs['link/'.$background] = ['link',$background,4.5];
         $pairs['on-info/info'] = ['on-info','info',4.5];
         foreach (['success','warning','danger','info'] as $state) $pairs[$state.'/'.$state.'-soft'] = [$state,$state.'-soft',4.5];
+        // Actual retained shared consumers: nav links, secondary buttons, action links and status buttons.
+        foreach (['frame','frame-raised','frame-hover'] as $background) {
+            $pairs['surface-heading/'.$background] = ['surface-heading',$background,4.5];
+            $pairs['selected/'.$background] = ['selected',$background,3.0];
+        }
+        foreach (['action','action-hover','danger','success','info'] as $background) $pairs['on-frame/'.$background] = ['on-frame',$background,4.5];
+        foreach (['surface','surface-raised','canvas','outer','control','surface-strong'] as $background) {
+            $pairs['info/'.$background] = ['info',$background,4.5];
+            $pairs['action/'.$background] = ['action',$background,4.5];
+        }
         foreach (['olive','copper'] as $avatar) $pairs['avatar-'.$avatar] = ['avatar-'.$avatar.'-ink','avatar-'.$avatar,4.5];
         foreach (['surface','control','canvas','surface-active','selected'] as $background) {
             $pairs['focus/'.$background] = ['focus',$background,3.0];

@@ -79,6 +79,13 @@ class StudioThemes extends BaseController
                 fn($connection,$scope,$user)=>(new StudioThemeAccess())->allows($connection,$scope,$user,true),$revert);
             }
             return redirect()->to(base_url($platform?'controlplane/settings/appearance':'settings/appearance'))->with('success',lang('Themes.saved'));
+        } catch (\App\Services\StudioThemeContrastException $e) {
+            $problems=[];
+            foreach ($e->pairs as [$foreground,$background,$minimum]) {
+                $problems[]=['roles'=>[$foreground,$background],'message'=>lang('Themes.contrastBetween',[lang('Themes.role_'.$foreground),lang('Themes.role_'.$background),(string)$minimum])];
+            }
+            if ($intent==='preview') return $this->response->setStatusCode(422)->setJSON(['error'=>lang('Themes.invalid'),'contrast'=>$problems,'csrf'=>['name'=>csrf_token(),'hash'=>csrf_hash()]]);
+            return redirect()->to(base_url($platform?'controlplane/settings/appearance':'settings/appearance'))->withInput()->with('error',lang('Themes.saveFailed'))->with('theme_contrast_errors',$problems);
         } catch (\DomainException $e) {
             // No raw SQL or source details in browser errors. Input remains in the native form on validation failure.
             if ($intent === 'preview') return $this->response->setStatusCode(422)->setJSON(['error'=>lang('Themes.invalid'),'csrf'=>['name'=>csrf_token(),'hash'=>csrf_hash()]]);

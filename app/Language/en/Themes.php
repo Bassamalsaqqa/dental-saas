@@ -110,4 +110,5 @@ return [
     'group_status'=>'Status and warnings',
     'group_identity'=>'Identity accents',
     'restoreShipped'=>'Restore Studio Forest default',
+    'contrastBetween'=>'Improve contrast between {0} and {1} (at least {2}:1).',
 ];

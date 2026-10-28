@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require dirname(__DIR__, 2).'/app/Services/StudioThemeContrastException.php';
 require dirname(__DIR__, 2).'/app/Services/StudioThemeCatalog.php';
 use App\Services\StudioThemeCatalog as Catalog;
 
@@ -41,6 +42,8 @@ rejects(['colors'=>['on-frame'=>'#153f36']], 'Block unreadable navigation');
 rejects(['colors'=>['focus'=>'#f3f7ef']], 'Block invisible focus');
 rejects(['colors'=>['danger'=>'#edd0c5']], 'Block unreadable clinical warning');
 rejects(['colors'=>['control-border'=>'#e1ebdb']], 'Block invisible control boundary');
+rejects(['colors'=>['surface-heading'=>'#a0bba6','ink-muted'=>'#102e27']], 'Block retained hover navigation label missed by former body-pair checks');
+rejects(['colors'=>['action'=>'#39794f']], 'Block retained action-link contrast even if action button text has a separately valid role');
 $large = Catalog::normalize(['density'=>'compact','text_size'=>'large']);
 check(str_contains(Catalog::css($large), '--grid-row-height:80px'), 'Bounded density');
 check(str_contains(Catalog::css($large), '--text-body:1.25rem'), 'Bounded readable scale');

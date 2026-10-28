@@ -1,0 +1,36 @@
+{
+  "scope": "Confirmed retained-consumer contrast corrections and usable rejection feedback",
+  "pure_checks": 573,
+  "pairs_per_preset": 96,
+  "preset_count": 5,
+  "routed_gap_rejections": {
+    "passed": 2,
+    "scope": "Actual native preview422 rejects formerly missing retained nav/link contrast pairs; no configuration writes"
+  },
+  "error_feedback": {
+    "checks": [
+      {
+        "lang": "en",
+        "case": "Actual named contrast failures and invalid field markers; explicit cancel clears feedback without publishing"
+      },
+      {
+        "lang": "ar",
+        "case": "Actual named contrast failures and invalid field markers; explicit cancel clears feedback without publishing"
+      }
+    ],
+    "scope": "Actual synthetic EN/AR error/cancel presentation; no theme writes"
+  },
+  "concrete_gaps": [
+    "Navigation hover foreground/background pairs not implied by former body-pair checks.",
+    "Action text on control/strong/outer surfaces independently of button-text contrast."
+  ],
+  "preservation": [
+    "No theme configuration published by affected browser runs.",
+    "Domain calculations, patient records, chart SVG and signed evidence unchanged.",
+    "Feature remains default OFF."
+  ],
+  "remaining": [
+    "Full actual-consumer audit and accessible dark reading theme remain pending.",
+    "This evidence does not certify all96 pairs on every route or formal WCAG conformance."
+  ]
+}
