@@ -1,0 +1,597 @@
+{
+  "review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5697042630",
+  "reviewed_head": "ad2fae23c309e80f515cb6fbf3d1eaff49692930",
+  "local_source_commits": [
+    "0aae25ba",
+    "8b83d8d2"
+  ],
+  "status": "IMPLEMENTED_AND_LOCALLY_VERIFIED; independent acceptance pending; whole campaign IN_PROGRESS",
+  "receipts": {
+    "dialogs": {
+      "checks": [
+        {
+          "lang": "en",
+          "width": 1366,
+          "height": 900,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 1366,
+          "height": 900,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 1366,
+          "height": 900,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "height": 844,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "height": 844,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "height": 844,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "en",
+          "width": 320,
+          "height": 568,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 320,
+          "height": 568,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 320,
+          "height": 568,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "en",
+          "width": 844,
+          "height": 390,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 844,
+          "height": 390,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "en",
+          "width": 844,
+          "height": 390,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "ar",
+          "width": 1366,
+          "height": 900,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 1366,
+          "height": 900,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 1366,
+          "height": 900,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "height": 844,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "height": 844,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "height": 844,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "ar",
+          "width": 320,
+          "height": 568,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 320,
+          "height": 568,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 320,
+          "height": 568,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        },
+        {
+          "lang": "ar",
+          "width": 844,
+          "height": 390,
+          "id": "paymentModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 844,
+          "height": 390,
+          "id": "refundModal",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": true
+        },
+        {
+          "lang": "ar",
+          "width": 844,
+          "height": 390,
+          "id": "providerPayoutModal7",
+          "dirtyKeepDiscard": true,
+          "focusReturn": true,
+          "cleanClose": true,
+          "visibleActions": true,
+          "canonicalFacts": false
+        }
+      ],
+      "errors": [],
+      "mutations": 0,
+      "scope": "Actual native clean/dirty close, safe Keep Editing and explicit Discard, canonical context, same-currency disclosure and visible primary actions"
+    },
+    "real_submission": {
+      "checks": [
+        "Actual rejected zero-amount POST restores editing; ledger unchanged",
+        {
+          "actualServerCommit": true,
+          "responseLost": true,
+          "amount": 3,
+          "sqlVerified": true
+        },
+        "Unconfirmed task locks repeat submissions and dismissal; no automatic retry",
+        "Explicit read-only history reload reconciles actual committed payment; exactly one ledger row",
+        "Confirmed1ILS native refund preserves canonical rate1/currencyILS and returns to recorded history"
+      ],
+      "errors": [],
+      "invoice": 800015,
+      "realSql": true,
+      "automaticRetries": 0,
+      "scope": "Owned synthetic invoice only; actual rejected POST, server commit followed by dropped response, explicit read-only reconciliation and confirmed refund. No claim of server idempotency."
+    },
+    "provider_session": {
+      "checks": [
+        "Actual pending provider request blocks Escape/repeated submission; confirmed1ILS creates exactly one history row, paid3/outstanding7",
+        "Actual expired session denied: refund is locked, reconciliation offered and ledger unchanged"
+      ],
+      "productionChanged": false,
+      "scope": "Owned synthetic financial records only, real SQL and expired-session response"
+    },
+    "combobox_and_palettes": {
+      "checks": [
+        {
+          "preset": "studio-forest",
+          "actualComputedActionContrast": 6.124,
+          "scope": "Browser component consumer probe of exact public preset palette; not persisted theme activation"
+        },
+        {
+          "preset": "sandstone-copper",
+          "actualComputedActionContrast": 6.124,
+          "scope": "Browser component consumer probe of exact public preset palette; not persisted theme activation"
+        },
+        {
+          "preset": "slate-sage",
+          "actualComputedActionContrast": 6.124,
+          "scope": "Browser component consumer probe of exact public preset palette; not persisted theme activation"
+        },
+        {
+          "preset": "deep-charcoal",
+          "actualComputedActionContrast": 6.124,
+          "scope": "Browser component consumer probe of exact public preset palette; not persisted theme activation"
+        },
+        {
+          "preset": "high-contrast",
+          "actualComputedActionContrast": 6.587,
+          "scope": "Browser component consumer probe of exact public preset palette; not persisted theme activation"
+        },
+        {
+          "lang": "en",
+          "width": 1366,
+          "height": 900,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "height": 844,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "en",
+          "width": 320,
+          "height": 568,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "en",
+          "width": 844,
+          "height": 390,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "ar",
+          "width": 1366,
+          "height": 900,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "height": 844,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "ar",
+          "width": 320,
+          "height": 568,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        {
+          "lang": "ar",
+          "width": 844,
+          "height": 390,
+          "longLabels": "Intercepted text on authentic returned IDs, no data mutation",
+          "singleSelectionSurface": true,
+          "viewportFits": true,
+          "clearRequiredAndEmpty": true
+        },
+        "Actual expired lookup session clears protected results"
+      ],
+      "errors": [],
+      "mutations": 0
+    },
+    "optional_plugin": {
+      "passed": true,
+      "checks": [
+        "Existing legacy-pinned jQuery3.7.1 and real Select2 4.1.0-rc.0 loaded in isolated browser; no install/version change",
+        "Real AJAX plugin chooses canonical owned patient26 inside native dialog and synchronizes full identity",
+        "Dropdown remains in dialog top layer; Escape closes lookup without losing parent task",
+        "Actual enhanced selector receives keyboard focus"
+      ],
+      "noBusinessMutations": true,
+      "scope": "Real optional existing plugin E2E loaded only in isolated browser; not new shipped dependency or offline/CDN certification"
+    },
+    "final_state": {
+      "checks": [
+        "Actual browser leave warning protects dirty draft; dismiss retains entered amount",
+        {
+          "interceptedMalformedResponse": true,
+          "reconciliationVisibleAndFocused": true,
+          "noDuplicatePost": true,
+          "canonicalPayloadKeys": [
+            "amount_original",
+            "currency",
+            "exchange_rate",
+            "payment_method",
+            "payment_date"
+          ]
+        },
+        "Explicit reconciliation is read-only navigation; no fabricated success or automatic resend"
+      ],
+      "serverMutations": 0,
+      "scope": "Final state-module browser-leave and malformed-response UI checks; intercepted response is not SQL persistence evidence"
+    },
+    "navigation": {
+      "checks": [
+        "Appointment -> patient -> same visit uses explicit local return context",
+        "Patient billing -> actual finance record -> selected billing panel, with quick-form return targets aligned",
+        "Inventory item -> existing edit -> explicit cancel returns to same item",
+        "Truthfully labeled clinic-wide usage history returns to originating item; no unsupported item filter",
+        "Clinical plan creation carries actual examination return context",
+        {
+          "case": "Actual mobile/tablet selected billing panel and return context",
+          "width": 390,
+          "lang": "ar"
+        },
+        {
+          "case": "Actual mobile/tablet selected billing panel and return context",
+          "width": 820,
+          "lang": "en"
+        }
+      ],
+      "scope": "Real read-only route/click/cancel and contextual form-target checks; no mutation certification or fabricated task-time improvement"
+    },
+    "platform": {
+      "checks": [
+        {
+          "lang": "en",
+          "width": 1366,
+          "actualPlatformEntry": true
+        },
+        {
+          "lang": "en",
+          "width": 1366,
+          "clinicReviewCancel": true,
+          "actualImpersonationAndExit": true,
+          "tenantAuthorityCleared": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "actualPlatformEntry": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "clinicReviewCancel": true,
+          "actualImpersonationAndExit": true,
+          "tenantAuthorityCleared": true
+        }
+      ],
+      "errors": [],
+      "scope": "Actual synthetic platform session entry, review cancellation, impersonation, contextual reads and exit/airlock; no permissions or business records altered"
+    },
+    "preservation": {
+      "passed": true,
+      "original_rows": 583,
+      "tables": {
+        "treatments": {
+          "rows": 130,
+          "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+        },
+        "finances": {
+          "rows": 11,
+          "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+        },
+        "finance_payments": {
+          "rows": 7,
+          "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+        },
+        "examinations": {
+          "rows": 151,
+          "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+        },
+        "treatment_contracts": {
+          "rows": 7,
+          "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+        },
+        "treatment_contract_items": {
+          "rows": 23,
+          "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+        },
+        "odontograms": {
+          "rows": 34,
+          "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+        },
+        "patient_odontogram_snapshots": {
+          "rows": 26,
+          "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+        },
+        "examination_note_signatures": {
+          "rows": 14,
+          "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+        },
+        "patients": {
+          "rows": 22,
+          "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+        },
+        "appointments": {
+          "rows": 143,
+          "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+        },
+        "inventory": {
+          "rows": 3,
+          "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+        },
+        "provider_payouts": {
+          "rows": 6,
+          "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+        },
+        "provider_payout_payments": {
+          "rows": 6,
+          "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+        }
+      },
+      "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+    }
+  },
+  "tested_source_sha256": {
+    "app/Controllers/Finance.php": "5da6d3d515fe26f8427f004c5e8a35ee6db058d46041f71b4f14ce1f9c182263",
+    "app/Views/finance/show.php": "db8e651177c590e8b574844bf4bd142e03c069f678dc3ce535989dfe2395a306",
+    "app/Views/finance/partials/record_runtime.php": "1fa37b2d2c58e2bc9e9a2f365ac3e99227b22336c6052684bf9a3dfec667674c",
+    "app/Views/finance/partials/settlement_context.php": "3d7b338d458abbc4ca6fbccf0f105a649f27266d7389b0b3731c81dac373a28b",
+    "app/Views/finance/partials/modal_paymentModal.php": "2eb3be881cfdbb3f6dbed518100e734d0885d2e535ccc68356d7eed266d45ae2",
+    "app/Views/finance/partials/modal_refundModal.php": "d4010ae175bb141989a240fd1fe52197046eb2b22c2dd48f54ff5f2dc30ec32f",
+    "app/Views/finance/partials/modal_provider_payment.php": "6b45b6733addf65d39a18690dc59296415949313b58290e29b1efdd102d80971",
+    "public/assets/js/studio-finance-task.js": "e7cccc7bef1f2f28f1c12d74102a7fc6919a7565cc25be8bb68d568c8a08c11b",
+    "public/assets/js/studio-dialogs.js": "0c1ea1bd135b08c8813b03cd2be0b54fb412f2d246d110e14ccc5804e19bcff5",
+    "public/assets/js/studio-patient-picker.js": "96ffa961ea98426001751a8851b88385453d9a85c56b3dd543e8bafb99cb0641",
+    "public/assets/css/studio-finance-record.css": "9dbdb9ada407db6555131e024713e22df083472e97ceb81c84a598c3b38d4c40",
+    "public/assets/css/studio-controls.css": "5d95760c9fe6be500cee1d4b287c4ecd1abc44a7beb9d0fd3d1ffbe5a6926c3b"
+  },
+  "finance_js_source_bytes": {
+    "previous_inline_runtime": 18258,
+    "current_inline_runtime": 11731,
+    "current_external_task_module": 7017,
+    "combined_change": 490,
+    "scope": "Raw source byte comparison, not transfer/TTFB/INP improvement"
+  },
+  "finance_method_boundary": {
+    "unchanged_methods": 80,
+    "allowed_changes": [
+      "show: read-only capacity context",
+      "refundableInvoiceCash: explicit nonlocking read parameter; mutators retain default locked=true"
+    ]
+  },
+  "source_guards": "SaaS guardrails pass;10 identical raw-query allowlist entries relocated by11 lines, verified against pinned source; no rule relaxed",
+  "tailwind_sha256": "3a51d2fffb54ae89fbb4188e3b1ddfc2bce09c7e81148adba78ce750b7fd801a",
+  "production_changed": false,
+  "migrations_executed": 0,
+  "feature_activations": 0,
+  "limits": [
+    "No server-side idempotency token was added. Uncertain results require explicit read-only history reconciliation; never automatically resend.",
+    "Five-preset browser check probes component consumers with the exact public palettes; it is not persisted theme activation, full theme-store or all-consumer certification.",
+    "Long-name edge checks intercept only labels on genuine server-returned synthetic IDs; they are presenter tests, not database name-persistence evidence.",
+    "Current whole-app/persona/state/native Hostinger/print/CSP/zoom/physical-AT acceptance remains incomplete.",
+    "Source treatment-storage migration is unchanged and separately release-gated."
+  ]
+}
