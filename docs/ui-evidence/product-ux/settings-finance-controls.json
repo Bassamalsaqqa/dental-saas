@@ -1,0 +1,242 @@
+{
+  "baseline": "095411b49cde9df15d0704f907f97c1106272277",
+  "scope": "Presentation-only settings controls, finance composition, toolbar sizing and booking grid",
+  "first_pass": {
+    "checks": [
+      "Kiosk icon reveal, masked reset and field identity en1366",
+      "Time field preserves canonical HH:mm en1366",
+      "Native upload form contract en1366",
+      "Toolbar equal control heights en1366",
+      "Canonical totals retained; full width ledger en1366",
+      {
+        "case": "Booking resource grid",
+        "lang": "en",
+        "width": 1366,
+        "columns": "208px 208px 208px 208px"
+      },
+      "Kiosk icon reveal, masked reset and field identity en390",
+      "Time field preserves canonical HH:mm en390",
+      "Native upload form contract en390",
+      "Toolbar equal control heights en390",
+      "Canonical totals retained; full width ledger en390",
+      {
+        "case": "Booking resource grid",
+        "lang": "en",
+        "width": 390,
+        "columns": "171px 171px"
+      },
+      "Kiosk icon reveal, masked reset and field identity ar1366",
+      "Time field preserves canonical HH:mm ar1366",
+      "Native upload form contract ar1366",
+      "Toolbar equal control heights ar1366",
+      "Canonical totals retained; full width ledger ar1366",
+      {
+        "case": "Booking resource grid",
+        "lang": "ar",
+        "width": 1366,
+        "columns": "208px 208px 208px 208px"
+      },
+      "Kiosk icon reveal, masked reset and field identity ar390",
+      "Time field preserves canonical HH:mm ar390",
+      "Native upload form contract ar390",
+      "Toolbar equal control heights ar390",
+      "Canonical totals retained; full width ledger ar390",
+      {
+        "case": "Booking resource grid",
+        "lang": "ar",
+        "width": 390,
+        "columns": "171px 171px"
+      }
+    ],
+    "errors": [],
+    "noMutations": true
+  },
+  "confirmation": {
+    "checks": [
+      "Canonical totals retained; full width ledger en1366",
+      {
+        "case": "Booking resource grid",
+        "lang": "en",
+        "width": 1366,
+        "columns": "208px 208px 208px 208px"
+      },
+      "Canonical totals retained; full width ledger en390",
+      {
+        "case": "Booking resource grid",
+        "lang": "en",
+        "width": 390,
+        "columns": "171px 171px"
+      },
+      "Canonical totals retained; full width ledger ar1366",
+      {
+        "case": "Booking resource grid",
+        "lang": "ar",
+        "width": 1366,
+        "columns": "208px 208px 208px 208px"
+      },
+      "Canonical totals retained; full width ledger ar390",
+      {
+        "case": "Booking resource grid",
+        "lang": "ar",
+        "width": 390,
+        "columns": "171px 171px"
+      }
+    ],
+    "errors": [],
+    "noMutations": true
+  },
+  "dialogs": {
+    "checks": [
+      {
+        "route": "patients",
+        "width": 1366,
+        "lang": "en",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "inventory",
+        "width": 1366,
+        "lang": "en",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "users",
+        "width": 1366,
+        "lang": "en",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "prescriptions",
+        "width": 1366,
+        "lang": "en",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "treatments",
+        "width": 1366,
+        "status": "UNAVAILABLE_NOT_CERTIFIED"
+      },
+      {
+        "route": "examinations",
+        "width": 1366,
+        "status": "UNAVAILABLE_NOT_CERTIFIED"
+      },
+      {
+        "route": "finance",
+        "width": 1366,
+        "lang": "en",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "patients",
+        "width": 390,
+        "lang": "ar",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "inventory",
+        "width": 390,
+        "lang": "ar",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "users",
+        "width": 390,
+        "lang": "ar",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "prescriptions",
+        "width": 390,
+        "lang": "ar",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      },
+      {
+        "route": "treatments",
+        "width": 390,
+        "status": "UNAVAILABLE_NOT_CERTIFIED"
+      },
+      {
+        "route": "examinations",
+        "width": 390,
+        "status": "UNAVAILABLE_NOT_CERTIFIED"
+      },
+      {
+        "route": "finance",
+        "width": 390,
+        "lang": "ar",
+        "visible": true,
+        "dirtyKeepDiscard": "verified where text field present",
+        "noSubmit": true
+      }
+    ],
+    "errors": [],
+    "noMutations": true
+  },
+  "original_rows_preserved": 445,
+  "mutations": 0,
+  "protected_backend_and_dependencies_unchanged": true,
+  "original_checkout_unchanged": true,
+  "assets": [
+    {
+      "path": "public/assets/css/studio-controls.css",
+      "before": 12762,
+      "after": 15202,
+      "gzip_delta": 402
+    },
+    {
+      "path": "public/assets/css/studio-create-dialog.css",
+      "before": 7040,
+      "after": 8055,
+      "gzip_delta": 184
+    },
+    {
+      "path": "public/assets/css/studio-directory.css",
+      "before": 10099,
+      "after": 11035,
+      "gzip_delta": 228
+    },
+    {
+      "path": "public/assets/css/studio-money.css",
+      "before": 16318,
+      "after": 19438,
+      "gzip_delta": 422
+    },
+    {
+      "path": "public/assets/js/studio-access.js",
+      "before": 3363,
+      "after": 3478,
+      "gzip_delta": 32
+    },
+    {
+      "path": "public/assets/js/studio-controls.js",
+      "before": 8057,
+      "after": 9539,
+      "gzip_delta": 230
+    }
+  ],
+  "limits": [
+    "Native time/file browser surfaces are retained, themed with shared input-group patterns; no React/shadcn package installed.",
+    "14 scoped tenant dialog cases; not certification of every modal or clinical/financial mutation.",
+    "No physical assistive technology or native browser zoom certification.",
+    "Current exact-head independent review and native rehearsal required before live release."
+  ]
+}

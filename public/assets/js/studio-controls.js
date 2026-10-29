@@ -54,7 +54,7 @@
   for(const[tag,attributes]of paths){const node=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attributes))node.setAttribute(k,v);svg.append(node);}button.replaceChildren(svg);
  }
  function bindDate(input) {
-  if (dates.has(input) || typeof input.showPicker !== 'function' || input.closest('.studio-date-field')) return;
+  if (dates.has(input) || typeof input.showPicker !== 'function' || input.closest('.studio-date-field,.studio-time-field')) return;
   dates.add(input);
   const label = Array.from(input.labels || []).map(node => node.textContent.trim()).join(' ');
   const wrap = document.createElement('div'), button = document.createElement('button');
@@ -67,8 +67,15 @@
   input.before(wrap); wrap.append(input, button); button.disabled = input.disabled || input.readOnly;
   button.addEventListener('click', () => { if (input.disabled || input.readOnly) return; try { input.showPicker(); } catch { input.focus(); } });
  }
+ function bindTime(input) {
+  if (dates.has(input) || typeof input.showPicker !== 'function' || input.closest('.studio-time-field')) return;
+  dates.add(input);const wrap=document.createElement('div'),button=document.createElement('button');wrap.className='studio-time-field';button.type='button';button.className='studio-time-trigger';
+  const label=Array.from(input.labels||[]).map(e=>e.textContent.trim()).join(' ');button.setAttribute('aria-label',label);button.title=label;
+  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),circle=document.createElementNS(ns,'circle'),path=document.createElementNS(ns,'path');for(const[k,v]of Object.entries({viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':'1.7','aria-hidden':'true'}))svg.setAttribute(k,v);circle.setAttribute('cx','12');circle.setAttribute('cy','12');circle.setAttribute('r','9');path.setAttribute('d','M12 7v5l3 2');svg.append(circle,path);button.append(svg);input.before(wrap);wrap.append(input,button);button.disabled=input.disabled||input.readOnly;button.addEventListener('click',()=>{if(input.disabled||input.readOnly)return;try{input.showPicker();}catch{input.focus();}});
+ }
  function enhance(root) {
   if (root.nodeType !== 1 && root !== document) return;
+  if(root.matches?.('input[type=time]'))bindTime(root);root.querySelectorAll?.('input[type=time]').forEach(bindTime);
   if(root.matches?.('button[data-studio-icon]'))bindIcon(root);root.querySelectorAll?.('button[data-studio-icon]').forEach(bindIcon);
   if (root.matches?.('.workspace-action-menu')) bindRow(root);
   root.querySelectorAll?.('.workspace-action-menu').forEach(bindRow);
@@ -104,7 +111,7 @@
   for (const record of records) {
    if (record.type === 'attributes') {
     const input = record.target;
-    if (input.matches('input[type=date]')) { const button = input.closest('.studio-date-field')?.querySelector('button'); if (button) button.disabled = input.disabled || input.readOnly; }
+    if (input.matches('input[type=date],input[type=time]')) { const button = input.closest('.studio-date-field,.studio-time-field')?.querySelector('button'); if (button) button.disabled = input.disabled || input.readOnly; }
    } else for (const node of record.addedNodes) if (node.nodeType === 1) pending.add(node);
   }
   if (!scheduled && pending.size) { scheduled = true; requestAnimationFrame(() => { scheduled = false; for (const node of pending) if (node.isConnected) enhance(node); pending.clear(); }); }
