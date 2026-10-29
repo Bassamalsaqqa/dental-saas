@@ -1,0 +1,146 @@
+{
+  "base": "d1c387098b851d6ac772821955536204b9025937",
+  "scope": "Supplier-statement payment/full-payment Dialog port to existing shared protected financial task; no backend rule or inventory usage change",
+  "actual_persistence": {
+    "checks": [
+      "Canonical owned supplier-linked20ILS pending bill, no initial payment",
+      "Actual supplier-statement1ILS committed/lost response: one receipt,19due, no retry on Escape",
+      "Exact read-only finance history recovery; original supplier data/history preserved"
+    ],
+    "owned": {
+      "expense": 800019,
+      "paymentCommitted": true
+    },
+    "errors": []
+  },
+  "component_interactions": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "dirtyKeepDiscardAndFocus": true,
+        "canonicalContext": true,
+        "primaryVisible": true,
+        "markPaidBlockedBeforeServer": true,
+        "uncertainLocked": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "dirtyKeepDiscardAndFocus": true,
+        "canonicalContext": true,
+        "primaryVisible": true,
+        "markPaidBlockedBeforeServer": true,
+        "uncertainLocked": true
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "dirtyKeepDiscardAndFocus": true,
+        "canonicalContext": true,
+        "primaryVisible": true,
+        "markPaidBlockedBeforeServer": true,
+        "uncertainLocked": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "dirtyKeepDiscardAndFocus": true,
+        "canonicalContext": true,
+        "primaryVisible": true,
+        "markPaidBlockedBeforeServer": true,
+        "uncertainLocked": true
+      }
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Actual dirty/dialog/focus/viewport with blocked full-payment transport; no mark-paid DB certification claim"
+  },
+  "preservation": {
+    "passed": true,
+    "original_rows": 583,
+    "tables": {
+      "treatments": {
+        "rows": 130,
+        "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+      },
+      "finances": {
+        "rows": 11,
+        "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+      },
+      "finance_payments": {
+        "rows": 7,
+        "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+      },
+      "examinations": {
+        "rows": 151,
+        "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+      },
+      "treatment_contracts": {
+        "rows": 7,
+        "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+      },
+      "treatment_contract_items": {
+        "rows": 23,
+        "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+      },
+      "odontograms": {
+        "rows": 34,
+        "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+      },
+      "patient_odontogram_snapshots": {
+        "rows": 26,
+        "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+      },
+      "examination_note_signatures": {
+        "rows": 14,
+        "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+      },
+      "patients": {
+        "rows": 22,
+        "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+      },
+      "appointments": {
+        "rows": 143,
+        "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+      },
+      "inventory": {
+        "rows": 3,
+        "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+      },
+      "provider_payouts": {
+        "rows": 6,
+        "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+      },
+      "provider_payout_payments": {
+        "rows": 6,
+        "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+      }
+    },
+    "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+  },
+  "source_sha256": {
+    "app/Views/inventory/supplier_show.php": "1bf071584f9c7370e4cc7f47406e6bdfdbc1082869c2326c0d8979c05e3c7aaf",
+    "public/assets/js/studio-stock-workflows.js": "984aa76726caa70ac20e195d40e320440d7f9cca96e269216655db8d3933b563",
+    "public/assets/css/studio-finance-task.css": "9c0924d9ed52f87688bcfdbbab7b709ef8d716a0e94d19f22400e94110834c50",
+    "public/assets/css/studio-records.css": "ff56b1f0f0fb7d22e589d25af88af552c6111d1cd3d26bfe38daa00cadf7ac33"
+  },
+  "boundary": "Stock usage/quantity/cost preview module prefix byte-identical in UTF-8 git source; existing finance endpoints and80other Finance methods unchanged",
+  "limits": [
+    "One new owned supplier-linked20ILS bill800019 and1ILS payment,19outstanding. Original supplier row and payment history unchanged.",
+    "Mark Fully Paid transport failure is blocked before server; no new claim of full-payment SQL certification.",
+    "Initial viewport assertion used context.newPage options which are ignored; corrected BrowserContext viewport then actual4cases passed. No CSS patch or weakened bound used.",
+    "Shared adapter adds current csrf name/header, canonical form fields captured first, existing amount rounding preserved. No server cross-tab idempotency guarantee.",
+    "Broader program, current native rehearsal, all personas and final exact-head independent acceptance remain pending."
+  ],
+  "supplier_preservation": {
+    "passed": true,
+    "rows": 2,
+    "sha256": "50347676860f07d7057128c6ff781f6c5c694afc055f6381b2b717267d8e37fb"
+  },
+  "removed_presentation_debt": "Obsolete supplier-payment-form grid/hidden overrides removed; new Dialog uses the shared task stylesheet instead."
+}
