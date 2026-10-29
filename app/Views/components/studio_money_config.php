@@ -3,5 +3,6 @@ $moneyConfig=['mode'=>$moneyMode,'dataUrl'=>base_url($moneyMode==='ledger'?'fina
 foreach(['payment'=>'payment','invoice'=>'invoice','refund'=>'refund','adjustment'=>'adjustment','expense'=>'expenseTransaction'] as $key=>$label)$moneyConfig['types'][$key]=lang('Finance.'.$label);
 foreach(['paid','pending','partial','overdue','cancelled','unpaid','void'] as $key)$moneyConfig['statuses'][$key]=lang('Finance.'.$key);
 $moneyConfig['expenseCategories']=[];foreach(array_unique(array_filter(array_column($rows??[],'expense_category'))) as $category){$key='Finance.expenseCategory.'.$category;$label=lang($key);if($label!==$key)$moneyConfig['expenseCategories'][$category]=$label;}
+$moneyConfig['detailsLabel']=lang('Finance.transactionDetails');
 ?>
 <script type="application/json" id="money-workspace-config"><?= json_encode($moneyConfig,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
