@@ -1,0 +1,393 @@
+{
+  "parent_commit": "c24038a65dedddb04620f7ec0a5718592667cb47",
+  "publication_identity": "Final ordinary commit/tree supplied in PR22 and operator handback; runtime hashes below bind this receipt without circular commit metadata.",
+  "review5705127812": "COMMENTED / authorized bounded development correction, not final approval",
+  "decision": "PRODUCTION_NO_GO_PENDING_INDEPENDENT_ACCEPTANCE",
+  "runtime_sha256": {
+    "app/Controllers/Treatment.php": "ad0544c1c4fabb50b227a7afb2b581c4f82eb8dbdbaa1a01a90b1ca84b67f17f",
+    "app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php": "f88b70a5983d155f2a5e76f0cb1bab288d888df7b116442cc7b057e87003a6ac",
+    "app/Libraries/TreatmentCatalog.php": "90a6b3cd8386b3754f35e7981d26f65c69047cf194064d8b91c2fc23adab926c",
+    "app/Language/en/Treatment.php": "75a03f2b69846a2dc2478af8e46dfef488a08c555f66bf952d1e80d0a751388e",
+    "app/Language/ar/Treatment.php": "ebff5c1f80bf2e759ae2ae77784ad93759df9083e2a76608d0ebe0ddf5fb4198",
+    "app/Views/treatment/show.php": "bf1515de34cd9b3f68803c7a0187b76acc2e6b0e4fffdb04afc9a0e11c755892",
+    "app/Views/treatment/print.php": "1f184007774c73b0e95258e92044c7385b5a940e41ab34437e3c43ba6a6994bc",
+    "app/Views/treatment/partials/studio_form_fields.php": "3daadf4e356bc0af5091c65dcd2593bccb251783f0bc18e8d68e13b1e0981ff4",
+    "app/Views/patient/partials/workspace_treatments.php": "9814ac5d4f131ec4529228f090668dea2157c461132e9c286de4d85ba6689644"
+  },
+  "native_preservation": {
+    "passed": true,
+    "historical_records": 44,
+    "unknown_index_zero": 38,
+    "per_ID_full_rows_preserved": true,
+    "original_enum_provenance_journal": true,
+    "catalog43_SQL_roundtrips": true,
+    "protected_linked_tables": 9,
+    "rerun": true,
+    "ddl_seconds": 2.3551878929138184,
+    "native_HTTP_and_concurrency_certification": "separate evidence",
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "production_changes": false
+  },
+  "final_native_concurrency_recovery": {
+    "lock_timeout": {
+      "started": 1793311078.060979,
+      "finished": 1793311085.325367,
+      "elapsed": 7.2643890380859375,
+      "error": "Lock wait timeout exceeded; try restarting transaction",
+      "session_restored": true
+    },
+    "concurrent_writer": {
+      "timing_contract": "Completion journal and per-row verification precede UNLOCK. A writer may finish while the migrator restores session settings; function-return time is not lock-release time.",
+      "migration": {
+        "started": 1793311085.55411,
+        "finished": 1793311088.032085,
+        "elapsed": 2.477975845336914,
+        "error": null,
+        "session_restored": true
+      },
+      "writer": {
+        "started": 1793311085.86088,
+        "finished": 1793311086.467215,
+        "elapsed": 0.6063361167907715
+      },
+      "observed_wait_states": [
+        {
+          "COMMAND": "Query",
+          "STATE": "Waiting for table metadata lock"
+        },
+        {
+          "COMMAND": "Query",
+          "STATE": "checking permissions"
+        }
+      ],
+      "all_original_type_bytes_preserved": true
+    },
+    "failure_before": {
+      "injected": true,
+      "all_rows_preserved": true,
+      "retry_verified": true,
+      "scope": "Before ALTER refusal retained original schema and journal; safe rerun completed."
+    },
+    "recovery_rejects_unreviewed_definition": true,
+    "failure_after": {
+      "injected": true,
+      "all_rows_preserved": true,
+      "retry_verified": true,
+      "scope": "Actual ALTER committed; missing completion recovered from immutable prepared journal. Not a transactional DDL rollback."
+    },
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "passed": true,
+    "base44_treatments_unchanged": true
+  },
+  "combined_native_schema": {
+    "passed": true,
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "original_schema_tables": 67,
+    "after_schema_tables": 68,
+    "migration_history_before": 77,
+    "migration_history_after": 79,
+    "only_two_pinned_migrations": true,
+    "migration_seconds": {
+      "2026-10-29-120000_WidenTreatmentTypeStorage.php": 2.2386279106140137,
+      "2026-10-29-180000_CreateFinanceSettlementRequests.php": 0.009736061096191406
+    },
+    "seed_counts": {
+      "clinics": 2,
+      "users": 6,
+      "groups": 2,
+      "users_groups": 6,
+      "permissions": 53,
+      "roles": 6,
+      "role_permissions": 166,
+      "user_roles": 1,
+      "clinic_users": 6,
+      "plans": 1,
+      "clinic_subscriptions": 2,
+      "settings": 5,
+      "patients": 23,
+      "suppliers": 2,
+      "inventory": 4,
+      "examinations": 151,
+      "appointments": 144
+    },
+    "all_44_historical_rows_preserved": true,
+    "all_original_table_rows_preserved": true,
+    "authentic_fk_checks_enabled": true,
+    "source": "accepted c5e0a5a6 raw Git plus hash-verified bounded historical correction",
+    "production_changes": false,
+    "table_count_note": "Fresh SHOW TABLES verifies68; original runner receipt reported67 from its pre-DDL CI4 table-list cache. No table or migration was missing."
+  },
+  "combined_finance": {
+    "passed": true,
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "one_receipt": true,
+    "one_audit": true,
+    "safe_cash_preserved": true,
+    "exact_replay_same_result": true,
+    "different_key_stale_rejected": true,
+    "scope": "Independent native synthetic settlement-service SQL smoke only; not HTTP/native complete application rehearsal",
+    "production_changes": false
+  },
+  "native_browser": {
+    "passed": true,
+    "results": [
+      {
+        "check": "real native authentication",
+        "url": "/dashboard",
+        "pass": true
+      },
+      {
+        "route": "/dashboard",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/dashboard",
+        "errors": []
+      },
+      {
+        "route": "/patients",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/patients",
+        "errors": []
+      },
+      {
+        "route": "/appointment",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/appointment",
+        "errors": []
+      },
+      {
+        "route": "/appointment/calendar",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/appointment/calendar",
+        "errors": []
+      },
+      {
+        "route": "/patient/1?tab=treatments",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/patient/1",
+        "errors": []
+      },
+      {
+        "route": "/treatment/66",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/treatment/66",
+        "errors": [],
+        "unknown_label": true
+      },
+      {
+        "route": "/treatment/66/edit",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/treatment/66/edit",
+        "errors": [],
+        "unknown_label": true,
+        "keep_unknown": "__keep_historical_unknown__"
+      },
+      {
+        "route": "/treatment/66/print",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/treatment/66/print",
+        "errors": [],
+        "unknown_label": true
+      },
+      {
+        "route": "/finance",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/finance",
+        "errors": []
+      },
+      {
+        "route": "/providers",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/providers",
+        "errors": []
+      },
+      {
+        "route": "/inventory",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/inventory",
+        "errors": []
+      },
+      {
+        "route": "/settings",
+        "lang": "en",
+        "width": 1366,
+        "status": 200,
+        "destination": "/settings",
+        "errors": []
+      },
+      {
+        "route": "/dashboard",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/dashboard",
+        "errors": []
+      },
+      {
+        "route": "/patients",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/patients",
+        "errors": []
+      },
+      {
+        "route": "/appointment",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/appointment",
+        "errors": []
+      },
+      {
+        "route": "/appointment/calendar",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/appointment/calendar",
+        "errors": []
+      },
+      {
+        "route": "/patient/1?tab=treatments",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/patient/1",
+        "errors": []
+      },
+      {
+        "route": "/treatment/66",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/treatment/66",
+        "errors": [],
+        "unknown_label": true
+      },
+      {
+        "route": "/treatment/66/edit",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/treatment/66/edit",
+        "errors": [],
+        "unknown_label": true,
+        "keep_unknown": "__keep_historical_unknown__"
+      },
+      {
+        "route": "/treatment/66/print",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/treatment/66/print",
+        "errors": [],
+        "unknown_label": true
+      },
+      {
+        "route": "/finance",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/finance",
+        "errors": []
+      },
+      {
+        "route": "/providers",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/providers",
+        "errors": []
+      },
+      {
+        "route": "/inventory",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/inventory",
+        "errors": []
+      },
+      {
+        "route": "/settings",
+        "lang": "ar",
+        "width": 390,
+        "status": 200,
+        "destination": "/settings",
+        "errors": []
+      }
+    ],
+    "scope": "Actual authenticated native EN/AR route and historical presentation checks, not mutation certification"
+  },
+  "native_mutations": {
+    "checks": [
+      "Native unknown edit committed; SQL confirms empty type/original name preserved and original44 unchanged",
+      "Actual offered-procedure create submitted; SQL verification follows",
+      "Validation failure rejected",
+      "Missing CSRF rejected",
+      "viewer edit/direct POST denied",
+      "foreign_clinic edit/direct POST denied"
+    ],
+    "unknown_saved": true,
+    "created": true,
+    "create_destination": "/patient/1",
+    "passed": true
+  },
+  "SQL_readback": {
+    "catalog_rows": 43,
+    "distinct_offered_keys": 43,
+    "duplicates": 0,
+    "all_original44_preserved": true,
+    "unknown_edit_original_name_and_empty_type_preserved": true,
+    "validation_csrf_role_tenant_denials_no_forged_narrative": true,
+    "migration_history": 79,
+    "schema_tables": 68,
+    "optional_gates": {
+      "themes": false,
+      "corrections": false,
+      "checkout": false,
+      "derivatives": false,
+      "contact_history": false
+    }
+  },
+  "local_preservation": {
+    "original_rows": 583,
+    "passed": true
+  },
+  "focused_static": {
+    "localization_catalog": 62,
+    "finance_source_boundary": 72,
+    "php_lint_files": 11,
+    "source_boundary_guard": "PASS",
+    "whole_frontend_final_guard": "NOT PASS:202 pending acceptance entries, not202 proven defects/pages"
+  },
+  "network_observation": "One synthetic POST lost its response after commit. Read-only SQL reconciliation identified the one committed row; it was never automatically resubmitted.",
+  "production_changes": false,
+  "production_migrations": 0,
+  "feature_activations": 0,
+  "github_actions": 0
+}

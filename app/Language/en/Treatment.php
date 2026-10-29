@@ -207,4 +207,6 @@ return [
         'female' => 'Female',
         'other' => 'Other',
     ],
+    'historical_unknown_type' => 'Unknown historical treatment (unclassified)',
+    'historical_unknown_help' => 'The historical category was not recorded correctly. Its original empty value is preserved. Keep it unknown, or deliberately select a procedure; saving other details does not classify it.',
 ];

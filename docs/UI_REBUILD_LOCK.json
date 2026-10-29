@@ -726,8 +726,8 @@
   },
   "active_pr22_source_lock": {
     "status": "AUTHORIZED_SOURCE_IDENTITY_ONLY_NOT_RELEASE_ACCEPTANCE",
-    "candidate_commit": "c5e0a5a625f397681779081477da55ae0ef6790b",
-    "candidate_tree": "62857631909fbab26efab8d2f448900df76375e5",
+    "candidate_commit": null,
+    "candidate_tree": null,
     "last_recorded_release_commit": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
     "last_recorded_release_tree": "188433ad669477aa0c6812acd09fcc3ecd2c67eb",
     "production_reverified_this_session": true,
@@ -744,7 +744,8 @@
       "package.json": "5979c69cf196307d5e6ed1b0e8306ecaa41d38e2",
       "package-lock.json": "81f23980ec3859a6610646ab23ea222cefcfdd17",
       "LICENSE": "fd7fc9c62d782f1448ba097855502030db3e15aa",
-      "THIRD_PARTY_NOTICES.md": "5d2ad3d0184b04cff099647309894b3d900b0ebd"
+      "THIRD_PARTY_NOTICES.md": "5d2ad3d0184b04cff099647309894b3d900b0ebd",
+      "app/Libraries": "87c3153f08d3e01281a78d29f8bfb83d2b2d642a"
     },
     "authorized_protected_deltas": {
       "app/Config/Routes.php": {
@@ -799,8 +800,8 @@
       },
       "app/Controllers/Treatment.php": {
         "baseline_git_blob": "4df0e1e80aa3f3fe376ab2d280866f1008d88a89",
-        "candidate_git_blob": "e0fe2109cf06db879fffba2d2beefd0ad34a4f12",
-        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+        "candidate_git_blob": "f3591cf7faa5cf5c6790c92376a827258488db8e",
+        "authorization": "Owner Final Historical Treatment Compatibility Correction and review5705127812: development-only preserved historical empty bytes/provenance, explicit unknown presentation/edit transport. No production DDL or classification policy."
       },
       "app/Controllers/Users.php": {
         "baseline_git_blob": "0c1bd548bbb55d9e6799ffd48fc5169cc3181879",
@@ -814,8 +815,8 @@
       },
       "app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php": {
         "baseline_git_blob": null,
-        "candidate_git_blob": "943bf391e78c4fd03bcbd93ce7fed8378f17506d",
-        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+        "candidate_git_blob": "64ce8f255c029147eafd87629c0e9994827b5c45",
+        "authorization": "Owner Final Historical Treatment Compatibility Correction and review5705127812: development-only preserved historical empty bytes/provenance, explicit unknown presentation/edit transport. No production DDL or classification policy."
       },
       "app/Database/Migrations/2026-10-29-180000_CreateFinanceSettlementRequests.php": {
         "baseline_git_blob": null,
@@ -861,12 +862,21 @@
         "baseline_git_blob": null,
         "candidate_git_blob": "1267d146d8e3a564a7db5f29c1b77b7c346477fc",
         "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Libraries/TreatmentCatalog.php": {
+        "baseline_git_blob": "a3cc9bc255c36eb62c2cadf313701ca36f9db859",
+        "candidate_git_blob": "74cb957bc4e098393aea5683bfe76ed7e581a5b6",
+        "authorization": "Owner Final Historical Treatment Compatibility Correction and review5705127812: development-only preserved historical empty bytes/provenance, explicit unknown presentation/edit transport. No production DDL or classification policy."
       }
     },
     "financial_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5704555130",
     "runtime_rule": "All unlisted protected files and all protected additions/deletions remain fail-closed. Historical PR21 pins above are retained unchanged.",
     "release_gate": "Whole-app workflow/native/recovery acceptance remains separate. Theme migration excluded; theme switch stays OFF.",
     "financial_review_disposition": "COMMENTED; bounded financial replay/stale-state source correction ACCEPTED; whole PR CHANGES REQUIRED; production NO-GO",
-    "production_metadata_receipt": "Final readiness read-only SSH preflight: exact29dce746/tree188433ad; PHP8.3.36/MariaDB11.8.9;67tables/77migration rows/0triggers"
+    "production_metadata_receipt": "Final readiness read-only SSH preflight: exact29dce746/tree188433ad; PHP8.3.36/MariaDB11.8.9;67tables/77migration rows/0triggers",
+    "candidate_parent_commit": "c24038a65dedddb04620f7ec0a5718592667cb47",
+    "candidate_identity_rule": "Publication HEAD/tree is reported externally; exact authorized file blobs below avoid a self-referential commit pin.",
+    "historical_correction_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705127812",
+    "historical_correction_status": "LOCALLY_AND_NATIVE_SYNTHETIC_VERIFIED_PENDING_EXACT_HEAD_REVIEW"
   }
 }

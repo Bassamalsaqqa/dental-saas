@@ -4,6 +4,8 @@ namespace App\Libraries;
 
 final class TreatmentCatalog
 {
+    /** Transport-only edit choice; never a stored clinical category. */
+    public const KEEP_UNKNOWN = '__keep_historical_unknown__';
     /**
      * Core procedure list shown to users.
      *
@@ -97,7 +99,7 @@ final class TreatmentCatalog
     public static function nameFor(string $key): string
     {
         $all = self::all();
-        return $all[$key] ?? 'Treatment';
+        return $all[$key] ?? (function_exists('lang') ? lang('Treatment.historical_unknown_type') : 'Unknown historical treatment (unclassified)');
     }
 }
 

@@ -20,30 +20,9 @@
     "production_changes": false
   },
   "treatment_blocker": {
-    "column": {
-      "COLUMN_TYPE": "enum('cleaning','extraction','filling','crown','root_canal','orthodontic','implant','other')",
-      "IS_NULLABLE": "NO",
-      "COLUMN_DEFAULT": null,
-      "COLLATION_NAME": "utf8mb4_general_ci"
-    },
-    "historical_value_counts": [
-      {
-        "value_hex": "",
-        "n": "38"
-      },
-      {
-        "value_hex": "636C65616E696E67",
-        "n": "1"
-      },
-      {
-        "value_hex": "63726F776E",
-        "n": "4"
-      },
-      {
-        "value_hex": "65787472616374696F6E",
-        "n": "1"
-      }
-    ]
+    "status": "CORRECTED_IN_DEVELOPMENT_PENDING_EXACT_HEAD_ACCEPTANCE",
+    "evidence": "HISTORICAL_TREATMENT_ACCEPTANCE.json",
+    "production_migration_authorized": false
   },
   "native_probe": {
     "status": "PRODUCTION_NO_GO",
@@ -62,7 +41,8 @@
     "production_changes": false,
     "existing_rehearsal_gateway_unchanged": true,
     "request_migration_independent_native_pass": true,
-    "request_create_seconds": 0.22293400764465332
+    "request_create_seconds": 0.22293400764465332,
+    "prior_refusal_superseded_by": "New bounded correction/combined synthetic receipts; original failed evidence preserved"
   },
   "native_settlement": {
     "passed": true,
@@ -231,12 +211,13 @@
     "reused_finance_acceptance": "settlement-replay.json at c5e0a5a6; broad successful suites not rerun"
   },
   "not_certified": [
-    "Combined two-migration sequence: treatment migration refuses empty historical values before ALTER.",
-    "Full native HTTP rehearsal: existing gateway not switched after mandatory schema gate failed.",
-    "Whole-app role/route/state/persistence, print/CSP/zoom and physical assistive technology acceptance."
+    "Final independent exact-head/whole-PR acceptance",
+    "Full role/state/route accessibility matrix (202pending entries)",
+    "Release-time backup freshness and production migration/cutover authorization"
   ],
   "production_migrations": 0,
   "source_switches": 0,
   "feature_activations": 0,
-  "github_actions": 0
+  "github_actions": 0,
+  "historical_correction": "HISTORICAL_TREATMENT_ACCEPTANCE.json"
 }

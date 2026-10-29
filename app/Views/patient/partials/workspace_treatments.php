@@ -31,8 +31,8 @@
                                             if ($doctorName === '') {
                                                 $doctorName = lang('UI.patientUnknownDoctor');
                                             }
-                                            $treatmentType = trim((string) ($trt['treatment_type'] ?? ''));
-                                            $treatmentTypeLabel = $treatmentType !== '' ? ucfirst(str_replace('_', ' ', $treatmentType)) : lang('UI.patientGeneral');
+                                            $treatmentType = (string) ($trt['treatment_type'] ?? '');
+                                            $treatmentTypeLabel = isset(\App\Libraries\TreatmentCatalog::all()[$treatmentType]) ? ucfirst(str_replace('_', ' ', $treatmentType)) : lang('Treatment.historical_unknown_type');
                                             $billTreatmentFromPatientUrl = '';
                                             if (
                                                 has_permission('finance', 'create')

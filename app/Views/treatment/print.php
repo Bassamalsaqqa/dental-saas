@@ -66,7 +66,7 @@ if ($statusLabel === 'Treatment.status_values.' . $statusRaw) {
                     <div>
                         <p class="text-sm text-gray-600"><?= lang('Treatment.type') ?>:</p>
                         <p class="font-semibold text-gray-900">
-                            <?= esc(ucfirst(str_replace('_', ' ', $treatment['treatment_type'] ?? lang('Treatment.na')))) ?>
+                            <?= esc(isset(\App\Libraries\TreatmentCatalog::all()[(string)($treatment['treatment_type']??'')]) ? ucfirst(str_replace('_', ' ', $treatment['treatment_type'])) : lang('Treatment.historical_unknown_type')) ?>
                         </p>
                     </div>
                     <div>

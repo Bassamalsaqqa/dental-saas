@@ -6,7 +6,8 @@ $patientName = trim(($treatment['first_name'] ?? '') . ' ' . ($treatment['last_n
 $statusRaw = $treatment['status'] ?? 'active';
 $statusLabel = lang('Treatment.status_values.' . $statusRaw);
 if ($statusLabel === 'Treatment.status_values.' . $statusRaw) { $statusLabel = ucfirst(str_replace('_', ' ', $statusRaw)); }
-$typeLabel = ucfirst(str_replace('_', ' ', $treatment['treatment_type'] ?? ''));
+$typeKey=(string)($treatment['treatment_type']??'');
+$typeLabel = isset(\App\Libraries\TreatmentCatalog::all()[$typeKey]) ? ucfirst(str_replace('_', ' ', $typeKey)) : lang('Treatment.historical_unknown_type');
 $chargeLine = $charge_line ?? null;
 $chargeLineId = (int) ($chargeLine['id'] ?? 0);
 $chargeLineStatus = (string) ($chargeLine['status'] ?? '');

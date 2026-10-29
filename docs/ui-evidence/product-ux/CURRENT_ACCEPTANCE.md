@@ -2,7 +2,7 @@
 
 **Bounded financial correction ACCEPTED in review5704555130 (COMMENTED disposition); whole PR remains Draft/CHANGES REQUIRED. Production NO-GO.**
 
-See [final release-readiness decision](FINAL_RELEASE_READINESS.md): actual historical empty treatment keys block widening; fresh encrypted recovery restore passed. This continuation does not rewrite accepted application code.
+See [final release-readiness decision](FINAL_RELEASE_READINESS.md) and [historical correction acceptance](HISTORICAL_TREATMENT_ACCEPTANCE.md): historical empty bytes/provenance and combined native migrations now pass in development; final independent acceptance and release authorization remain outstanding. Fresh encrypted recovery restoration evidence is retained; future customer writes are not automatically covered.
 
 Owner authorization and review [5701870044](https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5701870044) applies to parent `cde62b838f25abd9c1d09e253e3c14dda547c51e`. The earlier finance/reception design is preserved. This report supersedes the earlier proposal-only status; it does not imply whole-app acceptance. The adjacent [sanitized receipt](settlement-replay.json) pins the actual runtime SHA-256 values. The final commit/tree are supplied in the PR and handback, avoiding a self-referential commit hash.
 
