@@ -1152,4 +1152,6 @@ return [
     'chooseDate'=>'اختيار التاريخ',
     'exitPlatformShort'=>'خروج',
     'clearPatientSelection'=>'إلغاء اختيار المريض',
+    'impersonationStarted' => 'أنت الآن تعرض عيادة {clinic} بصفتك مسؤول المنصة.',
+    'impersonationEnded' => 'انتهى عرض العيادة. عدت إلى لوحة تحكم المنصة.',
 ];

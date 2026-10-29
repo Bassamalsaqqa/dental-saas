@@ -1152,4 +1152,6 @@ return [
     'chooseDate'=>'Choose date',
     'exitPlatformShort'=>'Exit',
     'clearPatientSelection'=>'Clear selected patient',
+    'impersonationStarted' => 'You are now viewing {clinic} as a platform administrator.',
+    'impersonationEnded' => 'Clinic viewing ended. You are back in the Control Plane.',
 ];

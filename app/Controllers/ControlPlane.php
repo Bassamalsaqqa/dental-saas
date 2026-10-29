@@ -145,6 +145,6 @@ class ControlPlane extends BaseController
             'route' => '/controlplane/impersonation/exit'
         ]);
 
-        return redirect()->to('/controlplane/dashboard')->with('success', 'Exited impersonation.');
+        return redirect()->to('/controlplane/dashboard')->with('success', lang('Studio.impersonationEnded'));
     }
 }

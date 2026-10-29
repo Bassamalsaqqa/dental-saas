@@ -260,7 +260,7 @@ class Clinics extends BaseController
             'metadata' => ['clinic_id' => $clinicId],
         ]);
 
-        return redirect()->to('/dashboard')->with('success', 'Impersonation active for ' . ($clinic['name'] ?? 'clinic') . '.');
+        return redirect()->to('/dashboard')->with('success', lang('Studio.impersonationStarted', ['clinic' => (string) ($clinic['name'] ?? lang('TenantMisc.clinic'))]));
     }
 
     /**
