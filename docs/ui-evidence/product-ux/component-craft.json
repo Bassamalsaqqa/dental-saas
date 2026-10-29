@@ -1,0 +1,934 @@
+{
+  "scope": "2026-10-29 compact component correction against bc7c418; draft review only",
+  "source_baseline": "bc7c41888ec55a2c8862ecdba8973422aa1760c0",
+  "test_receipts": {
+    "acceptance": {
+      "checks": [
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "inventory",
+          "width": 880,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Dirty Escape presents focused discard choice",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Editing surface hidden while confirming discard",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Keep editing preserves typed data",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Second Escape returns to editing",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Dialog closes after safe cancellation",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "users",
+          "width": 760,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "users"
+        },
+        {
+          "pass": true,
+          "label": "Dirty Escape presents focused discard choice",
+          "route": "users"
+        },
+        {
+          "pass": true,
+          "label": "Editing surface hidden while confirming discard",
+          "route": "users"
+        },
+        {
+          "pass": true,
+          "label": "Keep editing preserves typed data",
+          "route": "users"
+        },
+        {
+          "pass": true,
+          "label": "Second Escape returns to editing",
+          "route": "users"
+        },
+        {
+          "pass": true,
+          "label": "Dialog closes after safe cancellation",
+          "route": "users"
+        },
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "prescriptions",
+          "width": 880,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "prescriptions"
+        },
+        {
+          "pass": true,
+          "label": "Dialog closes after safe cancellation",
+          "route": "prescriptions"
+        },
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "treatments",
+          "width": 880,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "treatments",
+          "width": 880,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Dirty Escape presents focused discard choice",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Editing surface hidden while confirming discard",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Keep editing preserves typed data",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Second Escape returns to editing",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Dialog closes after safe cancellation",
+          "route": "treatments"
+        },
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "examinations",
+          "width": 880,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "examinations"
+        },
+        {
+          "pass": true,
+          "label": "Dirty Escape presents focused discard choice",
+          "route": "examinations"
+        },
+        {
+          "pass": true,
+          "label": "Editing surface hidden while confirming discard",
+          "route": "examinations"
+        },
+        {
+          "pass": true,
+          "label": "Keep editing preserves typed data",
+          "route": "examinations"
+        },
+        {
+          "pass": true,
+          "label": "Second Escape returns to editing",
+          "route": "examinations"
+        },
+        {
+          "pass": true,
+          "label": "Dialog closes after safe cancellation",
+          "route": "examinations"
+        },
+        {
+          "pass": true,
+          "label": "Compact task-sized desktop dialog",
+          "route": "dashboard",
+          "width": 700,
+          "nestedHeaderPadding": "0px",
+          "button": 36
+        },
+        {
+          "pass": true,
+          "label": "Nested group headers do not inherit dialog padding",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Dirty Escape presents focused discard choice",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Editing surface hidden while confirming discard",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Keep editing preserves typed data",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Second Escape returns to editing",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Dialog closes after safe cancellation",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Actual native rejected expense POST preserves its entered payee"
+        },
+        {
+          "pass": true,
+          "label": "Actual native rejection displays its server errors"
+        },
+        {
+          "pass": true,
+          "label": "Validation expense mode cannot hijack subsequent transaction creation"
+        },
+        {
+          "pass": true,
+          "label": "Collection trigger retains its canonical transaction preset"
+        },
+        {
+          "pass": true,
+          "label": "Primary submit remains visible without scrolling"
+        },
+        {
+          "pass": true,
+          "label": "Row overflow trigger does not navigate the row"
+        },
+        {
+          "pass": true,
+          "label": "Overflow button toggles open and closed"
+        },
+        {
+          "pass": true,
+          "label": "Keyboard opens overflow directly on its first action"
+        },
+        {
+          "pass": true,
+          "label": "End selects the last enabled action"
+        },
+        {
+          "pass": true,
+          "label": "Escape returns to the row trigger"
+        },
+        {
+          "pass": true,
+          "label": "Profile menu receives keyboard focus"
+        },
+        {
+          "pass": true,
+          "label": "Profile Escape restores avatar focus"
+        },
+        {
+          "pass": true,
+          "label": "Inventory tools use the shared native overflow surface"
+        },
+        {
+          "pass": true,
+          "label": "Date field has one correctly associated native calendar action"
+        },
+        {
+          "pass": true,
+          "label": "Grouped date control preserves native ISO value and editing"
+        },
+        {
+          "pass": true,
+          "label": "Arabic mobile route renders",
+          "route": "inventory",
+          "status": 200
+        },
+        {
+          "pass": true,
+          "label": "No document-level mobile overflow",
+          "route": "inventory"
+        },
+        {
+          "pass": true,
+          "label": "Arabic mobile route renders",
+          "route": "finance",
+          "status": 200
+        },
+        {
+          "pass": true,
+          "label": "No document-level mobile overflow",
+          "route": "finance"
+        },
+        {
+          "pass": true,
+          "label": "Mobile financial submit is persistent and touch-sized"
+        },
+        {
+          "pass": true,
+          "label": "Arabic mobile route renders",
+          "route": "settings?tab=kiosk",
+          "status": 200
+        },
+        {
+          "pass": true,
+          "label": "No document-level mobile overflow",
+          "route": "settings?tab=kiosk"
+        },
+        {
+          "pass": true,
+          "label": "Arabic mobile route renders",
+          "route": "appointment/calendar",
+          "status": 200
+        },
+        {
+          "pass": true,
+          "label": "No document-level mobile overflow",
+          "route": "appointment/calendar"
+        },
+        {
+          "pass": true,
+          "label": "Arabic mobile route renders",
+          "route": "activity-log",
+          "status": 200
+        },
+        {
+          "pass": true,
+          "label": "No document-level mobile overflow",
+          "route": "activity-log"
+        },
+        {
+          "pass": true,
+          "label": "Arabic mobile route renders",
+          "route": "dashboard",
+          "status": 200
+        },
+        {
+          "pass": true,
+          "label": "No document-level mobile overflow",
+          "route": "dashboard"
+        },
+        {
+          "pass": true,
+          "label": "Platform plan actions use the same overflow component"
+        },
+        {
+          "pass": true,
+          "label": "Platform profile uses its own global-plane menu"
+        },
+        {
+          "pass": true,
+          "label": "Platform profile resolves through existing global user route"
+        },
+        {
+          "pass": true,
+          "label": "Global toolbar fits responsive viewport",
+          "width": 390
+        },
+        {
+          "pass": true,
+          "label": "Explicit platform exit remains visible",
+          "width": 390
+        },
+        {
+          "pass": true,
+          "label": "Global toolbar fits responsive viewport",
+          "width": 768
+        },
+        {
+          "pass": true,
+          "label": "Explicit platform exit remains visible",
+          "width": 768
+        },
+        {
+          "pass": true,
+          "label": "Global toolbar fits responsive viewport",
+          "width": 1586
+        },
+        {
+          "pass": true,
+          "label": "Explicit platform exit remains visible",
+          "width": 1586
+        },
+        {
+          "pass": true,
+          "label": "Restricted role is not given registration controls"
+        },
+        {
+          "pass": true,
+          "label": "Confirmed AJAX success actually hides the form"
+        },
+        {
+          "pass": true,
+          "label": "Confirmed success displays actionable real-record confirmation"
+        },
+        {
+          "pass": true,
+          "label": "Confirmed UI record exists in the actual expected SQL tenant"
+        },
+        {
+          "pass": true,
+          "label": "All original synthetic business rows are unchanged"
+        },
+        {
+          "pass": true,
+          "label": "No JavaScript page exceptions",
+          "errors": []
+        }
+      ],
+      "findings": [],
+      "errors": [],
+      "captures": [
+        {
+          "name": "dialog-inventory-en",
+          "route": "/inventory",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-users-en",
+          "route": "/users",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-prescriptions-en",
+          "route": "/prescriptions",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-treatments-en",
+          "route": "/treatments",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-treatments-en",
+          "route": "/treatments",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-examinations-en",
+          "route": "/examinations",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-dashboard-en",
+          "route": "/dashboard",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-finance-en",
+          "route": "/finance",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "users-overflow-en",
+          "route": "/users",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "mobile-inventory-ar",
+          "route": "/inventory",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "mobile-finance-ar",
+          "route": "/finance",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "mobile-settings-ar",
+          "route": "/settings",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "mobile-calendar-ar",
+          "route": "/appointment/calendar",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "mobile-logs-ar",
+          "route": "/dashboard",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "mobile-dashboard-ar",
+          "route": "/dashboard",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "platform-plan-menu-en",
+          "route": "/controlplane/plans",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "dialog-platform-plan-en",
+          "route": "/controlplane/plans",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        },
+        {
+          "name": "platform-390-ar",
+          "route": "/controlplane/dashboard",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        },
+        {
+          "name": "platform-768-ar",
+          "route": "/controlplane/dashboard",
+          "viewport": {
+            "width": 768,
+            "height": 992
+          }
+        },
+        {
+          "name": "platform-1586-ar",
+          "route": "/controlplane/dashboard",
+          "viewport": {
+            "width": 1586,
+            "height": 992
+          }
+        },
+        {
+          "name": "patient-confirmed-success-en",
+          "route": "/patients",
+          "viewport": {
+            "width": 1366,
+            "height": 900
+          }
+        }
+      ],
+      "ownedPatient": 25,
+      "preserved": {
+        "passed": true,
+        "preserved_original_rows": 445,
+        "owned_patient": 21,
+        "owned_appointment": 1143
+      },
+      "scope": "Actual local synthetic UI, native rejected expense and one real patient success; no production operations"
+    },
+    "confirmation": {
+      "checks": [
+        "Actual session patient lookup returns/selects owned patient25 inside the compact finance form",
+        "Named icon action opens the real finance detail drawer",
+        "Real calendar event transport finishes, clears loading and renders a fixture date without an error",
+        "Named inventory icon action opens the existing stock context without navigation",
+        "Actual native date-picker invocation/cancel leaves its existing ISO value unchanged",
+        "Optional Select2 initializer supplies an explicit modal dropdown parent (configuration-only test, not plugin end-to-end acceptance)",
+        "Opening then cancelling the existing destructive confirmation restores its overflow trigger and performs no delete",
+        {
+          "case": "Compact platform exit retains complete accessible name and touch size",
+          "width": 320,
+          "height": 44
+        },
+        {
+          "case": "Compact platform exit retains complete accessible name and touch size",
+          "width": 390,
+          "height": 44
+        },
+        {
+          "case": "Compact platform exit retains complete accessible name and touch size",
+          "width": 768,
+          "height": 59.375
+        }
+      ],
+      "errors": [],
+      "preserve": {
+        "passed": true,
+        "preserved_original_rows": 445,
+        "owned_patient": 21,
+        "owned_appointment": 1143
+      },
+      "scope": "Changed-behavior confirmation; no successful business mutations; Select2 branch configuration-only"
+    },
+    "calendar-responsive": {
+      "passed": 3,
+      "checks": [
+        "Untouched context/filter panels compact automatically across the real container breakpoint",
+        "Mobile retains only its supported view toolbar controls",
+        "Interacted-with filter and entered query stay visible/intact across resize"
+      ],
+      "noMutations": true
+    },
+    "restored-draft-discard": {
+      "passed": 4,
+      "checks": [
+        "Real rejected native expense preserves amount/payee",
+        "Restored server draft cannot be silently dismissed as a clean form",
+        "Keep editing retains all restored data",
+        "Explicit discard refreshes only its registry context and new task modes start with canonical empty values"
+      ],
+      "preserved": {
+        "passed": true,
+        "preserved_original_rows": 445,
+        "owned_patient": 21,
+        "owned_appointment": 1143
+      },
+      "financialInsert": false
+    },
+    "patient-selection": {
+      "passed": 4,
+      "checks": [
+        "Actual patient25 selected through the real session lookup",
+        "Full selected identity/phone and stableID wrap visibly outside a truncated native select",
+        "Explicit localized clear resets the canonical submitted patient and search without a POST",
+        "Retained optional Select2 branch supplies modal parent; configuration-only stub, not plugin end-to-end acceptance"
+      ],
+      "noMutation": true
+    },
+    "pending-submit": {
+      "passed": 4,
+      "state": {
+        "busy": "true",
+        "closeDisabled": "true",
+        "fieldsEnabled": true,
+        "duplicatePrevented": true
+      },
+      "posts": 1,
+      "checks": [
+        "Actual submission event exposes pending status before native navigation",
+        "Successful payload fields remain enabled",
+        "Duplicate submit event is cancelled and exactly one HTTP POST occurs",
+        "Real validation rejection restores errors and responsive controls"
+      ],
+      "preserve": {
+        "passed": true,
+        "preserved_original_rows": 445,
+        "owned_patient": 21,
+        "owned_appointment": 1143
+      },
+      "scope": "Real native submission with pre-navigation DOM-event capture; not a continuous slow-network UI certification",
+      "responseWasNotMocked": true,
+      "financialInsert": false
+    }
+  },
+  "performance": {
+    "rows": [
+      {
+        "route": "dashboard",
+        "queries": 200,
+        "navigation_ms": 248,
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        }
+      },
+      {
+        "route": "inventory",
+        "queries": 141,
+        "navigation_ms": 210,
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        }
+      },
+      {
+        "route": "finance",
+        "queries": 204,
+        "navigation_ms": 478,
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        }
+      },
+      {
+        "route": "users",
+        "queries": 174,
+        "navigation_ms": 470,
+        "viewport": {
+          "width": 1366,
+          "height": 900
+        }
+      }
+    ],
+    "scope": "Single-run local navigations; query-count comparison is meaningful, noisy timings are not a general speedup/INP claim"
+  },
+  "source_preservation": {
+    "baseline": "bc7c41888ec55a2c8862ecdba8973422aa1760c0",
+    "checked_files": 48,
+    "syntax_files": 34,
+    "errors": [],
+    "protected_paths": [
+      "app/Controllers",
+      "app/Services",
+      "app/Models",
+      "app/Filters",
+      "app/Config",
+      "app/Database",
+      "system",
+      "app/Views/odontogram",
+      "composer.json",
+      "composer.lock",
+      "package.json",
+      "package-lock.json",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md",
+      "app/Views/finance/invoice.php",
+      "app/Views/prescription/print.php",
+      "app/Views/examination/print.php",
+      "app/Views/contracts/print.php"
+    ],
+    "tailwind_sha256": "3a51d2fffb54ae89fbb4188e3b1ddfc2bce09c7e81148adba78ce750b7fd801a",
+    "original_checkout_sha256": "43c5f4b9e6144b32803e820c95c6d242328dec4000ab6385c53c9e89fbf6eb67",
+    "assets": [
+      {
+        "path": "public/assets/css/studio-controls.css",
+        "before_bytes": 3409,
+        "after_bytes": 12762,
+        "before_gzip9": 1006,
+        "after_gzip9": 2725
+      },
+      {
+        "path": "public/assets/css/studio-create-dialog.css",
+        "before_bytes": 4167,
+        "after_bytes": 7040,
+        "before_gzip9": 1210,
+        "after_gzip9": 1818
+      },
+      {
+        "path": "public/assets/css/studio.css",
+        "before_bytes": 34350,
+        "after_bytes": 34350,
+        "before_gzip9": 6881,
+        "after_gzip9": 6877
+      },
+      {
+        "path": "public/assets/js/select2-init.js",
+        "before_bytes": 34198,
+        "after_bytes": 34290,
+        "before_gzip9": 6905,
+        "after_gzip9": 6929
+      },
+      {
+        "path": "public/assets/js/studio-activity.js",
+        "before_bytes": 6959,
+        "after_bytes": 6995,
+        "before_gzip9": 2339,
+        "after_gzip9": 2353
+      },
+      {
+        "path": "public/assets/js/studio-controls.js",
+        "before_bytes": 0,
+        "after_bytes": 8057,
+        "before_gzip9": 0,
+        "after_gzip9": 2734
+      },
+      {
+        "path": "public/assets/js/studio-create-dialog.js",
+        "before_bytes": 7018,
+        "after_bytes": 7506,
+        "before_gzip9": 2361,
+        "after_gzip9": 2423
+      },
+      {
+        "path": "public/assets/js/studio-directory.js",
+        "before_bytes": 14429,
+        "after_bytes": 14452,
+        "before_gzip9": 4936,
+        "after_gzip9": 4952
+      },
+      {
+        "path": "public/assets/js/studio-grid.js",
+        "before_bytes": 6914,
+        "after_bytes": 5819,
+        "before_gzip9": 2688,
+        "after_gzip9": 2326
+      },
+      {
+        "path": "public/assets/js/studio-items.js",
+        "before_bytes": 2639,
+        "after_bytes": 2782,
+        "before_gzip9": 1095,
+        "after_gzip9": 1142
+      },
+      {
+        "path": "public/assets/js/studio-management.js",
+        "before_bytes": 6246,
+        "after_bytes": 6321,
+        "before_gzip9": 1999,
+        "after_gzip9": 2028
+      },
+      {
+        "path": "public/assets/js/studio-money.js",
+        "before_bytes": 19154,
+        "after_bytes": 19266,
+        "before_gzip9": 5238,
+        "after_gzip9": 5264
+      },
+      {
+        "path": "public/assets/js/studio-native-create.js",
+        "before_bytes": 5245,
+        "after_bytes": 6734,
+        "before_gzip9": 1879,
+        "after_gzip9": 2231
+      },
+      {
+        "path": "public/assets/js/studio-patient-picker.js",
+        "before_bytes": 3987,
+        "after_bytes": 5557,
+        "before_gzip9": 1644,
+        "after_gzip9": 2158
+      },
+      {
+        "path": "public/assets/js/studio-platform-account.js",
+        "before_bytes": 2544,
+        "after_bytes": 2562,
+        "before_gzip9": 1058,
+        "after_gzip9": 1072
+      },
+      {
+        "path": "public/assets/js/studio-platform-billing.js",
+        "before_bytes": 2894,
+        "after_bytes": 2912,
+        "before_gzip9": 1227,
+        "after_gzip9": 1239
+      },
+      {
+        "path": "public/assets/js/studio-platform-directory.js",
+        "before_bytes": 10463,
+        "after_bytes": 10481,
+        "before_gzip9": 3470,
+        "after_gzip9": 3485
+      },
+      {
+        "path": "public/assets/js/studio-platform-requests.js",
+        "before_bytes": 2772,
+        "after_bytes": 2790,
+        "before_gzip9": 985,
+        "after_gzip9": 999
+      },
+      {
+        "path": "public/assets/js/studio-provider-allocations.js",
+        "before_bytes": 12197,
+        "after_bytes": 12266,
+        "before_gzip9": 3034,
+        "after_gzip9": 3043
+      },
+      {
+        "path": "public/assets/js/studio-stock-pilot.js",
+        "before_bytes": 12909,
+        "after_bytes": 13012,
+        "before_gzip9": 4453,
+        "after_gzip9": 4501
+      },
+      {
+        "path": "public/assets/js/studio.js",
+        "before_bytes": 10222,
+        "after_bytes": 10297,
+        "before_gzip9": 3395,
+        "after_gzip9": 3422
+      }
+    ],
+    "asset_totals": {
+      "before_bytes": 202716,
+      "after_bytes": 226251,
+      "before_gzip9": 57803,
+      "after_gzip9": 63721
+    }
+  },
+  "limits": [
+    "One synthetic patient25 created via real app; no successful financial/stock/clinical mutation. Original445 rows unchanged.",
+    "Select2 modal parent configuration stub passed; actual optional plugin end-to-end not certified.",
+    "Local browser viewport/touch emulation is not physical device, assistive-technology or formal accessibility certification.",
+    "Native Hostinger receipt for bc7c418 does not certify this changed source.",
+    "No production change, migrations, dependencies or feature activation.",
+    "Independent exact-head review remains pending."
+  ]
+}

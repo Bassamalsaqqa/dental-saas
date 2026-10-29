@@ -65,7 +65,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
                 </button>
             <?php endif; ?>
             <?php if(has_permission('treatments','create')||has_permission('finance','create')||($attachmentsEnabled&&has_permission('patients','edit'))): ?>
-            <details class="workspace-action-menu patient-more-actions"><summary class="button secondary"><?= esc(lang('Studio.patientMoreActions')) ?></summary><nav aria-label="<?= esc(lang('Studio.patientMoreActions'),'attr') ?>">
+            <div class="workspace-action-menu patient-more-actions"><button type="button" class="button secondary" popovertarget="patient-more-actions-panel"><?= esc(lang('Studio.patientMoreActions')) ?></button><nav id="patient-more-actions-panel" popover="auto" data-studio-menu-panel aria-label="<?= esc(lang('Studio.patientMoreActions'),'attr') ?>">
             <?php if (has_permission('treatments', 'create')): ?>
                 <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientTreatmentDrawer">
                     <span><?= esc(lang('UI.addTreatment')) ?></span>
@@ -84,7 +84,7 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
                     <span><?= esc(lang('UI.addDocument')) ?></span>
                 </button>
             <?php endif; ?>
-            </nav></details>
+            </nav></div>
             <?php endif; ?>
         </div>
     </div>

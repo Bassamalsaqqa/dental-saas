@@ -118,7 +118,7 @@
 </span>
 <?php endif; ?>
 </td>
-<td class="staff-row-actions"><details class="workspace-action-menu"><summary class="button secondary"><?= esc(lang('Studio.stockManage')) ?></summary><nav>
+<td class="staff-row-actions"><div class="workspace-action-menu"><?= view('components/studio_row_menu_trigger',['rowMenuLabel'=>lang('Studio.actions').': '.$name,'rowMenuId'=>'staff-menu-'.(int)$staff->id]) ?><nav id="<?= esc('staff-menu-'.(int)$staff->id,'attr') ?>" popover="auto" data-studio-menu-panel>
 <?php if($v4Can('users','edit')): ?>
 <a class="button secondary" href="<?= esc(workflow_context_url('users/'.(int)$staff->id.'/edit')) ?>">
 <?= esc(lang('UserRole.edit')) ?>
@@ -134,7 +134,7 @@
 <?= esc(lang('UserRole.removeClinicAccess')) ?>
 </button>
 <?php endif; ?>
-</nav></details></td>
+</nav></div></td>
 </tr>
 <?php endforeach; ?>
 </tbody></table></div>

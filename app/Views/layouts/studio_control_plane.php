@@ -107,11 +107,10 @@
 <?= esc(lang('Studio.otherLanguage')) ?>
 </span>
 </a>
+<button type="button" class="avatar avatar--light" popovertarget="platform-account-menu" aria-expanded="false" aria-label="<?= esc(lang('Studio.account'),'attr') ?>"><?= esc($studioInitials($cpName)) ?></button>
 <form action="<?= base_url('controlplane/exit') ?>" method="post" class="platform-exit">
 <?= csrf_field() ?>
-<button type="submit" class="button secondary">
-<?= esc(lang('UI.cpExitControlPlane')) ?>
-</button>
+<button type="submit" class="button secondary" aria-label="<?= esc(lang('UI.cpExitControlPlane'),'attr') ?>" title="<?= esc(lang('UI.cpExitControlPlane'),'attr') ?>"><span class="platform-exit-full"><?= esc(lang('UI.cpExitControlPlane')) ?></span><span class="platform-exit-short" aria-hidden="true"><?= esc(lang('Studio.exitPlatformShort')) ?></span></button>
 </form>
 </div>
 </header>
@@ -127,6 +126,7 @@
 </main>
 </div>
 </div>
+<div id="platform-account-menu" popover class="popover account-popover" data-studio-menu-panel><div class="account-intro"><strong><?= esc($cpName) ?></strong><small><?= esc(lang('UI.cpGlobalAdmin')) ?></small></div><a href="<?= base_url('controlplane/users/'.(int)session('user_id')) ?>"><?= $studioIcon('user') ?><span><?= esc(lang('Studio.profile')) ?></span></a></div>
 <dialog id="platform-search-dialog" class="command-dialog" aria-labelledby="platform-search-title">
 <header>
 <h2 id="platform-search-title">
@@ -154,6 +154,8 @@
 <?= view('components/studio_action_dialog',['studioIcon'=>$studioIcon]) ?>
 <script src="<?= base_url('assets/js/studio-dialogs.js') ?>?v=<?= esc(asset_version('assets/js/studio-dialogs.js')) ?>" defer></script>
 <?= $this->renderSection('scripts') ?>
+<div id="studio-control-labels" hidden data-clear-patient="<?= esc(lang('Studio.clearPatientSelection'),'attr') ?>" data-date="<?= esc(lang('Studio.chooseDate'),'attr') ?>"></div>
+<script src="<?= base_url('assets/js/studio-controls.js') ?>?v=<?= esc(asset_version('assets/js/studio-controls.js')) ?>" defer></script>
 <script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
 <?= view('components/studio_password_controls') ?>
 </body>

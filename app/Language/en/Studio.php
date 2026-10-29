@@ -1149,4 +1149,7 @@ return [
     'scalePreviewHelp'=>'Dashboard preview only. No platform or clinic setting has been changed.',
     'scaleCurrent'=>'Current scale',
     'scaleCompact'=>'Slightly smaller',
+    'chooseDate'=>'Choose date',
+    'exitPlatformShort'=>'Exit',
+    'clearPatientSelection'=>'Clear selected patient',
 ];

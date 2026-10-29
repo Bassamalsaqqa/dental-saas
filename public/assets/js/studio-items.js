@@ -1,7 +1,7 @@
 /* Supplier selection/creation only. Item writes remain native, canonical form POSTs. */
 (() => {
 const select=document.getElementById('supplier_id'),text=document.getElementById('supplier');
-if(select&&window.jQuery?.fn?.select2)jQuery(select).select2({width:'100%',dir:document.documentElement.dir,minimumResultsForSearch:0});
+if(select&&window.jQuery?.fn?.select2)jQuery(select).select2({dropdownParent:select.closest('dialog')?jQuery(select.closest('dialog')):(window.getAppSelect2DropdownParent?.(select)||jQuery(document.body)),width:'100%',dir:document.documentElement.dir,minimumResultsForSearch:0});
 function syncSupplier(){if(select?.value&&text)text.value=select.selectedOptions[0]?.textContent?.trim()||text.value;}
 select?.addEventListener('change',syncSupplier);if(select&&window.jQuery?.fn?.select2)jQuery(select).on('change',syncSupplier);
 const form=document.getElementById('item-supplier-form'),dialog=document.getElementById('item-supplier-dialog');if(!form||!dialog)return;

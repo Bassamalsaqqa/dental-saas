@@ -10,13 +10,13 @@
  let original=snapshot(),busy=false,uncertain=false,opener=null,lastFocused=null;
  const controls=()=>form.querySelectorAll('button[type=submit]');
  function clearFeedback(){feedback.hidden=true;feedback.querySelector('p').textContent='';feedback.querySelector('ul').replaceChildren();fields().forEach(e=>e.removeAttribute('aria-invalid'));}
- function reset(){form.reset();form.querySelector('#optionalEnabled')?.setAttribute('aria-expanded','false');window.initPatientCreateForms?.(form);form.__syncPatientCreateForm?.();clearFeedback();uncertain=false;controls().forEach(b=>b.disabled=false);form.hidden=false;success.hidden=true;discard.hidden=true;original=snapshot();}
- function askClose(){if(busy)return;if(form.hidden||snapshot()===original){dialog.close();return;}lastFocused=document.activeElement;discard.hidden=false;discard.querySelector('[data-intake-keep]').focus();}
- document.addEventListener('click',event=>{const link=event.target.closest('[data-patient-create-open],[data-booking-create-open]');if(!link||event.button!==0||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;if(patient?!link.matches('[data-patient-create-open]'):!link.matches('[data-booking-create-open]'))return;event.preventDefault();opener=link;const parent=link.closest('dialog');if(parent?.open)parent.close();reset();dialog.showModal();focusFirst();dialog.dispatchEvent(new Event('studio:create-open'));});
+ function reset(){form.reset();form.querySelector('#optionalEnabled')?.setAttribute('aria-expanded','false');window.initPatientCreateForms?.(form);form.__syncPatientCreateForm?.();clearFeedback();uncertain=false;controls().forEach(b=>b.disabled=false);form.hidden=false;success.hidden=true;discard.hidden=true;dialog.classList.remove('is-confirming');original=snapshot();}
+ function askClose(){if(busy)return;if(!discard.hidden){discard.hidden=true;dialog.classList.remove('is-confirming');lastFocused?.focus();return;}if(form.hidden||snapshot()===original){dialog.close();return;}lastFocused=document.activeElement;discard.hidden=false;dialog.classList.add('is-confirming');discard.querySelector('[data-intake-keep]').focus();}
+ document.addEventListener('click',event=>{const link=event.target.closest('[data-patient-create-open],[data-booking-create-open]');if(!link||event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;if(patient?!link.matches('[data-patient-create-open]'):!link.matches('[data-booking-create-open]'))return;event.preventDefault();if(dialog.open)return;opener=link;const parent=link.closest('dialog');if(parent?.open)parent.close();reset();dialog.showModal();focusFirst();dialog.dispatchEvent(new Event('studio:create-open'));});
  dialog.addEventListener('cancel',event=>{event.preventDefault();askClose();});
  dialog.addEventListener('studio:request-close',event=>{event.preventDefault();askClose();});
  dialog.querySelectorAll('[data-intake-close]').forEach(button=>button.addEventListener('click',askClose));
- dialog.querySelector('[data-intake-keep]').addEventListener('click',()=>{discard.hidden=true;lastFocused?.focus();});
+ dialog.querySelector('[data-intake-keep]').addEventListener('click',()=>{discard.hidden=true;dialog.classList.remove('is-confirming');lastFocused?.focus();});
  dialog.querySelector('[data-intake-discard]').addEventListener('click',()=>{reset();dialog.close();});
  dialog.querySelector('[data-intake-another]').addEventListener('click',()=>{reset();focusFirst();dialog.dispatchEvent(new Event('studio:create-open'));});
  dialog.addEventListener('close',()=>opener?.focus());
@@ -26,7 +26,7 @@
   if(!form.reportValidity())return;
   const data=new FormData(form);if(event.submitter?.name)data.set(event.submitter.name,event.submitter.value);
   const name=document.querySelector('meta[name=csrf-name]')?.content,token=document.querySelector('meta[name=csrf-token]')?.content;if(name&&token)data.set(name,token);
-  busy=true;clearFeedback();dialog.setAttribute('aria-busy','true');controls().forEach(b=>b.disabled=true);
+  busy=true;clearFeedback();dialog.querySelectorAll('[data-intake-close]').forEach(button=>button.setAttribute('aria-disabled','true'));dialog.setAttribute('aria-busy','true');controls().forEach(b=>b.disabled=true);
   const savedName=patient?[data.get('first_name'),data.get('last_name')].filter(Boolean).join(' '):[data.get('appointment_date'),data.get('appointment_time')].filter(Boolean).join(' ');
   try{
    const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest',Accept:'application/json'},signal:AbortSignal.timeout(20000)});
@@ -50,7 +50,7 @@
    const book=dialog.querySelector('[data-intake-book]');if(book){const url=new URL(dialog.dataset.bookBase,location.origin);url.searchParams.set('patient_id',String(id));url.searchParams.set('return_to','patient/'+id);book.href=url.href;}
    form.hidden=true;success.hidden=false;success.focus();original=snapshot();document.dispatchEvent(new CustomEvent(patient?'studio:patient-created':'studio:appointment-created',{detail:{id}}));
   }catch(_){uncertain=true;feedback.querySelector('p').textContent=dialog.dataset.uncertain;feedback.hidden=false;feedback.focus();}
-  finally{busy=false;dialog.removeAttribute('aria-busy');controls().forEach(b=>b.disabled=uncertain);}
+  finally{busy=false;dialog.querySelectorAll('[data-intake-close]').forEach(button=>button.removeAttribute('aria-disabled'));dialog.removeAttribute('aria-busy');controls().forEach(b=>b.disabled=uncertain);}
  });
 });
 })();

@@ -128,6 +128,9 @@ function getAppSelect2DropdownParent(select) {
         return undefined;
     }
 
+    const dialog = select.closest('dialog');
+    if (dialog) return window.jQuery(dialog);
+
     const drawer = select.closest('.app-drawer, .app-scale-modal');
     if (!drawer) {
         return window.jQuery(document.body);

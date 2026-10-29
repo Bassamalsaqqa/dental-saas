@@ -74,6 +74,6 @@ document.querySelectorAll('[data-export]').forEach(button=>button.addEventListen
  const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=c.type+'-current-page.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }catch{error(L.exportFailed);}
 }));
-document.querySelectorAll('.directory-tools').forEach(d=>d.addEventListener('keydown',e=>{if(e.key==='Escape'){d.open=false;d.querySelector('summary').focus();}}));
+document.querySelectorAll('.directory-tools').forEach(d=>d.addEventListener('keydown',e=>{if(d.tagName==='DETAILS'&&e.key==='Escape'){d.open=false;d.querySelector('summary').focus();}}));
 document.addEventListener('studio:patient-created',()=>{if(!inventory){table.ajax.reload(null,false);loadStats();}});
 })();

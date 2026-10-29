@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const isCompactViewport = calendarEl.getBoundingClientRect().width < 680;
     document.getElementById('calendar-filter-panel').open = !isCompactViewport;
     document.getElementById('calendar-context-panel').open = !isCompactViewport;
+    const disclosurePanels = ['calendar-filter-panel','calendar-context-panel'].map(id=>document.getElementById(id));
+    const manuallyToggledPanels = new WeakSet();
+    disclosurePanels.forEach(panel=>{panel.querySelector('summary').addEventListener('click',()=>manuallyToggledPanels.add(panel));panel.addEventListener('focusin',()=>manuallyToggledPanels.add(panel));});
+    let calendarLayoutCompact = isCompactViewport;
     const getCalendarHeight = function() {
         const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 720;
         const compact = window.matchMedia('(max-width: 768px)').matches;
@@ -246,6 +250,11 @@ document.addEventListener('DOMContentLoaded', function() {
         calendarResizeTimer = setTimeout(function() {
             const nextHeight = getCalendarHeight();
             const compact = calendarEl.getBoundingClientRect().width < 680;
+            if (compact !== calendarLayoutCompact) {
+                disclosurePanels.forEach(panel=>{if(!manuallyToggledPanels.has(panel))panel.open=!compact;});
+                calendar.setOption('headerToolbar',{left:'prev,next today',center:'title',right:compact?'listDay,timeGridDay':'dayGridMonth,timeGridWeek,timeGridDay,listDay'});
+                calendarLayoutCompact=compact;
+            }
             calendar.setOption('height', compact ? 'auto' : nextHeight);
             calendar.setOption('contentHeight', compact ? 'auto' : nextHeight - 118);
             if (compact && calendar.view.type !== 'listDay') calendar.changeView('listDay');

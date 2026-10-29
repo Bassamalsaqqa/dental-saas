@@ -30,7 +30,7 @@ window.initStudioProviderAllocations=(root=document)=>{root.querySelectorAll('[d
         }
         const optionCount = select.options ? select.options.length : 0;
         const pageIsRtl = document.documentElement.getAttribute('dir') === 'rtl';
-        const dropdownParent = typeof window.getAppSelect2DropdownParent === 'function'
+        const dropdownParent = select.closest('dialog') ? window.jQuery(select.closest('dialog')) : typeof window.getAppSelect2DropdownParent === 'function'
             ? window.getAppSelect2DropdownParent(select)
             : (select.closest('.app-drawer__panel') ? window.jQuery(select.closest('.app-drawer__panel')) : window.jQuery(document.body));
         $select.select2({

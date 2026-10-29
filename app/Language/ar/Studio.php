@@ -1149,4 +1149,7 @@ return [
     'scalePreviewHelp'=>'معاينة للوحة الرئيسية فقط. لم تتغير إعدادات المنصة أو العيادة.',
     'scaleCurrent'=>'الحجم الحالي',
     'scaleCompact'=>'أصغر قليلاً',
+    'chooseDate'=>'اختيار التاريخ',
+    'exitPlatformShort'=>'خروج',
+    'clearPatientSelection'=>'إلغاء اختيار المريض',
 ];

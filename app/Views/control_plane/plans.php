@@ -110,7 +110,7 @@
 </span>
 </td>
 <td data-label="<?= esc(lang('Studio.actions'),'attr') ?>">
-<div class="platform-table-actions">
+<div class="workspace-action-menu"><?= view('components/studio_row_menu_trigger',['rowMenuLabel'=>lang('Studio.actions').': '.($plan['name']??''),'rowMenuId'=>'plan-menu-'.(int)$id]) ?><nav id="<?= esc('plan-menu-'.(int)$id,'attr') ?>" popover="auto" data-studio-menu-panel>
 <a class="button secondary" href="<?= base_url('controlplane/plans/'.$id.'/edit') ?>">
 <?= esc(lang('UserRole.edit')) ?>
 </a>
@@ -120,7 +120,7 @@
 <button type="button" class="button destructive" data-management-action data-url="<?= base_url('controlplane/plans/'.$id.'/delete') ?>" data-method="POST" data-encoding="form" data-require-typing="DELETE" data-confirm="<?= esc($plan['name'].' — '.lang('Studio.planDeleteHelp'),'attr') ?>">
 <?= esc(lang('UserRole.delete')) ?>
 </button>
-</div>
+</nav></div>
 </td>
 </tr>
 <?php endforeach; ?>

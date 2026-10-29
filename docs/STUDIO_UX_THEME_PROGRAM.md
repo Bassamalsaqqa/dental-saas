@@ -90,3 +90,7 @@ Deployment is NOT performed: final independent exact-head/schema/security accept
 Current component pass replaces grouped navigation with flat lists, stabilizes sidebar geometry, shares compact panel spacing and modern native control semantics, adds canonical create forms to eligible registries, and preserves explicit full-page complex-flow exceptions. See [scoped receipt/gallery](ui-evidence/product-ux/component-gallery.html). Error-path acceptance demonstrated nonserializable validator flash objects; only creation-error response data was changed to arrays. No rules, financial calculations, clinical writes, permissions, schema or feature switches were changed in this pass. Existing read-only option maps are reused for users/plans.
 
 Current candidate requires new exact-head review and targeted native rehearsal; earlierb444 native evidence is not automatically transferred. Fresh production recovery is deferred to a genuine accepted release preflight. Reviewer availability remains unresolved: GitHub returned422 for the former reviewer because that account is no longer a collaborator. No collaborator permissions or approvals were fabricated.
+
+## Compact component finish
+
+The 2026-10-29 frontend correction is documented in the existing [product UX receipt](ui-evidence/product-ux/component-craft.json) and [matched gallery](ui-evidence/product-ux/component-gallery.html). It refines the accepted Studio system rather than starting another redesign. Exact-head acceptance and release gates remain separate.
