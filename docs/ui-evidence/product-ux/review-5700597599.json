@@ -1,0 +1,474 @@
+{
+  "review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5700597599",
+  "reviewed_base": "8d750e10ef569aee8d0b5b7faa65e30b932841ad",
+  "code_head": "36bf0f0a54808757868e9aad2e690cf32647d917",
+  "code_tree": "fc1411182b0a56aab6b5f266eef6b6f93ab0940f",
+  "state": "CHANGES_REQUIRED_FOR_WHOLE_CAMPAIGN; confirmed existing partial-payment replay risk needs separately scoped backend protection",
+  "history_before": {
+    "beforeHead": "8d750e10",
+    "defectReproduced": true,
+    "realUserHistoryClickWarnings": 1,
+    "blockedPostBeforeServer": 1,
+    "arrivedAtExactReadOnlyRecord": true,
+    "databaseWrites": 0
+  },
+  "history_after": {
+    "completed_cases": [
+      {
+        "kind": "payment",
+        "lang": "en",
+        "width": 1366,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "refund",
+        "lang": "en",
+        "width": 1366,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "staff",
+        "lang": "en",
+        "width": 1366,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "supplier",
+        "lang": "en",
+        "width": 1366,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "payable",
+        "lang": "en",
+        "width": 1366,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "payment",
+        "lang": "ar",
+        "width": 390,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "refund",
+        "lang": "ar",
+        "width": 390,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "staff",
+        "lang": "ar",
+        "width": 390,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "kind": "payable",
+        "lang": "ar",
+        "width": 390,
+        "trustedExactHistoryWarnings": 0,
+        "genericReloadWarningRetained": true,
+        "wrongRecordAndExternalBlocked": true,
+        "submitRemainedLocked": true,
+        "postsBlockedBeforeServer": 1
+      }
+    ],
+    "scope": "9actual trusted navigation cases:5EN and4AR; exact record history0warnings; generic reload warning retained; wrong-record/external links blocked; no submit unlock",
+    "excluded": "AR supplier case was not rerun after the actual full-payment test correctly removed its payment controls. Prior completed EN supplier case retained; do not call10cases complete."
+  },
+  "actual_financial_checks": {
+    "checks": [
+      {
+        "case": "Actual two authenticated stale supplier Mark Fully Paid dialogs; committed before harness asserted incorrect account label",
+        "newLedgerRows": 1,
+        "newPayment": "19.00",
+        "totalPaid": "20.00",
+        "due": "0.00",
+        "liquidity": "safe_cash",
+        "lockBehavior": "HTTP requests serialize on single-worker PHP host; not parallel-server certification"
+      },
+      "Explicit repeated full-settlement POST idempotently skips without new payment",
+      {
+        "case": "Actual full-settlement direct POST denial",
+        "role": "viewer",
+        "status": 403,
+        "missingCsrf": false,
+        "ledgerUnchanged": true
+      },
+      {
+        "case": "Actual full-settlement direct POST denial",
+        "role": "foreign_clinic",
+        "status": 200,
+        "missingCsrf": false,
+        "ledgerUnchanged": true
+      },
+      {
+        "case": "Actual full-settlement direct POST denial",
+        "role": "manager",
+        "status": 403,
+        "missingCsrf": true,
+        "ledgerUnchanged": true
+      },
+      {
+        "case": "Two stale authenticated tabs submit identical explicit1ILS partial-payment terms",
+        "actualAdditionalLedgerRows": 2,
+        "due": "17.00",
+        "riskConfirmed": "Existing endpoint has no shared operation identity; parent locks prevent overpayment but cannot distinguish replay from a second valid partial payment. No backend change or waiver."
+      }
+    ],
+    "progress": {
+      "supplierPaid": true,
+      "partialRepeated": true
+    },
+    "productionChanged": false,
+    "sourceBackendUnchanged": true
+  },
+  "rollback": {
+    "passed": true,
+    "injectedAfterRealLedgerInsert": true,
+    "parentLedgerAndAuditRestoredExactly": true,
+    "transactionDepth": 0,
+    "database": "denta_theme_synthetic_20261029_1200",
+    "financeId": 800018,
+    "sourceServiceUnchanged": true
+  },
+  "payable_before": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "amount": {
+          "x": 788,
+          "y": 721.3125,
+          "width": 256,
+          "height": 42
+        },
+        "action": {
+          "x": 1197.296875,
+          "y": 844.75,
+          "width": 148.703125,
+          "height": 43.25
+        },
+        "identity": "Review-owned synthetic vendor\nPartial",
+        "secondaryFacts": "Transaction Id\nEXP2026102915025383\nExpense Category\nSupplies\nAmount\n20.00 ₪\nCurrently outstanding\n17.00 ₪\nDue Date\n2026-10-29\nDays Past Due\n0"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "amount": {
+          "x": 36,
+          "y": 791.203125,
+          "width": 318,
+          "height": 44
+        },
+        "action": {
+          "x": 16,
+          "y": 788,
+          "width": 114.34375,
+          "height": 44
+        },
+        "identity": "Review-owned synthetic vendor\nمدفوع جزئياً",
+        "secondaryFacts": "رقم المعاملة\nEXP2026102915025383\nفئة المصروف\nمستلزمات\nالمبلغ\n20.00 ₪\nالمستحق حالياً\n17.00 ₪\nتاريخ الاستحقاق\n2026-10-29\nأيام التأخير\n0"
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "amount": {
+          "x": 36,
+          "y": 827.203125,
+          "width": 248,
+          "height": 44
+        },
+        "action": {
+          "x": 16,
+          "y": 512,
+          "width": 114.34375,
+          "height": 44
+        },
+        "identity": "Review-owned synthetic vendor\nمدفوع جزئياً",
+        "secondaryFacts": "رقم المعاملة\nEXP2026102915025383\nفئة المصروف\nمستلزمات\nالمبلغ\n20.00 ₪\nالمستحق حالياً\n17.00 ₪\nتاريخ الاستحقاق\n2026-10-29\nأيام التأخير\n0"
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "amount": {
+          "x": 266,
+          "y": 721.3125,
+          "width": 256,
+          "height": 42
+        },
+        "action": {
+          "x": 675.296875,
+          "y": 334.75,
+          "width": 148.703125,
+          "height": 43.25
+        },
+        "identity": "Review-owned synthetic vendor\nPartial",
+        "secondaryFacts": "Transaction Id\nEXP2026102915025383\nExpense Category\nSupplies\nAmount\n20.00 ₪\nCurrently outstanding\n17.00 ₪\nDue Date\n2026-10-29\nDays Past Due\n0"
+      }
+    ],
+    "databaseWrites": 0
+  },
+  "payable_after": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "amount": {
+          "x": 788,
+          "y": 316.90625,
+          "width": 256,
+          "height": 42
+        },
+        "action": {
+          "x": 1197.625,
+          "y": 844.75,
+          "width": 148.375,
+          "height": 43.25
+        },
+        "identity": "Review-owned synthetic vendor\nPartial",
+        "secondaryFacts": "",
+        "keyboardDisclosure": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "amount": {
+          "x": 36,
+          "y": 298.25,
+          "width": 318,
+          "height": 44
+        },
+        "action": {
+          "x": 16,
+          "y": 788,
+          "width": 106.78125,
+          "height": 44
+        },
+        "identity": "Review-owned synthetic vendor\nمدفوع جزئياً",
+        "secondaryFacts": "",
+        "keyboardDisclosure": true
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "amount": {
+          "x": 36,
+          "y": 316.15625,
+          "width": 248,
+          "height": 44
+        },
+        "action": {
+          "x": 16,
+          "y": 512,
+          "width": 106.78125,
+          "height": 44
+        },
+        "identity": "Review-owned synthetic vendor\nمدفوع جزئياً",
+        "secondaryFacts": "",
+        "keyboardDisclosure": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "amount": {
+          "x": 266,
+          "y": 228.78125,
+          "width": 256,
+          "height": 42
+        },
+        "action": {
+          "x": 675.625,
+          "y": 334.75,
+          "width": 148.375,
+          "height": 43.25
+        },
+        "identity": "Review-owned synthetic vendor\nPartial",
+        "secondaryFacts": "",
+        "keyboardDisclosure": true
+      }
+    ],
+    "databaseWrites": 0
+  },
+  "payable_roles": {
+    "checks": [
+      {
+        "role": "manager",
+        "lang": "en",
+        "width": 1366,
+        "actualDisclosureKeyboard": true,
+        "appropriateFormAuthority": true,
+        "recordAndReturn": true
+      },
+      {
+        "role": "manager",
+        "lang": "ar",
+        "width": 390,
+        "actualDisclosureKeyboard": true,
+        "appropriateFormAuthority": true,
+        "recordAndReturn": true
+      },
+      {
+        "role": "viewer",
+        "lang": "en",
+        "width": 1366,
+        "actualDisclosureKeyboard": true,
+        "appropriateFormAuthority": true,
+        "recordAndReturn": true
+      },
+      {
+        "role": "viewer",
+        "lang": "ar",
+        "width": 390,
+        "actualDisclosureKeyboard": true,
+        "appropriateFormAuthority": true,
+        "recordAndReturn": true
+      }
+    ],
+    "databaseWrites": 0
+  },
+  "preservation": {
+    "passed": true,
+    "original_rows": 583,
+    "tables": {
+      "treatments": {
+        "rows": 130,
+        "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+      },
+      "finances": {
+        "rows": 11,
+        "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+      },
+      "finance_payments": {
+        "rows": 7,
+        "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+      },
+      "examinations": {
+        "rows": 151,
+        "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+      },
+      "treatment_contracts": {
+        "rows": 7,
+        "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+      },
+      "treatment_contract_items": {
+        "rows": 23,
+        "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+      },
+      "odontograms": {
+        "rows": 34,
+        "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+      },
+      "patient_odontogram_snapshots": {
+        "rows": 26,
+        "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+      },
+      "examination_note_signatures": {
+        "rows": 14,
+        "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+      },
+      "patients": {
+        "rows": 22,
+        "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+      },
+      "appointments": {
+        "rows": 143,
+        "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+      },
+      "inventory": {
+        "rows": 3,
+        "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+      },
+      "provider_payouts": {
+        "rows": 6,
+        "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+      },
+      "provider_payout_payments": {
+        "rows": 6,
+        "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+      }
+    },
+    "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+  },
+  "suppliers": {
+    "passed": true,
+    "rows": 2,
+    "sha256": "50347676860f07d7057128c6ff781f6c5c694afc055f6381b2b717267d8e37fb"
+  },
+  "audit_scope": {
+    "original_audits_imported": false,
+    "reason": "Immutable fixture creation receipt/table allowlist did not import activity_logs from1100. Comparing1100 audit IDs to newly generated1200 audit IDs is invalid; failed comparison retained privately, not claimed as preservation success.",
+    "verified": "Rollback compares current owned parent/ledger/audit before-after exactly. Supplier full-payment has one new bulk payment audit, not two. No application audit writer changed."
+  },
+  "fixture_changes_retained": {
+    "invoice800015": "One1ILS refund16 occurred when the first harness used the wrong refund URL. Exact SQL verified netpaid31/due69; record retained, no rewrite. Subsequent history checks use independent blanket finance-POST blocking.",
+    "supplier800019": "19ILS remaining payment18; total20paid/due0; original earlier1ILS receipt retained.",
+    "payable800018": "Two identical1ILS partial receipts19/20; total3paid/due17. This intentionally characterizes replay risk and is not a successful idempotency test."
+  },
+  "harness_corrections": [
+    "Wrong refund URL corrected to payments/refund and independent POST abort guard added.",
+    "Full-payment cash account expectation corrected to existing safe_cash authority after successful commit; only unexecuted guarded steps resumed.",
+    "Original audit comparison rejected because that table was never imported; no weakened audit-preservation pass.",
+    "Currency presentation compared exactly to canonical server formatting rather than invented symbol position.",
+    "Payable introduction moved without moving the mutation error selector; initial UI integration failure corrected before publication."
+  ],
+  "source_sha256": {
+    "app/Views/components/studio_money_config.php": "71387bce7c02a02b968a60b2e6fa4a4c31eda34b9056af8388756f4cbb2e6b03",
+    "public/assets/css/studio-money.css": "fe33a5d709241ac3eb54ec3598795de7da864abfba0ca7a8ddb500153159aad5",
+    "public/assets/js/studio-finance-task.js": "7fc4cec543ef3639ba6f6ce9d99016cc4437379d62bf36d58c716e6a23a3f79e",
+    "public/assets/js/studio-money.js": "43908db61895ff2dbcb9122f003cee5876e6f0dff0efee8b41b6cc77c37e855e"
+  },
+  "tests": {
+    "financial_controller_unchanged_methods": 80,
+    "semantic_token_checks": 85,
+    "action_foreground_checks": 57,
+    "saas_guardrails": "PASS; pre-existing stale DOM allowlist advisory retained"
+  },
+  "limits": [
+    "Two browser sessions on this PHP single-worker host characterize stale/repeated requests; not parallel web-worker concurrency certification.",
+    "No backend/calculation/schema/permission/native chart/signing changes from8d. No migrations or production access/writes/deployment/feature activation/Actions. Themes remainOFF.",
+    "Whole-role clinical/contract/checkout/print/CSP/native-current-source/zoom/physicalAT journeys remain incomplete; prior partial evidence is not blanket acceptance.",
+    "No new independent exact-head final acceptance requested while replay scope and campaign gates remain open.",
+    "The stale payment/full-settlement browser tests use two independently authenticated contexts for the same actor; same-session CSRF rotation and parallel web-worker scheduling are not certified."
+  ]
+}
