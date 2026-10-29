@@ -6,7 +6,7 @@
   const labels = JSON.parse(config.textContent);
   const states = new WeakMap();
   function state(form) {
-    if (!states.has(form)) states.set(form, {phase:'idle', baseline:null, opener:null, confirming:false});
+    if (!states.has(form)) states.set(form, {phase:'idle', baseline:null, opener:null, confirming:false, historyUrl:null, handoff:false});
     return states.get(form);
   }
   function snapshot(form) {
@@ -70,6 +70,9 @@
     const task = state(form);
     if (task.phase !== 'idle') return;
     task.opener = trigger || document.activeElement;
+    const history = form.querySelector('[data-finance-reconcile]');
+    const url = history?.getAttribute('href') ? new URL(history.href, location.href) : null;
+    task.historyUrl = url && url.origin === location.origin && !url.username && !url.password && /\/finance\/[1-9]\d*\/?$/.test(url.pathname) ? url.href : null;
     document.body.append(modal);
     modal.classList.remove('hidden');
     modal.showModal();
@@ -139,6 +142,19 @@
       requestClose(modal.id);
     });
     modal.addEventListener('click', event => {
+      const link = event.target.closest('[data-finance-reconcile]');
+      if (link && !event.defaultPrevented && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+        event.preventDefault();
+        const task = state(modal.querySelector('form'));
+        // Only a genuine click on this task's pinned, same-origin record can hand off.
+        // Keep the phase and submission lock intact; generic leaving remains protected.
+        if (event.isTrusted && ['uncertain','denied'].includes(task.phase) && task.historyUrl && link.href === task.historyUrl) {
+          task.handoff = true;
+          try { location.assign(task.historyUrl); }
+          finally { setTimeout(() => { task.handoff = false; }, 0); }
+        }
+        return;
+      }
       if (event.target === modal || event.target.classList.contains('finance-inline-modal-backdrop')) requestClose(modal.id);
     });
     modal.addEventListener('close', () => {
@@ -151,8 +167,8 @@
   window.addEventListener('beforeunload', event => {
     const protectedTask = Array.from(document.querySelectorAll('dialog[data-finance-modal-root] form')).some(form => {
       const task = state(form);
-      return ['pending','uncertain'].includes(task.phase) ||
-        (task.phase === 'idle' && task.baseline !== null && task.baseline !== snapshot(form));
+      return !task.handoff && (['pending','uncertain'].includes(task.phase) ||
+        (task.phase === 'idle' && task.baseline !== null && task.baseline !== snapshot(form)));
     });
     if (protectedTask) { event.preventDefault(); event.returnValue = ''; }
   });
