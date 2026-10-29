@@ -1,0 +1,2229 @@
+{
+  "base": "07bc3d02e9f22bf2b44a766b9860392b9c372a7c",
+  "scope": "Semantic foreground collision correction only; no palette, theme activation, business or backend changes",
+  "root_cause": "Legacy --muted meant text; new shadcn semantic --muted means a surface.41 color consumers still read the surface token; two obsolete text aliases made behavior load-order dependent. Generic .form-section p also overrode class-scoped warnings.",
+  "correction": "41text declarations use --muted-foreground; remove2 obsolete aliases; .form-section :where(p) allows existing information/warning/error foregrounds to win without override layers",
+  "browser_contrast": {
+    "checks": [
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".form-section header p",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              243,
+              247,
+              239
+            ],
+            "ratio": 6.431
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-information",
+            "foreground": "rgb(37, 79, 67)",
+            "background": [
+              217,
+              240,
+              228
+            ],
+            "ratio": 7.697
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              243,
+              247,
+              239
+            ],
+            "ratio": 6.431
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".form-section header p",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              251,
+              245,
+              233
+            ],
+            "ratio": 7.032
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-information",
+            "foreground": "rgb(91, 69, 53)",
+            "background": [
+              217,
+              240,
+              228
+            ],
+            "ratio": 7.47
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              251,
+              245,
+              233
+            ],
+            "ratio": 7.032
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".form-section header p",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              244,
+              247,
+              243
+            ],
+            "ratio": 6.417
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-information",
+            "foreground": "rgb(52, 81, 78)",
+            "background": [
+              217,
+              240,
+              228
+            ],
+            "ratio": 7.207
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              244,
+              247,
+              243
+            ],
+            "ratio": 6.417
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".form-section header p",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              246,
+              247,
+              240
+            ],
+            "ratio": 6.473
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-information",
+            "foreground": "rgb(61, 81, 72)",
+            "background": [
+              217,
+              240,
+              228
+            ],
+            "ratio": 7.102
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              246,
+              247,
+              240
+            ],
+            "ratio": 6.473
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".form-section header p",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              255,
+              255,
+              241
+            ],
+            "ratio": 11.958
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-warning",
+            "foreground": "rgb(104, 69, 18)",
+            "background": [
+              240,
+              221,
+              176
+            ],
+            "ratio": 6.401
+          },
+          {
+            "selector": ".settings-information",
+            "foreground": "rgb(37, 79, 67)",
+            "background": [
+              217,
+              240,
+              228
+            ],
+            "ratio": 7.697
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              255,
+              255,
+              241
+            ],
+            "ratio": 11.958
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "dashboard",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".page-title-row p",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              212,
+              227,
+              210
+            ],
+            "ratio": 5.221
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              242,
+              246,
+              239
+            ],
+            "ratio": 6.369
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "dashboard",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".page-title-row p",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              234,
+              220,
+              197
+            ],
+            "ratio": 5.651
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              250,
+              244,
+              232
+            ],
+            "ratio": 6.99
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "dashboard",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".page-title-row p",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              220,
+              232,
+              223
+            ],
+            "ratio": 5.495
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              243,
+              246,
+              243
+            ],
+            "ratio": 6.351
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "dashboard",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".page-title-row p",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              221,
+              230,
+              215
+            ],
+            "ratio": 5.441
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              245,
+              246,
+              240
+            ],
+            "ratio": 6.404
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "dashboard",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".page-title-row p",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              237,
+              242,
+              219
+            ],
+            "ratio": 10.521
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              254,
+              254,
+              241
+            ],
+            "ratio": 11.902
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              37,
+              80,
+              68
+            ],
+            "ratio": 6.172
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              37,
+              80,
+              68
+            ],
+            "ratio": 6.172
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              37,
+              80,
+              68
+            ],
+            "ratio": 6.172
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              225,
+              235,
+              217
+            ],
+            "ratio": 5.675
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              225,
+              235,
+              217
+            ],
+            "ratio": 5.675
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              225,
+              235,
+              217
+            ],
+            "ratio": 5.675
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(234, 216, 199)",
+            "background": [
+              96,
+              71,
+              58
+            ],
+            "ratio": 6.157
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(234, 216, 199)",
+            "background": [
+              96,
+              71,
+              58
+            ],
+            "ratio": 6.157
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(234, 216, 199)",
+            "background": [
+              96,
+              71,
+              58
+            ],
+            "ratio": 6.157
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              238,
+              226,
+              207
+            ],
+            "ratio": 5.968
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              238,
+              226,
+              207
+            ],
+            "ratio": 5.968
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              238,
+              226,
+              207
+            ],
+            "ratio": 5.968
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              58,
+              81,
+              86
+            ],
+            "ratio": 5.722
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              58,
+              81,
+              86
+            ],
+            "ratio": 5.722
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              58,
+              81,
+              86
+            ],
+            "ratio": 5.722
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              226,
+              236,
+              228
+            ],
+            "ratio": 5.726
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              226,
+              236,
+              228
+            ],
+            "ratio": 5.726
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              226,
+              236,
+              228
+            ],
+            "ratio": 5.726
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              66,
+              69,
+              74
+            ],
+            "ratio": 6.533
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              66,
+              69,
+              74
+            ],
+            "ratio": 6.533
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(199, 217, 207)",
+            "background": [
+              66,
+              69,
+              74
+            ],
+            "ratio": 6.533
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              228,
+              234,
+              221
+            ],
+            "ratio": 5.686
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              228,
+              234,
+              221
+            ],
+            "ratio": 5.686
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              228,
+              234,
+              221
+            ],
+            "ratio": 5.686
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(241, 247, 219)",
+            "background": [
+              27,
+              53,
+              40
+            ],
+            "ratio": 12.019
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(241, 247, 219)",
+            "background": [
+              27,
+              53,
+              40
+            ],
+            "ratio": 12.019
+          },
+          {
+            "selector": ".record-stock-band span",
+            "foreground": "rgb(241, 247, 219)",
+            "background": [
+              27,
+              53,
+              40
+            ],
+            "ratio": 12.019
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              239,
+              244,
+              222
+            ],
+            "ratio": 10.717
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              239,
+              244,
+              222
+            ],
+            "ratio": 10.717
+          },
+          {
+            "selector": ".record-summary dt",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              239,
+              244,
+              222
+            ],
+            "ratio": 10.717
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              242,
+              246,
+              239
+            ],
+            "ratio": 6.369
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              250,
+              244,
+              232
+            ],
+            "ratio": 6.99
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              243,
+              246,
+              243
+            ],
+            "ratio": 6.351
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              245,
+              246,
+              240
+            ],
+            "ratio": 6.404
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              254,
+              254,
+              241
+            ],
+            "ratio": 11.902
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescription/create",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              242,
+              246,
+              239
+            ],
+            "ratio": 6.369
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescription/create",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              250,
+              244,
+              232
+            ],
+            "ratio": 6.99
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescription/create",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              243,
+              246,
+              243
+            ],
+            "ratio": 6.351
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescription/create",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              245,
+              246,
+              240
+            ],
+            "ratio": 6.404
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescription/create",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              254,
+              254,
+              241
+            ],
+            "ratio": 11.902
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "contracts/1",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              242,
+              246,
+              239
+            ],
+            "ratio": 6.369
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "contracts/1",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              250,
+              244,
+              232
+            ],
+            "ratio": 6.99
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "contracts/1",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              243,
+              246,
+              243
+            ],
+            "ratio": 6.351
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "contracts/1",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              245,
+              246,
+              240
+            ],
+            "ratio": 6.404
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "contracts/1",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              254,
+              254,
+              241
+            ],
+            "ratio": 11.902
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescriptions",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              212,
+              227,
+              210
+            ],
+            "ratio": 5.221
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              212,
+              227,
+              210
+            ],
+            "ratio": 5.221
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              212,
+              227,
+              210
+            ],
+            "ratio": 5.221
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              242,
+              246,
+              239
+            ],
+            "ratio": 6.369
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescriptions",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              234,
+              220,
+              197
+            ],
+            "ratio": 5.651
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              234,
+              220,
+              197
+            ],
+            "ratio": 5.651
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              234,
+              220,
+              197
+            ],
+            "ratio": 5.651
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              250,
+              244,
+              232
+            ],
+            "ratio": 6.99
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescriptions",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              220,
+              232,
+              223
+            ],
+            "ratio": 5.495
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              220,
+              232,
+              223
+            ],
+            "ratio": 5.495
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              220,
+              232,
+              223
+            ],
+            "ratio": 5.495
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              243,
+              246,
+              243
+            ],
+            "ratio": 6.351
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescriptions",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              221,
+              230,
+              215
+            ],
+            "ratio": 5.441
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              221,
+              230,
+              215
+            ],
+            "ratio": 5.441
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              221,
+              230,
+              215
+            ],
+            "ratio": 5.441
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              245,
+              246,
+              240
+            ],
+            "ratio": 6.404
+          }
+        ]
+      },
+      {
+        "role": "manager",
+        "route": "prescriptions",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              237,
+              242,
+              219
+            ],
+            "ratio": 10.521
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              237,
+              242,
+              219
+            ],
+            "ratio": 10.521
+          },
+          {
+            "selector": ".directory-table th",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              237,
+              242,
+              219
+            ],
+            "ratio": 10.521
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              254,
+              254,
+              241
+            ],
+            "ratio": 11.902
+          }
+        ]
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "preset": "studio-forest",
+        "samples": [
+          {
+            "selector": ".platform-ops-scope",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              243,
+              247,
+              239
+            ],
+            "ratio": 6.431
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(68, 95, 84)",
+            "background": [
+              243,
+              247,
+              239
+            ],
+            "ratio": 6.431
+          }
+        ]
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "preset": "sandstone-copper",
+        "samples": [
+          {
+            "selector": ".platform-ops-scope",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              251,
+              245,
+              233
+            ],
+            "ratio": 7.032
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(98, 80, 68)",
+            "background": [
+              251,
+              245,
+              233
+            ],
+            "ratio": 7.032
+          }
+        ]
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "preset": "slate-sage",
+        "samples": [
+          {
+            "selector": ".platform-ops-scope",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              244,
+              247,
+              243
+            ],
+            "ratio": 6.417
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(70, 94, 96)",
+            "background": [
+              244,
+              247,
+              243
+            ],
+            "ratio": 6.417
+          }
+        ]
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "preset": "deep-charcoal",
+        "samples": [
+          {
+            "selector": ".platform-ops-scope",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              246,
+              247,
+              240
+            ],
+            "ratio": 6.473
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(80, 92, 87)",
+            "background": [
+              246,
+              247,
+              240
+            ],
+            "ratio": 6.473
+          }
+        ]
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "preset": "high-contrast",
+        "samples": [
+          {
+            "selector": ".platform-ops-scope",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              255,
+              255,
+              241
+            ],
+            "ratio": 11.958
+          },
+          {
+            "selector": ".search-trigger",
+            "foreground": "rgb(36, 59, 47)",
+            "background": [
+              255,
+              255,
+              241
+            ],
+            "ratio": 11.958
+          }
+        ]
+      }
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Actual rendered consumer contrast using exact five public palette variables injected in browser only; no theme persistence/activation; not full-product WCAG certification"
+  },
+  "prior_workspace_observation": {
+    "checks": [
+      {
+        "role": "manager",
+        "route": "settings?tab=clinic",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Settings",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Settings",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=kiosk",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Settings",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "inventory",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Inventory",
+        "dialogs": 8,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "SYNTHETIC EXPIRED STOCK UI FIXTURE",
+        "dialogs": 10,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Reorder List",
+        "dialogs": 5,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "users",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "User Management",
+        "dialogs": 6,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "users/27",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Restricted SyntheticRun",
+        "dialogs": 7,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "examinations",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Examination Management",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "examination/1129",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Examination Details",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "prescription/2",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 404,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "This page could not be found",
+        "dialogs": 0,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "contracts",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 404,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "This page could not be found",
+        "dialogs": 0,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "reports",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Reports",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "patient/26?tab=finances",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "ClosureSynthetic20261029 OwnedLifecycleFixture",
+        "dialogs": 4,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=clinic",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "الإعدادات",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=hours",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "الإعدادات",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "settings?tab=kiosk",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "الإعدادات",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "inventory",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "المخزون",
+        "dialogs": 8,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "inventory/3",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "SYNTHETIC EXPIRED STOCK UI FIXTURE",
+        "dialogs": 10,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "inventory/reorder-list",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "قائمة إعادة الطلب",
+        "dialogs": 5,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "users",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "إدارة المستخدمين",
+        "dialogs": 6,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "users/27",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Restricted SyntheticRun",
+        "dialogs": 7,
+        "menuKeyboard": true
+      },
+      {
+        "role": "manager",
+        "route": "examinations",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "إدارة الفحوصات",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "examination/1129",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "تفاصيل الفحص",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "prescription/2",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 404,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "تعذّر العثور على هذه الصفحة",
+        "dialogs": 0,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "contracts",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 404,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "تعذّر العثور على هذه الصفحة",
+        "dialogs": 0,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "reports",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "التقارير",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "manager",
+        "route": "patient/26?tab=finances",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "ClosureSynthetic20261029 OwnedLifecycleFixture",
+        "dialogs": 4,
+        "menuKeyboard": true
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/dashboard",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Platform overview",
+        "dialogs": 2,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/clinics",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Clinics",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/clinics/1",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "SYNTHETIC CLINIC 1",
+        "dialogs": 8,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/users",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Users",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/users/1",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Synthetic Actor1",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/plans",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Plans",
+        "dialogs": 4,
+        "menuKeyboard": true
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/plan-requests",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Requests",
+        "dialogs": 5,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/invoices",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Invoices",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/invoices/create",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Create invoice",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Operations",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/activity-log",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "System Activity",
+        "dialogs": 2,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/settings?tab=system-preferences",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Platform settings",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/roles",
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Role Management",
+        "dialogs": 4,
+        "menuKeyboard": true
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/dashboard",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "نظرة على المنصة",
+        "dialogs": 2,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/clinics",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "العيادات",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/clinics/1",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "SYNTHETIC CLINIC 1",
+        "dialogs": 8,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/users",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "المستخدمون",
+        "dialogs": 4,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/users/1",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "Synthetic Actor1",
+        "dialogs": 6,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/plans",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "الخطط",
+        "dialogs": 4,
+        "menuKeyboard": true
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/plan-requests",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "الطلبات",
+        "dialogs": 5,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/invoices",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "الفواتير",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/invoices/create",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "إنشاء فاتورة",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/operations?tab=audit",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "العمليات",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/activity-log",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "نشاط النظام",
+        "dialogs": 2,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/settings?tab=system-preferences",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "إعدادات المنصة",
+        "dialogs": 3,
+        "menuKeyboard": null
+      },
+      {
+        "role": "platform",
+        "route": "controlplane/roles",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "status": 200,
+        "overflow": false,
+        "unnamedButtons": [],
+        "heading": "إدارة الأدوار",
+        "dialogs": 4,
+        "menuKeyboard": true
+      }
+    ],
+    "errors": [],
+    "scope": "Actual route/component browser observation with row-menu keyboard/focus where present; no business mutations or full workflow certification"
+  },
+  "observation_limits": [
+    "Workspace observation predates foreground correction and certifies route/menu/overflow only; screenshot inspection found the defect missed by structural checks",
+    "50reachable cases200;4unavailable cases retained: no contracts index route and no prescription2 fixture. Actual contracts1/prescription create/list checked separately, no invented records",
+    "Five-preset variables are injected only in browser; no persisted tenant theme activation",
+    "Contrast harness uses browser canvas conversion of CSS Color4 and composites ancestor backgrounds; not formal WCAG or physicalAT certification",
+    "No blanket COMPLETE status, current native UI rehearsal or new external approval claimed"
+  ],
+  "source_sha256": {
+    "public/assets/css/studio-care.css": "82838ea6658582973972d8ed53cc5ed782600eef7abfa7440a29734d48665dff",
+    "public/assets/css/studio-directory.css": "86139ce662c92c207d127a591741bf2fdf8730d2cbd6f54f8af96e7b64fc2719",
+    "public/assets/css/studio-forms.css": "569def5a69706c7c23cd80dd14131358dfa35a2742cd1ac99b4f691e36b55e20",
+    "public/assets/css/studio-item-detail.css": "8f0a21e0e6d784d37a1779a91d0748c881ef62b6362bd09eaacdc7e60a5c4a83",
+    "public/assets/css/studio-management.css": "f5669273e47b93eb2f687a86fe25896195ad5ba95e835d457eed32f5b9d3f688",
+    "public/assets/css/studio-operations.css": "23088ac9cf29c32be1f280ba4fc7de9e3f6c0a7797e7ab8baec355608d409186",
+    "public/assets/css/studio-records.css": "3d6d0d3f02a687b40045ca42b1a8024f8512365b641d4e431ac7943155c5fece",
+    "public/assets/css/studio.css": "a45ca0a89f9d8f5047bb14eea5670b0ad01fdfda1505b7848a629d3595ba8dce",
+    "tests/regression/StudioShadcnTokensStandalone.php": "ebe6a1c56560428e99807e3c9329f5c19e87bbbb9a5205836bbced9400034df2"
+  },
+  "asset_size": [
+    {
+      "path": "public/assets/css/studio-care.css",
+      "before_bytes": 11211,
+      "after_bytes": 11287
+    },
+    {
+      "path": "public/assets/css/studio-directory.css",
+      "before_bytes": 11010,
+      "after_bytes": 11090
+    },
+    {
+      "path": "public/assets/css/studio-forms.css",
+      "before_bytes": 7105,
+      "after_bytes": 7214
+    },
+    {
+      "path": "public/assets/css/studio-item-detail.css",
+      "before_bytes": 4807,
+      "after_bytes": 4868
+    },
+    {
+      "path": "public/assets/css/studio-management.css",
+      "before_bytes": 17342,
+      "after_bytes": 17330
+    },
+    {
+      "path": "public/assets/css/studio-operations.css",
+      "before_bytes": 5316,
+      "after_bytes": 5369
+    },
+    {
+      "path": "public/assets/css/studio-records.css",
+      "before_bytes": 7437,
+      "after_bytes": 7486
+    },
+    {
+      "path": "public/assets/css/studio.css",
+      "before_bytes": 34350,
+      "after_bytes": 34616
+    },
+    {
+      "path": "tests/regression/StudioShadcnTokensStandalone.php",
+      "before_bytes": 1718,
+      "after_bytes": 2547
+    }
+  ],
+  "preservation": {
+    "passed": true,
+    "original_rows": 583,
+    "tables": {
+      "treatments": {
+        "rows": 130,
+        "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+      },
+      "finances": {
+        "rows": 11,
+        "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+      },
+      "finance_payments": {
+        "rows": 7,
+        "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+      },
+      "examinations": {
+        "rows": 151,
+        "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+      },
+      "treatment_contracts": {
+        "rows": 7,
+        "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+      },
+      "treatment_contract_items": {
+        "rows": 23,
+        "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+      },
+      "odontograms": {
+        "rows": 34,
+        "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+      },
+      "patient_odontogram_snapshots": {
+        "rows": 26,
+        "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+      },
+      "examination_note_signatures": {
+        "rows": 14,
+        "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+      },
+      "patients": {
+        "rows": 22,
+        "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+      },
+      "appointments": {
+        "rows": 143,
+        "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+      },
+      "inventory": {
+        "rows": 3,
+        "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+      },
+      "provider_payouts": {
+        "rows": 6,
+        "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+      },
+      "provider_payout_payments": {
+        "rows": 6,
+        "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+      }
+    },
+    "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+  }
+}

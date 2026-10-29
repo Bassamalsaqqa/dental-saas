@@ -178,3 +178,7 @@ Shared tasks use the current server-refreshed CSRF meta token and existing runti
 ### Reception create recovery
 
 Registration and booking retain the same canonical forms and endpoints. Successful controls are captured before pending fields freeze. Recognized validation restores the original disabled states and entered values. Unconfirmed or denied results cannot be reset through Escape, discard or full-page fallback; the focused registry/schedule link provides explicit read-only recovery, retaining the appointment date. Unknown results keep browser leave protection. This is page lifecycle protection, not a new server idempotency guarantee. Actual lost-response patient and booking commits each produced exactly one owned record; original583 rows remain unchanged. [Scoped receipt](ui-evidence/product-ux/reception-task-recovery.json).
+
+### Semantic role migration
+
+`--muted` is exclusively the shadcn-aligned surface role. Reading text uses `--muted-foreground`; legacy text aliases must not shadow either role.41 older text declarations across shell/care/directory/forms/stock/records now consume the foreground. Generic form paragraphs have low specificity so explicit error/warning/information roles remain authoritative.85 focused token checks cover32 aliases and52 stylesheet consumers; actual110 rendered samples across8workspaces/five browser-injected palettes passed4.5:1. This is not whole-product or physicalAT certification. [Matched before/after evidence](ui-evidence/product-ux/semantic-consumer-correction.json).
