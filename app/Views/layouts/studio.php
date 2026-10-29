@@ -85,7 +85,7 @@ $studioNav=[
 <?= view('components/studio_action_dialog',['studioIcon'=>$studioIcon]) ?>
 <script src="<?= base_url('assets/js/studio-dialogs.js') ?>?v=<?= esc(asset_version('assets/js/studio-dialogs.js')) ?>" defer></script>
 <?= $this->renderSection('scripts') ?>
-<div id="studio-control-labels" hidden data-clear-patient="<?= esc(lang('Studio.clearPatientSelection'),'attr') ?>" data-date="<?= esc(lang('Studio.chooseDate'),'attr') ?>"></div>
+<div id="studio-control-labels" hidden data-retry="<?= esc(lang('Studio.retry'),'attr') ?>" data-previous="<?= esc(lang('Studio.previous'),'attr') ?>" data-next="<?= esc(lang('Studio.next'),'attr') ?>" data-clear-patient="<?= esc(lang('Studio.clearPatientSelection'),'attr') ?>" data-date="<?= esc(lang('Studio.chooseDate'),'attr') ?>"></div>
 <script src="<?= base_url('assets/js/studio-controls.js') ?>?v=<?= esc(asset_version('assets/js/studio-controls.js')) ?>" defer></script>
 <script src="<?= base_url('assets/js/studio-grid.js') ?>?v=<?= esc(asset_version('assets/js/studio-grid.js')) ?>" defer></script>
 <?= view('components/studio_password_controls') ?>

@@ -150,3 +150,7 @@ The new patient Combobox preserves the original select name/id/options as the su
 ### Whole-product acceptance state
 
 P0 migration/source correction, component port, route-family implementation and end-to-end operational acceptance are independent commit/evidence streams. Do not relabel inventory rows COMPLETE because a shell CSS rule applies. Current overall shadcn conversion is **IN PROGRESS**; physical AT, native200/400% zoom, all-state route/persona coverage, full contrast/CSP/print and native financial/clinical journeys remain explicit gates. Production, migrations and theme/optional feature activation remain unauthorized under this campaign.
+
+### Field error ownership
+
+The shared Field port binds server error summary links to the canonical controls in that form, exposes aria-invalid and aria-describedby, opens containing disclosures and focuses the actual Combobox input when applicable. It does not add validation policy. Actual rejected expense POSTs in EN/AR certify error associations without financial inserts. Picker action labels come from escaped Studio locale keys, with a corruption regression; no Arabic literals are duplicated in JavaScript.

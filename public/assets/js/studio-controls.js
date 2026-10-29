@@ -2,6 +2,7 @@
 (() => {
  'use strict';
  const canPopover = typeof HTMLElement.prototype.showPopover === 'function';
+ const errorLinks = new WeakSet();
  const menus = new WeakSet(), dates = new WeakSet(), decorated = new WeakSet(), panels = new WeakSet(), anchors = new WeakMap();
  let serial = 0;
  const items = panel => Array.from(panel.querySelectorAll('a[href],button:not(:disabled),input:not(:disabled),[tabindex="0"]')).filter(node => node.getClientRects().length && !node.closest('[hidden]'));
@@ -73,8 +74,27 @@
   const label=Array.from(input.labels||[]).map(e=>e.textContent.trim()).join(' ');button.setAttribute('aria-label',label);button.title=label;
   const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),circle=document.createElementNS(ns,'circle'),path=document.createElementNS(ns,'path');for(const[k,v]of Object.entries({viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':'1.7','aria-hidden':'true'}))svg.setAttribute(k,v);circle.setAttribute('cx','12');circle.setAttribute('cy','12');circle.setAttribute('r','9');path.setAttribute('d','M12 7v5l3 2');svg.append(circle,path);button.append(svg);input.before(wrap);wrap.append(input,button);button.disabled=input.disabled||input.readOnly;button.addEventListener('click',()=>{if(input.disabled||input.readOnly)return;try{input.showPicker();}catch{input.focus();}});
  }
+ function bindErrorSummary(summary) {
+  const owner=summary.closest('form') || summary.parentElement?.querySelector(':scope > form') || summary.closest('dialog')?.querySelector('form');
+  if(!owner)return;
+  summary.querySelectorAll('a[href^="#"]').forEach(link=>{
+   if(errorLinks.has(link))return;
+   let key;try{key=decodeURIComponent(link.getAttribute('href').slice(1));}catch{return;}
+   const bracketKey=key.replace(/\.([^.]+)/g,'[$1]');
+   const control=Array.from(owner.elements).find(field=>field.name===key||field.id===key||field.name===bracketKey);
+   if(!control||control.type==='hidden'||control.disabled)return;
+   errorLinks.add(link);control.id||='studio-invalid-field-'+ ++serial;link.id||='studio-field-error-'+ ++serial;
+   control.setAttribute('aria-invalid','true');
+   const described=new Set((control.getAttribute('aria-describedby')||'').split(/\s+/).filter(Boolean));described.add(link.id);control.setAttribute('aria-describedby',Array.from(described).join(' '));
+   const focusTarget=()=>control.closest('.studio-combobox')?.querySelector('[role=combobox]')||control;
+   const actual=focusTarget();if(actual!==control){actual.setAttribute('aria-invalid','true');actual.setAttribute('aria-describedby',Array.from(described).join(' '));}
+   link.setAttribute('href','#'+encodeURIComponent(actual.id||control.id));
+   link.addEventListener('click',event=>{event.preventDefault();for(let node=control.parentElement;node&&node!==owner;node=node.parentElement)if(node.tagName==='DETAILS')node.open=true;const target=focusTarget();if(target.getClientRects().length){target.focus({preventScroll:true});target.closest('.form-field')?.scrollIntoView({block:'center'});}});
+  });
+ }
  function enhance(root) {
   if (root.nodeType !== 1 && root !== document) return;
+  if(root.matches?.('[data-native-errors],.form-notice--error'))bindErrorSummary(root);root.querySelectorAll?.('[data-native-errors],.form-notice--error').forEach(bindErrorSummary);
   if(root.matches?.('input[type=time]'))bindTime(root);root.querySelectorAll?.('input[type=time]').forEach(bindTime);
   if(root.matches?.('button[data-studio-icon]'))bindIcon(root);root.querySelectorAll?.('button[data-studio-icon]').forEach(bindIcon);
   if (root.matches?.('.workspace-action-menu')) bindRow(root);

@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "lang": "en",
+      "actualRejectedPost": true,
+      "linkedServerErrors": 4,
+      "focusAndAriaAssociation": true
+    },
+    {
+      "lang": "ar",
+      "actualRejectedPost": true,
+      "linkedServerErrors": 4,
+      "focusAndAriaAssociation": true
+    }
+  ],
+  "errors": [],
+  "financialInsert": false,
+  "scope": "Actual rejected native finance POST with source-backed field errors, EN/AR focus and descriptions; no validation policy changed",
+  "source_baseline": "85bdd00",
+  "limits": [
+    "Focused field associations and rejected POST checks; not whole-product financial certification."
+  ],
+  "picker_label_checks": 10,
+  "actual_picker_checks": 9,
+  "preserved_original_rows": 571
+}
