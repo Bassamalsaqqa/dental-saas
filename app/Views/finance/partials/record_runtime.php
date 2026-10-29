@@ -1,6 +1,6 @@
 <script>
 const financeBaseCurrency = '<?= esc($baseCurrency) ?>';
-let financeModalLastTrigger = null;
+const financeModalTriggers = new WeakMap();
 
 function mountFinanceModal(id) {
     const modal = document.getElementById(id);
@@ -11,7 +11,7 @@ function mountFinanceModal(id) {
 }
 
 function getOpenFinanceModal() {
-    return document.querySelector('[data-finance-modal-root]:not(.hidden)');
+    return document.querySelector('dialog[data-finance-modal-root][open]');
 }
 
 function getFinanceModalFocusable(modal) {
@@ -28,13 +28,14 @@ function openFinanceModal(id, trigger = null) {
     if (!modal) {
         return;
     }
-    financeModalLastTrigger = trigger || document.activeElement;
+    financeModalTriggers.set(modal, trigger || document.activeElement);
     modal.classList.remove('hidden');
+    if (modal instanceof HTMLDialogElement && !modal.open) modal.showModal();
     document.body.classList.add('overflow-hidden');
     const focusable = getFinanceModalFocusable(modal);
     const focusTarget = focusable.find((element) => ['INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) || focusable[0];
     if (focusTarget) {
-        window.setTimeout(() => focusTarget.focus(), 50);
+        window.setTimeout(() => { if (getOpenFinanceModal() === modal) focusTarget.focus(); }, 50);
     }
 }
 
@@ -43,13 +44,13 @@ function closeFinanceModal(id) {
     if (!modal) {
         return;
     }
+    if (modal instanceof HTMLDialogElement && modal.open) { modal.close(); return; }
     modal.classList.add('hidden');
-    if (!document.querySelector('[data-finance-modal-root]:not(.hidden)')) {
+    if (!getOpenFinanceModal()) {
         document.body.classList.remove('overflow-hidden');
     }
-    if (financeModalLastTrigger && typeof financeModalLastTrigger.focus === 'function') {
-        window.setTimeout(() => financeModalLastTrigger.focus(), 0);
-    }
+    const trigger = financeModalTriggers.get(modal);
+    if (trigger?.isConnected) requestAnimationFrame(() => trigger.focus());
 }
 
 function closeOpenFinanceModals() {
@@ -61,38 +62,19 @@ function closeOpenFinanceModals() {
 }
 
 document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') {
+    const activeDialog = document.activeElement?.closest('dialog[open]');
+    if (event.defaultPrevented || (activeDialog && !activeDialog.matches('[data-finance-modal-root]'))) return;
+    if (event.key === 'Escape' && getOpenFinanceModal()) {
+        event.preventDefault();
         closeOpenFinanceModals();
         return;
     }
 
-    if (event.key !== 'Tab') {
-        return;
-    }
-
-    const modal = getOpenFinanceModal();
-    if (!modal) {
-        return;
-    }
-
-    const focusable = getFinanceModalFocusable(modal);
-    if (!focusable.length) {
-        return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-    }
-});
+}, true);
 
 document.querySelectorAll('[data-finance-modal-root]').forEach((modal) => {
+    modal.addEventListener('cancel', event => { event.preventDefault(); closeFinanceModal(modal.id); });
+    modal.addEventListener('close', () => closeFinanceModal(modal.id));
     modal.addEventListener('click', function (event) {
         if (event.target === modal || event.target.classList.contains('finance-inline-modal-backdrop')) {
             closeFinanceModal(modal.id);

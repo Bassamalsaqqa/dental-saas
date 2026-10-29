@@ -974,6 +974,22 @@
     "Existing random three-digit-per-day treatment ID collision caused one rolled-back create; explicit retry succeeded; original failure receipt retained. Identifier design unchanged in this bounded correction.",
     "First other-type filter assertion assumed its record was in the first100 older matches; actual bounded search+type query passed. No runtime filter was changed.",
     "Synthetic transport/header and locator corrections are recorded privately; no expectations weakened to accept corrupted clinical values.",
-    "Full optional charge/inventory linked path, native end-to-end43-choice test and whole-app shadcn/theme/accessibility gates remain unfinished."
-  ]
+    "Local optional charge/inventory path passed; native end-to-end43-choice test and whole-app shadcn/theme/accessibility gates remain unfinished."
+  ],
+  "linked_workflow": {
+    "checks": [
+      "Initial synthetic source-id collision failed closed: no usage/treatment/stock change; pre-existing COGS source-id1 retained",
+      "Explicit planned25ILS charge created exactly once, unbilled; new treatment key preserved",
+      "One usage record consumes exactly1 of3 new stock, cost2.50, canonical movement reference",
+      "Proposed procedure remains distinct from charge; no automatic patient invoice"
+    ],
+    "owned": {
+      "inventory": 4,
+      "treatment": 1230,
+      "charge": 1,
+      "usage": 2
+    },
+    "errors": [],
+    "scope": "Actual routed inventory/treatment forms and SQL readback, authentic67-table schema with26FKs, synthetic only"
+  }
 }

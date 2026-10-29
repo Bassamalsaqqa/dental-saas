@@ -1,4 +1,4 @@
-<div id="paymentModal" class="fr-modal hidden" data-finance-modal-root="paymentModal" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle">
+<dialog id="paymentModal" class="fr-modal hidden" data-finance-modal-root="paymentModal" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-describedby="paymentModalDescription">
         <div class="finance-inline-modal-backdrop" data-finance-close="paymentModal"></div>
         <div  data-finance-close-self="paymentModal">
             <div class="finance-inline-modal-panel" data-finance-panel>
@@ -9,7 +9,7 @@
                             <span><?= esc($ui['paymentKicker']) ?></span>
                         </span>
                         <h4 id="paymentModalTitle" ><?= esc($ui['recordPayment']) ?></h4>
-                        <p ><?= esc($ui['paymentNotice']) ?> <span ><?= esc($baseCurrency) ?></span>.</p>
+                        <p id="paymentModalDescription"><?= esc($ui['paymentNotice']) ?> <span ><?= esc($baseCurrency) ?></span>.</p>
                     </div>
                     <button type="button"  data-finance-close="paymentModal">
                         <?= esc(lang('Studio.close')) ?>
@@ -19,23 +19,23 @@
                     <?= csrf_field() ?>
                     <div class="finance-inline-modal-grid">
                         <div class="fr-field">
-                            <label >
+                            <label for="paymentModalField1" >
 
                                 <span><?= esc($ui['amountRequired']) ?></span>
                             </label>
                             <div >
-                                <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
+                                <input id="paymentModalField1" type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
                                        class="finance-show-input"
                                        placeholder="0.00" required>
                             </div>
                         </div>
                         <div class="fr-field">
-                            <label >
+                            <label for="paymentModalField2" >
 
                                 <span><?= lang('Finance.currency') ?></span>
                             </label>
                             <div >
-                                <select name="currency" data-settlement-currency class="finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.currency')) ?>">
+                                <select id="paymentModalField2" name="currency" data-settlement-currency class="finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.currency')) ?>">
                                     <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
                                         <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
                                     <?php endforeach; ?>
@@ -48,22 +48,22 @@
                     </div>
                     <div class="finance-inline-modal-grid finance-inline-modal-grid-3">
                         <div class="fr-field">
-                            <label >
+                            <label for="paymentModalField3" >
 
                                 <span><?= lang('Finance.exchangeRate') ?></span>
                             </label>
                             <div >
-                                <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
+                                <input id="paymentModalField3" type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
                                        class="finance-show-input">
                             </div>
                         </div>
                         <div class="fr-field">
-                            <label >
+                            <label for="paymentModalBaseAmount">
 
                                 <span><?= lang('Finance.amountBase') ?> (<?= esc($baseCurrency) ?>)</span>
                             </label>
                             <div >
-                                <input type="text" data-settlement-base readonly
+                                <input id="paymentModalBaseAmount" type="text" data-settlement-base readonly
                                        class="finance-show-input"
                                        value="0.00">
                             </div>
@@ -71,12 +71,12 @@
                     </div>
                     <div class="finance-inline-modal-grid">
                         <div class="fr-field">
-                            <label >
+                            <label for="paymentModalField4" >
 
                                 <span><?= esc($ui['methodRequired']) ?></span>
                             </label>
                             <div >
-                                <select name="payment_method" class="finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
+                                <select id="paymentModalField4" name="payment_method" class="finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
                                     <option value="cash"><?= lang('Finance.cash') ?></option>
                                     <option value="card"><?= lang('Finance.card') ?></option>
                                     <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -90,7 +90,7 @@
                         </div>
                         <?php if ($isExpense): ?>
                         <div class="hidden fr-field" id="settlementLiquidityAccountField">
-                            <label >
+                            <label for="settlementLiquidityAccount" >
 
                                 <span><?= lang('Finance.paidFromAccount') ?></span>
                             </label>
@@ -108,23 +108,23 @@
                         </div>
                         <?php endif; ?>
                         <div class="fr-field">
-                            <label >
+                            <label for="paymentModalField6" >
 
                                 <span><?= lang('Finance.dateRequired') ?></span>
                             </label>
                             <div >
-                                <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>"
+                                <input id="paymentModalField6" type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>"
                                        class="finance-show-input">
                             </div>
                         </div>
                     </div>
                     <div class="fr-field">
-                        <label >
+                        <label for="paymentModalField7" >
 
                             <span><?= lang('Finance.notes') ?></span>
                         </label>
                         <div >
-                            <textarea name="notes" rows="2"
+                            <textarea id="paymentModalField7" name="notes" rows="2"
 
                                       placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
@@ -140,4 +140,4 @@
                 </form>
             </div>
         </div>
-    </div>
+    </dialog>

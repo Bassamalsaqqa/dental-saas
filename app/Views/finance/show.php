@@ -985,6 +985,5 @@
 <?php include APPPATH.'Views/components/studio_csrf_runtime.php'; ?>
 <?php include APPPATH.'Views/finance/partials/field_widgets.php'; ?>
 <?php include APPPATH.'Views/finance/partials/record_runtime.php'; ?>
-<script src="<?= base_url('assets/js/studio-finance-record.js') ?>?v=<?= esc(asset_version('assets/js/studio-finance-record.js')) ?>" defer></script>
 <script src="<?= base_url('assets/js/studio-finance-controls.js') ?>?v=<?= esc(asset_version('assets/js/studio-finance-controls.js')) ?>" defer></script>
 <?= $this->endSection() ?>

@@ -154,3 +154,7 @@ P0 migration/source correction, component port, route-family implementation and 
 ### Field error ownership
 
 The shared Field port binds server error summary links to the canonical controls in that form, exposes aria-invalid and aria-describedby, opens containing disclosures and focuses the actual Combobox input when applicable. It does not add validation policy. Actual rejected expense POSTs in EN/AR certify error associations without financial inserts. Picker action labels come from escaped Studio locale keys, with a corruption regression; no Arabic literals are duplicated in JavaScript.
+
+### Finance Dialog port
+
+Payment, refund and allocation-payment forms now use native modal dialogs with source-associated labels and descriptions. Native modality owns inert background/focus containment; the prior observer/automatic-label shim is removed. Each dialog owns its opener; Escape in a nested action notice retains its parent. Short settlement forms use a640px maximum panel and canonical field-height tokens; long mobile content scrolls naturally. Existing FormData, CSRF, payment/refund/provider endpoints and calculations remain unchanged. Actual successful5ILS payment/refund forms were verified on the owned invoice after conversion;24 read-only EN/AR viewport cases include provider labels and focus, not provider payout persistence.

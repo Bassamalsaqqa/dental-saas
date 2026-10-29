@@ -1,0 +1,334 @@
+{
+  "source_baseline": "730fdbe",
+  "scope": "Finance owned Dialog/Field port and authentic-schema linked workflow acceptance; overall campaign remains IN_PROGRESS",
+  "dialog": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 768,
+        "height": 1024,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 768,
+        "height": 1024,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 768,
+        "height": 1024,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 390,
+        "height": 844,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 390,
+        "height": 844,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 390,
+        "height": 844,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 1366,
+        "height": 900,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 1366,
+        "height": 900,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 1366,
+        "height": 900,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 768,
+        "height": 1024,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 768,
+        "height": 1024,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 768,
+        "height": 1024,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 844,
+        "height": 390,
+        "id": "paymentModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 844,
+        "height": 390,
+        "id": "refundModal",
+        "nativeInert": true,
+        "labels": 7,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      },
+      {
+        "lang": "ar",
+        "width": 844,
+        "height": 390,
+        "id": "providerPayoutModal1",
+        "nativeInert": true,
+        "labels": 5,
+        "keyboardAndReturn": true,
+        "submitReachable": true
+      }
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Actual payment/refund/provider Dialog field labels, native inert focus, Escape/return, viewport and reachable submit; no financial form submission"
+  },
+  "existing_settlement_forms": {
+    "checks": [
+      "Actual100ILS invoice create, no initial receipt, default-OFF checkout preserved",
+      {
+        "type": "payment",
+        "actualUiPost": true,
+        "amount": 40,
+        "expectedPaid": 40,
+        "expectedBalance": 60,
+        "ledgerRows": 1
+      },
+      {
+        "type": "refund",
+        "actualUiPost": true,
+        "amount": 10,
+        "expectedPaid": 30,
+        "expectedBalance": 70,
+        "ledgerRows": 2
+      },
+      "Patient money workspace remains accessible in Arabic after canonical payment/refund"
+    ],
+    "owned": {
+      "invoice": 800015,
+      "payment": 8,
+      "refund": 9
+    },
+    "errors": [],
+    "scope": "Actual native invoice Dialog + existing settlement/refund forms with SQL ledger/AR readback, synthetic authentic schema only"
+  },
+  "changed_native_dialog_submissions": {
+    "checks": [
+      {
+        "type": "payment",
+        "actualUiPost": true,
+        "amount": 5,
+        "expectedPaid": 35,
+        "expectedBalance": 65,
+        "ledgerRows": 3
+      },
+      {
+        "type": "refund",
+        "actualUiPost": true,
+        "amount": 5,
+        "expectedPaid": 30,
+        "expectedBalance": 70,
+        "ledgerRows": 4
+      },
+      "Patient money workspace remains accessible in Arabic after canonical payment/refund"
+    ],
+    "owned": {
+      "invoice": 800015,
+      "payment": 10,
+      "refund": 11
+    },
+    "errors": [],
+    "scope": "Actual native invoice Dialog + existing settlement/refund forms with SQL ledger/AR readback, synthetic authentic schema only"
+  },
+  "treatment_charge_inventory": {
+    "checks": [
+      "Initial synthetic source-id collision failed closed: no usage/treatment/stock change; pre-existing COGS source-id1 retained",
+      "Explicit planned25ILS charge created exactly once, unbilled; new treatment key preserved",
+      "One usage record consumes exactly1 of3 new stock, cost2.50, canonical movement reference",
+      "Proposed procedure remains distinct from charge; no automatic patient invoice"
+    ],
+    "owned": {
+      "inventory": 4,
+      "treatment": 1230,
+      "charge": 1,
+      "usage": 2
+    },
+    "errors": [],
+    "scope": "Actual routed inventory/treatment forms and SQL readback, authentic67-table schema with26FKs, synthetic only"
+  },
+  "original_rows_preserved": 571,
+  "tailwind_sha256": "3a51d2fffb54ae89fbb4188e3b1ddfc2bce09c7e81148adba78ce750b7fd801a",
+  "production_changed": false,
+  "limits": [
+    "No provider payout mutation in this slice: provider modal labels/modality tested read-only.",
+    "The pre-existing synthetic orphan COGS source1 caused initial usage creation to fail closed; usage/treatment/stock rolled back, original financial history retained, explicit retry allocated usage2.",
+    "The first finance harness raced the legitimate post-payment reload; SQL confirmed exactly one payment, then only refund resumed. No duplicate payment replay.",
+    "Local authentic-schema evidence is not current-source native Hostinger UI certification.",
+    "No physical assistive-technology or complete theme/print/whole-product acceptance claim."
+  ]
+}

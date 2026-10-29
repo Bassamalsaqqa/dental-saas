@@ -1,4 +1,4 @@
-<div id="<?= esc($providerPayoutModalId) ?>" class="fr-modal hidden" data-finance-modal-root="<?= esc($providerPayoutModalId) ?>" role="dialog" aria-modal="true" aria-labelledby="<?= esc($providerPayoutModalId) ?>Title">
+<dialog id="<?= esc($providerPayoutModalId) ?>" class="fr-modal hidden" data-finance-modal-root="<?= esc($providerPayoutModalId) ?>" role="dialog" aria-modal="true" aria-labelledby="<?= esc($providerPayoutModalId) ?>Title" aria-describedby="<?= esc($providerPayoutModalId) ?>Description">
             <div class="finance-inline-modal-backdrop" data-finance-close="<?= esc($providerPayoutModalId) ?>"></div>
             <div  data-finance-close-self="<?= esc($providerPayoutModalId) ?>">
                 <div class="finance-inline-modal-panel" data-finance-panel>
@@ -9,7 +9,7 @@
                                 <span><?= esc($providerPayoutUi['kicker']) ?></span>
                             </span>
                             <h4 id="<?= esc($providerPayoutModalId) ?>Title" ><?= esc($providerPayoutUi['action']) ?></h4>
-                            <p ><?= esc($providerPayoutUi['notice']) ?></p>
+                            <p id="<?= esc($providerPayoutModalId) ?>Description"><?= esc($providerPayoutUi['notice']) ?></p>
                         </div>
                         <button type="button"  data-finance-close="<?= esc($providerPayoutModalId) ?>">
                             <?= esc(lang('Studio.close')) ?>
@@ -45,19 +45,19 @@
                         </div>
                         <div class="finance-inline-modal-grid finance-inline-modal-grid-3">
                             <div class="fr-field">
-                                <label >
+                                <label for="<?= esc($providerPayoutModalId) ?>Field1" >
 
                                     <span><?= esc($ui['amountRequired']) ?></span>
                                 </label>
-                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayoutAmountValue) ?>" value="<?= esc($providerPayoutAmountValue) ?>" class="finance-show-input" placeholder="0.00" required>
+                                <input id="<?= esc($providerPayoutModalId) ?>Field1" type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayoutAmountValue) ?>" value="<?= esc($providerPayoutAmountValue) ?>" class="finance-show-input" placeholder="0.00" required>
                             </div>
                             <div class="fr-field">
-                                <label >
+                                <label for="<?= esc($providerPayoutModalId) ?>Field2" >
 
                                     <span><?= esc($ui['methodRequired']) ?></span>
                                 </label>
                                 <div >
-                                    <select name="payment_method" class="provider-payout-method-input finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
+                                    <select id="<?= esc($providerPayoutModalId) ?>Field2" name="payment_method" class="provider-payout-method-input finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>">
                                         <option value="cash"><?= lang('Finance.cash') ?></option>
                                         <option value="card"><?= lang('Finance.card') ?></option>
                                         <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -70,21 +70,21 @@
                                 </div>
                             </div>
                             <div class="fr-field">
-                                <label >
+                                <label for="<?= esc($providerPayoutModalId) ?>Field3" >
 
                                     <span><?= lang('Finance.dateRequired') ?></span>
                                 </label>
-                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="finance-show-input">
+                                <input id="<?= esc($providerPayoutModalId) ?>Field3" type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="finance-show-input">
                             </div>
                         </div>
                         <div class="finance-inline-modal-grid">
                             <div class="provider-payout-liquidity-account-field hidden fr-field">
-                                <label >
+                                <label for="<?= esc($providerPayoutModalId) ?>Field4" >
 
                                     <span><?= lang('Finance.paidFromAccount') ?></span>
                                 </label>
                                 <div >
-                                    <select name="liquidity_account" class="finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
+                                    <select id="<?= esc($providerPayoutModalId) ?>Field4" name="liquidity_account" class="finance-show-select finance-modal-select" data-searchable-select data-minimum-input-length="0" data-allow-clear="false" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>">
                                         <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
                                         <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
                                     </select>
@@ -96,11 +96,11 @@
                             </div>
                         </div>
                         <div class="fr-field">
-                            <label >
+                            <label for="<?= esc($providerPayoutModalId) ?>Field5" >
 
                                 <span><?= esc($providerPayoutUi['historyNotes']) ?></span>
                             </label>
-                            <textarea name="notes" rows="2" class="finance-show-input" placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
+                            <textarea id="<?= esc($providerPayoutModalId) ?>Field5" name="notes" rows="2" class="finance-show-input" placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
                         <div class="finance-inline-modal-actions">
                             <button type="button" data-finance-close="<?= esc($providerPayoutModalId) ?>" >
@@ -113,4 +113,4 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </dialog>
