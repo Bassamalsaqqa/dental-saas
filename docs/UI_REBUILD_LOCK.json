@@ -723,5 +723,150 @@
       "after": "PASS actual saved empty/healthy and EN/AR responsive checks",
       "independent_acceptance": "PENDING"
     }
+  },
+  "active_pr22_source_lock": {
+    "status": "AUTHORIZED_SOURCE_IDENTITY_ONLY_NOT_RELEASE_ACCEPTANCE",
+    "candidate_commit": "c5e0a5a625f397681779081477da55ae0ef6790b",
+    "candidate_tree": "62857631909fbab26efab8d2f448900df76375e5",
+    "last_recorded_release_commit": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
+    "last_recorded_release_tree": "188433ad669477aa0c6812acd09fcc3ecd2c67eb",
+    "production_reverified_this_session": true,
+    "protected_release_objects": {
+      "app/Controllers": "557b81fb25de5a687e632b4f5e9b76a2b54e30f1",
+      "app/Models": "fe671e07fdd00ba152c0ed97e933f89a3c3cbacf",
+      "app/Services": "e41018faaeff7df300927aac674754554a84ef76",
+      "app/Config": "ad41341d6f2b1a11855f23fd754bf5122a5e60a3",
+      "app/Database": "8f4fefb1a81cc65d66936b8afbbbdc28930e35db",
+      "system": "d53d0fee9effa65803092c6f9868c45aef759513",
+      "app/Views/odontogram": "4dd727a874f9ea5d09ea30a3eb923148c9fa08b3",
+      "composer.json": "5ebbaed729992ec1e50beecde9ee08ffbcaa7f88",
+      "composer.lock": "c18c3f99df8b4bd255024b17ede07d29694f2b88",
+      "package.json": "5979c69cf196307d5e6ed1b0e8306ecaa41d38e2",
+      "package-lock.json": "81f23980ec3859a6610646ab23ea222cefcfdd17",
+      "LICENSE": "fd7fc9c62d782f1448ba097855502030db3e15aa",
+      "THIRD_PARTY_NOTICES.md": "5d2ad3d0184b04cff099647309894b3d900b0ebd"
+    },
+    "authorized_protected_deltas": {
+      "app/Config/Routes.php": {
+        "baseline_git_blob": "a30ef61775470d5fcdead2abcb58ef3c34a8a288",
+        "candidate_git_blob": "60e5a0aa0c2f4dcb24867161440fdbd2e4516a79",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Config/StudioThemes.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "df2c9a6e7b2ea41d28a243d68345637c9a9bee58",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/ControlPlane.php": {
+        "baseline_git_blob": "c20effe2e75e97df7194de72574add25f1b665aa",
+        "candidate_git_blob": "2a6bda6cab2fd3bef40dc74eb27cf676da03d922",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/ControlPlane/Clinics.php": {
+        "baseline_git_blob": "f6148b3ddb0a62fc37be2c79df1324385a980367",
+        "candidate_git_blob": "0276620518f3b4327f45925b790a74b1767afcf7",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/ControlPlane/Invoices.php": {
+        "baseline_git_blob": "1d1dcb7ee600bdf259dcb21c11536eaa4fb7de45",
+        "candidate_git_blob": "44f6f5ccaeea287bba1ebc1bdcedba878540af2c",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/ControlPlane/Plans.php": {
+        "baseline_git_blob": "42d16bce2da3aae7cd0f29b802d449fc60136cc0",
+        "candidate_git_blob": "8b52a121a16e23d1b0fd9e12d35b4292563065fe",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/Examination.php": {
+        "baseline_git_blob": "24a842a781a6597aab53f2c850f212ff5faef6e1",
+        "candidate_git_blob": "279630a5bb6e994fbeff4db3c85990deb9f0dff9",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/Finance.php": {
+        "baseline_git_blob": "87f8dc7e53e7423c5c3448c38e3a5b4f54308288",
+        "candidate_git_blob": "0fa16c8a4e21f295b5b38afef67f93daf4e2e149",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/RoleController.php": {
+        "baseline_git_blob": "7a77d6a4b7c2930155abbf5831cd5672eb9ea44d",
+        "candidate_git_blob": "7888ec29f49c9d97a6c28aae2c86655874a7fab6",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/StudioThemes.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "01bab9e969d356898b3e1cd429b9e204eb8285a2",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/Treatment.php": {
+        "baseline_git_blob": "4df0e1e80aa3f3fe376ab2d280866f1008d88a89",
+        "candidate_git_blob": "e0fe2109cf06db879fffba2d2beefd0ad34a4f12",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Controllers/Users.php": {
+        "baseline_git_blob": "0c1bd548bbb55d9e6799ffd48fc5169cc3181879",
+        "candidate_git_blob": "9966545dd232bc73123bb86b91ad52a7aeaeed5e",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Database/Migrations/2026-10-28-120000_CreateStudioThemeHistory.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "d1b59cd523178dbeed4e56f5046f8e7c4bdbb668",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "943bf391e78c4fd03bcbd93ce7fed8378f17506d",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Database/Migrations/2026-10-29-180000_CreateFinanceSettlementRequests.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "3f73e0be219a6f7c675213d815219e0ea4d7c672",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/FinanceMutationService.php": {
+        "baseline_git_blob": "c47cc49e4b9c494e81f37e2035438fe87adf814d",
+        "candidate_git_blob": "f211471f300168e8f4fc4cb875f21738c0960044",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/FinanceSettlementConflict.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "ea15671a22d0ae9eddc4475f87a023fd0a1cf4d3",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/FinanceSettlementRequestService.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "b40e13f2b60892ce867d16e9f507f119a5a916da",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/FinanceSettlementService.php": {
+        "baseline_git_blob": "b51d2ff7545ae7af075cb5eb25b12f4ec55dffb3",
+        "candidate_git_blob": "3fbc9c31549411ab0969cfd31b3849ccdf50fae3",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/StudioThemeAccess.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "7df5fc3aea55b0286650287dfe6a23fdb80c8d95",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/StudioThemeCatalog.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "8bda0de4b14903674f4b6330a5dfc7d995ba9193",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/StudioThemeContrastException.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "5ccb682a59a568a3abd5d6da9548ea9ea3b14465",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      },
+      "app/Services/StudioThemeStore.php": {
+        "baseline_git_blob": null,
+        "candidate_git_blob": "1267d146d8e3a564a7db5f29c1b77b7c346477fc",
+        "authorization": "Existing PR22 Owner-authorized development scope; financial correction independently accepted per Owner final-readiness instruction. This pin verifies source boundaries, not whole-app or production acceptance."
+      }
+    },
+    "financial_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5704555130",
+    "runtime_rule": "All unlisted protected files and all protected additions/deletions remain fail-closed. Historical PR21 pins above are retained unchanged.",
+    "release_gate": "Whole-app workflow/native/recovery acceptance remains separate. Theme migration excluded; theme switch stays OFF.",
+    "financial_review_disposition": "COMMENTED; bounded financial replay/stale-state source correction ACCEPTED; whole PR CHANGES REQUIRED; production NO-GO",
+    "production_metadata_receipt": "Final readiness read-only SSH preflight: exact29dce746/tree188433ad; PHP8.3.36/MariaDB11.8.9;67tables/77migration rows/0triggers"
   }
 }

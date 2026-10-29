@@ -76,3 +76,7 @@ Owner review accepts the recent finance/reception UX at8d750e10 in scoped terms,
 ## Current PR22 surgical financial correction (development only)
 
 Review5701870044 at cde62b83 authorized durable request identity, locked stale-state rejection and isolated additive-schema tests. Implementation and focused actual SQL/multi-worker/browser evidence are prepared for independent acceptance; see [CURRENT_ACCEPTANCE](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md). Production was not contacted or changed. No migration batch, deployment, feature activation or new whole-app acceptance is implied. The new request schema requires separate production authorization before settlement rollout.
+
+## PR22 final readiness ? production NO-GO
+
+Accepted financial runtime remains c5e0a5a6/tree62857631; review5704555130 is COMMENTED with bounded acceptance, whole-PR changes required. Read-only live29dce746/tree188433ad reconfirmed. Native production-compatible synthetic rehearsal reproduces treatment widening refusal on38empty historical ENUM keys; no live record changed. Independent native request migration/service smoke and fresh encrypted off-host67table/9,664row recovery restoration passed. Existing web rehearsal was not switched. Source/coverage pins reconciled without promoting201pending entries. See [consolidated report](ui-evidence/product-ux/FINAL_RELEASE_READINESS.md). No production migration/source deployment/feature activation or Actions.

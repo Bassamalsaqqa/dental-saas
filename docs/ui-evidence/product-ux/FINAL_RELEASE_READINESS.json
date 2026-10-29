@@ -1,0 +1,242 @@
+{
+  "decision": "PRODUCTION_NO_GO",
+  "accepted_runtime_commit": "c5e0a5a625f397681779081477da55ae0ef6790b",
+  "accepted_runtime_tree": "62857631909fbab26efab8d2f448900df76375e5",
+  "review": {
+    "id": 5704555130,
+    "state": "COMMENTED",
+    "bounded_financial_correction": "ACCEPTED",
+    "whole_pr": "CHANGES_REQUIRED"
+  },
+  "production": {
+    "commit": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
+    "tree": "188433ad669477aa0c6812acd09fcc3ecd2c67eb",
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "tables": 67,
+    "migration_history_rows": 77,
+    "triggers": 0,
+    "protected_source_and_config_unchanged": true,
+    "production_changes": false
+  },
+  "treatment_blocker": {
+    "column": {
+      "COLUMN_TYPE": "enum('cleaning','extraction','filling','crown','root_canal','orthodontic','implant','other')",
+      "IS_NULLABLE": "NO",
+      "COLUMN_DEFAULT": null,
+      "COLLATION_NAME": "utf8mb4_general_ci"
+    },
+    "historical_value_counts": [
+      {
+        "value_hex": "",
+        "n": "38"
+      },
+      {
+        "value_hex": "636C65616E696E67",
+        "n": "1"
+      },
+      {
+        "value_hex": "63726F776E",
+        "n": "4"
+      },
+      {
+        "value_hex": "65787472616374696F6E",
+        "n": "1"
+      }
+    ]
+  },
+  "native_probe": {
+    "status": "PRODUCTION_NO_GO",
+    "candidate": "c5e0a5a625f397681779081477da55ae0ef6790b",
+    "tree": "62857631909fbab26efab8d2f448900df76375e5",
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "schema_tables": 67,
+    "synthetic_database": "u556956644_pr22r1030",
+    "verified_source_files": 2029,
+    "synthetic_empty_enum_rows": 38,
+    "treatment_migration_refused": "Unrecognized historical treatment type; preserve and review before conversion.",
+    "treatment_rows_and_schema_unchanged": true,
+    "refusal_seconds": 2.2669990062713623,
+    "combined_migration_sequence_completed": false,
+    "production_changes": false,
+    "existing_rehearsal_gateway_unchanged": true,
+    "request_migration_independent_native_pass": true,
+    "request_create_seconds": 0.22293400764465332
+  },
+  "native_settlement": {
+    "passed": true,
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "one_receipt": true,
+    "one_audit": true,
+    "safe_cash_preserved": true,
+    "exact_replay_same_result": true,
+    "different_key_stale_rejected": true,
+    "scope": "Independent native synthetic settlement-service SQL smoke only; not HTTP/native complete application rehearsal",
+    "production_changes": false
+  },
+  "artifact": {
+    "raw_git_files_verified": 2029,
+    "sha256": "d84fc1b47ae4d857dbd568f8019d201b2f568f22112889dd0bed6e8b9e9646bf",
+    "first_crlf_artifact_rejected_and_preserved": true,
+    "existing_rehearsal_gateway_preserved": true,
+    "candidate_published_to_gateway": false
+  },
+  "recovery": {
+    "checkpoint": "denta-pr22-final-20261030",
+    "artifacts": {
+      "database.sql.gz": {
+        "bytes": 19154783,
+        "encrypted_sha256": "111e5ee2921b3af6af90bc8852c9de2261104be6c7de75f92ce0d292053c0719",
+        "hmac_verified": true,
+        "decryption_verified": true,
+        "gzip_crc": "PASS"
+      },
+      "protected-files.tar.gz": {
+        "bytes": 18984429,
+        "encrypted_sha256": "edd0be3beb251a9bcc1bf56ed5c3e12ccddd264e572d05dbbf452d22c023aed2",
+        "hmac_verified": true,
+        "decryption_verified": true,
+        "gzip_crc": "PASS"
+      },
+      "production-source.tar.gz": {
+        "bytes": 14633831,
+        "encrypted_sha256": "54f4f42948d785697688d8c083a6a65b29066c624b84395107b5240f93a18cf1",
+        "hmac_verified": true,
+        "decryption_verified": true,
+        "gzip_crc": "PASS"
+      }
+    },
+    "durable_files_stable": 52,
+    "restore": {
+      "checkpoint": "denta-pr22-final-20261030",
+      "status": "PASS",
+      "restored_tables": 67,
+      "total_restored_rows": 9664,
+      "row_fingerprints_match_actual_dump_snapshot": true,
+      "production_tables_changed_during_capture": [],
+      "restored_protected_files": 118,
+      "restored_source_files": 1882,
+      "restore_db_bind": "127.0.0.1:3307",
+      "restore_user_restricted_to_new_database": true,
+      "restore_event_scheduler": "OFF",
+      "app_booted_or_notifications_sent": false,
+      "production_database_writes": 0,
+      "db_file_capture_atomic": false,
+      "local_restore_mariadb": "10.4.32; successful restoration of native11.8 dump; native11.8 synthetic schema evidence reused",
+      "client_sandbox_directive_removed": "only first client-side sandbox marker, SQL unchanged"
+    },
+    "complete_writable": true,
+    "additional_upload_roots": {
+      "uploads": {
+        "exists": false,
+        "symlink": false
+      },
+      "public/uploads": {
+        "exists": false,
+        "symlink": false
+      },
+      "storage": {
+        "exists": false,
+        "symlink": false
+      }
+    },
+    "atomic_db_file_snapshot": false
+  },
+  "local_acceptance": {
+    "source_guard": "PASS;23explicit authorized protected deltas; prior historical pins retained",
+    "coverage": {
+      "tracked_views": 268,
+      "rows": 277,
+      "pending_acceptance": 201,
+      "missing": 0,
+      "unregistered": 0,
+      "stale_blob_pins": 0,
+      "final_gate": "FAIL; pending state/persistence evidence remains"
+    },
+    "focused_checks": {
+      "finance_method_identity": 72,
+      "tokens": 85,
+      "foreground": 57
+    },
+    "browser": {
+      "observations": 54,
+      "en_ar_widths": [
+        1366,
+        390
+      ],
+      "overflow": 0,
+      "unnamed_buttons": 0,
+      "menu_keyboard_failures": 0,
+      "js_errors": [],
+      "non200": [
+        {
+          "role": "manager",
+          "route": "prescription/2",
+          "lang": "en",
+          "status": 404
+        },
+        {
+          "role": "manager",
+          "route": "contracts",
+          "lang": "en",
+          "status": 404
+        },
+        {
+          "role": "manager",
+          "route": "prescription/2",
+          "lang": "ar",
+          "status": 404
+        },
+        {
+          "role": "manager",
+          "route": "contracts",
+          "lang": "ar",
+          "status": 404
+        }
+      ],
+      "non200_disposition": "/contracts has no index route; /prescription/2 has no synthetic record. Neither is a populated workflow pass."
+    },
+    "platform_actual": {
+      "checks": [
+        {
+          "lang": "en",
+          "width": 1366,
+          "actualPlatformEntry": true
+        },
+        {
+          "lang": "en",
+          "width": 1366,
+          "clinicReviewCancel": true,
+          "actualImpersonationAndExit": true,
+          "tenantAuthorityCleared": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "actualPlatformEntry": true
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "clinicReviewCancel": true,
+          "actualImpersonationAndExit": true,
+          "tenantAuthorityCleared": true
+        }
+      ],
+      "errors": [],
+      "scope": "Actual synthetic platform session entry, review cancellation, impersonation, contextual reads and exit/airlock; no permissions or business records altered"
+    },
+    "reused_finance_acceptance": "settlement-replay.json at c5e0a5a6; broad successful suites not rerun"
+  },
+  "not_certified": [
+    "Combined two-migration sequence: treatment migration refuses empty historical values before ALTER.",
+    "Full native HTTP rehearsal: existing gateway not switched after mandatory schema gate failed.",
+    "Whole-app role/route/state/persistence, print/CSP/zoom and physical assistive technology acceptance."
+  ],
+  "production_migrations": 0,
+  "source_switches": 0,
+  "feature_activations": 0,
+  "github_actions": 0
+}

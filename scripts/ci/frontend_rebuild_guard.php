@@ -13,9 +13,10 @@ $git=static function(array $args)use($root):array{
     return [proc_close($process),trim((string)$output),trim((string)$error)];
 };
 $lock=json_decode((string)file_get_contents($root.'/docs/UI_REBUILD_LOCK.json'),true,512,JSON_THROW_ON_ERROR);
-$base=$lock['verified_remote_release']['commit']??'';
+$active=$lock['active_pr22_source_lock']??null;
+$base=$active['last_recorded_release_commit']??($lock['verified_remote_release']['commit']??'');
 if(!preg_match('/^[a-f0-9]{40}$/',$base))throw new RuntimeException('Invalid release pin');
-$protected=$lock['protected_baseline_git_objects']['objects']??[];
+$protected=$active['protected_release_objects']??($lock['protected_baseline_git_objects']['objects']??[]);
 foreach($protected as $path=>$expected){
     [$code,$actual]=$git(['rev-parse',$base.':'.$path]);
     if($code!==0||$actual!==$expected)$failures[]='Protected release pin differs: '.$path;
@@ -23,15 +24,20 @@ foreach($protected as $path=>$expected){
 if(!$protected)$failures[]='No protected source pins';
 [$code,$changed]=$git(array_merge(['diff','--name-only',$base,'--'],array_keys($protected)));
 if($code!==0)$failures[]='Protected source diff could not be read';
-$exceptions=$lock['authorized_backend_exceptions']??[];
+$exceptions=$active['authorized_protected_deltas']??($lock['authorized_backend_exceptions']??[]);
 foreach($changed===''?[]:explode("\n",$changed) as $path){
     $exception=$exceptions[$path]??null;
     if(!$exception||empty($exception['authorization'])){
         $failures[]='Unauthorized protected source change: '.$path;continue;
     }
     [$baseCode,$baseBlob]=$git(['rev-parse',$base.':'.$path]);
+    if($active&&($exception['baseline_git_blob']??null)===null){
+        [$fileCode,$fileBlob]=$git(['hash-object','--',$path]);
+        if($baseCode===0||$fileCode!==0||$fileBlob!==($exception['candidate_git_blob']??''))$failures[]='Exact authorized addition differs: '.$path;
+        continue;
+    }
     [$fileCode,$fileBlob]=$git(['hash-object','--',$path]);
-    if($baseCode!==0||$fileCode!==0||$baseBlob!==($exception['baseline_git_blob']??'')||$fileBlob!==($exception['approved_git_blob']??'')){
+    if($baseCode!==0||$fileCode!==0||$baseBlob!==($exception['baseline_git_blob']??'')||$fileBlob!==($exception[$active?'candidate_git_blob':'approved_git_blob']??'')){
         $failures[]='Exact authorized backend exception differs: '.$path;
     }
 }
@@ -68,6 +74,12 @@ $workflowDir=$root.'/.github/workflows';
 if(is_dir($workflowDir)){
     foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($workflowDir,FilesystemIterator::SKIP_DOTS)) as $file){
         if($file->isFile())$failures[]='GitHub Actions file present: '.$file->getFilename();
+    }
+}
+if($active){
+    foreach($exceptions as $path=>$pin){
+        [$code,$blob]=$git(['hash-object','--',$path]);
+        if($code!==0||$blob!==($pin['candidate_git_blob']??''))$failures[]='Pinned authorized delta is missing or changed: '.$path;
     }
 }
 $isFinal=in_array('--final',$argv,true);
