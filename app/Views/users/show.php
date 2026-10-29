@@ -151,7 +151,7 @@
 <?= esc(lang('Studio.recentProviderAllocations')) ?>
 </h3>
 <div class="platform-table-scroll">
-<table class="studio-grid platform-table">
+<table class="studio-grid platform-table staff-allocation-grid" data-grid-widths="20,22,13,18,12,15">
 <thead>
 <tr>
 <?php foreach(['transactionId','patient','date','paidBalance','lastPaymentDate','status'] as $key): ?>
@@ -208,16 +208,16 @@
 <span class="staff-badge <?= $rowStatus==='void'?'inactive':'' ?>">
 <?= esc(lang('Finance.'.$rowStatus)) ?>
 </span>
-<div class="platform-table-actions">
+<div class="workspace-action-menu"><?= view('components/studio_row_menu_trigger',['rowMenuLabel'=>lang('Studio.actions').': '.($row['transaction_id']??('#'.$row['id'])),'rowMenuId'=>'allocation-actions-'.(int)$row['id']]) ?><nav id="<?= esc('allocation-actions-'.(int)$row['id'],'attr') ?>" popover="auto" data-studio-menu-panel>
 <?php if($canSettle): ?>
-<button class="button secondary" type="button" data-staff-payout data-id="<?= (int)$row['id'] ?>" data-max="<?= esc(number_format((float)($row['provider_balance_due']??0),2,'.',''),'attr') ?>" data-currency="<?= esc(\App\Services\ProviderCurrencySummary::currency($row['currency']??null),'attr') ?>">
+<button class="button secondary" type="button" data-staff-payout data-id="<?= (int)$row['id'] ?>" data-max="<?= esc(number_format((float)($row['provider_balance_due']??0),2,'.',''),'attr') ?>" data-currency="<?= esc(\App\Services\ProviderCurrencySummary::currency($row['currency']??null),'attr') ?>" data-finance-url="<?= esc($financeUrl,'attr') ?>" data-payout-context="<?= esc(json_encode(['transaction'=>$row['transaction_id']??'','patient'=>$row['patient_name']??lang('Finance.notAvailable'),'share'=>$nativeMoney($row['provider_share_amount']??0,$row['currency']??null),'paid'=>$nativeMoney($row['provider_paid_amount']??0,$row['currency']??null),'due'=>$nativeMoney($row['provider_balance_due']??0,$row['currency']??null)],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE),'attr') ?>">
 <?= esc(lang('Finance.recordPaymentFromLedger')) ?>
 </button>
 <button class="button secondary" type="button" data-management-action data-method="POST" data-encoding="form" data-payment-method="cash" data-url="<?= base_url('finance/payouts/'.(int)$row['id'].'/mark-paid') ?>" data-confirm="<?= esc(lang('Finance.confirmMarkProviderPayoutFullyPaid'),'attr') ?>">
 <?= esc(lang('Finance.markFullyPaid')) ?>
 </button>
 <?php endif; ?>
-</div>
+</nav></div>
 </td>
 </tr>
 <?php endforeach; ?>
@@ -300,8 +300,8 @@
 </dialog>
 <?php endif; ?>
 <?php if($canEditFinance): ?>
-<dialog id="staff-payout-dialog" class="help-dialog" aria-labelledby="staff-payout-title" data-base="<?= base_url('finance/payouts/') ?>" data-max-label="<?= esc(lang('Finance.maximumPayable'),'attr') ?>">
-<header>
+<dialog id="staff-payout-dialog" class="staff-finance-dialog" data-finance-modal-root="staff-payout-dialog" data-today="<?= esc((new DateTimeImmutable('now',new DateTimeZone(settings()->get('timezone','Asia/Hebron'))))->format('Y-m-d'),'attr') ?>" aria-labelledby="staff-payout-title" data-base="<?= base_url('finance/payouts/') ?>" data-max-label="<?= esc(lang('Finance.maximumPayable'),'attr') ?>">
+<header class="finance-inline-modal-header">
 <h2 id="staff-payout-title">
 <?= esc(lang('Finance.recordPaymentFromLedger')) ?>
 </h2>
@@ -309,7 +309,9 @@
 <?= $studioIcon('close') ?>
 </button>
 </header>
-<form class="staff-dialog-form" data-staff-payout-form>
+<form class="staff-dialog-form finance-inline-modal-form" data-staff-payout-form><div class="finance-task-body">
+<section class="finance-task-context"><div class="finance-task-identity"><strong><?= esc($name) ?></strong><span data-staff-transaction></span><span data-staff-patient></span></div><dl><?php foreach(['share'=>'Finance.providerShareTotal','paid'=>'Finance.paidToDate','due'=>'Finance.balanceDue'] as $fact=>$label): ?><div><dt><?= esc(lang($label)) ?></dt><dd><bdi dir="ltr" data-staff-fact="<?= $fact ?>"></bdi></dd></div><?php endforeach; ?></dl></section>
+<div class="finance-task-feedback" role="status" aria-live="polite" hidden><p></p><a class="button secondary" data-finance-reconcile href="<?= esc(base_url('users/'.(int)$viewedUser->id),'attr') ?>" hidden><?= esc(lang('Studio.financeCheckHistory')) ?></a></div>
 <div class="form-field">
 <label for="payoutAmountInput">
 <?= esc(lang('Finance.amount')) ?>
@@ -351,19 +353,17 @@
 </label>
 <input id="payoutDateInput" name="paid_date" type="date" required>
 </div>
-<div class="form-field">
+<div class="form-field staff-payout-notes">
 <label for="payoutNotesInput">
 <?= esc(lang('Finance.notes')) ?>
 </label>
 <textarea id="payoutNotesInput" name="notes" rows="2">
 </textarea>
 </div>
-<p class="field-error" data-staff-error role="alert" hidden>
-</p>
-<button type="submit" class="button primary">
+</div><footer class="finance-inline-modal-actions"><button type="button" class="button secondary" data-close><?= esc(lang('Studio.cancel')) ?></button><button type="submit" class="button primary">
 <?= esc(lang('Finance.recordPaymentFromLedger')) ?>
 </button>
-</form>
+</footer></form>
 </dialog>
 <?php endif; ?>
 <?= view('users/partials/studio_action_dialog') ?>
@@ -371,6 +371,7 @@
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('assets/js/studio-management.js') ?>?v=<?= esc(asset_version('assets/js/studio-management.js')) ?>" defer>
 </script>
+<?php if($canEditFinance): ?><?= view('components/studio_finance_task_assets') ?><?php endif; ?>
 <script src="<?= base_url('assets/js/studio-staff.js') ?>?v=<?= esc(asset_version('assets/js/studio-staff.js')) ?>" defer>
 </script>
 <?= $this->endSection() ?>

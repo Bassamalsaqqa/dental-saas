@@ -63,17 +63,18 @@
     }
     modal.close();
   }
-  function open(id, trigger) {
+  function open(id, trigger, rebase = false) {
     const modal = document.getElementById(id);
     const form = modal?.querySelector('form');
     if (!form || modal.open) return;
     const task = state(form);
+    if (task.phase !== 'idle') return;
     task.opener = trigger || document.activeElement;
     document.body.append(modal);
     modal.classList.remove('hidden');
     modal.showModal();
     document.body.classList.add('overflow-hidden');
-    if (task.baseline === null) task.baseline = snapshot(form);
+    if (task.baseline === null || rebase) task.baseline = snapshot(form);
   }
   async function submit(form, url, prepare) {
     const task = state(form);
@@ -81,11 +82,14 @@
     // Capture successful controls before disabling editing; retain the canonical payload.
     const data = new FormData(form);
     prepare?.(data);
+    const csrfName = document.querySelector('meta[name=csrf-name]')?.content;
+    const csrfToken = document.querySelector('meta[name=csrf-token]')?.content || window.getCsrfToken?.() || '';
+    if (csrfName && csrfToken) data.set(csrfName, csrfToken);
     task.phase = 'pending';
-    task.disabled = Array.from(form.querySelectorAll('input,select,textarea')).map(field => [field, field.disabled]);
+    task.disabled = Array.from(form.closest('dialog').querySelectorAll('input,select,textarea,button')).filter(field => !field.matches('[data-close],[data-finance-close]')).map(field => [field, field.disabled]);
     for (const [field] of task.disabled) field.disabled = true;
     form.setAttribute('aria-busy','true');
-    const button = form.querySelector('[type=submit]');
+    const button = Array.from(form.elements).find(field => field.type === 'submit');
     button.disabled = true;
     feedback(form, 'financePending');
     const controller = new AbortController();
@@ -95,7 +99,7 @@
       const header = window.csrfConfig?.header || 'X-CSRF-TOKEN';
       const response = await fetch(url, {
         method:'POST', credentials:'same-origin',
-        headers:{'X-Requested-With':'XMLHttpRequest', [header]:window.getCsrfToken?.() || ''},
+        headers:{'X-Requested-With':'XMLHttpRequest', [header]:csrfToken},
         body:data, signal:controller.signal
       });
       if (response.redirected || [401,403].includes(response.status)) {
@@ -109,7 +113,10 @@
       if (result.success) {
         task.phase = 'confirmed';
         form.closest('dialog[data-finance-modal-root]').close();
-        location.reload();
+        const target = form.dataset.financeSuccess;
+        const destination = target ? new URL(target, location.origin) : null;
+        if (destination && destination.origin === location.origin && destination.href !== location.href) location.assign(destination.href);
+        else location.reload();
         return;
       }
       // A recognized application rejection permits correction, never automatic resubmission.
@@ -148,6 +155,9 @@
         (task.phase === 'idle' && task.baseline !== null && task.baseline !== snapshot(form));
     });
     if (protectedTask) { event.preventDefault(); event.returnValue = ''; }
+  });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted && Array.from(document.querySelectorAll('dialog[data-finance-modal-root] form')).some(form => state(form).phase === 'confirmed')) location.reload();
   });
   window.StudioFinanceTask = {open, requestClose, submit};
 })();

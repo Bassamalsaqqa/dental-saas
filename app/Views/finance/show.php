@@ -982,11 +982,8 @@
 
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
-<?php include APPPATH.'Views/components/studio_csrf_runtime.php'; ?>
 <?php include APPPATH.'Views/finance/partials/field_widgets.php'; ?>
-<?php $financeTaskLabels=[];foreach(['financeDiscardTitle','financeDiscardHelp','financePending','financeUnconfirmed','financeCheckHistory','financeDenied','financeRequestFailed','keepEditing','discardChanges'] as $key)$financeTaskLabels[$key]=lang('Studio.'.$key); ?>
-<script type="application/json" id="finance-task-config"><?= json_encode($financeTaskLabels,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
-<script src="<?= base_url('assets/js/studio-finance-task.js') ?>?v=<?= esc(asset_version('assets/js/studio-finance-task.js')) ?>" defer></script>
+<?php if($showFinanceForms||$showProviderPayoutForms): ?><?= view('components/studio_finance_task_assets') ?><?php endif; ?>
 <?php include APPPATH.'Views/finance/partials/record_runtime.php'; ?>
 <script src="<?= base_url('assets/js/studio-finance-controls.js') ?>?v=<?= esc(asset_version('assets/js/studio-finance-controls.js')) ?>" defer></script>
 <?= $this->endSection() ?>

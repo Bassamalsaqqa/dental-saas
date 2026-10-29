@@ -1,0 +1,231 @@
+{
+  "base": "385b766355d72f83174989816d42a070f0dfaa7b",
+  "scope": "Shared financial task lifecycle across record Dialog, staff payment Dialog and payout/payable Sheet; broader campaign remains IN_PROGRESS",
+  "actual_sql": {
+    "checks": [
+      "Actual staff-profile canonical user allocation10ILS and1ILS payment: one history row,9 outstanding",
+      "Real pending20ILS payable fixture created through canonical expense form, no initial payment",
+      "Actual payable Drawer1ILS committed/lost response: submit locked, exactly one receipt,19 due",
+      "Explicit payable reconciliation opens exact record with return to payable workspace"
+    ],
+    "owned": {
+      "user": 27,
+      "invoice": 800017,
+      "allocation": 8,
+      "expense": 800018
+    },
+    "errors": [],
+    "scope": "Actual staff and payable UI financial journeys on newly owned authentic-schema synthetic records; no original business record writes"
+  },
+  "interaction": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "kind": "staff",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "kind": "payouts",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "kind": "payables",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "kind": "staff",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "kind": "payouts",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "kind": "payables",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "kind": "staff",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "kind": "payouts",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "kind": "payables",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "kind": "staff",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "kind": "payouts",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "kind": "payables",
+        "dirtyKeepDiscard": true,
+        "actualActionVisible": true,
+        "noPageOverflow": true
+      }
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Actual staff menu and payout/payable Sheet tasks: EN/AR desktop/mobile/landscape, pinned action column, context, dirty preservation and visible footer"
+  },
+  "preservation": {
+    "passed": true,
+    "original_rows": 583,
+    "tables": {
+      "treatments": {
+        "rows": 130,
+        "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+      },
+      "finances": {
+        "rows": 11,
+        "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+      },
+      "finance_payments": {
+        "rows": 7,
+        "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+      },
+      "examinations": {
+        "rows": 151,
+        "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+      },
+      "treatment_contracts": {
+        "rows": 7,
+        "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+      },
+      "treatment_contract_items": {
+        "rows": 23,
+        "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+      },
+      "odontograms": {
+        "rows": 34,
+        "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+      },
+      "patient_odontogram_snapshots": {
+        "rows": 26,
+        "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+      },
+      "examination_note_signatures": {
+        "rows": 14,
+        "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+      },
+      "patients": {
+        "rows": 22,
+        "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+      },
+      "appointments": {
+        "rows": 143,
+        "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+      },
+      "inventory": {
+        "rows": 3,
+        "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+      },
+      "provider_payouts": {
+        "rows": 6,
+        "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+      },
+      "provider_payout_payments": {
+        "rows": 6,
+        "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+      }
+    },
+    "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+  },
+  "confirmed_mobile_defect": {
+    "cause": "Unbounded min-content staff directory expanded to860px inside354px available region on390px RTL viewport, then clipped by app shell; stacked actions also exceeded fixed grid cell",
+    "observed_action_x": -468.484375,
+    "correction": "minmax(0,1fr)/min-width0 parent sizing, sticky logical-end action column, existing owned row menu, readable semantic foregrounds",
+    "verification": "12 actual EN/AR desktop/mobile/landscape task cases; no forced click; before/after screenshots retained"
+  },
+  "tested_source_sha256": {
+    "app/Views/components/studio_finance_task_assets.php": "3f09d0183a5563c8fbd132e09b4ae02a1d91ff9099dc41551f2cdd1b8a93f834",
+    "app/Views/components/studio_money_drawer.php": "03336f5e229f4c8b5134a27ce6cae817b36e540b147e70ddd5b7a3c4da104c44",
+    "app/Views/components/studio_money_config.php": "e9119b12aabb600d3fea8630aa391647de7801b01a7737a3d78772aec42c7c5c",
+    "app/Views/users/show.php": "e8e74e3ca16566632b51974498f86709c248a59e2c501c463efc01e9b2930d69",
+    "app/Views/finance/show.php": "fb56185439592f2be15f94c8dc62c4bb428888c82ec0bfb7dc3190a1f500badf",
+    "public/assets/js/studio-finance-task.js": "62b3b9e6646d64a31c70ad57ab36ccb8c7b4d9af12ae13f9dc9848dbcb6c06e1",
+    "public/assets/js/studio-staff.js": "7220769b5b99714927ac40a8c1643ae556cf5ad6241a00d103fffd5caf922b0c",
+    "public/assets/js/studio-money.js": "1633cd0085f8f2b6c86bd0f4600496763a132569c28ac5910fac13c52aba8d17",
+    "public/assets/css/studio-finance-task.css": "1cdd52cec5479bab86abf56f653daaa02f1600d8fabcdefb0c5793550e6cc201",
+    "public/assets/css/studio-finance-record.css": "69e088a42d43563aa3c6c06c0244009b84e22ca0f3fabaaedd322f73a80fb392",
+    "public/assets/css/studio-management.css": "29ee8354b8a7f504112475fa804fc516b019b5d78b63b9024cb71f19028f8890"
+  },
+  "transport_contract": [
+    "Same payment/provider/expense endpoints and existing normalization; no financial service changes",
+    "Shared existing CSRF helper and latest meta/header token, successful controls captured before locking",
+    "No automatic financial retry; ambiguous response stays locked and reconciles to the exact existing record",
+    "Mark Fully Paid remains an existing separately confirmed action; abandoning a dirty partial draft is checked first",
+    "Role-management update path remains outside the financial task adapter"
+  ],
+  "limits": [
+    "New owned staff invoice800017/allocation8/payment1ILS and payable800018/payment1ILS only. Original provider histories remain unchanged.",
+    "Source financial writers unchanged; proof80 controller methods is separate from UI acceptance.",
+    "Matched390px before/after staff layout uses different vertical scroll position and a fixture balance updated by the real test payment; no pixel-perfect or immutable evidence claim.",
+    "Entire-app/persona/theme/native Hostinger/print/CSP/native zoom/physical AT and final independent review remain pending.",
+    "No production change, migration, activation, permission grant, dependency change or GitHub Actions."
+  ]
+}
