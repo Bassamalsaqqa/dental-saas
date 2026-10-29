@@ -17,7 +17,7 @@
 #calendar .fc-toolbar-title{font-size:var(--studio-font-23,23px);line-height:1.4;font-weight:800}
 #calendar .fc-button{background:var(--color-control);color:var(--color-ink);border:0;border-radius:8px;padding:10px 14px;font-family:inherit;font-weight:700;font-size:var(--studio-font-15,15px);line-height:1.4;min-height:44px;box-shadow:none}
 #calendar .fc-button:hover{background:var(--color-surface-hover)}
-#calendar .fc-button-active{background:var(--color-action);color:var(--color-on-frame)}
+#calendar .fc-button-active{background:var(--color-action);color:var(--color-on-action)}
 #calendar .fc-button:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
 #calendar .fc-button:disabled{opacity:.5}
 #calendar .fc-button-group{gap:4px}
