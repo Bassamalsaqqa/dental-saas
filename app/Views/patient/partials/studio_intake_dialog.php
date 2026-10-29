@@ -3,7 +3,7 @@
 <header><div><h2 id="patient-intake-title"><?= esc(lang('UI.patientNewPatient')) ?></h2><p><?= esc(lang('Studio.patientIntakeContext')) ?></p></div><button type="button" class="icon-button" data-intake-close aria-label="<?= esc(lang('Studio.close'),'attr') ?>"><?= $studioIcon('close') ?></button></header>
 <form id="patient-intake-form" method="post" action="<?= base_url('patient/store') ?>" class="studio-form" data-patient-create-form>
 <?= csrf_field() ?><input type="hidden" name="return_to" value="<?= esc($intakeReturn??'patients','attr') ?>">
-<div class="studio-create-dialog-body"><div id="intake-feedback" data-create-feedback class="form-notice form-notice--error" role="alert" tabindex="-1" hidden><p></p><ul></ul></div>
+<div class="studio-create-dialog-body"><div id="intake-feedback" data-create-feedback class="form-notice form-notice--error" role="alert" tabindex="-1" hidden><p></p><ul></ul><a class="button secondary" data-create-reconcile href="<?= esc(base_url('patients'),'attr') ?>" hidden><?= esc(lang('Studio.registry')) ?></a></div>
 <?= view('patient/partials/studio_create_fields',['studioFormErrors'=>[],'studioEditing'=>false,'studioPatient'=>[]]) ?>
 </div><footer><a class="button secondary" href="<?= workflow_context_url('patient/create',$intakeReturn??'patients') ?>"><?= esc(lang('UI.openFullPage')) ?></a><div><button type="button" class="button secondary" data-intake-close><?= esc(lang('Studio.cancel')) ?></button><button type="submit" class="button primary" name="post_submit_action" value="save_only"><?= esc(lang('UI.settingsSave')) ?></button></div></footer>
 </form>

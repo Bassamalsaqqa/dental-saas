@@ -1,0 +1,174 @@
+{
+  "base": "9d272e1ddad1a2b3886728c27e760ea5b8d1574c",
+  "scope": "Owned registration/booking Dialog lifecycle only; no backend/schema/calculation/permission change; whole campaign remains IN_PROGRESS",
+  "failing_before": {
+    "defectReproduced": true,
+    "postsBlockedBeforeServer": 1,
+    "details": "Unconfirmed create could be discarded and reopened with submit enabled; no server write occurred"
+  },
+  "browser_interactions": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 900,
+        "kind": "patient",
+        "dirtyFocus": true,
+        "uncertainLocked": true,
+        "explicitReadRecovery": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "kind": "patient",
+        "dirtyFocus": true,
+        "uncertainLocked": true,
+        "explicitReadRecovery": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "kind": "patient",
+        "dirtyFocus": true,
+        "uncertainLocked": true,
+        "explicitReadRecovery": true,
+        "postsBlockedBeforeServer": 1
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "kind": "patient",
+        "dirtyFocus": true,
+        "uncertainLocked": true,
+        "explicitReadRecovery": true,
+        "postsBlockedBeforeServer": 1
+      }
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Real browser idle/dirty/Keep/Discard/focus and blocked transport uncertainty; no server writes"
+  },
+  "actual_persistence": {
+    "checks": [
+      "Actual patient creation committed then response lost: exactly one patient; no reset/retry on Escape",
+      "Read-only registry recovery finds the actual persisted synthetic patient",
+      "Actual booking committed then response lost: one appointment, patient/date preserved, repeated submit suppressed",
+      "Explicit read-only schedule recovery keeps booking date and issues no repeat create"
+    ],
+    "owned": {
+      "patient": 27,
+      "appointment": 1145
+    },
+    "errors": [],
+    "scope": "Actual isolated patient and booking commits with response deliberately dropped; separate original-row preservation"
+  },
+  "actual_validation_and_session": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Actual validation rejects short name, restores editable values and focuses field; no insert"
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Actual expired session locks creation, hides fallback and provides read-only recovery without discard/reset"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Actual validation rejects short name, restores editable values and focuses field; no insert"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Actual expired session locks creation, hides fallback and provides read-only recovery without discard/reset"
+      }
+    ],
+    "errors": [],
+    "patientCountUnchanged": true
+  },
+  "preservation": {
+    "passed": true,
+    "original_rows": 583,
+    "tables": {
+      "treatments": {
+        "rows": 130,
+        "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+      },
+      "finances": {
+        "rows": 11,
+        "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+      },
+      "finance_payments": {
+        "rows": 7,
+        "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+      },
+      "examinations": {
+        "rows": 151,
+        "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+      },
+      "treatment_contracts": {
+        "rows": 7,
+        "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+      },
+      "treatment_contract_items": {
+        "rows": 23,
+        "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+      },
+      "odontograms": {
+        "rows": 34,
+        "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+      },
+      "patient_odontogram_snapshots": {
+        "rows": 26,
+        "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+      },
+      "examination_note_signatures": {
+        "rows": 14,
+        "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+      },
+      "patients": {
+        "rows": 22,
+        "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+      },
+      "appointments": {
+        "rows": 143,
+        "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+      },
+      "inventory": {
+        "rows": 3,
+        "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+      },
+      "provider_payouts": {
+        "rows": 6,
+        "sha256": "b4dc45204eeb96d4c3677e31b4bd633f893d6baafe11de8cc089201ff7ccef0d"
+      },
+      "provider_payout_payments": {
+        "rows": 6,
+        "sha256": "8d85218d796592767cac4126d62fc30877e2e7acf1fab3fdb1f7f3a9ad18ff71"
+      }
+    },
+    "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+  },
+  "source_sha256": {
+    "public/assets/js/studio-create-dialog.js": "a38dfe9b93782bee492f242b15b7ca10d72a85edf138a5a0f951f0ea2bcbb204",
+    "app/Views/patient/partials/studio_intake_dialog.php": "542ee126fcdf6cd88f33d0bf4a8a41459a0b2a5604b1b7c5d5db7bee0c8a860b",
+    "app/Views/appointment/partials/studio_create_dialog.php": "ac9bee182d0b595572bcd204eb252228ed55dcf8d45ed2629c7f27e3ab11c9fd"
+  },
+  "limitations": [
+    "UI suppresses duplicate requests in the current page; no new server idempotency or cross-tab guarantee",
+    "Owner must inspect actual saved list/record before any new attempt after uncertainty",
+    "Native current-source rehearsal, physical AT/keyboard hardware and all-route/persona acceptance remain pending"
+  ],
+  "harness_corrections": [
+    "Patient persisted once before old input[type=search] harness locator timed out. Database/progress confirmed zero matching bookings; guarded booking-only resume retained zero-booking SQL plus progress guard. No successful creation replayed.",
+    "Automatic review initially blocked resume for replay risk; read-only SQL and explicit guard inspection resolved it.",
+    "Existing before-version script characterizes defect; its successful exit does not indicate corrected behavior."
+  ]
+}
