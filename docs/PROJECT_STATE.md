@@ -72,3 +72,7 @@ Shared protected financial tasks now include staff payment dialogs and payout/pa
 ## Review5700597599 - current bounded acceptance
 
 Owner review accepts the recent finance/reception UX at8d750e10 in scoped terms, not the whole application. Current continuation corrects trusted exact-record history navigation and payable hierarchy/role-safe return paths. Actual stale supplier full-payment, repeat, permission/CSRF and audit-fault rollback checks passed. A concrete existing partial-payment replay risk was confirmed across two authenticated stale tabs; no backend or accounting rules were modified or risk waived. [Single current acceptance report](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md) identifies the separately scoped durable-operation/stale-state protection needed and all remaining whole-program gates. PR22 stays Draft; themesOFF; no production, migration, activation or Actions.
+
+## Current PR22 surgical financial correction (development only)
+
+Review5701870044 at cde62b83 authorized durable request identity, locked stale-state rejection and isolated additive-schema tests. Implementation and focused actual SQL/multi-worker/browser evidence are prepared for independent acceptance; see [CURRENT_ACCEPTANCE](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md). Production was not contacted or changed. No migration batch, deployment, feature activation or new whole-app acceptance is implied. The new request schema requires separate production authorization before settlement rollout.

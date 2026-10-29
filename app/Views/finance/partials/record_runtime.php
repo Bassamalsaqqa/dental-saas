@@ -54,6 +54,7 @@ function initSettlementForm(form) {
 }
 
 async function markAsPaid(transactionId) {
+    let context;try {context=await window.StudioSettlement.forUrl(`<?= base_url('finance') ?>/${transactionId}/mark-paid`);}catch{window.StudioDialogs?.notice(window.StudioSettlement?.labels.settlementConflictHelp);return;}
     if (window.StudioDialogs && await window.StudioDialogs.confirm(<?= json_encode(lang('Finance.confirmMarkTransactionPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.markAsPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.markAsPaid'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>})) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
@@ -63,7 +64,8 @@ async function markAsPaid(transactionId) {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
                 [csrfHeader]: csrfToken
-            }
+            },
+            body:JSON.stringify(window.StudioSettlement.fields({},context))
         })
         .then(response => response.json())
         .then(data => {
@@ -115,10 +117,12 @@ async function deleteFinance(id) {
 
 async function closeBalance(transactionId) {
     if (!window.StudioDialogs) return;
+    let context;try{context=await window.StudioSettlement.forUrl(`<?= base_url('finance') ?>/${transactionId}/close-balance`);}catch{window.StudioDialogs.notice(window.StudioSettlement?.labels.settlementConflictHelp);return;}
     const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmCloseBalance'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.reasonOptionalPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.closeBalanceCredit'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.closeBalanceCredit'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,destructive:true});
     if (reason === null) return;
     const formData = new FormData();
     formData.append('reason', reason);
+    window.StudioSettlement.fields(formData,context);
 
     const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
     const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
@@ -151,6 +155,7 @@ async function closeBalance(transactionId) {
 for (const [id, suffix] of [['invoicePaymentForm','payments'],['invoiceRefundForm','payments/refund']]) {
     const form = document.getElementById(id);
     if (!form) continue;
+    form.dataset.settlementUrl = <?= json_encode(base_url('finance/'.(int)$finance['id'].'/'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?> + suffix;
     initSettlementForm(form);
     form.addEventListener('submit', event => {
         event.preventDefault();
@@ -160,10 +165,12 @@ for (const [id, suffix] of [['invoicePaymentForm','payments'],['invoiceRefundFor
 
 async function voidPayment(paymentId) {
     if (!window.StudioDialogs) return;
-    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmVoidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.voidReasonPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.voidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.voidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>+' · #'+paymentId,destructive:true});
+    let context;try{context=await window.StudioSettlement.forUrl(`<?= base_url('finance') ?>/<?= (int)$finance['id'] ?>/payments/${paymentId}/void`);}catch{window.StudioDialogs.notice(window.StudioSettlement?.labels.settlementConflictHelp);return;}
+    const reason = await window.StudioDialogs.reason(<?= json_encode(lang('Finance.confirmVoidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,<?= json_encode(lang('Finance.voidReasonPrompt'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,{title:<?= json_encode(lang('Finance.voidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,confirmLabel:<?= json_encode(lang('Finance.voidPayment'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,subject:<?= json_encode((string)($finance['invoice_number']??$finance['id']),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>+' Â· #'+paymentId,destructive:true});
     if (reason === null) return;
     const formData = new FormData();
     formData.append('notes', reason);
+    window.StudioSettlement.fields(formData,context);
 
     const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
     const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';

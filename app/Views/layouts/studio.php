@@ -84,6 +84,7 @@ $studioNav=[
 <script src="<?= base_url('assets/js/studio.js') ?>?v=<?= esc(asset_version('assets/js/studio.js')) ?>" defer></script>
 <?= view('components/studio_action_dialog',['studioIcon'=>$studioIcon]) ?>
 <script src="<?= base_url('assets/js/studio-dialogs.js') ?>?v=<?= esc(asset_version('assets/js/studio-dialogs.js')) ?>" defer></script>
+<?php if($v4Can('finance','edit')): ?><?= view('components/studio_settlement_assets') ?><?php endif; ?>
 <?= $this->renderSection('scripts') ?>
 <div id="studio-control-labels" hidden data-retry="<?= esc(lang('Studio.retry'),'attr') ?>" data-previous="<?= esc(lang('Studio.previous'),'attr') ?>" data-next="<?= esc(lang('Studio.next'),'attr') ?>" data-clear-patient="<?= esc(lang('Studio.clearPatientSelection'),'attr') ?>" data-date="<?= esc(lang('Studio.chooseDate'),'attr') ?>"></div>
 <script src="<?= base_url('assets/js/studio-controls.js') ?>?v=<?= esc(asset_version('assets/js/studio-controls.js')) ?>" defer></script>

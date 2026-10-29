@@ -13,10 +13,12 @@ use CodeIgniter\Database\BaseConnection;
 class FinanceSettlementService
 {
     private FinanceTreasuryService $treasury;
+    private FinanceSettlementRequestService $requests;
 
-    public function __construct(private BaseConnection $db, ?FinanceTreasuryService $treasury = null)
+    public function __construct(private BaseConnection $db, ?FinanceTreasuryService $treasury = null, ?FinanceSettlementRequestService $requests = null)
     {
         $this->treasury = $treasury ?? new FinanceTreasuryService();
+        $this->requests = $requests ?? new FinanceSettlementRequestService($this->db);
     }
 
     private function table(string $name): string
@@ -198,7 +200,7 @@ class FinanceSettlementService
      * @throws \DomainException on validation / business rule violations
      * @throws \RuntimeException on transaction or persistence failures
      */
-    public function bulkSettle(int $clinicId, array $ids, int $actorId, array $overrides = []): array
+    public function bulkSettle(int $clinicId, array $ids, int $actorId, array $overrides = [], array $requestIdentity = [], string $requestOperation = 'bulk_settle'): array
     {
         if ($clinicId <= 0 || $actorId <= 0) {
             throw new \DomainException('Invalid request context.');
@@ -298,6 +300,9 @@ class FinanceSettlementService
 
         $this->begin();
         try {
+            $requests=$this->requests;
+            $claim=$requests->claim($clinicId,$actorId,$requestOperation,$sanitizedIds,$requestIdentity,$overrides);
+            if($claim['replayed']){ $this->db->transRollback();return array_merge($claim['result']['outcome'],['request_replayed'=>true,'settlement_result'=>$claim['result']]); }
             // Lock ALL selected owned parent rows in ascending ID order before any ledger reads
             $rows = [];
             foreach ($sanitizedIds as $id) {
@@ -467,8 +472,10 @@ class FinanceSettlementService
                 $settledCount++;
             }
 
+            $requestResult=$requests->complete($claim,['settled_count'=>$settledCount,'skipped_count'=>$skippedCount]);
             $this->commit();
             return [
+                'request_replayed'=>false,'settlement_result'=>$requestResult,
                 'settled_count' => $settledCount,
                 'skipped_count' => $skippedCount,
             ];

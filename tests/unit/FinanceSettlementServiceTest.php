@@ -334,7 +334,13 @@ class FinanceSettlementServiceTest extends CIUnitTestCase
         $mockDb->method('table')->willReturn($mockBuilder);
 
         // Case A: Legacy schema (supportsFinancePaymentExchangeFields = false)
-        $serviceLegacy = new IntentSpySettlementService($mockDb, $this->treasury);
+        // This unit asserts unchanged FX payload/calculation intent only. The real
+        // request uniqueness, revision, rollback and concurrency boundary is covered
+        // by FinanceSettlementReplaySql and the actual multi-worker HTTP evidence.
+        $requests = $this->createMock(\App\Services\FinanceSettlementRequestService::class);
+        $requests->method('claim')->willReturn(['replayed' => false]);
+        $requests->method('complete')->willReturn([]);
+        $serviceLegacy = new IntentSpySettlementService($mockDb, $this->treasury, $requests);
         $serviceLegacy->mockSupportsFx = false;
         $serviceLegacy->mockFinanceRow = [
             'id' => 10,
@@ -378,7 +384,7 @@ class FinanceSettlementServiceTest extends CIUnitTestCase
 
         // Case B: Full FX schema (supportsFinancePaymentExchangeFields = true)
         $capturedPayload = null;
-        $serviceFull = new IntentSpySettlementService($mockDb, $this->treasury);
+        $serviceFull = new IntentSpySettlementService($mockDb, $this->treasury, $requests);
         $serviceFull->mockSupportsFx = true;
         $serviceFull->mockFinanceRow = $serviceLegacy->mockFinanceRow;
 

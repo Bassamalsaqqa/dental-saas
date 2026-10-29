@@ -12,7 +12,7 @@
   function snapshot(form) {
     const csrf = document.querySelector('meta[name=csrf-name]')?.content;
     return JSON.stringify(Array.from(new FormData(form))
-      .filter(([name]) => name !== csrf)
+      .filter(([name]) => ![csrf,'request_key','settlement_revision'].includes(name))
       .map(([name, value]) => [name, typeof value === 'string' ? value : value.name]));
   }
   function feedback(form, key, history = false) {
@@ -40,7 +40,8 @@
     const form = modal?.querySelector('form');
     if (!form || !modal.open) return;
     const task = state(form);
-    if (['pending','uncertain','denied'].includes(task.phase)) {
+    if (['context_loading','context_error'].includes(task.phase)) {modal.close();return;}
+    if (['pending','uncertain','denied','conflict'].includes(task.phase)) {
       const key = task.phase === 'pending' ? 'financePending' : task.phase === 'denied' ? 'financeDenied' : 'financeUnconfirmed';
       feedback(form, key, task.phase !== 'pending');
       return;
@@ -63,7 +64,7 @@
     }
     modal.close();
   }
-  function open(id, trigger, rebase = false) {
+  async function open(id, trigger, rebase = false) {
     const modal = document.getElementById(id);
     const form = modal?.querySelector('form');
     if (!form || modal.open) return;
@@ -78,6 +79,25 @@
     modal.showModal();
     document.body.classList.add('overflow-hidden');
     if (task.baseline === null || rebase) task.baseline = snapshot(form);
+    task.phase = 'context_loading';
+    const controls=Array.from(modal.querySelectorAll('input,select,textarea,button')).filter(field=>!field.matches('[data-close],[data-finance-close]')).map(field=>[field,field.disabled]);
+    task.contextControls=controls;
+    controls.forEach(([field])=>field.disabled=true);
+    form.setAttribute('aria-busy','true');
+    const preparing=form.querySelector('.finance-task-feedback');preparing.hidden=false;preparing.querySelector('p').textContent=window.StudioSettlement?.labels.settlementLoading||'';preparing.querySelector('a').hidden=true;
+    try {
+      const target=form.dataset.settlementUrl||form.dataset.url;
+      if(!target||!window.StudioSettlement)throw Error('Missing settlement context');
+      const context=await window.StudioSettlement.forUrl(target);
+      window.StudioSettlement.bind(form,context);
+      window.StudioSettlement.present(form,context);
+      controls.forEach(([field,disabled])=>field.disabled=disabled);
+      preparing.hidden=true;task.phase='idle';task.baseline=snapshot(form);
+    } catch {
+      task.phase='context_error';
+      feedback(form,'financeRequestFailed',true);
+      form.querySelector('.finance-task-feedback p').textContent=window.StudioSettlement?.labels.settlementConflictHelp||labels.financeRequestFailed;
+    } finally {form.removeAttribute('aria-busy');}
   }
   async function submit(form, url, prepare) {
     const task = state(form);
@@ -111,6 +131,9 @@
         return;
       }
       const result = await response.json();
+      if ([409,503].includes(response.status) && typeof result.error==='string' && result.error.startsWith('SETTLEMENT_')) {
+        task.phase='conflict';feedback(form,'financeRequestFailed',true);form.querySelector('.finance-task-feedback p').textContent=result.message||window.StudioSettlement.labels.settlementConflictHelp;return;
+      }
       if (!response.ok || typeof result.success !== 'boolean') throw Error('Unconfirmed response');
       if (result.csrf_token) window.refreshCsrfToken?.(result.csrf_token);
       if (result.success) {
@@ -148,7 +171,7 @@
         const task = state(modal.querySelector('form'));
         // Only a genuine click on this task's pinned, same-origin record can hand off.
         // Keep the phase and submission lock intact; generic leaving remains protected.
-        if (event.isTrusted && ['uncertain','denied'].includes(task.phase) && task.historyUrl && link.href === task.historyUrl) {
+        if (event.isTrusted && ['uncertain','denied','conflict','context_error'].includes(task.phase) && task.historyUrl && link.href === task.historyUrl) {
           task.handoff = true;
           try { location.assign(task.historyUrl); }
           finally { setTimeout(() => { task.handoff = false; }, 0); }
@@ -158,6 +181,8 @@
       if (event.target === modal || event.target.classList.contains('finance-inline-modal-backdrop')) requestClose(modal.id);
     });
     modal.addEventListener('close', () => {
+      const task=state(modal.querySelector('form'));
+      if(task.phase==='context_error'){task.contextControls?.forEach(([field,disabled])=>field.disabled=disabled);task.phase='idle';}
       modal.classList.add('hidden');
       if (!document.querySelector('dialog[data-finance-modal-root][open]')) document.body.classList.remove('overflow-hidden');
       const opener = state(modal.querySelector('form')).opener;

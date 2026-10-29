@@ -1,0 +1,212 @@
+{
+  "status": "READY_FOR_INDEPENDENT_FINANCIAL_REVIEW; PRODUCTION_NO_GO",
+  "parent_commit": "cde62b838f25abd9c1d09e253e3c14dda547c51e",
+  "authorization_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5701870044",
+  "production_contacted": false,
+  "production_changes": false,
+  "source_sha256": {
+    "app/Config/Routes.php": "729929687525c0224eff8e8521b6ad4a7275221acb71c260492fda748bac7e17",
+    "app/Controllers/Finance.php": "b7ad6b434229dfd77d591f3137a94ad4b9d6b8d7963aec60ac533deecb4535d9",
+    "app/Database/Migrations/2026-10-29-180000_CreateFinanceSettlementRequests.php": "9adb16a702d2ad24b99630194f385a2c4467ea52337ab8800194e9d5e395c3f6",
+    "app/Language/ar/Finance.php": "504fa881d9c8a1b49f46d846b3405fa5cd2399dd6a9ba05e2c01db2787a516cb",
+    "app/Language/en/Finance.php": "4a4c2e3c25eeff0d22b26ddccbd4426406ac89c331d68d334662ca2e09285f99",
+    "app/Services/FinanceMutationService.php": "90f2aa3727f563da539ca0a6f2c5a14caa89d5eba039034b13c620cc3304e226",
+    "app/Services/FinanceSettlementConflict.php": "3a5655acb7981c7c00ce0e7a8c983977c09215b0ed5908dbc36d86bfbb70090d",
+    "app/Services/FinanceSettlementRequestService.php": "bb3639eb020ac86959d7f686d2627fcc29c25d877de3241664312c5247023410",
+    "app/Services/FinanceSettlementService.php": "c955866fae01ece9b568022d77a819aee4e733522038f1dd5b76fade7b65b7f7",
+    "app/Views/components/studio_settlement_assets.php": "45c857861808074cc4a38e1b9ae2475c5ef4bd32e68985fcff192038bd264e7f",
+    "app/Views/finance/partials/record_runtime.php": "f3a253b30a09b7a9af69c8cd1a6bd0346d1ac2a7c7c13a71bf44d64612ba021b",
+    "app/Views/finance/partials/settlement_context.php": "79f4f7d9b6d40fe8e79e0cb7f993ce5512c16be14cb03710bd0fa2a7bfebf144",
+    "app/Views/finance/partials/studio_transaction_form.php": "5b57fbef6f0dc585d1c07ddc26b3151379bf331165cd2597f41036e61a2a18d6",
+    "app/Views/layouts/studio.php": "dc16d316e17b35e76e7405871d9a3d8ba4a16a808953def159bf1bff993ae868",
+    "public/assets/js/studio-finance-task.js": "818988c27744a389d3f870d3f140d388f7ece5d418d60ada49fe553626a25581",
+    "public/assets/js/studio-management.js": "207eb6b20e65dc0eb5d77fe2b41d219f28696b36e9c56ee84210645947ead923",
+    "public/assets/js/studio-money.js": "d66ca20e8dc8c28959ef8cf25028bc351886c991d251850684b692aa3d1a8cf5",
+    "public/assets/js/studio-settlement.js": "7d6ccc27aa0d847edb486275b3ef325f9dd16faafb4af7ddf3cf182b12bc34d8",
+    "public/assets/js/studio-staff.js": "161e461aa4100529cc52b0f31e93f8b925acba315cd6fc891af8532b490cbc65",
+    "public/assets/js/studio-stock-workflows.js": "c221e2a91ca0b5dd0f2492889428d3d85f4af7fcd055e9a70e6565813ed7cdd8"
+  },
+  "overlapping_http": {
+    "checks": [
+      "Real overlapping independent HTTP workers: replay exactly one1ILS receipt,99due",
+      "Real overlapping independent HTTP workers: stale exactly one1ILS receipt,99due",
+      "Fresh revision and new identity allow legitimate later identical partial payment",
+      "Changed-amount same-key replay rejected",
+      "restricted role cannot replay or disclose result",
+      "foreign clinic cannot replay or disclose result",
+      "Missing-CSRF mutation denied",
+      "Exact retry from another authenticated session preserves original receipt"
+    ],
+    "barrier": "Independent SQL transaction held parent FOR UPDATE while two authenticated PHP-CGI workers overlapped and waited.",
+    "workers": {
+      "replay": {
+        "completed": true,
+        "pids": [
+          "24420",
+          "29224"
+        ],
+        "connections": [
+          "11754",
+          "11753"
+        ],
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      "stale": {
+        "completed": true,
+        "pids": [
+          "40920",
+          "25704"
+        ],
+        "connections": [
+          "11765",
+          "11766"
+        ],
+        "statuses": [
+          200,
+          409
+        ]
+      }
+    }
+  },
+  "routed_operations": {
+    "invoice_payment": true,
+    "refund": true,
+    "void": true,
+    "close": true,
+    "provider_partial": true,
+    "provider_full": true,
+    "bulk": true
+  },
+  "reusable_sql": {
+    "passed": 8,
+    "checks": [
+      "DDL refuses an active transaction without implicit commit",
+      "Real ledger insert rolls back request, parent, audit and receipt",
+      "Exact replay returns original durable result",
+      "Exact replay preserves all durable financial rows",
+      "SETTLEMENT_STALE",
+      "SETTLEMENT_IDENTITY_CONFLICT",
+      "Rejected stale/reused requests leave financial rows unchanged",
+      "Original seed record preserved verbatim"
+    ],
+    "fixture_id": 800037,
+    "scope": "SQL transaction/replay only; real HTTP concurrency, auth and browser evidence are separate"
+  },
+  "migration": {
+    "passed": true,
+    "database": "denta_replay_synthetic_20261029_schema",
+    "checks": [
+      "Additive migration creates required InnoDB structure/index",
+      "Existing table never adopted/overwritten",
+      "Unowned rollback denied",
+      "DB unique constraint rejects duplicate clinic/key",
+      "Uniqueness is scoped to clinic",
+      "Populated request evidence cannot be rolled back",
+      "Missing unique index blocks writes",
+      "No-FX/no-total_amount path preserves attribution, amount and replay"
+    ],
+    "scope": "Reduced schema compatibility fixture; full authentic FK acceptance uses separate1200 fixture"
+  },
+  "ddl_transaction": {
+    "passed": true,
+    "up_down_refuse_owner_transaction": true,
+    "owner_transaction_preserved": true
+  },
+  "rollback": {
+    "passed": true,
+    "audit_failure": true,
+    "completion_failure": true,
+    "same_state_sha256": "a9749c64fd6e762a02af074208712a8adda5193e70b273ecc43657000f0b92bb"
+  },
+  "crash": {
+    "passed": true,
+    "ownedWorkerKilled": true,
+    "afterActualLedgerAndAuditInsert": true,
+    "parentLedgerRequestAuditRolledBack": true
+  },
+  "browser": {
+    "passed": true,
+    "results": [
+      "en 1366 real dialog receives pinned identity/revision and current99due",
+      "ar 390 real dialog receives pinned identity/revision and current99due"
+    ],
+    "errors": []
+  },
+  "browser_mutations": {
+    "stale": {
+      "completed": true,
+      "one_receipt": true,
+      "history_without_warning": true
+    },
+    "lost_exact": {
+      "completed": true,
+      "one_receipt": true,
+      "history_without_warning": true
+    }
+  },
+  "expired_session": {
+    "completed": true,
+    "status": 303,
+    "no_receipt": true
+  },
+  "fx_and_native_edit": {
+    "fx": true,
+    "native": true
+  },
+  "supplier_full_paid_browser": true,
+  "preservation": {
+    "original_rows": 583,
+    "suppliers": 2,
+    "current_baseline_counts": {
+      "finances": 17,
+      "finance_payments": 19,
+      "provider_payouts": 8,
+      "provider_payout_payments": 9,
+      "activity_logs": 112,
+      "patients": 23,
+      "examinations": 151,
+      "treatment_contracts": 7
+    },
+    "all_captured_rows_unchanged": true,
+    "native_chart_models_api_treasury_dependencies_unchanged_from_parent": true
+  },
+  "units": {
+    "tests": 10,
+    "assertions": 78,
+    "scope": "Existing validation/calculation/optional-FX intent. Guard is mocked only in FX-intent unit; real guard certified separately by SQL/HTTP."
+  },
+  "static": {
+    "controller_unchanged_methods": 72,
+    "token_assertions": 85,
+    "foreground_assertions": 57,
+    "saas_guardrails": "PASS; only11unchanged exact query line locations relocated",
+    "historical_frontend_guard": "NOT PASS; earlier frontend-only lock has pre-existing PR22 backend/coverage drift and newly authorized backend/schema deltas. Lock not weakened.",
+    "syntax": {
+      "php": 17,
+      "js": 6
+    }
+  },
+  "limits": [
+    "Local PHP8.2.12/MariaDB10.4.32; no native Hostinger rehearsal this task.",
+    "An initial lost-response reconstruction retry was rejected because it was not the exact network payload. Its one owned receipt is retained and it is not a replay pass. New fixture captured actual multipart request and exact retry passed.",
+    "Historical direct-service harnesses lacking identities were not rerun; old clients now fail closed.",
+    "Whole-app PR22 acceptance remains open. No filesystem-atomicity claim for existing attachments."
+  ],
+  "write_insert_failures": {
+    "passed": true,
+    "checks": [
+      "request insertion failure rolled back all four resources",
+      "receipt insertion failure rolled back all four resources"
+    ]
+  },
+  "before_commit_connection_loss": {
+    "passed": true,
+    "connection_lost_after_receipt_audit_result_writes_before_commit": true,
+    "all_four_resources_rolled_back": true,
+    "dead_connection_discarded": true,
+    "same_identity_retry_on_independent_connection_one_receipt": true
+  }
+}

@@ -2,7 +2,7 @@
 const form=dialog.querySelector('form'),amount=form.elements.amount,method=form.elements.payment_method,liquidity=form.elements.liquidity_account;let payoutId='';
 const sync=()=>{const check=method.value==='check';document.getElementById('payoutLiquidityAccountField').hidden=!check;liquidity.disabled=!check;};
 document.querySelectorAll('[data-staff-payout]').forEach(button=>button.addEventListener('click',()=>{
- payoutId=button.dataset.id;form.reset();amount.max=button.dataset.max;amount.value=button.dataset.max;
+ payoutId=button.dataset.id;form.dataset.settlementUrl=dialog.dataset.base.replace(/\/$/,'')+'/'+payoutId+'/payments';form.reset();amount.max=button.dataset.max;amount.value=button.dataset.max;
  document.getElementById('payoutAmountHelp').textContent=dialog.dataset.maxLabel+': '+button.dataset.max+' '+button.dataset.currency;
  form.elements.paid_date.value=dialog.dataset.today;
  const facts=JSON.parse(button.dataset.payoutContext);dialog.querySelector('[data-staff-transaction]').textContent=facts.transaction;dialog.querySelector('[data-staff-patient]').textContent=facts.patient;

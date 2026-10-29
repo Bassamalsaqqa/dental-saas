@@ -1,6 +1,6 @@
 # Finance Current State
 
-Last updated: 2026-10-22
+Last updated: 2026-10-29
 
 ## User Surfaces
 
@@ -64,3 +64,7 @@ Incoming replacement applications transfer existing backing; local refundable ca
 `2026-10-22-170000_CreateFinanceCheckoutRequests` is additive and requires InnoDB parents. The unique clinic/request identity is bound to the actor and exact submitted financial terms (recursively ordered object keys; decimal formatting is not silently reinterpreted). CSRF and return navigation are excluded; uploaded check-scan content identity is included. Equivalent completed retries return the original invoice/receipt, even after later refunds, and never enqueue another creation reminder. Different terms require a new explicit request. Failure rolls back the identity and all new database writes. Existing durable-file rollback limitations remain; this is not DB/filesystem atomicity.
 
 The feature is development-only until final review and separate release/schema/activation approval. No customer records or historical payment/clinical evidence are rewritten.
+
+## PR22 development-only settlement envelope
+
+Owner review5701870044 authorizes durable clinic-scoped request identities and locked settlement revisions. See [current acceptance](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md) for actual SQL/HTTP/browser evidence, request transport, additive migration and mixed-version/rollback limits. The feature branch now fails closed for settlement clients without the new request table and preconditions. This is pending independent exact-head acceptance and separately authorized schema rollout; it is not a production/source-only deployment instruction. Existing financial calculations, original receipts and disabled feature policies remain authoritative.

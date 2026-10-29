@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 $root=dirname(__DIR__,2);chdir($root);
-$before=shell_exec('git show ad2fae23c309e80f515cb6fbf3d1eaff49692930:app/Controllers/Finance.php');
+$before=shell_exec('git show cde62b838f25abd9c1d09e253e3c14dda547c51e:app/Controllers/Finance.php');
 if(!is_string($before)||$before==='')throw new RuntimeException('Pinned finance baseline unavailable');
 function methods(string $source):array{
  $tokens=PhpToken::tokenize(str_replace("\r\n","\n",$source));$result=[];
@@ -17,7 +17,11 @@ function methods(string $source):array{
  return $result;
 }
 $a=methods($before);$b=methods(file_get_contents($root.'/app/Controllers/Finance.php'));
-if(array_keys($a)!==array_keys($b))throw new RuntimeException('Controller method inventory changed');
-$allowed=['show','refundableInvoiceCash'];$checked=0;
+// Owner review5701870044 now authorizes transaction-envelope corrections.
+// Preserve the monetary calculators and every unrelated controller method exactly.
+$added=array_values(array_diff(array_keys($b),array_keys($a)));sort($added);
+$expected=['settlementRequests','settlementInput','claimSettlement','replaySettlement','settlementConflict','settlementContext'];sort($expected);
+if($added!==$expected||array_diff(array_keys($a),array_keys($b)))throw new RuntimeException('Unexpected controller method inventory');
+$allowed=['update','updateExpense','addProviderPayoutPayment','markProviderPayoutPaid','markAsPaid','addInvoicePayment','refundInvoicePayment','voidInvoicePayment','closeInvoiceBalance','bulkMarkAsPaid'];$checked=0;
 foreach($a as$name=>$hash){if(in_array($name,$allowed,true))continue;if($b[$name]!==$hash)throw new RuntimeException('Protected financial method changed: '.$name);$checked++;}
-echo json_encode(['passed'=>$checked,'allowed_readonly_presenter_delta'=>$allowed,'scope'=>'Pinned controller method-body identity; actual synthetic mutation/denial evidence is separate']),PHP_EOL;
+echo json_encode(['passed'=>$checked,'authorized_transaction_envelopes'=>$allowed,'new_guard_methods'=>$added,'scope'=>'All other controller methods, including monetary normalization and settlement calculations, remain byte-identical to cde62b83. SQL and browser certification is separate.']),PHP_EOL;

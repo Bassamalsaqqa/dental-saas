@@ -1,41 +1,47 @@
-# PR22 current acceptance - review5700597599
+# PR22 current acceptance ? financial replay/stale-state correction
 
-**Recommendation: CHANGES REQUIRED. PR remains Draft. No production operation authorized or performed.**
+**Ready for independent financial/security review. PR remains Draft. Production NO-GO.**
 
-Review 5700597599 at `8d750e10` accepts the recent financial/reception UX in bounded scope. It is COMMENTED, not formal whole-app approval. The accepted design is preserved.
+Owner authorization and review [5701870044](https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5701870044) applies to parent `cde62b838f25abd9c1d09e253e3c14dda547c51e`. The earlier finance/reception design is preserved. This report supersedes the earlier proposal-only status; it does not imply whole-app acceptance. The adjacent [sanitized receipt](settlement-replay.json) pins the actual runtime SHA-256 values. The final commit/tree are supplied in the PR and handback, avoiding a self-referential commit hash.
 
-Code checkpoint: `36bf0f0a54808757868e9aad2e690cf32647d917`; tree `fc1411182b0a56aab6b5f266eef6b6f93ab0940f`. The adjacent JSON pins actual changed source hashes. Later documentation-only commits do not imply new runtime acceptance.
+## Implemented
 
-## Delivered and actually verified
+- One additive InnoDB `finance_settlement_requests` table with NOT NULL clinic/key and database UNIQUE(clinic_id, request_key). Request identities bind actor, operation, sorted targets and canonical submitted terms. Completed operations retain their original receipt/outcome and digest. Exact retries return that outcome; mismatched reuse fails closed without another write.
+- A server-derived revision covers the current locked parent, finance receipts, provider allocations/payments, applicable corrections/applications/returns and effective base currency. New requests lock all parents in ascending order, then ledger rows, before checking the revision. Same-key replay is checked before stale rejection, preserving legitimate recovery after later activity.
+- Request insertion/completion shares each existing financial transaction with receipt, cached balance, liquidity attribution and checked audit. Calculations remain in existing services. Native expense edits also bind the rendered parent preimage and uploaded-file content hashes.
+- Existing payment/refund dialogs, provider/staff/supplier drawers and direct confirmations acquire their context before confirmation. Loading, conflict and uncertain-outcome states do not automatically resubmit or silently acquire a fresh revision. Current facts replace the existing context card. EN/AR history handoff and submission locks remain.
 
-- cb26e4d9: trusted Review History handoff to the exact same-origin record pinned when the task opens. Submission stays locked; phase/history stay intact. Wrong-record/external destinations cannot borrow the exemption. Generic leaving still warns. Nine completed EN/AR user-activation cases, including real keyboard navigation, produced zero misleading history warnings. One Arabic supplier case became unavailable after its actual full settlement; it is not claimed complete.
-- `29d8d784` and `36bf0f0a`: payables lead with identity, status, outstanding and payment fields; secondary facts/help remain accessible through a native disclosure. Four EN/AR desktop,320/390 mobile/landscape task checks; four real manager/viewer disclosure and record/return journeys. Read-only users receive workspace styles without settlement forms/assets. Supplier navigation uses its existing permission.
-- Actual two-session stale supplier Mark Fully Paid: exactly one 19 ILS remaining payment; total 20 paid, 0 due, safe_cash attribution, one bulk-payment audit. An explicit repeat skipped without another receipt. Viewer, foreign-clinic and missing-CSRF POSTs did not settle the other owned bill.
-- Test-only audit failure after a real SQL ledger insert restored the owned parent, ledger and audit exactly, with transaction depth 0. The service source is unchanged.
-- 583 original business/clinical/evidence rows plus both supplier rows remain unchanged. Current fixture did not import original activity_logs from its source; a cross-database audit-ID comparison was invalid and is not a preservation pass. Actual transaction audit and rollback checks are separately evidenced.
-- 80 pinned financial-controller method checks,85 token-role checks,57 action foreground checks and unchanged SaaS guardrails pass. Existing stale DOM allowlist advisory retained. No backend/schema/dependency/native-chart/evidence changes from `8d750e10`.
+## Actual verification
 
-[Consolidated actual receipts, exact source hashes and limitations](review-5700597599.json). [Matched actual UI gallery](controls-gallery.html).
+| Gate | Result and scope |
+|---|---|
+| Overlapping HTTP workers | Two PHP-CGI worker PIDs and DB connections waited on an independent held SQL parent lock. Same-key pair: one receipt and one replay. Different-key stale pair: 200/409, one receipt. |
+| Legitimate later payment | Fresh revision/new key allowed another identical 1 ILS partial payment; no amount-based deduplication. |
+| Isolation/security | Changed payload, wrong actor/clinic, restricted role, missing CSRF and expired session denied without extra receipt or disclosure. |
+| Routed financial writers | Invoice payment, refund, void, noncash closure, provider partial/full and two-parent bulk settlement each committed and exact-replayed without duplicate writes. Actual Arabic mobile supplier Mark Fully Paid produced one receipt. |
+| Atomic failure | Request/receipt insertion failures, audit failure and result-completion failure restored parent/ledger/request/audit exactly. Disconnect after result writes but before commit rolled back; the dead connection was discarded and same-identity retry on an independent connection produced one receipt. Terminating only the owned worker after real receipt/audit inserts rolled back all four. |
+| Browser | Actual EN1366/AR390 dialogs; actual AR mobile stale conflict and committed/lost-response task stayed locked, Escape did not dismiss uncertainty, Review History navigated without a misleading warning. Exact captured multipart retry returned the existing result. |
+| FX/native edit | 1 USD at3.5 retained3.50 base,1.00 original,3.500000 rate and safe_cash. Native expense edit persisted, exact retry retained one audit. |
+| Schema | New disposable schema: uniqueness/nullability/index/engine requirements, existing-table refusal, unowned/populated rollback refusal, missing-index503, no-FX/no-total_amount compatibility and attribution. DDL refuses active transactions without implicit commit. |
+| Preservation | Original583 business/clinical/evidence rows and2suppliers unchanged. Current-task baseline includes existing audit rows and was compared by original ID and all persisted fields; unchanged. |
+| Focused code checks | 10 unit tests/78assertions; reusable SQL8checks;72unmodified controller methods including monetary helpers;85token/57foreground assertions; PHP/JS syntax and whitespace checks. Local SaaS guardrails pass. |
 
-## Confirmed financial acceptance blocker
+[Actual EN/AR gallery](settlement-replay.html). Historical accepted UX receipts remain in [review-5700597599.json](review-5700597599.json).
 
-Two independently authenticated stale browser contexts for the same actor submitted identical 1 ILS partial-payment terms to the existing owned expense endpoint. Both succeeded and created separate receipts; outstanding 19 became 17. Parent locking protects the remaining amount, but does not identify an operation or reject a stale settlement view while funds remain. This is existing backend behavior, not a new frontend regression: current batch changes no financial writer. Do not call it tested idempotency, silently waive it, or claim the current-page UI guard covers other tabs/reloads/direct POSTs.
+## Caller and release compatibility
 
-The reviewer explicitly requested a separately scoped backend protection proposal if demonstrated. The minimum coherent correction proposal is:
+- Session browser: existing authorized routes and CSRF remain authoritative. Context is `GET /finance/settlement-context?operation=...&targets=...`, no-store. Send its `request_key` and `settlement_revision` unchanged with FormData or the existing JSON transport. Bulk JSON keeps its existing `ids` array.
+- Direct service callers must supply identity/revision to `bulkSettle()` or `recordPayout()`. Missing/old clients fail closed (409; missing/incompatible table503). There is no permissive legacy mode. Historical direct-service harnesses without preconditions are obsolete callers, not passing current acceptance.
+- Existing `/api/v1` finance CRUD has no alternate settlement endpoint; computed settlement/history mutations remain prohibited by the unchanged FinanceApiMutationService. No new Bearer endpoint, permissions or feature activation was added. Standalone transaction creation and the separate gated checkout identity contract are not claimed to gain universal idempotency from this patch.
+- **Not source-only deployable before separately authorized schema rollout.** Apply only `2026-10-29-180000_CreateFinanceSettlementRequests.php` after exact-head review, recovery/native preflight and separate Owner authorization. Never run a blanket migration batch. Treatment-storage/theme/scheduling migrations remain separately gated.
+- Drain old writers and refresh open financial forms at cutover. Mixed old writers can bypass the new contract; do not certify overlap. Keep request evidence indefinitely; populated down is refused. A source rollback retains the DB/table/durable files but old code loses these protections, so settlements must be contained during rollback rather than silently reopening unguarded writes.
 
-1. Durable clinic-scoped operation identity, bound to actor, target, mutation type and canonical persisted financial terms. Exact retries return the original result; conflicting reuse fails closed.
-2. A server-derived settlement revision/precondition checked under the existing parent/ledger lock. A second independently opened stale form must review the changed history before submitting another partial payment, even when a balance remains.
-3. Request recording and financial/audit writes share the existing owned transaction and lock-order contract. Preserve all current receipt/FX/liquidity/refund calculations and history; do not infer duplicate intent from equal amounts or suppress legitimate later payments.
-4. Review every session/API caller for compatibility. A frontend-only/localStorage lock, session nonce alone or using unindexed audit text as uniqueness is insufficient. Durable uniqueness may require additive schema; none is authored/applied here under the no-migration instruction. Required source/schema/API scope needs separate authorization/review before implementation.
+## Remaining limits
 
-This is the specific next engineering decision; no production authorization or risk waiver is inferred.
+- Independent exact-head financial/security acceptance is pending. Whole-app PR22 journey/theme/clinical/physical-accessibility acceptance remains separately open; this correction does not certify it.
+- Local PHP8.2.12/MariaDB10.4.32 tested. Native Hostinger compatibility/rehearsal and production recovery/deployment were not performed in this task.
+- The historical whole-frontend lock still reports earlier PR22 backend/coverage drift and this newly authorized scope. Its accepted pins were not weakened or relabeled approved. The focused parent-boundary check and source hashes certify this surgical delta; final whole-PR lock reconciliation remains pending acceptance.
+- One first lost-response test reconstructed pre-submit fields; its retry was rejected and its single owned receipt is retained. It is not a replay pass. A separate fixture captured the actual multipart request and passed exact retry. Test redirects/disclosure mistakes were corrected against actual persisted state without replaying committed operations.
+- Atomicity claims cover database writes, not the existing filesystem attachment publication lifecycle. No historical receipt, signed clinical evidence, native chart, dependency, optional feature or production record was changed.
 
-## Whole-program acceptance still open
-
-The matrix distinguishes inventory, partial render/component observation, actual mutation, denial and preservation evidence. It is not blanket complete. Full role-based clinical/contract/checkout/patient-history journeys, native current-source rehearsal, all persona/state combinations, complete theme/CSP/print/zoom and physical assistive-technology acceptance remain pending. Checkout and other optional gates must not be enabled merely to test them. Persisted themes remain OFF.
-
-The existing treatment-storage migration remains separately production-release-gated; no migration was run in this continuation. No merge/deploy/activation/Actions or customer-data change. No final exact-head all-app review requested while these gates remain open. Historical FINAL_ACCEPTANCE_CLOSURE.md remains unchanged.
-
-## Test fixture custody
-
-Owned test changes are retained, not erased: supplier 800019 now 20 paid/0 due; payable 800018 now 3 paid/17 due. A first harness used the wrong refund interception URL and recorded one 1 ILS refund on owned invoice 800015 (net paid 31/due 69). Exact SQL identified it; subsequent browser-only history tests use independent finance-POST blocking. No original record was repaired/reset. See the JSON for guarded test resumes, corrected currency-account expectation and all evidence limits.
+No merge, production migration, deployment, activation or GitHub Actions occurred.

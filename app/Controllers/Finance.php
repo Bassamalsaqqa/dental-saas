@@ -69,6 +69,57 @@ class Finance extends BaseController
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
 
+    private ?\App\Services\FinanceSettlementRequestService $settlementRequestService = null;
+
+    private function settlementRequests(): \App\Services\FinanceSettlementRequestService
+    { return $this->settlementRequestService ??= new \App\Services\FinanceSettlementRequestService($this->db); }
+
+    private function settlementInput(): array
+    {
+        $input=$this->request->getPost();
+        if(str_contains((string)$this->request->getHeaderLine('Content-Type'),'application/json'))$input=$this->request->getJSON(true)??[];
+        if(!is_array($input))throw new \App\Services\FinanceSettlementConflict('SETTLEMENT_CONTEXT_REQUIRED');
+        return $input;
+    }
+
+    private function claimSettlement(string $operation,array $targets,array $extra=[]):array
+    {
+        $input=$this->settlementInput();
+        $files=[];
+        foreach(['attachment','check_scan'] as $name){
+            $file=$this->request->getFile($name);
+            if($file&&$file->getError()!==UPLOAD_ERR_NO_FILE){
+                if(!$file->isValid())throw new \App\Services\FinanceSettlementConflict('SETTLEMENT_CONTEXT_REQUIRED');
+                $files[$name]=['name'=>$file->getClientName(),'bytes'=>$file->getSize(),'sha256'=>hash_file('sha256',$file->getTempName())];
+            }
+        }
+        if($files)$extra['uploaded_files']=$files;
+        return $this->settlementRequests()->claim((int)session('active_clinic_id'),$this->resolveActorUserId(),$operation,$targets,$input,array_merge($input,$extra));
+    }
+
+    private function replaySettlement(array $claim)
+    {
+        $this->db->transRollback();
+        return $this->response->setHeader('Cache-Control','no-store, private')->setJSON(['success'=>true,'request_replayed'=>true,'settlement_result'=>$claim['result'],'csrf_token'=>csrf_hash()]);
+    }
+
+    private function settlementConflict(\App\Services\FinanceSettlementConflict $error)
+    {
+        return $this->response->setHeader('Cache-Control','no-store, private')->setStatusCode($error->httpStatus)->setJSON(['success'=>false,'error'=>$error->reason,'message'=>lang('Finance.settlementConflictHelp'),'csrf_token'=>csrf_hash()]);
+    }
+
+    public function settlementContext()
+    {
+        try {
+            $clinic=(int)session('active_clinic_id');$actor=$this->resolveActorUserId();
+            if($clinic<=0||$actor<=0)return $this->response->setStatusCode(403)->setJSON(['success'=>false,'error'=>'TENANT_CONTEXT_REQUIRED']);
+            $targets=explode(',',(string)$this->request->getGet('targets'));
+            $context=$this->settlementRequests()->issue($clinic,$actor,(string)$this->request->getGet('operation'),$targets);
+            return $this->response->setHeader('Cache-Control','no-store, private')->setJSON(['success'=>true,'context'=>$context]);
+        } catch(\App\Services\FinanceSettlementConflict $e){return $this->settlementConflict($e);}
+          catch(\Throwable $e){log_message('error','Settlement context unavailable.');return $this->response->setStatusCode(503)->setJSON(['success'=>false,'error'=>'SETTLEMENT_CONTEXT_UNAVAILABLE','message'=>lang('Finance.settlementConflictHelp')]);}
+    }
+
     private function canAccessFinanceReports(int $clinicId): bool
     {
         return $this->planGuard->isFeatureEnabled($clinicId, 'finance_reports.enabled', false)
@@ -1678,7 +1729,7 @@ class Finance extends BaseController
         if (($finance['transaction_type'] ?? '') === 'invoice') {
             try {
                 $payload = [];
-                $transport = [config('Security')->tokenName, 'return_to'];
+                $transport = [config('Security')->tokenName, 'return_to', 'request_key', 'settlement_revision'];
                 foreach ($this->request->getPost() as $field => $value) {
                     if (in_array($field, $transport, true)) { continue; }
                     if (!in_array($field, \App\Services\FinanceApiMutationService::ALLOWED_PAYLOAD_FIELDS, true)) {
@@ -1975,6 +2026,8 @@ class Finance extends BaseController
 
         try {
             $this->db->transBegin();
+            $requestClaim=$this->claimSettlement('update',[$id]);
+            if($requestClaim['replayed']){ $this->db->transRollback();return redirect()->to(base_url('finance/'.$id))->with('success',lang('Finance.settlementReplay')); }
 
             if (!$this->financeModel->update($id, $update)) {
                 $this->db->transRollback();
@@ -2026,21 +2079,26 @@ class Finance extends BaseController
 
             $this->syncFinanceSettlementStatus($id, $clinicId);
 
-            $this->activityLogger->logFinanceActivity(
+            if (!$this->activityLogger->logFinanceActivity(
                 'update',
                 $id,
                 "Expense transaction updated for " . ($update['counterparty_name'] ?: 'counterparty')
-            );
+            )) { throw new \RuntimeException('Failed to record expense update audit.'); }
 
             if ($this->db->transStatus() === false) {
                 $this->db->transRollback();
                 return redirect()->back()->withInput()->with('error', 'Failed to update expense.');
             }
-            $this->db->transCommit();
+            $this->settlementRequests()->complete($requestClaim);
+            if(!$this->db->transCommit())throw new \RuntimeException('Failed to commit expense update.');
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
             return $this->redirectAfterWorkflow($returnTo ?: 'finance/' . $id, ['finance', 'finance/payables', 'inventory/suppliers'])
                 ->with('success', 'Expense updated successfully.');
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            $this->db->transRollback();
+            if($this->request->isAJAX())return $this->settlementConflict($e);
+            return redirect()->back()->withInput()->with('error',lang('Finance.settlementConflictHelp'));
         } catch (\Throwable $e) {
             $this->db->transRollback();
             log_message('error', 'Expense update failed: ' . $e->getMessage());
@@ -3138,14 +3196,18 @@ class Finance extends BaseController
                 $method,
                 $account,
                 $paidDate,
-                $notes
+                $notes,
+                $this->settlementInput()
             );
 
             return $this->response->setJSON([
                 'success' => true,
+                    'request_replayed'=>$result['request_replayed']??false,'settlement_result'=>$result['settlement_result']??null,
                 'message' => 'Provider payout payment recorded successfully.',
                 'csrf_token' => csrf_hash(),
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            return $this->settlementConflict($e);
         } catch (\DomainException $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -3190,12 +3252,14 @@ class Finance extends BaseController
                 $method,
                 $account,
                 date('Y-m-d'),
-                'Marked fully paid'
+                'Marked fully paid',
+                $this->settlementInput(), 'provider_mark_paid'
             );
 
             if ($result['already_paid']) {
                 return $this->response->setJSON([
                     'success' => true,
+                    'request_replayed'=>$result['request_replayed']??false,'settlement_result'=>$result['settlement_result']??null,
                     'message' => 'Provider payout is already fully paid.',
                     'csrf_token' => csrf_hash(),
                 ]);
@@ -3203,9 +3267,12 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                    'request_replayed'=>$result['request_replayed']??false,'settlement_result'=>$result['settlement_result']??null,
                 'message' => 'Provider payout marked as paid.',
                 'csrf_token' => csrf_hash(),
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            return $this->settlementConflict($e);
         } catch (\DomainException $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -3267,11 +3334,12 @@ class Finance extends BaseController
             }
             $isExpense = ($row['transaction_type'] ?? '') === 'expense';
 
-            $result = $this->financeSettlementService->bulkSettle((int) $clinicId, [(int) $id], $actorId);
+            $result = $this->financeSettlementService->bulkSettle((int) $clinicId, [(int) $id], $actorId, [], $this->settlementInput(), 'mark_paid');
 
             if ($result['skipped_count'] > 0) {
                 return $this->response->setJSON([
                     'success' => true,
+                    'request_replayed'=>$result['request_replayed']??false,'settlement_result'=>$result['settlement_result']??null,
                     'message' => $isExpense ? 'Expense already fully paid.' : 'Invoice already fully paid.',
                     'csrf_token' => csrf_hash(),
                 ]);
@@ -3279,9 +3347,12 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                    'request_replayed'=>$result['request_replayed']??false,'settlement_result'=>$result['settlement_result']??null,
                 'message' => $isExpense ? 'Expense marked as paid.' : 'Invoice marked as paid.',
                 'csrf_token' => csrf_hash(),
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            return $this->settlementConflict($e);
         } catch (\DomainException $e) {
             $msg = $e->getMessage();
             if (str_contains($msg, 'not found') || str_contains($msg, 'No valid transactions')) {
@@ -3377,13 +3448,19 @@ class Finance extends BaseController
                 ]);
             }
 
+            $requestClaim=$this->claimSettlement('payment',[(int)$id]);
+            if($requestClaim['replayed']){ $transactionStarted=false;return $this->replaySettlement($requestClaim); }
+
             $state = $this->financeSettlementService->getLockedSettlementState((int) $clinicId, $finance);
             $remaining = $state['remaining_base'];
 
             if ($remaining <= 0.0) {
-                $this->db->transRollback();
+                $requestResult=$this->settlementRequests()->complete($requestClaim,['already_paid'=>true]);
+                if(!$this->db->transStatus()||!$this->db->transCommit())throw new \RuntimeException('Unable to commit settlement outcome.');
+                $transactionStarted=false;
                 return $this->response->setJSON([
                     'success' => true,
+                    'request_replayed'=>false,'settlement_result'=>$requestResult,
                     'message' => (($finance['transaction_type'] ?? '') === 'expense') ? 'Expense already fully paid.' : 'Invoice already fully paid.',
                     'csrf_token' => csrf_hash()
                 ]);
@@ -3402,6 +3479,7 @@ class Finance extends BaseController
                 ]);
             }
 
+            $requestResult=$this->settlementRequests()->complete($requestClaim);
             if (!$this->db->transCommit()) {
                 throw new \RuntimeException('Failed to commit settlement transaction.');
             }
@@ -3409,9 +3487,13 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                'request_replayed'=>false,'settlement_result'=>$requestResult,
                 'message' => (($finance['transaction_type'] ?? '') === 'expense') ? 'Expense payment recorded successfully.' : 'Payment added successfully.',
                 'csrf_token' => csrf_hash()
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            if($transactionStarted)$this->db->transRollback();
+            return $this->settlementConflict($e);
         } catch (\DomainException $e) {
             if ($transactionStarted) {
                 $this->db->transRollback();
@@ -3470,6 +3552,9 @@ class Finance extends BaseController
                     'csrf_token' => csrf_hash()
                 ]);
             }
+
+            $requestClaim=$this->claimSettlement('refund',[(int)$id]);
+            if($requestClaim['replayed']){ $transactionStarted=false;return $this->replaySettlement($requestClaim); }
 
             $globalCashRemaining = $this->refundableInvoiceCash((int) $clinicId, $finance);
             if ($globalCashRemaining <= 0) {
@@ -3573,6 +3658,7 @@ class Finance extends BaseController
                 ]);
             }
 
+            $requestResult=$this->settlementRequests()->complete($requestClaim);
             if (!$this->db->transCommit()) {
                 throw new \RuntimeException('Failed to commit settlement transaction.');
             }
@@ -3580,9 +3666,13 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                'request_replayed'=>false,'settlement_result'=>$requestResult,
                 'message' => 'Refund recorded successfully.',
                 'csrf_token' => csrf_hash()
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            if($transactionStarted)$this->db->transRollback();
+            return $this->settlementConflict($e);
         } catch (\Throwable $e) {
             if ($transactionStarted) {
                 $this->db->transRollback();
@@ -3632,6 +3722,9 @@ class Finance extends BaseController
                     'csrf_token' => csrf_hash()
                 ]);
             }
+
+            $requestClaim=$this->claimSettlement('void',[(int)$id], ['void_payment_id'=>(int)$paymentId]);
+            if($requestClaim['replayed']){ $transactionStarted=false;return $this->replaySettlement($requestClaim); }
 
             $payment = $this->financePaymentModel
                 ->where('clinic_id', (int) $clinicId)
@@ -3724,6 +3817,7 @@ class Finance extends BaseController
                 ]);
             }
 
+            $requestResult=$this->settlementRequests()->complete($requestClaim);
             if (!$this->db->transCommit()) {
                 throw new \RuntimeException('Failed to commit settlement transaction.');
             }
@@ -3731,9 +3825,13 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                'request_replayed'=>false,'settlement_result'=>$requestResult,
                 'message' => 'Payment voided successfully.',
                 'csrf_token' => csrf_hash()
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            if($transactionStarted)$this->db->transRollback();
+            return $this->settlementConflict($e);
         } catch (\Throwable $e) {
             if ($transactionStarted) {
                 $this->db->transRollback();
@@ -3778,6 +3876,9 @@ class Finance extends BaseController
                     'csrf_token' => csrf_hash()
                 ]);
             }
+
+            $requestClaim=$this->claimSettlement('close_balance',[(int)$id]);
+            if($requestClaim['replayed']){ $transactionStarted=false;return $this->replaySettlement($requestClaim); }
 
             $state = $this->financeSettlementService->getLockedSettlementState((int) $clinicId, $finance);
             $remaining = (float) $state['remaining_base'];
@@ -3848,6 +3949,7 @@ class Finance extends BaseController
                 ]);
             }
 
+            $requestResult=$this->settlementRequests()->complete($requestClaim);
             if (!$this->db->transCommit()) {
                 throw new \RuntimeException('Failed to commit settlement transaction.');
             }
@@ -3855,9 +3957,13 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                'request_replayed'=>false,'settlement_result'=>$requestResult,
                 'message' => 'Invoice balance closed successfully.',
                 'csrf_token' => csrf_hash()
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            if($transactionStarted)$this->db->transRollback();
+            return $this->settlementConflict($e);
         } catch (\Throwable $e) {
             if ($transactionStarted) {
                 $this->db->transRollback();
@@ -4468,7 +4574,7 @@ class Finance extends BaseController
 
             $overrides = array_diff_key($input, ['ids' => true]);
 
-            $result = $this->financeSettlementService->bulkSettle((int) $clinicId, $ids, $actorId, $overrides);
+            $result = $this->financeSettlementService->bulkSettle((int) $clinicId, $ids, $actorId, $overrides, $input);
             $updated = $result['settled_count'];
             $skipped = $result['skipped_count'];
 
@@ -4479,8 +4585,11 @@ class Finance extends BaseController
 
             return $this->response->setJSON([
                 'success' => true,
+                    'request_replayed'=>$result['request_replayed']??false,'settlement_result'=>$result['settlement_result']??null,
                 'message' => $message,
             ]);
+        } catch (\App\Services\FinanceSettlementConflict $e) {
+            return $this->settlementConflict($e);
         } catch (\DomainException $e) {
             $message = $e->getMessage();
             if (str_contains($message, 'not found') || str_contains($message, 'No valid transactions')) {

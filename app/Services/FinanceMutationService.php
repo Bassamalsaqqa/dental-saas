@@ -165,7 +165,9 @@ class FinanceMutationService
         string $method,
         ?string $account,
         string $paidDate,
-        string $notes
+        string $notes,
+        array $requestIdentity = [],
+        string $requestOperation = 'provider_payment'
     ): array {
         if ($clinicId <= 0 || $actorId <= 0) {
             throw new \DomainException('Invalid request context.');
@@ -211,6 +213,11 @@ class FinanceMutationService
 
         $this->begin();
         try {
+            $requests=new FinanceSettlementRequestService($this->db);
+            $terms=['amount'=>$amount,'payment_method'=>$method,'liquidity_account'=>$account,'notes'=>$notes];
+            if($amount!==null)$terms['paid_date']=$paidDate;
+            $claim=$requests->claim($clinicId,$actorId,$requestOperation,[$payoutId],$requestIdentity,$terms);
+            if($claim['replayed']){ $this->db->transRollback();return array_merge($claim['result']['outcome'],['request_replayed'=>true,'settlement_result'=>$claim['result']]); }
             if (!$this->lockFinance($clinicId, $financeId)) {
                 throw new \DomainException('Provider payout not found.');
             }
@@ -245,8 +252,9 @@ class FinanceMutationService
             $remaining = round(max(0, $share - $effectivePaid), 2);
 
             if ($remaining <= 0 && $amount === null) {
+                $requestResult=$requests->complete($claim,['already_paid'=>true,'amount'=>0.0]);
                 $this->commit();
-                return ['already_paid' => true, 'amount' => 0.0];
+                return ['already_paid'=>true,'amount'=>0.0,'settlement_result'=>$requestResult,'request_replayed'=>false];
             }
 
             $amount = $amount === null ? $remaining : round($amount, 2);
@@ -290,8 +298,9 @@ class FinanceMutationService
                 'status' => $newStatus,
             ]);
 
+            $requestResult=$requests->complete($claim,['already_paid'=>false,'amount'=>$amount]);
             $this->commit();
-            return ['already_paid' => false, 'amount' => $amount];
+            return ['already_paid'=>false,'amount'=>$amount,'settlement_result'=>$requestResult,'request_replayed'=>false];
         } catch (\Throwable $e) {
             $this->db->transRollback();
             throw $e;

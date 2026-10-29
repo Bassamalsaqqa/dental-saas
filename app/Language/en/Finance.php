@@ -592,4 +592,8 @@ return [
     'checkoutAlreadyRecorded' => 'This invoice and receipt were already recorded. No duplicate receipt was created.',
     'checkoutBaseRate' => 'The exchange rate must be 1 when the invoice uses the clinic base currency.',
     'checkoutFailed' => 'The invoice and initial receipt could not be confirmed. Retry the same form to check its recorded result, or contact your clinic manager.',
+    'settlementLoading' => 'Checking the current financial state...',
+    'settlementConflictHelp' => 'The financial state changed or this request could not be verified. Review the history and reopen the task before submitting.',
+    'settlementReplay' => 'This operation was already recorded. Its original receipt has been preserved.',
+    'settlementReady' => 'Review the current financial details before confirming.',
 ];

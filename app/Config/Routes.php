@@ -370,6 +370,7 @@ $routes->group('finance', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->get('(:num)/edit', 'Finance::edit/$1', ['filter' => 'permission:finance,edit']);
     $routes->post('(:num)/update', 'Finance::update/$1', ['filter' => 'permission:finance,edit']);
     $routes->delete('(:num)', 'Finance::delete/$1', ['filter' => 'permission:finance,delete']);
+    $routes->get('settlement-context', 'Finance::settlementContext', ['filter' => 'permission:finance,edit']);
     $routes->post('(:num)/mark-paid', 'Finance::markAsPaid/$1', ['filter' => 'permission:finance,edit']);
     $routes->post('(:num)/payments', 'Finance::addInvoicePayment/$1', ['filter' => 'permission:finance,edit']);
     $routes->post('(:num)/payments/refund', 'Finance::refundInvoicePayment/$1', ['filter' => 'permission:finance,edit']);
