@@ -52,3 +52,7 @@
 ## Latest component correction candidate
 
 The current draft adds task-sized native dialogs, reliable dirty/validation/pending handling, full selected-patient identity, compact account/row menus and date groups, and responsive calendar panels. See [matched component gallery](ui-evidence/product-ux/component-gallery.html) and [108-check scoped receipt](ui-evidence/product-ux/component-craft.json). One owned synthetic patient was created;445 original rows remain unchanged. This pass changes frontend source only; dependencies, native clinical/evidence and existing business authority are preserved. Query counts are unchanged frombc7; patient backend latency remains unresolved. Production remains unchanged. Current exact-head review, targeted native rehearsal and fresh certified release recovery are still required. The olderbc7 native receipt is not current-source certification. Former reviewer formal request API422 remains unresolved; no approval or permission is fabricated.
+
+## Final acceptance closure - blocked
+
+Review5695038870 is COMMENTED with CHANGES REQUIRED. Arabic impersonation/return confirmations are corrected and routed checks passed. New actual treatment save exposed a pre-existing catalog/storage mismatch:41/43 choices are unsupported by the production ENUM. Clinical transaction rolled back; no production change. [Definitive closure and risk matrix](ui-evidence/product-ux/FINAL_ACCEPTANCE_CLOSURE.md). Source-only release remains NO-GO; themes OFF. No independent approval, new migration or deployment is claimed.

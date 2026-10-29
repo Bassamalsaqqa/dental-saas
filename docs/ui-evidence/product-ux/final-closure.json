@@ -1,0 +1,200 @@
+{
+  "reviewed_base": "0619d0277202924e5a34d4979e084e972c760652",
+  "source_disposition": "CHANGES_REQUIRED; PRODUCTION_NO_GO; no deployment",
+  "review_5695038870": "COMMENTED with CHANGES REQUIRED textual disposition, not formal approval",
+  "localization": {
+    "checks": [
+      {
+        "case": "Actual Arabic POST/CSRF entry and impersonation flash",
+        "width": 1366
+      },
+      {
+        "case": "Another-tab exit clears tenant authority and localizes return",
+        "width": 1366
+      },
+      {
+        "case": "Actual Arabic POST/CSRF entry and impersonation flash",
+        "width": 390
+      },
+      {
+        "case": "Another-tab exit clears tenant authority and localizes return",
+        "width": 390
+      },
+      "Manager forged platform POST denied; session cannot authorize Bearer API",
+      "Actual loaded theme form loses settings grant before POST: denied and SQL state unchanged",
+      "Inactive impersonated clinic denied on next canonical request",
+      "Expired/cleared browser session returns to authentication, no protected page"
+    ],
+    "errors": [],
+    "temporaryFixturesRestored": true,
+    "productionChanged": false
+  },
+  "theme_real_sql": {
+    "fresh_migration_checks": 28,
+    "canonical_access_checks": 12,
+    "grant_revocation_concurrency": {
+      "passed": true,
+      "elapsed_seconds": 0.84,
+      "real_parallel_connections": true,
+      "blocked_until_revocation_committed": true,
+      "state_history_unchanged": true,
+      "grant_restored": true,
+      "scope": "Actual MariaDB canonical authorizer under concurrent committed settings-grant revocation, owned clone only"
+    },
+    "failed_audit_rollback": {
+      "audit_failure_rejected": true,
+      "state_and_all_history_unchanged": true,
+      "transaction_depth": 0,
+      "engines": [
+        {
+          "TABLE_NAME": "studio_theme_current",
+          "ENGINE": "InnoDB"
+        },
+        {
+          "TABLE_NAME": "studio_theme_revisions",
+          "ENGINE": "InnoDB"
+        }
+      ],
+      "history_columns": [
+        "scope_key",
+        "version",
+        "actor_id",
+        "action",
+        "reason",
+        "before_json",
+        "payload_json",
+        "created_at"
+      ],
+      "passed": true
+    },
+    "partial_ddl": {
+      "passed": true,
+      "actual_first_ddl_committed": true,
+      "second_ddl_failure": "Explicit injected Forge failure; not a real denied-privilege test",
+      "retained_tables": [
+        "studio_theme_current"
+      ],
+      "automatic_cleanup": false,
+      "partial_schema_unavailable": true,
+      "retry_refuses_ownership_conflict": true,
+      "production_changed": false
+    },
+    "source_feature_enabled": false,
+    "production_migrations": 0
+  },
+  "optional_select2": {
+    "passed": true,
+    "checks": [
+      "Existing legacy-pinned jQuery3.7.1 and real Select2 4.1.0-rc.0 loaded in isolated browser; no install/version change",
+      "Real AJAX plugin chooses canonical owned patient26 inside native dialog and synchronizes full identity",
+      "Dropdown remains in dialog top layer; Escape closes lookup without losing parent task",
+      "Actual enhanced selector receives keyboard focus"
+    ],
+    "noBusinessMutations": true,
+    "scope": "Real optional existing plugin E2E loaded only in isolated browser; not new shipped dependency or offline/CDN certification"
+  },
+  "actual_new_workflow_results": {
+    "checks": [
+      {
+        "case": "Actual registration",
+        "id": 26,
+        "sql": [
+          {
+            "id": "26",
+            "clinic_id": "1",
+            "first_name": "ClosureSynthetic20261029"
+          }
+        ]
+      },
+      {
+        "case": "Actual native examination creation",
+        "id": 1150,
+        "patient": 26,
+        "status": "pending",
+        "destination": "/examinations"
+      }
+    ],
+    "created": {
+      "patient": 26,
+      "examination": 1150
+    },
+    "errors": [],
+    "scope": "Actual canonical routed actions on newly owned synthetic clone; never repeat created records"
+  },
+  "treatment_schema_gate": {
+    "exit_code": 1,
+    "passed": false,
+    "offered_count": 43,
+    "unsupported_keys": [
+      "comprehensive_oral_evaluation",
+      "periodic_oral_evaluation",
+      "emergency_oral_evaluation",
+      "periapical_xray",
+      "bitewing_xray",
+      "panoramic_xray",
+      "adult_prophylaxis",
+      "child_prophylaxis",
+      "fluoride_varnish",
+      "pit_fissure_sealant",
+      "composite_filling_anterior",
+      "composite_filling_posterior",
+      "amalgam_filling",
+      "glass_ionomer_filling",
+      "direct_pulp_cap",
+      "indirect_pulp_cap",
+      "root_canal_anterior",
+      "root_canal_premolar",
+      "root_canal_molar",
+      "root_canal_retreatment",
+      "simple_extraction",
+      "surgical_extraction",
+      "wisdom_tooth_extraction",
+      "scaling_root_planing",
+      "periodontal_maintenance",
+      "inlay_onlay",
+      "bridge",
+      "veneer",
+      "partial_denture",
+      "complete_denture",
+      "implant_placement",
+      "implant_abutment",
+      "implant_crown",
+      "orthodontic_consultation",
+      "braces",
+      "clear_aligner",
+      "teeth_whitening_inoffice",
+      "teeth_whitening_home",
+      "night_guard",
+      "incision_drainage",
+      "oral_biopsy"
+    ],
+    "storage_type": "enum('cleaning','extraction','filling','crown','root_canal','orthodontic','implant','other')",
+    "scope": "Read-only schema compatibility gate; a failing result is a defect, not passing characterization",
+    "mutations": 0,
+    "catalog_identical_to_deployed_baseline": true,
+    "production_column_type": "`treatment_type` enum('cleaning','extraction','filling','crown','root_canal','orthodontic','implant','other') NOT NULL,",
+    "production_verified_read_only": true
+  },
+  "constraint_limits": {
+    "production_foreign_keys": 26,
+    "clone_foreign_keys": 0,
+    "clone_schema_preserves_source_show_create": true,
+    "authentic_business_fk_acceptance": "NOT_CERTIFIED; copied original fixture lacks production foreign keys; no claim that CREATE LIKE or matching columns proves parity"
+  },
+  "preservation": {
+    "production_changed": false,
+    "original_checkout_changed": false,
+    "original_synthetic_rows": 445,
+    "new_records_only_in_owned_closure_clone": {
+      "patient": 26,
+      "examination": 1150
+    },
+    "failed_treatment_insert_rolled_back": true
+  },
+  "remaining": [
+    "Treatment storage/catalog mismatch:41 of43 offered values cannot persist in existing production schema; existing defect, not UI regression.",
+    "Real business FK/native mutation acceptance requires a production-compatible isolated synthetic fixture; current results cannot substitute for it.",
+    "Full actual theme consumer/contrast/CSP/print/zoom coverage not complete; themes remain OFF, not certified for activation.",
+    "Final exact-head independent acceptance and fresh certified off-host recovery remain required."
+  ]
+}
