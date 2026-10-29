@@ -9,7 +9,7 @@
                                 <span><?= esc($providerPayoutUi['kicker']) ?></span>
                             </span>
                             <h4 id="<?= esc($providerPayoutModalId) ?>Title" ><?= esc($providerPayoutUi['action']) ?></h4>
-                            <p id="<?= esc($providerPayoutModalId) ?>Description"><?= esc($providerPayoutUi['notice']) ?></p>
+                            <p id="<?= esc($providerPayoutModalId) ?>Description"><?= esc(lang('Studio.financeProviderHelp')) ?></p>
                         </div>
                         <button type="button"  data-finance-close="<?= esc($providerPayoutModalId) ?>">
                             <?= esc(lang('Studio.close')) ?>
@@ -17,6 +17,8 @@
                     </div>
                     <form class="finance-inline-modal-form provider-payout-payment-form" data-url="<?= esc(base_url('finance/payouts/' . (int) $providerPayout['id'] . '/payments')) ?>" data-finance-modal-close="<?= esc($providerPayoutModalId) ?>">
                         <?= csrf_field() ?>
+<div class="finance-task-body">
+<div class="finance-task-feedback" role="status" aria-live="polite" hidden><p></p><a class="button secondary" data-finance-reconcile href="<?= esc(base_url('finance/'.(int)$finance['id']),'attr') ?>" hidden><?= esc(lang('Studio.financeCheckHistory')) ?></a></div>
                         <div >
                             <div >
                                 <div >
@@ -102,7 +104,7 @@
                             </label>
                             <textarea id="<?= esc($providerPayoutModalId) ?>Field5" name="notes" rows="2" class="finance-show-input" placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
-                        <div class="finance-inline-modal-actions">
+                        </div><div class="finance-inline-modal-actions">
                             <button type="button" data-finance-close="<?= esc($providerPayoutModalId) ?>" >
                                 <span><?= esc(lang('Finance.cancel')) ?></span>
                             </button>

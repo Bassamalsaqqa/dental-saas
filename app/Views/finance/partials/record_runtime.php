@@ -1,86 +1,7 @@
 <script>
 const financeBaseCurrency = '<?= esc($baseCurrency) ?>';
-const financeModalTriggers = new WeakMap();
-
-function mountFinanceModal(id) {
-    const modal = document.getElementById(id);
-    if (modal && modal.parentElement !== document.body) {
-        document.body.appendChild(modal);
-    }
-    return modal;
-}
-
-function getOpenFinanceModal() {
-    return document.querySelector('dialog[data-finance-modal-root][open]');
-}
-
-function getFinanceModalFocusable(modal) {
-    if (!modal) {
-        return [];
-    }
-
-    return Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
-        .filter((element) => !element.disabled && element.offsetParent !== null);
-}
-
-function openFinanceModal(id, trigger = null) {
-    const modal = mountFinanceModal(id);
-    if (!modal) {
-        return;
-    }
-    financeModalTriggers.set(modal, trigger || document.activeElement);
-    modal.classList.remove('hidden');
-    if (modal instanceof HTMLDialogElement && !modal.open) modal.showModal();
-    document.body.classList.add('overflow-hidden');
-    const focusable = getFinanceModalFocusable(modal);
-    const focusTarget = focusable.find((element) => ['INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) || focusable[0];
-    if (focusTarget) {
-        window.setTimeout(() => { if (getOpenFinanceModal() === modal) focusTarget.focus(); }, 50);
-    }
-}
-
-function closeFinanceModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) {
-        return;
-    }
-    if (modal instanceof HTMLDialogElement && modal.open) { modal.close(); return; }
-    modal.classList.add('hidden');
-    if (!getOpenFinanceModal()) {
-        document.body.classList.remove('overflow-hidden');
-    }
-    const trigger = financeModalTriggers.get(modal);
-    if (trigger?.isConnected) requestAnimationFrame(() => trigger.focus());
-}
-
-function closeOpenFinanceModals() {
-    document.querySelectorAll('[data-finance-modal-root]').forEach((modal) => {
-        if (!modal.classList.contains('hidden')) {
-            closeFinanceModal(modal.id);
-        }
-    });
-}
-
-document.addEventListener('keydown', function (event) {
-    const activeDialog = document.activeElement?.closest('dialog[open]');
-    if (event.defaultPrevented || (activeDialog && !activeDialog.matches('[data-finance-modal-root]'))) return;
-    if (event.key === 'Escape' && getOpenFinanceModal()) {
-        event.preventDefault();
-        closeOpenFinanceModals();
-        return;
-    }
-
-}, true);
-
-document.querySelectorAll('[data-finance-modal-root]').forEach((modal) => {
-    modal.addEventListener('cancel', event => { event.preventDefault(); closeFinanceModal(modal.id); });
-    modal.addEventListener('close', () => closeFinanceModal(modal.id));
-    modal.addEventListener('click', function (event) {
-        if (event.target === modal || event.target.classList.contains('finance-inline-modal-backdrop')) {
-            closeFinanceModal(modal.id);
-        }
-    });
-});
+function openFinanceModal(id, trigger = null) { window.StudioFinanceTask?.open(id, trigger); }
+function closeFinanceModal(id) { window.StudioFinanceTask?.requestClose(id); }
 
 function syncSettlementForm(form) {
     if (!form) {
@@ -105,12 +26,14 @@ function syncSettlementForm(form) {
         rate = 1;
         rateInput.value = '1';
         rateInput.readOnly = true;
-        rateInput.classList.add('bg-slate-50');
+
     } else if (rateInput) {
         rateInput.readOnly = false;
-        rateInput.classList.remove('bg-slate-50');
+
     }
 
+    const fx = form.querySelector('[data-settlement-fx]');
+    if (fx) fx.hidden = currency === financeBaseCurrency;
     const amount = parseFloat(amountInput.value || '0');
     const baseAmount = Number.isFinite(amount) ? (amount * rate) : 0;
     baseOutput.value = baseAmount.toFixed(2);
@@ -225,93 +148,13 @@ async function closeBalance(transactionId) {
     });
 }
 
-const invoicePaymentForm = document.getElementById('invoicePaymentForm');
-if (invoicePaymentForm) {
-    initSettlementForm(invoicePaymentForm);
-    invoicePaymentForm.addEventListener('submit', function (event) {
+for (const [id, suffix] of [['invoicePaymentForm','payments'],['invoiceRefundForm','payments/refund']]) {
+    const form = document.getElementById(id);
+    if (!form) continue;
+    initSettlementForm(form);
+    form.addEventListener('submit', event => {
         event.preventDefault();
-        const formData = new FormData(invoicePaymentForm);
-        const btn = this.querySelector('button[type="submit"]');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = '<?= esc(lang('Finance.processing')) ?>';
-
-        const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
-        const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
-
-        fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                [csrfHeader]: csrfToken
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.csrf_token) {
-                window.refreshCsrfToken(data.csrf_token);
-            }
-            if (data.success) {
-                closeFinanceModal('paymentModal');
-                location.reload();
-            } else {
-                window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
-                btn.disabled = false;
-                btn.textContent = originalText;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.StudioDialogs.notice('<?= esc(lang('Finance.errorAddingPayment')) ?>');
-            btn.disabled = false;
-            btn.textContent = originalText;
-        });
-    });
-}
-
-const invoiceRefundForm = document.getElementById('invoiceRefundForm');
-if (invoiceRefundForm) {
-    initSettlementForm(invoiceRefundForm);
-    invoiceRefundForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const formData = new FormData(invoiceRefundForm);
-        const btn = this.querySelector('button[type="submit"]');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = '<?= esc(lang('Finance.processing')) ?>';
-
-        const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
-        const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
-
-        fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments/refund`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                [csrfHeader]: csrfToken
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.csrf_token) {
-                window.refreshCsrfToken(data.csrf_token);
-            }
-            if (data.success) {
-                closeFinanceModal('refundModal');
-                location.reload();
-            } else {
-                window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
-                btn.disabled = false;
-                btn.textContent = originalText;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.StudioDialogs.notice('<?= esc(lang('Finance.errorRecordingRefund')) ?>');
-            btn.disabled = false;
-            btn.textContent = originalText;
-        });
+        window.StudioFinanceTask?.submit(form, <?= json_encode(base_url('finance/'.(int)$finance['id'].'/'),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?> + suffix);
     });
 }
 
@@ -402,39 +245,8 @@ document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
 
     form.addEventListener('submit', function (event) {
         event.preventDefault();
-        const formData = new FormData(form);
-        if (methodInput?.value !== 'check') {
-            formData.delete('liquidity_account');
-        }
-        const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
-        const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
-        const url = form.dataset.url;
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                [csrfHeader]: csrfToken
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.csrf_token) {
-                window.refreshCsrfToken(data.csrf_token);
-            }
-            if (data.success) {
-                if (modalToClose) {
-                    closeFinanceModal(modalToClose);
-                }
-                location.reload();
-            } else {
-                window.StudioDialogs.notice('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.StudioDialogs.notice('<?= esc(lang('Finance.errorRecordingProviderPayout')) ?>');
+        window.StudioFinanceTask?.submit(form, form.dataset.url, data => {
+            if (methodInput?.value !== 'check') data.delete('liquidity_account');
         });
     });
 });

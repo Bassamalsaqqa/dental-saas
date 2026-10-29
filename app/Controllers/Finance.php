@@ -1523,6 +1523,16 @@ class Finance extends BaseController
                 ->getResultArray();
         }
 
+        $refundableCash = null;
+        if (($finance['transaction_type'] ?? '') === 'invoice') {
+            try {
+                $refundableCash = $this->refundableInvoiceCash((int) $clinicId, $finance, false);
+            } catch (\DomainException $e) {
+                // An unverified legacy capacity is unavailable, never inferred as cash or zero.
+                log_message('warning', 'Finance display: refundable capacity requires reconciliation.');
+            }
+        }
+
         $data = [
             'title' => 'Financial Transaction Details - ' . $finance['transaction_id'],
             'finance' => $finance,
@@ -1531,6 +1541,7 @@ class Finance extends BaseController
             'examination' => $examination,
             'payments' => $payments,
             'paid_total' => $paidTotal,
+            'refundable_cash' => $refundableCash,
             'billed_clinical_charge_lines' => $billedClinicalChargeLines,
             'billed_inventory_usage_rows' => $billedInventoryUsageRows,
             'provider_payouts' => $providerPayouts,
@@ -3860,12 +3871,12 @@ class Finance extends BaseController
         }
     }
 
-    /** Caller owns the invoice lock; cash history itself remains untouched. */
-    private function refundableInvoiceCash(int $clinicId, array $finance): float
+    /** Mutators retain locked=true; the detail presenter explicitly requests a nonlocking read. */
+    private function refundableInvoiceCash(int $clinicId, array $finance, bool $locked = true): float
     {
         $service = new \App\Services\InvoiceCorrectionService($this->db);
         if ($service->supportsSchema()) {
-            return (float) $service->position($clinicId, (int) $finance['id'], true)['refundable_base'];
+            return (float) $service->position($clinicId, (int) $finance['id'], $locked)['refundable_base'];
         }
         return $this->financePaymentModel->getNetCashPaidTotal($clinicId, (int) $finance['id']);
     }

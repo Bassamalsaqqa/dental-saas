@@ -1,0 +1,6 @@
+<?php // Canonical tenant-scoped server facts only. No client balance calculations.
+$refundTask=($financeTaskKind??'payment')==='refund'; ?>
+<section class="finance-task-context" aria-label="<?= esc(lang('Finance.financeTransaction'),'attr') ?>">
+<div class="finance-task-identity"><strong><bdi><?= esc($relatedPartyValue?:lang('Finance.unknown')) ?></bdi></strong><?php if(!empty($patient['patient_id'])): ?><span><bdi><?= esc($patient['patient_id']) ?></bdi></span><?php endif; ?><span><bdi><?= esc($finance['transaction_id']??('#'.$finance['id'])) ?></bdi><?php if(!empty($finance['invoice_number'])): ?> · <bdi><?= esc($finance['invoice_number']) ?></bdi><?php endif; ?></span></div>
+<dl><div><dt><?= esc(lang('Finance.totalAmount')) ?></dt><dd><bdi><?= number_format((float)$totalAmount,2) ?> <?= esc($baseCurrency) ?></bdi></dd></div><div><dt><?= esc(lang('Finance.paidToDate')) ?></dt><dd><bdi><?= number_format((float)$paidSoFar,2) ?> <?= esc($baseCurrency) ?></bdi></dd></div><div><dt><?= esc(lang($refundTask?'Studio.financeRefundable':'Finance.balanceDue')) ?></dt><dd><bdi><?= isset($refundable_cash)||!$refundTask?number_format((float)($refundTask?$refundable_cash:$balanceDue),2):esc(lang('Finance.unknown')) ?> <?= esc($baseCurrency) ?></bdi></dd></div></dl>
+<p><?= esc(lang('Studio.financeCheckAgain')) ?></p></section>

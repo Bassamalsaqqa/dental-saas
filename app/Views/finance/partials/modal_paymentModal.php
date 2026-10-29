@@ -9,7 +9,7 @@
                             <span><?= esc($ui['paymentKicker']) ?></span>
                         </span>
                         <h4 id="paymentModalTitle" ><?= esc($ui['recordPayment']) ?></h4>
-                        <p id="paymentModalDescription"><?= esc($ui['paymentNotice']) ?> <span ><?= esc($baseCurrency) ?></span>.</p>
+                        <p id="paymentModalDescription"><?= esc(lang('Studio.financePaymentHelp')) ?></p>
                     </div>
                     <button type="button"  data-finance-close="paymentModal">
                         <?= esc(lang('Studio.close')) ?>
@@ -17,6 +17,8 @@
                 </div>
                 <form id="invoicePaymentForm" class="finance-inline-modal-form">
                     <?= csrf_field() ?>
+<div class="finance-task-body"><?php $financeTaskKind='payment';include APPPATH.'Views/finance/partials/settlement_context.php'; ?>
+<div class="finance-task-feedback" role="status" aria-live="polite" hidden><p></p><a class="button secondary" data-finance-reconcile href="<?= esc(base_url('finance/'.(int)$finance['id']),'attr') ?>" hidden><?= esc(lang('Studio.financeCheckHistory')) ?></a></div>
                     <div class="finance-inline-modal-grid">
                         <div class="fr-field">
                             <label for="paymentModalField1" >
@@ -46,7 +48,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="finance-inline-modal-grid finance-inline-modal-grid-3">
+                    <div class="finance-inline-modal-grid finance-inline-modal-grid-3" data-settlement-fx>
                         <div class="fr-field">
                             <label for="paymentModalField3" >
 
@@ -129,7 +131,7 @@
                                       placeholder="<?= esc($ui['optionalNote']) ?>"></textarea>
                         </div>
                     </div>
-                    <div class="finance-inline-modal-actions">
+                    </div><div class="finance-inline-modal-actions">
                         <button type="button" data-finance-close="paymentModal" >
                             <span><?= esc(lang('Finance.cancel')) ?></span>
                         </button>
