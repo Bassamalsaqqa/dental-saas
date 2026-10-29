@@ -56,3 +56,9 @@ The current draft adds task-sized native dialogs, reliable dirty/validation/pend
 ## Final acceptance closure - blocked
 
 Review5695038870 is COMMENTED with CHANGES REQUIRED. Arabic impersonation/return confirmations are corrected and routed checks passed. New actual treatment save exposed a pre-existing catalog/storage mismatch:41/43 choices are unsupported by the production ENUM. Clinical transaction rolled back; no production change. [Definitive closure and risk matrix](ui-evidence/product-ux/FINAL_ACCEPTANCE_CLOSURE.md). Source-only release remains NO-GO; themes OFF. No independent approval, new migration or deployment is claimed.
+
+## Treatment storage / official shadcn program - current development
+
+The2026-10-29 Owner directive authorizes a dedicated treatment type migration only in disposable environments and whole-app shadcn-aligned CI4/PHP/JS ports. P0 correction commit2348a4e widens ENUM to VARCHAR100 without key remapping;125 SQL checks,43 actual UI create/edit/read/filter cases, current boundary tests and native44-record rehearsal passed with protected fixture preservation. No production DDL or deployment. This cannot be released as source-only to repair the old schema. [Scoped evidence](ui-evidence/product-ux/treatment-storage.json).
+
+Component program is IN PROGRESS: [source screen matrix](UI_SHADCN_SCREEN_MATRIX.csv), owned component parity contract, semantic aliases and a genuine single-surface patient Combobox port. No React/SPA/toolchain installation. Full product-family coverage, remaining optional charge/inventory/native journeys and theme/accessibility/print acceptance remain pending. Production stays29dce746, themes and optional features stayOFF.

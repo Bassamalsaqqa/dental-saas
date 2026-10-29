@@ -1,0 +1,266 @@
+{
+  "baseline": "2348a4e",
+  "component": "Owned PHP/JS shadcn-aligned Combobox port; not official React package",
+  "selection": {
+    "checks": [
+      {
+        "route": "treatments",
+        "realSessionLookup": true,
+        "keyboardSelection": true,
+        "canonicalId": 26,
+        "escapeRetainsParent": true
+      },
+      {
+        "route": "treatments",
+        "editingQueryClearsCanonicalSelection": true,
+        "nativeRequiredValidation": true
+      },
+      {
+        "route": "finance",
+        "realSessionLookup": true,
+        "keyboardSelection": true,
+        "canonicalId": 26,
+        "escapeRetainsParent": true
+      },
+      {
+        "route": "finance",
+        "editingQueryClearsCanonicalSelection": true,
+        "nativeRequiredValidation": true
+      },
+      {
+        "route": "appointment/calendar",
+        "realSessionLookup": true,
+        "keyboardSelection": true,
+        "canonicalId": 26,
+        "escapeRetainsParent": true
+      },
+      {
+        "route": "appointment/calendar",
+        "editingQueryClearsCanonicalSelection": true,
+        "nativeRequiredValidation": true
+      },
+      "Arabic mobile top-layer result list fits viewport with authentic result labels",
+      "Actual expired session lookup exposes no stale result/selected identity"
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Owned shadcn-aligned PHP/JS combobox port, actual session lookup/keyboard/validation and expired session; no React component claim"
+  },
+  "responsive": {
+    "checks": [
+      {
+        "lang": "en",
+        "width": 320,
+        "height": 568,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 360,
+        "height": 640,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 390,
+        "height": 667,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 430,
+        "height": 932,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 768,
+        "height": 1024,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 820,
+        "height": 900,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 1024,
+        "height": 768,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 1280,
+        "height": 720,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "height": 768,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 1586,
+        "height": 992,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 1920,
+        "height": 1080,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "en",
+        "width": 844,
+        "height": 390,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 320,
+        "height": 568,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 360,
+        "height": 640,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "height": 667,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 430,
+        "height": 932,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 768,
+        "height": 1024,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 820,
+        "height": 900,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 1024,
+        "height": 768,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 1280,
+        "height": 720,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 1366,
+        "height": 768,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 1586,
+        "height": 992,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 1920,
+        "height": 1080,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      },
+      {
+        "lang": "ar",
+        "width": 844,
+        "height": 390,
+        "dateIconSeparate": true,
+        "isoValueStable": true,
+        "footerVisible": true
+      }
+    ],
+    "errors": [],
+    "mutations": 0,
+    "scope": "Owned shadcn-aligned PHP/JS combobox port, actual session lookup/keyboard/validation and expired session; no React component claim"
+  },
+  "token_aliases": 32,
+  "source_inventory_classification": {
+    "PARTIAL_OR_DYNAMIC_REACHABILITY_REVIEW": 136,
+    "CONTROLLER_RENDERED": 92,
+    "PRESERVE_PRINT_OR_CLINICAL_EVIDENCE": 9,
+    "REDIRECTED_HISTORIC_RENDERER": 2,
+    "UNROUTED_HISTORIC_TEMPLATE": 12,
+    "LAYOUT": 12
+  },
+  "limits": [
+    "Source inventory is not all-screen visual acceptance.",
+    "24 responsive samples certify the changed booking date/combobox/footer composition only, not every app view at all viewports.",
+    "No submitted patient ID, endpoint, permission or business rule changed.",
+    "No React framework/dependency or Tailwind regeneration.",
+    "Whole-product component-family implementation and final workflows/theme/contrast/print/AT/native-zoom acceptance still in progress."
+  ],
+  "production_changed": false,
+  "mutations": 0
+}

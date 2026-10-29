@@ -94,3 +94,9 @@ Current candidate requires new exact-head review and targeted native rehearsal; 
 ## Compact component finish
 
 The 2026-10-29 frontend correction is documented in the existing [product UX receipt](ui-evidence/product-ux/component-craft.json) and [matched gallery](ui-evidence/product-ux/component-gallery.html). It refines the accepted Studio system rather than starting another redesign. Exact-head acceptance and release gates remain separate.
+
+## Current controlling directive: treatment storage + whole-app shadcn ports
+
+The Owner's2026-10-29 `DentaPlus_PR22_Treatment_Compatibility_Full_shadcn_UX_Master_Prompt.md` supersedes inspiration-only scope. Two separate reviewable streams: (A) validated forward-only treatment-type storage widening tested on authentic production-schema synthetic fixtures and native prefixed rehearsal, and (B) official shadcn-aligned owned CI4/PHP/JS component system and all reachable screen families. No React/SPA/toolchain rewrite. See [component parity/architecture contract](UI_STUDIO_COMPONENTS.md) and [honest source screen matrix](UI_SHADCN_SCREEN_MATRIX.csv).263 view entries and97 static controller renders are inventory, not accepted screen counts.
+
+P0 isolated correction:125 real SQL checks,43 actual create/edit/read/filter catalog workflows,6 targeted boundary cases, explicit lock serialization and native44-record COPY rehearsal. Original fixture571 protected rows unchanged; no production data/DDL. A source-only release cannot fix the deployed ENUM. Production migration/merge/deployment/feature activation requires new explicit authorization after independent acceptance. Optional charge/inventory linkage and full native journey coverage remain pending; avoid calling the whole campaign complete.

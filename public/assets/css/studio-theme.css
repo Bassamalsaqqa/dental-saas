@@ -42,6 +42,22 @@
   --color-link:#23684e;
   --color-control-border:#5d7063;
   --color-on-info:#f3f7ef;
+  /* shadcn semantic vocabulary: aliases to the existing validated color contract, never a parallel palette. */
+  --background:var(--color-canvas);--foreground:var(--color-ink);
+  --card:var(--color-surface);--card-foreground:var(--color-ink);
+  --popover:var(--color-surface);--popover-foreground:var(--color-ink);
+  --primary:var(--color-action);--primary-foreground:var(--color-on-action);
+  --secondary:var(--color-surface-strong);--secondary-foreground:var(--color-ink);
+  --muted:var(--color-surface-tonal);--muted-foreground:var(--color-ink-muted);
+  --accent:var(--color-selected-soft);--accent-foreground:var(--color-on-selected);
+  --destructive:var(--color-danger);--destructive-foreground:var(--color-on-action);
+  --border:var(--color-line);--input:var(--color-control-border);--ring:var(--color-focus);
+  --sidebar:var(--color-frame);--sidebar-foreground:var(--color-on-frame);
+  --sidebar-primary:var(--color-selected);--sidebar-primary-foreground:var(--color-on-selected);
+  --sidebar-accent:var(--color-frame-hover);--sidebar-accent-foreground:var(--color-on-frame);
+  --sidebar-border:var(--color-frame-raised);--sidebar-ring:var(--color-focus);
+  --chart-1:var(--color-action);--chart-2:var(--color-avatar-copper-ink);--chart-3:var(--color-info);
+  --chart-4:var(--color-warning);--chart-5:var(--color-ink-muted);
   /* Foundation categories; existing route skins adopt these incrementally. */
   --font-body:Manrope,"Noto Sans Arabic",sans-serif;
   --font-arabic:"Noto Sans Arabic",Manrope,sans-serif;

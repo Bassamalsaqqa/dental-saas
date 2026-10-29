@@ -100,3 +100,53 @@ Inventory usage-history remains clinic-wide: the existing producer does not cons
 ## Settings and ledger-first finance refinement
 
 [Current actual gallery](ui-evidence/product-ux/controls-gallery.html) and [scoped receipt](ui-evidence/product-ux/settings-finance-controls.json) cover integrated icon password controls, native time input groups, native file-selector styling, equal-height patient toolbar controls, balanced booking fields and full-width finance ledger. Existing canonical totals were moved above the ledger, without changing their producers/calculations. Action routes, fields, CSRF and permission checks remain unchanged.24 initial read-only cases,8 settled-state confirmations and14 tenant-dialog interaction cases pass; no writes. Native OS pickers remain intentional. Existing independent acceptance/recovery/release gates remain open.
+
+## Current shadcn architecture contract (Owner directive 2026-10-29)
+
+The previous **inspiration-only** direction is superseded. The UI vocabulary now follows the official [component catalog](https://ui.shadcn.com/docs/components), [blocks](https://ui.shadcn.com/blocks), [semantic theming](https://ui.shadcn.com/docs/theming) and [RTL guidance](https://ui.shadcn.com/docs/rtl). The chosen architecture is an **owned CI4/PHP/JavaScript port**, not the official React component package. No React island or SPA is necessary for the existing server-owned tasks; introducing one would duplicate state/CSRF/focus lifecycles and add a build/deployment dependency without a demonstrated benefit. No framework/dependency installation or blind Tailwind rebuild is permitted. Existing domain services remain the only business truth.
+
+Parity means actual comparable composition, states, keyboard/focus, density, responsive direction and server-contract preservation; a renamed CSS class is not acceptance. Existing owned components are reused where they already satisfy those contracts. The CSV [screen/persona reconciliation matrix](UI_SHADCN_SCREEN_MATRIX.csv) starts with263 tracked view entries and97 statically controller-rendered templates. These are **source inventory counts, not97 accepted screens**; dynamic views, partials and intentional print/clinical exceptions stay explicitly classified until routed evidence exists.
+
+### Single token authority
+
+`studio-theme.css` aliases shadcn semantic vocabulary to the existing validated palette. `background/foreground` resolve canvas/ink; `card` and `popover` resolve reading surface/ink; `primary` resolves action/on-action; `secondary` resolves strong surface/ink; `muted` resolves tonal/muted ink; `accent` resolves selected-soft/on-selected; `destructive` resolves danger/on-action; border/input/ring resolve line/control-border/focus. Sidebar roles resolve existing frame/selection roles. Chart roles are aliases for actual existing factual-series presentation, not permission to invent charts or recolor diagnostic findings. There is no independent editable palette and no arbitrary request-selected CSS role. Existing theme normalization/type constraints remain authoritative. Print/native chart/signed evidence remain separate.
+
+### Component parity and ownership matrix
+
+| Official pattern | Owned implementation / decision | Required acceptance (status is scoped, not universal) |
+|---|---|---|
+| Sidebar / Inset / Trigger | Studio tenant/platform shell; one permission-filtered visible list, internal scroll and responsive sheet | Current global authority/impersonation always conspicuous; family-wide breakpoint pass pending |
+| Breadcrumb | Existing page/context/return presenter; actual parent record identity | Real contextual links only; no guessed hierarchy or duplicate navigation |
+| Card / Separator | Shared reading/section surfaces and semantic roles | Purposeful hierarchy/spacing; no mandatory KPI template, no decoration in clinical evidence |
+| Button / Button Group | Native `.button`, icon-button and grouped actions | Real href/type; named icon; visible focus; disabled and mutation-pending states |
+| Input / Input Group / Field | Existing canonical fields and integrated password/date/time/file groups | Real labels/help/errors; no changed names/defaults/required business rules |
+| Form feedback / Alert | Existing error summaries, field errors and server result | Actual validation/result, accessible association; no fabricated success |
+| Native Select | Finite type/status/currency options remain native | Correct keyboard, required/disabled, RTL and submitted values |
+| Combobox / Command | Shared session patient picker + current command search | New owned combobox removes stacked search/select; keyboard listbox, stale-read cancellation, canonical submitted select; not a React component claim |
+| Date Picker / Calendar | Existing date group/native picker and FullCalendar | Native ISO submission, Western numeric chronology, locale/RTL-safe spacing, actual availability authority |
+| Table / Data Table | StudioGrid and established bounded server producer | Fixed suitable tracks/rows with value disclosure, real filtering/page identity, accessible mobile/2D-scroll choice |
+| Badge | Existing explicit clinical/finance status | Canonical status plus text; never infer assessed health or payment from color |
+| Tabs | Existing actual patient/panel tab groups | Correct selected panel, manual keyboard activation, deep links; route links remain navigation |
+| Popover / Dropdown Menu | Native button + popover, shared controls runtime | Anchored placement, Escape/outside dismissal, keyboard focus return; never hide critical warnings here |
+| Alert Dialog | StudioDialogs destructive/reason/short confirmation | Specific subject/consequence; real cancel/no mutation; no invented accounting policy |
+| Dialog | Fixed authorized short-create forms and native lifecycle | Success/pending/error/discard; footer reachable; full-page fallback and unchanged CSRF/action/fields |
+| Sheet / Drawer | Record-context drawers; mobile short-task bottom sheets | Parent context/focus, logical inline-end, no arbitrary HTML fetching/execution |
+| Skeleton | StudioLoading read lifecycle only | Content-shaped, delayed only for genuinely pending reads, no fake mutation progress |
+| Toast equivalent | Existing attributable status feedback; durable success owned by server | No unsolicited auto-dismissal of essential errors or clinical warnings |
+| Empty | Existing task-specific empty/denied/error/retry presenters | Distinguish zero, unknown, denied and failed transport; real retry action |
+| Tooltip | Nonessential accessible hint/title only | No patient identity, diagnosis or irreversible warning available only on hover |
+| Scroll Area | Existing bounded sidebar/grid/panel native scroll | No nested unusable long-form viewport; keyboard and zoom reflow |
+| Switch / Checkbox / Radio | Existing native preference/selection/choice controls | Correct successful values and semantics; no medical Unassessed/No/Yes policy change |
+| Accordion / Collapsible | Existing optional narrative/settings disclosure | Expanded state/focus; hidden inputs retain entered values; no persisted Boolean masquerade |
+| Avatar | Existing authenticated account identity menu | Genuine user/global scope, full accessible name, no privilege inference |
+| Charts | Existing source-backed finance/operational producers only | No demo values or inferred medical/billing facts; text/table equivalent where appropriate |
+
+### Overlay and lookup rules
+
+Short single-intent actions use Dialog. Bounded record-context editing uses Sheet/Drawer when it benefits from the visible parent. Signing, structured clinical work, reconciliation, role matrices and provisioning retain a full page when complexity warrants it. Converting every create link into a popup is not the goal. Retain canonical deep links and return context.
+
+The new patient Combobox preserves the original select name/id/options as the successful server field. Query text is not submitted as a patient ID; editing the query clears the old selection and makes required validation explicit. Only a server-returned positive integer ID can become a selectable result. Each query cancels/supersedes earlier reads; stale results cannot repopulate a newer query. The popup lives in the native dialog top layer, preserves browser focus, Escape closes lookup before parent, and external session/permission loss clears protected choices. Existing optional Select2 remains supported rather than silently installed/replaced. Its actual plugin acceptance is distinct from the owned port acceptance.
+
+### Whole-product acceptance state
+
+P0 migration/source correction, component port, route-family implementation and end-to-end operational acceptance are independent commit/evidence streams. Do not relabel inventory rows COMPLETE because a shell CSS rule applies. Current overall shadcn conversion is **IN PROGRESS**; physical AT, native200/400% zoom, all-state route/persona coverage, full contrast/CSP/print and native financial/clinical journeys remain explicit gates. Production, migrations and theme/optional feature activation remain unauthorized under this campaign.
