@@ -46,3 +46,9 @@ New appointment-context Examinations, procedures, and charge lines preserve expl
 5. Broader clinical-document signature coverage beyond Examinations.
 
 Contracts and scenarios are in `refactor/PATIENT_CLINICAL_WORKFLOW_PLAN.md` and `refactor/PRODUCT_WORKFLOW_OPTIMIZATION_ROADMAP.md`.
+
+## Treatment catalog storage correction (PR22, isolated development)
+
+The deployed eight-key ENUM cannot store41 of43 current offered catalog keys. A dedicated forward-only migration `2026-10-29-120000_WidenTreatmentTypeStorage.php` widens only that column to VARCHAR100 while retaining strict catalog validation and historical string bytes. No remapping, autocharge, classification or retrospective write is introduced. The production-schema synthetic clone includes all67 tables/26 foreign keys and actual indexes; zero triggers exist in the inspected production schema. [Exact fail-before/pass-after and43 routed create/edit/read/filter results](ui-evidence/product-ux/treatment-storage.json).
+
+The migration requires standalone DDL, reviewed exact existing metadata, known historical keys and supported indexes. It takes an explicit treatment-table WRITE lock across preservation snapshots and COPY ALTER; reads/writes pause. Local/Hostinger timings are rehearsal measurements, not a downtime promise. Automatic down refuses ENUM narrowing. Prior compatible source may run against the wider string column; preserve it on source rollback. Production schema change and deployment still require separate authorization after review, fresh recoverable backup and rehearsal. A source-only deployment does not repair the old ENUM.

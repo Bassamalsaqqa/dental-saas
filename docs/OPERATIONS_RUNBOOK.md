@@ -100,3 +100,9 @@ $active | ForEach-Object {
 ```
 
 Expected: no stale-path or replacement-character output. Active count is informational; `START_HERE.md` is the authoritative map.
+
+## Proposed treatment-type schema release (not production-authorized)
+
+This is separate from the theme migration and cannot be called source-only. Review/apply only `2026-10-29-120000_WidenTreatmentTypeStorage` using a pinned single-migration runner after explicit production authorization; never blanket `spark migrate` with other pending migrations. Preflight must verify exact source/schema/history, no unrecognized or empty historical keys, unchanged attributes/constraints/indexes, required DDL/LOCK TABLES privileges, disk headroom and certified fresh encrypted off-host recovery. Inspect long transactions/metadata-lock waiters and choose a low-activity window. The explicit WRITE lock blocks treatment-table reads/writes while COPY DDL and before/after checks run; lock wait is bounded at5seconds, original SQL mode/wait restored. Measured native44-row copy took2.35seconds, not a production SLA or proof of zero interruption.
+
+After authorized DDL verify VARCHAR100, same charset/collation/null/default/index/FK definitions, exact preserved historical records and single migration-history entry. Run only essential authorized synthetic rehearsal writes/read-only live checks. Source rollback leaves the widened column and every new key intact; `down()` intentionally refuses destructive narrowing. Never restore an older DB over subsequent activity or rewrite stored keys. Theme/scheduling/WhatsApp/corrections/checkout/contacts/derivatives stayOFF. See [scoped treatment evidence](ui-evidence/product-ux/treatment-storage.json).

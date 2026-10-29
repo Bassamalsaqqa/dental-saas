@@ -1,0 +1,26 @@
+<?php
+declare(strict_types=1);
+if(PHP_SAPI!=='cli'||$argc!==2||!is_file($argv[1]))throw new RuntimeException('Owned bootstrap required');
+require $argv[1];
+if(!defined('STUDIO_THEME_SYNTHETIC_OWNED')||STUDIO_THEME_SYNTHETIC_OWNED!==true)throw new RuntimeException('Owned target required');
+$id=$themeDb->query('SELECT DATABASE() db,@@port port')->getRowArray();if(!preg_match('/\Adenta_theme_synthetic_[0-9_]+\z/D',$id['db'])||(int)$id['port']!==3307)throw new RuntimeException('Disposable only');
+require ROOTPATH.'app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php';
+use App\Database\Migrations\WidenTreatmentTypeStorage;
+$checks=[];function verify(bool $condition,string $name):void{global $checks;if(!$condition)throw new RuntimeException($name);$checks[]=$name;}
+function rowsHash($db,string $table):string{$rows=$db->query('SELECT * FROM `'.$table.'` ORDER BY id')->getResultArray();return hash('sha256',json_encode($rows,JSON_THROW_ON_ERROR));}
+$protected=['treatments','finances','finance_payments','examinations','treatment_contracts','treatment_contract_items','odontograms','patient_odontogram_snapshots','examination_note_signatures'];$before=[];foreach($protected as$table)$before[$table]=rowsHash($themeDb,$table);
+$indexes=$themeDb->query('SHOW INDEX FROM treatments')->getResultArray();foreach($indexes as&$index)unset($index['Cardinality']);unset($index);
+$fks=$themeDb->query('SELECT CONSTRAINT_NAME,TABLE_NAME,COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL ORDER BY TABLE_NAME,CONSTRAINT_NAME,ORDINAL_POSITION')->getResultArray();verify(count($fks)===26,'Authentic production foreign-key graph present');
+$mode=$themeDb->query('SELECT @@SESSION.sql_mode mode')->getRowArray()['mode'];$wait=$themeDb->query('SELECT @@SESSION.lock_wait_timeout n')->getRowArray()['n'];
+$migration=new WidenTreatmentTypeStorage(Config\Database::forge($themeDb));$themeDb->transBegin();try{$migration->up();throw new LogicException('Nested DDL accepted');}catch(RuntimeException$e){verify(str_contains($e->getMessage(),'standalone'),'Rejects nested transaction without implicit commit');}finally{$themeDb->transRollback();}
+$start=microtime(true);$migration->up();$seconds=microtime(true)-$start;
+verify($themeDb->query("SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='treatments' AND COLUMN_NAME='treatment_type'")->getRowArray()['COLUMN_TYPE']==='varchar(100)','Exact target VARCHAR100');
+foreach($before as$table=>$hash)verify(rowsHash($themeDb,$table)===$hash,'Preserved all historical rows:'.$table);
+$afterIndexes=$themeDb->query('SHOW INDEX FROM treatments')->getResultArray();foreach($afterIndexes as&$index)unset($index['Cardinality']);unset($index);verify($indexes===$afterIndexes,'All index definitions unchanged');verify($fks===$themeDb->query('SELECT CONSTRAINT_NAME,TABLE_NAME,COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL ORDER BY TABLE_NAME,CONSTRAINT_NAME,ORDINAL_POSITION')->getResultArray(),'All foreign keys unchanged');
+verify($mode===$themeDb->query('SELECT @@SESSION.sql_mode mode')->getRowArray()['mode'],'Original SQL mode restored');verify($wait===$themeDb->query('SELECT @@SESSION.lock_wait_timeout n')->getRowArray()['n'],'Original metadata lock wait restored');
+$migration->up();verify(rowsHash($themeDb,'treatments')===$before['treatments'],'Exact-target retry changes no rows');try{$migration->down();throw new LogicException('Narrowing allowed');}catch(RuntimeException$e){verify(str_contains($e->getMessage(),'narrowing'),'Automatic downgrade refused');}
+// Real SQL byte roundtrip for every current + retained legacy key, no committed clinical changes.
+$template=$themeDb->query('SELECT * FROM treatments ORDER BY id LIMIT 1')->getRowArray();if(!$template)throw new RuntimeException('Synthetic historical treatment fixture required');unset($template['id']);
+$themeDb->transBegin();try{foreach(App\Libraries\TreatmentCatalog::all()as$key=>$label){$row=$template;$row['treatment_type']=$key;$row['treatment_id']='P0-'.substr(hash('sha256',$key),0,16);verify($themeDb->table('treatments')->insert($row),'SQL insert accepts key:'.$key);$new=$themeDb->insertID();$actual=$themeDb->query('SELECT HEX(treatment_type) value_hex FROM treatments WHERE id=?',[$new])->getRowArray();verify(strtoupper(bin2hex($key))===$actual['value_hex'],'Byte-exact stored key:'.$key);}}finally{$themeDb->transRollback();}
+verify(rowsHash($themeDb,'treatments')===$before['treatments'],'Independent SQL roundtrip transaction fully rolled back');
+echo json_encode(['passed'=>count($checks),'checks'=>$checks,'database'=>$id['db'],'ddl_seconds'=>$seconds,'algorithm'=>'COPY','lock'=>'Explicit WRITE table lock spans snapshots and COPY DDL; table reads/writes pause; not instant/online','historical_hashes'=>$before,'current_keys'=>array_keys(App\Libraries\TreatmentCatalog::forSelection()),'all_keys'=>array_keys(App\Libraries\TreatmentCatalog::all()),'production_changed'=>false],JSON_PRETTY_PRINT|JSON_THROW_ON_ERROR),PHP_EOL;

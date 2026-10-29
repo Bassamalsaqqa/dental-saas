@@ -1,0 +1,979 @@
+{
+  "baseline": "db758801e53a0a0ec00776aae1cbc253ec2e004c",
+  "scope": "P0 treatment storage widening, isolated evidence only; whole-app UI program remains in progress",
+  "production_unchanged": true,
+  "migration": {
+    "path": "app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php",
+    "sha256": "1c7e47098737a3f83baf1e11a9fe84b8f7767e9495fca8384001ae82aa675a11",
+    "source_enum": "enum('cleaning','extraction','filling','crown','root_canal','orthodontic','implant','other')",
+    "target": "varchar(100) NOT NULL; same utf8mb4_general_ci; no default; existing indexes/FKs unchanged",
+    "maximum_current_or_legacy_key_length": 29,
+    "production_ddl_authorized": false
+  },
+  "authentic_fixture": {
+    "production_schema_tables": 67,
+    "triggers": 0,
+    "foreign_key_columns": 26,
+    "foreign_keys_enforced_during_inserts": true,
+    "loaded_synthetic_rows": {
+      "clinics": 2,
+      "users": 6,
+      "patients": 22,
+      "groups": 2,
+      "users_groups": 6,
+      "login_attempts": 0,
+      "permissions": 53,
+      "roles": 6,
+      "role_permissions": 166,
+      "user_roles": 1,
+      "clinic_users": 6,
+      "plans": 1,
+      "clinic_subscriptions": 2,
+      "settings": 5,
+      "suppliers": 2,
+      "inventory": 3,
+      "examinations": 151,
+      "appointments": 143,
+      "treatments": 130,
+      "clinical_procedures": 0,
+      "clinical_charge_lines": 0,
+      "finances": 11,
+      "finance_payments": 7,
+      "provider_payouts": 6,
+      "provider_payout_payments": 6,
+      "treatment_contracts": 7,
+      "treatment_contract_items": 23,
+      "patient_odontogram_snapshots": 26,
+      "odontograms": 34,
+      "examination_note_signatures": 14,
+      "examination_note_addenda": 0,
+      "api_tokens": 2
+    },
+    "excluded_incompatible_source_rows": [],
+    "orphan_checks": [
+      {
+        "table": "appointments",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "clinic_users",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "clinic_users",
+        "column": "role_id",
+        "parent": "roles",
+        "orphans": 0
+      },
+      {
+        "table": "clinic_users",
+        "column": "user_id",
+        "parent": "users",
+        "orphans": 0
+      },
+      {
+        "table": "control_plane_invoice_payments",
+        "column": "invoice_id",
+        "parent": "control_plane_invoices",
+        "orphans": 0
+      },
+      {
+        "table": "examinations",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "finances",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "finance_payments",
+        "column": "finance_id",
+        "parent": "finances",
+        "orphans": 0
+      },
+      {
+        "table": "inventory",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "inventory_usage",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "notification_attempts",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "notification_attempts",
+        "column": "notification_id",
+        "parent": "notifications",
+        "orphans": 0
+      },
+      {
+        "table": "odontograms",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "patients",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "patient_whatsapp",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "patient_whatsapp",
+        "column": "patient_id",
+        "parent": "patients",
+        "orphans": 0
+      },
+      {
+        "table": "prescriptions",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "provider_payouts",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "provider_payouts",
+        "column": "finance_id",
+        "parent": "finances",
+        "orphans": 0
+      },
+      {
+        "table": "provider_payout_payments",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "provider_payout_payments",
+        "column": "provider_payout_id",
+        "parent": "provider_payouts",
+        "orphans": 0
+      },
+      {
+        "table": "settings",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "treatments",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "whatsapp_optouts",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      },
+      {
+        "table": "whatsapp_optouts",
+        "column": "patient_id",
+        "parent": "patients",
+        "orphans": 0
+      },
+      {
+        "table": "whatsapp_tenant_policies",
+        "column": "clinic_id",
+        "parent": "clinics",
+        "orphans": 0
+      }
+    ],
+    "source_modified": false,
+    "production_rows_used": false
+  },
+  "fail_before": {
+    "gate": "TreatmentSchemaCompatibilitySql.php",
+    "exit_code": 1,
+    "offered": 43,
+    "unsupported": 41
+  },
+  "pass_after": {
+    "gate": "TreatmentSchemaCompatibilitySql.php",
+    "exit_code": 0,
+    "offered": 43,
+    "unsupported": 0
+  },
+  "sql_migration": {
+    "passed": 125,
+    "checks": [
+      "Authentic production foreign-key graph present",
+      "Rejects nested transaction without implicit commit",
+      "Exact target VARCHAR100",
+      "Preserved all historical rows:treatments",
+      "Preserved all historical rows:finances",
+      "Preserved all historical rows:finance_payments",
+      "Preserved all historical rows:examinations",
+      "Preserved all historical rows:treatment_contracts",
+      "Preserved all historical rows:treatment_contract_items",
+      "Preserved all historical rows:odontograms",
+      "Preserved all historical rows:patient_odontogram_snapshots",
+      "Preserved all historical rows:examination_note_signatures",
+      "All index definitions unchanged",
+      "All foreign keys unchanged",
+      "Original SQL mode restored",
+      "Original metadata lock wait restored",
+      "Exact-target retry changes no rows",
+      "Automatic downgrade refused",
+      "SQL insert accepts key:comprehensive_oral_evaluation",
+      "Byte-exact stored key:comprehensive_oral_evaluation",
+      "SQL insert accepts key:periodic_oral_evaluation",
+      "Byte-exact stored key:periodic_oral_evaluation",
+      "SQL insert accepts key:emergency_oral_evaluation",
+      "Byte-exact stored key:emergency_oral_evaluation",
+      "SQL insert accepts key:periapical_xray",
+      "Byte-exact stored key:periapical_xray",
+      "SQL insert accepts key:bitewing_xray",
+      "Byte-exact stored key:bitewing_xray",
+      "SQL insert accepts key:panoramic_xray",
+      "Byte-exact stored key:panoramic_xray",
+      "SQL insert accepts key:adult_prophylaxis",
+      "Byte-exact stored key:adult_prophylaxis",
+      "SQL insert accepts key:child_prophylaxis",
+      "Byte-exact stored key:child_prophylaxis",
+      "SQL insert accepts key:fluoride_varnish",
+      "Byte-exact stored key:fluoride_varnish",
+      "SQL insert accepts key:pit_fissure_sealant",
+      "Byte-exact stored key:pit_fissure_sealant",
+      "SQL insert accepts key:composite_filling_anterior",
+      "Byte-exact stored key:composite_filling_anterior",
+      "SQL insert accepts key:composite_filling_posterior",
+      "Byte-exact stored key:composite_filling_posterior",
+      "SQL insert accepts key:amalgam_filling",
+      "Byte-exact stored key:amalgam_filling",
+      "SQL insert accepts key:glass_ionomer_filling",
+      "Byte-exact stored key:glass_ionomer_filling",
+      "SQL insert accepts key:direct_pulp_cap",
+      "Byte-exact stored key:direct_pulp_cap",
+      "SQL insert accepts key:indirect_pulp_cap",
+      "Byte-exact stored key:indirect_pulp_cap",
+      "SQL insert accepts key:root_canal_anterior",
+      "Byte-exact stored key:root_canal_anterior",
+      "SQL insert accepts key:root_canal_premolar",
+      "Byte-exact stored key:root_canal_premolar",
+      "SQL insert accepts key:root_canal_molar",
+      "Byte-exact stored key:root_canal_molar",
+      "SQL insert accepts key:root_canal_retreatment",
+      "Byte-exact stored key:root_canal_retreatment",
+      "SQL insert accepts key:simple_extraction",
+      "Byte-exact stored key:simple_extraction",
+      "SQL insert accepts key:surgical_extraction",
+      "Byte-exact stored key:surgical_extraction",
+      "SQL insert accepts key:wisdom_tooth_extraction",
+      "Byte-exact stored key:wisdom_tooth_extraction",
+      "SQL insert accepts key:scaling_root_planing",
+      "Byte-exact stored key:scaling_root_planing",
+      "SQL insert accepts key:periodontal_maintenance",
+      "Byte-exact stored key:periodontal_maintenance",
+      "SQL insert accepts key:crown",
+      "Byte-exact stored key:crown",
+      "SQL insert accepts key:inlay_onlay",
+      "Byte-exact stored key:inlay_onlay",
+      "SQL insert accepts key:bridge",
+      "Byte-exact stored key:bridge",
+      "SQL insert accepts key:veneer",
+      "Byte-exact stored key:veneer",
+      "SQL insert accepts key:partial_denture",
+      "Byte-exact stored key:partial_denture",
+      "SQL insert accepts key:complete_denture",
+      "Byte-exact stored key:complete_denture",
+      "SQL insert accepts key:implant_placement",
+      "Byte-exact stored key:implant_placement",
+      "SQL insert accepts key:implant_abutment",
+      "Byte-exact stored key:implant_abutment",
+      "SQL insert accepts key:implant_crown",
+      "Byte-exact stored key:implant_crown",
+      "SQL insert accepts key:orthodontic_consultation",
+      "Byte-exact stored key:orthodontic_consultation",
+      "SQL insert accepts key:braces",
+      "Byte-exact stored key:braces",
+      "SQL insert accepts key:clear_aligner",
+      "Byte-exact stored key:clear_aligner",
+      "SQL insert accepts key:teeth_whitening_inoffice",
+      "Byte-exact stored key:teeth_whitening_inoffice",
+      "SQL insert accepts key:teeth_whitening_home",
+      "Byte-exact stored key:teeth_whitening_home",
+      "SQL insert accepts key:night_guard",
+      "Byte-exact stored key:night_guard",
+      "SQL insert accepts key:incision_drainage",
+      "Byte-exact stored key:incision_drainage",
+      "SQL insert accepts key:oral_biopsy",
+      "Byte-exact stored key:oral_biopsy",
+      "SQL insert accepts key:other",
+      "Byte-exact stored key:other",
+      "SQL insert accepts key:cleaning",
+      "Byte-exact stored key:cleaning",
+      "SQL insert accepts key:extraction",
+      "Byte-exact stored key:extraction",
+      "SQL insert accepts key:filling",
+      "Byte-exact stored key:filling",
+      "SQL insert accepts key:root_canal",
+      "Byte-exact stored key:root_canal",
+      "SQL insert accepts key:orthodontic",
+      "Byte-exact stored key:orthodontic",
+      "SQL insert accepts key:implant",
+      "Byte-exact stored key:implant",
+      "SQL insert accepts key:veneers",
+      "Byte-exact stored key:veneers",
+      "SQL insert accepts key:whitening",
+      "Byte-exact stored key:whitening",
+      "SQL insert accepts key:gum_treatment",
+      "Byte-exact stored key:gum_treatment",
+      "SQL insert accepts key:oral_surgery",
+      "Byte-exact stored key:oral_surgery",
+      "Independent SQL roundtrip transaction fully rolled back"
+    ],
+    "database": "denta_theme_synthetic_20261029_1201",
+    "ddl_seconds": 0.30251407623291016,
+    "algorithm": "COPY",
+    "lock": "Explicit WRITE table lock spans snapshots and COPY DDL; table reads/writes pause; not instant/online",
+    "historical_hashes": {
+      "treatments": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6",
+      "finances": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440",
+      "finance_payments": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237",
+      "examinations": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f",
+      "treatment_contracts": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0",
+      "treatment_contract_items": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e",
+      "odontograms": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823",
+      "patient_odontogram_snapshots": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b",
+      "examination_note_signatures": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+    },
+    "current_keys": [
+      "comprehensive_oral_evaluation",
+      "periodic_oral_evaluation",
+      "emergency_oral_evaluation",
+      "periapical_xray",
+      "bitewing_xray",
+      "panoramic_xray",
+      "adult_prophylaxis",
+      "child_prophylaxis",
+      "fluoride_varnish",
+      "pit_fissure_sealant",
+      "composite_filling_anterior",
+      "composite_filling_posterior",
+      "amalgam_filling",
+      "glass_ionomer_filling",
+      "direct_pulp_cap",
+      "indirect_pulp_cap",
+      "root_canal_anterior",
+      "root_canal_premolar",
+      "root_canal_molar",
+      "root_canal_retreatment",
+      "simple_extraction",
+      "surgical_extraction",
+      "wisdom_tooth_extraction",
+      "scaling_root_planing",
+      "periodontal_maintenance",
+      "crown",
+      "inlay_onlay",
+      "bridge",
+      "veneer",
+      "partial_denture",
+      "complete_denture",
+      "implant_placement",
+      "implant_abutment",
+      "implant_crown",
+      "orthodontic_consultation",
+      "braces",
+      "clear_aligner",
+      "teeth_whitening_inoffice",
+      "teeth_whitening_home",
+      "night_guard",
+      "incision_drainage",
+      "oral_biopsy",
+      "other"
+    ],
+    "all_keys": [
+      "comprehensive_oral_evaluation",
+      "periodic_oral_evaluation",
+      "emergency_oral_evaluation",
+      "periapical_xray",
+      "bitewing_xray",
+      "panoramic_xray",
+      "adult_prophylaxis",
+      "child_prophylaxis",
+      "fluoride_varnish",
+      "pit_fissure_sealant",
+      "composite_filling_anterior",
+      "composite_filling_posterior",
+      "amalgam_filling",
+      "glass_ionomer_filling",
+      "direct_pulp_cap",
+      "indirect_pulp_cap",
+      "root_canal_anterior",
+      "root_canal_premolar",
+      "root_canal_molar",
+      "root_canal_retreatment",
+      "simple_extraction",
+      "surgical_extraction",
+      "wisdom_tooth_extraction",
+      "scaling_root_planing",
+      "periodontal_maintenance",
+      "crown",
+      "inlay_onlay",
+      "bridge",
+      "veneer",
+      "partial_denture",
+      "complete_denture",
+      "implant_placement",
+      "implant_abutment",
+      "implant_crown",
+      "orthodontic_consultation",
+      "braces",
+      "clear_aligner",
+      "teeth_whitening_inoffice",
+      "teeth_whitening_home",
+      "night_guard",
+      "incision_drainage",
+      "oral_biopsy",
+      "other",
+      "cleaning",
+      "extraction",
+      "filling",
+      "root_canal",
+      "orthodontic",
+      "implant",
+      "veneers",
+      "whitening",
+      "gum_treatment",
+      "oral_surgery"
+    ],
+    "production_changed": false
+  },
+  "lock_serialization": {
+    "passed": true,
+    "real_independent_connection_blocked_after_ddl": true,
+    "reader_completed_after_unlock": true,
+    "reader_seconds": 0.2313070297241211,
+    "source_rows": "130",
+    "scope": "Actual COPY ALTER on owned probe with real FK/index definitions; verifies explicit WRITE lock survives ALTER through postimage verification"
+  },
+  "native_exact_migration": {
+    "passed": true,
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "migration_sha256": "1c7e47098737a3f83baf1e11a9fe84b8f7767e9495fca8384001ae82aa675a11",
+    "copied_synthetic_rows": 44,
+    "table_bytes_before": {
+      "DATA_LENGTH": "16384",
+      "INDEX_LENGTH": "81920"
+    },
+    "ddl_seconds": 2.3533198833465576,
+    "algorithm": "COPY",
+    "lock": "Explicit table WRITE lock; reads and writes pause; not instant/online",
+    "native_original_synthetic_rows_unchanged": true,
+    "target": "Dedicated p023_treatments prefix only; previous fixture preserved",
+    "production_changed": false,
+    "scope": "Exact migration on native MariaDB with native source table/index/FK definition; not production migration or full native route acceptance"
+  },
+  "actual_routed_catalog": {
+    "checks": [
+      {
+        "key": "comprehensive_oral_evaluation",
+        "id": 1183,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "periodic_oral_evaluation",
+        "id": 1184,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "emergency_oral_evaluation",
+        "id": 1185,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "periapical_xray",
+        "id": 1186,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "bitewing_xray",
+        "id": 1187,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "panoramic_xray",
+        "id": 1188,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "adult_prophylaxis",
+        "id": 1189,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "child_prophylaxis",
+        "id": 1190,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "fluoride_varnish",
+        "id": 1191,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "pit_fissure_sealant",
+        "id": 1192,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "composite_filling_anterior",
+        "id": 1193,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "composite_filling_posterior",
+        "id": 1194,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "amalgam_filling",
+        "id": 1195,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "glass_ionomer_filling",
+        "id": 1196,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "direct_pulp_cap",
+        "id": 1197,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "indirect_pulp_cap",
+        "id": 1198,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "root_canal_anterior",
+        "id": 1199,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "root_canal_premolar",
+        "id": 1201,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "root_canal_molar",
+        "id": 1202,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "root_canal_retreatment",
+        "id": 1203,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "simple_extraction",
+        "id": 1204,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "surgical_extraction",
+        "id": 1205,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "wisdom_tooth_extraction",
+        "id": 1206,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "scaling_root_planing",
+        "id": 1207,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "periodontal_maintenance",
+        "id": 1208,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "crown",
+        "id": 1209,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "inlay_onlay",
+        "id": 1210,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "bridge",
+        "id": 1211,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "veneer",
+        "id": 1212,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "partial_denture",
+        "id": 1213,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "complete_denture",
+        "id": 1214,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "implant_placement",
+        "id": 1215,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "implant_abutment",
+        "id": 1216,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "implant_crown",
+        "id": 1217,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "orthodontic_consultation",
+        "id": 1218,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "braces",
+        "id": 1219,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "clear_aligner",
+        "id": 1220,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "teeth_whitening_inoffice",
+        "id": 1221,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "teeth_whitening_home",
+        "id": 1222,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "night_guard",
+        "id": 1223,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "incision_drainage",
+        "id": 1224,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "oral_biopsy",
+        "id": 1225,
+        "actualCreateEditReadFilter": true
+      },
+      {
+        "key": "other",
+        "id": 1226,
+        "actualCreateEditReadFilter": true,
+        "note": "Bounded filtered page with actual search, rather than assuming record must occur in first100 matching historical rows"
+      },
+      "Every created treatment has one planned lifecycle and no automatic charge/invoice"
+    ],
+    "records": [
+      {
+        "key": "comprehensive_oral_evaluation",
+        "id": 1183
+      },
+      {
+        "key": "periodic_oral_evaluation",
+        "id": 1184
+      },
+      {
+        "key": "emergency_oral_evaluation",
+        "id": 1185
+      },
+      {
+        "key": "periapical_xray",
+        "id": 1186
+      },
+      {
+        "key": "bitewing_xray",
+        "id": 1187
+      },
+      {
+        "key": "panoramic_xray",
+        "id": 1188
+      },
+      {
+        "key": "adult_prophylaxis",
+        "id": 1189
+      },
+      {
+        "key": "child_prophylaxis",
+        "id": 1190
+      },
+      {
+        "key": "fluoride_varnish",
+        "id": 1191
+      },
+      {
+        "key": "pit_fissure_sealant",
+        "id": 1192
+      },
+      {
+        "key": "composite_filling_anterior",
+        "id": 1193
+      },
+      {
+        "key": "composite_filling_posterior",
+        "id": 1194
+      },
+      {
+        "key": "amalgam_filling",
+        "id": 1195
+      },
+      {
+        "key": "glass_ionomer_filling",
+        "id": 1196
+      },
+      {
+        "key": "direct_pulp_cap",
+        "id": 1197
+      },
+      {
+        "key": "indirect_pulp_cap",
+        "id": 1198
+      },
+      {
+        "key": "root_canal_anterior",
+        "id": 1199
+      },
+      {
+        "key": "root_canal_premolar",
+        "id": 1201
+      },
+      {
+        "key": "root_canal_molar",
+        "id": 1202
+      },
+      {
+        "key": "root_canal_retreatment",
+        "id": 1203
+      },
+      {
+        "key": "simple_extraction",
+        "id": 1204
+      },
+      {
+        "key": "surgical_extraction",
+        "id": 1205
+      },
+      {
+        "key": "wisdom_tooth_extraction",
+        "id": 1206
+      },
+      {
+        "key": "scaling_root_planing",
+        "id": 1207
+      },
+      {
+        "key": "periodontal_maintenance",
+        "id": 1208
+      },
+      {
+        "key": "crown",
+        "id": 1209
+      },
+      {
+        "key": "inlay_onlay",
+        "id": 1210
+      },
+      {
+        "key": "bridge",
+        "id": 1211
+      },
+      {
+        "key": "veneer",
+        "id": 1212
+      },
+      {
+        "key": "partial_denture",
+        "id": 1213
+      },
+      {
+        "key": "complete_denture",
+        "id": 1214
+      },
+      {
+        "key": "implant_placement",
+        "id": 1215
+      },
+      {
+        "key": "implant_abutment",
+        "id": 1216
+      },
+      {
+        "key": "implant_crown",
+        "id": 1217
+      },
+      {
+        "key": "orthodontic_consultation",
+        "id": 1218
+      },
+      {
+        "key": "braces",
+        "id": 1219
+      },
+      {
+        "key": "clear_aligner",
+        "id": 1220
+      },
+      {
+        "key": "teeth_whitening_inoffice",
+        "id": 1221
+      },
+      {
+        "key": "teeth_whitening_home",
+        "id": 1222
+      },
+      {
+        "key": "night_guard",
+        "id": 1223
+      },
+      {
+        "key": "incision_drainage",
+        "id": 1224
+      },
+      {
+        "key": "oral_biopsy",
+        "id": 1225
+      },
+      {
+        "key": "other",
+        "id": 1226
+      }
+    ],
+    "errors": [],
+    "scope": "Actual session/CSRF/UI create/edit/read/filter for43 current catalog keys, authentic production FKs enforced; owned synthetic DB only"
+  },
+  "boundaries": {
+    "checks": [
+      "Invalid catalog code rejected without treatment/lifecycle/charge/invoice",
+      "Missing/stale CSRF cannot persist",
+      "Real injected lifecycle insert failure rolls treatment/procedure/charge/finance back together",
+      "Own legacy-key fixture reopens and edits through canonical authorized workflow with exact key retained",
+      {
+        "role": "viewer",
+        "denialStatus": 403,
+        "crossClinicOrRestrictedUpdateBlocked": true
+      },
+      {
+        "role": "foreign_clinic",
+        "denialStatus": 404,
+        "crossClinicOrRestrictedUpdateBlocked": true
+      }
+    ],
+    "errors": [],
+    "legacy_id": 1228,
+    "productionChanged": false
+  },
+  "preservation": {
+    "passed": true,
+    "original_rows": 571,
+    "tables": {
+      "treatments": {
+        "rows": 130,
+        "sha256": "65a3d9249a7111f9066e2862979853271aa9aebfa3f409cec605517ab185c8c6"
+      },
+      "finances": {
+        "rows": 11,
+        "sha256": "413265f6f7ae9d8c5218d57884119c81c1d00e8cc3c50877c200d89cb0fe5440"
+      },
+      "finance_payments": {
+        "rows": 7,
+        "sha256": "bad0dd576a183147b6819af10faf8138ada6d68b0e9db447a33b488c52106237"
+      },
+      "examinations": {
+        "rows": 151,
+        "sha256": "d651e909b222f4929767b63f2ae47b1ce2ff364e69ea0f44243a195741bf7e5f"
+      },
+      "treatment_contracts": {
+        "rows": 7,
+        "sha256": "d747de5e503cf4c3e54aa4d1d42adb34a77f24492772811df442d27cb8ae02b0"
+      },
+      "treatment_contract_items": {
+        "rows": 23,
+        "sha256": "553e115ebcc1bc1d97ae26421b96635a4a2d09d654539fa63bdbfb1dfa603d2e"
+      },
+      "odontograms": {
+        "rows": 34,
+        "sha256": "5e9a241c2ac50103f521e40d767f8ca8a8d62f72aa1941109d7f37a9529c3823"
+      },
+      "patient_odontogram_snapshots": {
+        "rows": 26,
+        "sha256": "cb1574601520cf6b97f5ddfdbdd6f7850ce0291268c568bfd23d5ab1a859638b"
+      },
+      "examination_note_signatures": {
+        "rows": 14,
+        "sha256": "5e8993098607871ed3219f5d2e7e1d3c3d1a99cff0f56d32ea31e3a6f6ca055c"
+      },
+      "patients": {
+        "rows": 22,
+        "sha256": "b27a3d3ddc715f362472d61874728ba244f102dc37390120476f1689c73b56e6"
+      },
+      "appointments": {
+        "rows": 143,
+        "sha256": "376fb1d9abf6acc66f3e5a71168bc37893562a428a32f4d78851b1f4293b2b2a"
+      },
+      "inventory": {
+        "rows": 3,
+        "sha256": "d79b4fb6590689bc4493b8a7745c5ba03e227aa1dba39d9a4013664de0bb5530"
+      }
+    },
+    "scope": "Original fixture rows in authentic schema target unchanged; additional treatment/lifecycle test records retained separately"
+  },
+  "limitations": [
+    "Production schema change remains separately unauthorized; source-only deployment does not fix the existing ENUM.",
+    "Native migration was exercised on a dedicated isolated prefixed table;43 routed UI workflows were local on authentic production-schema synthetic fixtures, not claimed as native UI tests.",
+    "Existing random three-digit-per-day treatment ID collision caused one rolled-back create; explicit retry succeeded; original failure receipt retained. Identifier design unchanged in this bounded correction.",
+    "First other-type filter assertion assumed its record was in the first100 older matches; actual bounded search+type query passed. No runtime filter was changed.",
+    "Synthetic transport/header and locator corrections are recorded privately; no expectations weakened to accept corrupted clinical values.",
+    "Full optional charge/inventory linked path, native end-to-end43-choice test and whole-app shadcn/theme/accessibility gates remain unfinished."
+  ]
+}
