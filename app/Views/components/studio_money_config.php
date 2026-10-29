@@ -4,5 +4,6 @@ foreach(['payment'=>'payment','invoice'=>'invoice','refund'=>'refund','adjustmen
 foreach(['paid','pending','partial','overdue','cancelled','unpaid','void'] as $key)$moneyConfig['statuses'][$key]=lang('Finance.'.$key);
 $moneyConfig['expenseCategories']=[];foreach(array_unique(array_filter(array_column($rows??[],'expense_category'))) as $category){$key='Finance.expenseCategory.'.$category;$label=lang($key);if($label!==$key)$moneyConfig['expenseCategories'][$category]=$label;}
 $moneyConfig['detailsLabel']=lang('Finance.transactionDetails');
+$moneyConfig['permissions']['supplier']=has_permission('inventory','view');
 ?>
 <script type="application/json" id="money-workspace-config"><?= json_encode($moneyConfig,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
