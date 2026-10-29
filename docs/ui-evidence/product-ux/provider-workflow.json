@@ -1,0 +1,47 @@
+{
+  "source": "f27ba53de284241c8b3f56c0229f2d11b303fc6d",
+  "workflow": {
+    "checks": [
+      "Actual100ILS invoice create, no initial receipt, default-OFF checkout preserved",
+      "Actual explicit guest allocation10ILS, native Arabic provider payment2, immutable ledger1 and outstanding8",
+      "Provider payment does not fabricate patient collection or alter invoice AR"
+    ],
+    "owned": {
+      "invoice": 800016,
+      "allocation": 7,
+      "provider_payment": 7
+    },
+    "errors": [],
+    "scope": "Actual invoice allocation and native Arabic provider payment with SQL history/balance readback; newly owned records only"
+  },
+  "denials": {
+    "checks": [
+      {
+        "role": "viewer",
+        "case": "Forged direct POST of owned foreign allocation",
+        "status": 403,
+        "noSuccessfulMutation": true
+      },
+      {
+        "role": "foreign_clinic",
+        "case": "Forged direct POST of owned foreign allocation",
+        "status": 200,
+        "noSuccessfulMutation": true
+      },
+      {
+        "role": "manager",
+        "case": "Missing CSRF direct POST",
+        "status": 403,
+        "noSuccessfulMutation": true
+      }
+    ],
+    "ledgerUnchanged": true,
+    "productionChanged": false
+  },
+  "original_rows_preserved": 571,
+  "limits": [
+    "New synthetic guest allocation and2ILS payout only; no alteration of original payout histories.",
+    "This is local authentic production-schema verification, not current-source native Hostinger or complete payout/accounting certification."
+  ],
+  "production_changed": false
+}
