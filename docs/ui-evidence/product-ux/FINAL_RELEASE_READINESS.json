@@ -211,13 +211,19 @@
     "reused_finance_acceptance": "settlement-replay.json at c5e0a5a6; broad successful suites not rerun"
   },
   "not_certified": [
-    "Final independent exact-head/whole-PR acceptance",
-    "Full role/state/route accessibility matrix (202pending entries)",
-    "Release-time backup freshness and production migration/cutover authorization"
+    "Independent current exact-head/whole-PR acceptance",
+    "Current ON attachments/signing workflow in a separately authorized synthetic fixture",
+    "Kiosk same-day confirmation and final exact-source native HTTP gate",
+    "Universal role/state/zoom/device/physical accessibility",
+    "Future release-time recovery freshness, production migration/cutover authorization"
   ],
   "production_migrations": 0,
   "source_switches": 0,
   "feature_activations": 0,
   "github_actions": 0,
-  "historical_correction": "HISTORICAL_TREATMENT_ACCEPTANCE.json"
+  "historical_correction": "HISTORICAL_TREATMENT_ACCEPTANCE.json",
+  "current_acceptance": "RETRY_WORKFLOW_ACCEPTANCE.json",
+  "current_parent_commit": "b95d68027a186e8362a1165528d8514e02d8ad2a",
+  "current_disposition": "Completed-retry code corrected/native27PASS; independent final acceptance and active fixture/native HTTP gaps remain. No production changes.",
+  "prior_receipts_rule": "Existing sections retain their original source/observation scope; current result is in RETRY_WORKFLOW_ACCEPTANCE.json, not a claim that old native source equals final current source."
 }

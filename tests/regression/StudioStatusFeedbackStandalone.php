@@ -1,0 +1,9 @@
+<?php
+declare(strict_types=1);
+if(PHP_SAPI!=='cli'||$argc!==2||!is_file($argv[1]))throw new RuntimeException('Explicit synthetic bootstrap required');require $argv[1];
+if(!defined('STUDIO_THEME_SYNTHETIC_OWNED')||STUDIO_THEME_SYNTHETIC_OWNED!==true)throw new RuntimeException('Owned target required');
+$checks=[];$assert=static function(bool$ok,string$name)use(&$checks){if(!$ok)throw new RuntimeException($name);$checks[]=$name;};
+$request=new CodeIgniter\HTTP\IncomingRequest(config('App'),new CodeIgniter\HTTP\SiteURI(config('App')),null,new CodeIgniter\HTTP\UserAgent());Config\Services::injectMock('request',$request);
+$payload='<script>synthetic-invalid-message</script>';foreach(['Messages/list'=>['messages'=>[$payload]],'list'=>['errors'=>[$payload]]]as$view=>$data){$html=view($view,$data);$assert(!str_contains($html,$payload)&&str_contains($html,'&lt;script&gt;'),'Feedback escaping:'.$view);$assert(str_contains($html,'role="status"')||str_contains($html,'role="alert"'),'Live feedback semantics:'.$view);$assert(trim(view($view,[$view==='list'?'errors':'messages'=>[]]))==='','Empty feedback:'.$view);}
+foreach(['en','ar']as$locale){$request->setLocale($locale);$request->setGlobal('get',['lang'=>$locale]);foreach(['error_400','error_404','production']as$view){$html=view('errors/html/'.$view,['message'=>$payload]);$assert(str_contains($html,'dir="'.($locale==='ar'?'rtl':'ltr').'"'),'Status direction '.$view.' '.$locale);$assert(!str_contains($html,$payload),'Status diagnostic escaped '.$view.' '.$locale);$assert(str_contains($html,'<h1 id="status-title">')&&str_contains($html,'<nav class="status-actions"'),'Recoverable status navigation '.$view.' '.$locale);}}
+echo json_encode(['passed'=>count($checks),'checks'=>$checks,'scope'=>'Actual CI4 renderer security/empty/locale/status presentation only; no HTTP error injection, email delivery or business persistence claim'],JSON_PRETTY_PRINT|JSON_THROW_ON_ERROR),PHP_EOL;

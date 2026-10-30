@@ -1,8 +1,12 @@
-# PR22 current acceptance ? financial replay/stale-state correction
+# Current PR22 acceptance — completed retry correction and risk-ranked workflows
 
-**Bounded financial correction ACCEPTED in review5704555130 (COMMENTED disposition); whole PR remains Draft/CHANGES REQUIRED. Production NO-GO.**
+**PRODUCTION NO-GO.** Completed-journal migration retry is corrected with native27/pure17checks; no fresh independent approval is claimed. The current [consolidated decision](FINAL_RELEASE_READINESS.md), [sanitized current receipt](RETRY_WORKFLOW_ACCEPTANCE.json) and [per-view manual matrix](../../UI_SHADCN_SCREEN_MATRIX.csv) supersede older whole-release status counts while retaining original receipts as scoped historical evidence.
 
-See [final release-readiness decision](FINAL_RELEASE_READINESS.md) and [historical correction acceptance](HISTORICAL_TREATMENT_ACCEPTANCE.md): historical empty bytes/provenance and combined native migrations now pass in development; final independent acceptance and release authorization remain outstanding. Fresh encrypted recovery restoration evidence is retained; future customer writes are not automatically covered.
+Actual synthetic persistence now covers registration, booking, examination create/edit/complete/sign and signed denial, prescription, contract draft identity/resave, explicit invoice/receipt, contextual examination and platform invoice. EN/AR platform/clinic switching, password reset/replay and role/tenant denials are distinguished from presenter-only/component checks.202 entries are reconciled, not relabeled accepted. Signature/attachment ON workflows, same-day kiosk confirmation and final current-source native HTTP remain disclosed gaps.
+
+The current patch changes only the treatment migration, three presentation templates and two form/booking scripts plus tests/evidence. Financial calculations, original records, native SVG and optional switches remain unchanged. No production access, production migration/deployment/permission grant or feature activation occurred. A new unprivileged synthetic test actor, read-only role and memberships were created only in the owned disposable database.
+
+## Previously accepted financial correction — preserved
 
 Owner authorization and review [5701870044](https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5701870044) applies to parent `cde62b838f25abd9c1d09e253e3c14dda547c51e`. The earlier finance/reception design is preserved. This report supersedes the earlier proposal-only status; it does not imply whole-app acceptance. The adjacent [sanitized receipt](settlement-replay.json) pins the actual runtime SHA-256 values. The final commit/tree are supplied in the PR and handback, avoiding a self-referential commit hash.
 

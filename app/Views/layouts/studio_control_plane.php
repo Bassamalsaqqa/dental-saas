@@ -94,7 +94,7 @@
 </strong>
 </div>
 <div class="toolbar-actions">
-<button type="button" class="search-trigger" data-dialog="platform-search-dialog">
+<button type="button" class="search-trigger" data-dialog="platform-search-dialog" aria-label="<?= esc(lang('UI.cpSearchPlaceholder'),'attr') ?>">
 <?= $studioIcon('search') ?>
 <span>
 <?= esc(lang('UI.cpSearchPlaceholder')) ?>

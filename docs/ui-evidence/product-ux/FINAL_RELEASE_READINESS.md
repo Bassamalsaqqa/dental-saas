@@ -1,32 +1,37 @@
-# PR22 final release readiness ? PRODUCTION NO-GO
+# PR22 final release readiness — PRODUCTION NO-GO
 
-**No production merge, migration, source deployment, record change or feature activation occurred.** Production remains `29dce746c0fc3be436b85a2c1a67fbbb41be3b55`, tree `188433ad669477aa0c6812acd09fcc3ecd2c67eb`. The accepted financial/application source is `c5e0a5a625f397681779081477da55ae0ef6790b`, tree `62857631909fbab26efab8d2f448900df76375e5`. The subsequent Owner-authorized historical compatibility correction changes only its bounded migration, unknown presentation/edit handling and focused tests. Final exact-head acceptance remains pending; the final handback pins its publication commit/tree.
+No production operation occurred in this correction pass. Last verified production remains `29dce746c0fc3be436b85a2c1a67fbbb41be3b55` / tree `188433ad669477aa0c6812acd09fcc3ecd2c67eb`. Publication SHA/tree are supplied in the PR handback; exact runtime hashes are in the [current sanitized receipt](RETRY_WORKFLOW_ACCEPTANCE.json).
 
-[Sanitized complete receipts](FINAL_RELEASE_READINESS.json) ? [Accepted financial evidence](settlement-replay.json) ? [EN/AR gallery](settlement-replay.html).
+## Current correction and acceptance
 
-## Historical treatment blocker ? corrected in development
+Review [5705740851](https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705740851) independently concurs with formal CHANGES_REQUESTED5705624336 at b95d6802. The financial replay correction remains accepted in scope; no later exact-head approval is claimed.
 
-[Bounded correction, current acceptance and native measurements](HISTORICAL_TREATMENT_ACCEPTANCE.md) ? [sanitized receipt](HISTORICAL_TREATMENT_ACCEPTANCE.json).
-
-The former refusal on38empty ENUM-index-zero records is resolved by an Owner-authorized forward-only correction. All44historical rows, their exact bytes and original zero-index provenance are preserved. The original invalid input is not recoverable and no clinical meaning is assigned. A private immutable pre-DDL journal and checked completion record cover nontransactional ALTER recovery. Explicit EN/AR unknown states and unrelated-edit preservation now pass actual local/native workflows. All43offered procedures passed actual native creation and SQL readback.
-
-The ordered combined native schema rehearsal now passes: actual67-table schema, treatment then request migration,77?79history/67?68tables, all original rows preserved. Final independent exact-head/whole-PR acceptance is still outstanding. These results do not authorize production DDL or deployment.
-
-## Completed gates and honest limits
-
-| Gate | Result |
+| Gate | Current result and limits |
 |---|---|
-| Independent source review | Review5704555130 is COMMENTED with bounded financial correction ACCEPTED; whole PR CHANGES REQUIRED/production NO-GO. No formal APPROVED result invented. |
-| Exact production identity | Reconfirmed29dce746/tree188433ad, PHP8.3.36/MariaDB11.8.9,67tables/77migration rows/0triggers. Protected configuration hashes unchanged. |
-| Source artifact | Raw-Git archive:2029files match accepted blobs. First Windows CRLF-converted artifact failed the hash gate and is preserved. Correct packaging uses `git -c core.autocrlf=false archive`; no accepted source changed. |
-| Source/coverage locks | Last deployed release and23authorized protected deltas pinned exactly; historical pins preserved.23stale view blobs reconciled and3partials registered. Source-boundary/inventory gate passes. Final acceptance gate remains FAIL:202pending entries, not201separate pages. |
-| EN/AR actual observations |54manager/platform observations at1366/390; no document overflow, unnamed visible buttons, row-menu keyboard failures or JavaScript errors in those checks. Four404observations are two locales each for nonexistent `/contracts` index and absent synthetic prescription2; not populated-workflow passes. |
-| Actual platform journey | Four scoped EN/AR checks: entry, review cancellation, impersonation/contextual reads, exit and cleared tenant authority. No permissions or business records changed. |
-| Existing financial acceptance | Reused accepted actual SQL/multi-worker/replay/stale/rollback/denial/FX/preservation evidence. Focused source/token checks rerun:72/85/57. No unnecessary broad reruns. |
-| Native settlement migration | Independently passed CREATE/engine/index readiness in the new synthetic schema,0.223seconds. Native service smoke: one20-unit receipt, oneaudit, safe_cash, exact replay and stale rejection. Not a complete native HTTP deployment rehearsal. |
-| Native combined deployment | Corrected candidate served through the existing private-header synthetic gateway; old gateway preimage/source/DB preserved. Ordered two-migration rehearsal, actual EN/AR routes,43routed creations, unknown edit/denials and combined finance smoke pass. See current correction receipt for exact scope. |
-| Recovery | Fresh encrypted off-host checkpoint and isolated restoration PASS, detailed below. |
-| Whole-product workflow/accessibility | Remains incomplete. Route rendering does not certify persistence. Full role/state/clinical-to-finance/inventory/print/CSP/zoom/physical-AT acceptance is not claimed. No UI redesign/rewrite undertaken after this mandatory release gate failed. |
+| Completed migration retry | Corrected. Validate exact completion keys/version/target/journal hash/canonical UTC time and converted table definition before returning. Only MariaDB's advancing table AUTO_INCREMENT counter is normalized on completed retries; indexes, column attributes, constraints and table options remain exact. Initial/incomplete conversion remains strict. No historical rows or immutable journals are rewritten. |
+| Failing-before / passing-after | Actual native b95 accepted copied-table index drift; corrected native regression passes27 checks on PHP8.3.36/MariaDB11.8.9. Unchanged/later-row retries pass; index/table-option drift and bad metadata fail closed with unchanged rows/journals. Pure metadata/DDL tests17PASS. No application migration was rerun in this pass. |
+| Real clinical/reception persistence | Synthetic patient registered; appointment booked; examination created/edited/completed/signed; signed-edit denied unchanged; prescription saved; tooth-linked contract draft created/reopened/resaved preserving item24; contextual examination saved and returned to its patient. These are actual SQL readbacks, not HTTP200 claims. The appointment and examination are NOT claimed to be a single linked encounter. |
+| Real finance / inventory | Explicit invoice25ILS, receipt5, paid5/due20 persisted. Role denial and unchanged receipt count verified. Accepted multi-worker/replay/stale/refund/void/supplier/provider/rollback evidence reused unchanged. Current readback reconciles provider payments2+1=3/due7; stock2, cost2.50 and planned unbilled25 charge remain correct. No extra provider/supplier payments created merely to repeat accepted tests. |
+| Real platform / authentication | EN1366/AR390 genuine platform entry, invoice persistence, review/cancel/impersonation/exit and stale-tab denial; two-clinic switching denies prior clinic data. Password mismatch rejected, actual reset persists and consumes validator/time; token replay denied. Forgot-password email sending and user deactivation NOT executed. Missing deactivation target now404 instead of500; valid cancellation form retains correct target. |
+| Current UI corrections | Untouched booking no longer raises false unsaved warning after async slots initialize. Edits made during the request still warn; Keep Editing and Discard/focus pass6browser checks. Mobile search icon buttons now have localized accessible names. No redesign or business authority change. |
+| 202-entry reconciliation | Each pending entry now has an exact source blob, actual included-view case IDs and explicit scope/limits in [manual matrix](../../UI_SHADCN_SCREEN_MATRIX.csv).190 current parent-render/component entries,6presenter-only,4feature-OFF denial-only,2active attachment workflow gaps.133 remain byte-identical to deployed source;69changed/new. All202 remain pending independent acceptance: rendering is not whole-workflow certification. |
+| UI observations |128 current component observations,34 interactions; no current recorded JS exceptions, document overflow or unnamed visible buttons. Wrong harness routes/missing fixture and the initial ERR_ABORTED cascade were investigated, not counted as product success. EN/AR drawer focus, reopen preservation and provider focus checked. This does not certify every role/state/zoom/device. |
+| Security / preservation |12actual role/tenant/session-vs-Bearer/gate/kiosk checks; original583business rows and2suppliers preserved. Pure CI4 status/feedback renderer24PASS, finance presenter boundary72PASS. Existing financial calculations/native SVG/signing evidence unchanged. Source-boundary guard passes; final frontend guard deliberately remains incomplete. |
+| Native integration | Prior b95 full-artifact native HTTP/43procedure/ordered two-migration receipts retained in [historical evidence](HISTORICAL_TREATMENT_ACCEPTANCE.md). New changed migration is native-CLI verified; a new full current-source native HTTP deployment is NOT claimed. No source deployment or application migration executed in this pass. |
+| Recovery | Previous encrypted off-host restore certification retained unchanged below; no new production checkpoint captured. Later customer activity is not automatically covered. |
+
+[Current two-state synthetic gallery](retry-workflow-gallery.html). Full captures and raw traces remain outside Git; token-bearing trace paths are never published.
+
+## Remaining release gates
+
+- Fresh independent exact-head acceptance and resolution of the formal changes-requested review.
+- Attachments and contract-signature entitlements are OFF in both verified synthetic fixtures. Draft/resave/OFF denial pass, but current ON upload/link/download/sign/publication is not freshly certified. Production signatures were previously discovered ON. Do not infer safety from an OFF fixture or enable a feature without explicit isolated-fixture authorization.
+- Kiosk PIN/own-patient lookup/reset privacy pass; same-day appointment confirmation was not executed because no eligible appointment exists. No schedule/feature was changed to manufacture acceptance.
+- Final current-source native HTTP acceptance after code freeze; existing native source and new CLI evidence are different facts.
+- Physical assistive technology, every zoom/landscape/device combination, and universal clinical/financial workflow certification remain untested. The medical-assessment provenance decision and patient-workspace query/latency concern remain separate known limitations.
+- Future production migration/cutover requires separate Owner authorization, current recovery freshness, writer drain, lock/disk headroom and documented source rollback containment. Themes/scheduling/WhatsApp/corrections remain OFF.
+
+The migration blocker is corrected and reproducibly tested. **PRODUCTION NO-GO** remains the honest whole-release recommendation; no failed gate is replaced by a route count or a claim of confidence.
 
 ## Fresh encrypted recovery checkpoint
 
@@ -54,7 +59,3 @@ The additive request table first passed independently; the later corrected, orde
 Keep widened storage, all current records, request evidence, uploads and signing material intact. Never narrow back to ENUM or invoke generic populated migration rollback. The treatment down method refuses narrowing; request down refuses unowned/populated evidence.
 
 Rollback source only to the exact previous release through the existing reviewed mechanism, retaining the current database/durable files. Old writers lack request/revision protection: settlement writes must remain contained while returning to old source; otherwise use a reviewed fix-forward. Do not silently resume unguarded settlements. Never restore the checkpoint over later customer activity automatically. No rollback or containment change was applied to production here.
-
-## Final disposition
-
-**PRODUCTION NO-GO pending final independent exact-head/whole-PR acceptance, release-time recovery freshness and separate Owner authorization.** The confirmed historical treatment blocker is corrected and bounded native integration passes. Existing accepted financial correction and certified encrypted recovery evidence remain intact. Full role?route?state/physical accessibility certification is not claimed; the final frontend acceptance guard retains202pending entries. No source merge, production migration/deployment or feature activation occurred.

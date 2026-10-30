@@ -1,0 +1,444 @@
+{
+  "scope": "Completed migration retry correction and risk-ranked current acceptance; final publication SHA/tree supplied by ordinary Git commit, not self-referential metadata.",
+  "parent_commit": "b95d68027a186e8362a1165528d8514e02d8ad2a",
+  "review": "5705740851 COMMENTED +5705624336 CHANGES_REQUESTED; no fresh approval claimed",
+  "decision": "PRODUCTION_NO_GO",
+  "source_hashes": {
+    "app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php": "514d1e0396a56aa93639342a5ba49167e7c3f9d44679c497928e72faa8fea3c7",
+    "public/assets/js/studio-booking.js": "517580226e3d42a775943d9880465fdecadf57e4dc130173a94295c2f43c4614",
+    "public/assets/js/studio-forms.js": "d327c3b18911bb6df99eefcf17a127983e78113c8790e5afc0eb8a5157b3ed4c",
+    "tests/regression/HistoricalTreatmentCompletedRetrySql.php": "2553bee4d5217014ac6968c9b9d890a2acbeee97ddd141052412c3fdf3f0d34b"
+  },
+  "migration_retry": {
+    "before": "Actual native b95 completed retry incorrectly accepted a deliberately added copied-table index; regression failed at MUST reject unreviewed index drift. Failed fixture retained.",
+    "after": {
+      "standalone_checks": 17,
+      "real_native_sql_checks": 27,
+      "php": "8.3.36",
+      "mariadb": "11.8.9-MariaDB-log",
+      "unmodified_retry": "PASS",
+      "later_legitimate_record": "PASS unchanged",
+      "index_drift": "REJECTED unchanged rows",
+      "table_option_drift": "REJECTED unchanged rows",
+      "bad_metadata": [
+        "version",
+        "target_type",
+        "verified_at",
+        "prepared_sha256"
+      ],
+      "immutable_test_journals": 10,
+      "original_native_fixture_unchanged": true,
+      "application_migrations_executed_this_pass": 0,
+      "test_scope": "Only owned copied synthetic tables/index/comment fixtures. Two application migrations were previously rehearsed; not rerun. Six copied fixture tables retained for diagnosis, not six application migrations."
+    }
+  },
+  "booking_dirty_state": {
+    "passed": 6,
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Pristine async booking initialization navigates without false warning"
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Edit made during async initialization still warns; late response cannot reset dirty state"
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Keep Editing preserves text/focus; explicit Discard navigates without duplicate warning"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Pristine async booking initialization navigates without false warning"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Edit made during async initialization still warns; late response cannot reset dirty state"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Keep Editing preserves text/focus; explicit Discard navigates without duplicate warning"
+      }
+    ],
+    "scope": "Actual EN/AR browser initialization and unsaved changes only; zero form submissions/business writes"
+  },
+  "current_persistence_and_session_checks": [
+    {
+      "case": "patient-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "clinic": 1,
+      "next": "/patient"
+    },
+    {
+      "case": "exam-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "status": "pending",
+      "next": "/patient/28"
+    },
+    {
+      "case": "exam-edit",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "next": "/examination/1151"
+    },
+    {
+      "case": "prescription-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "next": "/patient/28"
+    },
+    {
+      "case": "booking-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "next": "/patient/28"
+    },
+    {
+      "case": "contract-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "amount": 25,
+      "signed": false,
+      "next": "/patient/28"
+    },
+    {
+      "case": "contract-reopen-resave",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "same_item_identity": true,
+      "chart_condition_not_required": true,
+      "next": "/patient/28"
+    },
+    {
+      "case": "explicit-invoice-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "balance_due": 25,
+      "not_automatic_contract_billing": true
+    },
+    {
+      "case": "explicit-receipt",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "receipts": 1,
+      "paid": 5,
+      "outstanding": 20
+    },
+    {
+      "case": "exam-complete",
+      "evidence_kind": "ACTUAL_PERSISTENCE"
+    },
+    {
+      "case": "exam-sign",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "signature_rows": 1
+    },
+    {
+      "case": "signed-exam-edit-denied",
+      "evidence_kind": "ACTUAL_DENIAL_AND_SQL_PRESERVATION",
+      "status": 303
+    },
+    {
+      "case": "platform-invoice-create",
+      "evidence_kind": "ACTUAL_PERSISTENCE",
+      "amount": 20,
+      "clinic": 1,
+      "next": "/controlplane/invoices"
+    },
+    {
+      "case": "platform-entry-review-cancel-impersonate-exit-stale-tab",
+      "evidence_kind": "ACTUAL_SESSION_AND_DENIAL",
+      "lang": "en",
+      "width": 1366,
+      "lookup_after_exit": 403
+    },
+    {
+      "case": "platform-entry-review-cancel-impersonate-exit-stale-tab",
+      "evidence_kind": "ACTUAL_SESSION_AND_DENIAL",
+      "lang": "ar",
+      "width": 390,
+      "lookup_after_exit": 403
+    },
+    {
+      "case": "Context drawer examination actually persists and returns to same patient",
+      "kind": "ACTUAL_PERSISTENCE",
+      "id": 1152
+    }
+  ],
+  "auth_checks_unique": [
+    {
+      "case": "Forgot-password form accessible; no email submitted",
+      "lang": "en",
+      "width": 1366,
+      "kind": "BROWSER_INTERACTION_ONLY"
+    },
+    {
+      "case": "Forgot-password form accessible; no email submitted",
+      "lang": "ar",
+      "width": 390,
+      "kind": "BROWSER_INTERACTION_ONLY"
+    },
+    {
+      "case": "Mismatched password confirmation rejected; original hash unchanged",
+      "kind": "ACTUAL_HTTP_AND_SQL_DENIAL"
+    },
+    {
+      "case": "Valid synthetic password reset persisted; validator/time invalidated (confirmed by independent SQL/password_verify readback)",
+      "kind": "ACTUAL_PERSISTENCE"
+    },
+    {
+      "case": "Consumed reset token cannot reopen or replay password change",
+      "kind": "ACTUAL_DENIAL"
+    },
+    {
+      "case": "New password authenticates; member without clinic authority stays behind clinic wall",
+      "kind": "ACTUAL_AUTHENTICATION_AND_TENANT_DENIAL",
+      "destination": "/clinic/no-clinic"
+    },
+    {
+      "case": "Missing deactivation target returns404/no form; valid target keeps correct identity and selectable cancellation",
+      "kind": "ACTUAL_BROWSER_NO_DEACTIVATION_SUBMISSION"
+    }
+  ],
+  "clinic_selection": {
+    "passed": 4,
+    "checks": [
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Actual clinic selection POST establishes permitted clinic1 patient access",
+        "kind": "ACTUAL_CONTEXT_PERSISTENCE"
+      },
+      {
+        "lang": "en",
+        "width": 1366,
+        "case": "Actual second selection changes tenant; prior patient denied without cross-clinic disclosure",
+        "kind": "ACTUAL_CONTEXT_AND_DENIAL"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Actual clinic selection POST establishes permitted clinic1 patient access",
+        "kind": "ACTUAL_CONTEXT_PERSISTENCE"
+      },
+      {
+        "lang": "ar",
+        "width": 390,
+        "case": "Actual second selection changes tenant; prior patient denied without cross-clinic disclosure",
+        "kind": "ACTUAL_CONTEXT_AND_DENIAL"
+      }
+    ],
+    "fixture": "Only newly owned unprivileged actor; one new read-only role and two memberships; existing authorities unchanged",
+    "production_changes": false,
+    "feature_activations": 0
+  },
+  "contextual_ui": {
+    "checks": [
+      {
+        "case": "Current provider dialog includes canonical outstanding balance and restores focus",
+        "kind": "ACTUAL_UI_WITH_REUSED_SQL_PRESERVATION"
+      },
+      {
+        "case": "Context examination drawer retains entered values on close/reopen and restores focus",
+        "lang": "en",
+        "width": 1366,
+        "kind": "ACTUAL_COMPONENT_INTERACTION_NO_SUBMISSION"
+      },
+      {
+        "case": "Context examination drawer retains entered values on close/reopen and restores focus",
+        "lang": "ar",
+        "width": 390,
+        "kind": "ACTUAL_COMPONENT_INTERACTION_NO_SUBMISSION"
+      },
+      {
+        "case": "Context drawer examination persisted with correct patient/clinic and return",
+        "kind": "ACTUAL_PERSISTENCE"
+      }
+    ],
+    "source": "Current synthetic native application, EN/AR desktop/mobile; source financial calculations unchanged",
+    "production_changes": false
+  },
+  "security_and_kiosk": {
+    "passed": 12,
+    "checks": [
+      {
+        "role": "manager",
+        "case": "Session is not Bearer authority",
+        "status": 401,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "role": "manager",
+        "case": "Feature remains OFF /settings/appearance",
+        "status": 404,
+        "kind": "ACTUAL_GATE_DENIAL"
+      },
+      {
+        "role": "manager",
+        "case": "Feature remains OFF /finance/800038/corrections",
+        "status": 404,
+        "kind": "ACTUAL_GATE_DENIAL"
+      },
+      {
+        "role": "manager",
+        "case": "Unavailable contract signature UI/direct POST fail closed; entitlement unchanged",
+        "status": 404,
+        "kind": "ACTUAL_GATE_DENIAL_AND_SQL_PRESERVATION"
+      },
+      {
+        "role": "viewer",
+        "case": "Session is not Bearer authority",
+        "status": 401,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "role": "viewer",
+        "case": "Native direct POST and actual XHR payment denied; ledger unchanged",
+        "status": 303,
+        "xhr_status": 403,
+        "kind": "ACTUAL_DENIAL_AND_SQL_PRESERVATION"
+      },
+      {
+        "role": "foreign_clinic",
+        "case": "Session is not Bearer authority",
+        "status": 401,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "role": "foreign_clinic",
+        "case": "Cross-clinic read denied /patient/28",
+        "status": 404,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "role": "foreign_clinic",
+        "case": "Cross-clinic read denied /examination/1151",
+        "status": 404,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "role": "foreign_clinic",
+        "case": "Cross-clinic read denied /contracts/8",
+        "status": 404,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "role": "foreign_clinic",
+        "case": "Cross-clinic read denied /finance/800038",
+        "status": 404,
+        "kind": "ACTUAL_DENIAL"
+      },
+      {
+        "case": "Existing kiosk PIN, own-patient lookup and reset clear patient identity/allowlists while preserving the existing short-lived device PIN lease",
+        "kind": "ACTUAL_BROWSER_PRIVACY",
+        "lang": "ar",
+        "width": 390,
+        "appointment_confirmation": "NOT TESTED: no eligible same-day appointment; feature not activated or schedule changed"
+      }
+    ],
+    "production_changes": false,
+    "feature_activations": 0
+  },
+  "reused_inventory_provider_readback": {
+    "passed": true,
+    "observations": {
+      "provider": [
+        {
+          "id": "7",
+          "provider_share_amount": "10.00",
+          "provider_paid_amount": "3.00",
+          "provider_balance_due": "7.00",
+          "status": "partial"
+        }
+      ],
+      "provider_ledger": [
+        {
+          "id": "7",
+          "amount": "2.00"
+        },
+        {
+          "id": "8",
+          "amount": "1.00"
+        }
+      ],
+      "inventory": [
+        {
+          "id": "4",
+          "quantity": "2"
+        }
+      ],
+      "usage": [
+        {
+          "id": "2",
+          "total_cost": "2.50"
+        }
+      ],
+      "charge": [
+        {
+          "id": "1",
+          "status": "planned",
+          "net_production_amount": "25.00",
+          "finance_id": null
+        }
+      ]
+    },
+    "source_receipts": [
+      "provider-workflow.json: initial2-unit receipt id7",
+      "docs/ui-evidence/product-ux/review-5697042630.json: actual later1-unit provider receipt, paid3/outstanding7",
+      "linked-workflow.json: one of3 units consumed, cost2.50, unbilled planned25ILS charge"
+    ],
+    "scope": "Existing accepted mutations reused; current read-only SQL reconciles later legitimate activity rather than incorrectly expecting the original transient2paid/8due state."
+  },
+  "surface_scope": {
+    "observations": 128,
+    "component_interactions": 34,
+    "current_js_overflow_unnamed_issues": [],
+    "not_workflow_acceptance": true,
+    "harness_errors": "Prior ERR_ABORTED cascade, wrong notification route and initially missing fixture were investigated and retained privately; current included-view mapping uses actual rendered files, not requested route assumptions."
+  },
+  "coverage_202": {
+    "entries": 202,
+    "actual_successful_parent_render_traces": 190,
+    "deployed_blob_identical": 133,
+    "evidence_categories": {
+      "PRESENTER_ONLY": 6,
+      "CURRENT_RENDER_AND_COMPONENT_EVIDENCE": 190,
+      "FEATURE_OFF_DENIAL_ONLY": 4,
+      "UNTESTED_ACTIVE_WORKFLOW": 2
+    },
+    "manual_matrix": "../../UI_SHADCN_SCREEN_MATRIX.csv",
+    "status_rule": "All202 remain pending independent acceptance; evidence now distinguishes current rendering/components, actual persisted journeys, pure presenters, reused source-parity evidence, gated operations and missing active workflow tests."
+  },
+  "preservation": {
+    "original_business_rows_verified": 583,
+    "original_suppliers_verified": 2,
+    "production_access_this_pass": false,
+    "production_records_changed": 0,
+    "production_migrations": 0,
+    "feature_activations": 0,
+    "dependency_changes": 0,
+    "github_actions": 0,
+    "finance_calculations_and_native_svg_changed": false
+  },
+  "native_scope": "Previous b95 full-artifact native HTTP/ordered two-migration evidence retained. This pass verifies the changed migration via private native CLI only; it does not claim a new full native HTTP source installation.",
+  "recovery": "Prior encrypted off-host67table/9664row UTC restore and118protected files retained unchanged. No new production checkpoint captured. Future release must verify freshness against later customer activity.",
+  "remaining": [
+    "Fresh exact-head independent review and resolution of formal CHANGES_REQUESTED.",
+    "Synthetic attachments and contract signature entitlement are OFF in both verified fixtures; current ON upload/download/sign/publication workflow not retested. No activation permitted without explicit fixture authorization.",
+    "Same-day kiosk appointment confirmation not executed; existing PIN/privacy path passed.",
+    "Final whole-candidate native HTTP acceptance after source freeze; local current UI plus changed native migration CLI are different evidence.",
+    "Physical assistive technology, all zoom/landscape/device combinations and universal workflow/accessibility certification untested.",
+    "Future production authorization, exact two-migration writer drain/lock-headroom/cutover and source rollback containment; no release operations authorized here.",
+    "Current valid-Bearer tenant mutation journey not newly exercised; session-not-Bearer denial is not valid-token certification. Existing unchanged API evidence has narrower reused scope."
+  ],
+  "verification_gate": {
+    "source_boundaries": "PASS: zero failures, all authorized protected pins exact",
+    "final_frontend_gate": "FAIL intentionally:202 entries await independent acceptance, not relabeled by render evidence",
+    "syntax": "Changed PHP templates/migration/tests and JavaScript parse checks PASS",
+    "financial_presenter_boundary": 72,
+    "renderer_checks": 24,
+    "booking_browser_checks": 6,
+    "original_rows_preserved": 583,
+    "original_suppliers_preserved": 2,
+    "review_correction_commit": "53c29472"
+  }
+}

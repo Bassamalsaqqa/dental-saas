@@ -1,4 +1,4 @@
-<?php helper(['asset','form']);$deactivationTarget=$user;$this->setData(['user'=>(object)[]]); ?>
+<?php if (!is_object($user ?? null) || !isset($user->id)) { service('response')->setStatusCode(404); echo view('errors/html/error_404'); return; } helper(['asset','form']);$deactivationTarget=$user;$this->setData(['user'=>(object)[]]); ?>
 <?= $this->extend('layouts/studio_control_plane') ?>
 <?= $this->section('styles') ?><link rel="stylesheet" href="<?= base_url('assets/css/studio-platform-maintenance.css') ?>?v=<?= esc(asset_version('assets/css/studio-platform-maintenance.css')) ?>"><?= $this->endSection() ?>
 <?= $this->section('content') ?>
