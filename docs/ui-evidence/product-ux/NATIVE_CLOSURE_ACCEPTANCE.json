@@ -620,5 +620,15 @@
       "contact history",
       "derivatives"
     ]
+  },
+  "final_packaging_discovery": {
+    "status": "Caught by strict raw-Git delta gate before publication",
+    "path": "public/assets/css/studio-patient-workspace.css",
+    "native_transport_crlf_sha256": "edb7c591b56c84f632175eabc0fe1dc13bc0fb59a9db3e01079a8dc0b6ba3750",
+    "committed_lf_sha256": "5e73bd2d0c184008442fec760a94c96fee9a32c363c0102be6147a0accae5366",
+    "cause": "The one-file correction used the Windows working-file bytes; Git normalizedCRLFtoLF. Earlier372manifest verified2044rawGitfiles plus this working-file transport hash, not2045rawGitblobs.",
+    "resolution": "Retain native preimage/previous manifests; final artifact must use exact rawGitCSS. Verify oldbytes with onlyCRLFtoLFnormalization equal the committedblob, every finalGitfile and current browser regression before publication.",
+    "runtime_rules_unchanged": true,
+    "production_changes": 0
   }
 }
