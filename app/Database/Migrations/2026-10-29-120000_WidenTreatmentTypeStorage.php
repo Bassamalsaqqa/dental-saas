@@ -56,7 +56,8 @@ final class WidenTreatmentTypeStorage extends Migration
                 $this->verifyJournalIdentity($prepared, $identity, $name);
                 if (is_file($journal.'.complete')) {
                     $complete = $this->readJournal($journal.'.complete');
-                    if (($complete['prepared_sha256'] ?? '') !== hash_file('sha256', $journal)) throw new \RuntimeException('Completion journal identity differs.');
+                    $this->verifyCompletionMetadata($complete, hash_file('sha256', $journal));
+                    $this->verifyConvertedDefinition($prepared['source_ddl'], $table, true);
                     return; // Completed, recorded conversion; later legitimate rows are not a rerun failure.
                 }
                 $this->verifyRows($prepared['rows'], $this->snapshot($table, false));
@@ -119,11 +120,35 @@ final class WidenTreatmentTypeStorage extends Migration
         if ($original !== $current) throw new \RuntimeException('Per-record treatment preservation mismatch; retain original journal. No automatic repair/narrowing.');
     }
 
-    private function verifyConvertedDefinition(string $sourceDdl, string $table): void
+    private function verifyConvertedDefinition(string $sourceDdl, string $table, bool $completed = false): void
     {
         $afterDdl = $this->db->query('SHOW CREATE TABLE '.$table)->getRowArray()['Create Table'];
         $expectedDdl = str_replace('`treatment_type` '.self::OLD_TYPE, '`treatment_type` varchar(100)', $sourceDdl, $replacements);
+        if ($completed) {
+            // This counter advances on legitimate inserts/rolled-back reservations. It is
+            // data, not schema. Preserve the AUTO_INCREMENT column attribute and every
+            // other table/index/constraint option; normalize only MariaDB's exact option.
+            $normalize = static fn(string $ddl): string => preg_replace(
+                '/(\n\) ENGINE=InnoDB) AUTO_INCREMENT=[1-9][0-9]*(?= DEFAULT CHARSET=)/', '$1', $ddl
+            );
+            $afterDdl = $normalize($afterDdl);
+            $expectedDdl = $normalize($expectedDdl);
+        }
         if ($replacements !== 1 || $afterDdl !== $expectedDdl) throw new \RuntimeException('Unexpected post-DDL table/index/constraint definition; preserve journal and inspect.');
+    }
+
+    private function verifyCompletionMetadata(array $complete, string $preparedHash): void
+    {
+        $keys = array_keys($complete); sort($keys, SORT_STRING);
+        $time = $complete['verified_at'] ?? null;
+        $date = is_string($time) ? \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sP', $time) : false;
+        if ($keys !== ['prepared_sha256', 'target_type', 'verified_at', 'version']
+            || ($complete['version'] ?? null) !== 1 || ($complete['target_type'] ?? null) !== 'varchar(100)'
+            || !is_string($complete['prepared_sha256'] ?? null)
+            || !hash_equals($preparedHash, $complete['prepared_sha256'])
+            || !$date || $date->format('Y-m-d\TH:i:sP') !== $time || !str_ends_with($time, '+00:00')) {
+            throw new \RuntimeException('Completion journal metadata is invalid; preserve original evidence.');
+        }
     }
 
     private function verifyJournalIdentity(array $journal, array $identity, string $table): void

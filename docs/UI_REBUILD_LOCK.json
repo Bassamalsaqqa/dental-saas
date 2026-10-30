@@ -815,8 +815,8 @@
       },
       "app/Database/Migrations/2026-10-29-120000_WidenTreatmentTypeStorage.php": {
         "baseline_git_blob": null,
-        "candidate_git_blob": "64ce8f255c029147eafd87629c0e9994827b5c45",
-        "authorization": "Owner Final Historical Treatment Compatibility Correction and review5705127812: development-only preserved historical empty bytes/provenance, explicit unknown presentation/edit transport. No production DDL or classification policy."
+        "candidate_git_blob": "d3c8c33f60f41bf4885fdcd25f1705f5059e727b",
+        "authorization": "Owner completed-journal retry correction, independent review5705740851: exact completion metadata/converted schema validation; preserve later records and immutable provenance. Development/native synthetic only."
       },
       "app/Database/Migrations/2026-10-29-180000_CreateFinanceSettlementRequests.php": {
         "baseline_git_blob": null,
@@ -874,9 +874,10 @@
     "release_gate": "Whole-app workflow/native/recovery acceptance remains separate. Theme migration excluded; theme switch stays OFF.",
     "financial_review_disposition": "COMMENTED; bounded financial replay/stale-state source correction ACCEPTED; whole PR CHANGES REQUIRED; production NO-GO",
     "production_metadata_receipt": "Final readiness read-only SSH preflight: exact29dce746/tree188433ad; PHP8.3.36/MariaDB11.8.9;67tables/77migration rows/0triggers",
-    "candidate_parent_commit": "c24038a65dedddb04620f7ec0a5718592667cb47",
+    "candidate_parent_commit": "b95d68027a186e8362a1165528d8514e02d8ad2a",
     "candidate_identity_rule": "Publication HEAD/tree is reported externally; exact authorized file blobs below avoid a self-referential commit pin.",
     "historical_correction_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705127812",
-    "historical_correction_status": "LOCALLY_AND_NATIVE_SYNTHETIC_VERIFIED_PENDING_EXACT_HEAD_REVIEW"
+    "historical_correction_status": "COMPLETED_RETRY_CORRECTED_NATIVE_27_CHECKS_PENDING_EXACT_HEAD_REVIEW",
+    "completed_retry_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705740851"
   }
 }
