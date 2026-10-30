@@ -630,5 +630,27 @@
     "resolution": "Retain native preimage/previous manifests; final artifact must use exact rawGitCSS. Verify oldbytes with onlyCRLFtoLFnormalization equal the committedblob, every finalGitfile and current browser regression before publication.",
     "runtime_rules_unchanged": true,
     "production_changes": 0
+  },
+  "owner_release_risk_decision": {
+    "status": "EXPLICITLY_ACCEPTED_BY_OWNER",
+    "scope": [
+      "Existing English-only signed/legal print format",
+      "Incomplete400%/native-browserzoom and physicalAT/virtualkeyboardcertification",
+      "No fullthirdpartyAPImutationrecertification"
+    ],
+    "preserved_requirements": "Clinical/financialsafeguards and formalindependentreview remainrequired; no blanketwaiver or permissiontobypassreview.",
+    "source": "Owner answered Accept these disclosed release limitations in current conversation; instructed proper production update."
+  },
+  "final_candidate_catalog43": {
+    "passed": true,
+    "candidate": "aa17736a2ed8b435d7423d8860c3babd5791a38a",
+    "offered_keys_roundtripped": 43,
+    "unique_keys": 43,
+    "column": "varchar(100)",
+    "both_reviewed_migration_versions_recorded": true,
+    "all_original_treatment_rows_unchanged": true,
+    "original_unknown38_unchanged": true,
+    "test_inserts_rolled_back": true,
+    "scope": "Actual current native post-migration SQLstorage roundtrip; prior43routedPOSTreceipt remains separate. No productionoperation."
   }
 }

@@ -31,6 +31,8 @@ Review [5708774230](https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullreq
 
 ## Decision and residual risks
 
+The Owner has now explicitly accepted the named English legal-print, zoom/physical-AT/virtual-keyboard and third-party API certification limitations. They remain qualified, not falsely passed. This decision does not waive formal review or clinical/financial safeguards. [Concise material-workflow sign-off table](RELEASE_SIGNOFF.md) supplies the requested risk-ranked acceptance unit; the202inventory entries are not202independent screens. A final-candidate native SQLcheck now roundtrips all43offeredkeys after both migrations, preserving all original rows and38unknown values; prior43routedPOSTevidence remains separately scoped.
+
 **PRODUCTION NO-GO** until the final independent exact-head decision resolves formal CHANGES_REQUESTED and evaluates the scoped workflow/UX evidence and disclosed exceptions. No high-severity clinical/financial failure was found in the executed native checks; that is not universal certification.
 
 The400%scale limitation, physicalAT/virtualkeyboard gaps, existing English legal-print format, full API mutation surface and patient-workspace backend latency remain explicit limitations. No financial/clinical policy, fiscal-document claim, permission or optional activation is invented to close them. Native synthetic DDL durations2.82s/0.09s are measurements, not a production downtime guarantee.
