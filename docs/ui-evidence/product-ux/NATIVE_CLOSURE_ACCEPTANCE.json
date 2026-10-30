@@ -1,0 +1,624 @@
+{
+  "decision": "PRODUCTION_NO_GO_PENDING_INDEPENDENT_EXACT_HEAD_ACCEPTANCE",
+  "runtime_commit": "372cc6d1cbd0f4b9096b2aa17f370631a09621a5",
+  "runtime_tree": "724f9c9bf5a6e653b9fabd60e1ead7e9012a44f3",
+  "previous_runtime_commit": "95a3e610bcf0f7472c19797bd93361b97e96dcf6",
+  "independent_review": {
+    "id": 5708774230,
+    "state": "COMMENTED",
+    "bounded_retry_fix": "ACCEPTED",
+    "whole_pr": "CHANGES_REQUIRED; no formal approval invented"
+  },
+  "owner_scope": "New dedicated disposable native database/clinic only: enable contract signing and attachments; no production writes or feature changes. Existing fixtures preserved.",
+  "artifact": {
+    "sha": "372cc6d1cbd0f4b9096b2aa17f370631a09621a5",
+    "tree": "724f9c9bf5a6e653b9fabd60e1ead7e9012a44f3",
+    "verified_files": 2045,
+    "changed_runtime_files": [
+      "public/assets/css/studio-patient-workspace.css"
+    ],
+    "production_changes": false,
+    "migrations": 0
+  },
+  "native_setup": {
+    "passed": true,
+    "php": "8.3.36",
+    "mariadb": "11.8.9-MariaDB-log",
+    "original_schema_tables": 67,
+    "after_schema_tables": 67,
+    "migration_history_before": 77,
+    "migration_history_after": 79,
+    "only_two_pinned_migrations": true,
+    "migration_seconds": {
+      "2026-10-29-120000_WidenTreatmentTypeStorage.php": 2.8156821727752686,
+      "2026-10-29-180000_CreateFinanceSettlementRequests.php": 0.0920259952545166
+    },
+    "seed_counts": {
+      "clinics": 2,
+      "users": 6,
+      "groups": 2,
+      "users_groups": 6,
+      "permissions": 53,
+      "roles": 6,
+      "role_permissions": 166,
+      "user_roles": 1,
+      "clinic_users": 6,
+      "plans": 1,
+      "clinic_subscriptions": 2,
+      "settings": 5,
+      "patients": 23,
+      "suppliers": 2,
+      "inventory": 4,
+      "examinations": 151,
+      "appointments": 144
+    },
+    "all_44_historical_rows_preserved": true,
+    "all_original_table_rows_preserved": true,
+    "authentic_fk_checks_enabled": true,
+    "source": "95a3e610bcf0f7472c19797bd93361b97e96dcf6",
+    "tree": "6160c9d9692c4e5a0e10f2130483f8b901cea253",
+    "verified_source_files": 2045,
+    "notifications": "No dispatch workers; notification plan gates OFF; email SMTP loopback9; no external provider credentials",
+    "production_changes": false,
+    "cached_table_count_note": "Setup connection cached listTables reported67 after CREATE; actual information_schema and independent restore verify68.77->79history exact; no schema-change failure hidden."
+  },
+  "actual_signing_upload_http": {
+    "checks": [
+      {
+        "case": "Exact-source native real manager login",
+        "status": 200
+      },
+      {
+        "case": "Actual canvas contract consent signs; durable signed row and document link persisted",
+        "kind": "ACTUAL_HTTP_SQL_FILES"
+      },
+      {
+        "case": "Protected signed HTML actual download matches checksum and safe attachment MIME",
+        "status": 200
+      },
+      {
+        "case": "Exact consent retry returns safely without duplicate signature or changed evidence",
+        "kind": "ACTUAL_HTTP_SQL_PRESERVATION"
+      },
+      {
+        "case": "Conflicting signed retry refuses without evidence mutation",
+        "kind": "ACTUAL_HTTP_SQL_PRESERVATION"
+      },
+      {
+        "case": "Actual contextual attachment upload/link persisted to correct synthetic patient and clinic",
+        "kind": "ACTUAL_HTTP_SQL_FILE"
+      },
+      {
+        "case": "Actual attachment download is byte-exact",
+        "status": 200
+      },
+      {
+        "case": "False image MIME rejected before attachment persistence",
+        "status": 400
+      },
+      {
+        "case": "Actual populated enabled workflow EN/AR desktop/mobile render",
+        "path": "/contracts/8",
+        "lang": "en",
+        "width": 1366
+      },
+      {
+        "case": "Actual populated enabled workflow EN/AR desktop/mobile render",
+        "path": "/patient/28?tab=attachments",
+        "lang": "en",
+        "width": 1366
+      },
+      {
+        "case": "Actual populated enabled workflow EN/AR desktop/mobile render",
+        "path": "/contracts/8",
+        "lang": "ar",
+        "width": 390
+      },
+      {
+        "case": "Actual populated enabled workflow EN/AR desktop/mobile render",
+        "path": "/patient/28?tab=attachments",
+        "lang": "ar",
+        "width": 390
+      }
+    ],
+    "complete_primary": true
+  },
+  "signing_sql_fault_concurrency": {
+    "status": "PASS",
+    "checks": [
+      "Existing SVG snapshot encode/decode API round trip",
+      "Two real PHP signers simultaneously render; independent connection locks clinic within 1s timeout",
+      "Concurrent identical consent has one signature, attachment and audit winner",
+      "Both real publications remain durable: one committed and one unreferenced concurrent loser",
+      "Identical retry returns same IDs without history changes",
+      "Conflicting retry preserves complete consent",
+      "Actual EN/AR print evidence has HTML MIME, exact file identity, SHA-256, size and frozen SVG",
+      "Actual EN/AR print evidence has HTML MIME, exact file identity, SHA-256, size and frozen SVG",
+      "Tampered immutable terms_conditions retry fails closed without autorepair",
+      "Tampered immutable description retry fails closed without autorepair",
+      "Tampered immutable data_snapshot_json retry fails closed without autorepair",
+      "Owned tamper probes retain signed evidence",
+      "Render failure leaves draft and all SQL history unchanged",
+      "Real-service publication fault leaves draft and no evidence rows",
+      "Injected link failure rolls back actual SQL and retains durable published recovery evidence",
+      "Injected audit failure rolls back actual SQL and retains durable published recovery evidence",
+      "Postcommit journal failure retains complete committed SQL consent",
+      "Explicit journal reconciliation commits owned entry without altering SQL evidence",
+      "Actual two-process sign/edit rejects stale capture without consent rows",
+      "Actual two-process sign/delete rejects stale capture without consent rows",
+      "Tenant and patient mismatch reject before rendering or evidence writes",
+      "All original tables retained; no schema tables created",
+      "Every preexisting uploads/journal file preserved byte for byte",
+      "Every preexisting row and all column/index schemas preserved; finance and all unrelated table counts unchanged",
+      "Final MariaDB connection healthy with no open transaction"
+    ],
+    "count": 25,
+    "assertions_reused": "Original25 domain assertions unmodified; private ownership preamble retargeted to the new source/database. Real PHP workers, MariaDB, hard links/fsync and rendering; not test doubles.",
+    "original_rows_files_preserved": true
+  },
+  "clinical_finance_security": {
+    "checks": [
+      {
+        "case": "Current native examination actual draft create/SQL ownership"
+      },
+      {
+        "case": "Current native examination edit persists and returns to clinical context"
+      },
+      {
+        "case": "Current native explicit invoice25 persists without auto contract billing"
+      },
+      {
+        "case": "Native payment POST committed once: independent SQL confirms receipt108 amount5 and invoice339 paid5/due20; browser load-event wait inconclusive, no retry sent",
+        "kind": "ACTUAL_HTTP_SQL_RECONCILIATION"
+      },
+      {
+        "case": "Actual newly issued valid Bearer authorizes own clinic patient JSON",
+        "status": 200
+      },
+      {
+        "case": "Valid Bearer cannot read patient through foreign clinic context",
+        "status": 403
+      },
+      {
+        "case": "Native session alone remains unauthorized on Bearer-only route",
+        "status": 401
+      },
+      {
+        "case": "Signed contract update denied with exact row/evidence preserved",
+        "status": 303
+      },
+      {
+        "case": "Signed contract delete denied with exact row/evidence preserved",
+        "status": 303
+      },
+      {
+        "case": "Forged missing-CSRF attachment POST denied",
+        "status": 303
+      },
+      {
+        "case": "Foreign clinic protected file download denied",
+        "status": 404
+      },
+      {
+        "case": "Foreign clinic protected file download denied",
+        "status": 404
+      },
+      {
+        "case": "Restricted viewer has no upload form and direct consent-sign POST denied",
+        "status": 303
+      }
+    ],
+    "exam": 1151,
+    "examEdited": true,
+    "invoice": 339,
+    "payment": 108,
+    "complete": true
+  },
+  "kiosk": {
+    "checks": [
+      {
+        "case": "Actual AR390 kiosk PIN/phone/allowlist confirms legitimate same-day scheduled appointment through real POST",
+        "kind": "ACTUAL_HTTP_SQL_PERSISTENCE",
+        "appointment": 1146
+      },
+      {
+        "case": "Reset clears identities/allowlists; forged repeat confirmation is rejected without changing appointment",
+        "kind": "ACTUAL_HTTP_SQL_PRESERVATION"
+      }
+    ],
+    "confirmed": true,
+    "complete": true
+  },
+  "platform": {
+    "checks": [
+      {
+        "case": "Native genuine global platform entry retains tenant airlock",
+        "status": 404
+      },
+      {
+        "case": "Native platform review/cancel/focus/impersonation/exit/stale-tab denial",
+        "lang": "en",
+        "width": 1366,
+        "status": 403
+      },
+      {
+        "case": "Native platform review/cancel/focus/impersonation/exit/stale-tab denial",
+        "lang": "ar",
+        "width": 390,
+        "status": 403
+      }
+    ],
+    "complete": true
+  },
+  "upload_failure": {
+    "checks": [
+      {
+        "case": "Actual upload above configured size limit rejected before metadata persistence",
+        "status": 400,
+        "max_mb": 5
+      },
+      {
+        "case": "Actual unwritable-storage failure returns recoverable error without new attachment row",
+        "status": 400
+      }
+    ],
+    "originalModeRestored": true,
+    "complete": true
+  },
+  "rollback_fix_forward": {
+    "checks": [
+      {
+        "case": "Exact previous source reads retained widened schema/clinical-finance state",
+        "path": "/patient/28",
+        "status": 200
+      },
+      {
+        "case": "Exact previous source reads retained widened schema/clinical-finance state",
+        "path": "/contracts/8",
+        "status": 200
+      },
+      {
+        "case": "Exact previous source reads retained widened schema/clinical-finance state",
+        "path": "/finance/339",
+        "status": 200
+      },
+      {
+        "case": "Old financial writers fail closed before application execution",
+        "status": 503
+      },
+      {
+        "case": "Prior source downloads exact current signed document through retained durable root",
+        "status": 200
+      },
+      {
+        "case": "Pinned fix-forward restores exact candidate while every database row and protected artifact remains unchanged",
+        "status": 200
+      }
+    ],
+    "before": {
+      "mode": "before",
+      "all_tables_exact": 68,
+      "protected_files_exact": 51,
+      "production_changes": false
+    },
+    "afterRollback": {
+      "mode": "after",
+      "all_tables_exact": 68,
+      "protected_files_exact": 51,
+      "production_changes": false
+    },
+    "afterForward": {
+      "mode": "after",
+      "all_tables_exact": 68,
+      "protected_files_exact": 51,
+      "production_changes": false
+    },
+    "complete": true
+  },
+  "recovery_capture": {
+    "passed": true,
+    "source": "95a3e610bcf0f7472c19797bd93361b97e96dcf6",
+    "tree": "6160c9d9692c4e5a0e10f2130483f8b901cea253",
+    "verified_source_files": 2045,
+    "tables": 68,
+    "rows": 762,
+    "files": 91,
+    "database_sha256": "643fc0af300b2972e49a036e4183c2060502ff04cdcc8d461412ee8c93963c6e",
+    "protected_archive_sha256": "397a5cf1ae3027820d39d6e4c2cddad3a5e12a638f2f1e60fcfa25358b700c53",
+    "schema_migrations": 79,
+    "stable_quiescent_capture": true,
+    "production_changes": false,
+    "limitation": "Database/files capture is sequential; this isolated fixture was quiescent. General production backup remains non-atomic."
+  },
+  "offhost_restore": {
+    "passed": true,
+    "tables": 68,
+    "rows": 762,
+    "all_table_fingerprints_exact": true,
+    "protected_files_exact": 91,
+    "hardlinks_preserved": 2,
+    "migration_history": 79,
+    "signed_contract_status": "signed",
+    "source_database": "native synthetic snapshot",
+    "restore_database": "new disposable3307database",
+    "utc_session": true,
+    "original_dump_unchanged": true,
+    "notifications_sent": 0,
+    "production_changes": false,
+    "limitation": "File bytes and SQL consent/ledger/history verified; app not booted against restored database. Absolute private journal anchors remain unchanged; operational restore must preserve original journal root."
+  },
+  "restore_compatibility": {
+    "original_dump_and_failed_target_preserved": true,
+    "client_directive": "Only known MariaDB client-side first sandbox marker removed from separate restore input for old XAMPP client; SQL statements/data unchanged.",
+    "hard_links": "Two archive-internal journal hardlinks verified by safe paths, existing regular target member, equal manifest hash and samefile after extraction; symlinks refused.",
+    "recovery_anchor": "Restore complete writable and immutable journals at their original operational root. Local isolated restoration verifies bytes/SQL, does not boot relocated journals."
+  },
+  "final_preservation": {
+    "passed": true,
+    "source": "372cc6d1cbd0f4b9096b2aa17f370631a09621a5",
+    "tree": "724f9c9bf5a6e653b9fabd60e1ead7e9012a44f3",
+    "source_file_hashes_verified": 2045,
+    "original_seed_rows_preserved": 579,
+    "allowed_session_user_fields": [
+      "last_login"
+    ],
+    "plan_change": "Owner-authorized new isolated database only: signatures/attachmentsON, external deliveryOFF; original seed plan is preserved in previous fixtures",
+    "protected_config_files": 3,
+    "original_copied_files_unchanged": 37,
+    "runtime_logs_appended_during_tests": [
+      "logs/log-2026-10-30.log"
+    ],
+    "immutable_upload_journal_files_all_preserved": true,
+    "actual_schema_tables": 68,
+    "original_migration_history": 77,
+    "migration_history_now": 79,
+    "only_two_new_versions": [
+      "2026-10-29-120000",
+      "2026-10-29-180000"
+    ],
+    "notification_table_counts": {
+      "notification_attempts": 0
+    },
+    "external_notification_entitlements": {
+      "email": false,
+      "whatsapp": false
+    },
+    "original_44_treatments": 44,
+    "finance_receipts_for_339": 1,
+    "production_operations": 0,
+    "github_actions": 0
+  },
+  "referential": {
+    "passed": true,
+    "actual_fk_constraints_checked": 26,
+    "orphan_rows": 0,
+    "foreign_key_checks": 1,
+    "notification_table_counts": {
+      "clinic_notification_channels": 0,
+      "notifications": 0,
+      "notification_attempts": 0,
+      "patient_whatsapp": 0,
+      "whatsapp_delivery_events": 0,
+      "whatsapp_optouts": 0,
+      "whatsapp_tenant_policies": 0
+    },
+    "source_switches_production": 0
+  },
+  "responsive_fix": {
+    "failure_before": "AR390 More actions x=-300; implicit grid column690px inside354px workspace, clipped by outer shell. HTML scrollWidth alone falsely appeared clean.",
+    "correction": "Only three single-column patient layout grids gain grid-template-columns:minmax(0,1fr). No changed fields/selectors/routes/permissions/financial or clinical behavior.",
+    "actual_regression": {
+      "passed": 6,
+      "source": "372cc6d1cbd0f4b9096b2aa17f370631a09621a5",
+      "checks": [
+        {
+          "lang": "en",
+          "width": 1366,
+          "status": 200,
+          "button_inside_viewport": true,
+          "command_grid_inside_viewport": true,
+          "real_menu_drawer_keyboard_escape_focus": true,
+          "submission": false
+        },
+        {
+          "lang": "ar",
+          "width": 1366,
+          "status": 200,
+          "button_inside_viewport": true,
+          "command_grid_inside_viewport": true,
+          "real_menu_drawer_keyboard_escape_focus": true,
+          "submission": false
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "status": 200,
+          "button_inside_viewport": true,
+          "command_grid_inside_viewport": true,
+          "real_menu_drawer_keyboard_escape_focus": true,
+          "submission": false
+        },
+        {
+          "lang": "ar",
+          "width": 390,
+          "status": 200,
+          "button_inside_viewport": true,
+          "command_grid_inside_viewport": true,
+          "real_menu_drawer_keyboard_escape_focus": true,
+          "submission": false
+        },
+        {
+          "lang": "ar",
+          "width": 320,
+          "status": 200,
+          "button_inside_viewport": true,
+          "command_grid_inside_viewport": true,
+          "real_menu_drawer_keyboard_escape_focus": true,
+          "submission": false
+        },
+        {
+          "lang": "ar",
+          "width": 768,
+          "status": 200,
+          "button_inside_viewport": true,
+          "command_grid_inside_viewport": true,
+          "real_menu_drawer_keyboard_escape_focus": true,
+          "submission": false
+        }
+      ],
+      "scope": "Actual responsive action/menu/drawer reachability; no claim of full table/clinical/accessibility certification; no writes"
+    }
+  },
+  "accessibility_partial": {
+    "checks": [
+      {
+        "case": "Keyboard open/trap, Escape dirty confirmation, Keep Editing, Discard and focus return; no second payment",
+        "lang": "en",
+        "width": 1366,
+        "height": 992,
+        "css_zoom": 1,
+        "native_browser_zoom": "NOT TESTED",
+        "native_dialog_browser_chrome_boundary": "BODY at native chrome boundary permitted only when next Tab returns inside; background controls never focused",
+        "reduced_motion": true
+      },
+      {
+        "case": "Keyboard open/trap, Escape dirty confirmation, Keep Editing, Discard and focus return; no second payment",
+        "lang": "ar",
+        "width": 390,
+        "height": 844,
+        "css_zoom": 1,
+        "native_browser_zoom": "NOT TESTED",
+        "native_dialog_browser_chrome_boundary": "BODY at native chrome boundary permitted only when next Tab returns inside; background controls never focused",
+        "reduced_motion": true
+      },
+      {
+        "case": "Keyboard open/trap, Escape dirty confirmation, Keep Editing, Discard and focus return; no second payment",
+        "lang": "en",
+        "width": 320,
+        "height": 740,
+        "css_zoom": 1,
+        "native_browser_zoom": "NOT TESTED",
+        "native_dialog_browser_chrome_boundary": "BODY at native chrome boundary permitted only when next Tab returns inside; background controls never focused",
+        "reduced_motion": true
+      },
+      {
+        "case": "Keyboard open/trap, Escape dirty confirmation, Keep Editing, Discard and focus return; no second payment",
+        "lang": "ar",
+        "width": 768,
+        "height": 1024,
+        "css_zoom": 1,
+        "native_browser_zoom": "NOT TESTED",
+        "native_dialog_browser_chrome_boundary": "BODY at native chrome boundary permitted only when next Tab returns inside; background controls never focused",
+        "reduced_motion": true
+      },
+      {
+        "case": "Keyboard open/trap, Escape dirty confirmation, Keep Editing, Discard and focus return; no second payment",
+        "lang": "en",
+        "width": 1366,
+        "height": 992,
+        "css_zoom": 2,
+        "native_browser_zoom": "NOT TESTED",
+        "native_dialog_browser_chrome_boundary": "BODY at native chrome boundary permitted only when next Tab returns inside; background controls never focused",
+        "reduced_motion": true
+      },
+      {
+        "case": "400% CSS-zoom finance interaction incomplete: click target not reachable in automated attempt; native browser zoom/physical keyboard must be assessed separately",
+        "lang": "ar",
+        "width": 1366,
+        "css_zoom": 4,
+        "result": "QUALIFIED_NOT_PASSED"
+      },
+      {
+        "case": "Enabled attachment drawer keyboard trap/Escape/focus return",
+        "lang": "en",
+        "width": 1366
+      }
+    ],
+    "scope": "Partial multi-viewport keyboard/reduced-motion/CSS-scale observations. Early attempts/diagnostics preserved privately. Later patient-action reachability regression supersedes clipped-menu failure.400% CSS scale not passed; no native browser zoom/physical AT certification."
+  },
+  "assets_print": {
+    "checks": [
+      {
+        "case": "Frozen native contract page all same-origin CSS/JS return200",
+        "count": 15
+      },
+      {
+        "case": "Actual signed contract print route and captured A4 PDF",
+        "lang": "en",
+        "status": 200,
+        "legal_content_modified": false
+      },
+      {
+        "case": "Actual signed contract print route and captured A4 PDF",
+        "lang": "ar",
+        "status": 200,
+        "legal_content_modified": false
+      },
+      {
+        "case": "Protected storage/config cannot be fetched through direct URL",
+        "path_family": "uploads",
+        "status": 404
+      },
+      {
+        "case": "Protected storage/config cannot be fetched through direct URL",
+        "path_family": "uploads",
+        "status": 404
+      },
+      {
+        "case": "Protected storage/config cannot be fetched through direct URL",
+        "path_family": "uploads",
+        "status": 404
+      },
+      {
+        "case": "Protected storage/config cannot be fetched through direct URL",
+        "path_family": "private-config",
+        "status": 403
+      }
+    ],
+    "complete": true
+  },
+  "print_qualification": "Signed/legal print template remains the existing English evidence format even when lang=ar; two PDFs identical49144bytes. No claim of newly localized legal documents or changed signed evidence. Actual print captures inspected; no formal PDF accessibility certification.",
+  "reference_guidance": "https://ui.shadcn.com/docs/components/aria/dialog; used for bounded scroll/focus/RTL acceptance, no framework/dependency introduced.",
+  "source_rule": "All clinical/finance/authorization runtime files identical to95a3e610; only CSS correction followed native mutation/recovery tests, with2045file exact372cc6d1 hash verification and current six-case browser retest. Final evidence/test publication may add non-runtime files; final exact Git SHA/tree supplied by publication handback.",
+  "coverage_rule": "All202 entries remain pending independent acceptance. Updated per-entry risk/evidence matrix distinguishes source parity, current rendered interactions, actual persisted journeys, synthetic ON evidence, gate-OFF exclusions and untested operations. No mass COMPLETE relabeling.",
+  "remaining": [
+    "Fresh independent final exact-head decision and legitimate resolution of formal CHANGES_REQUESTED.",
+    "400% CSS-scale automation incomplete; native-browser200/400%zoom, physical AT/mobile virtual keyboard not certified.",
+    "Existing English legal print retained; no Arabic legal print redesign authorized.",
+    "No in-place attachment replacement/versioning workflow is claimed; upload creates a distinct attachment. No destructive deletion of original clinical evidence tested.",
+    "Valid-Bearer own/foreign read paths tested; full third-party API mutation surface not recertified. Native session clinical/financial POSTs tested.",
+    "Tiny synthetic treatment DDL2.82s is not a production downtime/capacity guarantee; production lock/writer/disk/recovery freshness gates remain cutover-specific.",
+    "Release-time fresh encrypted production recovery checkpoint and separate exact two-migration deployment authorization required. No new production checkpoint or contact this pass."
+  ],
+  "production": {
+    "last_verified_sha": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
+    "last_verified_tree": "188433ad669477aa0c6812acd09fcc3ecd2c67eb",
+    "not_contacted_this_pass": true,
+    "merge": 0,
+    "migrations": 0,
+    "data_writes": 0,
+    "deployments": 0,
+    "feature_changes": 0,
+    "github_actions": 0,
+    "external_notifications": 0
+  },
+  "features": {
+    "new_synthetic_only_on": [
+      "contracts.signature.enabled",
+      "attachments.enabled"
+    ],
+    "external_notification_entitlements_off": [
+      "notifications.email.enabled",
+      "notifications.whatsapp.enabled"
+    ],
+    "unchanged_off": [
+      "tenant themes",
+      "dynamic scheduling",
+      "WhatsApp",
+      "invoice corrections",
+      "checkout",
+      "contact history",
+      "derivatives"
+    ]
+  }
+}

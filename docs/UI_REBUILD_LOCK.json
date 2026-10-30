@@ -730,7 +730,7 @@
     "candidate_tree": null,
     "last_recorded_release_commit": "29dce746c0fc3be436b85a2c1a67fbbb41be3b55",
     "last_recorded_release_tree": "188433ad669477aa0c6812acd09fcc3ecd2c67eb",
-    "production_reverified_this_session": true,
+    "production_reverified_this_session": false,
     "protected_release_objects": {
       "app/Controllers": "557b81fb25de5a687e632b4f5e9b76a2b54e30f1",
       "app/Models": "fe671e07fdd00ba152c0ed97e933f89a3c3cbacf",
@@ -878,6 +878,9 @@
     "candidate_identity_rule": "Publication HEAD/tree is reported externally; exact authorized file blobs below avoid a self-referential commit pin.",
     "historical_correction_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705127812",
     "historical_correction_status": "COMPLETED_RETRY_CORRECTED_NATIVE_27_CHECKS_PENDING_EXACT_HEAD_REVIEW",
-    "completed_retry_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705740851"
+    "completed_retry_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5705740851",
+    "current_native_acceptance": "docs/ui-evidence/product-ux/NATIVE_CLOSURE_ACCEPTANCE.json",
+    "latest_independent_review": "https://github.com/Bassamalsaqqa/dental-saas/pull/22#pullrequestreview-5708774230",
+    "latest_independent_disposition": "COMMENTED: completed retry fix accepted; whole PR changes required. New enabled/native evidence awaits final exact-head review."
   }
 }
