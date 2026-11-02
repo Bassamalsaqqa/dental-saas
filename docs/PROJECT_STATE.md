@@ -16,9 +16,9 @@ Last reconciled: 2026-11-02. Historical deployment and development entries remai
 
 - The main checkout at `C:\xampp\htdocs\dental-saas` has been reconciled to the deployed release. September unfinished changes are preserved in a named stash and verified private source archives; they are not accepted release changes.
 - Superseded PRs #4, #5, #6, #7, #8 and #12 were closed after proving their heads are release ancestors. Obsolete remote branches were removed; three unique historical tips are retained under `archive/cleanup-20261102/*` tags.
-- Owner design kits/prompts remain local. Cleanup archives, historical screenshots and Git bundles belong outside the source tree under Owner-restricted private storage.
+- All 13 obsolete registered worktrees and 14 stale local branches were retired after verified preservation. One authoritative checkout remains. Owner design kits/prompts, runtime dependencies, durable files and the isolated MariaDB data directory remain preserved. Cleanup archives, historical screenshots and Git bundles are outside the source tree under Owner-restricted private storage.
 - The unused Hostinger `.denta-rehearsal` was retired on 2026-11-01 after encrypted off-host preservation. Additional obsolete synthetic staging clones were retired on 2026-11-02. Production checkpoints and current release tools remain available. Do not treat retired test domains as running rehearsals.
-- This housekeeping change only reconciles documentation and exact-line guardrail bookkeeping. It does not change runtime code, calculations, authorization, schema, dependencies, source deployment or feature activation.
+- PR #23 contains only release documentation, exact-line guardrail bookkeeping and removal of an obsolete generated debug diff. It is not merged or deployed; the active local housekeeping branch has the same runtime application code as production.
 
 ## Remaining real limitations
 
@@ -26,7 +26,8 @@ Last reconciled: 2026-11-02. Historical deployment and development entries remai
 - Unassessed / No / Yes medical-history provenance remains a separate clinical policy decision. Historical zero values must not be treated as assessed negative.
 - Existing signed/legal print format is English-only. Full 400%/native zoom, physical assistive-technology / virtual-keyboard testing and full third-party API mutation recertification remain incomplete and were explicitly disclosed for release.
 - On 2026-11-02, locked Composer audit reported zero advisories; production-only npm audit reported zero. Full npm audit reported three moderate build-tool dependency findings (`glob`, `minimatch`, transitive `sucrase`). They are not resolved by deleting branches, and dependencies must not be blindly upgraded or pinned CSS regenerated during housekeeping.
-- GitHub still reported ten older dependency alerts at inspection. Retain them until GitHub re-evaluates the new default branch or package/range verification justifies a disposition; do not dismiss alerts to manufacture a clean status.
+- GitHub initially reported ten alerts against historical main. After re-evaluating the current default release branch, it reports one moderate `minimatch` build-tool alert (#32). No alerts were manually dismissed. The three npm findings include transitive package effects and must not be confused with three separate runtime vulnerabilities.
+- One obsolete HTTPS negative-control folder in Windows Temp remains inaccessible under its existing ACL. It was retained because its contents/ownership could not be verified; no permissions were weakened to delete it.
 - Local business MySQL on port 3306 was stopped during cleanup. No business database was started, migrated, restored or deleted. Source/dependency/static checks are distinct from a database-backed local workflow test.
 
 ## Future changes
