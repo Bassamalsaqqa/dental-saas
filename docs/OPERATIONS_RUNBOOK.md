@@ -22,7 +22,7 @@ The dump must stay untracked. Regenerate after schema/bootstrap-data changes.
 ```powershell
 php spark routes
 vendor\bin\phpunit --no-coverage --no-logging --do-not-cache-result
-npm.cmd run build
+# Do not rebuild the pinned Tailwind release artifact during setup; see README.md.
 bash scripts/ci/saas_guardrails.sh
 ```
 
@@ -42,6 +42,10 @@ php spark notifications:dispatch --channel whatsapp
 ```
 
 Queue product workflows before dispatch.
+
+## Continuing on another machine
+
+Follow the current [README setup](../README.md#local-setup-and-continuing-on-another-machine). Clone the default release branch, install exact locked dependencies and configure a new private local environment. Databases, uploads, encryption keys, recovery archives and owner-only reference assets are transferred separately when needed. Do not infer that Git clone provisions a compatible database or licenses automatic migrations.
 
 ## Local Runtime
 

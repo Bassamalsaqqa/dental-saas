@@ -25,43 +25,43 @@ Multi-tenant dental clinic management built with CodeIgniter 4, PHP views, Tailw
 
 Binding contracts are indexed in [docs/START_HERE.md](docs/START_HERE.md).
 
-## Local Setup
+## Local setup and continuing on another machine
 
-Requirements: PHP 8.2+ (`intl`, `mbstring`, `json`, `mysqli`, `xml`, `curl`, `gd`), Composer, Node/npm, MySQL/MariaDB, and Apache/XAMPP on Windows.
+The authoritative branch is `release/production-20261017`, also the GitHub default. Historical `main` is not the current application. Repository housekeeping commits may advance documentation without changing the application installed in production; see [current state](docs/PROJECT_STATE.md).
 
-For a new, empty, isolated development database only. Configure `.env` to that dedicated database before running setup; never migrate the existing `democa_dental_saas` business database or production as a setup step.
+Requirements: PHP 8.2+ with the extensions required by `composer.lock` (including `intl`, `mysqli`, XML and the documented polyfills), Composer, Node/npm, MySQL/MariaDB and a web server. Production was verified on PHP 8.3.36 / MariaDB 11.8.9. Docker is optional; this release has no authoritative Docker/Compose stack.
 
 ```powershell
-composer install
-npm.cmd install
-Copy-Item env .env
-php spark key:generate
-php spark migrate
-npm.cmd run build
+git clone --branch release/production-20261017 https://github.com/Bassamalsaqqa/dental-saas.git
+Set-Location dental-saas
+composer install --no-interaction --no-scripts --no-plugins
+npm.cmd ci --ignore-scripts --no-fund
+Copy-Item .env.example .env
 ```
 
-Local defaults:
+Copy `.env.example` only in a new checkout where `.env` does not already exist. Configure that file privately for a new, isolated local database, development URLs and a fresh development-only encryption key. The example defaults are not ready-to-run development settings. Keep email/WhatsApp dispatch and optional features OFF. Never connect development to production or reuse production integration credentials.
 
-- Repository: `C:\xampp\htdocs\dental-saas`
-- Database: `democa_dental_saas`
-- Host: `127.0.0.1:3306`
-- User: `root`, blank password
-- Session cookie: `ci_session_saas`
+GitHub contains source and locked dependencies, not a ready-made business database, customer uploads, encryption secrets, sessions or recovery keys. Transfer any needed synthetic fixture/approved schema separately and securely. Do not restore a customer backup merely to obtain development fixtures. Do not run blanket migrations or seeders against an existing database; migration inventory and bootstrap compatibility require explicit review for the chosen disposable target. The canonical local dump filename is not proof that its schema matches the current release.
 
-Use `.env` as the authoritative connection configuration. Tailwind builds `src/input.css` to `public/assets/css/tailwind.css`; reviewed React assets build under `/app` to `public/app`.
+Existing local business data remains at `democa_dental_saas`, `127.0.0.1:3306`; `.env` is authoritative. Its MySQL service was stopped during cleanup, so database-backed local workflow readiness has not been certified. Do not overwrite it to make a new setup pass. After a compatible isolated database is prepared, use a web document root at `public/` or a local-only development server; never expose a disposable fixture server publicly.
 
-Prefer an Apache/Nginx document root at `public/`. If the repository root is served, web-server rules must block dotfiles, `app`, `system`, `tests`, `writable`, `scripts`, `docs`, `vendor`, `node_modules`, source/config files, dumps, logs, and browser-accessible maintenance scripts.
+### Asset preservation
 
-## Common Verification
+The committed `public/assets/css/tailwind.css` is a verified prebuilt artifact, SHA256 `3a51d2fffb54ae89fbb4188e3b1ddfc2bce09c7e81148adba78ce750b7fd801a`. Keep it unchanged during setup. A routine `npm run build` produces different scanner-derived output and must not overwrite this reviewed asset. For a future authorized CSS change, build to a temporary output, verify all runtime/print consumers, and review the resulting artifact separately. No dependency update is implied by installation from the existing locks.
+
+Prefer an Apache/Nginx document root at `public/`. If the repository root is served, web-server rules must block dotfiles, `app`, `system`, `tests`, `writable`, `scripts`, `docs`, `vendor`, `node_modules`, source/config files, dumps, logs and browser-accessible maintenance scripts.
+
+## Common verification
 
 ```powershell
+composer validate --no-check-publish
+composer check-platform-reqs
 php spark routes
-vendor\bin\phpunit --no-coverage --no-logging --do-not-cache-result
-npm.cmd run build
 bash scripts/ci/saas_guardrails.sh
+git status -sb
 ```
 
-Known local baseline test issues are tracked in `docs/PROJECT_STATE.md`; do not hide new failures behind them.
+These commands check source/platform/routes; they do not certify successful clinical or financial persistence. Run SQL/browser mutation suites only after proving the target is isolated and synthetic. Keep GitHub Actions OFF. See [current state](docs/PROJECT_STATE.md) for measured evidence and genuine remaining limitations.
 
 ## Deployment
 
