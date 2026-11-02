@@ -18,7 +18,7 @@ Last reconciled: 2026-11-02. Historical deployment and development entries remai
 - Superseded PRs #4, #5, #6, #7, #8 and #12 were closed after proving their heads are release ancestors. Obsolete remote branches were removed; three unique historical tips are retained under `archive/cleanup-20261102/*` tags.
 - All 13 obsolete registered worktrees and 14 stale local branches were retired after verified preservation. One authoritative checkout remains. Owner design kits/prompts, runtime dependencies, durable files and the isolated MariaDB data directory remain preserved. Cleanup archives, historical screenshots and Git bundles are outside the source tree under Owner-restricted private storage.
 - The unused Hostinger `.denta-rehearsal` was retired on 2026-11-01 after encrypted off-host preservation. Additional obsolete synthetic staging clones were retired on 2026-11-02. Production checkpoints and current release tools remain available. Do not treat retired test domains as running rehearsals.
-- PR #23 contains only release documentation, exact-line guardrail bookkeeping and removal of an obsolete generated debug diff. It is not merged or deployed; the active local housekeeping branch has the same runtime application code as production.
+- PR #23 is Owner-approved housekeeping: release documentation, exact-line guardrail bookkeeping and removal of an obsolete generated debug diff. Integrating it advances repository documentation only; the installed production application remains at `9e1f8558`. The authoritative local checkout uses `release/production-20261017`; runtime application code matches production.
 
 ## Remaining real limitations
 
