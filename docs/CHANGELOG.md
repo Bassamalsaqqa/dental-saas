@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-02 — Post-release workspace and infrastructure housekeeping
+
+- Reconciled the main local checkout with deployed PR #22, preserving unfinished September source in a named stash, verified private archives and Git bundles. Owner assets and all databases remain preserved.
+- Closed six superseded PRs after ancestry verification; removed 35 obsolete remote branches, preserved three unique tips as archive tags, and selected the deployed release branch as repository default. Historical main is unchanged.
+- Retired obsolete synthetic Hostinger environments after encrypted off-host archive verification; retained production recovery checkpoints, current release tooling and all live customer data/configuration.
+- Reconciled active release documentation and exact-line guardrail references. No runtime code, dependencies, schema, production source or feature switches changed in this housekeeping patch.
+- Dependency audit distinguishes zero Composer/runtime-npm advisories from three moderate npm build-tool findings and outstanding GitHub alert reconciliation. No blanket security-clearance claim.
+
+## 2026-10-30 — PR #22 production release
+
+- Installed `9e1f8558a85b4a8956cd26c1e36b4e6767fb00d7`, tree `f927a6e8f1fea30333388c4ed924e3f446a31561`, following exact-head APPROVED review #5712796846 and Owner authorization.
+- Applied only treatment-storage compatibility and settlement-request identity migrations; preserved original table fingerprints and durable/configuration hashes. Fresh encrypted recovery restore and post-migration journal preservation passed. EN/AR read-only production checks passed; previously disclosed limitations remain in PROJECT_STATE.md.
+
+
 ## 2026-10-28 — Product-wide UX, workflow & theme system campaign (development only)
 
 - Initialized development branch `feature/studio-workflows-themes-20261028` directly from verified deployed release `29dce746c0fc3be436b85a2c1a67fbbb41be3b55` (`release/production-20261017`).

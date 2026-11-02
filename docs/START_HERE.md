@@ -17,12 +17,11 @@ This is the authoritative active document map for Denta+. Read only the document
 | First-party React App API contract | `APP_API_CONTRACT.md`, `refactor/APP_API_ROUTE_INVENTORY.md` |
 | Modernization program & performance roadmap | `refactor/DENTA_PLUS_HARDENING_PERFORMANCE_PROGRAM.md` |
 
-## Active Campaign Overview
+## Current release and maintenance
 
-The active campaign is **Product-Wide UX, Workflow, Responsive Design & Multi-Tenant Theming** on development branch `feature/studio-workflows-themes-20261028`, based on deployed release `29dce746c0fc3be436b85a2c1a67fbbb41be3b55` (`release/production-20261017`).
+PR #22 was deployed on 2026-10-30 at `9e1f8558a85b4a8956cd26c1e36b4e6767fb00d7`. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
 
-- **Boundary:** Development and review only. No live deployment, production migration or customer-data mutation is authorized. Additive theme migration authoring/testing is allowed only in verified disposable development environments.
-- **P0 Focus:** Genuine Super Admin Control Plane entry (`/controlplane/enter`) and persistent responsive impersonation banner/exit (`/controlplane/impersonation/exit`); auth screen fit in `studio_access.php`; production presentation cleanup (remove demo preview badge and fix layout title encoding); safe theme presets (modern/warm optional themes preserving Studio forest/sage default); continuous clinic journey refinements.
+See `PROJECT_STATE.md` for the exact release, two-migration inventory, preservation results, retired rehearsal environments and honest remaining limitations. The earlier UX/theme campaign and its development branches are historical. Optional features remain OFF; cleanup does not authorize another deployment, migration, dependency upgrade or feature activation.
 
 ## Module State
 
